@@ -34,6 +34,13 @@ class DiaPrecursorQValueFilterTiming(StrEnum):
     AFTER_MATRIX_CONSTRUCTION = "after_matrix_construction"
 
 
+class DiaPrecursorExclusionReason(StrEnum):
+    """Governed reasons for excluding precursor observations from matrix cells."""
+
+    DECOY_EXCLUDED = "decoy_excluded"
+    Q_VALUE_THRESHOLD = "q_value_threshold"
+
+
 class DiaPrecursorMatrixPolicy(JsonModel):
     """Owned policy controlling DIA precursor matrix inclusion semantics."""
 
@@ -99,6 +106,26 @@ class DiaPrecursorMetadataEntry(JsonModel):
     detected_sample_count: int = Field(..., ge=0)
 
 
+class DiaPrecursorExclusionEntry(JsonModel):
+    """One excluded precursor observation preserved outside the matrix cells."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_key: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    source_precursor_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    run_name: str = Field(..., min_length=1)
+    target_decoy_label: TargetDecoyLabel
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    reason: DiaPrecursorExclusionReason
+
+
 class DiaPrecursorMatrixSummary(JsonModel):
     """Compact summary over one DIA precursor-by-sample matrix."""
 
@@ -130,6 +157,7 @@ class DiaPrecursorMatrixReport(JsonModel):
     policy: DiaPrecursorMatrixPolicy
     rows: tuple[DiaPrecursorMatrixRow, ...] = Field(default_factory=tuple)
     metadata_entries: tuple[DiaPrecursorMetadataEntry, ...] = Field(default_factory=tuple)
+    excluded_entries: tuple[DiaPrecursorExclusionEntry, ...] = Field(default_factory=tuple)
     summary: DiaPrecursorMatrixSummary
     note: str = Field(..., min_length=1)
 
@@ -157,14 +185,23 @@ def build_dia_precursor_matrix_report(
     excluded_decoy_count = 0
     excluded_q_value_count = 0
     source_observation_count = 0
+    excluded_entries: list[DiaPrecursorExclusionEntry] = []
 
     grouped: dict[str, dict[str, object]] = {}
     for row in rows:
+        precursor_key = _build_precursor_key(row)
         if (
             not active_policy.include_decoys
             and row.target_decoy_label is TargetDecoyLabel.DECOY
         ):
             excluded_decoy_count += 1
+            excluded_entries.append(
+                _build_exclusion_entry(
+                    row,
+                    precursor_key=precursor_key,
+                    reason=DiaPrecursorExclusionReason.DECOY_EXCLUDED,
+                )
+            )
             continue
         source_observation_count += 1
         if (
@@ -174,8 +211,14 @@ def build_dia_precursor_matrix_report(
             and row.q_value > active_policy.max_q_value
         ):
             excluded_q_value_count += 1
+            excluded_entries.append(
+                _build_exclusion_entry(
+                    row,
+                    precursor_key=precursor_key,
+                    reason=DiaPrecursorExclusionReason.Q_VALUE_THRESHOLD,
+                )
+            )
             continue
-        precursor_key = _build_precursor_key(row)
         group = grouped.setdefault(
             precursor_key,
             {
@@ -243,6 +286,16 @@ def build_dia_precursor_matrix_report(
                 excluded_for_sample = len(observations) - len(retained_observations)
                 row_excluded_q_value_observation_count += excluded_for_sample
                 excluded_q_value_count += excluded_for_sample
+                if excluded_for_sample:
+                    excluded_entries.extend(
+                        _build_exclusion_entry(
+                            observation,
+                            precursor_key=precursor_key,
+                            reason=DiaPrecursorExclusionReason.Q_VALUE_THRESHOLD,
+                        )
+                        for observation in observations
+                        if observation.q_value > active_policy.max_q_value
+                    )
             if not retained_observations:
                 missing_cell_count += 1
                 values.append(
@@ -355,6 +408,18 @@ def build_dia_precursor_matrix_report(
         policy=active_policy,
         rows=tuple(matrix_rows),
         metadata_entries=tuple(metadata_entries),
+        excluded_entries=tuple(
+            sorted(
+                excluded_entries,
+                key=lambda entry: (
+                    entry.precursor_key,
+                    entry.sample_id,
+                    entry.run_name,
+                    entry.source_precursor_id,
+                    entry.reason.value,
+                ),
+            )
+        ),
         summary=DiaPrecursorMatrixSummary(
             precursor_row_count=len(matrix_rows),
             sample_count=len(sample_ids),
@@ -584,6 +649,29 @@ def _canonical_peptide(row: DiaNativePrecursorMatrixEntry) -> str:
     return row.canonical_modified_peptide
 
 
+def _build_exclusion_entry(
+    row: DiaNativePrecursorMatrixEntry,
+    *,
+    precursor_key: str,
+    reason: DiaPrecursorExclusionReason,
+) -> DiaPrecursorExclusionEntry:
+    return DiaPrecursorExclusionEntry(
+        precursor_key=precursor_key,
+        peptide_sequence=row.peptide_sequence,
+        modified_peptide=row.modified_peptide,
+        canonical_peptide=_canonical_peptide(row),
+        charge=row.charge,
+        protein_group_id=row.protein_group_id,
+        protein_refs=tuple(sorted(row.protein_refs)),
+        source_precursor_id=row.precursor_id,
+        sample_id=row.sample_name,
+        run_name=row.run_name,
+        target_decoy_label=row.target_decoy_label,
+        q_value=row.q_value,
+        reason=reason,
+    )
+
+
 def _combine_target_decoy_labels(
     labels: set[TargetDecoyLabel],
 ) -> TargetDecoyLabel:
@@ -646,6 +734,8 @@ __all__ = [
     "DiaPrecursorMatrixRow",
     "DiaPrecursorMatrixSummary",
     "DiaPrecursorMatrixValue",
+    "DiaPrecursorExclusionEntry",
+    "DiaPrecursorExclusionReason",
     "DiaPrecursorQValueFilterTiming",
     "build_dia_precursor_matrix_report",
     "build_diann_precursor_matrix_report",
