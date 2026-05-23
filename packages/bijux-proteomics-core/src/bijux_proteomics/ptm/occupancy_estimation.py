@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.ptm.contracts import (
+    PtmOccupancyConfidenceTier,
     PtmOccupancyEntry,
     PtmOccupancyUncertainty,
     PtmSiteEntry,
@@ -39,6 +40,7 @@ class PtmOccupancyCounterpartEvidenceEntry(JsonModel):
     modified_intensity: float = Field(..., ge=0.0)
     unmodified_intensity: float = Field(..., ge=0.0)
     occupancy_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_tier: PtmOccupancyConfidenceTier
     uncertainty: PtmOccupancyUncertainty
     counterpart_status: PtmOccupancyCounterpartStatus
     modified_peptides: tuple[str, ...] = Field(default_factory=tuple)
@@ -56,7 +58,10 @@ class PtmOccupancyCounterpartEvidenceReport(JsonModel):
     entries: tuple[PtmOccupancyCounterpartEvidenceEntry, ...] = Field(
         default_factory=tuple
     )
+    high_confidence_count: int = Field(..., ge=0)
     missing_counterpart_count: int = Field(..., ge=0)
+    missing_unmodified_evidence_count: int = Field(..., ge=0)
+    missing_modified_evidence_count: int = Field(..., ge=0)
     ambiguous_site_count: int = Field(..., ge=0)
 
 
@@ -67,7 +72,10 @@ class PtmSiteOccupancySummary(JsonModel):
 
     entry_count: int = Field(..., ge=0)
     complete_count: int = Field(..., ge=0)
+    high_confidence_count: int = Field(..., ge=0)
     missing_counterpart_count: int = Field(..., ge=0)
+    missing_unmodified_evidence_count: int = Field(..., ge=0)
+    missing_modified_evidence_count: int = Field(..., ge=0)
     ambiguous_site_count: int = Field(..., ge=0)
 
 
@@ -123,16 +131,27 @@ def build_ptm_site_occupancy_report(
             )
             total = numerator + denominator_unmodified
             if entry.ambiguous:
+                confidence_tier = PtmOccupancyConfidenceTier.AMBIGUOUS_SITE
                 uncertainty = PtmOccupancyUncertainty.AMBIGUOUS_SITE
                 note = (
                     "occupancy remains ambiguous because the PTM site mapping is not unique"
                 )
-            elif numerator == 0.0 or denominator_unmodified == 0.0:
+            elif denominator_unmodified == 0.0:
+                confidence_tier = (
+                    PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
+                )
                 uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
                 note = (
-                    "occupancy is missing one counterpart intensity and should be treated cautiously"
+                    "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
+                )
+            elif numerator == 0.0:
+                confidence_tier = PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
+                uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
+                note = (
+                    "modified counterpart evidence is missing, so occupancy should be treated as a lower-confidence proxy"
                 )
             else:
+                confidence_tier = PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
                 uncertainty = PtmOccupancyUncertainty.NONE
                 note = "modified and unmodified counterparts are both observed for this site"
             occupancy_entries.append(
@@ -142,6 +161,7 @@ def build_ptm_site_occupancy_report(
                     modified_intensity=numerator,
                     unmodified_intensity=denominator_unmodified,
                     occupancy_fraction=(numerator / total) if total > 0 else None,
+                    confidence_tier=confidence_tier,
                     uncertainty=uncertainty,
                     note=note,
                     modified_peptides=tuple(
@@ -167,10 +187,27 @@ def build_ptm_site_occupancy_report(
                 for entry in entries
                 if entry.uncertainty is PtmOccupancyUncertainty.NONE
             ),
+            high_confidence_count=sum(
+                1
+                for entry in entries
+                if entry.confidence_tier is PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
+            ),
             missing_counterpart_count=sum(
                 1
                 for entry in entries
                 if entry.uncertainty is PtmOccupancyUncertainty.MISSING_COUNTERPART
+            ),
+            missing_unmodified_evidence_count=sum(
+                1
+                for entry in entries
+                if entry.confidence_tier
+                is PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
+            ),
+            missing_modified_evidence_count=sum(
+                1
+                for entry in entries
+                if entry.confidence_tier
+                is PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
             ),
             ambiguous_site_count=sum(
                 1
@@ -198,14 +235,24 @@ def build_ptm_occupancy_counterpart_report(
     )
     entries: list[PtmOccupancyCounterpartEvidenceEntry] = []
     for occupancy in occupancy_report.entries:
-        if occupancy.uncertainty is PtmOccupancyUncertainty.AMBIGUOUS_SITE:
+        if occupancy.confidence_tier is PtmOccupancyConfidenceTier.AMBIGUOUS_SITE:
             status = PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
             caveat = "site mapping ambiguity limits interpretation of occupancy estimates"
-        elif occupancy.uncertainty is PtmOccupancyUncertainty.MISSING_COUNTERPART:
+        elif (
+            occupancy.confidence_tier
+            is PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
+        ):
             status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
             caveat = (
-                "modified/unmodified counterpart evidence is incomplete, so occupancy "
-                "should be interpreted cautiously"
+                "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
+            )
+        elif (
+            occupancy.confidence_tier
+            is PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
+        ):
+            status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
+            caveat = (
+                "modified counterpart evidence is missing, so occupancy should be interpreted cautiously"
             )
         else:
             status = PtmOccupancyCounterpartStatus.COMPLETE
@@ -217,6 +264,7 @@ def build_ptm_occupancy_counterpart_report(
                 modified_intensity=occupancy.modified_intensity,
                 unmodified_intensity=occupancy.unmodified_intensity,
                 occupancy_fraction=occupancy.occupancy_fraction,
+                confidence_tier=occupancy.confidence_tier,
                 uncertainty=occupancy.uncertainty,
                 counterpart_status=status,
                 modified_peptides=occupancy.modified_peptides,
@@ -228,10 +276,27 @@ def build_ptm_occupancy_counterpart_report(
         )
     return PtmOccupancyCounterpartEvidenceReport(
         entries=tuple(entries),
+        high_confidence_count=sum(
+            1
+            for entry in entries
+            if entry.confidence_tier is PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
+        ),
         missing_counterpart_count=sum(
             1
             for entry in entries
             if entry.counterpart_status is PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
+        ),
+        missing_unmodified_evidence_count=sum(
+            1
+            for entry in entries
+            if entry.confidence_tier
+            is PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
+        ),
+        missing_modified_evidence_count=sum(
+            1
+            for entry in entries
+            if entry.confidence_tier
+            is PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
         ),
         ambiguous_site_count=sum(
             1
@@ -250,7 +315,10 @@ def render_ptm_site_occupancy_summary_tsv(report: PtmSiteOccupancyReport) -> str
         [
             "entry_count",
             "complete_count",
+            "high_confidence_count",
             "missing_counterpart_count",
+            "missing_unmodified_evidence_count",
+            "missing_modified_evidence_count",
             "ambiguous_site_count",
         ]
     )
@@ -258,7 +326,10 @@ def render_ptm_site_occupancy_summary_tsv(report: PtmSiteOccupancyReport) -> str
         [
             report.summary.entry_count,
             report.summary.complete_count,
+            report.summary.high_confidence_count,
             report.summary.missing_counterpart_count,
+            report.summary.missing_unmodified_evidence_count,
+            report.summary.missing_modified_evidence_count,
             report.summary.ambiguous_site_count,
         ]
     )
@@ -277,6 +348,7 @@ def render_ptm_site_occupancy_entry_tsv(report: PtmSiteOccupancyReport) -> str:
             "modified_intensity",
             "unmodified_intensity",
             "occupancy_fraction",
+            "confidence_tier",
             "uncertainty",
             "modified_peptides",
             "unmodified_peptides",
@@ -293,6 +365,7 @@ def render_ptm_site_occupancy_entry_tsv(report: PtmSiteOccupancyReport) -> str:
                 entry.modified_intensity,
                 entry.unmodified_intensity,
                 "" if entry.occupancy_fraction is None else entry.occupancy_fraction,
+                entry.confidence_tier.value,
                 entry.uncertainty.value,
                 ";".join(entry.modified_peptides),
                 ";".join(entry.unmodified_peptides),
@@ -318,6 +391,7 @@ def render_ptm_occupancy_counterpart_tsv(
             "modified_intensity",
             "unmodified_intensity",
             "occupancy_fraction",
+            "confidence_tier",
             "uncertainty",
             "counterpart_status",
             "modified_peptides",
@@ -335,6 +409,7 @@ def render_ptm_occupancy_counterpart_tsv(
                 entry.modified_intensity,
                 entry.unmodified_intensity,
                 "" if entry.occupancy_fraction is None else entry.occupancy_fraction,
+                entry.confidence_tier.value,
                 entry.uncertainty.value,
                 entry.counterpart_status.value,
                 ";".join(entry.modified_peptides),

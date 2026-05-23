@@ -339,6 +339,15 @@ class PtmOccupancyUncertainty(StrEnum):
     AMBIGUOUS_SITE = "ambiguous_site"
 
 
+class PtmOccupancyConfidenceTier(StrEnum):
+    """Confidence tier for one PTM occupancy proxy estimate."""
+
+    HIGH_CONFIDENCE = "high_confidence"
+    MISSING_UNMODIFIED_EVIDENCE = "missing_unmodified_evidence"
+    MISSING_MODIFIED_EVIDENCE = "missing_modified_evidence"
+    AMBIGUOUS_SITE = "ambiguous_site"
+
+
 class PtmOccupancyEntry(JsonModel):
     """One site occupancy estimate for one sample."""
 
@@ -349,6 +358,9 @@ class PtmOccupancyEntry(JsonModel):
     modified_intensity: float = Field(..., ge=0.0)
     unmodified_intensity: float = Field(..., ge=0.0)
     occupancy_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_tier: PtmOccupancyConfidenceTier = (
+        PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
+    )
     uncertainty: PtmOccupancyUncertainty = PtmOccupancyUncertainty.NONE
     modified_peptides: tuple[str, ...] = Field(default_factory=tuple)
     unmodified_peptides: tuple[str, ...] = Field(default_factory=tuple)
