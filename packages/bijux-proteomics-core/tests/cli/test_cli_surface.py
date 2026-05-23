@@ -8272,11 +8272,19 @@ def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
             payload["localization_scoring"]["entries"][0]["probability_source"]
             == "reported_probability"
         )
+        assert (
+            payload["localization_scoring"]["entries"][0]["localization_tier"]
+            == "high_confidence"
+        )
         assert "reported_probability" in Path(
             "ptm.localization.entries.tsv"
         ).read_text()
+        assert "localization_tier" in Path(
+            "ptm.localization.entries.tsv"
+        ).read_text().splitlines()[0]
         assert Path("ptm.localization.summary.tsv").read_text().splitlines()[0] == (
             "entry_count\tambiguous_entry_count\tconfident_entry_count\t"
+            "high_confidence_entry_count\tsupported_entry_count\trefused_entry_count\t"
             "multi_phosphorylated_entry_count\tfragment_supported_entry_count"
         )
 
