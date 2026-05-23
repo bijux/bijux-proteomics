@@ -155,6 +155,14 @@ def test_maxquant_biological_report_command_routes_through_core_workflow_orchest
             str(maxquant_dir / "proteinGroups.txt"),
             str(maxquant_dir / "design.tsv"),
             str(_workflow_fixture("biological_report_reference.fasta")),
+            "--annotation-tsv",
+            str(
+                _fixture_root()
+                / "interpretation"
+                / "protein_annotation_custom.tsv"
+            ),
+            "--context-annotation-tsv",
+            str(_workflow_fixture("biological_report_context.tsv")),
             "--output-dir",
             str(tmp_path / "maxquant"),
         ],
@@ -163,6 +171,14 @@ def test_maxquant_biological_report_command_routes_through_core_workflow_orchest
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
     assert isinstance(captured["config"], MaxquantWorkflowConfig)
+    assert (
+        captured["config"].annotation_tsv_path
+        == _fixture_root() / "interpretation" / "protein_annotation_custom.tsv"
+    )
+    assert (
+        captured["config"].context_annotation_tsv_path
+        == _workflow_fixture("biological_report_context.tsv")
+    )
 
 
 def test_tmt_report_command_routes_through_core_workflow_orchestrator(

@@ -6026,6 +6026,14 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
             "biological_report_reference.fasta",
         )
         shutil.copy(
+            FIXTURE_ROOT / "interpretation" / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_context.tsv",
+            "biological_report_context.tsv",
+        )
+        shutil.copy(
             workflow_dir / "biological_report_go.tsv",
             "biological_report_go.tsv",
         )
@@ -6049,6 +6057,10 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
                 "biological_report_reference.fasta",
                 "--config-path",
                 "maxquant_settings.txt",
+                "--annotation-tsv",
+                "protein_annotation_custom.tsv",
+                "--context-annotation-tsv",
+                "biological_report_context.tsv",
                 "--go-annotation-tsv",
                 "biological_report_go.tsv",
                 "--pathway-membership-tsv",
@@ -6069,15 +6081,21 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
         assert payload["design_rows"] == 6
         assert payload["report"]["summary"]["accepted_protein_group_count"] == 5
         assert payload["report"]["summary"]["filtered_protein_group_count"] == 3
+        assert payload["report"]["summary"]["enrichment_foreground_protein_count"] == 3
         assert payload["report"]["summary"]["quantified_protein_count"] == 5
+        assert payload["report"]["summary"]["protein_card_count"] == 5
+        assert payload["report"]["summary"]["context_term_count"] == 3
         assert payload["report"]["summary"]["go_enriched_term_count"] == 1
         report_dir = Path("maxquant_biological_report")
         assert (report_dir / "maxquant_biological_report_manifest.json").exists()
         assert (report_dir / "maxquant_import_summary.tsv").exists()
         assert (report_dir / "maxquant_accepted_protein_groups.tsv").exists()
         assert (report_dir / "maxquant_filtered_protein_groups.tsv").exists()
+        assert (report_dir / "maxquant_biological_foreground.tsv").exists()
         assert (report_dir / "maxquant_lfq_matrix.tsv").exists()
         assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_protein_cards.tsv").exists()
+        assert (report_dir / "biological_context_mappings.tsv").exists()
         assert (report_dir / "biological_report.html").exists()
         assert "accepted_evidence_count" in (
             report_dir / "maxquant_import_summary.tsv"
@@ -6085,8 +6103,20 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
         assert "filter_reasons" in (
             report_dir / "maxquant_filtered_protein_groups.tsv"
         ).read_text(encoding="utf-8")
+        assert "card_id" in (
+            report_dir / "maxquant_biological_foreground.tsv"
+        ).read_text(encoding="utf-8")
+        assert "\ttrue\t" not in (
+            report_dir / "maxquant_biological_foreground.tsv"
+        ).read_text(encoding="utf-8")
         assert "entity_id\tprotein_refs\tmember_peptides" in (
             report_dir / "maxquant_lfq_matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "card_id" in (
+            report_dir / "biological_protein_cards.tsv"
+        ).read_text(encoding="utf-8")
+        assert "context_kind" in (
+            report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
 
 
