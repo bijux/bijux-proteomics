@@ -37,10 +37,10 @@ from bijux_proteomics.interpretation import (
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
-    render_mapped_protein_annotation_tsv,
     render_pathway_enrichment_entry_tsv,
     render_pathway_enrichment_summary_tsv,
     render_pathway_unresolved_member_tsv,
+    render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
     render_unmapped_protein_annotation_tsv,
 )
@@ -146,7 +146,7 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     differential_tsv: str = Field(..., min_length=1)
     annotation_summary_tsv: str = Field(..., min_length=1)
-    annotation_mapped_tsv: str = Field(..., min_length=1)
+    annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
     volcano_tsv: str = Field(..., min_length=1)
     volcano_json: str = Field(..., min_length=1)
@@ -419,7 +419,7 @@ def build_biological_result_report_bundle_from_quant_table(
             protein_count=len(normalized_table.entity_ids),
             significant_protein_count=significant_protein_count,
             sample_count=len(normalized_table.sample_ids),
-            annotation_entry_count=len(annotation_report.mapped_entries),
+            annotation_entry_count=len(annotation_report.result_entries),
             annotation_unmapped_count=len(annotation_report.unmapped_entries),
             go_enriched_term_count=(
                 0
@@ -607,7 +607,7 @@ def export_biological_result_report_bundle(
     summary_name = "biological_report_summary.tsv"
     differential_name = "biological_differential.tsv"
     annotation_summary_name = "biological_annotation_summary.tsv"
-    annotation_mapped_name = "biological_annotations.tsv"
+    annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
     volcano_tsv_name = "biological_volcano.tsv"
     volcano_json_name = "biological_volcano.json"
@@ -636,8 +636,8 @@ def export_biological_result_report_bundle(
         render_protein_annotation_summary_tsv(report.annotation_report),
         encoding="utf-8",
     )
-    (output_dir / annotation_mapped_name).write_text(
-        render_mapped_protein_annotation_tsv(report.annotation_report),
+    (output_dir / annotation_name).write_text(
+        render_protein_annotation_tsv(report.annotation_report),
         encoding="utf-8",
     )
     (output_dir / annotation_unmapped_name).write_text(
@@ -743,7 +743,7 @@ def export_biological_result_report_bundle(
         summary_tsv=summary_name,
         differential_tsv=differential_name,
         annotation_summary_tsv=annotation_summary_name,
-        annotation_mapped_tsv=annotation_mapped_name,
+        annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
         volcano_tsv=volcano_tsv_name,
         volcano_json=volcano_json_name,
@@ -792,7 +792,7 @@ def _render_biological_result_report_html(
     sections = [
         ("Differential proteins", artifacts.differential_tsv),
         ("Annotation summary", artifacts.annotation_summary_tsv),
-        ("Mapped annotations", artifacts.annotation_mapped_tsv),
+        ("Annotated proteins", artifacts.annotation_tsv),
         ("Unmapped annotations", artifacts.annotation_unmapped_tsv),
         ("Volcano TSV", artifacts.volcano_tsv),
         ("Volcano JSON", artifacts.volcano_json),
