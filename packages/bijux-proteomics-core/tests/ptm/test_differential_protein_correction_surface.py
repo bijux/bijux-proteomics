@@ -167,3 +167,32 @@ def test_ptm_differential_analysis_blocks_broken_pairs_before_statistics() -> No
         assert "broken_pair" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected broken PTM pairs to be rejected")
+
+
+def test_ptm_differential_analysis_uses_paired_test_for_paired_designs() -> None:
+    evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_fixture_path("ptm_features.tsv"))
+    site_quantification = build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
+    paired_design = tuple(
+        entry.model_copy(update={"pair_id": f"pair-{entry.replicate}"})
+        for entry in design.accepted_entries
+    )
+
+    report = build_ptm_differential_analysis_report(
+        site_quantification,
+        paired_design,
+        normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
+        feature_records=features.accepted_records,
+    )
+
+    assert report.differential_report.test_type.value == "paired_t_test"

@@ -267,6 +267,28 @@ def test_time_course_differential_requires_explicit_order_for_unordered_labels()
         raise AssertionError("expected unordered timepoint labels to be rejected")
 
 
+def test_time_course_differential_blocks_non_longitudinal_designs() -> None:
+    non_longitudinal_design = tuple(
+        entry.model_copy(update={"metadata": {}})
+        for entry in _design_entries(labels=("0", "1"))
+    )
+
+    try:
+        build_time_course_differential_report(
+            build_label_free_intensity_table(
+                _records(),
+                entity_level=QuantEntityLevel.PEPTIDE,
+                aggregation_method=QuantRollupMethod.SUM,
+            ),
+            non_longitudinal_design,
+        )
+    except ValueError as exc:
+        assert "two_group" in str(exc)
+        assert "pairwise_differential" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected non-longitudinal design to be rejected")
+
+
 def test_time_course_differential_accepts_explicit_order_and_exports_tsv(
     tmp_path: Path,
 ) -> None:

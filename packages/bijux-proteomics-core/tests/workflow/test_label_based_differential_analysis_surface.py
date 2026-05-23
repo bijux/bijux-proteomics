@@ -95,3 +95,40 @@ def test_build_label_based_differential_analysis_report_blocks_missing_plex_chan
         assert "missing_multiplex_channels" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected missing plex channels to be rejected")
+
+
+def test_build_label_based_differential_analysis_report_blocks_longitudinal_designs() -> (
+    None
+):
+    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+    valid_entries = tuple(design_report.accepted_entries)
+    input_report = build_tmt_differential_input_report(
+        _multiplex_fixture("maxquant_tmt_evidence.tsv"),
+        valid_entries,
+    )
+    longitudinal_design = build_experiment_design(
+        tuple(
+            entry.model_copy(
+                update={
+                    "metadata": {
+                        **entry.metadata,
+                        "timepoint": (
+                            "T0" if entry.multiplex_group == "plex-a" else "T1"
+                        ),
+                    }
+                }
+            )
+            for entry in valid_entries
+        )
+    )
+
+    try:
+        build_label_based_differential_analysis_report(
+            input_report,
+            longitudinal_design,
+        )
+    except ValueError as exc:
+        assert "longitudinal" in str(exc)
+        assert "time_course_differential" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected longitudinal labeled design to be rejected")

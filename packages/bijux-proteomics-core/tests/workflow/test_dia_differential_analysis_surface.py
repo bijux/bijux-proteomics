@@ -179,3 +179,28 @@ def test_build_diann_differential_analysis_report_blocks_invalid_contrasts() -> 
         assert "invalid_contrast_unknown_condition" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected invalid contrast to be rejected")
+
+
+def test_build_diann_differential_analysis_report_blocks_paired_design_methods() -> (
+    None
+):
+    design_report = parse_experimental_design_table(
+        _format_fixture("diann_differential.design.tsv")
+    )
+    paired_design = build_experiment_design(
+        tuple(
+            entry.model_copy(update={"pair_id": f"pair-{entry.replicate}"})
+            for entry in design_report.accepted_entries
+        )
+    )
+
+    try:
+        build_diann_differential_analysis_report(
+            _diann_fixture("diann_differential_report.tsv"),
+            paired_design,
+        )
+    except ValueError as exc:
+        assert "paired" in str(exc)
+        assert "paired_differential" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected paired DIA design to be rejected")

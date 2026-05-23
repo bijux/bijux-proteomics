@@ -76,3 +76,29 @@ def test_build_maxquant_benchmark_report_blocks_invalid_contrasts() -> None:
         assert "invalid_contrast_unknown_condition" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected invalid benchmark contrast to be rejected")
+
+
+def test_build_maxquant_benchmark_report_blocks_paired_design_methods() -> None:
+    design_report = parse_experimental_design_table(_bundle_fixture("design.tsv"))
+    paired_design = build_experiment_design(
+        tuple(
+            entry.model_copy(update={"pair_id": f"pair-{entry.replicate}"})
+            for entry in design_report.accepted_entries
+        )
+    )
+
+    try:
+        build_maxquant_benchmark_report(
+            _bundle_fixture("evidence.txt"),
+            peptides_txt_path=_bundle_fixture("peptides.txt"),
+            protein_groups_txt_path=_bundle_fixture("proteinGroups.txt"),
+            config_path=_bundle_fixture("maxquant_settings.txt"),
+            design_entries=paired_design,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    except ValueError as exc:
+        assert "paired" in str(exc)
+        assert "paired_differential" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected paired benchmark design to be rejected")
