@@ -43,7 +43,11 @@ def test_run_proteomics_workflow_exports_label_free_bundle_assets(
     assert result.mode is WorkflowMode.LABEL_FREE
     assert result.export_manifest is not None
     assert (tmp_path / "biological_report" / "biological_report_manifest.json").exists()
-    assert (tmp_path / "biological_report" / "final_proteins.tsv").exists()
+    assert (
+        tmp_path
+        / "biological_report"
+        / result.export_manifest.artifacts.protein_card_tsv
+    ).exists()
     assert result.outputs["manifest_json"].endswith("biological_report_manifest.json")
 
 
