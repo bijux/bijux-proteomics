@@ -68,3 +68,14 @@ def test_ptm_localization_scoring_supports_multi_phosphorylated_peptides() -> No
     assert len(report.entries) == 2
     assert all(entry.multi_phosphorylated is True for entry in report.entries)
     assert all(entry.site_determining_ions for entry in report.entries)
+
+
+def test_ptm_localization_scoring_preserves_separate_entries_for_parsed_multi_sites() -> None:
+    from bijux_proteomics.ptm import parse_ptm_localization_tsv
+
+    parsed = parse_ptm_localization_tsv(_fixture_path("multi_localization_results.tsv"))
+    report = build_ptm_localization_scoring_report(parsed.accepted_records)
+
+    assert len(report.entries) == 2
+    assert [entry.peptide_site_index for entry in report.entries] == [2, 4]
+    assert all(entry.multi_phosphorylated is True for entry in report.entries)

@@ -69,6 +69,26 @@ def test_ptm_localization_parser_preserves_reported_probability() -> None:
     assert report.accepted_records[1].localization_probability == 0.61
 
 
+def test_ptm_localization_parser_keeps_multiple_modifications_as_separate_site_candidates() -> None:
+    report = parse_ptm_localization_tsv(
+        _ptm_fixture("multi_localization_results.tsv")
+    )
+
+    assert report.total_rows == 1
+    assert len(report.accepted_records) == 1
+    record = report.accepted_records[0]
+
+    assert record.modification_names == ("Phospho", "Phospho")
+    assert tuple(
+        (site.modification_name, site.residue, site.peptide_site_index)
+        for site in record.site_candidates
+    ) == (
+        ("Phospho", "S", 2),
+        ("Phospho", "Y", 4),
+    )
+    assert all(site.candidate_site_indices for site in record.site_candidates)
+
+
 def test_ptm_localization_parser_rejects_malformed_rows() -> None:
     report = parse_ptm_localization_tsv(
         _ptm_fixture("malformed_localization_results.tsv")
@@ -135,6 +155,24 @@ def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
         protein_sequences=_protein_sequences(),
     )
     assert validation.valid is True
+
+
+def test_ptm_site_mapping_keeps_multi_modified_candidates_separate() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("multi_localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+
+    assert {
+        (mapping.protein_ref, mapping.peptide_site_index, mapping.protein_position)
+        for mapping in mappings
+    } == {
+        ("P11111", 2, 17),
+        ("P11111", 4, 19),
+        ("P22222", 2, 4),
+        ("P22222", 4, 6),
+    }
 
 
 def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:

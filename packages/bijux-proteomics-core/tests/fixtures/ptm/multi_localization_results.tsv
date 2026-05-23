@@ -1,0 +1,2 @@
+sample_id	spectrum_id	peptide	charge	score	q_value	proteins	localization_score	candidate_sites	decoy_label
+C1	scan=ptm-multi-001	AS[Phospho]TY[Phospho]K	2	99.0	0.010	P11111;P22222	0.880	2;3;4	target
