@@ -1,0 +1,6 @@
+run_id	spectrum_id	peptide	charge	score	intensity	q_value	proteins
+run-a	scan=3001	KERATINP	2	65.0	800.0	0.004	CON__K1C10_HUMAN
+run-a	scan=3002	TRYPSINP	2	62.0	200.0	0.006	CON__TRYP_PIG;P12345
+run-a	scan=3003	TARGETP	2	58.0	1000.0	0.010	P12345
+run-b	scan=3004	TARGETQ	2	57.0	900.0	0.008	P22222
+run-b	scan=3005	CONTAMLOW	2	45.0	50.0	0.020	CON__K1C10_HUMAN
