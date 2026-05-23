@@ -251,6 +251,93 @@ def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers
         ] == "row_number\tvalues\treason"
 
 
+def test_protein_set_enrichment_command_requires_explicit_background_by_default() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "protein_set_enrichment_foreground.tsv",
+            "protein_set_enrichment_foreground.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_set_enrichment.tsv",
+            "protein_set_enrichment.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "protein-set-enrichment",
+                "protein_set_enrichment_foreground.tsv",
+                "protein_set_enrichment.tsv",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert (
+            "explicit background protein set is required unless "
+            "missing_background_policy is membership_universe"
+        ) in result.output
+
+
+def test_protein_set_enrichment_command_emits_result_and_universe_gap_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "protein_set_enrichment_foreground.tsv",
+            "protein_set_enrichment_foreground.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_set_enrichment.tsv",
+            "protein_set_enrichment.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "protein-set-enrichment",
+                "protein_set_enrichment_foreground.tsv",
+                "protein_set_enrichment.tsv",
+                "--missing-background-policy",
+                "membership_universe",
+                "--max-adjusted-p-value",
+                "1.0",
+                "--min-enrichment-ratio",
+                "0.0",
+                "--summary-tsv-out",
+                "protein_set_enrichment.summary.tsv",
+                "--result-tsv-out",
+                "protein_set_enrichment.result.tsv",
+                "--universe-gap-tsv-out",
+                "protein_set_enrichment.universe_gap.tsv",
+                "--rejected-set-tsv-out",
+                "protein_set_enrichment.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["background_source"] == "membership_universe"
+        assert payload["report"]["summary"]["foreground_universe_gap_count"] == 1
+        assert payload["outputs"]["result_tsv"] == "protein_set_enrichment.result.tsv"
+        assert Path(
+            "protein_set_enrichment.summary.tsv"
+        ).read_text().splitlines()[0].startswith("foreground_size\tbackground_size")
+        assert "set_id\tset_name\tset_category\tsource_name\tsource_accession" in Path(
+            "protein_set_enrichment.result.tsv"
+        ).read_text()
+        assert "foreground\tP999\tprotein was not present in the membership universe" in (
+            Path("protein_set_enrichment.universe_gap.tsv").read_text()
+        )
+        assert (
+            Path("protein_set_enrichment.rejected.tsv").read_text().splitlines()[0]
+            == "row_number\tvalues\treason"
+        )
+
+
 def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
