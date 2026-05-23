@@ -5,9 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.dia import build_diann_protein_matrix_report
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialSourceKind,
+    build_dia_protein_matrix_differential_analysis_report,
     build_diann_differential_analysis_report,
     build_diann_differential_input_report,
     build_spectronaut_differential_analysis_report,
@@ -77,6 +79,13 @@ def test_build_diann_differential_analysis_report_preserves_normalization_and_fd
     assert report.design_matrix.sample_count == 4
     assert report.design_matrix.column_count >= 3
     assert report.design_model_fit.fitted_entity_count == 3
+    assert report.qc_summary.source_kind is DiaDifferentialSourceKind.DIANN
+    assert report.qc_summary.normalization_method.value == "median"
+    assert report.qc_summary.entity_count == 3
+    assert report.qc_summary.sample_count == 4
+    assert report.qc_summary.contrast_count == 1
+    assert report.qc_summary.differential_entry_count == 3
+    assert report.qc_summary.significant_entry_count == 2
     assert report.differential_abundance_report is not None
     assert report.differential_abundance_multi_condition_report is None
     differential = report.differential_abundance_report
@@ -91,7 +100,29 @@ def test_build_diann_differential_analysis_report_preserves_normalization_and_fd
     assert pg2.log2_fold_change < -1.4
     assert pg2.adjusted_p_value is not None
     assert pg3.adjusted_p_value == 1.0
-    assert "benjamini-hochberg-corrected differential results" in report.note
+    assert "qc summary counts" in report.note
+
+
+def test_build_dia_protein_matrix_differential_analysis_report_runs_from_core_api() -> None:
+    design_report = parse_experimental_design_table(
+        _format_fixture("diann_differential.design.tsv")
+    )
+    protein_matrix = build_diann_protein_matrix_report(
+        _diann_fixture("diann_differential_report.tsv")
+    )
+
+    report = build_dia_protein_matrix_differential_analysis_report(
+        protein_matrix,
+        design_report.accepted_entries,
+        source_kind=DiaDifferentialSourceKind.DIANN,
+    )
+
+    assert report.input_report.source_kind is DiaDifferentialSourceKind.DIANN
+    assert report.input_report.table.entity_ids == ("PG001", "PG002", "PG003")
+    assert report.qc_summary.entity_count == 3
+    assert report.qc_summary.sample_count == 4
+    assert report.qc_summary.fitted_entity_count == 3
+    assert report.qc_summary.significant_entry_count == 2
 
 
 def test_build_spectronaut_differential_analysis_report_preserves_the_same_result_shape() -> None:
@@ -108,8 +139,15 @@ def test_build_spectronaut_differential_analysis_report_preserves_the_same_resul
     assert report.input_report.source_kind is DiaDifferentialSourceKind.SPECTRONAUT
     assert report.input_report.source_name == "Spectronaut"
     assert report.input_report.matrix_summary.entity_count == 3
+    assert report.input_report.table.entity_member_peptides["PG002"] == (
+        "ACDM[Oxidation]K",
+    )
     assert report.normalized_table.sample_ids == ("C1", "C2", "T1", "T2")
     assert report.design_model_fit.fitted_entity_count == 3
+    assert report.qc_summary.source_kind is DiaDifferentialSourceKind.SPECTRONAUT
+    assert report.qc_summary.contrast_count == 1
+    assert report.qc_summary.differential_entry_count == 3
+    assert report.qc_summary.significant_entry_count == 2
     assert report.differential_abundance_report is not None
     differential = report.differential_abundance_report
     assert differential.entries[0].entity_id == "PG001"
