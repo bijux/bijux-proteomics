@@ -1,0 +1,7 @@
+target_id	precursor_mz	rt_start_seconds	rt_end_seconds	precursor_id	fragment_id	peptide_ref
+alpha_y7	300.0	10	50	prec_alpha	alpha_y7	PEPA
+alpha_y8	310.0	10	50	prec_alpha	alpha_y8	PEPA
+alpha_b4	320.0	10	50	prec_alpha	alpha_b4	PEPA
+beta_y7	400.0	10	50	prec_beta	beta_y7	PEPB
+beta_y8	410.0	10	50	prec_beta	beta_y8	PEPB
+beta_b4	430.0	10	50	prec_beta	beta_b4	PEPB
