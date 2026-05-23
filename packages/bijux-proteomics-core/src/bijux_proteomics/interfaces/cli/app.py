@@ -221,6 +221,8 @@ from bijux_proteomics.dia import (
     build_diann_library_coverage_report,
     build_diann_peptide_matrix_report,
     build_diann_precursor_matrix_report,
+    build_spectronaut_peptide_matrix_report,
+    build_spectronaut_protein_matrix_report,
     build_diann_run_qc_report,
     build_spectronaut_precursor_matrix_report,
     render_dia_library_coverage_condition_tsv,
@@ -229,6 +231,7 @@ from bijux_proteomics.dia import (
     render_dia_library_coverage_sample_tsv,
     render_dia_library_coverage_summary_tsv,
     render_dia_peptide_quantity_matrix_tsv,
+    render_dia_protein_rollup_evidence_tsv,
     render_dia_run_qc_correlation_tsv,
     render_dia_run_qc_intensity_distribution_tsv,
     render_dia_run_qc_outlier_tsv,
@@ -3082,6 +3085,10 @@ def spectronaut_precursor_matrix_command(
 @click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--rollup-evidence-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -3099,6 +3106,7 @@ def diann_protein_matrix_command(
     summary_tsv_out: Path | None,
     peptide_tsv_out: Path | None,
     protein_tsv_out: Path | None,
+    rollup_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Build DIA peptide and protein matrices from one DIA-NN report."""
@@ -3134,6 +3142,11 @@ def diann_protein_matrix_command(
             protein_tsv_out,
             render_dia_protein_quantity_matrix_tsv(protein_report),
         )
+    if rollup_evidence_tsv_out is not None:
+        _write_text_output(
+            rollup_evidence_tsv_out,
+            render_dia_protein_rollup_evidence_tsv(protein_report),
+        )
 
     payload = {
         "source_name": protein_report.source_name,
@@ -3146,10 +3159,157 @@ def diann_protein_matrix_command(
         "protein_summary": protein_report.summary.to_dict(),
         "peptide_rows": [row.to_dict() for row in peptide_report.rows],
         "protein_rows": [row.to_dict() for row in protein_report.rows],
+        "rollup_evidence_entries": [
+            entry.to_dict() for entry in protein_report.rollup_evidence_entries
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+            "rollup_evidence_tsv": (
+                None
+                if rollup_evidence_tsv_out is None
+                else str(rollup_evidence_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectronaut-protein-matrix")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-decoys/--exclude-decoys",
+    default=False,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=None)
+@click.option(
+    "--peptide-rollup",
+    type=click.Choice([method.value for method in DiaPeptideRollupMethod]),
+    default=DiaPeptideRollupMethod.MAX.value,
+    show_default=True,
+)
+@click.option(
+    "--target-kind",
+    type=click.Choice([kind.value for kind in DiaProteinMatrixTargetKind]),
+    default=DiaProteinMatrixTargetKind.PROTEIN_GROUP.value,
+    show_default=True,
+)
+@click.option(
+    "--shared-peptides",
+    type=click.Choice([policy.value for policy in DiaSharedPeptidePolicy]),
+    default=DiaSharedPeptidePolicy.INCLUDE.value,
+    show_default=True,
+)
+@click.option(
+    "--protein-rollup",
+    type=click.Choice([method.value for method in DiaProteinRollupMethod]),
+    default=DiaProteinRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--rollup-evidence-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def spectronaut_protein_matrix_command(
+    result_tsv: Path,
+    config_path: Path | None,
+    include_decoys: bool,
+    max_q_value: float | None,
+    peptide_rollup: str,
+    target_kind: str,
+    shared_peptides: str,
+    protein_rollup: str,
+    summary_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    rollup_evidence_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build DIA peptide and protein matrices from one Spectronaut report."""
+    try:
+        peptide_report = build_spectronaut_peptide_matrix_report(
+            result_tsv,
+            config_path=config_path,
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+            rollup_method=DiaPeptideRollupMethod(peptide_rollup),
+        )
+        protein_report = build_spectronaut_protein_matrix_report(
+            result_tsv,
+            config_path=config_path,
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+            peptide_rollup_method=DiaPeptideRollupMethod(peptide_rollup),
+            target_kind=DiaProteinMatrixTargetKind(target_kind),
+            shared_peptide_policy=DiaSharedPeptidePolicy(shared_peptides),
+            protein_rollup_method=DiaProteinRollupMethod(protein_rollup),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_dia_protein_matrix_summary_tsv(protein_report),
+        )
+    if peptide_tsv_out is not None:
+        _write_text_output(
+            peptide_tsv_out,
+            render_dia_peptide_quantity_matrix_tsv(peptide_report),
+        )
+    if protein_tsv_out is not None:
+        _write_text_output(
+            protein_tsv_out,
+            render_dia_protein_quantity_matrix_tsv(protein_report),
+        )
+    if rollup_evidence_tsv_out is not None:
+        _write_text_output(
+            rollup_evidence_tsv_out,
+            render_dia_protein_rollup_evidence_tsv(protein_report),
+        )
+
+    payload = {
+        "source_name": protein_report.source_name,
+        "sample_ids": list(protein_report.sample_ids),
+        "peptide_rollup_method": peptide_report.rollup_method.value,
+        "target_kind": protein_report.target_kind.value,
+        "shared_peptide_policy": protein_report.shared_peptide_policy.value,
+        "protein_rollup_method": protein_report.rollup_method.value,
+        "peptide_summary": peptide_report.summary.to_dict(),
+        "protein_summary": protein_report.summary.to_dict(),
+        "peptide_rows": [row.to_dict() for row in peptide_report.rows],
+        "protein_rows": [row.to_dict() for row in protein_report.rows],
+        "rollup_evidence_entries": [
+            entry.to_dict() for entry in protein_report.rollup_evidence_entries
+        ],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+            "rollup_evidence_tsv": (
+                None
+                if rollup_evidence_tsv_out is None
+                else str(rollup_evidence_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
