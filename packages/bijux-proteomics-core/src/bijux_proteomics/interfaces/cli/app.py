@@ -269,9 +269,13 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    extract_mzml_precursor_isotope_fit,
     extract_mzml_raw_signal_evidence_cards,
     render_chimeric_spectrum_competing_evidence_tsv,
     render_chimeric_spectrum_spectra_tsv,
+    render_precursor_isotope_fit_entries_tsv,
+    render_precursor_isotope_fit_peaks_tsv,
+    render_precursor_isotope_fit_summary_tsv,
     render_raw_signal_evidence_card_summary_tsv,
     render_raw_signal_evidence_card_tsv,
     render_raw_signal_evidence_cards_html,
@@ -12561,6 +12565,100 @@ def raw_signal_evidence_card_command(
                 ),
                 "card_tsv": None if card_tsv_out is None else str(card_tsv_out),
                 "html": None if html_out is None else str(html_out),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("precursor-isotope-fit")
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "input_mzml",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--extraction-tolerance-da", type=float, default=None)
+@click.option("--extraction-tolerance-ppm", type=float, default=None)
+@click.option("--fit-tolerance-da", type=float, default=None)
+@click.option("--fit-tolerance-ppm", type=float, default=None)
+@click.option("--max-isotope-index", type=int, default=2, show_default=True)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--entry-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--peak-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON precursor isotope-fit output path.",
+)
+def precursor_isotope_fit_command(
+    target_table: Path,
+    input_mzml: tuple[Path, ...],
+    extraction_tolerance_da: float | None,
+    extraction_tolerance_ppm: float | None,
+    fit_tolerance_da: float | None,
+    fit_tolerance_ppm: float | None,
+    max_isotope_index: int,
+    summary_tsv_out: Path | None,
+    entry_tsv_out: Path | None,
+    peak_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare predicted precursor isotope envelopes against observed MS1 peaks."""
+    try:
+        report = extract_mzml_precursor_isotope_fit(
+            input_mzml,
+            target_table,
+            extraction_tolerance_da=extraction_tolerance_da,
+            extraction_tolerance_ppm=extraction_tolerance_ppm,
+            fit_tolerance_da=fit_tolerance_da,
+            fit_tolerance_ppm=fit_tolerance_ppm,
+            max_isotope_index=max_isotope_index,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_precursor_isotope_fit_summary_tsv(report),
+        )
+    if entry_tsv_out is not None:
+        _write_text_output(
+            entry_tsv_out,
+            render_precursor_isotope_fit_entries_tsv(report),
+        )
+    if peak_tsv_out is not None:
+        _write_text_output(
+            peak_tsv_out,
+            render_precursor_isotope_fit_peaks_tsv(report),
+        )
+
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "outputs": {
+                "summary_tsv": (
+                    None if summary_tsv_out is None else str(summary_tsv_out)
+                ),
+                "entry_tsv": None if entry_tsv_out is None else str(entry_tsv_out),
+                "peak_tsv": None if peak_tsv_out is None else str(peak_tsv_out),
             },
         },
         out_path=out_path,
