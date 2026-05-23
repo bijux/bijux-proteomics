@@ -143,7 +143,15 @@ def test_heatmap_preparation_report_builds_z_scored_matrix_and_metadata() -> Non
     assert report.summary.sample_count == 3
     assert report.summary.z_scored is True
     assert report.column_metadata[0].sample_metadata.condition == "case"
+    assert (
+        report.column_metadata[0].missing_value_policy
+        is HeatmapMissingValuePolicy.FILL_ROW_MEDIAN
+    )
     assert report.row_metadata[0].entity_id == "P1"
+    assert (
+        report.row_metadata[0].missing_value_policy
+        is HeatmapMissingValuePolicy.FILL_ROW_MEDIAN
+    )
     assert len(report.rows[0].values) == 3
     assert abs(sum(report.rows[0].values)) < 1e-9
 
@@ -181,6 +189,13 @@ def test_heatmap_preparation_report_applies_missing_value_policy() -> None:
     )
 
     assert any(row.entity_id == "P3" for row in median_report.rows)
+    p3_metadata = next(row for row in median_report.row_metadata if row.entity_id == "P3")
+    assert p3_metadata.missing_sample_count == 1
+    assert p3_metadata.filled_missing_sample_count == 1
+    assert (
+        p3_metadata.missing_value_policy
+        is HeatmapMissingValuePolicy.FILL_ROW_MEDIAN
+    )
     assert all(row.entity_id != "P3" for row in drop_report.rows)
     assert drop_report.summary.filtered_missing_policy_count == 1
 
