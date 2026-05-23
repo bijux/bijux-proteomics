@@ -7000,10 +7000,14 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
                 "sample_exploration.scores.tsv",
                 "--explained-variance-tsv-out",
                 "sample_exploration.variance.tsv",
+                "--correlations-tsv-out",
+                "sample_exploration.correlations.tsv",
                 "--distances-tsv-out",
                 "sample_exploration.distances.tsv",
                 "--clusters-tsv-out",
                 "sample_exploration.clusters.tsv",
+                "--outliers-tsv-out",
+                "sample_exploration.outliers.tsv",
             ],
         )
 
@@ -7017,10 +7021,18 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
         )
         assert (
             payload["sample_exploration_report"]["summary"][
+                "pairwise_correlation_count"
+            ]
+            == 6
+        )
+        assert (
+            payload["sample_exploration_report"]["summary"][
                 "pairwise_distance_count"
             ]
             == 6
         )
+        assert payload["sample_exploration_report"]["sample_correlation_report"]["entries"]
+        assert "outlier_reasons" in payload["sample_exploration_report"]["sample_pca_report"]["entries"][0]
         assert payload["outputs"]["summary_tsv"] == "sample_exploration.summary.tsv"
         assert payload["outputs"]["scores_tsv"] == "sample_exploration.scores.tsv"
         assert (
@@ -7028,15 +7040,22 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
             == "sample_exploration.variance.tsv"
         )
         assert (
+            payload["outputs"]["correlations_tsv"]
+            == "sample_exploration.correlations.tsv"
+        )
+        assert (
             payload["outputs"]["distances_tsv"]
             == "sample_exploration.distances.tsv"
         )
         assert payload["outputs"]["clusters_tsv"] == "sample_exploration.clusters.tsv"
+        assert payload["outputs"]["outliers_tsv"] == "sample_exploration.outliers.tsv"
         assert Path("sample_exploration.summary.tsv").exists()
         assert Path("sample_exploration.scores.tsv").exists()
         assert Path("sample_exploration.variance.tsv").exists()
+        assert Path("sample_exploration.correlations.tsv").exists()
         assert Path("sample_exploration.distances.tsv").exists()
         assert Path("sample_exploration.clusters.tsv").exists()
+        assert Path("sample_exploration.outliers.tsv").exists()
         assert "entity_level\tmeasure_kind\taggregation_method" in Path(
             "sample_exploration.summary.tsv"
         ).read_text(encoding="utf-8")
@@ -7047,10 +7066,16 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
             "sample_exploration.variance.tsv"
         ).read_text(encoding="utf-8")
         assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in Path(
+            "sample_exploration.correlations.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in Path(
             "sample_exploration.distances.tsv"
         ).read_text(encoding="utf-8")
         assert "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids" in Path(
             "sample_exploration.clusters.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\toutlier_reasons" in Path(
+            "sample_exploration.outliers.tsv"
         ).read_text(encoding="utf-8")
 
 

@@ -582,8 +582,10 @@ from bijux_proteomics.quantification import (
     export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
     export_sample_cluster_tsv,
+    export_sample_correlation_tsv,
     export_sample_distance_tsv,
     export_sample_exploration_summary_tsv,
+    export_sample_outlier_tsv,
     export_sample_pca_scores_tsv,
     export_sample_pca_variance_tsv,
     export_quant_design_contrast_estimates_tsv,
@@ -8614,7 +8616,17 @@ def heatmap_matrix_command(
     default=None,
 )
 @click.option(
+    "--correlations-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--clusters-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--outliers-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
 )
@@ -8645,10 +8657,12 @@ def sample_exploration_command(
     scores_tsv_out: Path | None,
     explained_variance_tsv_out: Path | None,
     distances_tsv_out: Path | None,
+    correlations_tsv_out: Path | None,
     clusters_tsv_out: Path | None,
+    outliers_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    """Prepare sample-level PCA, distance, and clustering review outputs."""
+    """Prepare sample-level PCA, correlation, distance, clustering, and outlier outputs."""
 
     try:
         mapping = Ms1FeatureColumnMapping(
@@ -8694,8 +8708,12 @@ def sample_exploration_command(
         export_sample_pca_variance_tsv(report, explained_variance_tsv_out)
     if distances_tsv_out is not None:
         export_sample_distance_tsv(report, distances_tsv_out)
+    if correlations_tsv_out is not None:
+        export_sample_correlation_tsv(report, correlations_tsv_out)
     if clusters_tsv_out is not None:
         export_sample_cluster_tsv(report, clusters_tsv_out)
+    if outliers_tsv_out is not None:
+        export_sample_outlier_tsv(report, outliers_tsv_out)
 
     _emit_json(
         {
@@ -8715,8 +8733,16 @@ def sample_exploration_command(
                 "distances_tsv": (
                     None if distances_tsv_out is None else str(distances_tsv_out)
                 ),
+                "correlations_tsv": (
+                    None
+                    if correlations_tsv_out is None
+                    else str(correlations_tsv_out)
+                ),
                 "clusters_tsv": (
                     None if clusters_tsv_out is None else str(clusters_tsv_out)
+                ),
+                "outliers_tsv": (
+                    None if outliers_tsv_out is None else str(outliers_tsv_out)
                 ),
             },
         },
