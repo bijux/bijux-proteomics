@@ -536,6 +536,7 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     PeptideMatrixGroupingMode,
     PairedDifferentialPolicy,
+    PowerEstimationPolicy,
     PrecursorIntensityColumnMapping,
     ProteinMatrixTargetKind,
     QuantEntityLevel,
@@ -559,6 +560,7 @@ from bijux_proteomics.quantification import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_precursors,
     build_peptide_intensity_matrix_from_psms,
+    build_power_estimation_report,
     build_protein_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_psms,
     build_protein_lfq_report_from_features,
@@ -581,6 +583,9 @@ from bijux_proteomics.quantification import (
     export_heatmap_row_metadata_tsv,
     export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
+    export_power_effect_size_grid_tsv,
+    export_power_estimation_summary_tsv,
+    export_power_variance_tsv,
     export_sample_cluster_tsv,
     export_sample_correlation_tsv,
     export_sample_distance_tsv,
@@ -8547,6 +8552,174 @@ def heatmap_matrix_command(
                     None
                     if column_metadata_tsv_out is None
                     else str(column_metadata_tsv_out)
+                ),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("power-estimate")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--entity-level",
+    type=_quant_entity_level_choice(),
+    default=QuantEntityLevel.PROTEIN.value,
+    show_default=True,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--fdr-target", type=float, default=0.05, show_default=True)
+@click.option("--target-power", type=float, default=0.8, show_default=True)
+@click.option(
+    "--replicates-per-condition",
+    "replicate_counts",
+    type=int,
+    multiple=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--variance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--effect-size-grid-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def power_estimate_command(
+    input_table: Path,
+    entity_level: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    design_path: Path | None,
+    fdr_target: float,
+    target_power: float,
+    replicate_counts: tuple[int, ...],
+    summary_tsv_out: Path | None,
+    variance_tsv_out: Path | None,
+    effect_size_grid_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Estimate pilot variance and detectable effect sizes across replicate counts."""
+
+    try:
+        mapping = Ms1FeatureColumnMapping(
+            sample_id=sample_column,
+            feature_id=feature_id_column,
+            peptide=peptide_column,
+            intensity=intensity_column,
+            protein_refs=protein_refs_column,
+            charge=charge_column,
+            mz=mz_column,
+            retention_time_seconds=retention_time_column,
+            missing_reason=missing_reason_column,
+            protein_separator=protein_separator,
+        )
+        parse_report = parse_ms1_feature_table(input_table, mapping=mapping)
+        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
+        raw_table = build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel(entity_level),
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+        )
+        report = build_power_estimation_report(
+            normalize_label_free_table(
+                raw_table,
+                method=NormalizationMethod(normalization),
+            ),
+            design_entries,
+            policy=PowerEstimationPolicy(
+                fdr_target=fdr_target,
+                target_power=target_power,
+                candidate_replicates_per_condition=replicate_counts,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_power_estimation_summary_tsv(report, summary_tsv_out)
+    if variance_tsv_out is not None:
+        export_power_variance_tsv(report, variance_tsv_out)
+    if effect_size_grid_tsv_out is not None:
+        export_power_effect_size_grid_tsv(report, effect_size_grid_tsv_out)
+
+    _emit_json(
+        {
+            "accepted_features": len(parse_report.accepted_records),
+            "rejected_features": len(parse_report.rejected_rows),
+            "power_estimation_report": report.to_dict(),
+            "outputs": {
+                "summary_tsv": (
+                    None if summary_tsv_out is None else str(summary_tsv_out)
+                ),
+                "variance_tsv": (
+                    None if variance_tsv_out is None else str(variance_tsv_out)
+                ),
+                "effect_size_grid_tsv": (
+                    None
+                    if effect_size_grid_tsv_out is None
+                    else str(effect_size_grid_tsv_out)
                 ),
             },
         },

@@ -7093,6 +7093,71 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
         ).read_text(encoding="utf-8")
 
 
+def test_power_estimate_command_emits_variance_and_effect_size_grid() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "power-estimate",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--replicates-per-condition",
+                "2",
+                "--replicates-per-condition",
+                "4",
+                "--replicates-per-condition",
+                "6",
+                "--summary-tsv-out",
+                "power.summary.tsv",
+                "--variance-tsv-out",
+                "power.variance.tsv",
+                "--effect-size-grid-tsv-out",
+                "power.grid.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert payload["power_estimation_report"]["summary"]["entity_level"] == "protein"
+        assert payload["power_estimation_report"]["variance_entries"]
+        assert payload["power_estimation_report"]["effect_size_grid"]
+        assert (
+            payload["power_estimation_report"]["summary"][
+                "weaker_power_with_fewer_replicates"
+            ]
+            is True
+        )
+        assert payload["outputs"]["summary_tsv"] == "power.summary.tsv"
+        assert payload["outputs"]["variance_tsv"] == "power.variance.tsv"
+        assert payload["outputs"]["effect_size_grid_tsv"] == "power.grid.tsv"
+        assert Path("power.summary.tsv").exists()
+        assert Path("power.variance.tsv").exists()
+        assert Path("power.grid.tsv").exists()
+        assert "fdr_target\ttarget_power" in Path("power.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "entity_id\tprotein_refs\tobserved_sample_count" in Path(
+            "power.variance.tsv"
+        ).read_text(encoding="utf-8")
+        assert "replicates_per_condition\tevaluable_entity_count" in Path(
+            "power.grid.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_quantify_command_emits_multi_condition_differential_collection() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
