@@ -176,3 +176,42 @@ def test_ptm_package_exports_differential_owner_surface() -> None:
     assert corrected.protein_correction_status == "not_requested"
     assert low_localization.localization_tier.value == "refused"
     assert low_localization.low_localization is True
+
+
+def test_ptm_package_exports_regulator_enrichment_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
+    differential = ptm.build_ptm_differential_analysis_report(
+        site_quantification,
+        design.accepted_entries,
+        batch_field="",
+    )
+    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    mapping_report = ptm.build_ptm_site_annotation_mapping_report(
+        site_table,
+        annotations.accepted_records,
+        target_species="Homo sapiens",
+    )
+    report = ptm.build_ptm_regulator_enrichment_report(
+        differential.differential_report,
+        mapping_report,
+        policy=ptm.PtmRegulatorEnrichmentPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.5,
+        ),
+    )
+
+    assert hasattr(ptm, "build_ptm_regulator_enrichment_report")
+    assert hasattr(ptm, "render_ptm_regulator_enrichment_tsv")
+    assert any(entry.regulator == "AKT1" for entry in report.entries)
+    assert "supporting_sites" in ptm.render_ptm_regulator_enrichment_tsv(report)
