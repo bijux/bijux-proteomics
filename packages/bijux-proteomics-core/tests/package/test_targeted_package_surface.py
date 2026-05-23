@@ -39,8 +39,24 @@ def test_targeted_package_exports_assay_qc_owner_surface() -> None:
     rendered = targeted.render_targeted_assay_qc_target_tsv(report)
 
     assert hasattr(targeted, "build_targeted_assay_qc_report")
+    assert hasattr(targeted, "render_targeted_assay_qc_coelution_tsv")
+    assert hasattr(targeted, "render_targeted_assay_qc_transition_coelution_tsv")
     assert hasattr(targeted, "render_targeted_assay_qc_target_tsv")
     assert hasattr(targeted, "render_targeted_assay_qc_transition_qc_tsv")
     assert report.summary.target_qc_entry_count == 8
     assert report.summary.reliable_target_entry_count == 3
-    assert "fewer than two passing transitions support the target" in rendered
+    assert "fewer than two coeluting transitions support the target" in rendered
+
+
+def test_targeted_package_exports_transition_coelution_owner_surface() -> None:
+    report = targeted.build_skyline_targeted_transition_coelution_report(
+        _format_fixture("skyline_targeted_qc_results.tsv")
+    )
+    rendered = targeted.render_targeted_transition_coelution_target_tsv(report)
+
+    assert hasattr(targeted, "build_targeted_transition_coelution_report")
+    assert hasattr(targeted, "render_targeted_transition_coelution_target_tsv")
+    assert hasattr(targeted, "render_targeted_transition_coelution_transition_tsv")
+    assert report.summary.target_entry_count == 8
+    assert report.summary.flagged_target_entry_count == 3
+    assert "fewer than two coeluting transitions support the target" in rendered
