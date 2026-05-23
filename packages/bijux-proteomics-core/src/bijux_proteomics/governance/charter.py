@@ -261,6 +261,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/biological_reporting.py",
             "workflow/dia_differential_analysis.py",
             "workflow/dia_dda_comparison.py",
+            "workflow/orchestrator.py",
             "workflow/protein_evidence_cards.py",
             "interfaces/execution/backend.py",
             "interfaces/execution/runner.py",
