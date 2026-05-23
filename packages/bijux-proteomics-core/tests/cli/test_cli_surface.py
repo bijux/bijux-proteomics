@@ -5869,6 +5869,53 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         ).read_text(encoding="utf-8")
 
 
+def test_biological_report_command_adapts_selection_policy_to_protocol_context() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        Path("protocol.tsv").write_text(
+            "\n".join(
+                (
+                    "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                    "prot-001\ttrypsin\tdda\ttmt\tnone\tnone\tnone\tOrbitrap Exploris",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biological-report",
+                "biological_report_features.tsv",
+                "biological_report.design.tsv",
+                "biological_report_reference.fasta",
+                "--protocol-context-tsv",
+                "protocol.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["selection_policy"]["min_absolute_log2_fold_change"] == 0.58
+        assert payload["report"]["selection_policy"]["heatmap_max_entity_count"] == 80
+
+
 def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets() -> (
     None
 ):
@@ -9552,8 +9599,43 @@ def test_qc_report_command_reports_structured_policy_errors() -> None:
             ],
         )
 
-        assert result.exit_code != 0
-        assert "QC_POLICY_INVALID" in result.output
+    assert result.exit_code != 0
+    assert "QC_POLICY_INVALID" in result.output
+
+
+def test_qc_report_command_adapts_default_policy_to_protocol_context() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "production_run"
+        for name in ("spectra.mgf", "results.tsv", "proteins.fasta"):
+            shutil.copy(fixture_dir / name, name)
+        Path("protocol.tsv").write_text(
+            "\n".join(
+                (
+                    "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                    "targeted-protocol\ttrypsin\ttargeted\tlabel_free\tnone\tnone\tnone\tTSQ Altis",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--protocol-context-tsv",
+                "protocol.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run_assessment"]["policy_name"].endswith(":targeted-protocol")
 
 
 def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> None:

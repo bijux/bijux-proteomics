@@ -51,6 +51,17 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
     monkeypatch, tmp_path: Path
 ) -> None:
     captured = {}
+    protocol_path = tmp_path / "protocol.tsv"
+    protocol_path.write_text(
+        "\n".join(
+            (
+                "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                "prot-001\ttrypsin\tdia\tlabel_free\tnone\tnone\tnone\tOrbitrap Astral",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     def _fake_run(config):
         captured["config"] = config
@@ -65,6 +76,8 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
             str(_workflow_fixture("biological_report_features.tsv")),
             str(_workflow_fixture("biological_report.design.tsv")),
             str(_workflow_fixture("biological_report_reference.fasta")),
+            "--protocol-context-tsv",
+            str(protocol_path),
             "--output-dir",
             str(tmp_path / "biological"),
         ],
@@ -73,6 +86,7 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
     assert isinstance(captured["config"], LabelFreeWorkflowConfig)
+    assert captured["config"].protocol_context_tsv_path == protocol_path
 
 
 def test_dda_biological_report_command_routes_through_core_workflow_orchestrator(
