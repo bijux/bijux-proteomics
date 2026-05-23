@@ -9450,16 +9450,6 @@ def sample_exploration_command(
     default=None,
 )
 @click.option(
-    "--annotation-tsv",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    default=None,
-)
-@click.option(
-    "--context-annotation-tsv",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    default=None,
-)
-@click.option(
     "--go-annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -10061,6 +10051,16 @@ def diann_biological_report_command(
     default=None,
 )
 @click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--context-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
     "--go-annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -10074,16 +10074,6 @@ def diann_biological_report_command(
     "--complex-membership-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
-)
-@click.option(
-    "--include-contaminants/--exclude-contaminants",
-    default=False,
-    show_default=True,
-)
-@click.option(
-    "--include-reverse/--exclude-reverse",
-    default=False,
-    show_default=True,
 )
 @click.option(
     "--include-only-identified-by-site/--exclude-only-identified-by-site",
@@ -10152,11 +10142,11 @@ def maxquant_biological_report_command(
     design_tsv: Path,
     proteins_fasta: Path,
     config_path: Path | None,
+    annotation_tsv: Path | None,
+    context_annotation_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
     complex_membership_tsv: Path | None,
-    include_contaminants: bool,
-    include_reverse: bool,
     include_only_identified_by_site: bool,
     allow_empty_lfq_signal: bool,
     normalization: str,
@@ -10180,11 +10170,11 @@ def maxquant_biological_report_command(
             design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
             config_path=config_path,
+            annotation_tsv_path=annotation_tsv,
+            context_annotation_tsv_path=context_annotation_tsv,
             go_annotation_tsv_path=go_annotation_tsv,
             pathway_membership_tsv_path=pathway_membership_tsv,
             complex_membership_tsv_path=complex_membership_tsv,
-            include_contaminants=include_contaminants,
-            include_reverse=include_reverse,
             include_only_identified_by_site=include_only_identified_by_site,
             allow_empty_lfq_signal=allow_empty_lfq_signal,
             normalization_method=NormalizationMethod(normalization),
