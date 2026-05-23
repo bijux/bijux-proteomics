@@ -47,5 +47,6 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
     assert report.summary.complex_enriched_entry_count == 1
     assert report.precursor_matrix_report.summary.excluded_q_value_count == 1
     assert report.run_qc_report.summary.flagged_run_count == 0
+    assert report.run_qc_report.summary.weak_run_flag_count == 0
     assert report.differential_analysis_report.differential_abundance_report is not None
     assert report.biological_report.summary.significant_protein_count >= 3

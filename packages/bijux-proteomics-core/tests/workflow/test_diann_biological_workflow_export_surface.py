@@ -76,6 +76,9 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert "run_name\tsample_name\tprecursor_id_count" in (
         output_dir / manifest.artifacts.run_qc_runs_tsv
     ).read_text(encoding="utf-8")
+    assert "weak_run_flag_count" in (
+        output_dir / manifest.artifacts.run_qc_summary_tsv
+    ).read_text(encoding="utf-8")
     assert "entity_id\tcondition_a\tcondition_b" in (
         output_dir / manifest.artifacts.differential_results_tsv
     ).read_text(encoding="utf-8")
