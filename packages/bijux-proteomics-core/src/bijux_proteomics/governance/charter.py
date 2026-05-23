@@ -212,6 +212,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/review.py",
             "dia/contracts.py",
             "dia/precursor_matrix.py",
+            "dia/protein_matrix.py",
         ),
         release_blocker="Core cannot ship if PTM or DIA workflows flatten ambiguity into generic evidence records.",
     ),
