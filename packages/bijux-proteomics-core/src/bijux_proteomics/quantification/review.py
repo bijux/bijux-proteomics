@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    DifferentialAbundanceTestType,
     ImputationMethod,
     ImputationReport,
     ImputationSensitivityReport,
@@ -27,6 +28,7 @@ from bijux_proteomics.quantification import (
     MultiplexNormalizationPolicy,
     NormalizationComparisonReport,
     NormalizationMethod,
+    PairedDifferentialPolicy,
     QuantDesignMatrixReport,
     QuantDesignModelFitReport,
     QuantEntityLevel,
@@ -846,11 +848,22 @@ def build_effect_size_first_differential_abundance_report(
     condition_b: str,
 ) -> EffectSizeFirstDaReport:
     """Build a DA report ranked by effect size with statistical and QC caveats retained."""
+    paired_policy = (
+        PairedDifferentialPolicy()
+        if all(entry.pair_id not in (None, "") for entry in design_entries)
+        else None
+    )
     da = build_differential_abundance_report(
         table,
         design_entries,
         condition_a=condition_a,
         condition_b=condition_b,
+        test_type=(
+            DifferentialAbundanceTestType.PAIRED_T_TEST
+            if paired_policy is not None
+            else DifferentialAbundanceTestType.WELCH_T_TEST
+        ),
+        paired_policy=paired_policy,
     )
     entries: list[EffectSizeFirstDaEntry] = []
     for entry in da.entries:
@@ -1137,6 +1150,16 @@ def build_quant_review_bundle(
             design_entries,
             condition_a=conditions[0],
             condition_b=conditions[1],
+            test_type=(
+                DifferentialAbundanceTestType.PAIRED_T_TEST
+                if pairing_field is not None
+                else DifferentialAbundanceTestType.WELCH_T_TEST
+            ),
+            paired_policy=(
+                PairedDifferentialPolicy(pair_id_field=pairing_field)
+                if pairing_field is not None
+                else None
+            ),
         )
         if len(conditions) == 2
         else None

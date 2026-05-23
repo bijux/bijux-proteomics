@@ -14,6 +14,7 @@ from bijux_proteomics.quantification.core_matrix import (
     rebuild_quant_matrix_from_dense_array,
 )
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceTestType,
     ImputationEntry,
     ImputationMethod,
     ImputationReport,
@@ -24,6 +25,7 @@ from bijux_proteomics.quantification.contracts import (
     ImputationSensitivityReport,
     LabelFreeQuantTable,
     MissingValueKind,
+    PairedDifferentialPolicy,
     QuantMeasureKind,
     QuantCellImputationProvenance,
     QuantValue,
@@ -138,11 +140,22 @@ def build_imputation_sensitivity_report(
                 design_entries=design_entries,
             )
             imputation_report = build_imputation_report(table, imputed)
+            paired_policy = (
+                PairedDifferentialPolicy()
+                if all(entry.pair_id not in (None, "") for entry in design_entries)
+                else None
+            )
             differential = build_differential_abundance_report(
                 imputed,
                 design_entries,
                 condition_a=condition_a,
                 condition_b=condition_b,
+                test_type=(
+                    DifferentialAbundanceTestType.PAIRED_T_TEST
+                    if paired_policy is not None
+                    else DifferentialAbundanceTestType.WELCH_T_TEST
+                ),
+                paired_policy=paired_policy,
             )
             differential_by_method[method] = differential
             resolved_condition_a = differential.condition_a
