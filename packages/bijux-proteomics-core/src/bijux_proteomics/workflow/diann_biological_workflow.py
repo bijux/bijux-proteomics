@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia import (
     DiaPeptideRollupMethod,
+    DiaPrecursorMatrixPolicy,
     DiaPrecursorMatrixReport,
     DiaProteinMatrixReport,
     DiaProteinMatrixTargetKind,
@@ -24,6 +25,7 @@ from bijux_proteomics.dia import (
     build_dia_protein_matrix_report,
     build_dia_run_qc_report,
     render_dia_precursor_matrix_summary_tsv,
+    render_dia_precursor_metadata_tsv,
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
     render_dia_protein_matrix_summary_tsv,
@@ -105,6 +107,7 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     precursor_summary_tsv: str = Field(..., min_length=1)
     precursor_quantity_matrix_tsv: str = Field(..., min_length=1)
     precursor_q_value_matrix_tsv: str = Field(..., min_length=1)
+    precursor_metadata_tsv: str = Field(..., min_length=1)
     protein_summary_tsv: str = Field(..., min_length=1)
     protein_quantity_matrix_tsv: str = Field(..., min_length=1)
     run_qc_summary_tsv: str = Field(..., min_length=1)
@@ -161,8 +164,11 @@ def build_diann_biological_workflow_bundle(
     )
     precursor_matrix_report = build_dia_precursor_matrix_report(
         import_report.precursor_rows,
-        include_decoys=include_decoys,
-        max_q_value=max_q_value,
+        source_name="DIA-NN",
+        policy=DiaPrecursorMatrixPolicy(
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        ),
     )
     peptide_matrix_report = build_dia_peptide_matrix_report(
         precursor_matrix_report,
@@ -274,6 +280,7 @@ def export_diann_biological_workflow_bundle(
     precursor_summary_name = "diann_precursor_matrix_summary.tsv"
     precursor_matrix_name = "diann_precursor_quantity_matrix.tsv"
     precursor_q_value_name = "diann_precursor_q_values.tsv"
+    precursor_metadata_name = "diann_precursor_metadata.tsv"
     protein_summary_name = "diann_protein_matrix_summary.tsv"
     protein_matrix_name = "diann_protein_quantity_matrix.tsv"
     run_qc_summary_name = "diann_run_qc_summary.tsv"
@@ -305,6 +312,10 @@ def export_diann_biological_workflow_bundle(
     )
     (output_dir / precursor_q_value_name).write_text(
         render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report),
+        encoding="utf-8",
+    )
+    (output_dir / precursor_metadata_name).write_text(
+        render_dia_precursor_metadata_tsv(report.precursor_matrix_report),
         encoding="utf-8",
     )
     (output_dir / protein_summary_name).write_text(
@@ -373,6 +384,7 @@ def export_diann_biological_workflow_bundle(
             precursor_summary_tsv=precursor_summary_name,
             precursor_quantity_matrix_tsv=precursor_matrix_name,
             precursor_q_value_matrix_tsv=precursor_q_value_name,
+            precursor_metadata_tsv=precursor_metadata_name,
             protein_summary_tsv=protein_summary_name,
             protein_quantity_matrix_tsv=protein_matrix_name,
             run_qc_summary_tsv=run_qc_summary_name,

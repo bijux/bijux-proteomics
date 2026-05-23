@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia import (
     DiaPeptideRollupMethod,
+    DiaPrecursorMatrixPolicy,
     DiaPrecursorMatrixReport,
     DiaProteinMatrixReport,
     DiaProteinMatrixTargetKind,
@@ -116,8 +117,11 @@ def build_diann_benchmark_report(
     source_rows = _read_source_rows(result_tsv_path)
     precursor_matrix_report = build_dia_precursor_matrix_report(
         import_report.precursor_rows,
-        include_decoys=include_decoys,
-        max_q_value=max_q_value,
+        source_name="DIA-NN",
+        policy=DiaPrecursorMatrixPolicy(
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        ),
     )
     peptide_matrix_report = build_dia_peptide_matrix_report(
         precursor_matrix_report,

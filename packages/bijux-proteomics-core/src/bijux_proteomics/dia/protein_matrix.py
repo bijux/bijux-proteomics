@@ -14,6 +14,7 @@ from typing import Callable
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia.precursor_matrix import (
+    DiaPrecursorMatrixPolicy,
     DiaPrecursorMatrixReport,
     DiaPrecursorMatrixRow,
     DiaPrecursorMatrixValue,
@@ -174,8 +175,10 @@ def build_diann_peptide_matrix_report(
     precursor_matrix = build_diann_precursor_matrix_report(
         result_tsv_path,
         config_path=config_path,
-        include_decoys=include_decoys,
-        max_q_value=max_q_value,
+        policy=DiaPrecursorMatrixPolicy(
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        ),
     )
     return build_dia_peptide_matrix_report(
         precursor_matrix,
