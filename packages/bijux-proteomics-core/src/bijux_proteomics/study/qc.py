@@ -14,6 +14,9 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import calculate_peptide_mz
+from bijux_proteomics.identification.contaminant_evidence import (
+    build_contaminant_evidence_report,
+)
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.spectra import SpectrumModel, calculate_precursor_mass_error
@@ -85,6 +88,11 @@ class QcContaminantSummary(JsonModel):
 
     contaminant_psm_count: int = Field(..., ge=0)
     contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    contaminant_peptide_count: int = Field(..., ge=0)
+    contaminant_protein_count: int = Field(..., ge=0)
+    contaminant_intensity: float = Field(..., ge=0.0)
+    total_psm_intensity: float = Field(..., ge=0.0)
+    contaminant_intensity_fraction: float = Field(..., ge=0.0, le=1.0)
     contaminant_protein_counts: dict[str, int] = Field(default_factory=dict)
 
 
@@ -702,12 +710,15 @@ def _build_run_anomalies(
                 severity=QcAssessmentSeverity.WARNING,
             )
         )
-    if contaminant_summary.contaminant_psm_fraction > 0.1:
+    if (
+        contaminant_summary.contaminant_psm_fraction > 0.1
+        or contaminant_summary.contaminant_intensity_fraction > 0.1
+    ):
         anomalies.append(
             QcRunAnomalyEntry(
                 category=QcRunAnomalyCategory.CONTAMINATION,
                 code="elevated_contaminant_fraction",
-                message="contaminant peptide burden exceeds the expected background range",
+                message="contaminant evidence burden exceeds the expected background range",
                 severity=QcAssessmentSeverity.WARNING,
             )
         )
@@ -1468,24 +1479,49 @@ def build_lcms_run_qc_report(
         _count_missed_cleavages(record.canonical_peptide, active_rule)
         for record in psm_records
     )
+    resolved_run_id = _resolve_run_id(run_id, design_entry)
+    sample_id = design_entry.sample_id if design_entry else None
+    qc_psm_records = tuple(
+        record
+        if record.run_id
+        else record.model_copy(update={"run_id": resolved_run_id})
+        for record in psm_records
+    )
 
-    contaminant_proteins: Counter[str] = Counter()
-    contaminant_psm_count = 0
-    for record in psm_records:
-        contaminated_refs = [
-            reference
-            for reference in record.protein_refs
-            if _is_contaminant_reference(reference, active_contaminant_policy)
-        ]
-        if not contaminated_refs:
-            continue
-        contaminant_psm_count += 1
-        for reference in contaminated_refs:
-            contaminant_proteins[reference] += 1
+    contaminant_report = build_contaminant_evidence_report(
+        qc_psm_records,
+        contaminant_prefixes=active_contaminant_policy.prefixes,
+        sample_id_by_run={} if sample_id is None else {resolved_run_id: sample_id},
+    )
+    run_burden = next(
+        (
+            entry
+            for entry in contaminant_report.burden_entries
+            if entry.run_id == resolved_run_id
+        ),
+        None,
+    )
     contaminant_summary = QcContaminantSummary(
-        contaminant_psm_count=contaminant_psm_count,
-        contaminant_psm_fraction=_fraction(contaminant_psm_count, len(psm_records)),
-        contaminant_protein_counts=dict(sorted(contaminant_proteins.items())),
+        contaminant_psm_count=0 if run_burden is None else run_burden.contaminant_psm_count,
+        contaminant_psm_fraction=0.0
+        if run_burden is None
+        else run_burden.contaminant_psm_fraction,
+        contaminant_peptide_count=0
+        if run_burden is None
+        else run_burden.contaminant_peptide_count,
+        contaminant_protein_count=0
+        if run_burden is None
+        else run_burden.contaminant_protein_count,
+        contaminant_intensity=0.0
+        if run_burden is None
+        else run_burden.contaminant_intensity,
+        total_psm_intensity=0.0 if run_burden is None else run_burden.total_intensity,
+        contaminant_intensity_fraction=0.0
+        if run_burden is None
+        else run_burden.contaminant_intensity_fraction,
+        contaminant_protein_counts={
+            entry.protein_ref: entry.psm_count for entry in contaminant_report.protein_entries
+        },
     )
 
     specificity_counts: Counter[QcDigestionSpecificity] = Counter()
@@ -1513,8 +1549,6 @@ def build_lcms_run_qc_report(
         )
     )
 
-    resolved_run_id = _resolve_run_id(run_id, design_entry)
-    sample_id = design_entry.sample_id if design_entry else None
     instrument_summary = QcInstrumentSummary(
         instrument=design_entry.instrument if design_entry else None,
         spectrum_count=len(spectra),

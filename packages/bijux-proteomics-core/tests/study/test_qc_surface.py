@@ -397,6 +397,11 @@ def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
     assert report.missed_cleavage_rate == 0.2
     assert report.contaminant_summary.contaminant_psm_count == 1
     assert report.contaminant_summary.contaminant_psm_fraction == 0.2
+    assert report.contaminant_summary.contaminant_peptide_count == 1
+    assert report.contaminant_summary.contaminant_protein_count == 1
+    assert report.contaminant_summary.contaminant_intensity == 0.0
+    assert report.contaminant_summary.total_psm_intensity == 0.0
+    assert report.contaminant_summary.contaminant_intensity_fraction == 0.0
     assert report.quant_summary is not None
     assert report.quant_summary.sample_id == "S1"
     assert report.quant_summary.entity_level.value == "protein"
@@ -423,11 +428,65 @@ def test_build_lcms_run_qc_report_tracks_charge_and_contaminant_distribution() -
 
     assert spectrum_charges == {"1": 1, "2": 4, "3": 1}
     assert identified_charges == {"1": 1, "2": 3, "3": 1}
+    assert report.contaminant_summary.contaminant_peptide_count == 1
+    assert report.contaminant_summary.contaminant_protein_count == 1
     assert report.contaminant_summary.contaminant_protein_counts == {"CON__KERATIN": 1}
     assert report.mass_error.median_abs_ppm is not None
     assert report.mass_error.max_abs_ppm is not None
     assert any(
         entry.category.value == "contamination" for entry in report.run_anomalies
+    )
+
+
+def test_build_lcms_run_qc_report_warns_for_contaminant_heavy_intensity_burden() -> None:
+    design_entry = _design_entries()["S1"]
+    spectra = (
+        _spectrum_for_peptide(
+            "run-a:scan-101",
+            "MSSQQLLLLK",
+            charge=2,
+            retention_time_seconds=120.0,
+            ppm_error=1.1,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-102",
+            "ACDEFGK",
+            charge=2,
+            retention_time_seconds=180.0,
+            ppm_error=-0.8,
+        ),
+    )
+    psms = (
+        _psm(
+            "run-a:scan-101",
+            "MSSQQLLLLK",
+            charge=2,
+            score=95.0,
+            protein_refs=("CON__KERATIN",),
+        ).model_copy(update={"intensity": 900.0}),
+        _psm(
+            "run-a:scan-102",
+            "ACDEFGK",
+            charge=2,
+            score=110.0,
+            protein_refs=("P11111",),
+        ).model_copy(update={"intensity": 100.0}),
+    )
+
+    report = build_lcms_run_qc_report(
+        spectra,
+        psms,
+        design_entry=design_entry,
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+
+    assert report.contaminant_summary.contaminant_psm_fraction == 0.5
+    assert report.contaminant_summary.contaminant_intensity == 900.0
+    assert report.contaminant_summary.total_psm_intensity == 1000.0
+    assert report.contaminant_summary.contaminant_intensity_fraction == 0.9
+    assert any(
+        entry.code == "elevated_contaminant_fraction"
+        for entry in report.run_anomalies
     )
 
 
