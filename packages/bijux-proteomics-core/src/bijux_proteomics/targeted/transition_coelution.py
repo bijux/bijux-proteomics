@@ -1,0 +1,492 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Validate PRM/SRM transitions using RT alignment and coelution."""
+
+from __future__ import annotations
+
+import csv
+from io import StringIO
+from pathlib import Path
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics.targeted.result_import import (
+    TargetedResultImportReport,
+    build_skyline_result_import_report,
+    build_transition_table_result_import_report,
+)
+from bijux_proteomics_foundation import JsonModel
+
+
+class TargetedTransitionCoelutionTransitionEntry(JsonModel):
+    """One sample-resolved targeted transition coelution record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    transition_id: str = Field(..., min_length=1)
+    detected: bool
+    retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    anchor_transition_id: str | None = None
+    anchor_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    reference_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    coelution_delta_minutes: float | None = Field(default=None, ge=0.0)
+    reference_delta_minutes: float | None = Field(default=None, ge=0.0)
+    coeluting: bool
+    failure_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TargetedTransitionCoelutionTargetEntry(JsonModel):
+    """One sample-resolved targeted precursor coelution summary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    expected_transition_count: int = Field(..., ge=0)
+    observed_transition_count: int = Field(..., ge=0)
+    coeluting_transition_count: int = Field(..., ge=0)
+    coeluting_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    noncoeluting_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    anchor_transition_id: str | None = None
+    anchor_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    mean_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    reference_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    absolute_alignment_delta_minutes: float | None = Field(default=None, ge=0.0)
+    alignment_flagged: bool = False
+    reliable_transition_support: bool
+    reliability_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TargetedTransitionCoelutionSummary(JsonModel):
+    """Compact summary over targeted transition coelution review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    target_entry_count: int = Field(..., ge=0)
+    flagged_target_entry_count: int = Field(..., ge=0)
+    transition_entry_count: int = Field(..., ge=0)
+    coeluting_transition_entry_count: int = Field(..., ge=0)
+
+
+class TargetedTransitionCoelutionReport(JsonModel):
+    """Transition coelution and alignment review over targeted observations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_name: str = Field(..., min_length=1)
+    target_entries: tuple[TargetedTransitionCoelutionTargetEntry, ...] = Field(
+        default_factory=tuple
+    )
+    transition_entries: tuple[TargetedTransitionCoelutionTransitionEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: TargetedTransitionCoelutionSummary
+    note: str = Field(..., min_length=1)
+
+
+def build_targeted_transition_coelution_report(
+    import_report: TargetedResultImportReport,
+    *,
+    coelution_rt_delta_threshold_minutes: float = 0.2,
+    alignment_rt_delta_threshold_minutes: float = 0.75,
+) -> TargetedTransitionCoelutionReport:
+    """Build targeted transition coelution and RT-alignment review ledgers."""
+
+    if coelution_rt_delta_threshold_minutes <= 0.0:
+        raise ValueError(
+            "coelution_rt_delta_threshold_minutes must be greater than zero"
+        )
+    if alignment_rt_delta_threshold_minutes <= 0.0:
+        raise ValueError(
+            "alignment_rt_delta_threshold_minutes must be greater than zero"
+        )
+
+    target_ids = sorted({item.precursor_id for item in import_report.observations})
+    sample_ids = sorted({item.sample_id for item in import_report.observations})
+    transition_ids_by_target = {
+        target_id: sorted(
+            {
+                item.transition_id
+                for item in import_report.observations
+                if item.precursor_id == target_id
+            }
+        )
+        for target_id in target_ids
+    }
+    reference_retention_time_by_target = {
+        target_id: _median(
+            [
+                item.retention_time_minutes
+                for item in import_report.observations
+                if item.precursor_id == target_id and item.retention_time_minutes is not None
+            ]
+        )
+        for target_id in target_ids
+    }
+
+    target_entries: list[TargetedTransitionCoelutionTargetEntry] = []
+    transition_entries: list[TargetedTransitionCoelutionTransitionEntry] = []
+
+    for target_id in target_ids:
+        expected_transition_ids = transition_ids_by_target[target_id]
+        reference_retention_time = reference_retention_time_by_target[target_id]
+        observations_by_sample = {
+            sample_id: [
+                item
+                for item in import_report.observations
+                if item.precursor_id == target_id and item.sample_id == sample_id
+            ]
+            for sample_id in sample_ids
+        }
+        for sample_id in sample_ids:
+            sample_observations = observations_by_sample[sample_id]
+            observations_by_transition_id = {
+                item.transition_id: item for item in sample_observations
+            }
+            anchor_observation = _anchor_observation(sample_observations)
+            anchor_transition_id = (
+                None if anchor_observation is None else anchor_observation.transition_id
+            )
+            anchor_retention_time = (
+                None
+                if anchor_observation is None
+                else anchor_observation.retention_time_minutes
+            )
+            sample_retention_times = [
+                item.retention_time_minutes
+                for item in sample_observations
+                if item.retention_time_minutes is not None
+            ]
+            mean_retention_time = (
+                None
+                if not sample_retention_times
+                else sum(sample_retention_times) / len(sample_retention_times)
+            )
+            absolute_alignment_delta = (
+                None
+                if mean_retention_time is None or reference_retention_time is None
+                else abs(mean_retention_time - reference_retention_time)
+            )
+            alignment_flagged = (
+                absolute_alignment_delta is not None
+                and absolute_alignment_delta > alignment_rt_delta_threshold_minutes
+            )
+
+            coeluting_transition_ids: list[str] = []
+            noncoeluting_transition_ids: list[str] = []
+            for transition_id in expected_transition_ids:
+                observation = observations_by_transition_id.get(transition_id)
+                if observation is None:
+                    transition_entries.append(
+                        TargetedTransitionCoelutionTransitionEntry(
+                            target_id=target_id,
+                            sample_id=sample_id,
+                            transition_id=transition_id,
+                            detected=False,
+                            anchor_transition_id=anchor_transition_id,
+                            anchor_retention_time_minutes=anchor_retention_time,
+                            reference_retention_time_minutes=reference_retention_time,
+                            coeluting=False,
+                            failure_reasons=("transition not observed",),
+                        )
+                    )
+                    noncoeluting_transition_ids.append(transition_id)
+                    continue
+
+                failure_reasons: list[str] = []
+                retention_time = observation.retention_time_minutes
+                coelution_delta = (
+                    None
+                    if retention_time is None or anchor_retention_time is None
+                    else abs(retention_time - anchor_retention_time)
+                )
+                reference_delta = (
+                    None
+                    if retention_time is None or reference_retention_time is None
+                    else abs(retention_time - reference_retention_time)
+                )
+                coelution_reasons: list[str] = []
+                if retention_time is None:
+                    failure_reasons.append("transition retention time is missing")
+                    coelution_reasons.append("transition retention time is missing")
+                if anchor_retention_time is None and retention_time is not None:
+                    failure_reasons.append("sample apex retention time is missing")
+                    coelution_reasons.append("sample apex retention time is missing")
+                if (
+                    coelution_delta is not None
+                    and coelution_delta > coelution_rt_delta_threshold_minutes
+                ):
+                    reason = (
+                        "transition does not coelute with the sample apex"
+                    )
+                    failure_reasons.append(reason)
+                    coelution_reasons.append(reason)
+                if (
+                    reference_delta is not None
+                    and reference_delta > alignment_rt_delta_threshold_minutes
+                ):
+                    failure_reasons.append(
+                        "transition is misaligned from the target reference window"
+                    )
+                coeluting = not coelution_reasons
+                if coeluting:
+                    coeluting_transition_ids.append(transition_id)
+                else:
+                    noncoeluting_transition_ids.append(transition_id)
+                transition_entries.append(
+                    TargetedTransitionCoelutionTransitionEntry(
+                        target_id=target_id,
+                        sample_id=sample_id,
+                        transition_id=transition_id,
+                        detected=True,
+                        retention_time_minutes=retention_time,
+                        anchor_transition_id=anchor_transition_id,
+                        anchor_retention_time_minutes=anchor_retention_time,
+                        reference_retention_time_minutes=reference_retention_time,
+                        coelution_delta_minutes=coelution_delta,
+                        reference_delta_minutes=reference_delta,
+                        coeluting=coeluting,
+                        failure_reasons=tuple(sorted(failure_reasons)),
+                    )
+                )
+
+            reliability_reasons: list[str] = []
+            if len(coeluting_transition_ids) < 2:
+                reliability_reasons.append(
+                    "fewer than two coeluting transitions support the target"
+                )
+            if alignment_flagged:
+                reliability_reasons.append(
+                    "retention time deviates from the target reference window"
+                )
+            target_entries.append(
+                TargetedTransitionCoelutionTargetEntry(
+                    target_id=target_id,
+                    sample_id=sample_id,
+                    expected_transition_count=len(expected_transition_ids),
+                    observed_transition_count=len(sample_observations),
+                    coeluting_transition_count=len(coeluting_transition_ids),
+                    coeluting_transition_ids=tuple(sorted(coeluting_transition_ids)),
+                    noncoeluting_transition_ids=tuple(sorted(noncoeluting_transition_ids)),
+                    anchor_transition_id=anchor_transition_id,
+                    anchor_retention_time_minutes=anchor_retention_time,
+                    mean_retention_time_minutes=mean_retention_time,
+                    reference_retention_time_minutes=reference_retention_time,
+                    absolute_alignment_delta_minutes=absolute_alignment_delta,
+                    alignment_flagged=alignment_flagged,
+                    reliable_transition_support=not reliability_reasons,
+                    reliability_reasons=tuple(sorted(reliability_reasons)),
+                )
+            )
+
+    return TargetedTransitionCoelutionReport(
+        source_name=import_report.source_name,
+        target_entries=tuple(
+            sorted(target_entries, key=lambda entry: (entry.target_id, entry.sample_id))
+        ),
+        transition_entries=tuple(
+            sorted(
+                transition_entries,
+                key=lambda entry: (entry.target_id, entry.sample_id, entry.transition_id),
+            )
+        ),
+        summary=TargetedTransitionCoelutionSummary(
+            target_count=len(target_ids),
+            sample_count=len(sample_ids),
+            target_entry_count=len(target_entries),
+            flagged_target_entry_count=sum(
+                not entry.reliable_transition_support for entry in target_entries
+            ),
+            transition_entry_count=len(transition_entries),
+            coeluting_transition_entry_count=sum(
+                entry.coeluting for entry in transition_entries
+            ),
+        ),
+        note=(
+            "targeted transition coelution keeps sample apex alignment, transition-level coelution, and explicit failed transitions visible before any targeted precursor is trusted"
+        ),
+    )
+
+
+def build_skyline_targeted_transition_coelution_report(
+    path: Path,
+    *,
+    coelution_rt_delta_threshold_minutes: float = 0.2,
+    alignment_rt_delta_threshold_minutes: float = 0.75,
+) -> TargetedTransitionCoelutionReport:
+    """Build targeted transition coelution directly from one Skyline export."""
+
+    return build_targeted_transition_coelution_report(
+        build_skyline_result_import_report(path),
+        coelution_rt_delta_threshold_minutes=coelution_rt_delta_threshold_minutes,
+        alignment_rt_delta_threshold_minutes=alignment_rt_delta_threshold_minutes,
+    )
+
+
+def build_transition_table_targeted_transition_coelution_report(
+    path: Path,
+    *,
+    coelution_rt_delta_threshold_minutes: float = 0.2,
+    alignment_rt_delta_threshold_minutes: float = 0.75,
+) -> TargetedTransitionCoelutionReport:
+    """Build targeted transition coelution directly from one transition table."""
+
+    return build_targeted_transition_coelution_report(
+        build_transition_table_result_import_report(path),
+        coelution_rt_delta_threshold_minutes=coelution_rt_delta_threshold_minutes,
+        alignment_rt_delta_threshold_minutes=alignment_rt_delta_threshold_minutes,
+    )
+
+
+def render_targeted_transition_coelution_target_tsv(
+    report: TargetedTransitionCoelutionReport,
+) -> str:
+    """Render target-level transition coelution rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "target_id",
+            "sample_id",
+            "expected_transition_count",
+            "observed_transition_count",
+            "coeluting_transition_count",
+            "coeluting_transition_ids",
+            "noncoeluting_transition_ids",
+            "anchor_transition_id",
+            "anchor_retention_time_minutes",
+            "mean_retention_time_minutes",
+            "reference_retention_time_minutes",
+            "absolute_alignment_delta_minutes",
+            "alignment_flagged",
+            "reliable_transition_support",
+            "reliability_reasons",
+        )
+    )
+    for entry in report.target_entries:
+        writer.writerow(
+            (
+                entry.target_id,
+                entry.sample_id,
+                entry.expected_transition_count,
+                entry.observed_transition_count,
+                entry.coeluting_transition_count,
+                ";".join(entry.coeluting_transition_ids),
+                ";".join(entry.noncoeluting_transition_ids),
+                "" if entry.anchor_transition_id is None else entry.anchor_transition_id,
+                (
+                    ""
+                    if entry.anchor_retention_time_minutes is None
+                    else f"{entry.anchor_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.mean_retention_time_minutes is None
+                    else f"{entry.mean_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.reference_retention_time_minutes is None
+                    else f"{entry.reference_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.absolute_alignment_delta_minutes is None
+                    else f"{entry.absolute_alignment_delta_minutes:g}"
+                ),
+                str(entry.alignment_flagged).lower(),
+                str(entry.reliable_transition_support).lower(),
+                "; ".join(entry.reliability_reasons),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_targeted_transition_coelution_transition_tsv(
+    report: TargetedTransitionCoelutionReport,
+) -> str:
+    """Render transition-level coelution review rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "target_id",
+            "sample_id",
+            "transition_id",
+            "detected",
+            "retention_time_minutes",
+            "anchor_transition_id",
+            "anchor_retention_time_minutes",
+            "reference_retention_time_minutes",
+            "coelution_delta_minutes",
+            "reference_delta_minutes",
+            "coeluting",
+            "failure_reasons",
+        )
+    )
+    for entry in report.transition_entries:
+        writer.writerow(
+            (
+                entry.target_id,
+                entry.sample_id,
+                entry.transition_id,
+                str(entry.detected).lower(),
+                (
+                    ""
+                    if entry.retention_time_minutes is None
+                    else f"{entry.retention_time_minutes:g}"
+                ),
+                "" if entry.anchor_transition_id is None else entry.anchor_transition_id,
+                (
+                    ""
+                    if entry.anchor_retention_time_minutes is None
+                    else f"{entry.anchor_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.reference_retention_time_minutes is None
+                    else f"{entry.reference_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.coelution_delta_minutes is None
+                    else f"{entry.coelution_delta_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.reference_delta_minutes is None
+                    else f"{entry.reference_delta_minutes:g}"
+                ),
+                str(entry.coeluting).lower(),
+                "; ".join(entry.failure_reasons),
+            )
+        )
+    return buffer.getvalue()
+
+
+def _anchor_observation(observations: list[object]) -> object | None:
+    candidates = [
+        observation
+        for observation in observations
+        if observation.retention_time_minutes is not None
+    ]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda observation: observation.intensity)
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return ordered[midpoint]
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
