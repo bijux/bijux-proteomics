@@ -2931,6 +2931,8 @@ def test_spectral_library_search_command_reports_ranked_decoy_aware_matches() ->
         assert payload["import_report"]["source_format"] == "msp"
         assert payload["library_summary"]["decoy_entry_count"] == 1
         assert payload["search_report"]["search_strategy"] == "concatenated"
+        assert payload["search_report"]["advisory_warning"] is None
+        assert payload["warnings"] == []
         assert (
             payload["search_report"]["top_match_library_entry_id"] == "msp:1:PEPTIDE/2"
         )
@@ -2974,6 +2976,12 @@ def test_spectral_library_search_command_supports_mgf_library_search_without_dec
         assert payload["search_report"]["candidate_count"] == 1
         assert payload["search_report"]["top_match_canonical_peptide"] == "PEPTIDE"
         assert payload["search_report"]["top_match_q_value"] is None
+        assert payload["search_report"]["advisory_warning"] == (
+            "library search ran without decoy entries; q-values are withheld and this report is advisory only"
+        )
+        assert payload["warnings"] == [
+            "library search ran without decoy entries; q-values are withheld and this report is advisory only"
+        ]
 
 
 def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
