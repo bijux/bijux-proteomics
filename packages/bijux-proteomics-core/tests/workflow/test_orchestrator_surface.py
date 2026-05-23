@@ -107,6 +107,14 @@ def test_run_proteomics_workflow_supports_diann_mode() -> None:
             result_tsv_path=_workflow_fixture("diann_biological_report.tsv"),
             design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            annotation_tsv_path=(
+                _fixture_root()
+                / "interpretation"
+                / "protein_annotation_custom.tsv"
+            ),
+            context_annotation_tsv_path=_workflow_fixture(
+                "biological_report_context.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )
@@ -115,6 +123,8 @@ def test_run_proteomics_workflow_supports_diann_mode() -> None:
     assert result.mode is WorkflowMode.DIANN
     assert result.design_row_count == 6
     assert result.report.summary.significant_protein_count >= 1
+    assert result.report.summary.protein_card_count == 5
+    assert result.report.summary.context_term_count == 3
 
 
 def test_run_proteomics_workflow_supports_maxquant_mode() -> None:

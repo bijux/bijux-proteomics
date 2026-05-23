@@ -26,6 +26,13 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
         _fixture("diann_biological_report.tsv"),
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        annotation_tsv_path=(
+            Path(__file__).resolve().parent.parent
+            / "fixtures"
+            / "interpretation"
+            / "protein_annotation_custom.tsv"
+        ),
+        context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
         complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
@@ -34,6 +41,8 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
     )
 
     assert report.summary.imported_precursor_count == 31
+    assert report.summary.rejected_precursor_count == 0
+    assert report.summary.rejected_evidence_count == 0
     assert report.summary.imported_protein_group_row_count == 30
     assert report.summary.filtered_q_value_row_count == 1
     assert report.summary.precursor_matrix_row_count == 5
@@ -42,6 +51,8 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
     assert report.summary.flagged_run_count == 0
     assert report.summary.significant_protein_count >= 3
     assert report.summary.annotation_entry_count == 5
+    assert report.summary.protein_card_count == 5
+    assert report.summary.context_term_count == 3
     assert report.summary.go_enriched_term_count == 1
     assert report.summary.pathway_enriched_entry_count == 1
     assert report.summary.complex_enriched_entry_count == 1
@@ -50,3 +61,4 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
     assert report.run_qc_report.summary.weak_run_flag_count == 0
     assert report.differential_analysis_report.differential_abundance_report is not None
     assert report.biological_report.summary.significant_protein_count >= 3
+    assert report.biological_report.context_mapping_report is not None

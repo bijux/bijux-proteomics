@@ -28,6 +28,13 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
         _fixture("diann_biological_report.tsv"),
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        annotation_tsv_path=(
+            Path(__file__).resolve().parent.parent
+            / "fixtures"
+            / "interpretation"
+            / "protein_annotation_custom.tsv"
+        ),
+        context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
         complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
@@ -43,6 +50,8 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
 
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.import_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.import_rejected_rows_tsv).exists()
+    assert (output_dir / manifest.artifacts.import_rejected_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.precursor_quantity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.precursor_metadata_tsv).exists()
     assert (output_dir / manifest.artifacts.peptide_quantity_matrix_tsv).exists()
@@ -52,12 +61,30 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_qc_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
+    assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.annotation_tsv).exists()
+    assert (output_dir / manifest.artifacts.annotation_unmapped_tsv).exists()
+    assert manifest.artifacts.context_mapping_tsv is not None
+    assert manifest.artifacts.context_term_tsv is not None
+    assert manifest.artifacts.context_unmapped_tsv is not None
+    assert manifest.artifacts.context_rejected_tsv is not None
+    assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_term_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_unmapped_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_rejected_tsv).exists()
     assert (output_dir / manifest.artifacts.report_html).exists()
     assert "filtered_q_value_row_count" in (
         output_dir / manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
     assert "accepted_precursor_count" in (
         output_dir / manifest.artifacts.import_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "row_number" in (
+        output_dir / manifest.artifacts.import_rejected_rows_tsv
+    ).read_text(encoding="utf-8")
+    assert "reason_code" in (
+        output_dir / manifest.artifacts.import_rejected_evidence_tsv
     ).read_text(encoding="utf-8")
     assert "precursor_key" in (
         output_dir / manifest.artifacts.precursor_quantity_matrix_tsv
@@ -85,6 +112,15 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     ).read_text(encoding="utf-8")
     assert "contrast_count" in (
         output_dir / manifest.artifacts.differential_qc_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_id" in (
+        output_dir / manifest.artifacts.protein_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "annotation_status" in (
+        output_dir / manifest.artifacts.annotation_tsv
+    ).read_text(encoding="utf-8")
+    assert "context_kind" in (
+        output_dir / manifest.artifacts.context_mapping_tsv
     ).read_text(encoding="utf-8")
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html
