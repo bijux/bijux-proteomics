@@ -21,11 +21,14 @@ from bijux_proteomics.ptm.site_quantification import (
 )
 from bijux_proteomics.ptm.peptide_parser import parse_modified_peptide
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceTestType,
+    DifferentialBrokenPairEntry,
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
     Ms1FeatureRecord,
     NormalizationComparisonReport,
     NormalizationMethod,
+    PairedDifferentialPolicy,
     QuantDesignMatrixReport,
     QuantDesignModelFitReport,
     QuantEntityLevel,
@@ -39,7 +42,6 @@ from bijux_proteomics.quantification.design_matrix import (
     fit_quant_design_matrix_model,
 )
 from bijux_proteomics.quantification.differential_abundance import (
-    apply_benjamini_hochberg,
     build_differential_abundance_report,
 )
 from bijux_proteomics.quantification.normalization import (
@@ -66,6 +68,7 @@ class PtmSiteDifferentialEntry(JsonModel):
     condition_b: str = Field(..., min_length=1)
     observations_a: int = Field(..., ge=0)
     observations_b: int = Field(..., ge=0)
+    complete_pair_count: int = Field(default=0, ge=0)
     mean_log2_abundance_a: float
     mean_log2_abundance_b: float
     log2_fold_change: float
@@ -91,6 +94,7 @@ class PtmSiteDifferentialReport(JsonModel):
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     entries: tuple[PtmSiteDifferentialEntry, ...] = Field(default_factory=tuple)
+    broken_pairs: tuple[DifferentialBrokenPairEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -174,6 +178,11 @@ def build_ptm_differential_analysis_report(
 ) -> PtmDifferentialAnalysisReport:
     """Normalize PTM site intensities and test one explicit two-condition contrast."""
 
+    effective_pairing_field = pairing_field
+    if effective_pairing_field is None and all(
+        entry.pair_id not in (None, "") for entry in design_entries
+    ):
+        effective_pairing_field = "pair_id"
     site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
     normalized_table = normalize_label_free_table(
         site_quant_table,
@@ -187,7 +196,7 @@ def build_ptm_differential_analysis_report(
         design_entries,
         batch_field=batch_field,
         covariate_fields=tuple(dict.fromkeys(covariate_fields)),
-        pairing_field=pairing_field,
+        pairing_field=effective_pairing_field,
     )
     design_model_fit = fit_quant_design_matrix_model(
         normalized_table,
@@ -198,13 +207,22 @@ def build_ptm_differential_analysis_report(
         condition_a=condition_a,
         condition_b=condition_b,
     )
-    differential = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            normalized_table,
-            design_entries,
-            condition_a=resolved_condition_a,
-            condition_b=resolved_condition_b,
-        )
+    paired_policy = (
+        PairedDifferentialPolicy(pair_id_field=effective_pairing_field)
+        if effective_pairing_field is not None
+        else None
+    )
+    differential = build_differential_abundance_report(
+        normalized_table,
+        design_entries,
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+        test_type=(
+            DifferentialAbundanceTestType.PAIRED_T_TEST
+            if paired_policy is not None
+            else DifferentialAbundanceTestType.WELCH_T_TEST
+        ),
+        paired_policy=paired_policy,
     )
     protein_differential_lookup = _build_protein_differential_lookup(
         design_entries,
@@ -213,6 +231,7 @@ def build_ptm_differential_analysis_report(
         condition_b=resolved_condition_b,
         feature_records=feature_records,
         protein_correction_mode=protein_correction_mode,
+        pairing_field=effective_pairing_field,
     )
     differential_report = _build_ptm_site_differential_report(
         differential,
@@ -377,6 +396,7 @@ def _build_ptm_site_differential_report(
                 condition_b=entry.condition_b,
                 observations_a=entry.observations_a,
                 observations_b=entry.observations_b,
+                complete_pair_count=entry.complete_pair_count,
                 mean_log2_abundance_a=entry.mean_log2_abundance_a,
                 mean_log2_abundance_b=entry.mean_log2_abundance_b,
                 log2_fold_change=entry.log2_fold_change,
@@ -398,6 +418,7 @@ def _build_ptm_site_differential_report(
         condition_a=differential.condition_a,
         condition_b=differential.condition_b,
         entries=tuple(entries),
+        broken_pairs=differential.broken_pairs,
         note=(
             "ptm site differential report preserves protein-mapped site identity alongside one benjamini-hochberg-corrected contrast"
         ),
@@ -454,6 +475,7 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
             "condition_b",
             "observations_a",
             "observations_b",
+            "complete_pair_count",
             "mean_log2_abundance_a",
             "mean_log2_abundance_b",
             "log2_fold_change",
@@ -484,6 +506,7 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
                 entry.condition_b,
                 entry.observations_a,
                 entry.observations_b,
+                entry.complete_pair_count,
                 f"{entry.mean_log2_abundance_a:g}",
                 f"{entry.mean_log2_abundance_b:g}",
                 f"{entry.log2_fold_change:g}",
@@ -517,6 +540,51 @@ def export_ptm_site_differential_tsv(
     """Write one PTM site differential report to a stable TSV artifact."""
 
     path.write_text(render_ptm_site_differential_tsv(report), encoding="utf-8")
+
+
+def render_ptm_site_differential_broken_pairs_tsv(
+    report: PtmSiteDifferentialReport,
+) -> str:
+    """Render one PTM paired-design broken-pair ledger as a stable TSV artifact."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "condition_a",
+            "condition_b",
+            "pair_id",
+            "sample_ids_a",
+            "sample_ids_b",
+            "reason_code",
+            "detail",
+        )
+    )
+    for entry in report.broken_pairs:
+        writer.writerow(
+            (
+                entry.condition_a,
+                entry.condition_b,
+                entry.pair_id or "",
+                ";".join(entry.sample_ids_a),
+                ";".join(entry.sample_ids_b),
+                entry.reason_code,
+                entry.detail,
+            )
+        )
+    return handle.getvalue()
+
+
+def export_ptm_site_differential_broken_pairs_tsv(
+    report: PtmSiteDifferentialReport,
+    path: Path,
+) -> None:
+    """Write one PTM paired-design broken-pair ledger to a stable TSV artifact."""
+
+    path.write_text(
+        render_ptm_site_differential_broken_pairs_tsv(report),
+        encoding="utf-8",
+    )
 
 
 def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str:
@@ -581,6 +649,7 @@ def _build_protein_differential_lookup(
     condition_b: str,
     feature_records: tuple[Ms1FeatureRecord, ...] | None,
     protein_correction_mode: PtmProteinCorrectionMode,
+    pairing_field: str | None,
 ) -> dict[str, PtmProteinDifferentialReference]:
     if protein_correction_mode is PtmProteinCorrectionMode.NONE:
         return {}
@@ -609,13 +678,22 @@ def _build_protein_differential_lookup(
             method=normalization_method,
         )
     )
-    protein_differential = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            normalized_protein_table,
-            design_entries,
-            condition_a=condition_a,
-            condition_b=condition_b,
-        )
+    paired_policy = (
+        PairedDifferentialPolicy(pair_id_field=pairing_field)
+        if pairing_field is not None
+        else None
+    )
+    protein_differential = build_differential_abundance_report(
+        normalized_protein_table,
+        design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        test_type=(
+            DifferentialAbundanceTestType.PAIRED_T_TEST
+            if paired_policy is not None
+            else DifferentialAbundanceTestType.WELCH_T_TEST
+        ),
+        paired_policy=paired_policy,
     )
     return {
         entry.entity_id: PtmProteinDifferentialReference(

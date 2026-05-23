@@ -57,6 +57,7 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
         site_quantification,
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
     )
 
     assert report.design_matrix.sample_count == 4
@@ -83,3 +84,33 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
     assert volcano_target.raw_log2_fold_change == target.log2_fold_change
     assert volcano_target.plotted_log2_fold_change == target.log2_fold_change
     assert volcano_target.negative_log10_adjusted_p_value >= 0.0
+
+
+def test_ptm_differential_analysis_supports_pairwise_site_testing() -> None:
+    site_quantification = _site_quantification()
+    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
+    paired_design = (
+        design.accepted_entries[0].model_copy(update={"pair_id": "pair-1"}),
+        design.accepted_entries[1].model_copy(update={"pair_id": "pair-2"}),
+        design.accepted_entries[2].model_copy(update={"pair_id": "pair-1"}),
+        design.accepted_entries[3].model_copy(update={"pair_id": "pair-2"}),
+    )
+
+    report = build_ptm_differential_analysis_report(
+        site_quantification,
+        paired_design,
+        normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
+        pairing_field="pair_id",
+    )
+
+    target = next(
+        entry
+        for entry in report.differential_report.entries
+        if entry.site_key == "P11111:S5:Phospho"
+    )
+
+    assert report.design_matrix.pairing_field == "pair_id"
+    assert target.complete_pair_count == 2
+    assert target.effect_size_cohens_d is not None
+    assert report.differential_report.broken_pairs == ()
