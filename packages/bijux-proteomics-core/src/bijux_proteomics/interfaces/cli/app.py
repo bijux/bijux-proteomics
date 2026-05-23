@@ -269,9 +269,12 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    extract_mzml_dia_fragment_trace_coelution,
     extract_mzml_chromatographic_evidence,
     extract_mzml_chromatographic_peaks,
     extract_mzml_retention_time_alignment,
+    render_dia_fragment_coelution_fragments_tsv,
+    render_dia_fragment_coelution_runs_tsv,
     render_chromatographic_peptide_evidence_tsv,
     render_retention_time_alignment_failed_anchors_tsv,
     render_retention_time_alignment_models_tsv,
@@ -11962,6 +11965,83 @@ def xic_score_evidence_command(
     payload["outputs"] = {
         "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
         "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("dia-fragment-coelution")
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "input_mzml",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--apex-tolerance-seconds",
+    type=float,
+    default=5.0,
+    show_default=True,
+)
+@click.option("--min-correlation", type=float, default=0.8, show_default=True)
+@click.option("--min-passing-fragment-count", type=int, default=2, show_default=True)
+@click.option(
+    "--run-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--fragment-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON DIA fragment coelution output path.",
+)
+def dia_fragment_coelution_command(
+    target_table: Path,
+    input_mzml: tuple[Path, ...],
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    apex_tolerance_seconds: float,
+    min_correlation: float,
+    min_passing_fragment_count: int,
+    run_tsv_out: Path | None,
+    fragment_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score coelution among DIA fragment traces assigned to one precursor."""
+    try:
+        report = extract_mzml_dia_fragment_trace_coelution(
+            input_mzml,
+            target_table,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+            apex_tolerance_seconds=apex_tolerance_seconds,
+            min_correlation=min_correlation,
+            min_passing_fragment_count=min_passing_fragment_count,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if run_tsv_out is not None:
+        _write_text_output(
+            run_tsv_out,
+            render_dia_fragment_coelution_runs_tsv(report),
+        )
+    if fragment_tsv_out is not None:
+        _write_text_output(
+            fragment_tsv_out,
+            render_dia_fragment_coelution_fragments_tsv(report),
+        )
+    payload = report.to_dict()
+    payload["outputs"] = {
+        "run_tsv": None if run_tsv_out is None else str(run_tsv_out),
+        "fragment_tsv": None if fragment_tsv_out is None else str(fragment_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
 
