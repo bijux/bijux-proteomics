@@ -362,7 +362,7 @@ def _build_entry(
         )
         total_replicate_count = detected_replicate_count
         replicate_consistency = 1.0 if detected_replicate_count > 1 else 0.0
-    single_run_only = detected_run_count == 1 and bool(supporting_records)
+    single_run_only = bool(explicit_run_ids) and detected_run_count == 1
     reproducibility_class, explanation = _classify_reproducibility(
         explicit_run_ids=explicit_run_ids,
         detected_condition_count=detected_condition_count,
@@ -401,10 +401,10 @@ def _classify_reproducibility(
     exploratory_override: bool,
     replicate_consistency: float,
 ) -> tuple[CrossRunReproducibilityClass, str]:
-    if not explicit_run_ids and replicate_consistency >= 1.0:
+    if not explicit_run_ids:
         return (
             CrossRunReproducibilityClass.REPRODUCIBLE,
-            "multiple supporting spectra are present, but run context is unavailable so reproducibility remains provisional",
+            "support is present, but run context is unavailable so reproducibility remains provisional",
         )
     if single_run_only and exploratory_override:
         return (

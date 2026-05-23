@@ -6,6 +6,9 @@
 from __future__ import annotations
 
 from bijux_proteomics.identification.contracts import PsmRecord
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    RunDetectionContext,
+)
 from bijux_proteomics.identification.peptide_evidence import (
     PeptideEvidenceClass,
     PeptideEvidenceEntry,
@@ -30,6 +33,8 @@ def build_peptide_evidence_review_report(
     score_orientation: str = "higher_better",
     strong_q_value: float = 0.01,
     reproducible_spectrum_count: int = 2,
+    run_contexts: tuple[RunDetectionContext, ...] = (),
+    exploratory_canonical_peptides: tuple[str, ...] = (),
 ) -> PeptideEvidenceReviewReport:
     """Build the reviewer-facing peptide evidence packet from the owned engine."""
     return build_peptide_evidence_report(
@@ -38,6 +43,8 @@ def build_peptide_evidence_review_report(
         score_orientation=score_orientation,
         strong_q_value=strong_q_value,
         reproducible_spectrum_count=reproducible_spectrum_count,
+        run_contexts=run_contexts,
+        exploratory_canonical_peptides=exploratory_canonical_peptides,
     )
 
 

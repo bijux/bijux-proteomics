@@ -18,6 +18,11 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
 )
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    CrossRunReproducibilityClass,
+    RunDetectionContext,
+    build_peptide_cross_run_reproducibility_report,
+)
 from bijux_proteomics.identification.peptide_target_decoy_fdr import (
     build_peptide_target_decoy_fdr_report,
 )
@@ -43,6 +48,9 @@ class PeptideEvidenceTag(StrEnum):
     SHARED = "shared"
     MODIFIED = "modified"
     REPRODUCIBLE = "reproducible"
+    CONDITION_SPECIFIC = "condition_specific"
+    SINGLE_RUN_ONLY = "single_run_only"
+    EXPLORATORY = "exploratory"
     CONTAMINANT = "contaminant"
     DECOY = "decoy"
     AMBIGUOUS = "ambiguous"
@@ -62,6 +70,12 @@ class PeptideEvidenceEntry(JsonModel):
     psm_count: int = Field(..., ge=1)
     spectrum_count: int = Field(..., ge=1)
     run_count: int = Field(..., ge=0)
+    detection_frequency: float = Field(..., ge=0.0, le=1.0)
+    replicate_consistency: float = Field(..., ge=0.0, le=1.0)
+    condition_specificity: float = Field(..., ge=0.0, le=1.0)
+    detected_condition_count: int = Field(..., ge=0)
+    reproducibility_class: CrossRunReproducibilityClass
+    exploratory_override: bool = False
     best_score: float
     charge_states: tuple[int, ...] = Field(default_factory=tuple)
     run_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -88,6 +102,9 @@ class PeptideEvidenceSummary(JsonModel):
     unique_count: int = Field(..., ge=0)
     modified_count: int = Field(..., ge=0)
     reproducible_count: int = Field(..., ge=0)
+    condition_specific_count: int = Field(..., ge=0)
+    single_run_only_count: int = Field(..., ge=0)
+    exploratory_count: int = Field(..., ge=0)
     contaminant_count: int = Field(..., ge=0)
     decoy_count: int = Field(..., ge=0)
 
@@ -113,6 +130,8 @@ def build_peptide_evidence_report(
     score_orientation: str = "higher_better",
     strong_q_value: float = 0.01,
     reproducible_spectrum_count: int = 2,
+    run_contexts: tuple[RunDetectionContext, ...] = (),
+    exploratory_canonical_peptides: tuple[str, ...] = (),
 ) -> PeptideEvidenceReport:
     """Build one owned peptide evidence classification report."""
     if strong_q_value < 0.0:
@@ -131,12 +150,19 @@ def build_peptide_evidence_report(
         score_orientation=score_orientation,
         evidence_policy="best_score",
     )
+    reproducibility_report = build_peptide_cross_run_reproducibility_report(
+        records,
+        run_contexts=run_contexts,
+        exploratory_canonical_peptides=exploratory_canonical_peptides,
+    )
+    reproducibility_by_peptide = {
+        entry.entity_id: entry for entry in reproducibility_report.entries
+    }
     for ranked_entry in peptide_fdr.entries:
         rollup = ranked_entry.evidence
         supporting_records = tuple(grouped_records[rollup.canonical_peptide])
-        run_ids = tuple(
-            sorted({record.run_id for record in supporting_records if record.run_id})
-        )
+        reproducibility = reproducibility_by_peptide[rollup.canonical_peptide]
+        run_ids = reproducibility.run_ids
         target_decoy_contaminant_class = _combine_target_decoy_contaminant_class(
             tuple(
                 record.target_decoy_contaminant_class for record in supporting_records
@@ -149,7 +175,16 @@ def build_peptide_evidence_report(
         shared = len(rollup.protein_refs) > 1
         modified = "[" in rollup.canonical_peptide
         reproducible = (
-            rollup.spectrum_count >= reproducible_spectrum_count or len(run_ids) > 1
+            (
+                reproducibility.reproducibility_class
+                in {
+                    CrossRunReproducibilityClass.REPRODUCIBLE,
+                    CrossRunReproducibilityClass.CONDITION_SPECIFIC,
+                    CrossRunReproducibilityClass.EXPLORATORY,
+                }
+            )
+            if reproducibility.run_ids
+            else rollup.spectrum_count >= reproducible_spectrum_count
         )
         primary_class, explanation = _classify_primary_class(
             target_decoy_label=rollup.target_decoy_label,
@@ -160,8 +195,10 @@ def build_peptide_evidence_report(
             accepted=ranked_entry.accepted,
             q_value=ranked_entry.q_value,
             strong_q_value=strong_q_value,
+            reproducibility_class=reproducibility.reproducibility_class,
             reproducible=reproducible,
         )
+        explanation = f"{explanation}; {reproducibility.explanation}"
         entries.append(
             PeptideEvidenceEntry(
                 peptide=rollup.peptide,
@@ -171,6 +208,7 @@ def build_peptide_evidence_report(
                     shared=shared,
                     modified=modified,
                     reproducible=reproducible,
+                    reproducibility_class=reproducibility.reproducibility_class,
                     contaminant_flag=contaminant_flag,
                     target_decoy_label=rollup.target_decoy_label,
                     target_decoy_contaminant_class=target_decoy_contaminant_class,
@@ -179,7 +217,13 @@ def build_peptide_evidence_report(
                 accepted=ranked_entry.accepted,
                 psm_count=rollup.psm_count,
                 spectrum_count=rollup.spectrum_count,
-                run_count=len(run_ids),
+                run_count=reproducibility.detected_run_count,
+                detection_frequency=reproducibility.detection_frequency,
+                replicate_consistency=reproducibility.replicate_consistency,
+                condition_specificity=reproducibility.condition_specificity,
+                detected_condition_count=reproducibility.detected_condition_count,
+                reproducibility_class=reproducibility.reproducibility_class,
+                exploratory_override=reproducibility.exploratory_override,
                 best_score=rollup.best_score,
                 charge_states=rollup.charge_states,
                 run_ids=run_ids,
@@ -196,6 +240,8 @@ def build_peptide_evidence_report(
         "score_orientation": score_orientation,
         "strong_q_value": strong_q_value,
         "reproducible_spectrum_count": reproducible_spectrum_count,
+        "run_contexts": [context.to_dict() for context in run_contexts],
+        "exploratory_canonical_peptides": list(exploratory_canonical_peptides),
         "entries": [entry.to_dict() for entry in entries],
     }
     summary = PeptideEvidenceSummary(
@@ -227,6 +273,23 @@ def build_peptide_evidence_report(
         ),
         reproducible_count=sum(
             1 for entry in entries if PeptideEvidenceTag.REPRODUCIBLE in entry.tags
+        ),
+        condition_specific_count=sum(
+            1
+            for entry in entries
+            if entry.reproducibility_class
+            is CrossRunReproducibilityClass.CONDITION_SPECIFIC
+        ),
+        single_run_only_count=sum(
+            1
+            for entry in entries
+            if entry.reproducibility_class
+            is CrossRunReproducibilityClass.SINGLE_RUN_ONLY
+        ),
+        exploratory_count=sum(
+            1
+            for entry in entries
+            if entry.reproducibility_class is CrossRunReproducibilityClass.EXPLORATORY
         ),
         contaminant_count=sum(
             1
@@ -272,6 +335,9 @@ def render_peptide_evidence_summary_tsv(report: PeptideEvidenceReport) -> str:
         ("unique_count", report.summary.unique_count),
         ("modified_count", report.summary.modified_count),
         ("reproducible_count", report.summary.reproducible_count),
+        ("condition_specific_count", report.summary.condition_specific_count),
+        ("single_run_only_count", report.summary.single_run_only_count),
+        ("exploratory_count", report.summary.exploratory_count),
         ("contaminant_count", report.summary.contaminant_count),
         ("decoy_count", report.summary.decoy_count),
     ):
@@ -294,6 +360,12 @@ def render_peptide_evidence_entries_tsv(report: PeptideEvidenceReport) -> str:
             "psm_count",
             "spectrum_count",
             "run_count",
+            "detection_frequency",
+            "replicate_consistency",
+            "condition_specificity",
+            "detected_condition_count",
+            "reproducibility_class",
+            "exploratory_override",
             "best_score",
             "charge_states",
             "run_ids",
@@ -316,6 +388,12 @@ def render_peptide_evidence_entries_tsv(report: PeptideEvidenceReport) -> str:
                 entry.psm_count,
                 entry.spectrum_count,
                 entry.run_count,
+                entry.detection_frequency,
+                entry.replicate_consistency,
+                entry.condition_specificity,
+                entry.detected_condition_count,
+                entry.reproducibility_class.value,
+                str(entry.exploratory_override).lower(),
                 entry.best_score,
                 ";".join(str(charge) for charge in entry.charge_states),
                 ";".join(entry.run_ids),
@@ -334,6 +412,7 @@ def _build_tags(
     shared: bool,
     modified: bool,
     reproducible: bool,
+    reproducibility_class: CrossRunReproducibilityClass,
     contaminant_flag: bool,
     target_decoy_label: TargetDecoyLabel,
     target_decoy_contaminant_class: TargetDecoyContaminantClass,
@@ -345,6 +424,12 @@ def _build_tags(
         tags.append(PeptideEvidenceTag.MODIFIED)
     if reproducible:
         tags.append(PeptideEvidenceTag.REPRODUCIBLE)
+    if reproducibility_class is CrossRunReproducibilityClass.CONDITION_SPECIFIC:
+        tags.append(PeptideEvidenceTag.CONDITION_SPECIFIC)
+    if reproducibility_class is CrossRunReproducibilityClass.SINGLE_RUN_ONLY:
+        tags.append(PeptideEvidenceTag.SINGLE_RUN_ONLY)
+    if reproducibility_class is CrossRunReproducibilityClass.EXPLORATORY:
+        tags.append(PeptideEvidenceTag.EXPLORATORY)
     if contaminant_flag:
         tags.append(PeptideEvidenceTag.CONTAMINANT)
     if target_decoy_label is TargetDecoyLabel.DECOY:
@@ -392,6 +477,7 @@ def _classify_primary_class(
     accepted: bool,
     q_value: float,
     strong_q_value: float,
+    reproducibility_class: CrossRunReproducibilityClass,
     reproducible: bool,
 ) -> tuple[PeptideEvidenceClass, str]:
     if target_decoy_contaminant_class is TargetDecoyContaminantClass.DECOY or (
@@ -424,7 +510,10 @@ def _classify_primary_class(
             reasons.append("protein mapping remains shared")
         return (PeptideEvidenceClass.WEAK, "; ".join(reasons))
     if shared:
-        if reproducible and q_value <= strong_q_value:
+        if (
+            reproducible
+            and q_value <= strong_q_value
+        ):
             return (
                 PeptideEvidenceClass.SHARED,
                 "shared peptide is accepted with stable support but cannot support protein-specific evidence on its own",
@@ -433,7 +522,10 @@ def _classify_primary_class(
             PeptideEvidenceClass.WEAK,
             "shared peptide is accepted but lacks the q-value or reproducible support required for stronger non-unique evidence",
         )
-    if q_value <= strong_q_value and reproducible:
+    if (
+        q_value <= strong_q_value
+        and reproducible
+    ):
         return (
             PeptideEvidenceClass.STRONG,
             f"unique peptide passes peptide-level FDR, meets the strong-evidence q-value threshold at {strong_q_value:.4f}, and is reproducibly observed",
