@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from itertools import combinations
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -16,7 +17,10 @@ from bijux_proteomics.quantification.contracts import (
     ImputationEntry,
     ImputationMethod,
     ImputationReport,
+    ImputationSensitivityChangedSignificanceEntry,
+    ImputationDependentHitEntry,
     ImputationSensitivityEntry,
+    ImputationSensitivityOverlapEntry,
     ImputationSensitivityReport,
     LabelFreeQuantTable,
     MissingValueKind,
@@ -114,15 +118,19 @@ def build_imputation_sensitivity_report(
     methods: tuple[ImputationMethod, ...] = (
         ImputationMethod.NONE,
         ImputationMethod.LOW_INTENSITY,
-        ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
         ImputationMethod.KNN,
     ),
+    significance_threshold: float = 0.05,
 ) -> ImputationSensitivityReport:
     """Compare downstream differential behavior across imputation policies."""
     entries: list[ImputationSensitivityEntry] = []
+    overlap_entries: list[ImputationSensitivityOverlapEntry] = []
+    changed_significance_entries: list[ImputationSensitivityChangedSignificanceEntry] = []
+    imputation_dependent_hits: list[ImputationDependentHitEntry] = []
     primary_narratives: set[tuple[str | None, str | None]] = set()
     resolved_condition_a = condition_a
     resolved_condition_b = condition_b
+    differential_by_method: dict[ImputationMethod, object] = {}
     for method in methods:
         try:
             imputed = impute_label_free_table(
@@ -139,6 +147,7 @@ def build_imputation_sensitivity_report(
                     condition_b=condition_b,
                 )
             )
+            differential_by_method[method] = differential
             resolved_condition_a = differential.condition_a
             resolved_condition_b = differential.condition_b
             top_entry = differential.entries[0] if differential.entries else None
@@ -159,6 +168,12 @@ def build_imputation_sensitivity_report(
                     method=method,
                     supported=True,
                     imputed_value_count=imputation_report.imputed_value_count,
+                    significant_entity_count=sum(
+                        1
+                        for entry in differential.entries
+                        if entry.adjusted_p_value is not None
+                        and entry.adjusted_p_value <= significance_threshold
+                    ),
                     top_entity_id=None if top_entry is None else top_entry.entity_id,
                     top_entity_direction=top_direction,
                     top_entity_effect_size=(
@@ -177,6 +192,7 @@ def build_imputation_sensitivity_report(
                     method=method,
                     supported=False,
                     imputed_value_count=0,
+                    significant_entity_count=0,
                     note=str(exc),
                 )
             )
@@ -184,10 +200,147 @@ def build_imputation_sensitivity_report(
         raise ValueError(
             "imputation sensitivity requires resolvable contrast conditions"
         )
+
+    supported_methods = tuple(
+        entry.method for entry in entries if entry.supported and entry.method in differential_by_method
+    )
+    significant_entities_by_method: dict[ImputationMethod, set[str]] = {
+        method: {
+            entry.entity_id
+            for entry in differential_by_method[method].entries
+            if entry.adjusted_p_value is not None
+            and entry.adjusted_p_value <= significance_threshold
+        }
+        for method in supported_methods
+    }
+    entry_lookup_by_method: dict[ImputationMethod, dict[str, object]] = {
+        method: {
+            entry.entity_id: entry
+            for entry in differential_by_method[method].entries
+        }
+        for method in supported_methods
+    }
+
+    for method_a, method_b in combinations(supported_methods, 2):
+        significant_a = significant_entities_by_method[method_a]
+        significant_b = significant_entities_by_method[method_b]
+        overlap = significant_a & significant_b
+        union = significant_a | significant_b
+        overlap_entries.append(
+            ImputationSensitivityOverlapEntry(
+                method_a=method_a,
+                method_b=method_b,
+                significant_entity_count_a=len(significant_a),
+                significant_entity_count_b=len(significant_b),
+                overlapping_significant_entity_count=len(overlap),
+                method_a_only_count=len(significant_a - significant_b),
+                method_b_only_count=len(significant_b - significant_a),
+                jaccard_index=(float(len(overlap) / len(union)) if union else 1.0),
+            )
+        )
+
+    baseline_method = ImputationMethod.NONE
+    if baseline_method in entry_lookup_by_method:
+        baseline_lookup = entry_lookup_by_method[baseline_method]
+        baseline_significant = significant_entities_by_method[baseline_method]
+        for method in supported_methods:
+            if method is baseline_method:
+                continue
+            compared_lookup = entry_lookup_by_method[method]
+            compared_significant = significant_entities_by_method[method]
+            for entity_id in sorted(set(baseline_lookup) | set(compared_lookup)):
+                baseline_entry = baseline_lookup.get(entity_id)
+                compared_entry = compared_lookup.get(entity_id)
+                baseline_hit = entity_id in baseline_significant
+                compared_hit = entity_id in compared_significant
+                if baseline_hit == compared_hit:
+                    continue
+                changed_significance_entries.append(
+                    ImputationSensitivityChangedSignificanceEntry(
+                        entity_id=entity_id,
+                        reference_method=baseline_method,
+                        compared_method=method,
+                        reference_significant=baseline_hit,
+                        compared_significant=compared_hit,
+                        reference_adjusted_p_value=(
+                            None
+                            if baseline_entry is None
+                            else baseline_entry.adjusted_p_value
+                        ),
+                        compared_adjusted_p_value=(
+                            None
+                            if compared_entry is None
+                            else compared_entry.adjusted_p_value
+                        ),
+                        reference_log2_fold_change=(
+                            None
+                            if baseline_entry is None
+                            else baseline_entry.log2_fold_change
+                        ),
+                        compared_log2_fold_change=(
+                            None
+                            if compared_entry is None
+                            else compared_entry.log2_fold_change
+                        ),
+                        note=(
+                            "entity is significant only after imputation"
+                            if compared_hit and not baseline_hit
+                            else "entity loses significance after imputation comparison"
+                        ),
+                    )
+                )
+        imputation_only_entities = sorted(
+            set().union(
+                *(
+                    significant_entities_by_method[method] - baseline_significant
+                    for method in supported_methods
+                    if method is not baseline_method
+                )
+            )
+        )
+        for entity_id in imputation_only_entities:
+            supporting_methods = tuple(
+                method
+                for method in supported_methods
+                if method is not baseline_method
+                and entity_id in significant_entities_by_method[method]
+            )
+            best_method = min(
+                supporting_methods,
+                key=lambda method: (
+                    entry_lookup_by_method[method][entity_id].adjusted_p_value
+                    if entry_lookup_by_method[method][entity_id].adjusted_p_value is not None
+                    else 1.0,
+                    -abs(entry_lookup_by_method[method][entity_id].log2_fold_change),
+                    method.value,
+                ),
+            )
+            baseline_entry = baseline_lookup.get(entity_id)
+            best_entry = entry_lookup_by_method[best_method][entity_id]
+            imputation_dependent_hits.append(
+                ImputationDependentHitEntry(
+                    entity_id=entity_id,
+                    baseline_method=baseline_method,
+                    imputation_methods=supporting_methods,
+                    baseline_adjusted_p_value=(
+                        None if baseline_entry is None else baseline_entry.adjusted_p_value
+                    ),
+                    best_imputation_method=best_method,
+                    best_imputation_adjusted_p_value=best_entry.adjusted_p_value,
+                    best_imputation_log2_fold_change=best_entry.log2_fold_change,
+                    note="entity reaches significance only under one or more imputation policies",
+                )
+            )
+
     return ImputationSensitivityReport(
         condition_a=resolved_condition_a,
         condition_b=resolved_condition_b,
+        baseline_method=baseline_method,
+        significance_threshold=significance_threshold,
         entries=tuple(entries),
+        overlap_entries=tuple(overlap_entries),
+        changed_significance_entries=tuple(changed_significance_entries),
+        imputation_dependent_hits=tuple(imputation_dependent_hits),
         primary_narrative_changed=len(primary_narratives) > 1,
     )
 
