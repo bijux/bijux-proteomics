@@ -84,13 +84,42 @@ def test_public_benchmark_runner_command_emits_suite_summary_and_failures() -> N
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["passed_count"] == 1
+        assert payload["passed_count"] == 2
         assert payload["failed_count"] == 5
         summary_tsv = Path("public_benchmark.summary.tsv").read_text()
         failures_tsv = Path("public_benchmark.failures.tsv").read_text()
+        assert "lfq_cohort_review_package" in summary_tsv
         assert "ptm_localization_review_package" in summary_tsv
         assert "dia_diann_review_snapshot" in summary_tsv
         assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
+
+
+def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "build-trust-bundle",
+                "--benchmarks",
+                str(REPO_ROOT / "benchmarks" / "public"),
+                "--out",
+                "trust_bundle",
+                "--summary-tsv-out",
+                "trust_bundle.summary.tsv",
+                "--manifest-json-out",
+                "trust_bundle.manifest.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["suite_report"]["passed_count"] == 2
+        assert payload["suite_report"]["failed_count"] == 5
+        assert Path("trust_bundle/index.html").exists()
+        assert Path("trust_bundle/trust_bundle_manifest.json").exists()
+        assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
+        assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
 
 
 def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
