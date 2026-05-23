@@ -82,3 +82,71 @@ def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
     assert "claim_kind\tclaim_id\tstatistical_result_id\trelation" in review.render_evidence_chain_tsv(
         report
     )
+
+
+def test_review_package_exports_evidence_graph_contradiction_surface() -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    protein = builder.add_protein("P11111", label="P11111")
+    peptide_a = builder.add_peptide("PEPA", label="PEPA")
+    peptide_b = builder.add_peptide("PEPB", label="PEPB")
+    protein_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+        claim_state="unchanged",
+    )
+    peptide_a_result = builder.add_statistical_result(
+        "peptide:treatment_vs_control:PEPA",
+        label="peptide PEPA differential result",
+        claim_state="upregulated",
+    )
+    peptide_b_result = builder.add_statistical_result(
+        "peptide:treatment_vs_control:PEPB",
+        label="peptide PEPB differential result",
+        claim_state="downregulated",
+    )
+
+    builder.add_peptide_quantifies_protein(
+        peptide_a.node_id,
+        protein.node_id,
+        source_row_ref="features.tsv:10",
+        confidence=0.88,
+        reason="PEPA contributes to protein quantification",
+    )
+    builder.add_peptide_quantifies_protein(
+        peptide_b.node_id,
+        protein.node_id,
+        source_row_ref="features.tsv:11",
+        confidence=0.87,
+        reason="PEPB contributes to protein quantification",
+    )
+    builder.add_protein_supports_statistical_result(
+        protein.node_id,
+        protein_result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.9,
+        reason="protein P11111 is unchanged in treatment vs control",
+    )
+    builder.add_peptide_supports_statistical_result(
+        peptide_a.node_id,
+        peptide_a_result.node_id,
+        source_row_ref="peptide_stats.tsv:4",
+        confidence=0.84,
+        reason="peptide PEPA is upregulated in treatment vs control",
+    )
+    builder.add_peptide_supports_statistical_result(
+        peptide_b.node_id,
+        peptide_b_result.node_id,
+        source_row_ref="peptide_stats.tsv:5",
+        confidence=0.83,
+        reason="peptide PEPB is downregulated in treatment vs control",
+    )
+
+    report = review.detect_evidence_graph_contradictions(builder.build())
+
+    assert hasattr(review, "detect_evidence_graph_contradictions")
+    assert hasattr(review, "render_evidence_graph_contradictions_tsv")
+    assert report.contradiction_count == 1
+    assert report.entries[0].kind.value == "protein_unchanged_with_changed_peptides"
+    assert "contradiction_id\tkind\tseverity\tclaim_node_id" in (
+        review.render_evidence_graph_contradictions_tsv(report)
+    )
