@@ -24,6 +24,7 @@ from bijux_proteomics.quantification import (
     render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
+    render_protein_lfq_disconnected_components_tsv,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
@@ -189,6 +190,9 @@ def test_quant_matrix_renderers_ignore_scrambled_report_order() -> None:
                     )
                 }
             ),
+            "disconnected_components": tuple(
+                reversed(protein_lfq_report.disconnected_components)
+            ),
         }
     )
 
@@ -216,6 +220,9 @@ def test_quant_matrix_renderers_ignore_scrambled_report_order() -> None:
     assert render_protein_lfq_missingness_tsv(
         protein_lfq_report
     ) == render_protein_lfq_missingness_tsv(scrambled_lfq)
+    assert render_protein_lfq_disconnected_components_tsv(
+        protein_lfq_report
+    ) == render_protein_lfq_disconnected_components_tsv(scrambled_lfq)
 
 
 def test_heatmap_renderers_ignore_scrambled_report_order() -> None:
