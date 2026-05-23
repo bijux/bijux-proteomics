@@ -499,6 +499,7 @@ from bijux_proteomics.ptm import (
     export_ptm_site_annotation_biology_tsv,
     export_ptm_site_annotation_mapping_summary_tsv,
     export_ptm_site_differential_tsv,
+    export_ptm_site_differential_broken_pairs_tsv,
     export_ptm_unmapped_site_annotation_tsv,
     render_ptm_ambiguity_review_summary_tsv,
     render_ptm_coordinate_validation_tsv,
@@ -534,6 +535,7 @@ from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     PeptideMatrixGroupingMode,
+    PairedDifferentialPolicy,
     PrecursorIntensityColumnMapping,
     ProteinMatrixTargetKind,
     QuantEntityLevel,
@@ -569,6 +571,7 @@ from bijux_proteomics.quantification import (
     export_msstats_compatible_input_tsv,
     export_heatmap_column_metadata_tsv,
     export_differential_abundance_tsv,
+    export_differential_broken_pairs_tsv,
     export_heatmap_row_metadata_tsv,
     export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
@@ -7644,6 +7647,11 @@ def infer_proteins_command(
     default=None,
 )
 @click.option(
+    "--broken-pairs-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--design-covariate",
     "design_covariates",
     multiple=True,
@@ -7741,6 +7749,7 @@ def quantify_command(
     condition_a: str | None,
     condition_b: str | None,
     differential_tsv_out: Path | None,
+    broken_pairs_tsv_out: Path | None,
     design_covariates: tuple[str, ...],
     design_batch_field: str,
     design_pairing_field: str | None,
@@ -7928,15 +7937,25 @@ def quantify_command(
                         condition_b=selected_contrast[1],
                         methods=sensitivity_methods,
                     )
+                    paired_policy = (
+                        PairedDifferentialPolicy(
+                            pair_id_field=effective_pairing_field,
+                        )
+                        if effective_pairing_field is not None
+                        else None
+                    )
                     differential = build_differential_abundance_report(
                         table,
                         design_entries,
                         condition_a=selected_contrast[0],
                         condition_b=selected_contrast[1],
                         test_type=(
-                            DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST
+                            DifferentialAbundanceTestType.PAIRED_T_TEST
+                            if paired_policy is not None
+                            else DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST
                         ),
                         design_matrix=design_matrix,
+                        paired_policy=paired_policy,
                     )
                 elif len(conditions) > 2:
                     differential_multi_condition = (
@@ -7960,6 +7979,12 @@ def quantify_command(
             raise click.ClickException(
                 "differential tsv export requires a resolvable contrast or at least two conditions"
             )
+    if broken_pairs_tsv_out is not None:
+        if differential is None:
+            raise click.ClickException(
+                "broken-pair export requires a resolvable two-condition differential contrast"
+            )
+        export_differential_broken_pairs_tsv(differential, broken_pairs_tsv_out)
     if design_matrix_tsv_out is not None:
         if design_matrix is None:
             raise click.ClickException("design matrix export requires --design")
@@ -8149,6 +8174,11 @@ def quantify_command(
             "differential_tsv": (
                 str(differential_tsv_out)
                 if differential_tsv_out is not None
+                else None
+            ),
+            "broken_pairs_tsv": (
+                str(broken_pairs_tsv_out)
+                if broken_pairs_tsv_out is not None
                 else None
             ),
             "design_matrix_tsv": (
@@ -15905,6 +15935,11 @@ def ptm_estimate_occupancy_command(
     default=None,
 )
 @click.option(
+    "--broken-pairs-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--volcano-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -15972,6 +16007,7 @@ def ptm_differential_command(
     design_covariates: tuple[str, ...],
     protein_correction_mode: str,
     results_tsv_out: Path | None,
+    broken_pairs_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
     volcano_json_out: Path | None,
     volcano_svg_out: Path | None,
@@ -16075,6 +16111,11 @@ def ptm_differential_command(
 
     if results_tsv_out is not None:
         export_ptm_site_differential_tsv(report.differential_report, results_tsv_out)
+    if broken_pairs_tsv_out is not None:
+        export_ptm_site_differential_broken_pairs_tsv(
+            report.differential_report,
+            broken_pairs_tsv_out,
+        )
     if volcano_tsv_out is not None:
         assert volcano_plot is not None
         export_ptm_differential_volcano_tsv(volcano_plot, volcano_tsv_out)
@@ -16101,6 +16142,9 @@ def ptm_differential_command(
             ),
             "outputs": {
                 "results_tsv": None if results_tsv_out is None else str(results_tsv_out),
+                "broken_pairs_tsv": (
+                    None if broken_pairs_tsv_out is None else str(broken_pairs_tsv_out)
+                ),
                 "volcano_tsv": None if volcano_tsv_out is None else str(volcano_tsv_out),
                 "volcano_json": (
                     None if volcano_json_out is None else str(volcano_json_out)

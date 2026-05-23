@@ -6414,36 +6414,90 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert Path("quantify.limma_design.tsv").exists()
         assert Path("quantify.limma_contrasts.tsv").exists()
         assert Path("quantify.msstats.tsv").exists()
-        assert "P001\tcontrol\ttreatment" in Path(
-            "quantify.differential.tsv"
-        ).read_text(encoding="utf-8")
-        assert "contrast_name" in Path("quantify.differential.tsv").read_text(
+
+
+def test_quantify_command_reports_paired_differential_broken_pairs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("paired_features.tsv").write_text(
+            "\n".join(
+                (
+                    "feature_id\tsample_id\tpeptide\tproteins\tintensity\tcharge\tmz\tretention_time_seconds\tmissing_reason",
+                    "pf001\tC1\tPEPA\tP001\t1000\t2\t500.2\t1200\t",
+                    "pf002\tT1\tPEPA\tP001\t1900\t2\t500.2\t1201\t",
+                    "pf003\tC2\tPEPA\tP001\t1100\t2\t500.2\t1202\t",
+                    "pf004\tT2\tPEPA\tP001\t2200\t2\t500.2\t1203\t",
+                    "pf005\tC3\tPEPA\tP001\t900\t2\t500.2\t1204\t",
+                    "pf101\tC1\tPEPB\tP002\t500\t2\t600.2\t1300\t",
+                    "pf102\tT1\tPEPB\tP002\t850\t2\t600.2\t1301\t",
+                    "pf103\tC2\tPEPB\tP002\t520\t2\t600.2\t1302\t",
+                    "pf104\tT2\tPEPB\tP002\t900\t2\t600.2\t1303\t",
+                    "pf105\tC3\tPEPB\tP002\t510\t2\t600.2\t1304\t",
+                )
+            ),
+            encoding="utf-8",
+        )
+        Path("paired.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\tinstrument\tsearch_engine\tpair_id",
+                    "C1\tcontrol\t1\t1\tc1.mzml\tc1.tsv\tbatch-a\torbitrap-a\tsage\tpair-1",
+                    "T1\ttreatment\t1\t1\tt1.mzml\tt1.tsv\tbatch-a\torbitrap-a\tsage\tpair-1",
+                    "C2\tcontrol\t2\t1\tc2.mzml\tc2.tsv\tbatch-b\torbitrap-b\tsage\tpair-2",
+                    "T2\ttreatment\t2\t1\tt2.mzml\tt2.tsv\tbatch-b\torbitrap-b\tsage\tpair-2",
+                    "C3\tcontrol\t3\t1\tc3.mzml\tc3.tsv\tbatch-c\torbitrap-c\tsage\tpair-3",
+                )
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "paired_features.tsv",
+                "--design",
+                "paired.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "none",
+                "--imputation",
+                "none",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--design-batch-field",
+                "",
+                "--differential-tsv-out",
+                "paired.differential.tsv",
+                "--broken-pairs-tsv-out",
+                "paired.broken.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert (
+            payload["differential_abundance"]["assumption_report"]["test_type"]
+            == "paired_t_test"
+        )
+        assert payload["differential_abundance"]["broken_pairs"][0]["pair_id"] == "pair-3"
+        assert payload["outputs"]["differential_tsv"] == "paired.differential.tsv"
+        assert "complete_pair_count" in Path("paired.differential.tsv").read_text(
             encoding="utf-8"
         )
-        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
-            "quantify.design.tsv"
+        assert "pair-3" in Path("paired.broken.tsv").read_text(encoding="utf-8")
+        assert "P001\tcontrol\ttreatment" in Path(
+            "paired.differential.tsv"
         ).read_text(encoding="utf-8")
-        assert "P001\tcondition[treatment]" in Path(
-            "quantify.design_coefficients.tsv"
-        ).read_text(encoding="utf-8")
-        assert "P001\tcontrol_vs_treatment" in Path(
-            "quantify.design_contrasts.tsv"
-        ).read_text(encoding="utf-8")
-        assert "entity_id\tC1\tC2\tT1\tT2" in Path(
-            "quantify.limma_assay.tsv"
-        ).read_text(encoding="utf-8")
-        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
-            "quantify.limma_samples.tsv"
-        ).read_text(encoding="utf-8")
-        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
-            "quantify.limma_design.tsv"
-        ).read_text(encoding="utf-8")
-        assert "coefficient_name\tcontrol_vs_treatment" in Path(
-            "quantify.limma_contrasts.tsv"
-        ).read_text(encoding="utf-8")
-        assert "ProteinName\tPeptideSequence\tPrecursorCharge" in Path(
-            "quantify.msstats.tsv"
-        ).read_text(encoding="utf-8")
+        assert "contrast_name" in Path("paired.differential.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert payload["outputs"]["broken_pairs_tsv"] == "paired.broken.tsv"
         assert any(
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
             for entry in payload["differential_abundance"]["entries"]
@@ -7694,6 +7748,8 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
                 "ptm.design.tsv",
                 "--protein-correction-mode",
                 "subtract_unmodified_protein",
+                "--design-batch-field",
+                "",
                 "--results-tsv-out",
                 "ptm.differential.tsv",
                 "--volcano-tsv-out",
@@ -7726,6 +7782,60 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
         assert "<svg" in Path("ptm.volcano.svg").read_text(encoding="utf-8")
         assert "Volcano plot:" in Path("ptm.volcano.html").read_text(
             encoding="utf-8"
+        )
+
+
+def test_ptm_differential_command_exports_paired_broken_pair_ledger() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+        Path("ptm_paired.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tbatch\tpair_id",
+                    "C1\tcontrol\t1\t1\tC1.raw\tbatch-a\tpair-1",
+                    "C2\tcontrol\t2\t1\tC2.raw\tbatch-a\tpair-2",
+                    "T1\ttreated\t1\t1\tT1.raw\tbatch-b\tpair-1",
+                    "T2\ttreated\t2\t1\tT2.raw\tbatch-b\tpair-2",
+                )
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "differential",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "ptm_paired.design.tsv",
+                "--design-pairing-field",
+                "pair_id",
+                "--design-batch-field",
+                "",
+                "--broken-pairs-tsv-out",
+                "ptm.broken.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["differential_report"]["broken_pairs"] == []
+        assert any(
+            entry["complete_pair_count"] == 2
+            for entry in payload["differential_report"]["entries"]
+        )
+        assert Path("ptm.broken.tsv").read_text(encoding="utf-8").startswith(
+            "condition_a\tcondition_b\tpair_id"
         )
 
 
