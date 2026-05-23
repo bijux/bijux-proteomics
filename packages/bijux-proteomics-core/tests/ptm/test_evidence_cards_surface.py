@@ -8,11 +8,11 @@ from pathlib import Path
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
+    PtmMotifComparisonPolicy,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
     build_ptm_report_bundle,
-    export_ptm_report_bundle,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
 )
@@ -38,13 +38,16 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -> None:
+def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
     design_entries = parse_experimental_design_table(
         _ptm_fixture("ptm.design.tsv")
     ).accepted_entries
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
+
     report = build_ptm_report_bundle(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -56,6 +59,7 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
+        motif_comparison_policy=PtmMotifComparisonPolicy(),
         annotation_records=annotations.accepted_records,
         annotation_target_species="Homo sapiens",
         regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
@@ -65,39 +69,33 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
         evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
-    manifest = export_ptm_report_bundle(report, tmp_path / "ptm_report")
-    output_dir = tmp_path / "ptm_report"
+    assert report.evidence_cards is not None
+    assert report.summary.evidence_card_count == 3
+    assert report.summary.narrative_claim_count == 3
+    assert all(card.card_id.startswith("ptm-card-") for card in report.evidence_cards.cards)
+    assert all(card.claim_ids for card in report.evidence_cards.cards)
+    claim_card_ids = {claim.card_id for claim in report.evidence_cards.narrative_claims}
+    assert claim_card_ids == {card.card_id for card in report.evidence_cards.cards}
 
-    assert manifest.summary.accepted_evidence_count == 8
-    assert manifest.summary.quantified_site_row_count == 3
-    assert manifest.summary.differential_site_count == 3
-    assert manifest.motif_summary_included is True
-    assert (output_dir / manifest.artifacts.summary_tsv).exists()
-    assert (output_dir / manifest.artifacts.peptide_tsv).exists()
-    assert (output_dir / manifest.artifacts.site_tsv).exists()
-    assert (output_dir / manifest.artifacts.localization_tsv).exists()
-    assert (output_dir / manifest.artifacts.site_quant_matrix_tsv).exists()
-    assert (output_dir / manifest.artifacts.differential_tsv).exists()
-    assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
-    assert (output_dir / manifest.artifacts.evidence_card_tsv).exists()
-    assert (output_dir / manifest.artifacts.evidence_claim_tsv).exists()
-    assert "S[Phospho]PEPTIDEK" in (
-        output_dir / manifest.artifacts.peptide_tsv
-    ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_tsv
-    ).read_text()
-    assert "probability_source" in (
-        output_dir / manifest.artifacts.localization_tsv
-    ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_quant_matrix_tsv
-    ).read_text()
-    assert "corrected_log2_fold_change" in (
-        output_dir / manifest.artifacts.differential_tsv
-    ).read_text()
-    assert "exclusive_to_regulated" in (
-        output_dir / manifest.artifacts.motif_term_tsv
-    ).read_text()
-    assert "card_id" in (output_dir / manifest.artifacts.evidence_card_tsv).read_text()
-    assert "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()
+    annotated = next(
+        card
+        for card in report.evidence_cards.cards
+        if card.site_key == "P11111:S5:Phospho"
+    )
+    low_localization = next(
+        card
+        for card in report.evidence_cards.cards
+        if card.site_key == "Q9DEC1:S5:Phospho"
+    )
+
+    assert annotated.motif_evidence.centered_windows
+    assert any(
+        regulator.regulator == "AKT1" for regulator in annotated.regulator_evidence
+    )
+    assert annotated.claim_ids
+    assert any(
+        warning.code.value == "low_localization" for warning in low_localization.warnings
+    )
+    assert any(
+        warning.code.value == "decoy_site" for warning in low_localization.warnings
+    )

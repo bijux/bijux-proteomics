@@ -38,13 +38,15 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -> None:
+def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path) -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
     design_entries = parse_experimental_design_table(
         _ptm_fixture("ptm.design.tsv")
     ).accepted_entries
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     report = build_ptm_report_bundle(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -66,38 +68,13 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     )
 
     manifest = export_ptm_report_bundle(report, tmp_path / "ptm_report")
-    output_dir = tmp_path / "ptm_report"
 
-    assert manifest.summary.accepted_evidence_count == 8
-    assert manifest.summary.quantified_site_row_count == 3
-    assert manifest.summary.differential_site_count == 3
-    assert manifest.motif_summary_included is True
-    assert (output_dir / manifest.artifacts.summary_tsv).exists()
-    assert (output_dir / manifest.artifacts.peptide_tsv).exists()
-    assert (output_dir / manifest.artifacts.site_tsv).exists()
-    assert (output_dir / manifest.artifacts.localization_tsv).exists()
-    assert (output_dir / manifest.artifacts.site_quant_matrix_tsv).exists()
-    assert (output_dir / manifest.artifacts.differential_tsv).exists()
-    assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
-    assert (output_dir / manifest.artifacts.evidence_card_tsv).exists()
-    assert (output_dir / manifest.artifacts.evidence_claim_tsv).exists()
-    assert "S[Phospho]PEPTIDEK" in (
-        output_dir / manifest.artifacts.peptide_tsv
+    assert manifest.artifacts.evidence_card_summary_tsv is not None
+    assert manifest.artifacts.evidence_card_tsv is not None
+    assert manifest.artifacts.evidence_claim_tsv is not None
+    assert "card_id" in (
+        tmp_path / "ptm_report" / manifest.artifacts.evidence_card_tsv
     ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_tsv
-    ).read_text()
-    assert "probability_source" in (
-        output_dir / manifest.artifacts.localization_tsv
-    ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_quant_matrix_tsv
-    ).read_text()
-    assert "corrected_log2_fold_change" in (
-        output_dir / manifest.artifacts.differential_tsv
-    ).read_text()
-    assert "exclusive_to_regulated" in (
-        output_dir / manifest.artifacts.motif_term_tsv
-    ).read_text()
-    assert "card_id" in (output_dir / manifest.artifacts.evidence_card_tsv).read_text()
-    assert "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()
+    assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
+        tmp_path / "ptm_report" / manifest.artifacts.evidence_claim_tsv
+    ).read_text().splitlines()[0]

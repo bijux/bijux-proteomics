@@ -27,6 +27,14 @@ from bijux_proteomics.ptm.differential_analysis import (
     build_ptm_differential_analysis_report,
     render_ptm_site_differential_tsv,
 )
+from bijux_proteomics.ptm.evidence_cards import (
+    PtmEvidenceCardPolicy,
+    PtmEvidenceCardReport,
+    build_ptm_evidence_card_report,
+    render_ptm_evidence_card_tsv,
+    render_ptm_evidence_card_summary_tsv,
+    render_ptm_evidence_claim_tsv,
+)
 from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationScoringReport,
     build_ptm_localization_scoring_report,
@@ -42,7 +50,16 @@ from bijux_proteomics.ptm.motif_analysis import (
     render_ptm_phosphosite_motif_logo_tsv,
     render_ptm_phosphosite_motif_window_tsv,
 )
+from bijux_proteomics.ptm.regulator_enrichment import (
+    PtmRegulatorEnrichmentPolicy,
+    PtmRegulatorEnrichmentReport,
+    build_ptm_regulator_enrichment_report,
+)
 from bijux_proteomics.ptm.protein_site_mapping import render_ptm_site_table_tsv
+from bijux_proteomics.ptm.site_annotation_import import (
+    PtmSiteAnnotationRecord,
+    build_ptm_site_annotation_mapping_report,
+)
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,
@@ -88,6 +105,8 @@ class PtmReportSummary(JsonModel):
     quantified_site_row_count: int = Field(..., ge=0)
     differential_site_count: int = Field(..., ge=0)
     motif_term_count: int = Field(..., ge=0)
+    evidence_card_count: int = Field(..., ge=0)
+    narrative_claim_count: int = Field(..., ge=0)
 
 
 class PtmReportBundle(JsonModel):
@@ -101,6 +120,8 @@ class PtmReportBundle(JsonModel):
     site_quantification: PtmSiteQuantificationReport | None = None
     differential_analysis: PtmDifferentialAnalysisReport | None = None
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None
+    regulator_enrichment: PtmRegulatorEnrichmentReport | None = None
+    evidence_cards: PtmEvidenceCardReport | None = None
     summary: PtmReportSummary
     note: str = Field(..., min_length=1)
 
@@ -122,6 +143,9 @@ class PtmReportArtifactPaths(JsonModel):
     motif_frequency_tsv: str | None = None
     motif_term_tsv: str | None = None
     motif_logo_tsv: str | None = None
+    evidence_card_summary_tsv: str | None = None
+    evidence_card_tsv: str | None = None
+    evidence_claim_tsv: str | None = None
 
 
 class PtmReportExportManifest(JsonModel):
@@ -153,6 +177,10 @@ def build_ptm_report_bundle(
     motif_flank_size: int = 7,
     motif_selection_policy: PtmPhosphositeSelectionPolicy | None = None,
     motif_comparison_policy: PtmMotifComparisonPolicy | None = None,
+    annotation_records: tuple[PtmSiteAnnotationRecord, ...] | None = None,
+    annotation_target_species: str | None = None,
+    regulator_enrichment_policy: PtmRegulatorEnrichmentPolicy | None = None,
+    evidence_card_policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmReportBundle:
     """Build the core PTM report bundle from evidence rows and protein context."""
 
@@ -196,6 +224,8 @@ def build_ptm_report_bundle(
     site_quantification = None
     differential_analysis = None
     motif_enrichment = None
+    regulator_enrichment = None
+    evidence_cards = None
     if feature_records is not None:
         site_quantification = build_ptm_site_quantification_report(
             site_table,
@@ -227,6 +257,27 @@ def build_ptm_report_bundle(
                 selection_policy=motif_selection_policy,
                 comparison_policy=motif_comparison_policy,
             )
+        if annotation_records is not None:
+            annotation_mapping_report = build_ptm_site_annotation_mapping_report(
+                site_table,
+                annotation_records,
+                target_species=annotation_target_species,
+            )
+            regulator_enrichment = build_ptm_regulator_enrichment_report(
+                differential_analysis.differential_report,
+                annotation_mapping_report,
+                policy=regulator_enrichment_policy,
+            )
+        evidence_cards = build_ptm_evidence_card_report(
+            records,
+            site_table,
+            localization_scoring,
+            differential_analysis,
+            site_quantification=site_quantification,
+            motif_enrichment=motif_enrichment,
+            regulator_enrichment=regulator_enrichment,
+            policy=evidence_card_policy,
+        )
     return PtmReportBundle(
         peptide_entries=peptide_entries,
         site_table=site_table,
@@ -234,6 +285,8 @@ def build_ptm_report_bundle(
         site_quantification=site_quantification,
         differential_analysis=differential_analysis,
         motif_enrichment=motif_enrichment,
+        regulator_enrichment=regulator_enrichment,
+        evidence_cards=evidence_cards,
         summary=PtmReportSummary(
             accepted_evidence_count=len(records),
             peptide_entry_count=len(peptide_entries),
@@ -257,9 +310,17 @@ def build_ptm_report_bundle(
             motif_term_count=(
                 0 if motif_enrichment is None else len(motif_enrichment.enriched_terms)
             ),
+            evidence_card_count=(
+                0 if evidence_cards is None else len(evidence_cards.cards)
+            ),
+            narrative_claim_count=(
+                0
+                if evidence_cards is None
+                else len(evidence_cards.narrative_claims)
+            ),
         ),
         note=(
-            "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, differential analysis, and motif summaries into one owned report bundle"
+            "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, differential analysis, motif summaries, and evidence-card ledgers into one owned report bundle"
         ),
     )
 
@@ -280,6 +341,8 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             "quantified_site_row_count",
             "differential_site_count",
             "motif_term_count",
+            "evidence_card_count",
+            "narrative_claim_count",
         ]
     )
     writer.writerow(
@@ -293,6 +356,8 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             report.summary.quantified_site_row_count,
             report.summary.differential_site_count,
             report.summary.motif_term_count,
+            report.summary.evidence_card_count,
+            report.summary.narrative_claim_count,
         ]
     )
     return buffer.getvalue()
@@ -456,6 +521,26 @@ def export_ptm_report_bundle(
             encoding="utf-8",
         )
 
+    evidence_card_summary_name = None
+    evidence_card_name = None
+    evidence_claim_name = None
+    if report.evidence_cards is not None:
+        evidence_card_summary_name = "ptm_evidence_card_summary.tsv"
+        evidence_card_name = "ptm_evidence_cards.tsv"
+        evidence_claim_name = "ptm_evidence_claims.tsv"
+        (output_dir / evidence_card_summary_name).write_text(
+            render_ptm_evidence_card_summary_tsv(report.evidence_cards),
+            encoding="utf-8",
+        )
+        (output_dir / evidence_card_name).write_text(
+            render_ptm_evidence_card_tsv(report.evidence_cards),
+            encoding="utf-8",
+        )
+        (output_dir / evidence_claim_name).write_text(
+            render_ptm_evidence_claim_tsv(report.evidence_cards),
+            encoding="utf-8",
+        )
+
     return PtmReportExportManifest(
         summary=report.summary,
         artifacts=PtmReportArtifactPaths(
@@ -471,6 +556,9 @@ def export_ptm_report_bundle(
             motif_frequency_tsv=motif_frequency_name,
             motif_term_tsv=motif_term_name,
             motif_logo_tsv=motif_logo_name,
+            evidence_card_summary_tsv=evidence_card_summary_name,
+            evidence_card_tsv=evidence_card_name,
+            evidence_claim_tsv=evidence_claim_name,
         ),
         motif_summary_included=report.motif_enrichment is not None,
         note=(

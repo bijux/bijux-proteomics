@@ -6,9 +6,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmEvidenceCardPolicy,
+    PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
+    PtmRegulatorEnrichmentPolicy,
     build_ptm_report_bundle,
     parse_ptm_localization_tsv,
+    parse_ptm_site_annotation_tsv,
     render_ptm_report_differential_tsv,
     render_ptm_report_localization_tsv,
     render_ptm_report_peptide_tsv,
@@ -56,6 +60,8 @@ def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
     assert report.summary.ambiguous_site_count == 2
     assert report.summary.modified_peptide_count == 3
     assert report.summary.localization_entry_count == 8
+    assert report.summary.evidence_card_count == 0
+    assert report.summary.narrative_claim_count == 0
     assert any(
         entry.localized_peptide == "S[Phospho]PEPTIDEK"
         for entry in report.peptide_entries
@@ -87,7 +93,8 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
     assert summary_lines[0] == (
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
         "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
-        "quantified_site_row_count\tdifferential_site_count\tmotif_term_count"
+        "quantified_site_row_count\tdifferential_site_count\tmotif_term_count\t"
+        "evidence_card_count\tnarrative_claim_count"
     )
     assert peptide_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide"
@@ -101,6 +108,7 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
 def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
 
     report = build_ptm_report_bundle(
         evidence.accepted_records,
@@ -108,12 +116,27 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
         feature_records=features.accepted_records,
         design_entries=_design_entries(),
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        batch_field="",
+        motif_selection_policy=PtmPhosphositeSelectionPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        annotation_records=annotations.accepted_records,
+        annotation_target_species="Homo sapiens",
+        regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
-    assert report.summary.quantified_site_row_count == 5
-    assert report.summary.differential_site_count == 5
+    assert report.summary.quantified_site_row_count == 3
+    assert report.summary.differential_site_count == 3
+    assert report.summary.evidence_card_count == 3
+    assert report.summary.narrative_claim_count == 3
     assert report.site_quantification is not None
     assert report.differential_analysis is not None
+    assert report.evidence_cards is not None
     assert report.differential_analysis.protein_correction_mode.value == (
         "subtract_unmodified_protein"
     )
