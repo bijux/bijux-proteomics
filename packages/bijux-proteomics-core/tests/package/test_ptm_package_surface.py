@@ -215,3 +215,22 @@ def test_ptm_package_exports_regulator_enrichment_owner_surface() -> None:
     assert hasattr(ptm, "render_ptm_regulator_enrichment_tsv")
     assert any(entry.regulator == "AKT1" for entry in report.entries)
     assert "supporting_sites" in ptm.render_ptm_regulator_enrichment_tsv(report)
+
+
+def test_ptm_package_exports_context_annotation_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    context = ptm.parse_ptm_site_context_tsv(_ptm_fixture("ptm_site_context.tsv"))
+    report = ptm.build_ptm_site_context_report(site_table, context.accepted_records)
+
+    assert hasattr(ptm, "build_ptm_site_context_report")
+    assert hasattr(ptm, "render_ptm_site_context_tsv")
+    outside = next(
+        entry for entry in report.entries if entry.site_key == "Q9DEC1:S5:Phospho"
+    )
+    assert outside.context_status.value == "outside_provided_annotations"
+    assert "context_status" in ptm.render_ptm_site_context_tsv(report)
