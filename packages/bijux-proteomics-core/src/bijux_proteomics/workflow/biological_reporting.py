@@ -79,6 +79,8 @@ from bijux_proteomics.quantification import (
     build_differential_abundance_report,
     build_heatmap_preparation_report,
     build_label_free_intensity_table,
+    build_missingness_condition_summary_report,
+    build_power_estimation_report,
     build_sample_exploration_report,
     normalize_label_free_table,
     parse_ms1_feature_table,
@@ -98,7 +100,18 @@ from bijux_proteomics.review import (
     render_volcano_review_tsv,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study import (
+    ExperimentConfidenceReport,
+    ExperimentDesign,
+    LcmsRunQcReport,
+    QcRunAssessmentReport,
+    build_experiment_confidence_report,
+    build_experiment_feasibility_report,
+    build_protocol_consistency_report,
+    coerce_experiment_design,
+    render_experiment_confidence_component_tsv,
+    render_experiment_confidence_summary_tsv,
+)
 from bijux_proteomics.study.lab_protocol_context import (
     build_lab_protocol_interpretation_profile,
     parse_lab_protocol_context_table,
@@ -162,6 +175,9 @@ class BiologicalResultReportSummary(JsonModel):
     annotation_unmapped_count: int = Field(..., ge=0)
     protein_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
+    experiment_confidence_score: float = Field(..., ge=0.0, le=1.0)
+    experiment_confidence_tier: str = Field(..., min_length=1)
+    low_confidence_component_count: int = Field(..., ge=0)
     context_entry_count: int = Field(..., ge=0)
     context_unmapped_count: int = Field(..., ge=0)
     context_term_count: int = Field(..., ge=0)
@@ -181,6 +197,7 @@ class BiologicalResultReportBundle(JsonModel):
     graph_report: BiologicalResultGraphReport
     annotation_report: ProteinAnnotationMappingReport
     protein_cards: ProteinEvidenceCardReport
+    experiment_confidence_report: ExperimentConfidenceReport
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
@@ -203,6 +220,8 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     differential_tsv: str = Field(..., min_length=1)
     protein_card_summary_tsv: str = Field(..., min_length=1)
     protein_card_tsv: str = Field(..., min_length=1)
+    experiment_confidence_summary_tsv: str = Field(..., min_length=1)
+    experiment_confidence_components_tsv: str = Field(..., min_length=1)
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
@@ -269,6 +288,8 @@ def build_biological_result_report_bundle(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
+    run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
+    run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle over one governed protein LFQ workflow."""
 
@@ -311,6 +332,8 @@ def build_biological_result_report_bundle(
         condition_b=condition_b,
         selection_policy=active_selection_policy,
         volcano_policy=volcano_policy,
+        run_qc_reports=run_qc_reports,
+        run_qc_assessments=run_qc_assessments,
     )
 
 
@@ -330,6 +353,8 @@ def build_biological_result_report_bundle_from_quant_table(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
+    run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
+    run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
 
@@ -518,6 +543,37 @@ def build_biological_result_report_bundle_from_quant_table(
         normalized_table,
         design_entries,
     )
+    feasibility_report = build_experiment_feasibility_report(
+        experiment_design,
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+    )
+    protocol_consistency_report = None
+    if protocol_context_tsv_path is not None:
+        protocol_consistency_report = build_protocol_consistency_report(
+            require_single_lab_protocol_context(
+                parse_lab_protocol_context_table(protocol_context_tsv_path)
+            ),
+            run_qc_report=run_qc_reports[0] if len(run_qc_reports) == 1 else None,
+        )
+    experiment_confidence_report = build_experiment_confidence_report(
+        experiment_design,
+        validity_report=feasibility_report.validity_report,
+        feasibility_report=feasibility_report,
+        missingness_condition_summary_report=build_missingness_condition_summary_report(
+            normalized_table,
+            design_entries=design_entries,
+        ),
+        power_estimation_report=build_power_estimation_report(
+            normalized_table,
+            design_entries,
+        ),
+        run_qc_reports=run_qc_reports,
+        run_qc_assessments=run_qc_assessments,
+        protocol_consistency_report=protocol_consistency_report,
+        warning_card_count=protein_cards.summary.warning_card_count,
+        protein_card_count=protein_cards.summary.protein_result_count,
+    )
     significant_protein_count = len(
         _select_significant_entity_ids(differential_report, policy=active_selection_policy)
     )
@@ -526,6 +582,7 @@ def build_biological_result_report_bundle_from_quant_table(
         graph_report=graph_report,
         annotation_report=annotation_report,
         protein_cards=protein_cards,
+        experiment_confidence_report=experiment_confidence_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
         go_enrichment_report=go_enrichment_report,
@@ -543,6 +600,13 @@ def build_biological_result_report_bundle_from_quant_table(
             annotation_unmapped_count=len(annotation_report.unmapped_entries),
             protein_card_count=protein_cards.summary.protein_result_count,
             warning_card_count=protein_cards.summary.warning_card_count,
+            experiment_confidence_score=experiment_confidence_report.summary.overall_score,
+            experiment_confidence_tier=(
+                experiment_confidence_report.summary.overall_tier.value
+            ),
+            low_confidence_component_count=(
+                experiment_confidence_report.summary.low_confidence_component_count
+            ),
             context_entry_count=(
                 0
                 if context_mapping_report is None
@@ -580,6 +644,7 @@ def build_biological_result_report_bundle_from_quant_table(
         ),
         note=(
             "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
+            " with experiment-level confidence scoring and explicit component reasons"
         ),
     )
 
@@ -720,6 +785,21 @@ def render_biological_result_report_summary_tsv(
     )
     writer.writerow(("protein_card_count", report.summary.protein_card_count))
     writer.writerow(("warning_card_count", report.summary.warning_card_count))
+    writer.writerow(
+        (
+            "experiment_confidence_score",
+            f"{report.summary.experiment_confidence_score:.4f}",
+        )
+    )
+    writer.writerow(
+        ("experiment_confidence_tier", report.summary.experiment_confidence_tier)
+    )
+    writer.writerow(
+        (
+            "low_confidence_component_count",
+            report.summary.low_confidence_component_count,
+        )
+    )
     writer.writerow(("context_entry_count", report.summary.context_entry_count))
     writer.writerow(("context_unmapped_count", report.summary.context_unmapped_count))
     writer.writerow(("context_term_count", report.summary.context_term_count))
@@ -749,6 +829,10 @@ def export_biological_result_report_bundle(
     differential_name = "biological_differential.tsv"
     protein_card_summary_name = "biological_protein_card_summary.tsv"
     protein_card_name = "biological_protein_cards.tsv"
+    experiment_confidence_summary_name = "biological_experiment_confidence_summary.tsv"
+    experiment_confidence_components_name = (
+        "biological_experiment_confidence_components.tsv"
+    )
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
@@ -786,6 +870,14 @@ def export_biological_result_report_bundle(
     )
     (output_dir / protein_card_name).write_text(
         render_protein_evidence_card_tsv(report.protein_cards),
+        encoding="utf-8",
+    )
+    (output_dir / experiment_confidence_summary_name).write_text(
+        render_experiment_confidence_summary_tsv(report.experiment_confidence_report),
+        encoding="utf-8",
+    )
+    (output_dir / experiment_confidence_components_name).write_text(
+        render_experiment_confidence_component_tsv(report.experiment_confidence_report),
         encoding="utf-8",
     )
     (output_dir / annotation_summary_name).write_text(
@@ -929,6 +1021,8 @@ def export_biological_result_report_bundle(
         differential_tsv=differential_name,
         protein_card_summary_tsv=protein_card_summary_name,
         protein_card_tsv=protein_card_name,
+        experiment_confidence_summary_tsv=experiment_confidence_summary_name,
+        experiment_confidence_components_tsv=experiment_confidence_components_name,
         annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
@@ -986,6 +1080,14 @@ def _render_biological_result_report_html(
         ("Differential proteins", artifacts.differential_tsv),
         ("Protein card summary", artifacts.protein_card_summary_tsv),
         ("Protein cards", artifacts.protein_card_tsv),
+        (
+            "Experiment confidence summary",
+            artifacts.experiment_confidence_summary_tsv,
+        ),
+        (
+            "Experiment confidence components",
+            artifacts.experiment_confidence_components_tsv,
+        ),
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
         ("Unmapped annotations", artifacts.annotation_unmapped_tsv),
@@ -1030,6 +1132,7 @@ def _render_biological_result_report_html(
         for label, path in sections
         if path is not None
     )
+    confidence_table_html = _render_experiment_confidence_table_html(report)
     card_table_html = _render_protein_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
@@ -1038,14 +1141,50 @@ def _render_biological_result_report_html(
         f"<p><strong>Proteins</strong>: {report.summary.protein_count} | "
         f"<strong>Significant</strong>: {report.summary.significant_protein_count} | "
         f"<strong>Protein cards</strong>: {report.summary.protein_card_count} | "
+        f"<strong>Experiment confidence</strong>: {report.summary.experiment_confidence_score:.2f} "
+        f"({escape(report.summary.experiment_confidence_tier)}) | "
         f"<strong>Annotated</strong>: {report.summary.annotation_entry_count} | "
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
+        "<h2>Experiment confidence</h2>"
+        f"{confidence_table_html}"
         "<h2>Final protein cards</h2>"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
         f"<ul>{section_html}</ul>"
         f"<p>{escape(report.note)}</p>"
         "</body></html>\n"
+    )
+
+
+def _render_experiment_confidence_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    headers = ("Component", "Score", "Tier", "Reason codes", "Message")
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(component.component.value)}</td>"
+            f"<td>{component.score:.3f}</td>"
+            f"<td>{escape(component.tier.value)}</td>"
+            f"<td>{escape('; '.join(component.reason_codes))}</td>"
+            f"<td>{escape(component.message)}</td>"
+            "</tr>"
+        )
+        for component in report.experiment_confidence_report.components
+    )
+    summary = report.experiment_confidence_report.summary
+    return (
+        "<p>"
+        f"<strong>Overall score</strong>: {summary.overall_score:.3f} | "
+        f"<strong>Tier</strong>: {escape(summary.overall_tier.value)} | "
+        f"<strong>Low-confidence components</strong>: "
+        f"{summary.low_confidence_component_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
     )
 
 
