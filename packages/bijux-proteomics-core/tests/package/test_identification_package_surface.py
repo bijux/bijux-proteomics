@@ -201,6 +201,40 @@ def test_identification_package_exports_peptide_evidence_owner_surface() -> None
     assert "reproducibility_hash" in rendered
 
 
+def test_identification_package_exports_cross_run_reproducibility_owner_surface() -> (
+    None
+):
+    raw_cases = json.loads(
+        _identification_fixture(
+            "cross_run_reproducibility_reference_cases.json"
+        ).read_text(encoding="utf-8")
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+    run_contexts = tuple(
+        identification.RunDetectionContext.model_validate(context)
+        for context in case["run_contexts"]
+    )
+
+    report = identification.build_peptide_cross_run_reproducibility_report(
+        records,
+        run_contexts=run_contexts,
+        exploratory_canonical_peptides=tuple(case["exploratory_entities"]),
+    )
+    rendered = identification.render_cross_run_reproducibility_summary_tsv(report)
+
+    assert hasattr(identification, "build_peptide_cross_run_reproducibility_report")
+    assert hasattr(identification, "build_protein_cross_run_reproducibility_report")
+    assert hasattr(identification, "render_cross_run_reproducibility_entries_tsv")
+    assert hasattr(identification, "render_cross_run_reproducibility_summary_tsv")
+    assert report.summary.condition_specific_count == 1
+    assert report.summary.exploratory_count == 1
+    assert report.reproducibility_hash
+    assert "condition_specific_count" in rendered
+
+
 def test_identification_package_exports_contaminant_evidence_owner_surface() -> None:
     records = (
         identification.PsmRecord(
