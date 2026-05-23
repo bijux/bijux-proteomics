@@ -188,6 +188,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "study/design_classification.py",
             "study/design_validity.py",
             "study/experiment_design.py",
+            "study/sample_run_identity.py",
             "study/sample_metadata.py",
             "study/laboratory_plans.py",
             "study/laboratory_operations.py",
