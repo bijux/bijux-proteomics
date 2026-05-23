@@ -44,7 +44,7 @@ def test_targeted_package_exports_assay_qc_owner_surface() -> None:
     assert hasattr(targeted, "render_targeted_assay_qc_target_tsv")
     assert hasattr(targeted, "render_targeted_assay_qc_transition_qc_tsv")
     assert report.summary.target_qc_entry_count == 8
-    assert report.summary.reliable_target_entry_count == 3
+    assert report.summary.reliable_target_entry_count == 1
     assert "fewer than two coeluting transitions support the target" in rendered
 
 

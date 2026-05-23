@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import io
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
+import bijux_proteomics.targeted as targeted
 
 
 def _format_fixture(name: str) -> Path:
@@ -151,3 +152,22 @@ def test_io_package_exports_dia_fragment_coelution_owner_surface() -> None:
     assert len(report.run_entries) == 2
     assert report.run_entries[0].coelution_score == 1.0
     assert "prec_beta\tPEPB\tbeta_y7\t3\t2\t1\t10.0000\t0.5578\t0.2971" in rendered
+
+
+def test_io_package_exports_fragment_ratio_stability_owner_surface() -> None:
+    targeted_import_report = targeted.build_skyline_result_import_report(
+        _format_fixture("skyline_targeted_qc_results.tsv")
+    )
+    targeted_report = io.build_targeted_fragment_ratio_stability_report(
+        targeted_import_report
+    )
+    rendered = io.render_fragment_ratio_stability_fragments_tsv(targeted_report)
+
+    assert hasattr(io, "build_targeted_fragment_ratio_stability_report")
+    assert hasattr(io, "score_dia_fragment_ratio_stability")
+    assert hasattr(io, "extract_mzml_dia_fragment_ratio_stability")
+    assert hasattr(io, "render_fragment_ratio_stability_fragments_tsv")
+    assert hasattr(io, "render_fragment_ratio_stability_observations_tsv")
+    assert targeted_report.summary.fragment_entry_count == 4
+    assert targeted_report.summary.unstable_fragment_count == 1
+    assert "targeted\tPEPTIDEK/2\tPEPTIDEK\ty8\t4\t3\t0.236842\t0.396731\t1\ttrue" in rendered
