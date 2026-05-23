@@ -739,6 +739,14 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
+from bijux_proteomics.study.experiment_feasibility import (
+    build_experiment_feasibility_report,
+    render_experiment_feasibility_group_sizes_tsv,
+    render_experiment_feasibility_invalid_contrasts_tsv,
+    render_experiment_feasibility_missing_metadata_tsv,
+    render_experiment_feasibility_model_support_tsv,
+    render_experiment_feasibility_valid_contrasts_tsv,
+)
 from bijux_proteomics.study.sample_sheet_repairs import (
     build_sample_sheet_repair_suggestion_report,
     export_sample_sheet_repair_suggestions_tsv,
@@ -12094,6 +12102,147 @@ def summarize_command(
             "summarize currently supports fasta, psm, mgf, mzml, and design-table inputs"
         )
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("experiment-feasibility")
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default=None)
+@click.option("--pairing-field", default=None)
+@click.option("--timepoint-field", default=None)
+@click.option("--ordered-timepoint", "ordered_timepoints", multiple=True)
+@click.option(
+    "--minimum-statistical-units-per-condition",
+    default=2,
+    show_default=True,
+    type=int,
+)
+@click.option(
+    "--valid-contrasts-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--invalid-contrasts-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--group-sizes-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--missing-metadata-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--model-support-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def experiment_feasibility_command(
+    design_path: Path,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str | None,
+    pairing_field: str | None,
+    timepoint_field: str | None,
+    ordered_timepoints: tuple[str, ...],
+    minimum_statistical_units_per_condition: int,
+    valid_contrasts_tsv_out: Path | None,
+    invalid_contrasts_tsv_out: Path | None,
+    group_sizes_tsv_out: Path | None,
+    missing_metadata_tsv_out: Path | None,
+    model_support_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Report what a study design can and cannot support before analysis."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        report = build_experiment_feasibility_report(
+            design_report,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            pairing_field=pairing_field,
+            timepoint_field=timepoint_field,
+            ordered_timepoints=ordered_timepoints,
+            minimum_statistical_units_per_condition=(
+                minimum_statistical_units_per_condition
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if valid_contrasts_tsv_out is not None:
+        _write_text_output(
+            valid_contrasts_tsv_out,
+            render_experiment_feasibility_valid_contrasts_tsv(report),
+        )
+    if invalid_contrasts_tsv_out is not None:
+        _write_text_output(
+            invalid_contrasts_tsv_out,
+            render_experiment_feasibility_invalid_contrasts_tsv(report),
+        )
+    if group_sizes_tsv_out is not None:
+        _write_text_output(
+            group_sizes_tsv_out,
+            render_experiment_feasibility_group_sizes_tsv(report),
+        )
+    if missing_metadata_tsv_out is not None:
+        _write_text_output(
+            missing_metadata_tsv_out,
+            render_experiment_feasibility_missing_metadata_tsv(report),
+        )
+    if model_support_tsv_out is not None:
+        _write_text_output(
+            model_support_tsv_out,
+            render_experiment_feasibility_model_support_tsv(report),
+        )
+
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "outputs": {
+                "valid_contrasts_tsv": (
+                    None
+                    if valid_contrasts_tsv_out is None
+                    else str(valid_contrasts_tsv_out)
+                ),
+                "invalid_contrasts_tsv": (
+                    None
+                    if invalid_contrasts_tsv_out is None
+                    else str(invalid_contrasts_tsv_out)
+                ),
+                "group_sizes_tsv": (
+                    None if group_sizes_tsv_out is None else str(group_sizes_tsv_out)
+                ),
+                "missing_metadata_tsv": (
+                    None
+                    if missing_metadata_tsv_out is None
+                    else str(missing_metadata_tsv_out)
+                ),
+                "model_support_tsv": (
+                    None
+                    if model_support_tsv_out is None
+                    else str(model_support_tsv_out)
+                ),
+            },
+        },
+        out_path=out_path,
+    )
 
 
 @cli.command("sample-sheet-repair-suggestions")
