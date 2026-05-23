@@ -117,8 +117,10 @@ def test_study_package_exports_design_validity_surface() -> None:
 
     assert hasattr(study, "build_experiment_design_validity_report")
     assert hasattr(study, "require_valid_experiment_design_for_differential_analysis")
-    assert report.summary.duplicate_sample_id_count == 1
-    assert "duplicate_sample_id" in study.render_experiment_design_validity_tsv(report)
+    assert report.summary.sample_identity_conflict_count == 1
+    assert "conflicting_sample_identity" in study.render_experiment_design_validity_tsv(
+        report
+    )
 
 
 def test_study_package_exports_design_classification_surface() -> None:

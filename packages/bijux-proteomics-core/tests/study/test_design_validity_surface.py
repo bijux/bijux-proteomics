@@ -43,7 +43,7 @@ def _entry(
     )
 
 
-def test_design_validity_report_detects_duplicate_sample_and_run_ids() -> None:
+def test_design_validity_report_detects_conflicting_sample_identity_and_duplicate_run_ids() -> None:
     design = build_experiment_design(
         (
             _entry(sample_id="S1", condition="control", spectra_file="run-001"),
@@ -58,13 +58,42 @@ def test_design_validity_report_detects_duplicate_sample_and_run_ids() -> None:
         condition_b="treatment",
     )
 
-    assert report.summary.duplicate_sample_id_count == 1
+    assert report.summary.sample_identity_conflict_count == 1
     assert report.summary.duplicate_run_id_count == 1
     assert {issue.code for issue in report.issues} == {
-        "duplicate_sample_id",
+        "conflicting_sample_identity",
         "duplicate_run_id",
     }
-    assert "duplicate_sample_id" in render_experiment_design_validity_tsv(report)
+    assert "conflicting_sample_identity" in render_experiment_design_validity_tsv(report)
+
+
+def test_design_validity_report_allows_consistent_multi_run_sample_ids() -> None:
+    design = build_experiment_design(
+        (
+            _entry(sample_id="S1", condition="control", spectra_file="run-001"),
+            _entry(
+                sample_id="S1",
+                condition="control",
+                spectra_file="run-002",
+                metadata={"timepoint": "T0"},
+            ),
+            _entry(
+                sample_id="S2",
+                condition="treatment",
+                spectra_file="run-003",
+                metadata={"timepoint": "T0"},
+            ),
+        )
+    )
+
+    report = build_experiment_design_validity_report(
+        design,
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.summary.sample_identity_conflict_count == 0
+    assert all(issue.code != "conflicting_sample_identity" for issue in report.issues)
 
 
 def test_design_validity_report_detects_invalid_contrast_and_confounded_batches() -> (
@@ -237,6 +266,6 @@ def test_require_valid_experiment_design_blocks_invalid_differential_metadata() 
         )
     except ValueError as exc:
         assert "experiment design is invalid for differential analysis" in str(exc)
-        assert "duplicate_sample_id" in str(exc)
+        assert "conflicting_sample_identity" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected invalid experiment design to be rejected")

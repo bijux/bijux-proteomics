@@ -44,7 +44,7 @@ class ExperimentDesignValiditySummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     issue_count: int = Field(..., ge=0)
-    duplicate_sample_id_count: int = Field(..., ge=0)
+    sample_identity_conflict_count: int = Field(..., ge=0)
     duplicate_run_id_count: int = Field(..., ge=0)
     invalid_contrast_count: int = Field(..., ge=0)
     confounded_batch_condition_count: int = Field(..., ge=0)
@@ -90,7 +90,7 @@ def build_experiment_design_validity_report(
         condition_b=condition_b,
         issues=issues,
     )
-    issues.extend(_duplicate_sample_issues(experiment_design))
+    issues.extend(_sample_identity_conflict_issues(experiment_design))
     issues.extend(_duplicate_run_issues(experiment_design))
     issues.extend(
         _confounded_batch_condition_issues(
@@ -129,8 +129,10 @@ def build_experiment_design_validity_report(
         issues=issue_records,
         summary=ExperimentDesignValiditySummary(
             issue_count=len(issue_records),
-            duplicate_sample_id_count=sum(
-                1 for issue in issue_records if issue.code == "duplicate_sample_id"
+            sample_identity_conflict_count=sum(
+                1
+                for issue in issue_records
+                if issue.code == "conflicting_sample_identity"
             ),
             duplicate_run_id_count=sum(
                 1 for issue in issue_records if issue.code == "duplicate_run_id"
@@ -160,8 +162,9 @@ def build_experiment_design_validity_report(
         ),
         note=(
             "design validity review blocks invalid contrasts, confounded batches, broken "
-            "pairs, missing multiplex channels, unordered timepoints, and duplicate "
-            "sample or run identifiers before differential statistics run"
+            "pairs, missing multiplex channels, unordered timepoints, conflicting "
+            "biological sample identity, and invalid repeated run identifiers before "
+            "differential statistics run"
         ),
     )
 
@@ -299,27 +302,42 @@ def _selected_conditions(
     return experiment_design.conditions
 
 
-def _duplicate_sample_issues(
+def _sample_identity_conflict_issues(
     experiment_design: ExperimentDesign,
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
-    run_ids_by_sample: dict[str, set[str]] = defaultdict(set)
-    sample_counts = Counter(entry.sample_id for entry in experiment_design.entries)
+    entries_by_sample: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
     for entry in experiment_design.entries:
-        run_ids_by_sample[entry.sample_id].add(entry.spectra_file)
-    return tuple(
-        ExperimentDesignValidityIssue(
-            code="duplicate_sample_id",
-            message=(
-                "differential analysis requires unique sample ids until replicate "
-                "structure is modeled explicitly"
-            ),
-            field="sample_id",
-            sample_ids=(sample_id,),
-            run_ids=tuple(sorted(run_ids_by_sample[sample_id])),
-        )
-        for sample_id, count in sorted(sample_counts.items())
-        if count > 1
-    )
+        entries_by_sample[entry.sample_id].append(entry)
+    issues: list[ExperimentDesignValidityIssue] = []
+    for sample_id, sample_entries in sorted(entries_by_sample.items()):
+        if len(sample_entries) <= 1:
+            continue
+        for field in _SAMPLE_IDENTITY_FIELDS:
+            values = {
+                value
+                for value in (
+                    _resolve_entry_value(entry, field)
+                    for entry in sample_entries
+                )
+                if value not in (None, "")
+            }
+            if len(values) <= 1:
+                continue
+            issues.append(
+                ExperimentDesignValidityIssue(
+                    code="conflicting_sample_identity",
+                    message=(
+                        "one biological sample id maps to conflicting study identity "
+                        f"values for {field!r} across multiple runs"
+                    ),
+                    field=field,
+                    sample_ids=(sample_id,),
+                    run_ids=tuple(
+                        sorted(entry.spectra_file for entry in sample_entries)
+                    ),
+                )
+            )
+    return tuple(issues)
 
 
 def _duplicate_run_issues(
@@ -540,13 +558,24 @@ def _timepoint_order_issues(
 def _resolve_entry_value(entry: ExperimentalDesignEntry, field: str) -> str | None:
     direct_values = {
         "sample_id": entry.sample_id,
+        "cohort": entry.cohort,
         "condition": entry.condition,
         "batch": entry.batch,
+        "instrument": entry.instrument,
+        "search_engine": entry.search_engine,
         "pair_id": entry.pair_id,
         "spectra_file": entry.spectra_file,
+        "technical_replicate_id": entry.technical_replicate_id,
         "multiplex_group": entry.multiplex_group,
         "multiplex_channel": entry.multiplex_channel,
+        "sample_role": entry.sample_role.value,
     }
+    if field == "tissue_or_cell_type":
+        return (
+            entry.metadata.get("tissue_or_cell_type")
+            or entry.metadata.get("tissue")
+            or entry.metadata.get("cell_type")
+        )
     if field in direct_values:
         return direct_values[field]
     return entry.metadata.get(field)
@@ -583,6 +612,18 @@ def _is_valid_multiplex_run_layout(
     if any(channel_id in (None, "") for channel_id in channel_ids):
         return False
     return len(set(channel_ids)) == len(channel_ids)
+
+
+_SAMPLE_IDENTITY_FIELDS = (
+    "condition",
+    "cohort",
+    "pair_id",
+    "sample_role",
+    "timepoint",
+    "species",
+    "tissue_or_cell_type",
+    "perturbation",
+)
 
 
 __all__ = [
