@@ -28,6 +28,7 @@ def test_build_skyline_result_import_report_reads_targeted_identifiers() -> None
     assert report.summary.retention_time_count == 6
     assert report.summary.quality_flag_count == 6
     assert report.observations[0].precursor_id == "ACDMPEP/3"
+    assert report.observations[0].precursor_charge == 3
     assert report.observations[0].transition_id == "y5"
     assert report.observations[0].retention_time_minutes == 18.1
     assert report.observations[0].provenance.source_engine == "skyline"
@@ -49,7 +50,9 @@ def test_build_transition_table_result_import_report_reads_transition_table_meta
     assert report.summary.retention_time_count == 6
     assert report.summary.quality_flag_count == 6
     assert report.observations[0].transition_id == "tr_y7_a"
+    assert report.observations[0].precursor_charge == 2
     assert report.observations[0].retention_time_minutes == 12.5
     assert report.observations[0].provenance.source_engine == "transition-table"
     assert report.observations[-1].quality_flag == "low_signal"
+    assert "precursor_charge" in render_targeted_result_observation_tsv(report)
     assert "original_identifiers" in render_targeted_result_observation_tsv(report)
