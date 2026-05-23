@@ -325,6 +325,10 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
     tic = normalize_label_free_table(table, method=NormalizationMethod.TIC)
     median = normalize_label_free_table(table, method=NormalizationMethod.MEDIAN)
     quantile = normalize_label_free_table(table, method=NormalizationMethod.QUANTILE)
+    log2_centered = normalize_label_free_table(
+        table,
+        method=NormalizationMethod.LOG2_MEDIAN_CENTERING,
+    )
     vsn_like = normalize_label_free_table(table, method=NormalizationMethod.VSN_LIKE)
 
     def sample_values(active_table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
@@ -358,12 +362,80 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
     ]
     assert max(vsn_log_medians) - min(vsn_log_medians) < 1e-6
 
+    log2_centered_medians = [
+        float(
+            np.median(
+                np.log2(
+                    sample_values(log2_centered, sample_id)[
+                        sample_values(log2_centered, sample_id) > 0.0
+                    ]
+                )
+            )
+        )
+        for sample_id in log2_centered.sample_ids
+    ]
+    assert max(log2_centered_medians) - min(log2_centered_medians) < 1e-6
+
     comparison = build_normalization_comparison_report(table, median)
     before_totals = [entry.total_abundance for entry in comparison.before]
     after_medians = [entry.median_abundance for entry in comparison.after]
     assert comparison.method.value == "median"
     assert max(before_totals) - min(before_totals) > 0.0
     assert max(after_medians) - min(after_medians) < 1e-6
+    assert comparison.before_distributions
+    assert comparison.after_distributions
+    assert comparison.log_transform_preparation == ()
+
+
+def test_log_transform_normalization_reports_nonpositive_handling_explicitly() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    table = build_label_free_intensity_table(
+        report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    log2_centered = normalize_label_free_table(
+        table,
+        method=NormalizationMethod.LOG2_MEDIAN_CENTERING,
+    )
+    vsn_like = normalize_label_free_table(table, method=NormalizationMethod.VSN_LIKE)
+
+    log2_comparison = build_normalization_comparison_report(table, log2_centered)
+    vsn_comparison = build_normalization_comparison_report(table, vsn_like)
+
+    assert log2_comparison.method is NormalizationMethod.LOG2_MEDIAN_CENTERING
+    assert vsn_comparison.method is NormalizationMethod.VSN_LIKE
+    zero_before = {
+        entry.sample_id: entry.zero_count for entry in log2_comparison.before_distributions
+    }
+    assert zero_before["C1"] == 1
+    assert zero_before["C2"] == 1
+    assert zero_before["T1"] == 1
+    assert zero_before["T2"] == 1
+    assert all(entry.negative_count == 0 for entry in log2_comparison.before_distributions)
+    assert all(entry.negative_count == 0 for entry in vsn_comparison.before_distributions)
+    assert {
+        entry.handling_strategy for entry in log2_comparison.log_transform_preparation
+    } == {"exclude_nonpositive_values_before_log2_centering"}
+    assert {
+        entry.handling_strategy for entry in vsn_comparison.log_transform_preparation
+    } == {"floor_nonpositive_values_then_add_pseudocount"}
+    assert all(
+        entry.pseudocount is None
+        for entry in log2_comparison.log_transform_preparation
+    )
+    assert all(
+        entry.pseudocount is not None and entry.pseudocount > 0.0
+        for entry in vsn_comparison.log_transform_preparation
+    )
+    log2_zero_after = {
+        entry.sample_id: entry.zero_count for entry in log2_comparison.after_distributions
+    }
+    assert log2_zero_after["C1"] == 1
+    assert log2_zero_after["C2"] == 1
+    assert log2_zero_after["T1"] == 1
+    assert log2_zero_after["T2"] == 1
 
 
 def test_batch_effect_and_replicate_correlation_reports_are_stable() -> None:
@@ -689,7 +761,11 @@ def test_normalization_strategy_comparison_reports_rank_methods_explicitly() -> 
     comparison = build_normalization_strategy_comparison_report(table)
 
     assert isinstance(comparison, NormalizationStrategyComparisonReport)
-    assert len(comparison.entries) == 5
+    assert len(comparison.entries) == 6
+    assert any(
+        entry.method is NormalizationMethod.LOG2_MEDIAN_CENTERING
+        for entry in comparison.entries
+    )
     assert any(
         entry.method is NormalizationMethod.VSN_LIKE for entry in comparison.entries
     )
