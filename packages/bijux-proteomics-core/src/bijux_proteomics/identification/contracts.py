@@ -3830,45 +3830,35 @@ def build_protein_coverage_map(
     protein_sequences: dict[str, str],
 ) -> tuple[ProteinCoverageEntry, ...]:
     """Build a sequence-aware coverage map for proteins present in evidence."""
-    peptide_sequences = {
-        record.canonical_peptide: record.peptide_sequence
-        or _derive_canonical_psm_peptide_fields(record.canonical_peptide)[1]
-        for record in records
-    }
-    protein_to_peptides: dict[str, set[str]] = defaultdict(set)
-    for rollup in rollup_peptide_evidence(records):
-        for protein_ref in rollup.protein_refs:
-            protein_to_peptides[protein_ref].add(
-                peptide_sequences[rollup.canonical_peptide]
+    from bijux_proteomics.identification.protein_coverage import (
+        ProteinCoverageCoordinateStatus,
+        build_protein_coverage_report,
+    )
+
+    report = build_protein_coverage_report(
+        records,
+        protein_sequences=protein_sequences,
+    )
+    peptide_sequences_by_protein: dict[str, set[str]] = defaultdict(set)
+    for coordinate in report.peptide_coordinates:
+        if coordinate.coordinate_status is ProteinCoverageCoordinateStatus.MATCHED:
+            peptide_sequences_by_protein[coordinate.protein_ref].add(
+                coordinate.peptide_sequence
             )
 
-    coverage_entries: list[ProteinCoverageEntry] = []
-    for protein_ref in sorted(protein_to_peptides):
-        sequence = protein_sequences.get(protein_ref)
-        if not sequence:
-            continue
-        covered_positions: set[int] = set()
-        covered_ranges: set[tuple[int, int]] = set()
-        for peptide in sorted(protein_to_peptides[protein_ref]):
-            start = sequence.find(peptide)
-            while start != -1:
-                end = start + len(peptide)
-                covered_ranges.add((start + 1, end))
-                covered_positions.update(range(start + 1, end + 1))
-                start = sequence.find(peptide, start + 1)
-        coverage_entries.append(
-            ProteinCoverageEntry(
-                protein_ref=protein_ref,
-                residue_count=len(sequence),
-                covered_residue_count=len(covered_positions),
-                coverage_fraction=min(len(covered_positions) / len(sequence), 1.0)
-                if sequence
-                else 0.0,
-                covered_ranges=tuple(sorted(covered_ranges)),
-                covered_peptides=tuple(sorted(protein_to_peptides[protein_ref])),
-            )
+    return tuple(
+        ProteinCoverageEntry(
+            protein_ref=entry.protein_ref,
+            residue_count=entry.residue_count,
+            covered_residue_count=entry.covered_residue_count,
+            coverage_fraction=entry.coverage_fraction,
+            covered_ranges=entry.covered_ranges,
+            covered_peptides=tuple(
+                sorted(peptide_sequences_by_protein.get(entry.protein_ref, ()))
+            ),
         )
-    return tuple(coverage_entries)
+        for entry in report.entries
+    )
 
 
 def build_peptide_uniqueness_across_database(
