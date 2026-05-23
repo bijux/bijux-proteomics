@@ -190,6 +190,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/contracts.py",
             "quantification/peptide_intensity_matrix.py",
             "quantification/protein_intensity_matrix.py",
+            "quantification/protein_lfq.py",
         ),
         release_blocker="Core cannot ship if quantitative outputs stop carrying design and QC meaning that downstream packages depend on.",
     ),
