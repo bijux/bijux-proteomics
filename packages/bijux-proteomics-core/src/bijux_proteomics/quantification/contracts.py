@@ -537,6 +537,8 @@ class StudyScaleBatchEffectReport(JsonModel):
     disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ADVISORY
     entries: tuple[StudyScaleBatchEffectEntry, ...] = Field(default_factory=tuple)
     flagged_batch_count: int = Field(..., ge=0)
+    batch_variance_proxy: float = Field(..., ge=0.0, le=1.0)
+    batch_correction_blocked: bool
 
 
 class QcOutlierSampleEntry(JsonModel):
@@ -1275,8 +1277,20 @@ class BatchEffectBatchEntry(JsonModel):
     flagged: bool
 
 
+class BatchAssociatedPrincipalComponentEntry(JsonModel):
+    """One principal component annotated for batch association strength."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    component_index: int = Field(..., ge=1)
+    component_label: str = Field(..., min_length=1)
+    explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
+    batch_association_ratio: float = Field(..., ge=0.0, le=1.0)
+    associated_with_batch: bool
+
+
 class BatchEffectAdvisoryReport(JsonModel):
-    """Advisory-only batch effect report over quantification samples."""
+    """Owned batch-effect estimator over quantification samples."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -1284,6 +1298,14 @@ class BatchEffectAdvisoryReport(JsonModel):
     batch_field: str = Field(..., min_length=1)
     global_median_log2_abundance: float
     batches: tuple[BatchEffectBatchEntry, ...] = Field(default_factory=tuple)
+    batch_variance_proxy: float = Field(..., ge=0.0, le=1.0)
+    principal_components: tuple[BatchAssociatedPrincipalComponentEntry, ...] = Field(
+        default_factory=tuple
+    )
+    batch_associated_component_count: int = Field(..., ge=0)
+    fully_confounded_with_condition: bool
+    batch_correction_blocked: bool
+    batch_warning: str | None = None
     note: str = Field(..., min_length=1)
 
 
@@ -3640,60 +3662,109 @@ def normalize_label_free_table(
     return _implementation(table, method=method)
 
 
+def build_batch_effect_estimator_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    batch_field: str = "batch",
+    shift_threshold: float = 0.5,
+    component_association_threshold: float = 0.35,
+) -> BatchEffectAdvisoryReport:
+    """Build a batch-effect estimator with shift, PC, and confounding diagnostics."""
+    from bijux_proteomics.quantification.batch_effect import (
+        build_batch_effect_estimator_report as _implementation,
+    )
+
+    return _implementation(
+        table,
+        design_entries,
+        batch_field=batch_field,
+        shift_threshold=shift_threshold,
+        component_association_threshold=component_association_threshold,
+    )
+
+
 def build_batch_effect_advisory(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     batch_field: str = "batch",
     shift_threshold: float = 0.5,
+    component_association_threshold: float = 0.35,
 ) -> BatchEffectAdvisoryReport:
-    """Build an advisory batch-shift report over normalized sample abundances."""
-    batch_by_sample = _batch_lookup(design_entries)
-    if not batch_by_sample:
-        return BatchEffectAdvisoryReport(
-            batch_field=batch_field,
-            global_median_log2_abundance=0.0,
-            batches=(),
-            note="No batch metadata was provided; batch advisory remains empty.",
-        )
-
-    per_sample = {
-        sample_id: _log2_values(table, sample_id) for sample_id in table.sample_ids
-    }
-    finite_samples = [values for values in per_sample.values() if values.size > 0]
-    global_median = (
-        float(np.median(np.concatenate(finite_samples))) if finite_samples else 0.0
-    )
-    grouped: dict[str, list[str]] = {}
-    for sample_id, batch_id in sorted(batch_by_sample.items()):
-        if sample_id in table.sample_ids:
-            grouped.setdefault(batch_id, []).append(sample_id)
-
-    batches: list[BatchEffectBatchEntry] = []
-    for batch_id, sample_ids in sorted(grouped.items()):
-        values = [
-            per_sample[sample_id]
-            for sample_id in sample_ids
-            if per_sample[sample_id].size > 0
-        ]
-        batch_median = float(np.median(np.concatenate(values))) if values else 0.0
-        shift = batch_median - global_median
-        batches.append(
-            BatchEffectBatchEntry(
-                batch_id=batch_id,
-                sample_ids=tuple(sorted(sample_ids)),
-                median_log2_abundance=batch_median,
-                shift_from_global=shift,
-                flagged=abs(shift) >= shift_threshold,
-            )
-        )
-
-    return BatchEffectAdvisoryReport(
+    """Compatibility wrapper over the owned batch-effect estimator."""
+    return build_batch_effect_estimator_report(
+        table,
+        design_entries,
         batch_field=batch_field,
-        global_median_log2_abundance=global_median,
-        batches=tuple(batches),
-        note="Batch shifts are advisory only and do not change quantification results.",
+        shift_threshold=shift_threshold,
+        component_association_threshold=component_association_threshold,
     )
+
+
+def render_batch_effect_summary_tsv(report: BatchEffectAdvisoryReport) -> str:
+    """Render a stable one-row batch-effect summary table."""
+    from bijux_proteomics.quantification.batch_effect import (
+        render_batch_effect_summary_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def render_batch_effect_batches_tsv(report: BatchEffectAdvisoryReport) -> str:
+    """Render stable batch-level median-shift rows for one batch-effect report."""
+    from bijux_proteomics.quantification.batch_effect import (
+        render_batch_effect_batches_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def render_batch_effect_principal_components_tsv(
+    report: BatchEffectAdvisoryReport,
+) -> str:
+    """Render stable principal-component batch-association rows."""
+    from bijux_proteomics.quantification.batch_effect import (
+        render_batch_effect_principal_components_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_batch_effect_summary_tsv(
+    report: BatchEffectAdvisoryReport,
+    path: Path,
+) -> None:
+    """Write a stable batch-effect summary table."""
+    from bijux_proteomics.quantification.batch_effect import (
+        export_batch_effect_summary_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def export_batch_effect_batches_tsv(
+    report: BatchEffectAdvisoryReport,
+    path: Path,
+) -> None:
+    """Write stable batch-level shift rows."""
+    from bijux_proteomics.quantification.batch_effect import (
+        export_batch_effect_batches_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def export_batch_effect_principal_components_tsv(
+    report: BatchEffectAdvisoryReport,
+    path: Path,
+) -> None:
+    """Write stable principal-component batch-association rows."""
+    from bijux_proteomics.quantification.batch_effect import (
+        export_batch_effect_principal_components_tsv as _implementation,
+    )
+
+    _implementation(report, path)
 
 
 def build_replicate_correlation_report(
@@ -3818,6 +3889,7 @@ def build_study_scale_batch_effect_report(
     *,
     batch_field: str = "batch",
     shift_threshold: float = 0.5,
+    component_association_threshold: float = 0.35,
 ) -> StudyScaleBatchEffectReport:
     """Summarize batch effects in a compact report for larger studies."""
     advisory = build_batch_effect_advisory(
@@ -3825,6 +3897,7 @@ def build_study_scale_batch_effect_report(
         design_entries,
         batch_field=batch_field,
         shift_threshold=shift_threshold,
+        component_association_threshold=component_association_threshold,
     )
     entries = tuple(
         StudyScaleBatchEffectEntry(
@@ -3836,8 +3909,11 @@ def build_study_scale_batch_effect_report(
         for entry in advisory.batches
     )
     return StudyScaleBatchEffectReport(
+        disposition=advisory.disposition,
         entries=entries,
         flagged_batch_count=sum(1 for entry in entries if entry.flagged),
+        batch_variance_proxy=advisory.batch_variance_proxy,
+        batch_correction_blocked=advisory.batch_correction_blocked,
     )
 
 

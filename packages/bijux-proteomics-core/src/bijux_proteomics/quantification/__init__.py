@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.quantification.batch_effect import *  # noqa: F401,F403
 from bijux_proteomics.quantification.core_matrix import *  # noqa: F401,F403
 from bijux_proteomics.quantification.contracts import *  # noqa: F401,F403
 from bijux_proteomics.quantification.design_matrix import *  # noqa: F401,F403
