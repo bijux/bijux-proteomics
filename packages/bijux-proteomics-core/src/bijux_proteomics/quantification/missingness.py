@@ -15,6 +15,7 @@ from bijux_proteomics.quantification.contracts import (
     MissingDataMechanism,
     MissingDataMechanismEntry,
     MissingDataMechanismReport,
+    MissingnessClassifierReport,
     MissingnessConditionSummaryEntry,
     MissingnessConditionSummaryReport,
     MissingnessEntitySummaryEntry,
@@ -316,12 +317,25 @@ def build_missing_data_mechanism_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> MissingDataMechanismReport:
-    """Classify missingness patterns as likely biology, likely failure, or unresolved."""
+    """Classify entity missingness with explicit condition and randomness labels."""
     lookup = _matrix_value_index(table)
     condition_by_sample = _condition_lookup(design_entries)
-    conditions = tuple(
-        sorted({condition for condition in condition_by_sample.values() if condition})
-    )
+    batch_by_sample = {
+        entry.sample_id: entry.batch for entry in design_entries if entry.batch
+    }
+    channel_by_sample = {
+        entry.sample_id: (entry.multiplex_group, entry.multiplex_channel)
+        for entry in design_entries
+        if entry.multiplex_group and entry.multiplex_channel
+    }
+    sample_ids_by_condition: dict[str, tuple[str, ...]] = {}
+    for entry in design_entries:
+        sample_ids_by_condition.setdefault(entry.condition, [])
+        sample_ids_by_condition[entry.condition].append(entry.sample_id)
+    sample_ids_by_condition = {
+        condition: tuple(sample_ids)
+        for condition, sample_ids in sample_ids_by_condition.items()
+    }
     entries: list[MissingDataMechanismEntry] = []
     summary_counts = dict.fromkeys(MissingDataMechanism, 0)
     for entity_id in table.entity_ids:
@@ -329,6 +343,7 @@ def build_missing_data_mechanism_report(
         missing_samples: list[str] = []
         observed_samples: list[str] = []
         missing_conditions: set[str] = set()
+        fully_missing_conditions: set[str] = set()
         for sample_id in table.sample_ids:
             cell = lookup[(entity_id, sample_id)]
             condition = condition_by_sample.get(sample_id, "unknown")
@@ -341,19 +356,55 @@ def build_missing_data_mechanism_report(
                 continue
             missing_samples.append(sample_id)
             missing_conditions.add(condition)
+        for condition, sample_ids in sample_ids_by_condition.items():
+            condition_kinds = {
+                lookup[(entity_id, sample_id)].missing_value_kind for sample_id in sample_ids
+            }
+            if condition_kinds and condition_kinds <= {
+                MissingValueKind.NOT_OBSERVED,
+                MissingValueKind.FILTERED,
+            }:
+                fully_missing_conditions.add(condition)
+
+        missing_batches = {
+            batch_by_sample.get(sample_id)
+            for sample_id in missing_samples
+            if batch_by_sample.get(sample_id)
+        }
+        missing_channels = {
+            channel_by_sample.get(sample_id)
+            for sample_id in missing_samples
+            if channel_by_sample.get(sample_id)
+        }
 
         mechanism = MissingDataMechanism.MIXED_OR_UNRESOLVED
-        note = "missingness mixes biological and technical explanations or lacks enough support"
-        if (
-            len(observed_conditions) == 1
-            and len(missing_conditions) >= 1
-            and any(condition not in observed_conditions for condition in conditions)
-        ):
-            mechanism = MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
-            note = "signal is confined to one condition while another condition remains consistently missing"
+        note = (
+            "missingness mixes structured and unstructured patterns or lacks enough "
+            "metadata support"
+        )
+        if not missing_samples:
+            mechanism = MissingDataMechanism.NO_MISSING_VALUES
+            note = "entity is observed in every sample under the current table snapshot"
+        elif fully_missing_conditions and observed_conditions:
+            mechanism = MissingDataMechanism.CONDITION_SPECIFIC_ABSENCE
+            note = (
+                "one or more conditions are fully absent while another condition retains "
+                "observed signal"
+            )
         elif len(missing_samples) == 1 and len(observed_samples) >= 2:
             mechanism = MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
             note = "one isolated missing sample breaks an otherwise observed pattern"
+        elif len(missing_conditions) > 1:
+            mechanism = MissingDataMechanism.MISSING_COMPLETELY_AT_RANDOM
+            note = (
+                "missing values are distributed across conditions without a condition-wide "
+                "absence pattern"
+            )
+        elif len(missing_batches) == 1 or (
+            len(missing_channels) == 1 and len(missing_samples) >= 2
+        ):
+            mechanism = MissingDataMechanism.BATCH_OR_CHANNEL_ISSUE
+            note = "missingness aligns with one batch or one multiplex channel grouping"
 
         summary_counts[mechanism] += 1
         entries.append(
@@ -361,6 +412,7 @@ def build_missing_data_mechanism_report(
                 entity_id=entity_id,
                 mechanism=mechanism,
                 observed_conditions=tuple(sorted(observed_conditions)),
+                missing_conditions=tuple(sorted(fully_missing_conditions or missing_conditions)),
                 missing_samples=tuple(sorted(missing_samples)),
                 note=note,
             )
@@ -369,6 +421,34 @@ def build_missing_data_mechanism_report(
         entity_level=table.entity_level,
         entries=tuple(entries),
         summary_counts=summary_counts,
+    )
+
+
+def build_missingness_classifier_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MissingValueSummaryPolicy | None = None,
+    bin_count: int = 4,
+) -> MissingnessClassifierReport:
+    """Bundle owned missingness tables with explicit mechanism labels."""
+    return MissingnessClassifierReport(
+        sample_summary=summarize_missing_values(table, policy=policy),
+        entity_summary=build_missingness_entity_summary_report(table, policy=policy),
+        condition_summary=build_missingness_condition_summary_report(
+            table,
+            design_entries=design_entries,
+            policy=policy,
+        ),
+        intensity_dependence=build_missingness_intensity_dependence_report(
+            table,
+            bin_count=bin_count,
+            policy=policy,
+        ),
+        mechanism_report=build_missing_data_mechanism_report(
+            table,
+            design_entries,
+        ),
     )
 
 
@@ -392,6 +472,7 @@ def _apply_missing_value_summary_policy(
 
 __all__ = [
     "build_missingness_condition_summary_report",
+    "build_missingness_classifier_report",
     "build_missing_data_mechanism_report",
     "build_missingness_entity_summary_report",
     "build_missingness_intensity_dependence_report",
