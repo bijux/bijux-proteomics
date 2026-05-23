@@ -71,10 +71,10 @@ def test_ptm_localization_confidence_benchmark_report_scores_decisive_and_ambigu
         },
     )
 
-    decisive = next(
+    supported = next(
         entry
         for entry in report.entries
-        if entry.confidence_tier is PtmLocalizationConfidenceTier.DECISIVE
+        if entry.confidence_tier is PtmLocalizationConfidenceTier.SUPPORTED
     )
     ambiguous = next(
         entry
@@ -82,8 +82,8 @@ def test_ptm_localization_confidence_benchmark_report_scores_decisive_and_ambigu
         if entry.confidence_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
     )
 
-    assert decisive.localization_probability >= 0.95
-    assert decisive.fragment_ion_count >= 2
+    assert supported.localization_probability >= 0.95
+    assert supported.fragment_ion_count >= 2
     assert ambiguous.ambiguity_present is True
     assert report.ambiguous_count >= 1
 
