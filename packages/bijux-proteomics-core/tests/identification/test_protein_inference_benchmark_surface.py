@@ -23,18 +23,20 @@ def test_core_protein_inference_benchmark_catalog_covers_goal_pressure_families(
 ):
     scenarios = build_core_protein_inference_benchmark_scenarios()
 
-    assert len(scenarios) == 6
+    assert len(scenarios) == 8
     assert {
         ProteinInferenceBenchmarkScenarioKind.SHARED_PEPTIDE_HEAVY,
         ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY,
         ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY,
         ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY,
-        ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE,
-        ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE,
+        ProteinInferenceBenchmarkScenarioKind.ALL_DECOY,
+        ProteinInferenceBenchmarkScenarioKind.ALL_TARGET,
+        ProteinInferenceBenchmarkScenarioKind.TIED_SCORE,
+        ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY,
     } == {scenario.scenario_kind for scenario in scenarios}
 
 
-def test_protein_inference_benchmark_report_scores_homolog_contaminant_and_decoy_pressure() -> (
+def test_protein_inference_benchmark_report_scores_named_pressure_families_and_ambiguity() -> (
     None
 ):
     reports = {
@@ -44,11 +46,19 @@ def test_protein_inference_benchmark_report_scores_homolog_contaminant_and_decoy
 
     homolog = reports[ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY]
     contaminant = reports[ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY]
-    decoy = reports[ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE]
+    decoy = reports[ProteinInferenceBenchmarkScenarioKind.ALL_DECOY]
+    tied = reports[ProteinInferenceBenchmarkScenarioKind.TIED_SCORE]
+    missing_fasta = reports[ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY]
 
     assert homolog.homolog_family_pressure is True
     assert contaminant.contaminant_pressure is True
-    assert decoy.decoy_pressure is True
+    assert decoy.all_decoy_pressure is True
+    assert tied.tied_score_pressure is True
+    assert tied.ambiguity_should_be_visible is True
+    assert tied.ambiguity_exposed is True
+    assert missing_fasta.missing_fasta_pressure is True
+    assert missing_fasta.ambiguity_should_be_visible is True
+    assert missing_fasta.ambiguity_exposed is True
 
     homolog_grouped = next(
         assessment
@@ -65,11 +75,17 @@ def test_protein_inference_benchmark_report_scores_homolog_contaminant_and_decoy
         for assessment in decoy.method_assessments
         if assessment.strategy_kind is ProteinInferenceStrategyKind.GROUPED
     )
+    missing_fasta_parsimony = next(
+        assessment
+        for assessment in missing_fasta.method_assessments
+        if assessment.strategy_kind is ProteinInferenceStrategyKind.PARSIMONY
+    )
 
     assert len(homolog_grouped.false_positive_proteins) == 1
     assert homolog_grouped.false_positive_proteins[0] in {"Q22222", "Q33333"}
     assert contaminant_grouped.false_positive_proteins == ("CON__KERATIN1",)
-    assert decoy_grouped.false_positive_proteins == ("DECOY_P88888",)
+    assert decoy_grouped.false_positive_proteins == ("DECOY_P88888", "DECOY_Q99999")
+    assert missing_fasta_parsimony.selected_missing_fasta_proteins == ("P60606",)
 
 
 def test_core_protein_inference_benchmark_suite_tracks_goal_case_counts_and_ledgers() -> (
@@ -77,12 +93,17 @@ def test_core_protein_inference_benchmark_suite_tracks_goal_case_counts_and_ledg
 ):
     suite = build_core_protein_inference_benchmark_suite()
 
-    assert suite.scenario_count == 6
+    assert suite.scenario_count == 8
     assert suite.shared_peptide_scenario_count == 1
     assert suite.isoform_scenario_count == 1
     assert suite.homolog_family_scenario_count == 1
     assert suite.contaminant_scenario_count == 1
-    assert suite.decoy_scenario_count == 1
+    assert suite.all_decoy_scenario_count == 1
+    assert suite.all_target_scenario_count == 1
+    assert suite.tied_score_scenario_count == 1
+    assert suite.missing_fasta_scenario_count == 1
+    assert suite.ambiguity_visible_scenario_count == 4
+    assert suite.hidden_ambiguity_scenario_count == 0
     assert ProteinInferenceStrategyKind.PARSIMONY in suite.covered_strategy_kinds
     assert ProteinInferenceStrategyKind.PICKED in suite.covered_strategy_kinds
 
@@ -91,12 +112,15 @@ def test_core_protein_inference_benchmark_suite_tracks_goal_case_counts_and_ledg
     assessments_tsv = render_protein_inference_benchmark_assessments_tsv(suite)
 
     assert "homolog_family_scenario_count\t1" in summary_tsv
-    assert "decoy_scenario_count\t1" in summary_tsv
+    assert "all_decoy_scenario_count\t1" in summary_tsv
+    assert "hidden_ambiguity_scenario_count\t0" in summary_tsv
     assert "homolog-family-pressure" in scenarios_tsv
     assert "contaminant-pressure" in scenarios_tsv
-    assert "decoy-pressure" in scenarios_tsv
+    assert "tied-score-ambiguity" in scenarios_tsv
+    assert "missing-fasta-entry" in scenarios_tsv
     assert "scenario_id\tscenario_kind\tstrategy_kind" in assessments_tsv
     assert "false_positive_proteins" in assessments_tsv
+    assert "selected_missing_fasta_proteins" in assessments_tsv
 
 
 def test_picked_group_fdr_benchmark_plan_stays_explicitly_unclaimed() -> None:
@@ -111,35 +135,44 @@ def test_identification_workflow_claim_review_refuses_workflows_without_full_cas
     None
 ):
     partial_suite = build_core_protein_inference_benchmark_suite()
+    retained_scenarios = tuple(
+        scenario
+        for scenario in build_core_protein_inference_benchmark_scenarios()
+        if scenario.scenario_kind
+        not in {
+            ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY,
+            ProteinInferenceBenchmarkScenarioKind.ALL_DECOY,
+            ProteinInferenceBenchmarkScenarioKind.ALL_TARGET,
+            ProteinInferenceBenchmarkScenarioKind.TIED_SCORE,
+            ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY,
+        }
+    )
     partial_suite = partial_suite.model_copy(
         update={
             "reports": tuple(
                 report
                 for report in partial_suite.reports
                 if report.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
-                and report.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+                not in {
+                    ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY,
+                    ProteinInferenceBenchmarkScenarioKind.ALL_DECOY,
+                    ProteinInferenceBenchmarkScenarioKind.ALL_TARGET,
+                    ProteinInferenceBenchmarkScenarioKind.TIED_SCORE,
+                    ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY,
+                }
             ),
             "scenario_ids": tuple(
-                scenario.scenario_id
-                for scenario in build_core_protein_inference_benchmark_scenarios()
-                if scenario.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
-                and scenario.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+                scenario.scenario_id for scenario in retained_scenarios
             ),
             "scenario_kinds": tuple(
-                scenario.scenario_kind
-                for scenario in build_core_protein_inference_benchmark_scenarios()
-                if scenario.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
-                and scenario.scenario_kind
-                is not ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+                scenario.scenario_kind for scenario in retained_scenarios
             ),
-            "scenario_count": 4,
+            "scenario_count": len(retained_scenarios),
             "contaminant_scenario_count": 0,
-            "decoy_scenario_count": 0,
+            "all_decoy_scenario_count": 0,
+            "all_target_scenario_count": 0,
+            "tied_score_scenario_count": 0,
+            "missing_fasta_scenario_count": 0,
         }
     )
 
@@ -157,4 +190,7 @@ def test_identification_workflow_claim_review_refuses_workflows_without_full_cas
     assert review.accepted is False
     assert "contaminant-pressure-covered" in review.refusal_reasons
     assert "decoy-pressure-covered" in review.refusal_reasons
+    assert "all-target-pressure-covered" in review.refusal_reasons
+    assert "tied-score-pressure-covered" in review.refusal_reasons
+    assert "missing-fasta-pressure-covered" in review.refusal_reasons
     assert "material-adapter-loss-absent" in review.refusal_reasons
