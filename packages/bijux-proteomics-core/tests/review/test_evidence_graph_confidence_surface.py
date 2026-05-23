@@ -12,6 +12,13 @@ from bijux_proteomics.io.chromatographic_evidence import (
 from bijux_proteomics.io.dia_fragment_coelution import (
     extract_mzml_dia_fragment_trace_coelution,
 )
+from bijux_proteomics.io.fragment_ratio_stability import (
+    FragmentRatioDataKind,
+    FragmentRatioStabilityFragmentEntry,
+    FragmentRatioStabilityObservationEntry,
+    FragmentRatioStabilityReport,
+    FragmentRatioStabilitySummary,
+)
 from bijux_proteomics.review import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceGraph,
@@ -388,6 +395,152 @@ def test_propagate_evidence_graph_confidence_penalizes_shifted_dia_fragments() -
     assert strong_entry.confidence_tier.value == "high"
     assert strong_entry.propagated_score > shifted_entry.propagated_score
     assert shifted_entry.confidence_tier.value in {"moderate", "low"}
+
+
+def test_propagate_evidence_graph_confidence_penalizes_unstable_fragment_ratios() -> None:
+    ratio_report = FragmentRatioStabilityReport(
+        data_kind=FragmentRatioDataKind.DIA,
+        fragment_entries=(
+            FragmentRatioStabilityFragmentEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_alpha",
+                peptide_ref="PEPA",
+                fragment_id="alpha_y7",
+                run_count=2,
+                observed_run_count=2,
+                expected_ratio=0.6,
+                ratio_cv=0.03,
+                drift_flagged_run_count=0,
+                unstable_fragment=False,
+                stability_score=0.96,
+            ),
+            FragmentRatioStabilityFragmentEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_alpha",
+                peptide_ref="PEPA",
+                fragment_id="alpha_y8",
+                run_count=2,
+                observed_run_count=2,
+                expected_ratio=0.4,
+                ratio_cv=0.04,
+                drift_flagged_run_count=0,
+                unstable_fragment=False,
+                stability_score=0.94,
+            ),
+            FragmentRatioStabilityFragmentEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_beta",
+                peptide_ref="PEPB",
+                fragment_id="beta_y7",
+                run_count=2,
+                observed_run_count=2,
+                expected_ratio=0.6,
+                ratio_cv=0.42,
+                drift_flagged_run_count=2,
+                unstable_fragment=True,
+                stability_score=0.28,
+                concern_codes=("ratio_drift", "high_ratio_cv"),
+            ),
+            FragmentRatioStabilityFragmentEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_beta",
+                peptide_ref="PEPB",
+                fragment_id="beta_y8",
+                run_count=2,
+                observed_run_count=2,
+                expected_ratio=0.4,
+                ratio_cv=0.39,
+                drift_flagged_run_count=2,
+                unstable_fragment=True,
+                stability_score=0.24,
+                concern_codes=("ratio_drift", "high_ratio_cv"),
+            ),
+        ),
+        observation_entries=(
+            FragmentRatioStabilityObservationEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_alpha",
+                peptide_ref="PEPA",
+                run_id="run_alpha",
+                fragment_id="alpha_y7",
+                expected_ratio=0.6,
+                observed_ratio=0.59,
+                absolute_ratio_delta=0.01,
+                ratio_cv=0.03,
+            ),
+            FragmentRatioStabilityObservationEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_alpha",
+                peptide_ref="PEPA",
+                run_id="run_beta",
+                fragment_id="alpha_y8",
+                expected_ratio=0.4,
+                observed_ratio=0.41,
+                absolute_ratio_delta=0.01,
+                ratio_cv=0.04,
+            ),
+            FragmentRatioStabilityObservationEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_beta",
+                peptide_ref="PEPB",
+                run_id="run_alpha",
+                fragment_id="beta_y7",
+                expected_ratio=0.6,
+                observed_ratio=0.33,
+                absolute_ratio_delta=0.27,
+                ratio_cv=0.42,
+                drift_flag=True,
+                unstable_fragment=True,
+                concern_codes=("ratio_drift", "high_ratio_cv"),
+            ),
+            FragmentRatioStabilityObservationEntry(
+                data_kind=FragmentRatioDataKind.DIA,
+                analyte_id="prec_beta",
+                peptide_ref="PEPB",
+                run_id="run_beta",
+                fragment_id="beta_y8",
+                expected_ratio=0.4,
+                observed_ratio=0.67,
+                absolute_ratio_delta=0.27,
+                ratio_cv=0.39,
+                drift_flag=True,
+                unstable_fragment=True,
+                concern_codes=("ratio_drift", "high_ratio_cv"),
+            ),
+        ),
+        summary=FragmentRatioStabilitySummary(
+            analyte_count=2,
+            run_count=2,
+            fragment_entry_count=4,
+            observation_entry_count=4,
+            unstable_fragment_count=2,
+            drift_flagged_observation_count=2,
+        ),
+        note="synthetic dia fragment ratio stability report",
+    )
+
+    baseline = propagate_evidence_graph_confidence(build_precursor_confidence_fixture_graph())
+    with_ratio_stability = propagate_evidence_graph_confidence(
+        build_precursor_confidence_fixture_graph(),
+        dia_fragment_ratio_stability_report=ratio_report,
+    )
+
+    baseline_by_claim = {entry.claim_node_ref: entry for entry in baseline.entries}
+    with_ratio_by_claim = {
+        entry.claim_node_ref: entry for entry in with_ratio_stability.entries
+    }
+
+    assert (
+        baseline_by_claim["protein:treatment_vs_control:P33333"].propagated_score
+        == baseline_by_claim["protein:treatment_vs_control:P44444"].propagated_score
+    )
+    assert (
+        with_ratio_by_claim["protein:treatment_vs_control:P33333"].propagated_score
+        > with_ratio_by_claim["protein:treatment_vs_control:P44444"].propagated_score
+    )
+    assert "fragment-ratio stability" in with_ratio_by_claim[
+        "protein:treatment_vs_control:P33333"
+    ].rationale
 
 
 def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_scores() -> None:
