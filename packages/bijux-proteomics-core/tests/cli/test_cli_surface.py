@@ -6344,6 +6344,13 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["missingness_entity_summary"]["entries"]
         assert payload["missingness_condition_summary"]["entries"]
         assert payload["missingness_intensity_dependence"]["plot_points"]
+        assert payload["missingness_mechanism_report"]["entries"]
+        assert (
+            payload["missingness_mechanism_report"]["summary_counts"][
+                "missing_completely_at_random"
+            ]
+            >= 1
+        )
         assert payload["normalization_comparison"]["method"] == "median"
         assert payload["normalization_comparison"]["after"]
         assert payload["normalization_strategy"]["recommended_method"] is not None
