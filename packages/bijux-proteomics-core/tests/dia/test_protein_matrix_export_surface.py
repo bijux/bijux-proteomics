@@ -18,6 +18,7 @@ from bijux_proteomics.dia import (
     render_dia_protein_matrix_summary_tsv,
     render_dia_protein_q_value_matrix_tsv,
     render_dia_protein_quantity_matrix_tsv,
+    render_dia_protein_rollup_evidence_tsv,
 )
 
 
@@ -95,13 +96,36 @@ def test_render_dia_protein_matrix_exports() -> None:
     summary_tsv = render_dia_protein_matrix_summary_tsv(report)
     quantity_tsv = render_dia_protein_quantity_matrix_tsv(report)
     q_value_tsv = render_dia_protein_q_value_matrix_tsv(report)
+    evidence_tsv = render_dia_protein_rollup_evidence_tsv(report)
 
     assert summary_tsv.startswith(
         "source_name\ttarget_kind\tshared_peptide_policy\trollup_method"
     )
-    assert "DIA-NN\tprotein_group\tinclude\tsum\t2\t2\t3\t1\t1\t0\t" in summary_tsv
+    assert "DIA-NN\tprotein_group\tinclude\tsum\t2\t2\t3\t1\t1\t0\t1\t7\t" in summary_tsv
     assert quantity_tsv.startswith(
         "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count"
     )
     assert "PG001\tprotein_group\tP11111;P11112\t1\t0\t1\tPESTIDE\t1.25e+06\t1.3e+06" in quantity_tsv
     assert "\t0.0021\t0.0024\n" in q_value_tsv
+    assert evidence_tsv.startswith(
+        "rollup_stage\ttarget_entity_level\ttarget_entity_id\tsample_id"
+    )
+    assert "precursor_to_peptide\tpeptide\tPESTIDE|PG001\tsample_A\tPESTIDE|z2|PG001" in evidence_tsv
+    assert "peptide_to_protein\tprotein_group\tPG001\tsample_B" in evidence_tsv
+
+
+def test_render_dia_protein_rollup_evidence_lists_excluded_precursors() -> None:
+    report = build_diann_protein_matrix_report(
+        _bundle_root() / "diann_report.tsv",
+        max_q_value=0.003,
+        peptide_rollup_method=DiaPeptideRollupMethod.MAX,
+        target_kind=DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+        shared_peptide_policy=DiaSharedPeptidePolicy.INCLUDE,
+        protein_rollup_method=DiaProteinRollupMethod.SUM,
+    )
+
+    evidence_tsv = render_dia_protein_rollup_evidence_tsv(report)
+
+    assert "q_value_threshold" in evidence_tsv
+    assert "ACDM[Oxidation]K|z3|PG002" in evidence_tsv
+    assert "DECOYPEP|z2|PGD01" in evidence_tsv

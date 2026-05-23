@@ -13,6 +13,7 @@ from bijux_proteomics.dia import (
     build_dia_peptide_matrix_report,
     build_dia_protein_matrix_report,
     build_diann_precursor_matrix_report,
+    build_spectronaut_protein_matrix_report,
 )
 
 
@@ -71,6 +72,24 @@ def test_build_dia_peptide_matrix_report_supports_sum_rollup() -> None:
     assert report.rows[1].values[0].abundance == 1250000.0
 
 
+def test_build_dia_peptide_matrix_report_lists_excluded_precursors() -> None:
+    precursor_matrix = build_diann_precursor_matrix_report(
+        _bundle_root() / "diann_report.tsv",
+        max_q_value=0.003,
+    )
+
+    report = build_dia_peptide_matrix_report(precursor_matrix)
+
+    excluded_entry = next(
+        entry for entry in report.rollup_evidence_entries if entry.included is False
+    )
+    assert excluded_entry.rollup_stage.value == "precursor_to_peptide"
+    assert excluded_entry.target_entity_level.value == "peptide"
+    assert excluded_entry.target_entity_id == "ACDM[Oxidation]K|PG002"
+    assert excluded_entry.source_precursor_key == "ACDM[Oxidation]K|z3|PG002"
+    assert excluded_entry.exclusion_reason.value == "q_value_threshold"
+
+
 def test_build_dia_protein_matrix_report_rolls_peptides_to_protein_groups() -> None:
     precursor_matrix = build_diann_precursor_matrix_report(
         _bundle_root() / "diann_report.tsv"
@@ -98,6 +117,7 @@ def test_build_dia_protein_matrix_report_rolls_peptides_to_protein_groups() -> N
     assert first_row.shared_peptide_count == 1
     assert first_row.values[0].abundance == 1250000.0
     assert first_row.values[1].abundance == 1300000.0
+    assert report.summary.rollup_evidence_entry_count >= 3
 
 
 def test_build_dia_protein_matrix_report_can_exclude_shared_peptides() -> None:
@@ -118,3 +138,32 @@ def test_build_dia_protein_matrix_report_can_exclude_shared_peptides() -> None:
     assert report.rows[0].entity_id == "P22222"
     assert report.rows[0].values[0].abundance == 890000.0
     assert report.rows[0].values[1].detected is False
+    excluded_shared_entry = next(
+        entry
+        for entry in report.rollup_evidence_entries
+        if entry.exclusion_reason is not None
+        and entry.exclusion_reason.value == "shared_peptide_policy"
+    )
+    assert excluded_shared_entry.target_entity_level.value == "protein"
+    assert excluded_shared_entry.target_entity_id == "P11111"
+
+
+def test_build_spectronaut_protein_matrix_report_preserves_source_name() -> None:
+    root = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "search_result_bundles"
+        / "spectronaut"
+    )
+
+    report = build_spectronaut_protein_matrix_report(
+        root / "spectronaut_report.tsv",
+        config_path=root / "spectronaut_settings.txt",
+    )
+
+    assert report.source_name == "Spectronaut"
+    assert report.summary.protein_row_count == 2
+    assert report.rollup_evidence_entries[0].target_entity_level.value in {
+        "peptide",
+        "protein_group",
+    }
