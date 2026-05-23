@@ -36,3 +36,16 @@ def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
     assert workflow.TargetedWorkflowStage.ASSAY_QC.value == "assay_qc"
+
+
+def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
+    descriptor = workflow.load_public_benchmark_descriptor(
+        Path(__file__).resolve().parents[4]
+        / "benchmarks"
+        / "public"
+        / "ptm_localization_review_package"
+        / "dataset.yml"
+    )
+
+    assert hasattr(workflow, "run_public_benchmark_descriptor_suite")
+    assert descriptor.dataset_id == "ptm_localization_review_package"

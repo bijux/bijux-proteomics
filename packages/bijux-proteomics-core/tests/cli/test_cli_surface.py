@@ -13,6 +13,7 @@ from bijux_proteomics.interfaces.cli import cli
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _similarity_spectrum(
@@ -62,6 +63,34 @@ def test_program_template_writes_manifest() -> None:
         assert payload["program_id"] == "prog-1"
         manifest = json.loads(Path("program.json").read_text())
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
+
+
+def test_public_benchmark_runner_command_emits_suite_summary_and_failures() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "public-benchmark-runner",
+                str(REPO_ROOT / "benchmarks" / "public"),
+                "--run-output-root",
+                "public_benchmark_runs",
+                "--summary-tsv-out",
+                "public_benchmark.summary.tsv",
+                "--failures-tsv-out",
+                "public_benchmark.failures.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["passed_count"] == 1
+        assert payload["failed_count"] == 5
+        summary_tsv = Path("public_benchmark.summary.tsv").read_text()
+        failures_tsv = Path("public_benchmark.failures.tsv").read_text()
+        assert "ptm_localization_review_package" in summary_tsv
+        assert "dia_diann_review_snapshot" in summary_tsv
+        assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
 
 
 def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
