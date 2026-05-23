@@ -47,8 +47,9 @@ def test_render_targeted_assay_qc_exports_keep_review_evidence_visible() -> None
     unreliable_tsv = render_targeted_assay_qc_unreliable_tsv(report)
 
     assert "source_name\ttarget_count\tsample_count\ttarget_qc_entry_count" in summary_tsv
-    assert "Skyline\t2\t4\t8\t3\t8\t8\t3\t16\t14\t16\t10\t14\t8\t2\t4\t1\t6\t2" in (
-        summary_tsv
+    assert (
+        "Skyline\t2\t4\t8\t1\t8\t8\t3\t16\t14\t16\t8\t14\t4\t1\t2\t8\t2\t4\t1\t8\t2"
+        in summary_tsv
     )
     assert (
         "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t2\ty7;y8\t1\ty7\ty8\t102000\t12.85\t12.6\t0.25\t1\t0.106733\tfalse\t0.875\tfalse\tfewer than two coeluting transitions pass transition-quality review"
@@ -64,15 +65,16 @@ def test_render_targeted_assay_qc_exports_keep_review_evidence_visible() -> None
         in transition_coelution_tsv
     )
     assert (
-        "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse\t\t\t\t\t\tfalse\tfalse\tfalse\t\t\tfalse\tfalse\tfalse\ttransition not observed"
+        "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse\t\t\t\t\t\t\tfalse\tfalse\tfalse\t\t\tfalse\tfalse\tfalse\tfalse\tfalse\ttransition not observed"
         in transition_qc_tsv
     )
-    assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\ttrue" in (
-        fragment_tsv
+    assert (
+        "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\t0.396731\ttrue\ttrue\ttrue"
+        in fragment_tsv
     )
     assert "ACDMPEP/3\ttreat_r2\t1\t20.2\t18.2\t2\ttrue" in retention_tsv
     assert "ACDMPEP/3\ttreatment\t2\t2\t35000\t0.525279\ttrue" in replicate_tsv
     assert (
-        "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two coeluting transitions pass transition-quality review; fragment-ion ratios deviate from the target reference pattern; source quality flags require review"
+        "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two coeluting transitions pass transition-quality review; fragment-ion ratios deviate from the cross-run reference pattern; source quality flags require review"
         in unreliable_tsv
     )

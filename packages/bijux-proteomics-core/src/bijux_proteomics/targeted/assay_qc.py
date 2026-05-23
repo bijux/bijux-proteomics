@@ -12,6 +12,10 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.fragment_ratio_stability import (
+    FragmentRatioStabilityReport,
+    build_targeted_fragment_ratio_stability_report,
+)
 from bijux_proteomics.targeted.result_import import (
     TargetedResultImportReport,
     build_skyline_result_import_report,
@@ -51,6 +55,9 @@ class TargetedFragmentRatioEntry(JsonModel):
     relative_share: float = Field(..., ge=0.0, le=1.0)
     reference_relative_share: float = Field(..., ge=0.0, le=1.0)
     absolute_share_delta: float = Field(..., ge=0.0, le=1.0)
+    ratio_cv: float | None = Field(default=None, ge=0.0)
+    drift_flag: bool = False
+    unstable_transition_flagged: bool = False
     flagged: bool = False
 
 
@@ -69,6 +76,7 @@ class TargetedTransitionQcEntry(JsonModel):
     relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
     reference_relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
     absolute_share_delta: float | None = Field(default=None, ge=0.0, le=1.0)
+    ratio_cv: float | None = Field(default=None, ge=0.0)
     coeluting: bool = False
     coelution_flagged: bool = False
     reference_alignment_flagged: bool = False
@@ -76,6 +84,8 @@ class TargetedTransitionQcEntry(JsonModel):
     reference_delta_minutes: float | None = Field(default=None, ge=0.0)
     quality_flagged: bool = False
     ratio_flagged: bool = False
+    ratio_drift_flagged: bool = False
+    ratio_unstable_transition_flagged: bool = False
     passed: bool
     failure_reasons: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -165,6 +175,9 @@ class TargetedAssayQcSummary(JsonModel):
     transition_qc_entry_count: int = Field(..., ge=0)
     passing_transition_qc_entry_count: int = Field(..., ge=0)
     fragment_ratio_entry_count: int = Field(..., ge=0)
+    fragment_ratio_stability_fragment_entry_count: int = Field(..., ge=0)
+    unstable_fragment_ratio_entry_count: int = Field(..., ge=0)
+    drift_flagged_fragment_ratio_observation_count: int = Field(..., ge=0)
     retention_time_entry_count: int = Field(..., ge=0)
     flagged_retention_time_entry_count: int = Field(..., ge=0)
     replicate_cv_entry_count: int = Field(..., ge=0)
@@ -180,6 +193,7 @@ class TargetedAssayQcReport(JsonModel):
 
     source_name: str = Field(..., min_length=1)
     transition_coelution: TargetedTransitionCoelutionReport
+    fragment_ratio_stability: FragmentRatioStabilityReport
     target_qc: tuple[TargetedTargetQcEntry, ...] = Field(default_factory=tuple)
     transition_consistency: tuple[TargetedTransitionConsistencyEntry, ...] = Field(
         default_factory=tuple
@@ -204,6 +218,7 @@ def build_targeted_assay_qc_report(
     retention_time_delta_threshold_minutes: float = 0.75,
     transition_coelution_delta_threshold_minutes: float = 0.2,
     fragment_ratio_delta_threshold: float = 0.12,
+    fragment_ratio_cv_threshold: float = 0.25,
     high_replicate_cv_threshold: float = 0.3,
 ) -> TargetedAssayQcReport:
     """Build targeted assay QC ledgers over one imported targeted result bundle."""
@@ -220,6 +235,11 @@ def build_targeted_assay_qc_report(
         coelution_rt_delta_threshold_minutes=transition_coelution_delta_threshold_minutes,
         alignment_rt_delta_threshold_minutes=retention_time_delta_threshold_minutes,
     )
+    fragment_ratio_stability = build_targeted_fragment_ratio_stability_report(
+        import_report,
+        absolute_ratio_delta_threshold=fragment_ratio_delta_threshold,
+        ratio_cv_threshold=fragment_ratio_cv_threshold,
+    )
     target_coelution_by_target_sample = {
         (entry.target_id, entry.sample_id): entry
         for entry in transition_coelution.target_entries
@@ -227,6 +247,14 @@ def build_targeted_assay_qc_report(
     transition_coelution_by_target_sample_transition = {
         (entry.target_id, entry.sample_id, entry.transition_id): entry
         for entry in transition_coelution.transition_entries
+    }
+    ratio_observation_by_target_sample_transition = {
+        (entry.analyte_id, entry.run_id, entry.fragment_id): entry
+        for entry in fragment_ratio_stability.observation_entries
+    }
+    ratio_fragment_by_target_transition = {
+        (entry.analyte_id, entry.fragment_id): entry
+        for entry in fragment_ratio_stability.fragment_entries
     }
     target_to_transitions = {
         target_id: sorted(
@@ -257,25 +285,6 @@ def build_targeted_assay_qc_report(
                 if item.precursor_id == target_id and item.sample_id == sample_id
             ]
             for sample_id in sample_ids
-        }
-        reference_relative_shares = {
-            transition_id: _median(
-                [
-                    item.intensity / total_target_intensity
-                    for sample_id in sample_ids
-                    for item in observations_by_sample[sample_id]
-                    if item.transition_id == transition_id
-                    and (
-                        total_target_intensity := sum(
-                            candidate.intensity
-                            for candidate in observations_by_sample[sample_id]
-                        )
-                    )
-                    > 0.0
-                ]
-            )
-            or 0.0
-            for transition_id in expected_transition_ids
         }
         for sample_id in sample_ids:
             sample_observations = observations_by_sample[sample_id]
@@ -311,14 +320,15 @@ def build_targeted_assay_qc_report(
                 quality_flags_by_target_sample[(target_id, sample_id)] = sample_quality_flags
             ratio_flags_for_sample: set[str] = set()
             for item in sorted(sample_observations, key=lambda record: record.transition_id):
-                relative_share = (
-                    item.intensity / total_target_intensity
-                    if total_target_intensity > 0.0
-                    else 0.0
+                ratio_observation = ratio_observation_by_target_sample_transition[
+                    (target_id, sample_id, item.transition_id)
+                ]
+                ratio_fragment = ratio_fragment_by_target_transition[
+                    (target_id, item.transition_id)
+                ]
+                ratio_flagged = (
+                    ratio_observation.drift_flag or ratio_observation.unstable_fragment
                 )
-                reference_relative_share = reference_relative_shares[item.transition_id]
-                absolute_share_delta = abs(relative_share - reference_relative_share)
-                ratio_flagged = absolute_share_delta > fragment_ratio_delta_threshold
                 if ratio_flagged:
                     ratio_flags_by_target_sample.setdefault((target_id, sample_id), set()).add(
                         item.transition_id
@@ -331,9 +341,12 @@ def build_targeted_assay_qc_report(
                         transition_id=item.transition_id,
                         intensity=item.intensity,
                         total_target_intensity=total_target_intensity,
-                        relative_share=relative_share,
-                        reference_relative_share=reference_relative_share,
-                        absolute_share_delta=absolute_share_delta,
+                        relative_share=ratio_observation.observed_ratio,
+                        reference_relative_share=ratio_observation.expected_ratio,
+                        absolute_share_delta=ratio_observation.absolute_ratio_delta,
+                        ratio_cv=ratio_observation.ratio_cv,
+                        drift_flag=ratio_observation.drift_flag,
+                        unstable_transition_flagged=ratio_observation.unstable_fragment,
                         flagged=ratio_flagged,
                     )
                 )
@@ -388,6 +401,9 @@ def build_targeted_assay_qc_report(
                     observation.quality_flag is not None
                     and observation.quality_flag != "pass"
                 )
+                ratio_observation = ratio_observation_by_target_sample_transition[
+                    (target_id, sample_id, transition_id)
+                ]
                 ratio_flagged = transition_id in ratio_flags_for_sample
                 reference_alignment_flagged = (
                     "transition is misaligned from the target reference window"
@@ -403,9 +419,13 @@ def build_targeted_assay_qc_report(
                 failure_reasons.extend(coelution_failure_reasons)
                 if quality_flagged:
                     failure_reasons.append("source quality flag is not pass")
-                if ratio_flagged:
+                if ratio_observation.drift_flag:
                     failure_reasons.append(
-                        "fragment-ion ratio deviates from the target reference pattern"
+                        "fragment-ion ratio deviates from the cross-run reference pattern"
+                    )
+                if ratio_observation.unstable_fragment:
+                    failure_reasons.append(
+                        "fragment-ion ratio is unstable across runs"
                     )
                 passed = not failure_reasons
                 if passed:
@@ -422,20 +442,10 @@ def build_targeted_assay_qc_report(
                         detected=True,
                         intensity=observation.intensity,
                         quality_flag=observation.quality_flag,
-                        relative_share=(
-                            observation.intensity / total_target_intensity
-                            if total_target_intensity > 0.0
-                            else 0.0
-                        ),
-                        reference_relative_share=reference_relative_shares[transition_id],
-                        absolute_share_delta=abs(
-                            (
-                                observation.intensity / total_target_intensity
-                                if total_target_intensity > 0.0
-                                else 0.0
-                            )
-                            - reference_relative_shares[transition_id]
-                        ),
+                        relative_share=ratio_observation.observed_ratio,
+                        reference_relative_share=ratio_observation.expected_ratio,
+                        absolute_share_delta=ratio_observation.absolute_ratio_delta,
+                        ratio_cv=ratio_observation.ratio_cv,
                         coeluting=transition_coelution_entry.coeluting,
                         coelution_flagged=coelution_flagged,
                         reference_alignment_flagged=reference_alignment_flagged,
@@ -447,6 +457,10 @@ def build_targeted_assay_qc_report(
                         ),
                         quality_flagged=quality_flagged,
                         ratio_flagged=ratio_flagged,
+                        ratio_drift_flagged=ratio_observation.drift_flag,
+                        ratio_unstable_transition_flagged=(
+                            ratio_observation.unstable_fragment
+                        ),
                         passed=passed,
                         failure_reasons=tuple(sorted(failure_reasons)),
                     )
@@ -545,8 +559,20 @@ def build_targeted_assay_qc_report(
                 reasons.append(
                     "fewer than two coeluting transitions pass transition-quality review"
                 )
-            if ratio_flags_by_target_sample.get((target_id, sample_id)):
-                reasons.append("fragment-ion ratios deviate from the target reference pattern")
+            sample_ratio_flags = ratio_flags_by_target_sample.get((target_id, sample_id), set())
+            if sample_ratio_flags:
+                sample_ratio_observations = [
+                    ratio_observation_by_target_sample_transition[
+                        (target_id, sample_id, transition_id)
+                    ]
+                    for transition_id in sample_ratio_flags
+                ]
+                if any(entry.drift_flag for entry in sample_ratio_observations):
+                    reasons.append(
+                        "fragment-ion ratios deviate from the cross-run reference pattern"
+                    )
+                elif any(entry.unstable_fragment for entry in sample_ratio_observations):
+                    reasons.append("fragment-ion ratios are unstable across runs")
             retention_entry = next(
                 entry
                 for entry in retention_time_entries
@@ -633,6 +659,7 @@ def build_targeted_assay_qc_report(
     return TargetedAssayQcReport(
         source_name=import_report.source_name,
         transition_coelution=transition_coelution,
+        fragment_ratio_stability=fragment_ratio_stability,
         target_qc=tuple(
             sorted(
                 target_qc_entries,
@@ -686,6 +713,15 @@ def build_targeted_assay_qc_report(
                 entry.passed for entry in transition_qc_entries
             ),
             fragment_ratio_entry_count=len(ratio_entries),
+            fragment_ratio_stability_fragment_entry_count=len(
+                fragment_ratio_stability.fragment_entries
+            ),
+            unstable_fragment_ratio_entry_count=(
+                fragment_ratio_stability.summary.unstable_fragment_count
+            ),
+            drift_flagged_fragment_ratio_observation_count=(
+                fragment_ratio_stability.summary.drift_flagged_observation_count
+            ),
             retention_time_entry_count=len(retention_time_entries),
             flagged_retention_time_entry_count=sum(
                 entry.flagged for entry in retention_time_entries
@@ -758,6 +794,9 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             "transition_qc_entry_count",
             "passing_transition_qc_entry_count",
             "fragment_ratio_entry_count",
+            "fragment_ratio_stability_fragment_entry_count",
+            "unstable_fragment_ratio_entry_count",
+            "drift_flagged_fragment_ratio_observation_count",
             "retention_time_entry_count",
             "flagged_retention_time_entry_count",
             "replicate_cv_entry_count",
@@ -782,6 +821,9 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             report.summary.transition_qc_entry_count,
             report.summary.passing_transition_qc_entry_count,
             report.summary.fragment_ratio_entry_count,
+            report.summary.fragment_ratio_stability_fragment_entry_count,
+            report.summary.unstable_fragment_ratio_entry_count,
+            report.summary.drift_flagged_fragment_ratio_observation_count,
             report.summary.retention_time_entry_count,
             report.summary.flagged_retention_time_entry_count,
             report.summary.replicate_cv_entry_count,
@@ -911,6 +953,7 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
             "relative_share",
             "reference_relative_share",
             "absolute_share_delta",
+            "ratio_cv",
             "coeluting",
             "coelution_flagged",
             "reference_alignment_flagged",
@@ -918,6 +961,8 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
             "reference_delta_minutes",
             "quality_flagged",
             "ratio_flagged",
+            "ratio_drift_flagged",
+            "ratio_unstable_transition_flagged",
             "passed",
             "failure_reasons",
         ]
@@ -943,6 +988,7 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
                     if entry.absolute_share_delta is None
                     else f"{entry.absolute_share_delta:g}"
                 ),
+                "" if entry.ratio_cv is None else f"{entry.ratio_cv:g}",
                 str(entry.coeluting).lower(),
                 str(entry.coelution_flagged).lower(),
                 str(entry.reference_alignment_flagged).lower(),
@@ -958,6 +1004,8 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
                 ),
                 str(entry.quality_flagged).lower(),
                 str(entry.ratio_flagged).lower(),
+                str(entry.ratio_drift_flagged).lower(),
+                str(entry.ratio_unstable_transition_flagged).lower(),
                 str(entry.passed).lower(),
                 "; ".join(entry.failure_reasons),
             ]
@@ -980,6 +1028,9 @@ def render_targeted_assay_qc_fragment_ratio_tsv(report: TargetedAssayQcReport) -
             "relative_share",
             "reference_relative_share",
             "absolute_share_delta",
+            "ratio_cv",
+            "drift_flag",
+            "unstable_transition_flagged",
             "flagged",
         ]
     )
@@ -994,6 +1045,9 @@ def render_targeted_assay_qc_fragment_ratio_tsv(report: TargetedAssayQcReport) -
                 f"{entry.relative_share:g}",
                 f"{entry.reference_relative_share:g}",
                 f"{entry.absolute_share_delta:g}",
+                "" if entry.ratio_cv is None else f"{entry.ratio_cv:g}",
+                str(entry.drift_flag).lower(),
+                str(entry.unstable_transition_flagged).lower(),
                 str(entry.flagged).lower(),
             ]
         )
