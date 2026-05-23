@@ -59,3 +59,31 @@ def test_study_package_exports_lab_qc_status_surface() -> None:
     assert assessment.qc_status is study.QcStatus.PASS
     assert assessment.status_reasons == ()
     assert "qc_status" in study.render_qc_assessment_tsv(assessment).splitlines()[0]
+
+
+def test_study_package_exports_experiment_design_surface() -> None:
+    design = study.build_experiment_design(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001",
+                batch="B1",
+                instrument="Orbitrap-1",
+                metadata={
+                    "timepoint": "T0",
+                    "species": "human",
+                    "tissue_or_cell_type": "hepatocyte",
+                    "perturbation": "vehicle",
+                },
+            ),
+        )
+    )
+
+    assert hasattr(study, "ExperimentDesign")
+    assert hasattr(study, "build_experiment_design")
+    assert design.summary.sample_count == 1
+    assert design.summary.run_count == 1
+    assert design.timepoints == ("T0",)
