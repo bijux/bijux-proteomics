@@ -6423,6 +6423,52 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
 
 
+def test_quantify_command_reports_log2_normalization_preparation_explicitly() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "log2_median_centering",
+                "--imputation",
+                "none",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["table"]["normalization_method"] == "log2_median_centering"
+        assert payload["normalization_comparison"]["method"] == "log2_median_centering"
+        assert payload["normalization_comparison"]["before_distributions"]
+        assert payload["normalization_comparison"]["after_distributions"]
+        assert payload["normalization_comparison"]["log_transform_preparation"]
+        assert {
+            entry["handling_strategy"]
+            for entry in payload["normalization_comparison"]["log_transform_preparation"]
+        } == {"exclude_nonpositive_values_before_log2_centering"}
+        assert all(
+            entry["zero_count"] == 1
+            for entry in payload["normalization_comparison"]["log_transform_preparation"]
+        )
+        assert any(
+            entry["method"] == "log2_median_centering"
+            for entry in payload["normalization_strategy"]["entries"]
+        )
+
+
 def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
