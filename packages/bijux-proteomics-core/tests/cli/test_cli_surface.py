@@ -3733,6 +3733,77 @@ def test_xic_extract_command_rejects_dual_tolerance_modes() -> None:
         assert "provide either tolerance_da or tolerance_ppm, not both" in result.output
 
 
+def test_xic_pick_peaks_command_emits_peak_and_trace_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chromatographic_peak_profile.mzml",
+            "chromatographic_peak_profile.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chromatographic_peak_targets.tsv",
+            "chromatographic_peak_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-pick-peaks",
+                "chromatographic_peak_profile.mzml",
+                "chromatographic_peak_targets.tsv",
+                "--tolerance-ppm",
+                "10",
+                "--trace-tsv-out",
+                "xic_traces.tsv",
+                "--peak-tsv-out",
+                "chromatographic_peaks.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert len(payload["peaks"]) == 3
+        assert payload["peaks"][0]["overlap_flag"] is True
+        assert payload["peaks"][0]["shoulder_flag"] is True
+        assert Path("xic_traces.tsv").exists()
+        assert Path("chromatographic_peaks.tsv").exists()
+        peaks_tsv = Path("chromatographic_peaks.tsv").read_text(encoding="utf-8")
+        assert (
+            "target_overlap_peak_001\ttarget_overlap\t0\t30\t20\t120\t0\t90\t60\t60\t700\t4\ttrue\ttrue"
+            in peaks_tsv
+        )
+        assert "scan=7107" not in Path("xic_traces.tsv").read_text(encoding="utf-8")
+
+
+def test_xic_pick_peaks_command_rejects_dual_tolerance_modes() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chromatographic_peak_profile.mzml",
+            "chromatographic_peak_profile.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chromatographic_peak_targets.tsv",
+            "chromatographic_peak_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-pick-peaks",
+                "chromatographic_peak_profile.mzml",
+                "chromatographic_peak_targets.tsv",
+                "--tolerance-da",
+                "0.01",
+                "--tolerance-ppm",
+                "10",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "provide either tolerance_da or tolerance_ppm, not both" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
