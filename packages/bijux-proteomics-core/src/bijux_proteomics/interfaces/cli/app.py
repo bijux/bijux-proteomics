@@ -269,6 +269,9 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    render_chimeric_spectrum_competing_evidence_tsv,
+    render_chimeric_spectrum_spectra_tsv,
+    score_chimeric_spectra_from_psms,
     extract_mzml_dia_fragment_trace_coelution,
     extract_mzml_chromatographic_evidence,
     extract_mzml_chromatographic_peaks,
@@ -12296,6 +12299,111 @@ def spectrum_annotate_command(
         "annotation": annotation.to_dict(),
         "peak_matching_report": peak_matching_report.to_dict(),
         "plot_payload": plot_payload.to_dict(),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-score-chimeric")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "psm_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--default-isolation-window-half-width-da",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--chimeric-score-threshold",
+    type=float,
+    default=0.45,
+    show_default=True,
+)
+@click.option(
+    "--spectra-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--competition-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON chimeric-spectrum output path.",
+)
+def spectrum_score_chimeric_command(
+    input_path: Path,
+    psm_path: Path,
+    kind: str,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    default_isolation_window_half_width_da: float,
+    chimeric_score_threshold: float,
+    spectra_tsv_out: Path | None,
+    competition_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score spectra for competing peptide evidence that suggests chimeric MS/MS."""
+
+    effective_tolerance_da = (
+        0.02 if tolerance_da is None and tolerance_ppm is None else tolerance_da
+    )
+    spectra = _load_similarity_spectra(input_path, kind=kind)
+    psm_report = parse_psm_tsv(psm_path, mapping=_default_psm_mapping())
+    try:
+        report = score_chimeric_spectra_from_psms(
+            spectra,
+            psm_report.accepted_records,
+            tolerance_da=effective_tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+            default_isolation_window_half_width_da=(
+                default_isolation_window_half_width_da
+            ),
+            chimeric_score_threshold=chimeric_score_threshold,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if spectra_tsv_out is not None:
+        _write_text_output(
+            spectra_tsv_out,
+            render_chimeric_spectrum_spectra_tsv(report),
+        )
+    if competition_tsv_out is not None:
+        _write_text_output(
+            competition_tsv_out,
+            render_chimeric_spectrum_competing_evidence_tsv(report),
+        )
+    payload = {
+        "spectrum_kind": kind if kind != "auto" else input_path.suffix.lower().lstrip("."),
+        "psm_summary": {
+            "total_rows": psm_report.total_rows,
+            "accepted_record_count": len(psm_report.accepted_records),
+            "rejected_row_count": len(psm_report.rejected_rows),
+        },
+        "chimeric_summary": report.summary.to_dict(),
+        "spectra": [entry.to_dict() for entry in report.spectra],
+        "competing_evidence": [entry.to_dict() for entry in report.competing_evidence],
+        "note": report.note,
+        "outputs": {
+            "spectra_tsv": None if spectra_tsv_out is None else str(spectra_tsv_out),
+            "competition_tsv": (
+                None if competition_tsv_out is None else str(competition_tsv_out)
+            ),
+        },
     }
     _emit_json(payload, out_path=out_path)
 
