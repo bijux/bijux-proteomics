@@ -54,3 +54,25 @@ def test_build_maxquant_benchmark_report_preserves_differential_results() -> Non
     assert comparison_lookup["P04637"].imported_adjusted_p_value == comparison_lookup[
         "P04637"
     ].source_adjusted_p_value
+
+
+def test_build_maxquant_benchmark_report_blocks_invalid_contrasts() -> None:
+    design_report = parse_experimental_design_table(_bundle_fixture("design.tsv"))
+    experiment_design = build_experiment_design(
+        tuple(design_report.accepted_entries)
+    )
+
+    try:
+        build_maxquant_benchmark_report(
+            _bundle_fixture("evidence.txt"),
+            peptides_txt_path=_bundle_fixture("peptides.txt"),
+            protein_groups_txt_path=_bundle_fixture("proteinGroups.txt"),
+            config_path=_bundle_fixture("maxquant_settings.txt"),
+            design_entries=experiment_design,
+            condition_a="control",
+            condition_b="missing",
+        )
+    except ValueError as exc:
+        assert "invalid_contrast_unknown_condition" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected invalid benchmark contrast to be rejected")

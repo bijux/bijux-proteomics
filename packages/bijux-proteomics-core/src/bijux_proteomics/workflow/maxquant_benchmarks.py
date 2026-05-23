@@ -35,7 +35,11 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
-from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study import (
+    ExperimentDesign,
+    coerce_experiment_design,
+    require_valid_experiment_design_for_differential_analysis,
+)
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
     MaxquantProteinGroupAcceptanceReason,
@@ -238,7 +242,11 @@ def build_maxquant_benchmark_report(
     differential_comparison_applied = design_entries is not None
     differential_matched: bool | None = None
     if design_entries is not None:
-        experiment_design = coerce_experiment_design(design_entries)
+        experiment_design = require_valid_experiment_design_for_differential_analysis(
+            coerce_experiment_design(design_entries),
+            condition_a=condition_a,
+            condition_b=condition_b,
+        )
         source_lfq_table = _build_source_lfq_table(source_accepted)
         normalized_source_table = normalize_label_free_table(
             source_lfq_table,
