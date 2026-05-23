@@ -346,6 +346,68 @@ def test_protein_set_enrichment_command_emits_result_and_universe_gap_ledgers() 
         )
 
 
+def test_ppi_modules_command_emits_edges_modules_isolates_and_enrichment() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "ppi_significant.tsv",
+            "ppi_significant.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "ppi_edges.tsv",
+            "ppi_edges.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "ppi_edges_invalid.tsv",
+            "ppi_edges_invalid.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_set_enrichment.tsv",
+            "protein_set_enrichment.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "ppi-modules",
+                "ppi_significant.tsv",
+                "ppi_edges.tsv",
+                "--protein-set-tsv",
+                "protein_set_enrichment.tsv",
+                "--summary-tsv-out",
+                "ppi_modules.summary.tsv",
+                "--edge-tsv-out",
+                "ppi_modules.edges.tsv",
+                "--module-tsv-out",
+                "ppi_modules.modules.tsv",
+                "--isolated-tsv-out",
+                "ppi_modules.isolated.tsv",
+                "--module-enrichment-tsv-out",
+                "ppi_modules.enrichment.tsv",
+                "--rejected-edge-tsv-out",
+                "ppi_modules.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["module_count"] == 1
+        assert payload["report"]["summary"]["isolated_protein_count"] == 2
+        assert payload["outputs"]["module_tsv"] == "ppi_modules.modules.tsv"
+        assert "ppi_module:P001,P002,P003" in Path(
+            "ppi_modules.modules.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P004" in Path("ppi_modules.isolated.tsv").read_text(encoding="utf-8")
+        assert "stress_panel" in Path("ppi_modules.enrichment.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert Path("ppi_modules.rejected.tsv").read_text(encoding="utf-8").splitlines()[
+            0
+        ] == "row_number\tvalues\treason"
+
+
 def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
