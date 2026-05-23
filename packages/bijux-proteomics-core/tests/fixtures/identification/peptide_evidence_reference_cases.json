@@ -1,0 +1,160 @@
+[
+  {
+    "case_id": "classifies_peptide_evidence_outputs",
+    "threshold": 0.05,
+    "score_orientation": "higher_better",
+    "strong_q_value": 0.01,
+    "reproducible_spectrum_count": 2,
+    "records": [
+      {
+        "spectrum_id": "scan=9101",
+        "peptide": "STRONGK",
+        "canonical_peptide": "STRONGK",
+        "charge": 2,
+        "score": 120.0,
+        "q_value": 0.002,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "spectrum_id": "scan=9101b",
+        "peptide": "STRONGK",
+        "canonical_peptide": "STRONGK",
+        "charge": 2,
+        "score": 118.0,
+        "q_value": 0.003,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "spectrum_id": "scan=9102",
+        "peptide": "SHAREDFINEK",
+        "canonical_peptide": "SHAREDFINEK",
+        "charge": 2,
+        "score": 110.0,
+        "q_value": 0.004,
+        "protein_refs": ["P22222", "P33333"]
+      },
+      {
+        "spectrum_id": "scan=9102b",
+        "peptide": "SHAREDFINEK",
+        "canonical_peptide": "SHAREDFINEK",
+        "charge": 2,
+        "score": 108.0,
+        "q_value": 0.005,
+        "protein_refs": ["P22222", "P33333"]
+      },
+      {
+        "spectrum_id": "scan=9103",
+        "peptide": "ACDM[Oxidation]K",
+        "canonical_peptide": "ACDM[Oxidation]K",
+        "charge": 3,
+        "score": 103.0,
+        "q_value": 0.008,
+        "protein_refs": ["P44444"]
+      },
+      {
+        "spectrum_id": "scan=9104",
+        "peptide": "AMBIGK",
+        "canonical_peptide": "AMBIGK",
+        "charge": 2,
+        "score": 101.0,
+        "q_value": 0.007,
+        "protein_refs": ["P55555", "DECOY_P55555"]
+      },
+      {
+        "spectrum_id": "scan=9105",
+        "peptide": "CONTAMK",
+        "canonical_peptide": "CONTAMK",
+        "charge": 2,
+        "score": 99.0,
+        "q_value": 0.004,
+        "protein_refs": ["CON__KERATIN_HUMAN"]
+      },
+      {
+        "spectrum_id": "scan=9106",
+        "peptide": "DECOYSEQ",
+        "canonical_peptide": "DECOYSEQ",
+        "charge": 2,
+        "score": 80.0,
+        "q_value": 0.020,
+        "protein_refs": ["DECOY_P11111"],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=9107",
+        "peptide": "SHAREDK",
+        "canonical_peptide": "SHAREDK",
+        "charge": 2,
+        "score": 70.0,
+        "q_value": 0.030,
+        "protein_refs": ["P11111", "P22222"]
+      },
+      {
+        "spectrum_id": "scan=9108",
+        "peptide": "LOWCONFK",
+        "canonical_peptide": "LOWCONFK",
+        "charge": 2,
+        "score": 65.0,
+        "q_value": 0.040,
+        "protein_refs": ["P66666"]
+      }
+    ],
+    "expected_entries": [
+      {
+        "canonical_peptide": "STRONGK",
+        "primary_class": "strong",
+        "accepted": true,
+        "tags": ["unique", "reproducible"],
+        "spectrum_count": 2
+      },
+      {
+        "canonical_peptide": "SHAREDFINEK",
+        "primary_class": "shared",
+        "accepted": true,
+        "tags": ["shared", "reproducible"],
+        "spectrum_count": 2
+      },
+      {
+        "canonical_peptide": "ACDM[Oxidation]K",
+        "primary_class": "moderate",
+        "accepted": true,
+        "tags": ["unique", "modified"],
+        "spectrum_count": 1
+      },
+      {
+        "canonical_peptide": "AMBIGK",
+        "primary_class": "ambiguous",
+        "accepted": true,
+        "tags": ["shared", "ambiguous"],
+        "spectrum_count": 1
+      },
+      {
+        "canonical_peptide": "CONTAMK",
+        "primary_class": "contaminant",
+        "accepted": true,
+        "tags": ["unique", "contaminant"],
+        "spectrum_count": 1
+      },
+      {
+        "canonical_peptide": "DECOYSEQ",
+        "primary_class": "decoy",
+        "accepted": false,
+        "tags": ["unique", "decoy"],
+        "spectrum_count": 1
+      },
+      {
+        "canonical_peptide": "SHAREDK",
+        "primary_class": "weak",
+        "accepted": false,
+        "tags": ["shared"],
+        "spectrum_count": 1
+      },
+      {
+        "canonical_peptide": "LOWCONFK",
+        "primary_class": "weak",
+        "accepted": false,
+        "tags": ["unique"],
+        "spectrum_count": 1
+      }
+    ]
+  }
+]
