@@ -88,6 +88,29 @@ class DiaDifferentialInputReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class DiaDifferentialQcSummary(JsonModel):
+    """Compact QC summary over one owned DIA differential-analysis report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_kind: DiaDifferentialSourceKind
+    source_name: str = Field(..., min_length=1)
+    normalization_method: NormalizationMethod
+    entity_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    observed_raw_cell_count: int = Field(..., ge=0)
+    missing_raw_cell_count: int = Field(..., ge=0)
+    observed_normalized_cell_count: int = Field(..., ge=0)
+    missing_normalized_cell_count: int = Field(..., ge=0)
+    design_sample_count: int = Field(..., ge=0)
+    design_column_count: int = Field(..., ge=0)
+    fitted_entity_count: int = Field(..., ge=0)
+    contrast_count: int = Field(..., ge=0)
+    differential_entry_count: int = Field(..., ge=0)
+    significant_entry_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
 class DiaDifferentialAnalysisReport(JsonModel):
     """Normalization, design, and differential results over one DIA input packet."""
 
@@ -98,6 +121,7 @@ class DiaDifferentialAnalysisReport(JsonModel):
     normalization_comparison: NormalizationComparisonReport
     design_matrix: QuantDesignMatrixReport
     design_model_fit: QuantDesignModelFitReport
+    qc_summary: DiaDifferentialQcSummary
     normalization_balance_plot: DiaNormalizationBalancePlot
     volcano_plot: DiaDifferentialVolcanoPlot | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
@@ -342,12 +366,23 @@ def build_dia_differential_analysis_report(
                 contrasts=tuple(combinations(_condition_names(design_entries), 2)),
             )
         )
+    qc_summary = _build_dia_differential_qc_summary(
+        input_report,
+        normalized_table=normalized_table,
+        design_matrix=design_matrix,
+        design_model_fit=design_model_fit,
+        differential_abundance_report=differential_abundance_report,
+        differential_abundance_multi_condition_report=(
+            differential_abundance_multi_condition_report
+        ),
+    )
     return DiaDifferentialAnalysisReport(
         input_report=input_report,
         normalized_table=normalized_table,
         normalization_comparison=normalization_comparison,
         design_matrix=design_matrix,
         design_model_fit=design_model_fit,
+        qc_summary=qc_summary,
         normalization_balance_plot=build_dia_normalization_balance_plot(
             normalization_comparison
         ),
@@ -357,8 +392,81 @@ def build_dia_differential_analysis_report(
             differential_abundance_multi_condition_report
         ),
         note=(
-            "dia differential analysis preserves normalization, explicit design encoding, and benjamini-hochberg-corrected differential results"
+            "dia differential analysis preserves normalization, explicit design encoding, benjamini-hochberg-corrected differential results, and qc summary counts"
         ),
+    )
+
+
+def _build_dia_differential_qc_summary(
+    input_report: DiaDifferentialInputReport,
+    *,
+    normalized_table: LabelFreeQuantTable,
+    design_matrix: QuantDesignMatrixReport,
+    design_model_fit: QuantDesignModelFitReport,
+    differential_abundance_report: DifferentialAbundanceReport | None,
+    differential_abundance_multi_condition_report: (
+        MultiConditionDifferentialAbundanceReport | None
+    ),
+) -> DiaDifferentialQcSummary:
+    contrast_count = 0
+    differential_entry_count = 0
+    significant_entry_count = 0
+    if differential_abundance_report is not None:
+        contrast_count = 1
+        differential_entry_count = len(differential_abundance_report.entries)
+        significant_entry_count = _count_significant_differential_entries(
+            differential_abundance_report.entries
+        )
+    elif differential_abundance_multi_condition_report is not None:
+        contrast_count = len(differential_abundance_multi_condition_report.reports)
+        differential_entry_count = sum(
+            len(report.entries)
+            for report in differential_abundance_multi_condition_report.reports
+        )
+        significant_entry_count = sum(
+            _count_significant_differential_entries(report.entries)
+            for report in differential_abundance_multi_condition_report.reports
+        )
+    return DiaDifferentialQcSummary(
+        source_kind=input_report.source_kind,
+        source_name=input_report.source_name,
+        normalization_method=normalized_table.normalization_method,
+        entity_count=len(input_report.table.entity_ids),
+        sample_count=len(input_report.table.sample_ids),
+        observed_raw_cell_count=sum(
+            1 for value in input_report.table.values if value.abundance is not None
+        ),
+        missing_raw_cell_count=sum(
+            1 for value in input_report.table.values if value.abundance is None
+        ),
+        observed_normalized_cell_count=sum(
+            1 for value in normalized_table.values if value.abundance is not None
+        ),
+        missing_normalized_cell_count=sum(
+            1 for value in normalized_table.values if value.abundance is None
+        ),
+        design_sample_count=design_matrix.sample_count,
+        design_column_count=design_matrix.column_count,
+        fitted_entity_count=design_model_fit.fitted_entity_count,
+        contrast_count=contrast_count,
+        differential_entry_count=differential_entry_count,
+        significant_entry_count=significant_entry_count,
+        note=(
+            "dia differential qc summary preserves matrix completeness, design size, fitted entities, and significant differential counts"
+        ),
+    )
+
+
+def _count_significant_differential_entries(
+    entries: tuple[object, ...],
+    *,
+    adjusted_p_value_threshold: float = 0.05,
+) -> int:
+    return sum(
+        1
+        for entry in entries
+        if getattr(entry, "adjusted_p_value", None) is not None
+        and getattr(entry, "adjusted_p_value") <= adjusted_p_value_threshold
     )
 
 
@@ -615,6 +723,36 @@ def render_dia_differential_results_tsv(
     raise ValueError("dia differential analysis report does not contain differential results")
 
 
+def render_dia_differential_qc_summary_tsv(
+    report: DiaDifferentialAnalysisReport,
+) -> str:
+    """Render one DIA differential QC summary as a stable TSV ledger."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("field", "value"))
+    for field_name, value in (
+        ("source_kind", report.qc_summary.source_kind.value),
+        ("source_name", report.qc_summary.source_name),
+        ("normalization_method", report.qc_summary.normalization_method.value),
+        ("entity_count", report.qc_summary.entity_count),
+        ("sample_count", report.qc_summary.sample_count),
+        ("observed_raw_cell_count", report.qc_summary.observed_raw_cell_count),
+        ("missing_raw_cell_count", report.qc_summary.missing_raw_cell_count),
+        ("observed_normalized_cell_count", report.qc_summary.observed_normalized_cell_count),
+        ("missing_normalized_cell_count", report.qc_summary.missing_normalized_cell_count),
+        ("design_sample_count", report.qc_summary.design_sample_count),
+        ("design_column_count", report.qc_summary.design_column_count),
+        ("fitted_entity_count", report.qc_summary.fitted_entity_count),
+        ("contrast_count", report.qc_summary.contrast_count),
+        ("differential_entry_count", report.qc_summary.differential_entry_count),
+        ("significant_entry_count", report.qc_summary.significant_entry_count),
+        ("note", report.qc_summary.note),
+    ):
+        writer.writerow((field_name, value))
+    return handle.getvalue()
+
+
 def render_dia_normalization_balance_plot_tsv(
     plot: DiaNormalizationBalancePlot,
 ) -> str:
@@ -690,6 +828,15 @@ def export_dia_differential_results_tsv(
     """Write one DIA differential result surface to a stable TSV artifact."""
 
     path.write_text(render_dia_differential_results_tsv(report), encoding="utf-8")
+
+
+def export_dia_differential_qc_summary_tsv(
+    report: DiaDifferentialAnalysisReport,
+    path: Path,
+) -> None:
+    """Write one DIA differential QC summary to a stable TSV artifact."""
+
+    path.write_text(render_dia_differential_qc_summary_tsv(report), encoding="utf-8")
 
 
 def export_dia_normalization_balance_plot_tsv(
