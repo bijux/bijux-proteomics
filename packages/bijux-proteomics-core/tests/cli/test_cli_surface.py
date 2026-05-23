@@ -8540,7 +8540,17 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
         assert payload["feature_rows"] == 12
         assert payload["protein_correction_mode"] == "subtract_unmodified_protein"
         assert payload["volcano_review"]["labeled_point_count"] == 1
+        low_localization = next(
+            entry
+            for entry in payload["differential_report"]["entries"]
+            if entry["site_key"] == "Q9DEC1:S5:Phospho"
+        )
+        assert low_localization["localization_tier"] == "refused"
+        assert low_localization["low_localization"] is True
         assert "P11111:S5:Phospho" in Path("ptm.differential.tsv").read_text()
+        assert "localization_tier\tlow_localization" in Path(
+            "ptm.differential.tsv"
+        ).read_text()
         assert "plotted_log2_fold_change" in Path("ptm.volcano.tsv").read_text()
         assert Path("ptm.volcano.json").exists()
         assert Path("ptm.volcano.svg").exists()
