@@ -6805,6 +6805,59 @@ def test_peptide_matrix_command_emits_psm_backed_matrix_and_skipped_counts() -> 
         )
 
 
+def test_peptide_matrix_command_emits_precursor_mask_and_aggregation_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "peptide_matrix_precursors.tsv",
+            "peptide_matrix_precursors.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-matrix",
+                "peptide_matrix_precursors.tsv",
+                "--input-kind",
+                "precursor",
+                "--grouping-mode",
+                "modified_peptide",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--summary-tsv-out",
+                "peptide_matrix_precursor.summary.tsv",
+                "--missingness-mask-tsv-out",
+                "peptide_matrix_precursor.mask.tsv",
+                "--aggregation-table-tsv-out",
+                "peptide_matrix_precursor.aggregation.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "precursor"
+        assert payload["accepted_source_records"] == 7
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["filtered_cell_count"] == 1
+        assert payload["report"]["summary"]["missing_cell_count"] == 1
+        assert payload["report"]["aggregation_entries"][0]["aggregation_method"] == "top_n"
+        assert Path("peptide_matrix_precursor.summary.tsv").exists()
+        assert Path("peptide_matrix_precursor.mask.tsv").exists()
+        assert Path("peptide_matrix_precursor.aggregation.tsv").exists()
+        assert "precursor\tmodified_peptide\tfalse\ttop_n\t7\t0\t3\t2\t4\t0\t1\t1\t" in Path(
+            "peptide_matrix_precursor.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "missing_not_observed" in Path(
+            "peptide_matrix_precursor.mask.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ppq001;ppq002" in Path(
+            "peptide_matrix_precursor.aggregation.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
