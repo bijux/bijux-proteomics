@@ -3346,80 +3346,25 @@ def build_protein_groups(
     records: tuple[PsmRecord, ...],
 ) -> tuple[ProteinGroupEntry, ...]:
     """Group indistinguishable proteins by their peptide evidence sets."""
-    peptide_rollups = rollup_peptide_evidence(records)
-    protein_to_peptides: dict[str, set[str]] = defaultdict(set)
-    protein_to_scores: dict[str, list[float]] = defaultdict(list)
-    protein_to_q_values: dict[str, list[float]] = defaultdict(list)
-    for peptide_rollup in peptide_rollups:
-        for protein_ref in peptide_rollup.protein_refs:
-            protein_to_peptides[protein_ref].add(peptide_rollup.canonical_peptide)
-            protein_to_scores[protein_ref].append(peptide_rollup.best_score)
-            if peptide_rollup.best_q_value is not None:
-                protein_to_q_values[protein_ref].append(peptide_rollup.best_q_value)
+    from bijux_proteomics.identification.protein_grouping import (
+        build_protein_grouping_report,
+    )
 
-    grouped: dict[tuple[str, ...], list[str]] = defaultdict(list)
-    for protein_ref, peptides in protein_to_peptides.items():
-        grouped[tuple(sorted(peptides))].append(protein_ref)
-
-    entries: list[ProteinGroupEntry] = []
-    for index, (peptide_set, protein_refs) in enumerate(
-        sorted(grouped.items()), start=1
-    ):
-        sorted_proteins = tuple(sorted(protein_refs))
-        representative = sorted_proteins[0]
-        entries.append(
-            ProteinGroupEntry(
-                group_id=f"pg-{index:03d}",
-                representative_protein=representative,
-                protein_refs=sorted_proteins,
-                peptides=tuple(peptide_set),
-                unique_peptide_count=sum(
-                    1
-                    for peptide in peptide_set
-                    if len(
-                        next(
-                            rollup.protein_refs
-                            for rollup in peptide_rollups
-                            if rollup.canonical_peptide == peptide
-                        )
-                    )
-                    == 1
-                ),
-                shared_peptide_count=sum(
-                    1
-                    for peptide in peptide_set
-                    if len(
-                        next(
-                            rollup.protein_refs
-                            for rollup in peptide_rollups
-                            if rollup.canonical_peptide == peptide
-                        )
-                    )
-                    > 1
-                ),
-                best_score=max(
-                    protein_to_scores[protein_ref][0]
-                    if len(protein_to_scores[protein_ref]) == 1
-                    else max(protein_to_scores[protein_ref])
-                    for protein_ref in sorted_proteins
-                ),
-                best_q_value=min(
-                    (
-                        q_value
-                        for protein_ref in sorted_proteins
-                        for q_value in protein_to_q_values[protein_ref]
-                    ),
-                    default=None,
-                ),
-                target_decoy_label=_combine_labels(
-                    tuple(
-                        parse_target_decoy_label(protein_refs=(protein_ref,))
-                        for protein_ref in sorted_proteins
-                    )
-                ),
-            )
+    report = build_protein_grouping_report(records)
+    return tuple(
+        ProteinGroupEntry(
+            group_id=group.group_id,
+            representative_protein=group.representative_protein,
+            protein_refs=group.protein_refs,
+            peptides=group.peptides,
+            unique_peptide_count=group.unique_peptide_count,
+            shared_peptide_count=group.shared_peptide_count,
+            best_score=group.best_score,
+            best_q_value=group.best_q_value,
+            target_decoy_label=group.target_decoy_label,
         )
-    return tuple(entries)
+        for group in report.groups
+    )
 
 
 def build_shared_peptide_ambiguity_report(
