@@ -340,6 +340,7 @@ from bijux_proteomics.interpretation import (
     OrthologColumnMapping,
     PathwayEnrichmentCorrectionPolicy,
     PathwayMembershipColumnMapping,
+    PpiEdgeColumnMapping,
     ProteinSetColumnMapping,
     ProteinSetScoringPolicy,
     ProteinSetEnrichmentMissingBackgroundPolicy,
@@ -347,6 +348,7 @@ from bijux_proteomics.interpretation import (
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
+    build_ppi_network_module_report,
     build_complex_enrichment_report,
     build_go_enrichment_report,
     build_ortholog_mapping_report,
@@ -360,6 +362,7 @@ from bijux_proteomics.interpretation import (
     parse_go_annotation_table,
     parse_ortholog_table,
     parse_pathway_membership_table,
+    parse_ppi_edge_table,
     parse_protein_annotation_table,
     parse_protein_reference_table,
     parse_protein_set_table,
@@ -374,6 +377,11 @@ from bijux_proteomics.interpretation import (
     render_pathway_enrichment_entry_tsv,
     render_pathway_enrichment_summary_tsv,
     render_pathway_unresolved_member_tsv,
+    render_ppi_isolated_protein_tsv,
+    render_ppi_module_enrichment_tsv,
+    render_ppi_module_tsv,
+    render_ppi_network_edge_tsv,
+    render_ppi_network_module_summary_tsv,
     render_protein_set_enrichment_summary_tsv,
     render_protein_set_enrichment_tsv,
     render_protein_annotation_tsv,
@@ -390,6 +398,7 @@ from bijux_proteomics.interpretation import (
     render_rejected_pathway_membership_tsv,
     render_rejected_go_annotation_tsv,
     render_rejected_ortholog_tsv,
+    render_rejected_ppi_edge_tsv,
     render_rejected_protein_annotation_tsv,
     render_rejected_protein_set_tsv,
     render_rejected_protein_reference_tsv,
@@ -13083,6 +13092,203 @@ def protein_set_score_command(
                 None
                 if rejected_set_tsv_out is None
                 else str(rejected_set_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@interpretation_group.command("ppi-modules")
+@click.argument(
+    "significant_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "ppi_edge_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--protein-set-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--row-id-column", default="row_id", show_default=True)
+@click.option("--edge-protein-ref-a-column", default="protein_ref_a", show_default=True)
+@click.option("--edge-protein-ref-b-column", default="protein_ref_b", show_default=True)
+@click.option("--edge-source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--edge-source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--edge-score-column", default="interaction_score", show_default=True)
+@click.option("--set-id-column", default="set_id", show_default=True)
+@click.option("--set-name-column", default="set_name", show_default=True)
+@click.option("--set-category-column", default="set_category", show_default=True)
+@click.option("--source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--set-protein-ref-column", default="protein_ref", show_default=True)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--edge-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--module-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--isolated-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--module-enrichment-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-edge-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def ppi_modules_command(
+    significant_tsv: Path,
+    ppi_edge_tsv: Path,
+    protein_set_tsv: Path | None,
+    protein_ref_column: str,
+    row_id_column: str,
+    edge_protein_ref_a_column: str,
+    edge_protein_ref_b_column: str,
+    edge_source_name_column: str,
+    edge_source_accession_column: str,
+    edge_score_column: str,
+    set_id_column: str,
+    set_name_column: str,
+    set_category_column: str,
+    source_name_column: str,
+    source_accession_column: str,
+    set_protein_ref_column: str,
+    summary_tsv_out: Path | None,
+    edge_tsv_out: Path | None,
+    module_tsv_out: Path | None,
+    isolated_tsv_out: Path | None,
+    module_enrichment_tsv_out: Path | None,
+    rejected_edge_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build a significant-protein PPI subnetwork and connected modules."""
+
+    try:
+        significant = parse_protein_reference_table(
+            significant_tsv,
+            mapping=ProteinReferenceColumnMapping(
+                protein_ref=protein_ref_column,
+                row_id=row_id_column,
+            ),
+        )
+        edge_report = parse_ppi_edge_table(
+            ppi_edge_tsv,
+            mapping=PpiEdgeColumnMapping(
+                protein_ref_a=edge_protein_ref_a_column,
+                protein_ref_b=edge_protein_ref_b_column,
+                source_name=edge_source_name_column,
+                source_accession=edge_source_accession_column,
+                interaction_score=edge_score_column,
+            ),
+        )
+        protein_sets = (
+            None
+            if protein_set_tsv is None
+            else parse_protein_set_table(
+                protein_set_tsv,
+                mapping=ProteinSetColumnMapping(
+                    set_id=set_id_column,
+                    protein_ref=set_protein_ref_column,
+                    set_name=set_name_column,
+                    set_category=set_category_column,
+                    source_name=source_name_column,
+                    source_accession=source_accession_column,
+                ),
+            )
+        )
+        report = build_ppi_network_module_report(
+            significant.accepted_entries,
+            edge_report.accepted_records,
+            protein_set_records=(
+                () if protein_sets is None else protein_sets.accepted_records
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_ppi_network_module_summary_tsv(report),
+            encoding="utf-8",
+        )
+    if edge_tsv_out is not None:
+        edge_tsv_out.write_text(
+            render_ppi_network_edge_tsv(report),
+            encoding="utf-8",
+        )
+    if module_tsv_out is not None:
+        module_tsv_out.write_text(
+            render_ppi_module_tsv(report),
+            encoding="utf-8",
+        )
+    if isolated_tsv_out is not None:
+        isolated_tsv_out.write_text(
+            render_ppi_isolated_protein_tsv(report),
+            encoding="utf-8",
+        )
+    if module_enrichment_tsv_out is not None:
+        module_enrichment_tsv_out.write_text(
+            render_ppi_module_enrichment_tsv(report),
+            encoding="utf-8",
+        )
+    if rejected_edge_tsv_out is not None:
+        rejected_edge_tsv_out.write_text(
+            render_rejected_ppi_edge_tsv(edge_report),
+            encoding="utf-8",
+        )
+
+    payload = {
+        "significant": significant.to_dict(),
+        "ppi_edges": edge_report.to_dict(),
+        "protein_sets": None if protein_sets is None else protein_sets.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "edge_tsv": None if edge_tsv_out is None else str(edge_tsv_out),
+            "module_tsv": None if module_tsv_out is None else str(module_tsv_out),
+            "isolated_tsv": None if isolated_tsv_out is None else str(isolated_tsv_out),
+            "module_enrichment_tsv": (
+                None
+                if module_enrichment_tsv_out is None
+                else str(module_enrichment_tsv_out)
+            ),
+            "rejected_edge_tsv": (
+                None
+                if rejected_edge_tsv_out is None
+                else str(rejected_edge_tsv_out)
             ),
         },
     }
