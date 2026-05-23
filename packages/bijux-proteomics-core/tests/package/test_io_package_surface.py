@@ -75,3 +75,19 @@ def test_io_package_exports_xic_extraction_owner_surface() -> None:
     assert report.eligible_spectra == 3
     assert len(report.trace_points) == 8
     assert "target_alpha\tscan=7000\t10\t500.000000" in rendered
+
+
+def test_io_package_exports_chromatographic_peak_picking_owner_surface() -> None:
+    report = io.extract_mzml_chromatographic_peaks(
+        _format_fixture("chromatographic_peak_profile.mzml"),
+        _format_fixture("chromatographic_peak_targets.tsv"),
+        tolerance_ppm=10.0,
+    )
+    rendered = io.render_chromatographic_peaks_tsv(report)
+
+    assert hasattr(io, "pick_chromatographic_peaks")
+    assert hasattr(io, "extract_mzml_chromatographic_peaks")
+    assert hasattr(io, "render_chromatographic_peaks_tsv")
+    assert len(report.peaks) == 3
+    assert report.peaks[0].overlap_flag is True
+    assert "target_single_peak_001\ttarget_single\t0\t60\t30\t160" in rendered
