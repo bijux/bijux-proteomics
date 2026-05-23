@@ -21,3 +21,4 @@ from bijux_proteomics.quantification.replicate_qc import *  # noqa: F401,F403
 from bijux_proteomics.quantification.review import *  # noqa: F401,F403
 from bijux_proteomics.quantification.sample_exploration import *  # noqa: F401,F403
 from bijux_proteomics.quantification.statistical_backend import *  # noqa: F401,F403
+from bijux_proteomics.quantification.time_course_differential import *  # noqa: F401,F403
