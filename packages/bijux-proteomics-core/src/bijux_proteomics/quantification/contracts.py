@@ -89,6 +89,7 @@ class ImputationMethod(StrEnum):
 
     NONE = "none"
     LOW_INTENSITY = "low_intensity"
+    GROUP_AWARE_LOW_INTENSITY = "group_aware_low_intensity"
     KNN = "knn"
 
 
@@ -325,6 +326,20 @@ class QuantValue(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     source_feature_count: int = Field(..., ge=0)
+    imputation_provenance: QuantCellImputationProvenance | None = None
+
+
+class QuantCellImputationProvenance(JsonModel):
+    """Per-cell provenance for an imputed quantification abundance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: ImputationMethod
+    original_missing_value_kind: MissingValueKind
+    strategy: str = Field(..., min_length=1)
+    reference_group: str | None = None
+    donor_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    donor_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class LabelBasedChannelPolicyEntry(JsonModel):
@@ -929,6 +944,7 @@ class QuantMatrixExportRow(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     source_feature_count: int = Field(..., ge=0)
+    imputation_provenance: QuantCellImputationProvenance | None = None
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     member_peptides: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -1030,6 +1046,9 @@ class ImputationEntry(JsonModel):
     original_missing_value_kind: MissingValueKind
     imputed_abundance: float = Field(..., ge=0.0)
     neighbor_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    donor_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    reference_group: str | None = None
+    strategy: str = Field(..., min_length=1)
 
 
 class ImputationReport(JsonModel):
@@ -1876,6 +1895,7 @@ def build_quant_matrix_export(
                 abundance=value.abundance,
                 missing_value_kind=value.missing_value_kind,
                 source_feature_count=value.source_feature_count,
+                imputation_provenance=value.imputation_provenance,
                 protein_refs=table.entity_protein_refs.get(value.entity_id, ()),
                 member_peptides=table.entity_member_peptides.get(value.entity_id, ()),
             )
@@ -1891,7 +1911,7 @@ def build_quant_matrix_export(
         else "table includes explicit imputed abundances for downstream statistical use"
     )
     imputed_value_count = sum(
-        1 for value in table.values if value.abundance is not None and value.missing_value_kind is not MissingValueKind.OBSERVED
+        1 for value in table.values if value.imputation_provenance is not None
     )
     return QuantMatrixExport(
         entity_level=table.entity_level,
@@ -2532,6 +2552,12 @@ def export_quant_matrix_tsv(
                 "abundance",
                 "missing_value_kind",
                 "source_feature_count",
+                "imputation_method",
+                "imputation_strategy",
+                "imputation_reference_group",
+                "imputation_donor_sample_ids",
+                "imputation_donor_entity_ids",
+                "original_missing_value_kind",
                 "protein_refs",
                 "member_peptides",
                 "normalization_method",
@@ -2555,6 +2581,37 @@ def export_quant_matrix_tsv(
                     "" if row.abundance is None else row.abundance,
                     row.missing_value_kind.value,
                     row.source_feature_count,
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        else row.imputation_provenance.method.value
+                    ),
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        else row.imputation_provenance.strategy
+                    ),
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        or row.imputation_provenance.reference_group is None
+                        else row.imputation_provenance.reference_group
+                    ),
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        else ";".join(row.imputation_provenance.donor_sample_ids)
+                    ),
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        else ";".join(row.imputation_provenance.donor_entity_ids)
+                    ),
+                    (
+                        ""
+                        if row.imputation_provenance is None
+                        else row.imputation_provenance.original_missing_value_kind.value
+                    ),
                     ";".join(row.protein_refs),
                     ";".join(row.member_peptides),
                     matrix_export.normalization_provenance.normalization_method.value,
@@ -2585,6 +2642,16 @@ def build_quant_reproducibility_manifest(
                 value.abundance,
                 value.missing_value_kind.value,
                 value.source_feature_count,
+                None
+                if value.imputation_provenance is None
+                else (
+                    value.imputation_provenance.method.value,
+                    value.imputation_provenance.original_missing_value_kind.value,
+                    value.imputation_provenance.strategy,
+                    value.imputation_provenance.reference_group,
+                    tuple(value.imputation_provenance.donor_sample_ids),
+                    tuple(value.imputation_provenance.donor_entity_ids),
+                ),
             )
             for value in sorted(
                 table.values,
