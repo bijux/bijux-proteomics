@@ -43,6 +43,9 @@ from bijux_proteomics.study.sample_run_identity import (
     SampleRunAnalysisPolicy,
     resolve_sample_run_analysis_entries,
 )
+from bijux_proteomics.study.replicate_structure import (
+    count_effective_statistical_units_by_condition,
+)
 
 
 def build_differential_abundance_report(
@@ -88,9 +91,14 @@ def build_differential_abundance_report(
     samples_b = _sample_ids_for_condition(condition_by_sample, condition_b)
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
+    effective_units_by_condition = count_effective_statistical_units_by_condition(
+        design_entries
+    )
     if (
-        len(samples_a) < active_policy.min_replicates_per_condition
-        or len(samples_b) < active_policy.min_replicates_per_condition
+        effective_units_by_condition.get(condition_a, 0)
+        < active_policy.min_replicates_per_condition
+        or effective_units_by_condition.get(condition_b, 0)
+        < active_policy.min_replicates_per_condition
     ) and active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
         raise ValueError(
             "minimum replicate policy not satisfied for differential abundance"
