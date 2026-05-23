@@ -18,6 +18,7 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.spectral_library",
     "bijux_proteomics.io.target_panel",
     "bijux_proteomics.io.transition_table",
+    "bijux_proteomics.io.xic_extraction",
 )
 
 
@@ -29,4 +30,3 @@ def __getattr__(name: str) -> object:
             globals()[name] = value
             return value
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-

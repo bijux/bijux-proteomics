@@ -268,6 +268,10 @@ from bijux_proteomics.io.formats import (
     parse_mzml,
     validate_proteomics_input,
 )
+from bijux_proteomics.io import (
+    extract_mzml_xic_traces,
+    render_xic_traces_tsv,
+)
 from bijux_proteomics.io.ingestion import (
     build_mzml_practical_review_report,
     build_streaming_parse_profile,
@@ -11686,6 +11690,50 @@ def mzml_inspect_command(
     payload["chromatograms_json_out"] = (
         str(chromatograms_json_out) if chromatograms_json_out is not None else None
     )
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("xic-extract")
+@click.argument(
+    "input_mzml", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON extraction output path.",
+)
+def xic_extract_command(
+    input_mzml: Path,
+    target_table: Path,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Extract precursor XIC traces directly from mzML MS1 spectra."""
+    try:
+        report = extract_mzml_xic_traces(
+            input_mzml,
+            target_table,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if tsv_out is not None:
+        _write_text_output(tsv_out, render_xic_traces_tsv(report))
+    payload = report.to_dict()
+    payload["tsv_out"] = str(tsv_out) if tsv_out is not None else None
     _emit_json(payload, out_path=out_path)
 
 
