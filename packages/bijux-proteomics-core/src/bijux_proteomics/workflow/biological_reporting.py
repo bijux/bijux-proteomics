@@ -1300,7 +1300,7 @@ def _build_biological_protein_hypothesis_candidates(
             tuple(ptm.site_key for ptm in card.ptms) if card is not None else ()
         )
         supporting_pathway_ids = (
-            tuple(pathway.pathway_id for pathway in card.pathways)
+            tuple(pathway.entry_id for pathway in card.pathways)
             if card is not None
             else ()
         )

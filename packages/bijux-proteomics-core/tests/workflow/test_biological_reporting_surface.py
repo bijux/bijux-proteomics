@@ -70,12 +70,24 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.heatmap_report.summary.output_entity_count >= 3
     assert report.evidence_aware_ranking_report is not None
     assert report.claim_validation_report is not None
+    assert report.biological_hypothesis_report is not None
     assert (
         report.evidence_aware_ranking_report.summary.protein_entry_count
         == report.summary.protein_count
     )
     assert report.claim_validation_report.summary.candidate_count >= 3
     assert report.claim_validation_report.summary.supported_claim_count >= 1
+    assert report.biological_hypothesis_report.summary.candidate_count >= 1
+    assert report.biological_hypothesis_report.summary.hypothesis_count >= 1
+    assert all(
+        entry.evidence_node_ids
+        for entry in report.biological_hypothesis_report.hypotheses
+    )
+    assert any(
+        node_id.startswith("statistical_result:")
+        for entry in report.biological_hypothesis_report.hypotheses
+        for node_id in entry.evidence_node_ids
+    )
     assert report.foreground_background_model.summary.valid_for_enrichment is True
     assert (
         report.foreground_background_model.foreground_source_kind.value
@@ -187,6 +199,7 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
     assert report.regulator_evidence_import_report is not None
     assert report.regulator_inference_report is not None
     assert report.claim_validation_report is not None
+    assert report.biological_hypothesis_report is not None
     assert report.regulator_inference_report.summary.entry_count == 5
     assert report.regulator_inference_report.summary.site_regulation_entry_count == 1
     assert report.regulator_inference_report.summary.pathway_activity_entry_count == 1
@@ -211,6 +224,13 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
         entry.subject_id: entry for entry in report.claim_validation_report.rejected_claims
     }
     assert supported_claims["MAPK14"].claim_text.startswith("Kinase MAPK14 active")
+    supported_hypotheses = {
+        entry.subject_id: entry for entry in report.biological_hypothesis_report.hypotheses
+    }
+    assert supported_hypotheses["MAPK14"].supporting_site_keys == (
+        "P04637:S15:Phospho",
+    )
+    assert supported_hypotheses["MAPK14"].evidence_node_ids
     assert rejected_claims["OrphanTF"].status.value == "rejected"
     assert "unsupported_regulator_direction" in {
         reason.value for reason in rejected_claims["OrphanTF"].reason_codes
