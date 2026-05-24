@@ -300,6 +300,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/contracts.py",
             "review/protein_family_graphs.py",
             "review/analysis_recommendations.py",
+            "review/compact_result_summary.py",
             "review/failure_explanations.py",
             "review/collaboration.py",
             "review/structure_reports/render.py",
