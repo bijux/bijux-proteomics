@@ -353,6 +353,90 @@ def test_quantification_package_exports_variance_model_owner_surface() -> None:
     )
 
 
+def test_quantification_package_exports_missingness_classification_surface() -> None:
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="missingness-001",
+                sample_id="case-1",
+                peptide="COND",
+                canonical_peptide="COND",
+                intensity=400.0,
+                protein_refs=("P001",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="missingness-002",
+                sample_id="case-2",
+                peptide="COND",
+                canonical_peptide="COND",
+                intensity=420.0,
+                protein_refs=("P001",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="missingness-003",
+                sample_id="ctrl-1",
+                peptide="COND",
+                canonical_peptide="COND",
+                intensity=None,
+                protein_refs=("P001",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="missingness-004",
+                sample_id="ctrl-2",
+                peptide="COND",
+                canonical_peptide="COND",
+                intensity=None,
+                protein_refs=("P001",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+    )
+
+    report = quantification.classify_missingness(table, design)
+    rendered = quantification.render_missingness_classification_tsv(report)
+
+    assert hasattr(quantification, "classify_missingness")
+    assert hasattr(quantification, "render_missingness_classification_tsv")
+    assert len(report.entries) == 1
+    assert report.entries[0].label.value == "condition_specific"
+    assert "entity_id\tlabel\tobserved_sample_count\tmissing_sample_count" in rendered
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
