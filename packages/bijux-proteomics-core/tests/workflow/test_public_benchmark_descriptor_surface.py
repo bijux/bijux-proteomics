@@ -15,6 +15,8 @@ from bijux_proteomics.workflow import (
     PublicBenchmarkSearchEngine,
     load_public_benchmark_descriptor,
     public_benchmark_root,
+    resolve_public_benchmark_path,
+    resolve_public_benchmark_root,
     render_public_benchmark_suite_signal_assessments_tsv,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
@@ -57,6 +59,17 @@ def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limit
         PublicBenchmarkKnownLimitationSeverity.ADVISORY
     )
     assert descriptor.command.parameters["annotation_target_species"] == "Homo sapiens"
+
+
+def test_public_benchmark_descriptor_resolves_package_owned_root_aliases() -> None:
+    package_root = public_benchmark_root()
+
+    assert resolve_public_benchmark_root() == package_root
+    assert resolve_public_benchmark_root(Path("benchmarks/public")) == package_root
+    assert resolve_public_benchmark_root(Path("./benchmarks/public")) == package_root
+    assert resolve_public_benchmark_path(
+        Path("benchmarks/public/ptm_localization_review_package/dataset.yml")
+    ) == (package_root / "ptm_localization_review_package" / "dataset.yml")
 
 
 def test_public_benchmark_descriptor_loads_runnable_diann_contracts() -> None:
