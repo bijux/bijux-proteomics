@@ -192,6 +192,44 @@ def test_review_package_exports_compact_result_summary_surface() -> None:
     assert "summary_text" in review.render_compact_result_summary_entry_tsv(report)
 
 
+def test_review_package_exports_belief_audit_surface() -> None:
+    report = review.BeliefAuditReport(
+        entries=(
+            review.BeliefAuditEntry(
+                audit_id="protein:protein-card-1",
+                subject_kind=review.BeliefAuditSubjectKind.PROTEIN,
+                subject_id="protein-card-1",
+                subject_label="P11111",
+                claim="Protein P11111 changed between control and treatment.",
+                decision="retained as a significant protein result",
+                confidence="moderate",
+                why_believed="log2 fold change and peptide support were retained on the governed card",
+                what_weakens="warning code low_sequence_coverage reduced confidence",
+                what_would_falsify="A rerun that removes statistical support would falsify this protein conclusion.",
+                result_surfaces=("biological_protein_cards",),
+                result_row_ids=("protein-card-1",),
+                graph_node_ids=("protein:P11111",),
+                note="belief audit remains tied to governed row and graph ids",
+            ),
+        ),
+        summary=review.BeliefAuditSummary(
+            entry_count=1,
+            protein_entry_count=1,
+            ptm_site_entry_count=0,
+            pathway_entry_count=0,
+            regulator_entry_count=0,
+            biomarker_entry_count=0,
+            qc_decision_entry_count=0,
+        ),
+        note="belief audits remain challengeable and traceable to governed artifacts",
+    )
+
+    assert hasattr(review, "build_belief_audit_report_from_artifacts")
+    assert review.BeliefAuditSubjectKind.PROTEIN.value == "protein"
+    assert "<h1>Belief Audit</h1>" in review.render_belief_audit_html(report)
+    assert "what_would_falsify" in review.render_belief_audit_tsv(report)
+
+
 def test_review_package_exports_failure_explanation_surface() -> None:
     report = review.build_failure_explanation_report(
         (
