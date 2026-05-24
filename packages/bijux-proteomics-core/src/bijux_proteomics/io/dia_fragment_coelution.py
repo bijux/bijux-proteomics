@@ -74,6 +74,128 @@ class DiaFragmentCoelutionReport(JsonModel):
     )
 
 
+class DiaFragmentTracePoint(JsonModel):
+    """One raw DIA fragment-trace intensity point."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    fragment_id: str = Field(..., min_length=1)
+    rt: float = Field(..., ge=0.0)
+    intensity: float = Field(..., ge=0.0)
+
+
+class DiaFragmentTraceCoelutionScore(JsonModel):
+    """One raw precursor-level coelution score over fragment traces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    fragment_count: int = Field(..., ge=1)
+    apex_rt_spread: float = Field(..., ge=0.0)
+    mean_trace_correlation: float = Field(..., ge=-1.0, le=1.0)
+    failed_fragments: tuple[str, ...] = Field(default_factory=tuple)
+    coelution_score: float = Field(..., ge=0.0, le=1.0)
+
+
+def score_fragment_coelution(
+    fragment_xics: tuple[DiaFragmentTracePoint, ...],
+    *,
+    apex_tolerance_seconds: float = 5.0,
+    min_correlation: float = 0.8,
+) -> tuple[DiaFragmentTraceCoelutionScore, ...]:
+    """Score precursor-level DIA fragment coelution directly from raw traces."""
+
+    if not fragment_xics:
+        raise ValueError("fragment_xics must not be empty")
+    if apex_tolerance_seconds <= 0.0:
+        raise ValueError("apex_tolerance_seconds must be greater than zero")
+    if not -1.0 <= min_correlation <= 1.0:
+        raise ValueError("min_correlation must be between minus one and one")
+
+    traces_by_precursor: dict[str, dict[str, dict[float, float]]] = {}
+    for point in fragment_xics:
+        traces_by_precursor.setdefault(point.precursor_id, {}).setdefault(
+            point.fragment_id,
+            {},
+        )[point.rt] = point.intensity
+
+    rows: list[DiaFragmentTraceCoelutionScore] = []
+    for precursor_id, traces_by_fragment in sorted(traces_by_precursor.items()):
+        detected_traces_by_fragment = {
+            fragment_id: trace
+            for fragment_id, trace in traces_by_fragment.items()
+            if max(trace.values(), default=0.0) > 0.0
+        }
+        if detected_traces_by_fragment:
+            reference_fragment_id, reference_trace = max(
+                detected_traces_by_fragment.items(),
+                key=lambda item: (
+                    sum(item[1].values()),
+                    max(item[1].values(), default=0.0),
+                    item[0],
+                ),
+            )
+        else:
+            reference_fragment_id, reference_trace = max(
+                traces_by_fragment.items(),
+                key=lambda item: item[0],
+            )
+        fragment_apexes = {
+            fragment_id: _trace_apex_rt(trace)
+            for fragment_id, trace in detected_traces_by_fragment.items()
+        }
+        apex_values = tuple(fragment_apexes.values())
+        apex_rt_spread = (
+            0.0
+            if not apex_values
+            else max(apex_values) - min(apex_values)
+        )
+        correlations: list[float] = []
+        failed_fragments: list[str] = []
+        reference_apex = (
+            None
+            if reference_fragment_id not in fragment_apexes
+            else fragment_apexes[reference_fragment_id]
+        )
+        for fragment_id, trace in sorted(traces_by_fragment.items()):
+            if max(trace.values(), default=0.0) <= 0.0:
+                failed_fragments.append(fragment_id)
+                continue
+            if fragment_id == reference_fragment_id:
+                correlations.append(1.0)
+                continue
+            correlation = _pearson_correlation(reference_trace, trace)
+            correlations.append(correlation)
+            apex_shift = (
+                0.0
+                if reference_apex is None
+                else abs(fragment_apexes[fragment_id] - reference_apex)
+            )
+            if apex_shift > apex_tolerance_seconds or correlation < min_correlation:
+                failed_fragments.append(fragment_id)
+
+        rows.append(
+            DiaFragmentTraceCoelutionScore(
+                precursor_id=precursor_id,
+                fragment_count=len(traces_by_fragment),
+                apex_rt_spread=round(apex_rt_spread, 4),
+                mean_trace_correlation=round(mean(correlations), 4),
+                failed_fragments=tuple(sorted(failed_fragments)),
+                coelution_score=_coelution_score(
+                    fragment_count=len(traces_by_fragment),
+                    passing_fragment_count=(
+                        len(traces_by_fragment) - len(failed_fragments)
+                    ),
+                    correlations=correlations,
+                    apex_spread_seconds=apex_rt_spread,
+                    apex_tolerance_seconds=apex_tolerance_seconds,
+                ),
+            )
+        )
+    return tuple(rows)
+
+
 def score_dia_fragment_trace_coelution(
     peak_reports: tuple[ChromatographicPeakPickingReport, ...],
     *,
@@ -102,6 +224,12 @@ def score_dia_fragment_trace_coelution(
         targets_by_precursor = _targets_by_precursor(peak_report.trace_report.accepted_targets)
         peaks_by_target = _peaks_by_target(peak_report)
         traces_by_target = _trace_series_by_target(peak_report)
+        raw_scores_by_precursor = _raw_trace_scores_by_precursor(
+            peak_report.trace_report.accepted_targets,
+            traces_by_target,
+            apex_tolerance_seconds=apex_tolerance_seconds,
+            min_correlation=min_correlation,
+        )
 
         for precursor_id, targets in sorted(targets_by_precursor.items()):
             peptide_ref = _peptide_ref(targets[0])
@@ -132,15 +260,6 @@ def score_dia_fragment_trace_coelution(
                 None
                 if reference_target is None
                 else selected_peaks.get(reference_target.target_id)
-            )
-
-            detected_apex_times = [
-                peak.apex_time_seconds for peak in selected_peaks.values()
-            ]
-            apex_spread_seconds = (
-                0.0
-                if not detected_apex_times
-                else max(detected_apex_times) - min(detected_apex_times)
             )
 
             fragment_correlations: list[float] = []
@@ -245,18 +364,14 @@ def score_dia_fragment_trace_coelution(
                     fragment_count=len(targets),
                     detected_fragment_count=len(selected_peaks),
                     passing_fragment_count=len(passing_fragment_ids),
-                    apex_spread_seconds=apex_spread_seconds,
-                    mean_correlation=(
-                        0.0 if not fragment_correlations else mean(fragment_correlations)
-                    ),
-                    coelution_score=_coelution_score(
-                        fragment_count=len(targets),
-                        passing_fragment_count=len(passing_fragment_ids),
-                        correlations=fragment_correlations,
-                        apex_spread_seconds=apex_spread_seconds,
-                        apex_tolerance_seconds=apex_tolerance_seconds,
-                    ),
-                    failed_fragment_ids=tuple(sorted(failed_fragment_ids)),
+                    apex_spread_seconds=raw_scores_by_precursor[precursor_id].apex_rt_spread,
+                    mean_correlation=raw_scores_by_precursor[
+                        precursor_id
+                    ].mean_trace_correlation,
+                    coelution_score=raw_scores_by_precursor[precursor_id].coelution_score,
+                    failed_fragment_ids=raw_scores_by_precursor[
+                        precursor_id
+                    ].failed_fragments,
                     concern_codes=tuple(sorted(concern_codes)),
                 )
             )
@@ -413,6 +528,37 @@ def render_dia_fragment_coelution_fragments_tsv(
     return buffer.getvalue()
 
 
+def render_dia_fragment_trace_coelution_tsv(
+    rows: tuple[DiaFragmentTraceCoelutionScore, ...],
+) -> str:
+    """Render raw DIA fragment-trace coelution scores as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "precursor_id",
+            "fragment_count",
+            "apex_rt_spread",
+            "mean_trace_correlation",
+            "failed_fragments",
+            "coelution_score",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                row.precursor_id,
+                row.fragment_count,
+                f"{row.apex_rt_spread:.4f}",
+                f"{row.mean_trace_correlation:.4f}",
+                "|".join(row.failed_fragments),
+                f"{row.coelution_score:.4f}",
+            )
+        )
+    return buffer.getvalue()
+
+
 def _run_id_from_peak_report(report: ChromatographicPeakPickingReport) -> str:
     return Path(report.trace_report.source_path).stem
 
@@ -443,6 +589,46 @@ def _trace_series_by_target(
     for point in report.trace_report.trace_points:
         grouped.setdefault(point.target_id, {})[point.time_seconds] = point.intensity
     return grouped
+
+
+def _raw_trace_scores_by_precursor(
+    targets: tuple[XicTargetEntry, ...],
+    traces_by_target: dict[str, dict[float, float]],
+    *,
+    apex_tolerance_seconds: float,
+    min_correlation: float,
+) -> dict[str, DiaFragmentTraceCoelutionScore]:
+    raw_points: list[DiaFragmentTracePoint] = []
+    for target in targets:
+        precursor_id = _precursor_id(target)
+        fragment_id = _fragment_id(target)
+        for rt, intensity in sorted(
+            traces_by_target.get(target.target_id, {}).items()
+        ):
+            raw_points.append(
+                DiaFragmentTracePoint(
+                    precursor_id=precursor_id,
+                    fragment_id=fragment_id,
+                    rt=rt,
+                    intensity=intensity,
+                )
+            )
+    return {
+        row.precursor_id: row
+        for row in score_fragment_coelution(
+            tuple(raw_points),
+            apex_tolerance_seconds=apex_tolerance_seconds,
+            min_correlation=min_correlation,
+        )
+    }
+
+
+def _trace_apex_rt(trace: dict[float, float]) -> float:
+    apex_rt, _ = max(
+        trace.items(),
+        key=lambda item: (item[1], -item[0]),
+    )
+    return apex_rt
 
 
 def _reference_target(
