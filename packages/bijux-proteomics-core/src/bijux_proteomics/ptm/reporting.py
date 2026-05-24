@@ -40,6 +40,12 @@ from bijux_proteomics.ptm.localization_scoring import (
     build_ptm_localization_scoring_report,
     render_ptm_localization_scoring_entry_tsv,
 )
+from bijux_proteomics.ptm.mechanism_classification import (
+    PtmMechanismClassificationReport,
+    build_ptm_mechanism_classification_report,
+    render_ptm_mechanism_classification_summary_tsv,
+    render_ptm_mechanism_classification_tsv,
+)
 from bijux_proteomics.ptm.motif_analysis import (
     PtmMotifComparisonPolicy,
     PtmPhosphositeMotifEnrichmentReport,
@@ -115,6 +121,7 @@ class PtmReportSummary(JsonModel):
     motif_term_count: int = Field(..., ge=0)
     evidence_card_count: int = Field(..., ge=0)
     narrative_claim_count: int = Field(..., ge=0)
+    mechanism_classification_count: int = Field(..., ge=0)
     ortholog_conservation_entry_count: int = Field(..., ge=0)
 
 
@@ -128,6 +135,7 @@ class PtmReportBundle(JsonModel):
     localization_scoring: PtmLocalizationScoringReport
     site_quantification: PtmSiteQuantificationReport | None = None
     differential_analysis: PtmDifferentialAnalysisReport | None = None
+    mechanism_classification: PtmMechanismClassificationReport | None = None
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None
     ortholog_conservation: PtmOrthologConservationReport | None = None
@@ -153,6 +161,8 @@ class PtmReportArtifactPaths(JsonModel):
     motif_frequency_tsv: str | None = None
     motif_term_tsv: str | None = None
     motif_logo_tsv: str | None = None
+    mechanism_classification_summary_tsv: str | None = None
+    mechanism_classification_tsv: str | None = None
     ortholog_conservation_summary_tsv: str | None = None
     ortholog_conservation_tsv: str | None = None
     evidence_card_summary_tsv: str | None = None
@@ -240,6 +250,7 @@ def build_ptm_report_bundle(
     )
     site_quantification = None
     differential_analysis = None
+    mechanism_classification = None
     motif_enrichment = None
     regulator_enrichment = None
     ortholog_conservation = None
@@ -278,6 +289,9 @@ def build_ptm_report_bundle(
             covariate_fields=tuple(dict.fromkeys(covariate_fields)),
             pairing_field=pairing_field,
         )
+        mechanism_classification = build_ptm_mechanism_classification_report(
+            differential_analysis
+        )
         if any(entry.modification_name == "Phospho" for entry in site_table):
             motif_enrichment = build_ptm_phosphosite_motif_enrichment_report(
                 differential_analysis,
@@ -305,6 +319,7 @@ def build_ptm_report_bundle(
             site_quantification=site_quantification,
             motif_enrichment=motif_enrichment,
             regulator_enrichment=regulator_enrichment,
+            mechanism_classification_report=mechanism_classification,
             ortholog_conservation_report=ortholog_conservation,
             protein_records=protein_records,
             protein_sequences=protein_sequences,
@@ -317,6 +332,7 @@ def build_ptm_report_bundle(
         localization_scoring=localization_scoring,
         site_quantification=site_quantification,
         differential_analysis=differential_analysis,
+        mechanism_classification=mechanism_classification,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
         ortholog_conservation=ortholog_conservation,
@@ -352,6 +368,11 @@ def build_ptm_report_bundle(
                 if evidence_cards is None
                 else len(evidence_cards.narrative_claims)
             ),
+            mechanism_classification_count=(
+                0
+                if mechanism_classification is None
+                else len(mechanism_classification.entries)
+            ),
             ortholog_conservation_entry_count=(
                 0
                 if ortholog_conservation is None
@@ -359,7 +380,10 @@ def build_ptm_report_bundle(
             ),
         ),
         note=(
-            "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, differential analysis, motif summaries, and evidence-card ledgers into one owned report bundle"
+            "ptm reporting assembles governed peptide observations, site rows, "
+            "localization review, site quantification, differential analysis, "
+            "mechanism classification, motif summaries, and evidence-card ledgers "
+            "into one owned report bundle"
         ),
     )
 
@@ -382,6 +406,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             "motif_term_count",
             "evidence_card_count",
             "narrative_claim_count",
+            "mechanism_classification_count",
             "ortholog_conservation_entry_count",
         ]
     )
@@ -398,6 +423,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             report.summary.motif_term_count,
             report.summary.evidence_card_count,
             report.summary.narrative_claim_count,
+            report.summary.mechanism_classification_count,
             report.summary.ortholog_conservation_entry_count,
         ]
     )
@@ -562,6 +588,22 @@ def export_ptm_report_bundle(
             encoding="utf-8",
         )
 
+    mechanism_classification_summary_name = None
+    mechanism_classification_name = None
+    if report.mechanism_classification is not None:
+        mechanism_classification_summary_name = "ptm_mechanism_classification_summary.tsv"
+        mechanism_classification_name = "ptm_mechanism_classification.tsv"
+        (output_dir / mechanism_classification_summary_name).write_text(
+            render_ptm_mechanism_classification_summary_tsv(
+                report.mechanism_classification
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / mechanism_classification_name).write_text(
+            render_ptm_mechanism_classification_tsv(report.mechanism_classification),
+            encoding="utf-8",
+        )
+
     ortholog_conservation_summary_name = None
     ortholog_conservation_name = None
     if report.ortholog_conservation is not None:
@@ -611,6 +653,8 @@ def export_ptm_report_bundle(
             motif_frequency_tsv=motif_frequency_name,
             motif_term_tsv=motif_term_name,
             motif_logo_tsv=motif_logo_name,
+            mechanism_classification_summary_tsv=mechanism_classification_summary_name,
+            mechanism_classification_tsv=mechanism_classification_name,
             ortholog_conservation_summary_tsv=ortholog_conservation_summary_name,
             ortholog_conservation_tsv=ortholog_conservation_name,
             evidence_card_summary_tsv=evidence_card_summary_name,

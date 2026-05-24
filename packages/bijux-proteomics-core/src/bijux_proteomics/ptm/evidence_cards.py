@@ -34,6 +34,11 @@ from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationScoringEntry,
     PtmLocalizationScoringReport,
 )
+from bijux_proteomics.ptm.mechanism_classification import (
+    PtmMechanismClass,
+    PtmMechanismClassificationReport,
+    PtmMechanismReasonCode,
+)
 from bijux_proteomics.ptm.motif_analysis import PtmPhosphositeMotifEnrichmentReport
 from bijux_proteomics.ptm.ortholog_site_conservation import (
     PtmOrthologConservationReport,
@@ -257,6 +262,20 @@ class PtmEvidenceCardOrthologConservation(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class PtmEvidenceCardMechanismClassification(JsonModel):
+    """Mechanism classification preserved on one PTM evidence card."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mechanism_class: PtmMechanismClass
+    reason_codes: tuple[PtmMechanismReasonCode, ...] = Field(default_factory=tuple)
+    raw_log2_fold_change: float
+    corrected_log2_fold_change: float | None = None
+    protein_log2_fold_change: float | None = None
+    protein_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
 class PtmEvidenceCard(JsonModel):
     """One structured PTM evidence card for one significant site."""
 
@@ -284,6 +303,7 @@ class PtmEvidenceCard(JsonModel):
     crosstalk_partners: tuple[PtmEvidenceCardCrosstalkPartner, ...] = Field(
         default_factory=tuple
     )
+    mechanism_classification: PtmEvidenceCardMechanismClassification | None = None
     ortholog_conservation: PtmEvidenceCardOrthologConservation | None = None
     functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
         default_factory=tuple
@@ -322,6 +342,7 @@ class PtmEvidenceCardSummary(JsonModel):
     regulator_supported_card_count: int = Field(..., ge=0)
     motif_annotated_card_count: int = Field(..., ge=0)
     crosstalk_supported_card_count: int = Field(..., ge=0)
+    mechanism_classified_card_count: int = Field(..., ge=0)
     ortholog_context_card_count: int = Field(..., ge=0)
     functional_context_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
@@ -351,6 +372,7 @@ def build_ptm_evidence_card_report(
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None,
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None,
     annotation_mapping_report: PtmSiteAnnotationMappingReport | None = None,
+    mechanism_classification_report: PtmMechanismClassificationReport | None = None,
     ortholog_conservation_report: PtmOrthologConservationReport | None = None,
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     protein_sequences: dict[str, str] | None = None,
@@ -404,6 +426,9 @@ def build_ptm_evidence_card_report(
         site_entries,
         differential_analysis.differential_report,
         annotation_mapping_report=annotation_mapping_report,
+    )
+    mechanism_classification_by_site = _build_mechanism_classification_by_site(
+        mechanism_classification_report
     )
     ortholog_conservation_by_site = _build_ortholog_conservation_by_site(
         ortholog_conservation_report
@@ -502,6 +527,9 @@ def build_ptm_evidence_card_report(
                     differential_entry.site_key,
                     (),
                 ),
+                mechanism_classification=mechanism_classification_by_site.get(
+                    differential_entry.site_key
+                ),
                 ortholog_conservation=ortholog_conservation_by_site.get(
                     differential_entry.site_key
                 ),
@@ -573,6 +601,9 @@ def build_ptm_evidence_card_report(
             crosstalk_supported_card_count=sum(
                 1 for entry in stable_cards if entry.crosstalk_partners
             ),
+            mechanism_classified_card_count=sum(
+                1 for entry in stable_cards if entry.mechanism_classification is not None
+            ),
             ortholog_context_card_count=sum(
                 1 for entry in stable_cards if entry.ortholog_conservation is not None
             ),
@@ -583,9 +614,9 @@ def build_ptm_evidence_card_report(
         ),
         note=(
             "ptm evidence cards preserve one structured object per significant site, "
-            "carry peptide, localization, quantification, differential, motif, "
-            "crosstalk, ortholog-site conservation, functional-region, regulator, and "
-            "protein-correction evidence together, "
+            "carry peptide, localization, quantification, differential, mechanism "
+            "classification, motif, crosstalk, ortholog-site conservation, "
+            "functional-region, regulator, and protein-correction evidence together, "
             "and link every narrative claim back to a stable card id"
         ),
     )
@@ -606,6 +637,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             "regulator_supported_card_count",
             "motif_annotated_card_count",
             "crosstalk_supported_card_count",
+            "mechanism_classified_card_count",
             "ortholog_context_card_count",
             "functional_context_card_count",
             "warning_card_count",
@@ -621,6 +653,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             report.summary.regulator_supported_card_count,
             report.summary.motif_annotated_card_count,
             report.summary.crosstalk_supported_card_count,
+            report.summary.mechanism_classified_card_count,
             report.summary.ortholog_context_card_count,
             report.summary.functional_context_card_count,
             report.summary.warning_card_count,
@@ -649,8 +682,11 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "condition_b",
             "adjusted_p_value",
             "log2_fold_change",
+            "corrected_log2_fold_change",
             "localization_tier",
             "protein_correction_status",
+            "mechanism_class",
+            "mechanism_reason_codes",
             "peptide_spectrum_count",
             "observed_sample_count",
             "centered_windows",
@@ -684,8 +720,26 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 entry.differential_result.condition_b,
                 "" if entry.differential_result.adjusted_p_value is None else entry.differential_result.adjusted_p_value,
                 entry.differential_result.log2_fold_change,
+                (
+                    ""
+                    if entry.protein_correction.corrected_log2_fold_change is None
+                    else entry.protein_correction.corrected_log2_fold_change
+                ),
                 entry.localization.localization_tier.value,
                 entry.protein_correction.status,
+                (
+                    ""
+                    if entry.mechanism_classification is None
+                    else entry.mechanism_classification.mechanism_class.value
+                ),
+                (
+                    ""
+                    if entry.mechanism_classification is None
+                    else ";".join(
+                        reason.value
+                        for reason in entry.mechanism_classification.reason_codes
+                    )
+                ),
                 len(entry.peptide_evidence),
                 0 if entry.quantification is None else entry.quantification.observed_sample_count,
                 ";".join(entry.motif_evidence.centered_windows),
@@ -979,6 +1033,25 @@ def _build_crosstalk_partners_by_site(
             sorted(partners, key=lambda partner: partner.partner_site_key)
         )
         for site_key, partners in partners_by_site.items()
+    }
+
+
+def _build_mechanism_classification_by_site(
+    mechanism_classification_report: PtmMechanismClassificationReport | None,
+) -> dict[str, PtmEvidenceCardMechanismClassification]:
+    if mechanism_classification_report is None:
+        return {}
+    return {
+        entry.site_key: PtmEvidenceCardMechanismClassification(
+            mechanism_class=entry.mechanism_class,
+            reason_codes=entry.reason_codes,
+            raw_log2_fold_change=entry.raw_log2_fold_change,
+            corrected_log2_fold_change=entry.corrected_log2_fold_change,
+            protein_log2_fold_change=entry.protein_log2_fold_change,
+            protein_adjusted_p_value=entry.protein_adjusted_p_value,
+            note=entry.note,
+        )
+        for entry in mechanism_classification_report.entries
     }
 
 
