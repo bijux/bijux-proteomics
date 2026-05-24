@@ -251,6 +251,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "targeted/biomarker_stability.py",
             "targeted/carryover.py",
             "targeted/discovery_peptide_selection.py",
+            "targeted/fragment_ratios.py",
             "targeted/panel_design.py",
             "targeted/panel_redundancy.py",
             "targeted/result_validation.py",
