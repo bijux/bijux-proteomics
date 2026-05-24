@@ -130,6 +130,12 @@ from bijux_proteomics.workflow.protein_evidence_cards import (
     render_protein_evidence_card_summary_tsv,
     render_protein_evidence_card_tsv,
 )
+from bijux_proteomics.workflow.protein_mechanism_cards import (
+    ProteinMechanismCardReport,
+    build_protein_mechanism_card_report,
+    render_protein_mechanism_card_summary_tsv,
+    render_protein_mechanism_card_tsv,
+)
 from bijux_proteomics.workflow.biological_result_graph import (
     BiologicalResultGraphReport,
     build_biological_result_graph_report,
@@ -203,6 +209,7 @@ class BiologicalResultReportBundle(JsonModel):
     graph_report: BiologicalResultGraphReport
     annotation_report: ProteinAnnotationMappingReport
     protein_cards: ProteinEvidenceCardReport
+    protein_mechanism_cards: ProteinMechanismCardReport
     experiment_confidence_report: ExperimentConfidenceReport
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
@@ -226,6 +233,8 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     differential_tsv: str = Field(..., min_length=1)
     protein_card_summary_tsv: str = Field(..., min_length=1)
     protein_card_tsv: str = Field(..., min_length=1)
+    protein_mechanism_card_summary_tsv: str = Field(..., min_length=1)
+    protein_mechanism_card_tsv: str = Field(..., min_length=1)
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
     annotation_summary_tsv: str = Field(..., min_length=1)
@@ -575,6 +584,11 @@ def build_biological_result_report_bundle_from_quant_table(
         protein_region_context_records=protein_region_context_records,
         ptm_evidence_card_report=ptm_evidence_card_report,
     )
+    protein_mechanism_cards = build_protein_mechanism_card_report(
+        graph_report,
+        protein_cards,
+        ptm_evidence_card_report=ptm_evidence_card_report,
+    )
     volcano_review = build_quantification_volcano_review(
         differential_report,
         protein_refs_by_entity=normalized_table.entity_protein_refs,
@@ -638,6 +652,7 @@ def build_biological_result_report_bundle_from_quant_table(
         graph_report=graph_report,
         annotation_report=annotation_report,
         protein_cards=protein_cards,
+        protein_mechanism_cards=protein_mechanism_cards,
         experiment_confidence_report=experiment_confidence_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
@@ -885,6 +900,8 @@ def export_biological_result_report_bundle(
     differential_name = "biological_differential.tsv"
     protein_card_summary_name = "biological_protein_card_summary.tsv"
     protein_card_name = "biological_protein_cards.tsv"
+    protein_mechanism_card_summary_name = "biological_protein_mechanism_card_summary.tsv"
+    protein_mechanism_card_name = "biological_protein_mechanism_cards.tsv"
     experiment_confidence_summary_name = "biological_experiment_confidence_summary.tsv"
     experiment_confidence_components_name = (
         "biological_experiment_confidence_components.tsv"
@@ -926,6 +943,14 @@ def export_biological_result_report_bundle(
     )
     (output_dir / protein_card_name).write_text(
         render_protein_evidence_card_tsv(report.protein_cards),
+        encoding="utf-8",
+    )
+    (output_dir / protein_mechanism_card_summary_name).write_text(
+        render_protein_mechanism_card_summary_tsv(report.protein_mechanism_cards),
+        encoding="utf-8",
+    )
+    (output_dir / protein_mechanism_card_name).write_text(
+        render_protein_mechanism_card_tsv(report.protein_mechanism_cards),
         encoding="utf-8",
     )
     (output_dir / experiment_confidence_summary_name).write_text(
@@ -1077,6 +1102,8 @@ def export_biological_result_report_bundle(
         differential_tsv=differential_name,
         protein_card_summary_tsv=protein_card_summary_name,
         protein_card_tsv=protein_card_name,
+        protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
+        protein_mechanism_card_tsv=protein_mechanism_card_name,
         experiment_confidence_summary_tsv=experiment_confidence_summary_name,
         experiment_confidence_components_tsv=experiment_confidence_components_name,
         annotation_summary_tsv=annotation_summary_name,
@@ -1123,7 +1150,7 @@ def export_biological_result_report_bundle(
         pathway_summary_included=report.pathway_enrichment_report is not None,
         complex_summary_included=report.complex_enrichment_report is not None,
         note=(
-            "biological report export writes stable differential, protein-card, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
+            "biological report export writes stable differential, protein-card, protein-mechanism-card, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
         ),
     )
 
@@ -1136,6 +1163,8 @@ def _render_biological_result_report_html(
         ("Differential proteins", artifacts.differential_tsv),
         ("Protein card summary", artifacts.protein_card_summary_tsv),
         ("Protein cards", artifacts.protein_card_tsv),
+        ("Protein mechanism card summary", artifacts.protein_mechanism_card_summary_tsv),
+        ("Protein mechanism cards", artifacts.protein_mechanism_card_tsv),
         (
             "Experiment confidence summary",
             artifacts.experiment_confidence_summary_tsv,
@@ -1189,7 +1218,7 @@ def _render_biological_result_report_html(
         if path is not None
     )
     confidence_table_html = _render_experiment_confidence_table_html(report)
-    card_table_html = _render_protein_card_table_html(report)
+    card_table_html = _render_protein_mechanism_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
         "<h1>Biological result report</h1>"
@@ -1203,7 +1232,7 @@ def _render_biological_result_report_html(
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
         "<h2>Experiment confidence</h2>"
         f"{confidence_table_html}"
-        "<h2>Final protein cards</h2>"
+        "<h2>Protein mechanism cards</h2>"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
         f"<ul>{section_html}</ul>"
@@ -1244,22 +1273,26 @@ def _render_experiment_confidence_table_html(
     )
 
 
-def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str:
+def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBundle) -> str:
     headers = (
         "Protein group",
         "Representative protein",
         "Graph claim",
         "Gene",
         "Identity",
-        "Proteogenomic support",
-        "Evidence tier",
-        "Peptides",
-        "Functional regions",
+        "Direction",
+        "PTM sites",
+        "Domains",
+        "Pathways",
+        "Complexes",
+        "Peptide support",
         "Coverage",
+        "Confidence tier",
+        "Evidence tier",
         "log2FC",
         "Adjusted p-value",
+        "Downgrade reasons",
         "Warnings",
-        "Pathways",
         "Card ID",
     )
     header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
@@ -1269,21 +1302,25 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
             f"<td>{escape(card.protein_group_id)}</td>"
             f"<td>{escape(card.representative_protein_ref)}</td>"
             f"<td><code>{escape(card.graph_claim_node_id)}</code></td>"
-            f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
+            f"<td>{escape('' if card.gene_symbol is None else card.gene_symbol)}</td>"
             f"<td>{escape(card.identity_level.value)}</td>"
-            f"<td>{escape('' if card.proteogenomic_support is None else card.proteogenomic_support.support_class.value)}</td>"
-            f"<td>{escape(card.evidence_tier.value)}</td>"
-            f"<td>{card.peptide_count}</td>"
-            f"<td>{escape('; '.join(f'{region.region_kind.value}:{region.label}' for region in card.functional_regions))}</td>"
-            f"<td>{card.coverage.coverage_fraction:.2%}</td>"
-            f"<td>{card.differential_result.log2_fold_change:.3f}</td>"
-            f"<td>{_format_optional_float(card.differential_result.adjusted_p_value)}</td>"
-            f"<td>{escape('; '.join(warning.code.value for warning in card.warnings))}</td>"
+            f"<td>{escape(card.abundance_change.direction.value)}</td>"
+            f"<td>{escape('; '.join(ptm.site_key for ptm in card.ptms))}</td>"
+            f"<td>{escape('; '.join(domain.label for domain in card.domains))}</td>"
             f"<td>{escape('; '.join(entry.entry_id for entry in card.pathways))}</td>"
+            f"<td>{escape('; '.join(entry.entry_id for entry in card.complexes))}</td>"
+            f"<td>{card.peptide_support.unique_peptide_count}/{card.peptide_support.peptide_count}</td>"
+            f"<td>{card.peptide_support.coverage_fraction:.2%}</td>"
+            f"<td>{escape(card.confidence_tier.value)}</td>"
+            f"<td>{escape(card.evidence_tier.value)}</td>"
+            f"<td>{card.abundance_change.log2_fold_change:.3f}</td>"
+            f"<td>{_format_optional_float(card.abundance_change.adjusted_p_value)}</td>"
+            f"<td>{escape('; '.join(reason.value for reason in card.downgrade_reasons))}</td>"
+            f"<td>{escape('; '.join(code.value for code in card.warning_codes))}</td>"
             f"<td><code>{escape(card.card_id)}</code></td>"
             "</tr>"
         )
-        for card in report.protein_cards.cards
+        for card in report.protein_mechanism_cards.cards
     )
     return (
         "<table>"
