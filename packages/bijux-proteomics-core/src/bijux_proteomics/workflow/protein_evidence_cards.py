@@ -44,6 +44,8 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.sequences import (
     NormalizedProteinRecord,
+    ProteogenomicPeptideReference,
+    ProteogenomicPeptideSupportEntry,
     ProteinFunctionalRegionEvidence,
     ProteinFunctionalRegionKind,
     ProteinIdentityLevel,
@@ -52,6 +54,8 @@ from bijux_proteomics.sequences import (
     ProteinPeptideRegionContextReport,
     ProteinPeptideRegionReference,
     ProteinRegionContextRecord,
+    ProteogenomicVariantPeptideRecord,
+    build_proteogenomic_peptide_support_report,
     build_protein_identity_resolution_report,
     build_protein_peptide_region_context_report,
 )
@@ -230,6 +234,7 @@ class ProteinEvidenceCard(JsonModel):
     functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
         default_factory=tuple
     )
+    proteogenomic_support: ProteogenomicPeptideSupportEntry | None = None
     ptm_sites: tuple[str, ...] = Field(default_factory=tuple)
     significant: bool
     evidence_tier: ProteinEvidenceCardTier
@@ -247,6 +252,7 @@ class ProteinEvidenceCardSummary(JsonModel):
     pathway_annotated_card_count: int = Field(..., ge=0)
     context_annotated_card_count: int = Field(..., ge=0)
     functional_region_annotated_card_count: int = Field(..., ge=0)
+    proteogenomic_annotated_card_count: int = Field(..., ge=0)
     ptm_annotated_card_count: int = Field(..., ge=0)
 
 
@@ -269,6 +275,8 @@ def build_protein_evidence_card_report(
     *,
     protein_sequences: dict[str, str],
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
+    variant_protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
+    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] | None = None,
     selection_policy: ProteinEvidenceCardSelectionPolicy,
     sample_conditions: dict[str, str | None] | None = None,
     context_mapping_report: BiologicalContextMappingReport | None = None,
@@ -406,6 +414,13 @@ def build_protein_evidence_card_report(
         protein_records=protein_records,
         protein_sequences=protein_sequences,
     )
+    proteogenomic_support_by_entity = _build_proteogenomic_support_by_entity(
+        prepared_cards,
+        protein_records=protein_records,
+        protein_sequences=protein_sequences,
+        variant_protein_records=variant_protein_records,
+        variant_peptide_records=variant_peptide_records,
+    )
     cards: list[ProteinEvidenceCard] = []
     for prepared_card in prepared_cards:
         differential_entry = prepared_card["differential_entry"]
@@ -445,6 +460,9 @@ def build_protein_evidence_card_report(
                 context_terms=prepared_card["contexts"],
                 pathways=prepared_card["pathways"],
                 functional_regions=prepared_card["functional_regions"],
+                proteogenomic_support=proteogenomic_support_by_entity.get(
+                    differential_entry.entity_id
+                ),
                 ptm_sites=(),
                 significant=prepared_card["significant"],
                 evidence_tier=_graph_evidence_tier(final_entry.evidence_tier),
@@ -463,6 +481,9 @@ def build_protein_evidence_card_report(
             functional_region_annotated_card_count=sum(
                 1 for card in cards if card.functional_regions
             ),
+            proteogenomic_annotated_card_count=sum(
+                1 for card in cards if card.proteogenomic_support is not None
+            ),
             ptm_annotated_card_count=sum(1 for card in cards if card.ptm_sites),
         ),
         cards=tuple(cards),
@@ -470,7 +491,8 @@ def build_protein_evidence_card_report(
             "protein evidence cards preserve one structured object per final protein result, "
             "derive final claim identity and evidence tiers from the canonical review graph, "
             "carry annotation, peptide membership, coverage, quantification, differential, "
-            "context, pathway, functional-region, and warning evidence together, and give "
+            "context, pathway, functional-region, proteogenomic peptide-support, and warning "
+            "evidence together, and give "
             "biological reporting one stable graph-backed table source instead of ad hoc "
             "final-protein summaries"
         ),
@@ -496,6 +518,12 @@ def render_protein_evidence_card_summary_tsv(report: ProteinEvidenceCardReport) 
         (
             "functional_region_annotated_card_count",
             report.summary.functional_region_annotated_card_count,
+        )
+    )
+    writer.writerow(
+        (
+            "proteogenomic_annotated_card_count",
+            report.summary.proteogenomic_annotated_card_count,
         )
     )
     writer.writerow(("ptm_annotated_card_count", report.summary.ptm_annotated_card_count))
@@ -549,6 +577,13 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
             "pathway_ids",
             "context_ids",
             "functional_regions",
+            "proteogenomic_support_class",
+            "proteogenomic_support_reason",
+            "proteogenomic_reference_only_peptides",
+            "proteogenomic_variant_only_peptides",
+            "proteogenomic_shared_peptides",
+            "proteogenomic_ambiguous_peptides",
+            "proteogenomic_variant_protein_refs",
             "ptm_sites",
         )
     )
@@ -595,6 +630,27 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
                     f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
                     for region in card.functional_regions
                 ),
+                ""
+                if card.proteogenomic_support is None
+                else card.proteogenomic_support.support_class.value,
+                ""
+                if card.proteogenomic_support is None
+                else card.proteogenomic_support.support_reason,
+                ""
+                if card.proteogenomic_support is None
+                else ";".join(card.proteogenomic_support.reference_only_peptides),
+                ""
+                if card.proteogenomic_support is None
+                else ";".join(card.proteogenomic_support.variant_only_peptides),
+                ""
+                if card.proteogenomic_support is None
+                else ";".join(card.proteogenomic_support.shared_peptides),
+                ""
+                if card.proteogenomic_support is None
+                else ";".join(card.proteogenomic_support.ambiguous_peptides),
+                ""
+                if card.proteogenomic_support is None
+                else ";".join(card.proteogenomic_support.matched_variant_protein_refs),
                 ";".join(card.ptm_sites),
             )
         )
@@ -850,6 +906,45 @@ def _build_identity_entries_by_entity(
         ),
         protein_records=() if protein_records is None else protein_records,
         protein_sequences=protein_sequences,
+    )
+    return {
+        entry.evidence_key: entry for entry in report.entries
+    }
+
+
+def _build_proteogenomic_support_by_entity(
+    prepared_cards: list[dict[str, object]],
+    *,
+    protein_records: tuple[NormalizedProteinRecord, ...] | None,
+    protein_sequences: dict[str, str],
+    variant_protein_records: tuple[NormalizedProteinRecord, ...] | None,
+    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] | None,
+) -> dict[str, ProteogenomicPeptideSupportEntry]:
+    if (
+        not prepared_cards
+        or (
+            not variant_protein_records
+            and not variant_peptide_records
+        )
+    ):
+        return {}
+    report = build_proteogenomic_peptide_support_report(
+        tuple(
+            ProteogenomicPeptideReference(
+                evidence_key=prepared_card["differential_entry"].entity_id,
+                peptide_sequences=prepared_card["peptides"],
+                target_protein_refs=prepared_card["protein_refs"],
+            )
+            for prepared_card in prepared_cards
+        ),
+        reference_protein_records=() if protein_records is None else protein_records,
+        reference_protein_sequences=protein_sequences,
+        variant_protein_records=()
+        if variant_protein_records is None
+        else variant_protein_records,
+        variant_peptide_records=()
+        if variant_peptide_records is None
+        else variant_peptide_records,
     )
     return {
         entry.evidence_key: entry for entry in report.entries

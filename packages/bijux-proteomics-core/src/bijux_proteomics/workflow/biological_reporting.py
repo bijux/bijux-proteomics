@@ -102,6 +102,7 @@ from bijux_proteomics.review import (
 from bijux_proteomics.sequences import (
     FastaParseMode,
     parse_fasta_document,
+    parse_proteogenomic_variant_peptide_table,
     parse_protein_region_context_tsv,
 )
 from bijux_proteomics.study import (
@@ -278,6 +279,8 @@ def build_biological_result_report_bundle(
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
+    variant_proteins_fasta_path: Path | None = None,
+    variant_peptide_tsv_path: Path | None = None,
     protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
@@ -326,6 +329,8 @@ def build_biological_result_report_bundle(
         quant_table,
         experiment_design,
         proteins_fasta_path=proteins_fasta_path,
+        variant_proteins_fasta_path=variant_proteins_fasta_path,
+        variant_peptide_tsv_path=variant_peptide_tsv_path,
         protocol_context_tsv_path=protocol_context_tsv_path,
         annotation_tsv_path=annotation_tsv_path,
         context_annotation_tsv_path=context_annotation_tsv_path,
@@ -348,6 +353,8 @@ def build_biological_result_report_bundle_from_quant_table(
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
+    variant_proteins_fasta_path: Path | None = None,
+    variant_peptide_tsv_path: Path | None = None,
     protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
@@ -407,6 +414,34 @@ def build_biological_result_report_bundle_from_quant_table(
         raise ValueError(
             "FASTA input contains rejected records under strict mode: " + rejected
         )
+    variant_fasta_records = ()
+    if variant_proteins_fasta_path is not None:
+        variant_fasta_report = parse_fasta_document(
+            variant_proteins_fasta_path.read_text(encoding="utf-8"),
+            mode=FastaParseMode.STRICT,
+        )
+        if variant_fasta_report.rejected_records:
+            rejected = ", ".join(
+                record.source_identifier for record in variant_fasta_report.rejected_records
+            )
+            raise ValueError(
+                "variant FASTA input contains rejected records under strict mode: "
+                + rejected
+            )
+        variant_fasta_records = variant_fasta_report.accepted_records
+    variant_peptide_records = ()
+    if variant_peptide_tsv_path is not None:
+        variant_peptide_report = parse_proteogenomic_variant_peptide_table(
+            variant_peptide_tsv_path
+        )
+        if variant_peptide_report.rejected_rows:
+            rejected = "; ".join(
+                row.reason for row in variant_peptide_report.rejected_rows[:3]
+            )
+            raise ValueError(
+                "variant peptide table contains rejected rows: " + rejected
+            )
+        variant_peptide_records = variant_peptide_report.accepted_records
     custom_annotation_report = (
         None
         if annotation_tsv_path is None
@@ -518,6 +553,8 @@ def build_biological_result_report_bundle_from_quant_table(
             for record in fasta_report.accepted_records
         },
         protein_records=fasta_report.accepted_records,
+        variant_protein_records=variant_fasta_records,
+        variant_peptide_records=variant_peptide_records,
         selection_policy=ProteinEvidenceCardSelectionPolicy(
             max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
             min_absolute_log2_fold_change=(
@@ -1209,6 +1246,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
         "Graph claim",
         "Gene",
         "Identity",
+        "Proteogenomic support",
         "Evidence tier",
         "Peptides",
         "Functional regions",
@@ -1228,6 +1266,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
             f"<td><code>{escape(card.graph_claim_node_id)}</code></td>"
             f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
             f"<td>{escape(card.identity_level.value)}</td>"
+            f"<td>{escape('' if card.proteogenomic_support is None else card.proteogenomic_support.support_class.value)}</td>"
             f"<td>{escape(card.evidence_tier.value)}</td>"
             f"<td>{card.peptide_count}</td>"
             f"<td>{escape('; '.join(f'{region.region_kind.value}:{region.label}' for region in card.functional_regions))}</td>"
