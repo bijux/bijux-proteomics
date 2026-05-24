@@ -18,6 +18,7 @@ from bijux_proteomics.chemistry import (
     calculate_fragment_ions,
     canonicalize_modified_peptide,
 )
+from bijux_proteomics.io.noise import SpectrumPeakClass, estimate_peak_noise
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 if TYPE_CHECKING:
@@ -165,6 +166,12 @@ def match_spectrum_peaks_to_fragments(
     matched_peak_indexes: set[int] = set()
     candidate_fragments_by_peak_index: dict[int, list[str]] = {}
     indexed_peaks = tuple(enumerate(spectrum.peaks))
+    peak_noise_rows = estimate_peak_noise(spectrum.peaks)
+    non_noise_peak_indexes = {
+        row.peak_index
+        for row in peak_noise_rows
+        if row.peak_class is not SpectrumPeakClass.NOISE
+    }
     for fragment in theoretical_fragments:
         candidate_peak_indexes = tuple(
             peak_index
@@ -177,8 +184,18 @@ def match_spectrum_peaks_to_fragments(
                 tolerance_ppm=resolved_tolerance_ppm,
             )
         )
+        preferred_candidate_peak_indexes = tuple(
+            peak_index
+            for peak_index in candidate_peak_indexes
+            if peak_index in non_noise_peak_indexes
+        )
+        effective_candidate_peak_indexes = (
+            preferred_candidate_peak_indexes
+            if preferred_candidate_peak_indexes
+            else ()
+        )
         fragment_label = _fragment_label(fragment)
-        if len(candidate_peak_indexes) > 1:
+        if len(effective_candidate_peak_indexes) > 1:
             ambiguity_warnings.append(
                 SpectrumPeakMatchAmbiguityWarning(
                     kind=SpectrumPeakMatchAmbiguityKind.FRAGMENT_TO_MULTIPLE_PEAKS,
@@ -186,7 +203,7 @@ def match_spectrum_peaks_to_fragments(
                     peak_mzs=tuple(
                         sorted(
                             spectrum.peaks[peak_index].mz
-                            for peak_index in candidate_peak_indexes
+                            for peak_index in effective_candidate_peak_indexes
                         )
                     ),
                     tolerance_mode=tolerance_mode,
@@ -195,13 +212,15 @@ def match_spectrum_peaks_to_fragments(
                     note="one fragment is compatible with multiple observed peaks under the requested tolerance",
                 )
             )
-        for peak_index in candidate_peak_indexes:
+        for peak_index in effective_candidate_peak_indexes:
             candidate_fragments_by_peak_index.setdefault(peak_index, []).append(
                 fragment_label
             )
         best_peak_index: int | None = None
         best_error: float | None = None
         for peak_index, peak in indexed_peaks:
+            if peak_index not in non_noise_peak_indexes:
+                continue
             error = peak.mz - fragment.mz_monoisotopic
             if not _peak_matches_tolerance(
                 observed_mz=peak.mz,
