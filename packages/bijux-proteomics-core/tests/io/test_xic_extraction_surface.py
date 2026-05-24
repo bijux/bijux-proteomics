@@ -6,11 +6,15 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.xic_extraction import (
+    XicTargetEntry,
     XicToleranceUnit,
+    extract_xic,
     extract_mzml_xic_traces,
     parse_xic_target_table,
+    render_xic_extraction_tsv,
     render_xic_traces_tsv,
 )
+from bijux_proteomics.io.mzml_reader import stream_mzml_spectra
 
 
 def _format_fixture(name: str) -> Path:
@@ -94,6 +98,62 @@ def test_extract_mzml_xic_traces_supports_dalton_windows() -> None:
     assert beta_rows[0].intensity == 2000.0
     assert beta_rows[1].intensity == 0.0
     assert beta_rows[2].intensity == 3000.0
+
+
+def test_extract_xic_changes_intensity_when_ppm_tolerance_widens() -> None:
+    spectra = tuple(stream_mzml_spectra(_format_fixture("xic_review.mzml")))
+    targets = parse_xic_target_table(_format_fixture("xic_targets.tsv")).accepted_entries
+
+    narrow_rows = extract_xic(
+        spectra,
+        targets,
+        tolerance=5.0,
+        tolerance_unit=XicToleranceUnit.PPM,
+    )
+    wide_rows = extract_xic(
+        spectra,
+        targets,
+        tolerance=20.0,
+        tolerance_unit=XicToleranceUnit.PPM,
+    )
+
+    narrow_beta = {
+        (row.target_id, row.scan_id): row
+        for row in narrow_rows
+        if row.target_id == "target_beta"
+    }
+    wide_beta = {
+        (row.target_id, row.scan_id): row
+        for row in wide_rows
+        if row.target_id == "target_beta"
+    }
+
+    assert narrow_beta[("target_beta", "scan=7001")].intensity == 0.0
+    assert wide_beta[("target_beta", "scan=7001")].intensity == 2500.0
+    assert wide_beta[("target_beta", "scan=7001")].mz_lower < narrow_beta[("target_beta", "scan=7001")].mz_lower
+    assert wide_beta[("target_beta", "scan=7001")].mz_upper > narrow_beta[("target_beta", "scan=7001")].mz_upper
+
+
+def test_extract_xic_uses_expected_rt_with_global_rt_window() -> None:
+    spectra = tuple(stream_mzml_spectra(_format_fixture("xic_review.mzml")))
+    rows = extract_xic(
+        spectra,
+        (
+            XicTargetEntry(
+                target_id="target_expected_window",
+                precursor_mz=500.0,
+                rt_expected_seconds=20.0,
+            ),
+        ),
+        tolerance=10.0,
+        tolerance_unit=XicToleranceUnit.PPM,
+        rt_window=5.0,
+    )
+    rendered = render_xic_extraction_tsv(rows)
+
+    assert [(row.scan_id, row.intensity) for row in rows] == [("scan=7001", 1500.0)]
+    assert "target_id\trt\tmz_lower\tmz_upper\tintensity\tscan_id" in rendered
+    assert "target_expected_window\t20\t499.995000\t500.005000\t1500\tscan=7001" in rendered
 
 
 def test_render_xic_traces_tsv_emits_trace_rows_with_mz_windows() -> None:
