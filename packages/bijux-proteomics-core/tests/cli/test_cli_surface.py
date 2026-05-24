@@ -103,6 +103,66 @@ def _write_run_qc_tsv(path: Path) -> None:
     )
 
 
+def _build_real_summary_artifacts(tmp_path: Path) -> tuple[Path, Path, Path]:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    biological_report = build_biological_result_report_bundle(
+        _workflow_fixture("biological_report_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+        pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+    biological_dir = tmp_path / "biological_report"
+    biological_manifest = export_biological_result_report_bundle(
+        biological_report,
+        biological_dir,
+    )
+    (biological_dir / "biological_report_manifest.json").write_text(
+        biological_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
+    ptm_report = build_ptm_report_bundle(
+        ptm_evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+        feature_records=ptm_features.accepted_records,
+        design_entries=_ptm_design_entries(),
+        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        batch_field="",
+        condition_a="control",
+        condition_b="treated",
+        annotation_records=ptm_annotations.accepted_records,
+        annotation_target_species="Homo sapiens",
+        regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+    )
+    ptm_dir = tmp_path / "ptm_report"
+    ptm_manifest = export_ptm_report_bundle(ptm_report, ptm_dir)
+    (ptm_dir / "ptm_report_manifest.json").write_text(
+        ptm_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    qc_path = tmp_path / "run_qc.tsv"
+    _write_run_qc_tsv(qc_path)
+    return biological_dir, ptm_dir, qc_path
+
+
 def _write_run_qc_tsv_with_status(
     path: Path,
     *,
@@ -945,6 +1005,59 @@ def test_analysis_recommendations_command_emits_condition_tied_actions() -> None
         recommendation_tsv = Path("analysis_recommendations.tsv").read_text()
         assert "detected_condition_code" in recommendation_tsv
         assert "avoid_batch_correction" in recommendation_tsv
+
+
+def test_compact_result_summary_command_emits_evidence_constrained_sections() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        biological_dir, ptm_dir, qc_path = _build_real_summary_artifacts(Path.cwd())
+
+        result = runner.invoke(
+            cli,
+            [
+                "compact-result-summary",
+                "--biological-report-dir",
+                str(biological_dir),
+                "--ptm-report-dir",
+                str(ptm_dir),
+                "--run-qc-assessment-tsv",
+                str(qc_path),
+                "--overview-tsv-out",
+                "compact_result_summary.overview.tsv",
+                "--entry-tsv-out",
+                "compact_result_summary.entries.tsv",
+                "--markdown-out",
+                "compact_result_summary.md",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        report = payload["report"]
+        assert report["overview"]["section_count"] == 5
+        assert report["overview"]["entry_count"] > 0
+        by_kind = {
+            section["section_kind"]: section
+            for section in report["sections"]
+        }
+        strongest_entries = by_kind["strongest_findings"]["entries"]
+        assert strongest_entries
+        assert all(
+            entry["result_surfaces"] == ["biological_supported_claims"]
+            for entry in strongest_entries
+        )
+
+        markdown = Path("compact_result_summary.md").read_text(encoding="utf-8")
+        assert "## Sample QC" in markdown
+        assert "## Strongest findings" in markdown
+        assert "## Failed assumptions" in markdown
+        assert "## Next validation targets" in markdown
+        assert "strongest_finding_count" in Path(
+            "compact_result_summary.overview.tsv"
+        ).read_text(encoding="utf-8")
+        assert "summary_text" in Path(
+            "compact_result_summary.entries.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_failure_explanation_command_emits_scientific_category_and_fix() -> None:
