@@ -29,6 +29,7 @@ class TrustBundleArtifactCategory(StrEnum):
     BENCHMARK_RESULTS = "benchmark_results"
     CARDS = "cards"
     COMPARISON_TABLES = "comparison_tables"
+    EVIDENCE_GRAPHS = "evidence_graphs"
     QC_FAILURES = "qc_failures"
     REJECTED_EVIDENCE = "rejected_evidence"
     WORKFLOW_OUTPUTS = "workflow_outputs"
@@ -56,6 +57,7 @@ class TrustBundleRunSummary(JsonModel):
     workflow_output_dir: str = Field(..., min_length=1)
     failure_count: int = Field(..., ge=0)
     artifact_count: int = Field(..., ge=0)
+    graph_artifact_count: int = Field(..., ge=0)
     rejected_artifact_count: int = Field(..., ge=0)
     qc_artifact_count: int = Field(..., ge=0)
     card_artifact_count: int = Field(..., ge=0)
@@ -72,6 +74,9 @@ class TrustBundleReport(JsonModel):
     suite_report: PublicBenchmarkSuiteReport
     runs: tuple[TrustBundleRunSummary, ...] = Field(default_factory=tuple)
     benchmark_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
+        default_factory=tuple
+    )
+    evidence_graph_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
         default_factory=tuple
     )
     rejected_evidence_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
@@ -96,6 +101,7 @@ def build_public_benchmark_trust_bundle(
     output_dir.mkdir(parents=True, exist_ok=True)
     workflow_output_root = output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS
     benchmark_result_root = output_dir / TrustBundleArtifactCategory.BENCHMARK_RESULTS
+    graph_root = output_dir / TrustBundleArtifactCategory.EVIDENCE_GRAPHS
     rejected_root = output_dir / TrustBundleArtifactCategory.REJECTED_EVIDENCE
     qc_root = output_dir / TrustBundleArtifactCategory.QC_FAILURES
     card_root = output_dir / TrustBundleArtifactCategory.CARDS
@@ -103,6 +109,7 @@ def build_public_benchmark_trust_bundle(
     for path in (
         workflow_output_root,
         benchmark_result_root,
+        graph_root,
         rejected_root,
         qc_root,
         card_root,
@@ -122,6 +129,11 @@ def build_public_benchmark_trust_bundle(
     workflow_artifacts = _collect_workflow_artifacts(
         suite.runs,
         output_dir=output_dir,
+    )
+    evidence_graph_artifacts = tuple(
+        artifact
+        for artifact in workflow_artifacts
+        if artifact.category is TrustBundleArtifactCategory.EVIDENCE_GRAPHS
     )
     rejected_artifacts = tuple(
         artifact
@@ -143,6 +155,13 @@ def build_public_benchmark_trust_bundle(
         benchmark_artifacts=benchmark_artifacts,
         workflow_artifacts=workflow_artifacts,
         comparison_root=comparison_root,
+        output_dir=output_dir,
+    )
+    evidence_graph_artifacts = _write_indexed_category_artifacts(
+        graph_root / "index.tsv",
+        category=TrustBundleArtifactCategory.EVIDENCE_GRAPHS,
+        index_note="indexed evidence graph artifacts across the trust bundle",
+        references=evidence_graph_artifacts,
         output_dir=output_dir,
     )
     rejected_artifacts = _write_indexed_category_artifacts(
@@ -179,6 +198,7 @@ def build_public_benchmark_trust_bundle(
             for run in suite.runs
         ),
         benchmark_artifacts=benchmark_artifacts,
+        evidence_graph_artifacts=evidence_graph_artifacts,
         rejected_evidence_artifacts=rejected_artifacts,
         qc_artifacts=qc_artifacts,
         card_artifacts=card_artifacts,
@@ -209,6 +229,7 @@ def render_trust_bundle_run_summary_tsv(report: TrustBundleReport) -> str:
                 "workflow_output_dir": run.workflow_output_dir,
                 "failure_count": run.failure_count,
                 "artifact_count": run.artifact_count,
+                "graph_artifact_count": run.graph_artifact_count,
                 "rejected_artifact_count": run.rejected_artifact_count,
                 "qc_artifact_count": run.qc_artifact_count,
                 "card_artifact_count": run.card_artifact_count,
@@ -393,6 +414,8 @@ def _classify_workflow_artifact(filename: str) -> TrustBundleArtifactCategory | 
     name = filename.lower()
     if "rejected" in name:
         return TrustBundleArtifactCategory.REJECTED_EVIDENCE
+    if "graph" in name:
+        return TrustBundleArtifactCategory.EVIDENCE_GRAPHS
     if "card" in name:
         return TrustBundleArtifactCategory.CARDS
     if any(token in name for token in ("comparison", "correlation", "overlap", "conflict")):
@@ -417,6 +440,10 @@ def _summarize_run(
         workflow_output_dir=run.output_dir,
         failure_count=len(run.failures),
         artifact_count=len(run_artifacts),
+        graph_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.EVIDENCE_GRAPHS
+            for artifact in run_artifacts
+        ),
         rejected_artifact_count=sum(
             artifact.category is TrustBundleArtifactCategory.REJECTED_EVIDENCE
             for artifact in run_artifacts
@@ -485,6 +512,7 @@ def _render_html_index(report: TrustBundleReport, *, output_dir: Path) -> str:
         _render_html_artifact_section(title, artifacts)
         for title, artifacts in (
             ("Benchmark Results", report.benchmark_artifacts),
+            ("Evidence Graphs", report.evidence_graph_artifacts),
             ("Rejected Evidence", report.rejected_evidence_artifacts),
             ("QC Failures", report.qc_artifacts),
             ("Protein And PTM Cards", report.card_artifacts),
