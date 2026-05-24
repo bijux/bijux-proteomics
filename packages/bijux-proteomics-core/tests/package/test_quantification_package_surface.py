@@ -124,11 +124,180 @@ def test_quantification_package_exports_time_course_differential_owner_surface()
     rendered = quantification.render_time_course_differential_tsv(report)
 
     assert hasattr(quantification, "build_time_course_differential_report")
+    assert hasattr(quantification, "build_time_course_differential_robustness_report")
     assert hasattr(quantification, "render_time_course_differential_tsv")
     assert hasattr(quantification, "export_time_course_differential_tsv")
     assert report.ordered_timepoints == ("0", "1")
     assert len(report.entries) == 4
     assert rendered.startswith("entity_id\tcondition\treference_condition")
+    assert "robustness_score" in rendered
+
+
+def test_quantification_package_exports_differential_result_robustness_surface() -> (
+    None
+):
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="robust001",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust002",
+            sample_id="ctrl-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=120.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust003",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=105.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust004",
+            sample_id="ctrl-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=118.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust005",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=260.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust006",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=290.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust007",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=275.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust008",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=300.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust009",
+            sample_id="ctrl-1",
+            peptide="PEPX",
+            canonical_peptide="PEPX",
+            intensity=90.0,
+            protein_refs=("P002",),
+            missing_value_kind=quantification.MissingValueKind.OBSERVED,
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust010",
+            sample_id="ctrl-2",
+            peptide="PEPX",
+            canonical_peptide="PEPX",
+            intensity=None,
+            protein_refs=("P002",),
+            missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust011",
+            sample_id="case-1",
+            peptide="PEPX",
+            canonical_peptide="PEPX",
+            intensity=96.0,
+            protein_refs=("P002",),
+            missing_value_kind=quantification.MissingValueKind.OBSERVED,
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="robust012",
+            sample_id="case-2",
+            peptide="PEPX",
+            canonical_peptide="PEPX",
+            intensity=None,
+            protein_refs=("P002",),
+            missing_value_kind=quantification.MissingValueKind.FILTERED,
+        ),
+    )
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    imputed = quantification.impute_label_free_table(
+        table,
+        method=quantification.ImputationMethod.LOW_INTENSITY,
+    )
+    report = quantification.build_differential_abundance_report(
+        imputed,
+        design_entries,
+        condition_a="case",
+        condition_b="control",
+    )
+    robustness = quantification.build_differential_abundance_robustness_report(
+        report,
+        imputed,
+        design_entries,
+    )
+
+    assert hasattr(
+        quantification,
+        "build_differential_abundance_robustness_report",
+    )
+    assert report.entries[0].robustness_score is not None
+    assert len(robustness.entries) == len(report.entries)
+    assert "robustness_reason_codes" in quantification.render_differential_abundance_tsv(
+        report
+    )
 
 
 def test_quantification_package_exports_batch_effect_owner_surface() -> None:
