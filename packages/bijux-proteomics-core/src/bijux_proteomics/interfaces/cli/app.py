@@ -991,8 +991,15 @@ from bijux_proteomics.workflow import (
     render_dia_dda_shared_intensity_correlation_tsv,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_summary_tsv,
+    render_public_dataset_combined_summary_tsv,
+    render_public_dataset_dataset_summary_tsv,
+    render_public_dataset_effect_comparison_tsv,
+    render_public_dataset_failure_tsv,
+    render_public_dataset_meta_analysis_tsv,
+    render_public_dataset_pathway_comparison_tsv,
     render_trust_bundle_run_summary_tsv,
     build_public_benchmark_trust_bundle,
+    build_public_dataset_comparison_report,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -5905,6 +5912,103 @@ def build_trust_bundle_command(
     if manifest_json_out is not None:
         manifest_json_out.write_text(report.to_stable_json() + "\n", encoding="utf-8")
     _emit_json(report)
+
+
+@cli.command("public-dataset-comparison")
+@click.option(
+    "--benchmarks",
+    "benchmark_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--run-output-root",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("artifacts/public-dataset-comparison-runs"),
+    show_default=True,
+)
+@click.option(
+    "--dataset-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--failure-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--combined-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--effect-comparison-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--meta-analysis-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--pathway-comparison-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def public_dataset_comparison_command(
+    benchmark_root: Path,
+    run_output_root: Path,
+    dataset_summary_tsv_out: Path | None,
+    failure_tsv_out: Path | None,
+    combined_summary_tsv_out: Path | None,
+    effect_comparison_tsv_out: Path | None,
+    meta_analysis_tsv_out: Path | None,
+    pathway_comparison_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run one biological question across multiple public dataset descriptors."""
+
+    try:
+        report = build_public_dataset_comparison_report(
+            benchmark_root,
+            run_output_root=run_output_root,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if dataset_summary_tsv_out is not None:
+        _write_text_output(
+            dataset_summary_tsv_out,
+            render_public_dataset_dataset_summary_tsv(report),
+        )
+    if failure_tsv_out is not None:
+        _write_text_output(
+            failure_tsv_out,
+            render_public_dataset_failure_tsv(report),
+        )
+    if combined_summary_tsv_out is not None:
+        _write_text_output(
+            combined_summary_tsv_out,
+            render_public_dataset_combined_summary_tsv(report),
+        )
+    if effect_comparison_tsv_out is not None:
+        _write_text_output(
+            effect_comparison_tsv_out,
+            render_public_dataset_effect_comparison_tsv(report),
+        )
+    if meta_analysis_tsv_out is not None:
+        _write_text_output(
+            meta_analysis_tsv_out,
+            render_public_dataset_meta_analysis_tsv(report),
+        )
+    if pathway_comparison_tsv_out is not None:
+        _write_text_output(
+            pathway_comparison_tsv_out,
+            render_public_dataset_pathway_comparison_tsv(report),
+        )
+    _emit_json(report, out_path=out_path)
 
 
 @cli.command("public-case-study")
