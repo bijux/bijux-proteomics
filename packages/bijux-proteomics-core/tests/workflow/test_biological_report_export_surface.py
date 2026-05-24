@@ -57,6 +57,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).exists()
     assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
+    assert (output_dir / manifest.artifacts.foreground_background_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.foreground_background_entry_tsv).exists()
+    assert (output_dir / manifest.artifacts.foreground_background_issue_tsv).exists()
     assert (output_dir / manifest.artifacts.annotation_tsv).exists()
     assert (output_dir / manifest.artifacts.context_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
@@ -87,6 +90,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "priority_rank" in (
         output_dir / manifest.artifacts.evidence_aware_ranking_tsv
+    ).read_text(encoding="utf-8")
+    assert "foreground_source_kind" in (
+        output_dir / manifest.artifacts.foreground_background_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "set_role" in (
+        output_dir / manifest.artifacts.foreground_background_entry_tsv
+    ).read_text(encoding="utf-8")
+    assert "code\tseverity\tmessage" in (
+        output_dir / manifest.artifacts.foreground_background_issue_tsv
     ).read_text(encoding="utf-8")
     assert "pathway" in (
         output_dir / manifest.artifacts.evidence_aware_ranking_tsv
@@ -155,6 +167,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Evidence-aware ranking" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Enrichment foreground/background model" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Valid for enrichment" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Graph claim" in (

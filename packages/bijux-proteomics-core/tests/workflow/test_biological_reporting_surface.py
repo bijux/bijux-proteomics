@@ -71,6 +71,28 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         report.evidence_aware_ranking_report.summary.protein_entry_count
         == report.summary.protein_count
     )
+    assert report.foreground_background_model.summary.valid_for_enrichment is True
+    assert (
+        report.foreground_background_model.foreground_source_kind.value
+        == "differential_significant_results"
+    )
+    assert (
+        report.foreground_background_model.background_source_kind.value
+        == "measured_quant_matrix"
+    )
+    assert (
+        report.foreground_background_model.foreground_policy.policy_name
+        == "biological_result_selection"
+    )
+    assert (
+        report.foreground_background_model.background_policy.policy_name
+        == "measured_protein_quantification_universe"
+    )
+    assert report.foreground_background_model.summary.foreground_size >= 1
+    assert (
+        report.foreground_background_model.summary.background_size
+        >= report.foreground_background_model.summary.foreground_size
+    )
     assert report.protein_cards.summary.protein_result_count == 5
     assert report.protein_mechanism_cards.summary.card_count == 5
     assert report.protein_mechanism_cards.summary.card_count == report.summary.protein_count
