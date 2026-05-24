@@ -77,6 +77,17 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
     ).exists()
     assert (output_dir / manifest.artifacts.pathway_activity_unresolved_member_tsv).exists()
+    assert (output_dir / manifest.artifacts.complex_activity_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.complex_activity_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.complex_activity_sample_score_tsv).exists()
+    assert (output_dir / manifest.artifacts.complex_activity_condition_score_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.complex_activity_condition_comparison_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.complex_activity_member_contribution_tsv
+    ).exists()
+    assert (output_dir / manifest.artifacts.complex_activity_unresolved_member_tsv).exists()
     assert (output_dir / manifest.artifacts.go_term_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
@@ -113,6 +124,18 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "member_kind\tmember_id\tresolved_protein_refs" in (
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
+    ).read_text(encoding="utf-8")
+    assert "complex_count" in (
+        output_dir / manifest.artifacts.complex_activity_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
+        output_dir / manifest.artifacts.complex_activity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "limiting_member_ids" in (
+        output_dir / manifest.artifacts.complex_activity_sample_score_tsv
+    ).read_text(encoding="utf-8")
+    assert "member_kind\tmember_id\tresolved_protein_refs" in (
+        output_dir / manifest.artifacts.complex_activity_member_contribution_tsv
     ).read_text(encoding="utf-8")
     assert "set_role" in (
         output_dir / manifest.artifacts.foreground_background_entry_tsv
@@ -195,7 +218,13 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "Pathway activity" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
+    assert "Complex activity" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
     assert "Low-confidence sample scores" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Limiting members" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Valid for enrichment" in (

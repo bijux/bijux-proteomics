@@ -40,5 +40,8 @@ def test_build_biological_result_report_bundle_preserves_annotation_and_enrichme
     assert report.pathway_activity_report.summary.condition_comparison_count == 1
     assert report.pathway_enrichment_report is not None
     assert report.pathway_enrichment_report.summary.enriched_entry_count == 1
+    assert report.complex_activity_report is not None
+    assert report.complex_activity_report.summary.complex_count == 1
+    assert report.complex_activity_report.summary.condition_comparison_count == 1
     assert report.complex_enrichment_report is not None
     assert report.complex_enrichment_report.summary.enriched_entry_count == 1

@@ -120,6 +120,13 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         entry.comparison_confidence_status.value in {"high_confidence", "low_confidence"}
         for entry in report.pathway_activity_report.condition_comparisons
     )
+    assert report.complex_activity_report is not None
+    assert report.complex_activity_report.summary.complex_count >= 1
+    assert report.complex_activity_report.summary.condition_comparison_count >= 1
+    assert any(
+        entry.limiting_member_ids
+        for entry in report.complex_activity_report.sample_scores
+    )
     assert any(
         entry.protein_ref == "Q9Y243"
         for entry in report.context_mapping_report.unmapped_entries
