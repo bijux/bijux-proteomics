@@ -42,6 +42,8 @@ from bijux_proteomics.interpretation import (
     ProteinAnnotationColumnMapping,
     ProteinAnnotationMappingReport,
     ProteinReferenceEntry,
+    RegulatorEvidenceImportReport,
+    RegulatorInferenceReport,
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
@@ -50,11 +52,15 @@ from bijux_proteomics.interpretation import (
     build_pathway_activity_report,
     build_pathway_enrichment_report,
     build_protein_annotation_mapping_report,
+    build_regulator_inference_report,
+    build_regulator_site_signal_entries_from_ptm_evidence_cards,
     parse_biological_context_table,
     parse_complex_membership_table,
     parse_go_annotation_table,
     parse_pathway_membership_table,
     parse_protein_annotation_table,
+    parse_regulator_evidence_table,
+    parse_regulator_site_signal_table,
     render_biological_context_mapping_summary_tsv,
     render_biological_context_mapping_tsv,
     render_biological_context_term_tsv,
@@ -78,6 +84,10 @@ from bijux_proteomics.interpretation import (
     render_pathway_unresolved_member_tsv,
     render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
+    render_rejected_regulator_evidence_tsv,
+    render_regulator_inference_summary_tsv,
+    render_regulator_inference_tsv,
+    render_unresolved_regulator_target_tsv,
     render_unmapped_protein_annotation_tsv,
     require_valid_biological_foreground_background_model,
 )
@@ -263,6 +273,8 @@ class BiologicalResultReportBundle(JsonModel):
     experiment_confidence_report: ExperimentConfidenceReport
     evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
     foreground_background_model: BiologicalForegroundBackgroundModel
+    regulator_evidence_import_report: RegulatorEvidenceImportReport | None = None
+    regulator_inference_report: RegulatorInferenceReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
     compartment_biology_report: CompartmentBiologyReport | None = None
@@ -296,6 +308,10 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     foreground_background_summary_tsv: str = Field(..., min_length=1)
     foreground_background_entry_tsv: str = Field(..., min_length=1)
     foreground_background_issue_tsv: str = Field(..., min_length=1)
+    regulator_inference_summary_tsv: str | None = None
+    regulator_inference_tsv: str | None = None
+    regulator_inference_unresolved_tsv: str | None = None
+    regulator_evidence_rejected_tsv: str | None = None
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
@@ -379,6 +395,8 @@ def build_biological_result_report_bundle(
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
+    regulator_evidence_tsv_path: Path | None = None,
+    regulator_site_signal_tsv_path: Path | None = None,
     ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
     mapping: Ms1FeatureColumnMapping | None = None,
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
@@ -430,6 +448,8 @@ def build_biological_result_report_bundle(
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
+        regulator_evidence_tsv_path=regulator_evidence_tsv_path,
+        regulator_site_signal_tsv_path=regulator_site_signal_tsv_path,
         ptm_evidence_card_report=ptm_evidence_card_report,
         normalization_method=normalization_method,
         condition_a=condition_a,
@@ -455,6 +475,8 @@ def build_biological_result_report_bundle_from_quant_table(
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
+    regulator_evidence_tsv_path: Path | None = None,
+    regulator_site_signal_tsv_path: Path | None = None,
     ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
@@ -706,6 +728,33 @@ def build_biological_result_report_bundle_from_quant_table(
                 min_enrichment_ratio=1.0,
             ),
         )
+    regulator_evidence_import_report = (
+        None
+        if regulator_evidence_tsv_path is None
+        else parse_regulator_evidence_table(regulator_evidence_tsv_path)
+    )
+    regulator_inference_report = None
+    if regulator_evidence_import_report is not None:
+        if regulator_site_signal_tsv_path is not None:
+            site_signal_entries = parse_regulator_site_signal_table(
+                regulator_site_signal_tsv_path
+            ).accepted_entries
+        elif ptm_evidence_card_report is not None:
+            site_signal_entries = (
+                build_regulator_site_signal_entries_from_ptm_evidence_cards(
+                    ptm_evidence_card_report
+                )
+            )
+        else:
+            site_signal_entries = ()
+        regulator_inference_report = build_regulator_inference_report(
+            regulator_evidence_import_report.accepted_records,
+            differential_report,
+            protein_refs_by_entity=normalized_table.entity_protein_refs,
+            annotation_report=annotation_report,
+            pathway_activity_report=pathway_activity_report,
+            site_signal_entries=site_signal_entries,
+        )
     protein_cards = build_protein_evidence_card_report(
         graph_report := build_biological_result_graph_report(
             normalized_table,
@@ -819,6 +868,8 @@ def build_biological_result_report_bundle_from_quant_table(
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
         foreground_background_model=foreground_background_model,
+        regulator_evidence_import_report=regulator_evidence_import_report,
+        regulator_inference_report=regulator_inference_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
         compartment_biology_report=compartment_biology_report,
@@ -1454,6 +1505,10 @@ def export_biological_result_report_bundle(
     foreground_background_issue_name = (
         "biological_enrichment_foreground_background_issues.tsv"
     )
+    regulator_inference_summary_name = None
+    regulator_inference_name = None
+    regulator_unresolved_name = None
+    regulator_rejected_name = None
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
@@ -1540,6 +1595,32 @@ def export_biological_result_report_bundle(
         ),
         encoding="utf-8",
     )
+    if (
+        report.regulator_evidence_import_report is not None
+        and report.regulator_inference_report is not None
+    ):
+        regulator_inference_summary_name = "biological_regulator_inference_summary.tsv"
+        regulator_inference_name = "biological_regulator_inference.tsv"
+        regulator_unresolved_name = "biological_regulator_inference_unresolved.tsv"
+        regulator_rejected_name = "biological_regulator_evidence_rejected.tsv"
+        (output_dir / regulator_inference_summary_name).write_text(
+            render_regulator_inference_summary_tsv(report.regulator_inference_report),
+            encoding="utf-8",
+        )
+        (output_dir / regulator_inference_name).write_text(
+            render_regulator_inference_tsv(report.regulator_inference_report),
+            encoding="utf-8",
+        )
+        (output_dir / regulator_unresolved_name).write_text(
+            render_unresolved_regulator_target_tsv(report.regulator_inference_report),
+            encoding="utf-8",
+        )
+        (output_dir / regulator_rejected_name).write_text(
+            render_rejected_regulator_evidence_tsv(
+                report.regulator_evidence_import_report
+            ),
+            encoding="utf-8",
+        )
     (output_dir / annotation_summary_name).write_text(
         render_protein_annotation_summary_tsv(report.annotation_report),
         encoding="utf-8",
@@ -1857,6 +1938,10 @@ def export_biological_result_report_bundle(
         foreground_background_summary_tsv=foreground_background_summary_name,
         foreground_background_entry_tsv=foreground_background_entry_name,
         foreground_background_issue_tsv=foreground_background_issue_name,
+        regulator_inference_summary_tsv=regulator_inference_summary_name,
+        regulator_inference_tsv=regulator_inference_name,
+        regulator_inference_unresolved_tsv=regulator_unresolved_name,
+        regulator_evidence_rejected_tsv=regulator_rejected_name,
         annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
@@ -1969,6 +2054,22 @@ def _render_biological_result_report_html(
         (
             "Enrichment foreground/background issues",
             artifacts.foreground_background_issue_tsv,
+        ),
+        (
+            "Regulator inference summary",
+            artifacts.regulator_inference_summary_tsv,
+        ),
+        (
+            "Regulator inference",
+            artifacts.regulator_inference_tsv,
+        ),
+        (
+            "Regulator inference unresolved targets",
+            artifacts.regulator_inference_unresolved_tsv,
+        ),
+        (
+            "Regulator evidence rejected rows",
+            artifacts.regulator_evidence_rejected_tsv,
         ),
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
@@ -2105,6 +2206,7 @@ def _render_biological_result_report_html(
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
+    regulator_inference_html = _render_regulator_inference_table_html(report)
     compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
     complex_activity_html = _render_complex_activity_table_html(report)
@@ -2126,6 +2228,8 @@ def _render_biological_result_report_html(
         f"{ranking_table_html}"
         "<h2>Enrichment foreground/background model</h2>"
         f"{foreground_background_html}"
+        "<h2>Regulator inference</h2>"
+        f"{regulator_inference_html}"
         "<h2>Compartment biology</h2>"
         f"{compartment_biology_html}"
         "<h2>Pathway activity</h2>"
@@ -2273,6 +2377,54 @@ def _render_foreground_background_model_table_html(
         f"{str(model.summary.valid_for_enrichment).lower()} | "
         f"<strong>Issues</strong>: {model.summary.issue_count} | "
         f"<strong>Issue summary</strong>: {escape(issue_summary)}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_regulator_inference_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    regulator_report = report.regulator_inference_report
+    if regulator_report is None:
+        return "<p>No regulator inference report was generated.</p>"
+    headers = (
+        "Regulator",
+        "Evidence type",
+        "Signal surface",
+        "Direction",
+        "Score",
+        "Supporting proteins",
+        "Supporting sites",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.regulator)}</td>"
+            f"<td>{escape(entry.evidence_type.value)}</td>"
+            f"<td>{escape(entry.signal_surface.value)}</td>"
+            f"<td>{escape(entry.direction.value)}</td>"
+            f"<td>{entry.score:.3f}</td>"
+            f"<td>{escape('; '.join(entry.supporting_protein_refs))}</td>"
+            f"<td>{escape('; '.join(entry.supporting_site_keys))}</td>"
+            "</tr>"
+        )
+        for entry in regulator_report.entries[:10]
+    )
+    return (
+        "<p>"
+        f"<strong>Regulators</strong>: {regulator_report.summary.regulator_count} | "
+        f"<strong>Entries</strong>: {regulator_report.summary.entry_count} | "
+        f"<strong>Site support</strong>: "
+        f"{regulator_report.summary.site_regulation_entry_count} | "
+        f"<strong>Abundance support</strong>: "
+        f"{regulator_report.summary.protein_abundance_entry_count} | "
+        f"<strong>Unresolved targets</strong>: "
+        f"{regulator_report.summary.unresolved_target_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"

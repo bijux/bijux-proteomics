@@ -162,6 +162,44 @@ def test_build_biological_result_report_bundle_preserves_compartment_biology() -
     )
 
 
+def test_build_biological_result_report_bundle_preserves_regulator_inference() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        regulator_evidence_tsv_path=_fixture("biological_report_regulator_evidence.tsv"),
+        regulator_site_signal_tsv_path=_fixture("biological_report_regulator_sites.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.regulator_evidence_import_report is not None
+    assert report.regulator_inference_report is not None
+    assert report.regulator_inference_report.summary.entry_count == 5
+    assert report.regulator_inference_report.summary.site_regulation_entry_count == 1
+    assert report.regulator_inference_report.summary.pathway_activity_entry_count == 1
+    by_regulator = {
+        entry.regulator: entry for entry in report.regulator_inference_report.entries
+    }
+    assert by_regulator["MAPK14"].signal_surface.value == "site_regulation"
+    assert by_regulator["MAPK14"].supporting_site_keys == ("P04637:S15:Phospho",)
+    assert by_regulator["STAT3"].supporting_protein_refs == ("O14920", "P04637")
+    assert by_regulator["Stress commander"].supporting_pathway_ids == (
+        "custom:response",
+    )
+    assert by_regulator["OrphanTF"].direction.value == "unsupported"
+    assert any(
+        entry.target_value == "UNSEEN"
+        for entry in report.regulator_inference_report.unresolved_targets
+    )
+
+
 def test_build_biological_result_report_bundle_from_quant_table_uses_entity_protein_refs_for_annotation() -> (
     None
 ):

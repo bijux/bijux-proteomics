@@ -301,3 +301,50 @@ def test_biological_report_export_writes_compartment_biology_assets(
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
+
+
+def test_biological_report_export_writes_regulator_inference_assets(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        regulator_evidence_tsv_path=_fixture("biological_report_regulator_evidence.tsv"),
+        regulator_site_signal_tsv_path=_fixture("biological_report_regulator_sites.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_biological_result_report_bundle(
+        report,
+        tmp_path / "biological_regulator_report",
+    )
+    output_dir = tmp_path / "biological_regulator_report"
+
+    assert report.regulator_inference_report is not None
+    assert (output_dir / manifest.artifacts.regulator_inference_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.regulator_inference_tsv).exists()
+    assert (output_dir / manifest.artifacts.regulator_inference_unresolved_tsv).exists()
+    assert (output_dir / manifest.artifacts.regulator_evidence_rejected_tsv).exists()
+    assert "entry_count" in (
+        output_dir / manifest.artifacts.regulator_inference_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "signal_surface" in (
+        output_dir / manifest.artifacts.regulator_inference_tsv
+    ).read_text(encoding="utf-8")
+    assert "target_field" in (
+        output_dir / manifest.artifacts.regulator_inference_unresolved_tsv
+    ).read_text(encoding="utf-8")
+    assert "row_number\treason\tvalues" == (
+        output_dir / manifest.artifacts.regulator_evidence_rejected_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
+    assert "Regulator inference" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
