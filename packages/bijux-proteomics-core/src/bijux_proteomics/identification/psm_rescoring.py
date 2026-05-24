@@ -75,6 +75,19 @@ class PsmRescoringEntry(JsonModel):
     rank_after: int = Field(..., ge=1)
 
 
+class PsmRescoringExplanationEntry(JsonModel):
+    """One per-feature contribution row for a rescored PSM."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    psm_id: str = Field(..., min_length=1)
+    feature_name: str = Field(..., min_length=1)
+    feature_value: float
+    standardized_value: float
+    model_weight: float
+    signed_contribution: float
+
+
 class PsmRescoringSummary(JsonModel):
     """Compact audit summary for one logistic rescoring run."""
 
@@ -130,7 +143,16 @@ def fit_target_decoy_logistic_model(
     if target_count == 0 or decoy_count == 0:
         raise ValueError("feature_table must contain both target and decoy labels")
 
-    feature_matrix, feature_parameters = _build_feature_matrix(feature_table)
+    feature_parameters = _build_feature_parameters(feature_table)
+    feature_matrix = np.vstack(
+        [
+            _project_feature_row(
+                row=row,
+                feature_parameters=feature_parameters,
+            )
+            for row in feature_table
+        ]
+    )
     if np.allclose(feature_matrix, 0.0):
         raise ValueError("insufficient_target_decoy_separation")
 
@@ -234,6 +256,33 @@ def fit_target_decoy_logistic_model(
     )
 
 
+def explain_rescored_psm(
+    model: PsmRescoringModel,
+    feature_row: PsmFeatureRow,
+) -> tuple[PsmRescoringExplanationEntry, ...]:
+    """Explain one rescored PSM with the fitted feature contributions."""
+
+    _validate_model_feature_parameters(model.feature_parameters)
+    entries = []
+    for parameter in model.feature_parameters:
+        raw_value = _feature_row_value(feature_row, parameter.feature_name)
+        standardized_value = _standardize_feature_value(
+            value=raw_value,
+            parameter=parameter,
+        )
+        entries.append(
+            PsmRescoringExplanationEntry(
+                psm_id=feature_row.psm_id,
+                feature_name=parameter.feature_name,
+                feature_value=raw_value,
+                standardized_value=standardized_value,
+                model_weight=parameter.weight,
+                signed_contribution=standardized_value * parameter.weight,
+            )
+        )
+    return tuple(entries)
+
+
 def render_psm_rescoring_tsv(report: PsmRescoringReport) -> str:
     """Render rescored PSM rows with before-versus-after ranks."""
 
@@ -265,10 +314,40 @@ def render_psm_rescoring_tsv(report: PsmRescoringReport) -> str:
     return buffer.getvalue()
 
 
-def _build_feature_matrix(
+def render_psm_rescoring_explanation_tsv(
+    entries: tuple[PsmRescoringExplanationEntry, ...],
+) -> str:
+    """Render per-feature rescoring contributions for one PSM as TSV."""
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "psm_id",
+            "feature_name",
+            "feature_value",
+            "standardized_value",
+            "model_weight",
+            "signed_contribution",
+        )
+    )
+    for entry in entries:
+        writer.writerow(
+            (
+                entry.psm_id,
+                entry.feature_name,
+                entry.feature_value,
+                entry.standardized_value,
+                entry.model_weight,
+                entry.signed_contribution,
+            )
+        )
+    return buffer.getvalue()
+
+
+def _build_feature_parameters(
     feature_table: tuple[PsmFeatureRow, ...],
-) -> tuple[np.ndarray, tuple[PsmRescoringFeatureParameter, ...]]:
-    columns: list[np.ndarray] = []
+) -> tuple[PsmRescoringFeatureParameter, ...]:
     parameters: list[PsmRescoringFeatureParameter] = []
     for feature_name, transform in _FEATURE_SPECIFICATIONS:
         transformed = np.array(
@@ -285,8 +364,6 @@ def _build_feature_matrix(
         scale = float(np.std(transformed))
         if scale <= 1e-12:
             scale = 1.0
-        standardized = (transformed - mean) / scale
-        columns.append(standardized)
         parameters.append(
             PsmRescoringFeatureParameter(
                 feature_name=feature_name,
@@ -296,7 +373,58 @@ def _build_feature_matrix(
                 weight=0.0,
             )
         )
-    return np.column_stack(columns), tuple(parameters)
+    return tuple(parameters)
+
+
+def _project_feature_row(
+    *,
+    row: PsmFeatureRow,
+    feature_parameters: tuple[PsmRescoringFeatureParameter, ...],
+) -> np.ndarray:
+    _validate_model_feature_parameters(feature_parameters)
+    return np.array(
+        [
+            _standardize_feature_value(
+                value=_feature_row_value(row, parameter.feature_name),
+                parameter=parameter,
+            )
+            for parameter in feature_parameters
+        ],
+        dtype=float,
+    )
+
+
+def _standardize_feature_value(
+    *,
+    value: float,
+    parameter: PsmRescoringFeatureParameter,
+) -> float:
+    transformed = _transform_feature_value(value=value, transform=parameter.transform)
+    return (transformed - parameter.mean) / parameter.scale
+
+
+def _feature_row_value(row: PsmFeatureRow, feature_name: str) -> float:
+    if feature_name not in PsmFeatureRow.model_fields:
+        raise ValueError(f"unsupported_rescoring_feature:{feature_name}")
+    return float(getattr(row, feature_name))
+
+
+def _validate_model_feature_parameters(
+    feature_parameters: tuple[PsmRescoringFeatureParameter, ...],
+) -> None:
+    if not feature_parameters:
+        raise ValueError("rescoring model must define feature parameters")
+    feature_names = tuple(parameter.feature_name for parameter in feature_parameters)
+    if len(set(feature_names)) != len(feature_names):
+        raise ValueError("rescoring model feature parameters must be unique")
+    supported = {feature_name for feature_name, _transform in _FEATURE_SPECIFICATIONS}
+    unexpected = tuple(
+        feature_name for feature_name in feature_names if feature_name not in supported
+    )
+    if unexpected:
+        raise ValueError(
+            "rescoring model feature parameters must use supported PSM features"
+        )
 
 
 def _fit_logistic_parameters(
