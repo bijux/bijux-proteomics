@@ -80,6 +80,79 @@ def test_identification_package_exports_psm_feature_extraction_surface() -> None
     assert "precursor_ppm_error" in rendered
 
 
+def test_identification_package_exports_psm_rescoring_surface() -> None:
+    rows = (
+        identification.PsmFeatureRow(
+            psm_id="target-1",
+            spectrum_id="target-1-scan",
+            score_native=95.0,
+            q_value_native=0.02,
+            charge=2,
+            peptide_length=8,
+            missed_cleavages=0,
+            precursor_ppm_error=0.5,
+            matched_ion_count=9,
+            explained_intensity=0.92,
+            spectrum_entropy=0.84,
+            top_peak_unmatched_fraction=0.06,
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+        ),
+        identification.PsmFeatureRow(
+            psm_id="decoy-1",
+            spectrum_id="decoy-1-scan",
+            score_native=101.0,
+            q_value_native=0.001,
+            charge=2,
+            peptide_length=8,
+            missed_cleavages=0,
+            precursor_ppm_error=14.0,
+            matched_ion_count=0,
+            explained_intensity=0.0,
+            spectrum_entropy=0.11,
+            top_peak_unmatched_fraction=1.0,
+            target_decoy_label=identification.TargetDecoyLabel.DECOY,
+        ),
+        identification.PsmFeatureRow(
+            psm_id="target-2",
+            spectrum_id="target-2-scan",
+            score_native=93.0,
+            q_value_native=0.03,
+            charge=2,
+            peptide_length=8,
+            missed_cleavages=0,
+            precursor_ppm_error=-0.7,
+            matched_ion_count=8,
+            explained_intensity=0.88,
+            spectrum_entropy=0.8,
+            top_peak_unmatched_fraction=0.08,
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+        ),
+        identification.PsmFeatureRow(
+            psm_id="decoy-2",
+            spectrum_id="decoy-2-scan",
+            score_native=98.0,
+            q_value_native=0.015,
+            charge=2,
+            peptide_length=8,
+            missed_cleavages=0,
+            precursor_ppm_error=-10.0,
+            matched_ion_count=1,
+            explained_intensity=0.09,
+            spectrum_entropy=0.2,
+            top_peak_unmatched_fraction=0.91,
+            target_decoy_label=identification.TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    report = identification.fit_target_decoy_logistic_model(rows)
+    rendered = identification.render_psm_rescoring_tsv(report)
+
+    assert hasattr(identification, "fit_target_decoy_logistic_model")
+    assert hasattr(identification, "render_psm_rescoring_tsv")
+    assert report.entries[0].psm_id == "target-1"
+    assert "rescored_q_value" in rendered
+
+
 def test_identification_package_exports_peptide_target_decoy_fdr_owner_surface() -> (
     None
 ):
