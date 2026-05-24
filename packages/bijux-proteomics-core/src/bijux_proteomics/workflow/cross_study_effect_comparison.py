@@ -77,6 +77,9 @@ class CrossStudyProteinEffectObservation(JsonModel):
     direction: CrossStudyEffectDirection
     p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    standard_error: float | None = Field(default=None, ge=0.0)
+    confidence_interval_low: float | None = None
+    confidence_interval_high: float | None = None
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
     significant: bool = False
@@ -149,6 +152,9 @@ class CrossStudyProteinEffectStudyEntry(JsonModel):
     normalized_direction: CrossStudyEffectDirection | None = None
     p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    standard_error: float | None = Field(default=None, ge=0.0)
+    confidence_interval_low: float | None = None
+    confidence_interval_high: float | None = None
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
     significant: bool = False
@@ -508,6 +514,9 @@ def render_cross_study_effect_detail_tsv(
             "normalized_direction",
             "p_value",
             "adjusted_p_value",
+            "standard_error",
+            "confidence_interval_low",
+            "confidence_interval_high",
             "robustness_score",
             "robustness_qc_status",
             "significant",
@@ -539,6 +548,9 @@ def render_cross_study_effect_detail_tsv(
                 "" if entry.normalized_direction is None else entry.normalized_direction.value,
                 _format_float(entry.p_value),
                 _format_float(entry.adjusted_p_value),
+                _format_float(entry.standard_error),
+                _format_float(entry.confidence_interval_low),
+                _format_float(entry.confidence_interval_high),
                 _format_float(entry.robustness_score),
                 (
                     ""
@@ -701,6 +713,9 @@ def _extract_biological_report_effects(
                 ),
                 p_value=p_value,
                 adjusted_p_value=adjusted_p_value,
+                standard_error=card.differential_result.standard_error,
+                confidence_interval_low=card.differential_result.confidence_interval_low,
+                confidence_interval_high=card.differential_result.confidence_interval_high,
                 robustness_score=(
                     None if differential_entry is None else differential_entry.robustness_score
                 ),
@@ -763,6 +778,9 @@ def _extract_label_based_effects(
                 direction=_direction_from_log2_fold_change(entry.log2_fold_change),
                 p_value=entry.p_value,
                 adjusted_p_value=entry.adjusted_p_value,
+                standard_error=entry.standard_error,
+                confidence_interval_low=entry.confidence_interval_low,
+                confidence_interval_high=entry.confidence_interval_high,
                 robustness_score=entry.robustness_score,
                 robustness_qc_status=entry.robustness_qc_status,
                 significant=_is_significant(
@@ -828,6 +846,9 @@ def _study_entry_from_effect_member(
         normalized_direction=None,
         p_value=observation.p_value,
         adjusted_p_value=observation.adjusted_p_value,
+        standard_error=observation.standard_error,
+        confidence_interval_low=observation.confidence_interval_low,
+        confidence_interval_high=observation.confidence_interval_high,
         robustness_score=observation.robustness_score,
         robustness_qc_status=observation.robustness_qc_status,
         significant=observation.significant,
