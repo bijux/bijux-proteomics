@@ -28,7 +28,9 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     failures_tsv = render_public_benchmark_suite_failures_tsv(suite)
 
     assert summary_tsv.splitlines()[0] == (
-        "dataset_id\taccession\tsearch_engine\tstatus\tfailure_count\toutput_dir\tnote"
+        "dataset_id\taccession\tsearch_engine\tstatus\tknown_limitation_count\t"
+        "blocking_limitation_count\texpected_signal_count\tmatched_signal_count\t"
+        "failure_count\toutput_dir\tnote"
     )
     assert "lfq_cohort_review_package" in summary_tsv
     assert "ptm_localization_review_package" in summary_tsv
