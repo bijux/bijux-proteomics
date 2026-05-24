@@ -561,6 +561,11 @@ def _verify_approximate_counts(
 ) -> tuple[list[PublicBenchmarkFailure], dict[str, int]]:
     summary = getattr(workflow_result.report, "summary", None)
     summary_dict = summary.to_dict() if summary is not None else {}
+    nested_report = getattr(workflow_result.report, "report", None)
+    nested_summary = getattr(nested_report, "summary", None)
+    if nested_summary is not None:
+        for metric_id, observed in nested_summary.to_dict().items():
+            summary_dict.setdefault(metric_id, observed)
     verified_counts: dict[str, int] = {}
     failures: list[PublicBenchmarkFailure] = []
 
