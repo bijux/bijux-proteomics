@@ -30,5 +30,6 @@ def test_render_trust_bundle_run_summary_tsv_lists_generated_bundle_runs(
     )
     assert "lfq_cohort_review_package" in summary_tsv
     assert "dia_diann_benchmark_dataset" in summary_tsv
+    assert "maxquant_lfq_benchmark_dataset" in summary_tsv
     assert "ptm_localization_review_package" in summary_tsv
     assert "dia_diann_review_snapshot" in summary_tsv

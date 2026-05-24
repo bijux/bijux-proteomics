@@ -21,7 +21,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     )
 
     output_dir = Path(report.output_dir)
-    assert report.suite_report.passed_count == 3
+    assert report.suite_report.passed_count == 4
     assert report.suite_report.failed_count == 5
     assert (output_dir / "benchmark_results" / "summary.tsv").exists()
     assert (output_dir / "benchmark_results" / "failures.tsv").exists()
@@ -42,6 +42,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
         encoding="utf-8"
     )
     assert "dia_diann_benchmark_dataset" in benchmark_summary
+    assert "maxquant_lfq_benchmark_dataset" in benchmark_summary
     assert "ptm_localization_review_package" in benchmark_summary
     assert "lfq_cohort_review_package" in benchmark_summary
 
