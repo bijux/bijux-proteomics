@@ -5,10 +5,15 @@
 
 from __future__ import annotations
 
+import csv
+from enum import StrEnum
+from io import StringIO
 import math
 
 import numpy as np
+from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
@@ -30,7 +35,43 @@ from bijux_proteomics.quantification.contracts import (
     MissingValueSummaryReport,
     _condition_lookup,
     _matrix_value_index,
+    coerce_label_free_quant_table,
 )
+from bijux_proteomics_foundation import JsonModel
+
+
+class MissingnessLabel(StrEnum):
+    """Owned entity-level missingness labels for downstream statistical handling."""
+
+    RANDOM = "random"
+    INTENSITY_CENSORED = "intensity_censored"
+    CONDITION_SPECIFIC = "condition_specific"
+    SAMPLE_FAILURE = "sample_failure"
+    STRUCTURAL_ABSENCE = "structural_absence"
+
+
+class MissingnessClassificationEntry(JsonModel):
+    """One entity-level missingness classification row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    label: MissingnessLabel
+    observed_sample_count: int = Field(..., ge=0)
+    missing_sample_count: int = Field(..., ge=0)
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    mean_log2_observed_abundance: float | None = None
+    note: str = Field(..., min_length=1)
+
+
+class MissingnessClassificationReport(JsonModel):
+    """Five-label missingness classification over one quantitative matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[MissingnessClassificationEntry, ...] = Field(default_factory=tuple)
+    failed_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
 
 
 def build_missingness_entity_summary_report(
@@ -452,6 +493,149 @@ def build_missingness_classifier_report(
     )
 
 
+def classify_missingness(
+    matrix: LabelFreeQuantTable | CanonicalQuantMatrix,
+    design: tuple[ExperimentalDesignEntry, ...],
+) -> MissingnessClassificationReport:
+    """Classify entity-level missingness into five downstream statistical labels."""
+
+    table = coerce_label_free_quant_table(matrix)
+    if not design:
+        raise ValueError("design must not be empty")
+
+    sample_summary = summarize_missing_values(table)
+    condition_summary = build_missingness_condition_summary_report(
+        table,
+        design_entries=design,
+    )
+    intensity_dependence = build_missingness_intensity_dependence_report(table)
+    condition_by_sample = _condition_lookup(design)
+    lookup = _matrix_value_index(table)
+
+    failed_sample_ids = _failed_sample_ids(sample_summary)
+    intensity_lookup = {
+        point.entity_id: point.mean_log2_observed_abundance
+        for point in intensity_dependence.plot_points
+    }
+    condition_specific_entity_ids = {
+        entity_id
+        for entry in condition_summary.entries
+        for entity_id in entry.condition_specific_absence_entity_ids
+    }
+    low_intensity_cutoff = _low_intensity_cutoff(intensity_dependence)
+
+    entries: list[MissingnessClassificationEntry] = []
+    for entity_id in table.entity_ids:
+        missing_samples = [
+            sample_id
+            for sample_id in table.sample_ids
+            if lookup[(entity_id, sample_id)].missing_value_kind
+            in (MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED)
+        ]
+        observed_samples = [
+            sample_id
+            for sample_id in table.sample_ids
+            if lookup[(entity_id, sample_id)].missing_value_kind
+            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        ]
+        missing_fraction = (
+            float(len(missing_samples) / len(table.sample_ids)) if table.sample_ids else 0.0
+        )
+        observed_conditions = {
+            condition_by_sample[sample_id]
+            for sample_id in observed_samples
+            if sample_id in condition_by_sample
+        }
+        missing_conditions = {
+            condition_by_sample[sample_id]
+            for sample_id in missing_samples
+            if sample_id in condition_by_sample
+        }
+        mean_log2_observed_abundance = intensity_lookup.get(entity_id)
+
+        label = MissingnessLabel.RANDOM
+        note = "missing values are distributed without stronger structural evidence"
+        if not observed_samples:
+            label = MissingnessLabel.STRUCTURAL_ABSENCE
+            note = "entity is missing in every sample under the current study design"
+        elif entity_id in condition_specific_entity_ids:
+            label = MissingnessLabel.CONDITION_SPECIFIC
+            note = (
+                "at least one condition is fully missing while another condition retains "
+                "observed signal, so this pattern must not be treated as random"
+            )
+        elif missing_samples and set(missing_samples) <= set(failed_sample_ids):
+            label = MissingnessLabel.SAMPLE_FAILURE
+            note = "all missing values land in globally failure-prone samples"
+        elif (
+            intensity_dependence.intensity_dependent_missingness_detected
+            and missing_fraction > 0.0
+            and mean_log2_observed_abundance is not None
+            and mean_log2_observed_abundance <= low_intensity_cutoff
+            and len(observed_conditions | missing_conditions) > 1
+        ):
+            label = MissingnessLabel.INTENSITY_CENSORED
+            note = "low observed abundance plus study-wide intensity dependence supports censoring"
+
+        entries.append(
+            MissingnessClassificationEntry(
+                entity_id=entity_id,
+                label=label,
+                observed_sample_count=len(observed_samples),
+                missing_sample_count=len(missing_samples),
+                missing_fraction=missing_fraction,
+                mean_log2_observed_abundance=mean_log2_observed_abundance,
+                note=note,
+            )
+        )
+
+    return MissingnessClassificationReport(
+        entries=tuple(sorted(entries, key=lambda entry: entry.entity_id)),
+        failed_sample_ids=tuple(sorted(failed_sample_ids)),
+        note=(
+            "missingness classification separates random loss from intensity censoring, "
+            "condition-specific absence, sample failure, and structural absence so "
+            "downstream statistics can react to mechanism instead of treating every "
+            "missing cell the same way"
+        ),
+    )
+
+
+def render_missingness_classification_tsv(
+    report: MissingnessClassificationReport,
+) -> str:
+    """Render five-label missingness classifications as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "label",
+            "observed_sample_count",
+            "missing_sample_count",
+            "missing_fraction",
+            "mean_log2_observed_abundance",
+            "note",
+        )
+    )
+    for entry in report.entries:
+        writer.writerow(
+            (
+                entry.entity_id,
+                entry.label.value,
+                str(entry.observed_sample_count),
+                str(entry.missing_sample_count),
+                f"{entry.missing_fraction:.6f}",
+                ""
+                if entry.mean_log2_observed_abundance is None
+                else f"{entry.mean_log2_observed_abundance:.6f}",
+                entry.note,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _apply_missing_value_summary_policy(
     kind: MissingValueKind,
     *,
@@ -470,11 +654,52 @@ def _apply_missing_value_summary_policy(
     return kind
 
 
+def _failed_sample_ids(
+    sample_summary: MissingValueSummaryReport,
+    *,
+    minimum_missing_fraction: float = 0.6,
+) -> tuple[str, ...]:
+    failed: list[str] = []
+    for entry in sample_summary.entries:
+        total = (
+            entry.observed_count
+            + entry.zero_count
+            + entry.not_observed_count
+            + entry.filtered_count
+        )
+        if total <= 0:
+            continue
+        missing_fraction = float((entry.not_observed_count + entry.filtered_count) / total)
+        if missing_fraction >= minimum_missing_fraction:
+            failed.append(entry.sample_id)
+    return tuple(sorted(failed))
+
+
+def _low_intensity_cutoff(
+    report: MissingnessIntensityDependenceReport,
+) -> float:
+    if not report.plot_points:
+        return math.inf
+    values = np.array(
+        [point.mean_log2_observed_abundance for point in report.plot_points],
+        dtype=float,
+    )
+    return min(
+        float(np.quantile(values, 0.2)),
+        float(np.median(values) - 1.0),
+    )
+
+
 __all__ = [
+    "MissingnessClassificationEntry",
+    "MissingnessClassificationReport",
+    "MissingnessLabel",
     "build_missingness_condition_summary_report",
     "build_missingness_classifier_report",
     "build_missing_data_mechanism_report",
     "build_missingness_entity_summary_report",
     "build_missingness_intensity_dependence_report",
+    "classify_missingness",
+    "render_missingness_classification_tsv",
     "summarize_missing_values",
 ]
