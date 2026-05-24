@@ -273,12 +273,13 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["passed_count"] == 7
+        assert payload["passed_count"] == 8
         assert payload["failed_count"] == 3
         summary_tsv = Path("public_benchmark.summary.tsv").read_text()
         failures_tsv = Path("public_benchmark.failures.tsv").read_text()
         signal_tsv = Path("public_benchmark.signals.tsv").read_text()
         assert "lfq_cohort_review_package" in summary_tsv
+        assert "lfq_sparse_contrast_benchmark_dataset" in summary_tsv
         assert "dia_diann_benchmark_dataset" in summary_tsv
         assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
         assert "maxquant_lfq_benchmark_dataset" in summary_tsv
@@ -313,11 +314,14 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["suite_report"]["passed_count"] == 7
+        assert payload["suite_report"]["passed_count"] == 8
         assert payload["suite_report"]["failed_count"] == 3
         assert Path("trust_bundle/index.html").exists()
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
         assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
+        assert "lfq_sparse_contrast_benchmark_dataset" in Path(
+            "trust_bundle.summary.tsv"
+        ).read_text()
         assert "multiplex_tmtpro_review_package" in Path(
             "trust_bundle.summary.tsv"
         ).read_text()
