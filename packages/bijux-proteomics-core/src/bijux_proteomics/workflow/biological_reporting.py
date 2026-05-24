@@ -3653,6 +3653,10 @@ def _render_biological_result_report_html(
             artifacts.experiment_confidence_components_tsv,
         ),
         (
+            "Report section confidence",
+            artifacts.section_confidence_tsv,
+        ),
+        (
             "Evidence-aware ranking",
             artifacts.evidence_aware_ranking_tsv,
         ),
@@ -3895,6 +3899,9 @@ def _render_biological_result_report_html(
     pathway_activity_html = _render_pathway_activity_table_html(report)
     complex_activity_html = _render_complex_activity_table_html(report)
     card_table_html = _render_protein_mechanism_card_table_html(report)
+    section_confidence_html = _render_biological_report_section_confidence_table_html(
+        report
+    )
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
         "<h1>Biological result report</h1>"
@@ -3908,40 +3915,85 @@ def _render_biological_result_report_html(
         f"{report.summary.cohort_interaction_candidate_count} | "
         f"<strong>Tissue mismatch warnings</strong>: "
         f"{report.summary.tissue_mismatch_warning_count} | "
+        f"<strong>Invalid sections</strong>: {report.summary.invalid_section_count} | "
         f"<strong>Annotated</strong>: {report.summary.annotation_entry_count} | "
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
-        "<h2>Experiment confidence</h2>"
+        "<h2>Section confidence</h2>"
+        f"{section_confidence_html}"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE)}"
         f"{confidence_table_html}"
-        "<h2>Evidence-aware ranking</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING)}"
         f"{ranking_table_html}"
-        "<h2>Validated biological claims</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS)}"
         f"{claim_validation_html}"
-        "<h2>Biological hypotheses</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES)}"
         f"{hypothesis_html}"
-        "<h2>Enrichment foreground/background model</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND)}"
         f"{foreground_background_html}"
-        "<h2>Regulator inference</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.REGULATOR_INFERENCE)}"
         f"{regulator_inference_html}"
-        "<h2>Drug-target interpretation</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION)}"
         f"{drug_target_html}"
-        "<h2>Disease and phenotype interpretation</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION)}"
         f"{disease_phenotype_html}"
-        "<h2>Cohort stratification</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.COHORT_STRATIFICATION)}"
         f"{cohort_stratification_html}"
-        "<h2>Tissue and cell-type context</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT)}"
         f"{tissue_context_html}"
-        "<h2>Compartment biology</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.COMPARTMENT_BIOLOGY)}"
         f"{compartment_biology_html}"
-        "<h2>Pathway activity</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.PATHWAY_ACTIVITY)}"
         f"{pathway_activity_html}"
-        "<h2>Complex activity</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.COMPLEX_ACTIVITY)}"
         f"{complex_activity_html}"
-        "<h2>Protein mechanism cards</h2>"
+        f"{_render_section_heading_html(report, BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS)}"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
         f"<ul>{section_html}</ul>"
         f"<p>{escape(report.note)}</p>"
         "</body></html>\n"
+    )
+
+
+def _render_section_heading_html(
+    report: BiologicalResultReportBundle,
+    section_key: BiologicalReportSectionKey,
+) -> str:
+    by_key = {entry.section_key: entry for entry in report.section_confidence_entries}
+    entry = by_key[section_key]
+    return (
+        f"<h2>{escape(entry.section_title)} [{escape(entry.confidence_label.value)}]</h2>"
+        f"<p><strong>Rationale</strong>: {escape(entry.rationale)}</p>"
+    )
+
+
+def _render_biological_report_section_confidence_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    headers = ("Section", "Confidence", "Rationale")
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.section_title)}</td>"
+            f"<td>{escape(entry.confidence_label.value)}</td>"
+            f"<td>{escape(entry.rationale)}</td>"
+            "</tr>"
+        )
+        for entry in report.section_confidence_entries
+    )
+    return (
+        "<p>"
+        f"<strong>High</strong>: {report.summary.high_confidence_section_count} | "
+        f"<strong>Moderate</strong>: {report.summary.moderate_confidence_section_count} | "
+        f"<strong>Weak</strong>: {report.summary.weak_confidence_section_count} | "
+        f"<strong>Exploratory</strong>: {report.summary.exploratory_section_count} | "
+        f"<strong>Invalid</strong>: {report.summary.invalid_section_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
     )
 
 
