@@ -293,6 +293,39 @@ def test_ptm_package_exports_ortholog_site_conservation_owner_surface() -> None:
     assert "status" in ptm.render_ptm_ortholog_conservation_tsv(report)
 
 
+def test_ptm_package_exports_mechanism_classification_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = tuple(
+        entry.model_copy(update={"batch": None})
+        for entry in parse_experimental_design_table(
+            _ptm_fixture("ptm.design.tsv")
+        ).accepted_entries
+    )
+    differential = ptm.build_ptm_differential_analysis_report(
+        site_quantification,
+        design,
+        batch_field="",
+        feature_records=features.accepted_records,
+        protein_correction_mode=ptm.PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+    )
+    report = ptm.build_ptm_mechanism_classification_report(differential)
+
+    assert hasattr(ptm, "build_ptm_mechanism_classification_report")
+    assert hasattr(ptm, "render_ptm_mechanism_classification_tsv")
+    assert report.summary.site_specific_count == 1
+    assert "corrected_log2_fold_change" in ptm.render_ptm_mechanism_classification_tsv(report)
+
+
 def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
@@ -327,5 +360,6 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     assert hasattr(ptm, "render_ptm_evidence_card_tsv")
     assert report.evidence_cards is not None
     assert report.evidence_cards.summary.card_count == 3
+    assert report.evidence_cards.summary.mechanism_classified_card_count == 3
     assert report.evidence_cards.summary.ortholog_context_card_count == 3
     assert "card_id" in ptm.render_ptm_evidence_card_tsv(report.evidence_cards)

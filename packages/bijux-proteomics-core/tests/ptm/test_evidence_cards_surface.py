@@ -23,6 +23,7 @@ from bijux_proteomics.ptm import (
     PtmLocalizationScoringEntry,
     PtmLocalizationScoringReport,
     PtmSiteEntry,
+    build_ptm_mechanism_classification_report,
     build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
@@ -133,6 +134,9 @@ def _build_evidence_card_report():
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
         annotation_mapping_report=annotation_mapping,
+        mechanism_classification_report=build_ptm_mechanism_classification_report(
+            differential
+        ),
         ortholog_conservation_report=build_ptm_ortholog_conservation_report(
             site_table,
             ortholog_sites.accepted_records,
@@ -169,6 +173,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
 
     assert annotated.motif_evidence.centered_windows
     assert annotated.functional_regions
+    assert annotated.mechanism_classification is not None
+    assert annotated.mechanism_classification.mechanism_class.value == "site_specific"
     assert annotated.ortholog_conservation is not None
     assert annotated.ortholog_conservation.status.value == "conserved"
     assert any(
@@ -192,6 +198,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
     assert any(
         warning.code.value == "decoy_site" for warning in low_localization.warnings
     )
+    assert low_localization.mechanism_classification is not None
+    assert low_localization.mechanism_classification.mechanism_class.value == "unsupported"
     assert low_localization.ortholog_conservation is not None
     assert low_localization.ortholog_conservation.status.value == "unmapped"
 
@@ -570,6 +578,7 @@ def test_ptm_evidence_cards_preserve_crosstalk_partners_and_summary_counts() -> 
     )
 
     assert report.summary.crosstalk_supported_card_count == 2
+    assert report.summary.mechanism_classified_card_count == 0
     assert report.summary.ortholog_context_card_count == 0
     first_card = report.cards[0]
     assert first_card.crosstalk_partners

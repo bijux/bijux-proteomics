@@ -11,6 +11,7 @@ from bijux_proteomics.ptm import (
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
+    build_ptm_mechanism_classification_report,
     build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
@@ -123,6 +124,9 @@ def _build_evidence_card_report():
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
         annotation_mapping_report=annotation_mapping,
+        mechanism_classification_report=build_ptm_mechanism_classification_report(
+            differential
+        ),
         ortholog_conservation_report=build_ptm_ortholog_conservation_report(
             site_table,
             ortholog_sites.accepted_records,
@@ -148,8 +152,10 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
 
     assert "functional_context_card_count" in summary_path.read_text()
     assert "crosstalk_supported_card_count" in summary_path.read_text()
+    assert "mechanism_classified_card_count" in summary_path.read_text()
     assert "ortholog_context_card_count" in summary_path.read_text()
     assert "functional_regions" in cards_path.read_text()
+    assert "mechanism_class" in cards_path.read_text()
     assert "crosstalk_partner_site_keys" in cards_path.read_text()
     assert "ortholog_conservation_status" in cards_path.read_text()
     assert "identity_level" in cards_path.read_text()

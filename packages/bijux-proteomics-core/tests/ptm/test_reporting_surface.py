@@ -68,6 +68,7 @@ def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
     assert report.summary.localization_entry_count == 8
     assert report.summary.evidence_card_count == 0
     assert report.summary.narrative_claim_count == 0
+    assert report.summary.mechanism_classification_count == 0
     assert report.summary.ortholog_conservation_entry_count == 0
     assert any(
         entry.localized_peptide == "S[Phospho]PEPTIDEK"
@@ -101,7 +102,7 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
         "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
         "quantified_site_row_count\tdifferential_site_count\tmotif_term_count\t"
-        "evidence_card_count\tnarrative_claim_count\tortholog_conservation_entry_count"
+        "evidence_card_count\tnarrative_claim_count\tmechanism_classification_count\tortholog_conservation_entry_count"
     )
     assert peptide_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide"
@@ -145,12 +146,16 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     assert report.summary.differential_site_count == 3
     assert report.summary.evidence_card_count == 3
     assert report.summary.narrative_claim_count == 3
+    assert report.summary.mechanism_classification_count == 3
     assert report.summary.ortholog_conservation_entry_count == 5
     assert report.site_quantification is not None
     assert report.differential_analysis is not None
+    assert report.mechanism_classification is not None
     assert report.evidence_cards is not None
+    assert report.mechanism_classification.summary.site_specific_count == 1
     assert report.ortholog_conservation is not None
     assert report.ortholog_conservation.summary.unmapped_site_count == 2
+    assert report.evidence_cards.cards[0].mechanism_classification is not None
     assert report.evidence_cards.cards[0].ortholog_conservation is not None
     assert report.differential_analysis.protein_correction_mode.value == (
         "subtract_unmodified_protein"
