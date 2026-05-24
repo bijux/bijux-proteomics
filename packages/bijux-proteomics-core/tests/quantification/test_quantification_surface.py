@@ -39,6 +39,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantReproducibilityManifest,
     QuantRollupMethod,
+    QuantValueOrigin,
     StudyScaleBatchEffectReport,
     StudyScaleReplicateCorrelationReport,
     apply_benjamini_hochberg,
@@ -247,18 +248,31 @@ def test_quant_matrix_export_preserves_sample_metadata_missingness_and_provenanc
     assert row.sample_metadata.condition == "control"
     assert row.sample_metadata.batch == "batch-a"
     assert row.missing_value_kind.value == "observed"
+    assert row.value_provenance is not None
+    assert row.value_provenance.value_origin is QuantValueOrigin.OBSERVED
+    assert row.value_provenance.source_feature_ids == ("f001", "f002", "f005")
+    assert row.value_provenance.source_peptides == (
+        "APEPTIDE",
+        "APEPTIDER",
+        "SHAREDK",
+    )
     missing_row = next(
         row
         for row in matrix_export.rows
         if row.entity_id == "P004" and row.sample_metadata.sample_id == "C1"
     )
     assert missing_row.missing_value_kind.value == "missing_not_observed"
+    assert missing_row.value_provenance is not None
+    assert missing_row.value_provenance.value_origin is QuantValueOrigin.MISSING
 
     output_path = _quant_fixture("quant_matrix.tsv")
     try:
         export_quant_matrix_tsv(matrix_export, output_path)
         header = output_path.read_text().splitlines()[0]
         assert header.startswith("sample_id\tcondition\treplicate")
+        assert "value_origin" in header
+        assert "source_feature_ids" in header
+        assert "source_peptides" in header
     finally:
         output_path.unlink(missing_ok=True)
 
@@ -292,6 +306,8 @@ def test_quant_matrix_export_preserves_per_cell_imputation_provenance() -> None:
     assert row.imputation_provenance is not None
     assert row.imputation_provenance.method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY
     assert row.imputation_provenance.reference_group == "control"
+    assert row.value_provenance is not None
+    assert row.value_provenance.value_origin is QuantValueOrigin.IMPUTED
     assert matrix_export.imputation_provenance.imputed_value_count > 0
 
     output_path = _quant_fixture("quant_matrix_imputed.tsv")
@@ -300,6 +316,8 @@ def test_quant_matrix_export_preserves_per_cell_imputation_provenance() -> None:
         header = output_path.read_text().splitlines()[0].split("\t")
         assert "imputation_method" in header
         assert "imputation_strategy" in header
+        assert "excluded_contributor_ids" in header
+        assert "exclusion_reason_codes" in header
         first_imputed_row = next(
             line
             for line in output_path.read_text().splitlines()[1:]
@@ -308,6 +326,48 @@ def test_quant_matrix_export_preserves_per_cell_imputation_provenance() -> None:
         assert "group_aware_low_intensity" in first_imputed_row
     finally:
         output_path.unlink(missing_ok=True)
+
+
+def test_label_free_intensity_table_preserves_per_value_provenance_and_exclusions() -> (
+    None
+):
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    table = build_label_free_intensity_table(
+        report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+    value = next(
+        value
+        for value in table.values
+        if value.entity_id == "P001" and value.sample_id == "C1"
+    )
+    assert value.value_provenance is not None
+    assert value.value_provenance.aggregation_method is QuantRollupMethod.TOP_N
+    assert value.value_provenance.value_origin is QuantValueOrigin.OBSERVED
+    assert value.value_provenance.source_feature_ids == ("f001", "f002")
+    assert value.value_provenance.source_peptides == ("APEPTIDE", "APEPTIDER")
+    assert tuple(
+        excluded.contributor.contributor_id
+        for excluded in value.value_provenance.excluded_contributors
+    ) == ("f005",)
+    assert tuple(
+        excluded.reason_code for excluded in value.value_provenance.excluded_contributors
+    ) == ("excluded_by_top_n_rollup",)
+
+    missing_value = next(
+        value
+        for value in table.values
+        if value.entity_id == "P003" and value.sample_id == "C1"
+    )
+    assert missing_value.value_provenance is not None
+    assert missing_value.value_provenance.value_origin is QuantValueOrigin.MISSING
+    assert tuple(
+        excluded.reason_code
+        for excluded in missing_value.value_provenance.excluded_contributors
+    ) == ("missing_value_filtered",)
 
 
 def test_protein_quant_rollup_evidence_lists_contributing_features_and_peptides() -> (
