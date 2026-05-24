@@ -91,6 +91,31 @@ class RetentionTimeAlignmentFitReport(JsonModel):
     residuals: tuple[RetentionTimeAlignmentFitResidual, ...] = Field(default_factory=tuple)
 
 
+class RetentionTimeIdentificationRow(JsonModel):
+    """One imported identification row eligible for RT residual downgrade."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    observed_rt: float = Field(..., ge=0.0)
+    expected_rt: float = Field(..., ge=0.0)
+    imported_confidence: float = Field(..., ge=0.0, le=1.0)
+
+
+class RetentionTimeConfidencePenalty(JsonModel):
+    """One RT residual downgrade result for an imported identification row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    observed_rt: float = Field(..., ge=0.0)
+    expected_rt: float = Field(..., ge=0.0)
+    rt_residual: float
+    rt_outlier: bool
+    rt_confidence_penalty: float = Field(..., ge=0.0, le=1.0)
+
+
 class RetentionTimeAlignmentRunModel(JsonModel):
     """One per-run retention-time shift model."""
 
@@ -159,6 +184,71 @@ class RetentionTimeAlignmentReport(JsonModel):
     )
     flagged_residuals: tuple[RetentionTimeAlignmentResidual, ...] = Field(
         default_factory=tuple
+    )
+
+
+def apply_rt_residuals(
+    psm_or_precursor_table: tuple[RetentionTimeIdentificationRow, ...],
+    alignment_model: (
+        RetentionTimeAlignmentFitReport
+        | tuple[RetentionTimeAlignmentFitModel, ...]
+        | RetentionTimeAlignmentFitModel
+    ),
+    *,
+    aligned_rt_tolerance_seconds: float = 5.0,
+    high_confidence_threshold: float = 0.9,
+) -> tuple[RetentionTimeConfidencePenalty, ...]:
+    """Downgrade imported IDs when aligned RT residuals contradict high confidence."""
+
+    if aligned_rt_tolerance_seconds <= 0.0:
+        raise ValueError("aligned_rt_tolerance_seconds must be greater than zero")
+    if not 0.0 <= high_confidence_threshold <= 1.0:
+        raise ValueError("high_confidence_threshold must be between zero and one")
+
+    model_by_run = _fit_models_by_run(alignment_model)
+    rows: list[RetentionTimeConfidencePenalty] = []
+    for entry in psm_or_precursor_table:
+        fit_model = model_by_run.get(entry.run_id)
+        if fit_model is None or fit_model.rt_shift is None:
+            rows.append(
+                RetentionTimeConfidencePenalty(
+                    entity_id=entry.entity_id,
+                    observed_rt=entry.observed_rt,
+                    expected_rt=entry.expected_rt,
+                    rt_residual=entry.observed_rt - entry.expected_rt,
+                    rt_outlier=False,
+                    rt_confidence_penalty=1.0,
+                )
+            )
+            continue
+
+        expected_rt = entry.expected_rt + fit_model.rt_shift
+        rt_residual = entry.observed_rt - expected_rt
+        rt_outlier = abs(rt_residual) > aligned_rt_tolerance_seconds
+        rows.append(
+            RetentionTimeConfidencePenalty(
+                entity_id=entry.entity_id,
+                observed_rt=entry.observed_rt,
+                expected_rt=expected_rt,
+                rt_residual=rt_residual,
+                rt_outlier=rt_outlier,
+                rt_confidence_penalty=_rt_confidence_penalty(
+                    imported_confidence=entry.imported_confidence,
+                    absolute_rt_residual=abs(rt_residual),
+                    aligned_rt_tolerance_seconds=aligned_rt_tolerance_seconds,
+                    high_confidence_threshold=high_confidence_threshold,
+                ),
+            )
+        )
+    return tuple(
+        sorted(
+            rows,
+            key=lambda item: (
+                item.entity_id,
+                item.rt_outlier is False,
+                item.expected_rt,
+            ),
+        )
     )
 
 
@@ -853,3 +943,39 @@ def _weighted_median(
         if cumulative >= threshold:
             return value
     return ordered[-1][0]
+
+
+def _fit_models_by_run(
+    alignment_model: (
+        RetentionTimeAlignmentFitReport
+        | tuple[RetentionTimeAlignmentFitModel, ...]
+        | RetentionTimeAlignmentFitModel
+    ),
+) -> dict[str, RetentionTimeAlignmentFitModel]:
+    if isinstance(alignment_model, RetentionTimeAlignmentFitReport):
+        models = alignment_model.models
+    elif isinstance(alignment_model, RetentionTimeAlignmentFitModel):
+        models = (alignment_model,)
+    else:
+        models = alignment_model
+    return {model.run_id: model for model in models}
+
+
+def _rt_confidence_penalty(
+    *,
+    imported_confidence: float,
+    absolute_rt_residual: float,
+    aligned_rt_tolerance_seconds: float,
+    high_confidence_threshold: float,
+) -> float:
+    if (
+        imported_confidence < high_confidence_threshold
+        or absolute_rt_residual <= aligned_rt_tolerance_seconds
+    ):
+        return 1.0
+    excess_ratio = min(
+        1.0,
+        (absolute_rt_residual - aligned_rt_tolerance_seconds)
+        / aligned_rt_tolerance_seconds,
+    )
+    return max(0.2, round(0.5 - (0.3 * excess_ratio), 4))
