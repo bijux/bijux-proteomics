@@ -11019,6 +11019,7 @@ def peptide_matrix_command(
     "--contributions-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
+    help="Optional protein_value_contributors.tsv output path.",
 )
 @click.option(
     "--out",
