@@ -171,11 +171,20 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     render_rejected_evidence_tsv,
 )
 from bijux_proteomics.identification.cross_run_reproducibility import (
+    CrossRunReproducibilityClass,
     RunDetectionContext,
     build_peptide_cross_run_reproducibility_report,
     build_protein_cross_run_reproducibility_report,
     render_cross_run_reproducibility_entries_tsv,
     render_cross_run_reproducibility_summary_tsv,
+)
+from bijux_proteomics.identification.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
+)
+from bijux_proteomics.identification.contracts import (
+    TargetDecoyContaminantClass,
+    TargetDecoyLabel,
 )
 from bijux_proteomics.identification.error_rate_annotation import (
     annotate_psm_error_rates,
@@ -547,10 +556,15 @@ from bijux_proteomics.isotope_labeling import (
     parse_silac_feature_table,
 )
 from bijux_proteomics.targeted import (
+    DiscoveryTargetProteinEntry,
     TargetedResultSourceKind,
+    build_discovery_targeted_peptide_selection_report,
     build_skyline_result_import_report,
     build_targeted_carryover_report,
     build_transition_table_result_import_report,
+    render_discovery_targeted_peptide_selection_rejected_tsv,
+    render_discovery_targeted_peptide_selection_selected_tsv,
+    render_discovery_targeted_peptide_selection_summary_tsv,
     render_targeted_carryover_candidates_tsv,
     render_targeted_carryover_summary_tsv,
     render_targeted_assay_qc_coelution_tsv,
@@ -1181,6 +1195,168 @@ def _load_protein_group_map(path: Path) -> dict[str, str]:
                 )
             mapping[accession] = protein_group
     return mapping
+
+
+def _parse_cli_bool(raw_value: object, *, field_name: str) -> bool:
+    value = str(raw_value).strip().lower()
+    if value in {"true", "1", "yes"}:
+        return True
+    if value in {"false", "0", "no"}:
+        return False
+    raise ValueError(f"field {field_name!r} must be a boolean string")
+
+
+def _split_semicolon_field(raw_value: object) -> tuple[str, ...]:
+    return tuple(
+        token
+        for raw_token in str(raw_value or "").split(";")
+        if (token := raw_token.strip())
+    )
+
+
+def _load_targeted_selection_targets(path: Path) -> tuple[DiscoveryTargetProteinEntry, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "protein-card TSV must include a header row for targeted peptide selection"
+            )
+        required_columns = {"protein_group_id", "representative_protein_ref"}
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "protein-card TSV is missing required columns for targeted peptide selection: "
+                + ", ".join(sorted(missing_columns))
+            )
+        targets: list[DiscoveryTargetProteinEntry] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                representative_protein_ref = str(
+                    row.get("representative_protein_ref", "")
+                ).strip()
+                protein_group_id = str(row.get("protein_group_id", "")).strip()
+                if not representative_protein_ref or not protein_group_id:
+                    raise ValueError(
+                        "protein_group_id and representative_protein_ref are required"
+                    )
+                targets.append(
+                    DiscoveryTargetProteinEntry(
+                        protein_group_id=protein_group_id,
+                        representative_protein_ref=representative_protein_ref,
+                        protein_refs=_split_semicolon_field(row.get("protein_refs", "")),
+                        gene_symbol=(
+                            gene_symbol if (gene_symbol := str(row.get("gene_symbol", "")).strip()) else None
+                        ),
+                        discovery_peptides=_split_semicolon_field(row.get("peptides", "")),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid protein-card row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(targets)
+
+
+def _load_peptide_evidence_entries(path: Path) -> tuple[PeptideEvidenceEntry, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "peptide-evidence TSV must include a header row for targeted peptide selection"
+            )
+        required_columns = {
+            "peptide",
+            "canonical_peptide",
+            "primary_class",
+            "peptide_q_value",
+            "accepted",
+            "psm_count",
+            "spectrum_count",
+            "run_count",
+            "detection_frequency",
+            "replicate_consistency",
+            "condition_specificity",
+            "detected_condition_count",
+            "reproducibility_class",
+            "best_score",
+            "charge_states",
+            "run_ids",
+            "protein_refs",
+            "target_decoy_label",
+            "target_decoy_contaminant_class",
+            "contaminant_flag",
+            "explanation",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "peptide-evidence TSV is missing required columns for targeted peptide selection: "
+                + ", ".join(sorted(missing_columns))
+            )
+        entries: list[PeptideEvidenceEntry] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                entries.append(
+                    PeptideEvidenceEntry(
+                        peptide=str(row.get("peptide", "")).strip(),
+                        canonical_peptide=str(row.get("canonical_peptide", "")).strip(),
+                        primary_class=PeptideEvidenceClass(
+                            str(row.get("primary_class", "")).strip()
+                        ),
+                        tags=(),
+                        peptide_q_value=float(str(row.get("peptide_q_value", "")).strip()),
+                        accepted=_parse_cli_bool(row.get("accepted", ""), field_name="accepted"),
+                        psm_count=int(str(row.get("psm_count", "")).strip()),
+                        spectrum_count=int(str(row.get("spectrum_count", "")).strip()),
+                        run_count=int(str(row.get("run_count", "")).strip()),
+                        detection_frequency=float(
+                            str(row.get("detection_frequency", "")).strip()
+                        ),
+                        replicate_consistency=float(
+                            str(row.get("replicate_consistency", "")).strip()
+                        ),
+                        condition_specificity=float(
+                            str(row.get("condition_specificity", "")).strip()
+                        ),
+                        detected_condition_count=int(
+                            str(row.get("detected_condition_count", "")).strip()
+                        ),
+                        reproducibility_class=CrossRunReproducibilityClass(
+                            str(row.get("reproducibility_class", "")).strip()
+                        ),
+                        exploratory_override=_parse_cli_bool(
+                            row.get("exploratory_override", "false"),
+                            field_name="exploratory_override",
+                        ),
+                        best_score=float(str(row.get("best_score", "")).strip()),
+                        charge_states=tuple(
+                            int(token)
+                            for token in _split_semicolon_field(
+                                row.get("charge_states", "")
+                            )
+                        ),
+                        run_ids=_split_semicolon_field(row.get("run_ids", "")),
+                        protein_refs=_split_semicolon_field(row.get("protein_refs", "")),
+                        target_decoy_label=TargetDecoyLabel(
+                            str(row.get("target_decoy_label", "")).strip()
+                        ),
+                        target_decoy_contaminant_class=TargetDecoyContaminantClass(
+                            str(
+                                row.get("target_decoy_contaminant_class", "")
+                            ).strip()
+                        ),
+                        contaminant_flag=_parse_cli_bool(
+                            row.get("contaminant_flag", "false"),
+                            field_name="contaminant_flag",
+                        ),
+                        explanation=str(row.get("explanation", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid peptide-evidence row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(entries)
 
 
 def _resolve_cli_protease_rule(
@@ -4417,6 +4593,113 @@ def targeted_carryover_review_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "candidate_tsv": (
                 None if candidate_tsv_out is None else str(candidate_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-peptide-selection")
+@click.argument(
+    "protein_card_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "peptide_evidence_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option("--missed-cleavages", default=0, type=int, show_default=True)
+@click.option("--top-peptides-per-target", default=3, type=int, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--selected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_peptide_selection_command(
+    protein_card_tsv: Path,
+    peptide_evidence_tsv: Path,
+    input_fasta: Path,
+    protease: str,
+    missed_cleavages: int,
+    top_peptides_per_target: int,
+    summary_tsv_out: Path | None,
+    selected_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Select targeted assay peptides from discovery protein and peptide evidence."""
+
+    if missed_cleavages < 0:
+        raise click.ClickException("missed-cleavages must be non-negative")
+    if top_peptides_per_target < 1:
+        raise click.ClickException("top-peptides-per-target must be at least 1")
+
+    targets = _load_targeted_selection_targets(protein_card_tsv)
+    peptide_evidence_entries = _load_peptide_evidence_entries(peptide_evidence_tsv)
+    fasta_report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode.STRICT,
+        allow_rejected=False,
+    )
+
+    try:
+        report = build_discovery_targeted_peptide_selection_report(
+            targets,
+            peptide_evidence_entries,
+            fasta_report.accepted_records,
+            protease=protease,
+            missed_cleavages=missed_cleavages,
+            top_peptides_per_target=top_peptides_per_target,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_discovery_targeted_peptide_selection_summary_tsv(report),
+        )
+    if selected_tsv_out is not None:
+        _write_text_output(
+            selected_tsv_out,
+            render_discovery_targeted_peptide_selection_selected_tsv(report),
+        )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_discovery_targeted_peptide_selection_rejected_tsv(report),
+        )
+
+    payload = {
+        "protease": report.protease,
+        "missed_cleavages": report.missed_cleavages,
+        "top_peptides_per_target": report.top_peptides_per_target,
+        "target_count": len(targets),
+        "peptide_evidence_count": len(peptide_evidence_entries),
+        "fasta_summary": {
+            "accepted_record_count": len(fasta_report.accepted_records),
+            "rejected_record_count": len(fasta_report.rejected_records),
+        },
+        "selection_summary": report.summary.to_dict(),
+        "selected_entries": [entry.to_dict() for entry in report.selected_entries],
+        "rejected_candidates": [
+            entry.to_dict() for entry in report.rejected_candidates
+        ],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "selected_tsv": (
+                None if selected_tsv_out is None else str(selected_tsv_out)
+            ),
+            "rejected_tsv": (
+                None if rejected_tsv_out is None else str(rejected_tsv_out)
             ),
         },
     }
