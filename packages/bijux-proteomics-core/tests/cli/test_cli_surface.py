@@ -6876,6 +6876,92 @@ def test_targeted_carryover_review_command_requires_run_order() -> None:
         assert "run_order is required for carryover analysis" in result.output
 
 
+def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_peptides() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("protein_cards.tsv").write_text(
+            "protein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\n"
+            "protein_group_1\tP00001\tP00001\tKIN1\tPEPTIDER;AAASHALEDK;AAAMMMWNQK\n"
+            "protein_group_2\tP00002\tP00002\tKIN2\t\n",
+            encoding="utf-8",
+        )
+        Path("peptide_evidence.tsv").write_text(
+            "peptide\tcanonical_peptide\tprimary_class\ttags\tpeptide_q_value\taccepted\tpsm_count\tspectrum_count\trun_count\tdetection_frequency\treplicate_consistency\tcondition_specificity\tdetected_condition_count\treproducibility_class\texploratory_override\tbest_score\tcharge_states\trun_ids\tprotein_refs\ttarget_decoy_label\ttarget_decoy_contaminant_class\tcontaminant_flag\texplanation\n"
+            "PEPTIDER\tPEPTIDER\tstrong\tunique;reproducible\t0.001\ttrue\t6\t6\t4\t1.0\t0.95\t0.1\t2\treproducible\tfalse\t125.0\t2\trun1;run2;run3;run4\tP00001\ttarget\ttarget\tfalse\tstrong observed peptide support\n"
+            "AAASHALEDK\tAAASHALEDK\tstrong\tshared;reproducible\t0.002\ttrue\t5\t5\t3\t0.75\t0.8\t0.2\t2\treproducible\tfalse\t118.0\t2\trun1;run2;run3\tP00001;O00003\ttarget\ttarget\tfalse\tshared peptide support\n"
+            "AAAMMMWNQK\tAAAMMMWNQK\tstrong\tunique;reproducible\t0.003\ttrue\t12\t12\t4\t1.0\t0.95\t0.1\t2\treproducible\tfalse\t130.0\t2\trun1;run2;run3;run4\tP00001\ttarget\ttarget\tfalse\thigh-confidence but chemically risky peptide\n",
+            encoding="utf-8",
+        )
+        Path("targets.fasta").write_text(
+            ">sp|P00001|KIN1 GN=KIN1\n"
+            "PEPTIDERAAASHALEDKAAAMMMWNQK\n"
+            ">sp|P00002|KIN2 GN=KIN2\n"
+            "KTARGETVKAAALIGHTR\n"
+            ">sp|O00003|OFF1 GN=OFF1\n"
+            "KAAASHALEDK\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-peptide-selection",
+                "protein_cards.tsv",
+                "peptide_evidence.tsv",
+                "targets.fasta",
+                "--top-peptides-per-target",
+                "1",
+                "--summary-tsv-out",
+                "selector.summary.tsv",
+                "--selected-tsv-out",
+                "selector.selected.tsv",
+                "--rejected-tsv-out",
+                "selector.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "trypsin"
+        assert payload["missed_cleavages"] == 0
+        assert payload["top_peptides_per_target"] == 1
+        assert payload["target_count"] == 2
+        assert payload["peptide_evidence_count"] == 3
+        assert payload["fasta_summary"]["accepted_record_count"] == 3
+        assert payload["selection_summary"]["selected_entry_count"] == 2
+        assert payload["selection_summary"]["observed_selected_entry_count"] == 1
+        assert payload["selection_summary"]["theoretical_selected_entry_count"] == 1
+        assert payload["outputs"]["summary_tsv"] == "selector.summary.tsv"
+        assert payload["outputs"]["selected_tsv"] == "selector.selected.tsv"
+        assert payload["outputs"]["rejected_tsv"] == "selector.rejected.tsv"
+        assert payload["selected_entries"][0]["target_protein_ref"] == "P00001"
+        assert payload["selected_entries"][0]["candidate_source"] == "observed_discovery"
+        assert payload["selected_entries"][0]["peptide_sequence"] == "PEPTIDER"
+        assert payload["selected_entries"][1]["target_protein_ref"] == "P00002"
+        assert payload["selected_entries"][1]["candidate_source"] == "theoretical_digest"
+        assert payload["selected_entries"][1]["peptide_sequence"] == "AAALIGHTR"
+        assert Path("selector.summary.tsv").exists()
+        assert Path("selector.selected.tsv").exists()
+        assert Path("selector.rejected.tsv").exists()
+        assert "selected_entry_count\t2" in Path("selector.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert (
+            "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER"
+            in Path("selector.selected.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "P00002\tprotein_group_2\tKIN2\t1\ttheoretical_digest\tAAALIGHTR"
+            in Path("selector.selected.tsv").read_text(encoding="utf-8")
+        )
+        assert "AAASHALEDK" in Path("selector.rejected.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "AAAMMMWNQK" in Path("selector.rejected.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
