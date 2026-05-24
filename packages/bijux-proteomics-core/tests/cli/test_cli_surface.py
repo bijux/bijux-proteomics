@@ -511,6 +511,63 @@ def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary
         ).read_text()
 
 
+def test_result_manifest_command_emits_completeness_and_warning_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        biological_dir, ptm_dir, qc_path = _build_real_summary_artifacts(Path.cwd())
+
+        result = runner.invoke(
+            cli,
+            [
+                "result-manifest",
+                "--biological-report-dir",
+                str(biological_dir),
+                "--ptm-report-dir",
+                str(ptm_dir),
+                "--run-qc-assessment-tsv",
+                str(qc_path),
+                "--input",
+                str(_workflow_fixture("biological_report_features.tsv")),
+                "--input",
+                str(_workflow_fixture("biological_report.design.tsv")),
+                "--command",
+                "biological-report biological_report_features.tsv biological_report.design.tsv biological_report_reference.fasta",
+                "--command",
+                "ptm-site-report localization_results.tsv ptm_features.tsv ptm.design.tsv",
+                "--summary-tsv-out",
+                "result_manifest.summary.tsv",
+                "--file-tsv-out",
+                "result_manifest.files.tsv",
+                "--warning-tsv-out",
+                "result_manifest.warnings.tsv",
+                "--manifest-json-out",
+                "result_manifest.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        summary = payload["report"]["summary"]
+        assert summary["command_count"] == 2
+        assert summary["missing_required_file_count"] == 0
+        assert summary["sample_count"] >= 6
+        assert any(
+            warning["warning_code"] == "run_qc_failure"
+            for warning in payload["report"]["warnings"]
+        )
+        manifest = json.loads(Path("result_manifest.json").read_text(encoding="utf-8"))
+        assert manifest["document_schema"]["document_kind"] == "result_manifest"
+        assert "schema_version" in Path("result_manifest.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "artifact_key" in Path("result_manifest.files.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "run_qc_failure" in Path("result_manifest.warnings.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
