@@ -7,8 +7,18 @@ from pathlib import Path
 
 from bijux_proteomics import workflow
 from bijux_proteomics.interpretation import OrthologRecord, PathwayMemberKind
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
+from bijux_proteomics.quantification import (
+    MissingValueKind,
+    Ms1FeatureRecord,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_label_free_intensity_table,
+)
 from bijux_proteomics.study import build_experiment_design
 
 
@@ -349,6 +359,141 @@ def test_workflow_package_exports_cross_species_effect_comparison_surface() -> N
     assert report.summary.conserved_effect_count == 1
     assert report.comparisons[0].target_protein_ref == "Q9MOUSE1"
     assert "evidence_status" in workflow.render_cross_species_effect_comparison_tsv(report)
+
+
+def test_workflow_package_exports_cohort_stratification_surface() -> None:
+    report = workflow.build_cohort_stratification_report(
+        build_label_free_intensity_table(
+            tuple(
+                Ms1FeatureRecord(
+                    feature_id=f"pkg-001-{sample_id.lower()}",
+                    sample_id=sample_id,
+                    peptide="PEP01",
+                    canonical_peptide="PEP01",
+                    intensity=abundance,
+                    protein_refs=("P04637",),
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                )
+                for sample_id, abundance in {
+                    "MC1": 100.0,
+                    "MC2": 110.0,
+                    "MT1": 1000.0,
+                    "MT2": 1100.0,
+                    "FC1": 200.0,
+                    "FC2": 210.0,
+                    "FT1": 205.0,
+                    "FT2": 215.0,
+                }.items()
+            )
+            + tuple(
+                Ms1FeatureRecord(
+                    feature_id=f"pkg-002-{sample_id.lower()}",
+                    sample_id=sample_id,
+                    peptide="PEP02",
+                    canonical_peptide="PEP02",
+                    intensity=abundance,
+                    protein_refs=("P62993",),
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                )
+                for sample_id, abundance in {
+                    "MC1": 500.0,
+                    "MC2": 520.0,
+                    "MT1": 1100.0,
+                    "MT2": 1120.0,
+                    "FC1": 600.0,
+                    "FC2": 620.0,
+                    "FT1": 180.0,
+                    "FT2": 190.0,
+                }.items()
+            ),
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        (
+            ExperimentalDesignEntry(
+                sample_id="MC1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="mc1.mzml",
+                batch="batch-a",
+                metadata={"sex": "male"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="MC2",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="mc2.mzml",
+                batch="batch-b",
+                metadata={"sex": "male"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="MT1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="mt1.mzml",
+                batch="batch-a",
+                metadata={"sex": "male"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="MT2",
+                condition="treatment",
+                replicate=2,
+                fraction=1,
+                spectra_file="mt2.mzml",
+                batch="batch-b",
+                metadata={"sex": "male"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="FC1",
+                condition="control",
+                replicate=3,
+                fraction=1,
+                spectra_file="fc1.mzml",
+                batch="batch-c",
+                metadata={"sex": "female"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="FC2",
+                condition="control",
+                replicate=4,
+                fraction=1,
+                spectra_file="fc2.mzml",
+                batch="batch-d",
+                metadata={"sex": "female"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="FT1",
+                condition="treatment",
+                replicate=3,
+                fraction=1,
+                spectra_file="ft1.mzml",
+                batch="batch-c",
+                metadata={"sex": "female"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="FT2",
+                condition="treatment",
+                replicate=4,
+                fraction=1,
+                spectra_file="ft2.mzml",
+                batch="batch-d",
+                metadata={"sex": "female"},
+            ),
+        ),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert hasattr(workflow, "build_cohort_stratification_report")
+    assert (
+        workflow.CohortStratumStatus.BLOCKED_LOW_SUBGROUP_SAMPLE_COUNT.value
+        == "blocked_low_subgroup_sample_count"
+    )
+    assert report.summary.supported_stratum_count == 2
+    assert "interaction_delta" in workflow.render_cohort_interaction_candidate_tsv(report)
 
 
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
