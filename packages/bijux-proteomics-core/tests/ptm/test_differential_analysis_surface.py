@@ -5,7 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.ptm import (
     build_ptm_differential_analysis_report,
     build_ptm_site_quantification_report,
@@ -13,7 +16,11 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.quantification import (
+    DifferentialImputationSignificanceChangeReason,
+    NormalizationMethod,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -49,14 +56,22 @@ def _site_quantification():
     )
 
 
+def _analysis_design() -> tuple[ExperimentalDesignEntry, ...]:
+    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
+    return tuple(
+        entry.model_copy(update={"batch": None}) for entry in design.accepted_entries
+    )
+
+
 def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
     site_quantification = _site_quantification()
-    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
 
     report = build_ptm_differential_analysis_report(
         site_quantification,
-        design.accepted_entries,
+        _analysis_design(),
         normalization_method=NormalizationMethod.MEDIAN,
+        condition_a="control",
+        condition_b="treated",
         batch_field="",
     )
 
@@ -73,6 +88,12 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
     assert target.observations_b == 2
     assert target.log2_fold_change > 0.0
     assert target.adjusted_p_value is not None
+    assert target.no_impute_adjusted_p_value == target.adjusted_p_value
+    assert target.imputed_adjusted_p_value is None
+    assert target.imputation_significance_change_reason is (
+        DifferentialImputationSignificanceChangeReason.NOT_IMPUTED
+    )
+    assert target.imputation_dependent_hit is False
     assert target.localization_tier.value == "supported"
     assert target.low_localization is False
     assert target.localized_peptides == ("S[Phospho]PEPTIDEK",)
@@ -99,18 +120,19 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
 
 def test_ptm_differential_analysis_supports_pairwise_site_testing() -> None:
     site_quantification = _site_quantification()
-    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
     paired_design = (
-        design.accepted_entries[0].model_copy(update={"pair_id": "pair-1"}),
-        design.accepted_entries[1].model_copy(update={"pair_id": "pair-2"}),
-        design.accepted_entries[2].model_copy(update={"pair_id": "pair-1"}),
-        design.accepted_entries[3].model_copy(update={"pair_id": "pair-2"}),
+        _analysis_design()[0].model_copy(update={"pair_id": "pair-1"}),
+        _analysis_design()[1].model_copy(update={"pair_id": "pair-2"}),
+        _analysis_design()[2].model_copy(update={"pair_id": "pair-1"}),
+        _analysis_design()[3].model_copy(update={"pair_id": "pair-2"}),
     )
 
     report = build_ptm_differential_analysis_report(
         site_quantification,
         paired_design,
         normalization_method=NormalizationMethod.MEDIAN,
+        condition_a="control",
+        condition_b="treated",
         batch_field="",
         pairing_field="pair_id",
     )

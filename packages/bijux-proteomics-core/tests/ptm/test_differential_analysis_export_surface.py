@@ -5,7 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.ptm import (
     PtmProteinCorrectionMode,
     build_ptm_differential_analysis_report,
@@ -38,6 +41,13 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
+def _analysis_design() -> tuple[ExperimentalDesignEntry, ...]:
+    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
+    return tuple(
+        entry.model_copy(update={"batch": None}) for entry in design.accepted_entries
+    )
+
+
 def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
@@ -50,11 +60,12 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
         site_table,
         feature_records=features.accepted_records,
     )
-    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
     report = build_ptm_differential_analysis_report(
         site_quantification,
-        design.accepted_entries,
+        _analysis_design(),
         normalization_method=NormalizationMethod.MEDIAN,
+        condition_a="control",
+        condition_b="treated",
         batch_field="",
         feature_records=features.accepted_records,
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
@@ -65,12 +76,17 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
 
     assert result_lines[0].startswith("site_key\tprotein_ref\tresidue\tposition")
     assert "localization_tier\tlow_localization" in result_lines[0]
+    assert "imputation_significance_change_reason\timputation_dependent_hit" in result_lines[0]
     assert any(
         "P11111:S5:Phospho" in line and "high_confidence_corrected" in line
         for line in result_lines
     )
     assert any(
         "Q9DEC1:S5:Phospho" in line and "\trefused\ttrue\t" in line
+        for line in result_lines
+    )
+    assert any(
+        "P11111:S5:Phospho" in line and "\tnot_imputed\tfalse\t" in line
         for line in result_lines
     )
     assert volcano_lines[0] == (
