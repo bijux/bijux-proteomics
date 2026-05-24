@@ -153,17 +153,26 @@ from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
 from bijux_proteomics.review import (
+    BiologicalClaimCandidate,
+    BiologicalClaimDirection,
+    BiologicalClaimKind,
+    BiologicalClaimValidationPolicy,
+    BiologicalClaimValidationReport,
     EvidenceAwareRankingCandidate,
     EvidenceAwareRankingEntityKind,
     EvidenceAwareRankingReport,
     VolcanoReviewPolicy,
     VolcanoReviewReport,
+    build_biological_claim_validation_report,
     build_evidence_aware_ranking_report,
     build_quantification_volcano_review,
     export_volcano_review_html,
     normalize_linear_range,
     export_volcano_review_json,
     export_volcano_review_svg,
+    render_biological_claim_validation_summary_tsv,
+    render_rejected_biological_claim_tsv,
+    render_supported_biological_claim_tsv,
     render_volcano_review_tsv,
     render_evidence_aware_ranking_tsv,
     score_adjusted_p_value,
@@ -283,6 +292,7 @@ class BiologicalResultReportBundle(JsonModel):
     protein_mechanism_cards: ProteinMechanismCardReport
     experiment_confidence_report: ExperimentConfidenceReport
     evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
+    claim_validation_report: BiologicalClaimValidationReport | None = None
     foreground_background_model: BiologicalForegroundBackgroundModel
     regulator_evidence_import_report: RegulatorEvidenceImportReport | None = None
     regulator_inference_report: RegulatorInferenceReport | None = None
@@ -318,6 +328,9 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
     evidence_aware_ranking_tsv: str | None = None
+    claim_validation_summary_tsv: str | None = None
+    supported_claim_tsv: str | None = None
+    rejected_claim_tsv: str | None = None
     foreground_background_summary_tsv: str = Field(..., min_length=1)
     foreground_background_entry_tsv: str = Field(..., min_length=1)
     foreground_background_issue_tsv: str = Field(..., min_length=1)
@@ -392,6 +405,7 @@ class BiologicalResultReportExportManifest(JsonModel):
 
     summary: BiologicalResultReportSummary
     artifacts: BiologicalResultReportArtifactPaths
+    claim_validation_included: bool
     context_summary_included: bool
     drug_target_summary_included: bool
     disease_phenotype_summary_included: bool
@@ -922,6 +936,13 @@ def build_biological_result_report_bundle_from_quant_table(
         experiment_confidence_report=experiment_confidence_report,
         pathway_enrichment_report=pathway_enrichment_report,
     )
+    claim_validation_report = _build_biological_claim_validation_report(
+        differential_report,
+        protein_mechanism_cards=protein_mechanism_cards,
+        pathway_activity_report=pathway_activity_report,
+        regulator_inference_report=regulator_inference_report,
+        selection_policy=active_selection_policy,
+    )
     significant_protein_count = len(
         _select_significant_entity_ids(differential_report, policy=active_selection_policy)
     )
@@ -933,6 +954,7 @@ def build_biological_result_report_bundle_from_quant_table(
         protein_mechanism_cards=protein_mechanism_cards,
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
+        claim_validation_report=claim_validation_report,
         foreground_background_model=foreground_background_model,
         regulator_evidence_import_report=regulator_evidence_import_report,
         regulator_inference_report=regulator_inference_report,
@@ -1002,7 +1024,7 @@ def build_biological_result_report_bundle_from_quant_table(
         ),
         note=(
             "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
-            " with experiment-level confidence scoring and explicit component reasons"
+            " with experiment-level confidence scoring, claim validation, and explicit component reasons"
         ),
     )
 
@@ -1186,6 +1208,211 @@ def _build_biological_evidence_aware_ranking_report(
     return build_evidence_aware_ranking_report(
         protein_candidates + pathway_candidates
     )
+
+
+def _build_biological_claim_validation_report(
+    differential_report: DifferentialAbundanceReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    pathway_activity_report: PathwayActivityReport | None,
+    regulator_inference_report: RegulatorInferenceReport | None,
+    selection_policy: BiologicalResultSelectionPolicy,
+) -> BiologicalClaimValidationReport:
+    candidates = (
+        _build_biological_protein_claim_candidates(
+            differential_report,
+            protein_mechanism_cards=protein_mechanism_cards,
+        )
+        + _build_biological_pathway_claim_candidates(pathway_activity_report)
+        + _build_biological_regulator_claim_candidates(regulator_inference_report)
+    )
+    return build_biological_claim_validation_report(
+        candidates,
+        policy=BiologicalClaimValidationPolicy(
+            max_adjusted_p_value=selection_policy.max_adjusted_p_value,
+            min_robustness_score=0.55,
+            min_pathway_activity_delta=0.2,
+            min_regulator_score=0.55,
+        ),
+    )
+
+
+def _build_biological_protein_claim_candidates(
+    differential_report: DifferentialAbundanceReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+) -> tuple[BiologicalClaimCandidate, ...]:
+    differential_by_entity = {
+        entry.entity_id: entry for entry in differential_report.entries
+    }
+    candidates: list[BiologicalClaimCandidate] = []
+    for card in protein_mechanism_cards.cards:
+        if card.abundance_change.direction.value == "unchanged":
+            continue
+        differential_entry = differential_by_entity.get(card.protein_group_id)
+        if differential_entry is None:
+            raise ValueError(
+                "biological claim validation requires one differential entry per protein mechanism card"
+            )
+        direction = (
+            BiologicalClaimDirection.UP
+            if card.abundance_change.direction.value == "increased"
+            else BiologicalClaimDirection.DOWN
+        )
+        direction_label = "increased" if direction is BiologicalClaimDirection.UP else "decreased"
+        candidates.append(
+            BiologicalClaimCandidate(
+                claim_id=f"protein-claim:{card.protein_group_id}",
+                claim_kind=BiologicalClaimKind.PROTEIN_ABUNDANCE_CHANGE,
+                subject_id=card.protein_group_id,
+                subject_label=card.gene_symbol or card.representative_protein_ref,
+                claim_text=(
+                    f"Protein {card.gene_symbol or card.representative_protein_ref} "
+                    f"{direction_label} in {card.abundance_change.condition_b} vs "
+                    f"{card.abundance_change.condition_a}"
+                ),
+                condition_a=card.abundance_change.condition_a,
+                condition_b=card.abundance_change.condition_b,
+                asserted_direction=direction,
+                significant=card.abundance_change.significant,
+                adjusted_p_value=card.abundance_change.adjusted_p_value,
+                effect_size=abs(card.abundance_change.log2_fold_change),
+                robustness_score=differential_entry.robustness_score,
+                imputation_dependent=differential_entry.imputation_dependent_hit,
+                evidence_tier=card.evidence_tier,
+                confidence_tier=card.confidence_tier,
+                source_ids=(
+                    card.card_id,
+                    card.graph_claim_node_id,
+                    card.protein_card_id,
+                ),
+                note=(
+                    "protein abundance claims require robust quantitative support, "
+                    "not just nominal differential direction"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_biological_pathway_claim_candidates(
+    pathway_activity_report: PathwayActivityReport | None,
+) -> tuple[BiologicalClaimCandidate, ...]:
+    if pathway_activity_report is None:
+        return ()
+    candidates: list[BiologicalClaimCandidate] = []
+    for entry in pathway_activity_report.condition_comparisons:
+        if entry.activity_score_delta is None or entry.activity_score_delta == 0.0:
+            continue
+        direction = (
+            BiologicalClaimDirection.UP
+            if entry.activity_score_delta > 0.0
+            else BiologicalClaimDirection.DOWN
+        )
+        verb = "activated" if direction is BiologicalClaimDirection.UP else "suppressed"
+        candidates.append(
+            BiologicalClaimCandidate(
+                claim_id=(
+                    "pathway-claim:"
+                    f"{entry.pathway_id}:{entry.condition_a}:{entry.condition_b}"
+                ),
+                claim_kind=BiologicalClaimKind.PATHWAY_ACTIVITY_CHANGE,
+                subject_id=entry.pathway_id,
+                subject_label=entry.pathway_name or entry.pathway_id,
+                claim_text=(
+                    f"Pathway {entry.pathway_name or entry.pathway_id} {verb} in "
+                    f"{entry.condition_b} vs {entry.condition_a}"
+                ),
+                condition_a=entry.condition_a,
+                condition_b=entry.condition_b,
+                asserted_direction=direction,
+                effect_size=abs(entry.activity_score_delta),
+                pathway_confidence_status=entry.comparison_confidence_status.value,
+                pathway_delta=entry.activity_score_delta,
+                source_ids=(
+                    f"pathway-activity:{entry.pathway_id}",
+                    f"pathway-activity-comparison:{entry.pathway_id}:{entry.condition_a}:{entry.condition_b}",
+                ),
+                note=(
+                    "pathway activation claims require explicit directional activity "
+                    "deltas with high-confidence comparison support"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_biological_regulator_claim_candidates(
+    regulator_inference_report: RegulatorInferenceReport | None,
+) -> tuple[BiologicalClaimCandidate, ...]:
+    if regulator_inference_report is None:
+        return ()
+    candidates: list[BiologicalClaimCandidate] = []
+    for entry in regulator_inference_report.entries:
+        direction = {
+            "up": BiologicalClaimDirection.UP,
+            "down": BiologicalClaimDirection.DOWN,
+            "mixed": BiologicalClaimDirection.MIXED,
+            "unsupported": BiologicalClaimDirection.UNRESOLVED,
+        }[entry.direction.value]
+        if entry.evidence_type.value == "kinase_substrate":
+            noun = "Kinase"
+            verb = (
+                "active"
+                if direction is BiologicalClaimDirection.UP
+                else (
+                    "suppressed"
+                    if direction is BiologicalClaimDirection.DOWN
+                    else "unresolved"
+                )
+            )
+        else:
+            noun = "Regulator"
+            verb = (
+                "active"
+                if direction is BiologicalClaimDirection.UP
+                else (
+                    "suppressed"
+                    if direction is BiologicalClaimDirection.DOWN
+                    else "unresolved"
+                )
+            )
+        candidates.append(
+            BiologicalClaimCandidate(
+                claim_id=(
+                    "regulator-claim:"
+                    f"{entry.regulator}:{entry.evidence_type.value}:{entry.signal_surface.value}"
+                ),
+                claim_kind=BiologicalClaimKind.REGULATOR_ACTIVITY,
+                subject_id=entry.regulator,
+                subject_label=entry.regulator,
+                claim_text=(
+                    f"{noun} {entry.regulator} {verb} in "
+                    f"{regulator_inference_report.condition_b} vs "
+                    f"{regulator_inference_report.condition_a}"
+                ),
+                condition_a=regulator_inference_report.condition_a,
+                condition_b=regulator_inference_report.condition_b,
+                asserted_direction=direction,
+                effect_size=abs(
+                    entry.mean_log2_fold_change
+                    if entry.mean_log2_fold_change is not None
+                    else (entry.mean_activity_score_delta or 0.0)
+                ),
+                regulator_evidence_type=entry.evidence_type.value,
+                regulator_signal_surface=entry.signal_surface.value,
+                regulator_score=entry.score,
+                source_ids=(
+                    f"regulator-inference:{entry.regulator}",
+                    f"regulator-surface:{entry.signal_surface.value}",
+                ),
+                note=(
+                    "regulator claims require directional downstream support on the "
+                    "appropriate evidence surface"
+                ),
+            )
+        )
+    return tuple(candidates)
 
 
 def _build_biological_protein_ranking_candidates(
@@ -1564,6 +1791,9 @@ def export_biological_result_report_bundle(
         "biological_experiment_confidence_components.tsv"
     )
     evidence_aware_ranking_name = None
+    claim_validation_summary_name = None
+    supported_claim_name = None
+    rejected_claim_name = None
     foreground_background_summary_name = (
         "biological_enrichment_foreground_background_summary.tsv"
     )
@@ -1648,6 +1878,24 @@ def export_biological_result_report_bundle(
         evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
         (output_dir / evidence_aware_ranking_name).write_text(
             render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
+            encoding="utf-8",
+        )
+    if report.claim_validation_report is not None:
+        claim_validation_summary_name = "biological_claim_validation_summary.tsv"
+        supported_claim_name = "biological_supported_claims.tsv"
+        rejected_claim_name = "biological_rejected_claims.tsv"
+        (output_dir / claim_validation_summary_name).write_text(
+            render_biological_claim_validation_summary_tsv(
+                report.claim_validation_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / supported_claim_name).write_text(
+            render_supported_biological_claim_tsv(report.claim_validation_report),
+            encoding="utf-8",
+        )
+        (output_dir / rejected_claim_name).write_text(
+            render_rejected_biological_claim_tsv(report.claim_validation_report),
             encoding="utf-8",
         )
     (output_dir / foreground_background_summary_name).write_text(
@@ -2052,6 +2300,9 @@ def export_biological_result_report_bundle(
         experiment_confidence_summary_tsv=experiment_confidence_summary_name,
         experiment_confidence_components_tsv=experiment_confidence_components_name,
         evidence_aware_ranking_tsv=evidence_aware_ranking_name,
+        claim_validation_summary_tsv=claim_validation_summary_name,
+        supported_claim_tsv=supported_claim_name,
+        rejected_claim_tsv=rejected_claim_name,
         foreground_background_summary_tsv=foreground_background_summary_name,
         foreground_background_entry_tsv=foreground_background_entry_name,
         foreground_background_issue_tsv=foreground_background_issue_name,
@@ -2129,6 +2380,7 @@ def export_biological_result_report_bundle(
     return BiologicalResultReportExportManifest(
         summary=report.summary,
         artifacts=artifacts,
+        claim_validation_included=report.claim_validation_report is not None,
         context_summary_included=report.context_mapping_report is not None,
         drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
@@ -2166,6 +2418,18 @@ def _render_biological_result_report_html(
         (
             "Evidence-aware ranking",
             artifacts.evidence_aware_ranking_tsv,
+        ),
+        (
+            "Claim validation summary",
+            artifacts.claim_validation_summary_tsv,
+        ),
+        (
+            "Supported biological claims",
+            artifacts.supported_claim_tsv,
+        ),
+        (
+            "Rejected biological claims",
+            artifacts.rejected_claim_tsv,
         ),
         (
             "Enrichment foreground/background summary",
@@ -2338,6 +2602,7 @@ def _render_biological_result_report_html(
     )
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
+    claim_validation_html = _render_biological_claim_validation_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
     regulator_inference_html = _render_regulator_inference_table_html(report)
     drug_target_html = _render_drug_target_table_html(report)
@@ -2361,6 +2626,8 @@ def _render_biological_result_report_html(
         f"{confidence_table_html}"
         "<h2>Evidence-aware ranking</h2>"
         f"{ranking_table_html}"
+        "<h2>Validated biological claims</h2>"
+        f"{claim_validation_html}"
         "<h2>Enrichment foreground/background model</h2>"
         f"{foreground_background_html}"
         "<h2>Regulator inference</h2>"
@@ -2466,6 +2733,44 @@ def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBund
         for card in report.protein_mechanism_cards.cards
     )
     return (
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_biological_claim_validation_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    if report.claim_validation_report is None:
+        return "<p>No biological claim validation report was generated.</p>"
+    headers = (
+        "Claim",
+        "Kind",
+        "Direction",
+        "Reason",
+        "Source IDs",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.claim_text)}</td>"
+            f"<td>{escape(entry.claim_kind.value)}</td>"
+            f"<td>{escape(entry.asserted_direction.value)}</td>"
+            f"<td>{escape(entry.validation_note)}</td>"
+            f"<td><code>{escape('; '.join(entry.source_ids))}</code></td>"
+            "</tr>"
+        )
+        for entry in report.claim_validation_report.supported_claims
+    )
+    summary = report.claim_validation_report.summary
+    return (
+        "<p>"
+        f"<strong>Supported claims</strong>: {summary.supported_claim_count} | "
+        f"<strong>Rejected claims</strong>: {summary.rejected_claim_count}"
+        "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
         f"<tbody>{row_html}</tbody>"
