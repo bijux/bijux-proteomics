@@ -5,13 +5,24 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
+    PtmEvidenceRecord,
     PtmMotifComparisonPolicy,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
+    PtmSiteDifferentialEntry,
+    PtmSiteDifferentialReport,
+    PtmDifferentialAnalysisReport,
+    PtmLocalizationConfidenceTier,
+    PtmLocalizationProbabilitySource,
+    PtmLocalizationScoringEntry,
+    PtmLocalizationScoringReport,
+    PtmSiteEntry,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
     build_ptm_localization_scoring_report,
@@ -37,17 +48,21 @@ def _ptm_fixture(name: str) -> Path:
 
 
 def _protein_sequences() -> dict[str, str]:
+    report = _protein_report()
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
+
+
+def _protein_report():
     fasta = (
         Path(__file__).resolve().parent.parent
         / "fixtures"
         / "fasta"
         / "ptm_sites.fasta"
     )
-    report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {
-        record.canonical_accession: record.residues
-        for record in report.accepted_records
-    }
+    return parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
 
 
 def _build_evidence_card_report():
@@ -114,6 +129,8 @@ def _build_evidence_card_report():
         site_quantification=site_quantification,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
+        protein_records=_protein_report().accepted_records,
+        protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
         policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
@@ -150,9 +167,152 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
         regulator.regulator == "AKT1" for regulator in annotated.regulator_evidence
     )
     assert annotated.claim_ids
+    assert annotated.identity_level.value in {
+        "protein_level",
+        "gene_level",
+        "family_level",
+        "ambiguous",
+    }
+    assert annotated.identity_reason
     assert any(
         warning.code.value == "low_localization" for warning in low_localization.warnings
     )
     assert any(
         warning.code.value == "decoy_site" for warning in low_localization.warnings
     )
+
+
+def test_ptm_evidence_cards_do_not_call_exact_isoform_without_unique_peptide() -> None:
+    fasta_report = parse_fasta_document(
+        ">sp|P11111|GENE_HUMAN Canonical GN=GENE\nMPEPSPEPTIDEKAAA\n"
+        ">sp|P11111-2|GENE_HUMAN Isoform 2 GN=GENE\nMPEPSPEPTIDEKAAA\n",
+        mode=FastaParseMode.STRICT,
+    )
+    record = PtmEvidenceRecord(
+        spectrum_id="scan=1",
+        sample_id="sample-a",
+        localized_peptide="PEP[Phospho]TIDEK",
+        canonical_peptide="PEPTIDEK",
+        sequence="PEPTIDEK",
+        charge=2,
+        score=42.0,
+        q_value=0.01,
+        localization_probability=0.98,
+        protein_refs=("P11111-2", "P11111"),
+        target_decoy_label=TargetDecoyLabel.TARGET,
+        localization_score=18.0,
+        candidate_site_indices=(3,),
+        modification_names=("Phospho",),
+        site_candidates=(),
+        provenance=ImportedEvidenceProvenance(
+            source_engine="ptm-localization",
+            source_files=("inline.tsv",),
+            source_row_numbers=(2,),
+            original_identifiers={"spectrum_id": "scan=1"},
+        ),
+    )
+    site_entry = PtmSiteEntry(
+        site_key="P11111-2:P3:Phospho",
+        protein_ref="P11111-2",
+        residue="P",
+        position=3,
+        modification_name="Phospho",
+        localization_score=18.0,
+        best_q_value=0.01,
+        spectrum_count=1,
+        peptide_count=1,
+        localized_peptides=("PEP[Phospho]TIDEK",),
+        sample_ids=("sample-a",),
+        target_decoy_label=TargetDecoyLabel.TARGET,
+        candidate_positions=(3,),
+        ambiguous=False,
+        shared_peptide=True,
+        provenance=record.provenance,
+    )
+    localization = PtmLocalizationScoringReport(
+        entries=(
+            PtmLocalizationScoringEntry(
+                spectrum_id="scan=1",
+                sample_id="sample-a",
+                localized_peptide="PEP[Phospho]TIDEK",
+                canonical_peptide="PEPTIDEK",
+                modification_name="Phospho",
+                peptide_site_index=3,
+                candidate_site_indices=(3,),
+                ambiguity_group="Phospho:3",
+                localization_score=18.0,
+                localization_probability=0.98,
+                probability_source=PtmLocalizationProbabilitySource.REPORTED_PROBABILITY,
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                site_determining_ions=(),
+                supported_site_determining_ions=(),
+                ambiguous=False,
+                multi_phosphorylated=False,
+                note="reported probability supports the localized site",
+            ),
+        ),
+        ambiguous_entry_count=0,
+        confident_entry_count=1,
+        high_confidence_entry_count=1,
+        supported_entry_count=0,
+        refused_entry_count=0,
+        multi_phosphorylated_entry_count=0,
+        fragment_supported_entry_count=0,
+    )
+    differential_report = PtmSiteDifferentialReport(
+        normalization_method=NormalizationMethod.MEDIAN,
+        test_type="welch_t_test",
+        condition_a="control",
+        condition_b="treated",
+        entries=(
+            PtmSiteDifferentialEntry(
+                site_key="P11111-2:P3:Phospho",
+                protein_ref="P11111-2",
+                residue="P",
+                position=3,
+                modification_name="Phospho",
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                low_localization=False,
+                ambiguous=False,
+                shared_peptide=True,
+                localized_peptides=("PEP[Phospho]TIDEK",),
+                condition_a="control",
+                condition_b="treated",
+                observations_a=2,
+                observations_b=2,
+                complete_pair_count=0,
+                mean_log2_abundance_a=10.0,
+                mean_log2_abundance_b=11.0,
+                log2_fold_change=1.0,
+                p_value=0.01,
+                adjusted_p_value=0.02,
+                standard_error=0.1,
+                confidence_interval_low=0.8,
+                confidence_interval_high=1.2,
+                effect_size_cohens_d=1.0,
+                protein_log2_fold_change=None,
+                protein_adjusted_p_value=None,
+                corrected_log2_fold_change=None,
+                protein_correction_status="not_requested",
+                uncertainty_note=None,
+            ),
+        ),
+        broken_pairs=(),
+        note="minimal direct PTM differential report for identity-resolution proof",
+    )
+    differential = PtmDifferentialAnalysisReport.model_construct(
+        protein_correction_mode=PtmProteinCorrectionMode.NONE,
+        differential_report=differential_report,
+    )
+
+    report = build_ptm_evidence_card_report(
+        (record,),
+        (site_entry,),
+        localization,
+        differential,
+        protein_records=fasta_report.accepted_records,
+    )
+
+    card = report.cards[0]
+    assert card.identity_level.value == "protein_level"
+    assert "do not isolate one exact isoform" in card.identity_reason

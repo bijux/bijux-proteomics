@@ -39,17 +39,21 @@ def _ptm_fixture(name: str) -> Path:
 
 
 def _protein_sequences() -> dict[str, str]:
+    report = _protein_report()
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
+
+
+def _protein_report():
     fasta = (
         Path(__file__).resolve().parent.parent
         / "fixtures"
         / "fasta"
         / "ptm_sites.fasta"
     )
-    report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {
-        record.canonical_accession: record.residues
-        for record in report.accepted_records
-    }
+    return parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
 
 
 def _build_evidence_card_report():
@@ -115,6 +119,8 @@ def _build_evidence_card_report():
         site_quantification=site_quantification,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
+        protein_records=_protein_report().accepted_records,
+        protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
         policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
@@ -132,6 +138,7 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
 
     assert "functional_context_card_count" in summary_path.read_text()
     assert "functional_regions" in cards_path.read_text()
+    assert "identity_level" in cards_path.read_text()
     assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
         claims_path.read_text().splitlines()[0]
     )
