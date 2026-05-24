@@ -200,6 +200,38 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
     )
 
 
+def test_build_biological_result_report_bundle_preserves_disease_phenotype_interpretation() -> (
+    None
+):
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_disease_phenotype.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.context_import_report is not None
+    assert report.disease_phenotype_report is not None
+    assert report.disease_phenotype_report.summary.term_count == 4
+    assert report.disease_phenotype_report.summary.disease_term_count == 2
+    assert report.disease_phenotype_report.summary.phenotype_term_count == 2
+    assert any(
+        entry.term_id == "DOID:162" and entry.source_name == "Disease Ontology"
+        for entry in report.disease_phenotype_report.entries
+    )
+    assert any(
+        entry.annotation_scope.value == "background" and entry.protein_ref == "P62993"
+        for entry in report.disease_phenotype_report.unknown_annotation_entries
+    )
+
+
 def test_build_biological_result_report_bundle_from_quant_table_uses_entity_protein_refs_for_annotation() -> (
     None
 ):
