@@ -15,7 +15,7 @@
       "note": "The LFQ manifest is the machine-readable anchor for the study-scale public review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "e434b00595d2a8c0f09e920ea1d803219c16f673321e4015b2ecf617e017a48d",
+      "sha256": "c7cfa6c3838781a0411f9bb730b226062ceebd39d6de2bda0b018ddeec7e4318",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "23d85cc22a0a99f462c64ec4cca8aa29b8bb9f5aeb1a72539a267dcf30f52718",
+      "sha256": "8688416b1c88595af46b5922ad2a96b3ac3936534d76aece9f9732a4866bc09b",
       "spectra_count": null
     },
     {

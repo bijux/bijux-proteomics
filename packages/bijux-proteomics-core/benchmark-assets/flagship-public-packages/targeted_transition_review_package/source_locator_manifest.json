@@ -4,13 +4,33 @@
   "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
   "remote_sources": [
     {
-      "source_id": "targeted:guideline_reference",
+      "source_id": "targeted:skyline_result_snapshot",
+      "public_source_name": "Skyline-style targeted result snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc_results.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/skyline_targeted_qc_results.tsv",
+      "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+      "why_it_matters": "The flagship targeted package now proves matrix and assay-QC regeneration from one runnable Skyline-style transition export.",
+      "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+    },
+    {
+      "source_id": "targeted:design_snapshot",
+      "public_source_name": "Targeted replicate design snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc.design.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/skyline_targeted_qc.design.tsv",
+      "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+      "why_it_matters": "The targeted design keeps replicate and condition structure explicit for coelution, fragment-ratio, and replicate-CV review.",
+      "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+    },
+    {
+      "source_id": "targeted:qc_snapshot",
       "public_source_name": "Targeted QC evidence snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
       "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
-      "why_it_matters": "The flagship targeted package is explicitly about transition-level QC and targeted assay discipline.",
-      "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by QC and consequence evidence.",
+      "why_it_matters": "The flagship targeted package still keeps the older targeted QC ledger visible beside the runnable assay benchmark input.",
+      "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
       "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
     }
   ]

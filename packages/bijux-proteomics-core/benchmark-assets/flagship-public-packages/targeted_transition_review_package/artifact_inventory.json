@@ -6,7 +6,7 @@
       "note": "The targeted package README makes transition-level value and vendor-parity gaps explicit.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
       "row_count": null,
-      "sha256": "46cf7168320e1106e4df730411e8a87c956d33e49866e0c9ecc0fd79ebb8ec6e",
+      "sha256": "c8286dad60aaf08d9a8535033f770e40168d5c5f3e16e359873111967ceb9d1f",
       "spectra_count": null
     },
     {
@@ -15,7 +15,7 @@
       "note": "The targeted manifest is the machine-readable anchor for the transition-control review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "e4ec3628dbeef775f9f7254314aea18f27ba5a88b2cb61fe9234bbd59d4abcce",
+      "sha256": "b4dba36f04de4f9a20fa2f997c64d32d2e4ba9ac30e2f61dbed5b8dcdc063c95",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The targeted artifact inventory keeps QC tables and approved/failed/refused follow-up packets together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "f19212e0e5c1c2424d357a97896c333fc203d7e595889c80b3e82c146d85e136",
+      "sha256": "9c5d5a4bc04d2d8bd35e077ee8076f65402c6d0e453074745841965251c205a7",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest keeps copied targeted QC evidence and public assay references rebuildable.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "28232317f0ae184ce1eeef122982a3d96f43b237d8814b7ed6cac7696d09efe2",
+      "sha256": "a5f3f82ece165cf4a517ce31c4095bbe44495daa43b4bbcf5e7154c07e804edc",
       "spectra_count": null
     },
     {
@@ -82,9 +82,27 @@
       "spectra_count": null
     },
     {
+      "artifact_id": "targeted:targeted_result_table",
+      "evidence_kind": "targeted_result_table",
+      "note": "The Skyline-style targeted result table is the runnable benchmark input for matrix and assay-QC regeneration.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc_results.tsv",
+      "row_count": 14,
+      "sha256": "313058f8448c9f860e2bb3cdce78fa942c51e2cc93a828d24ead8e3d6cfd48f9",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:targeted_design",
+      "evidence_kind": "experimental_design",
+      "note": "The targeted design preserves the replicate and condition structure needed for replicate-CV and validation review.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc.design.tsv",
+      "row_count": 4,
+      "sha256": "9a04d7d678c32bc35c335220241f9b20b4f47bea0a2215c0b3e74bdb519c55b6",
+      "spectra_count": null
+    },
+    {
       "artifact_id": "targeted:targeted_qc_table",
       "evidence_kind": "targeted_qc_table",
-      "note": "Transition-level QC evidence is the tracked base layer for the targeted public package.",
+      "note": "Transition-level QC evidence remains a tracked supporting layer beside the runnable targeted benchmark input.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
       "row_count": 5,
       "sha256": "6a723089259103a443ca23360c62d49d9acacda1e2e266244a8cf4d1ca509418",
