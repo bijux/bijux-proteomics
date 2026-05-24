@@ -25,6 +25,7 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
     DifferentialBrokenPairEntry,
     DifferentialAbundanceReport,
+    DifferentialImputationSignificanceChangeReason,
     LabelFreeQuantTable,
     Ms1FeatureRecord,
     NormalizationComparisonReport,
@@ -85,6 +86,14 @@ class PtmSiteDifferentialEntry(JsonModel):
     confidence_interval_low: float | None = None
     confidence_interval_high: float | None = None
     effect_size_cohens_d: float | None = None
+    no_impute_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    no_impute_log2_fold_change: float | None = None
+    imputed_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    imputed_log2_fold_change: float | None = None
+    imputation_significance_change_reason: (
+        DifferentialImputationSignificanceChangeReason | None
+    ) = None
+    imputation_dependent_hit: bool = False
     protein_log2_fold_change: float | None = None
     protein_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     corrected_log2_fold_change: float | None = None
@@ -187,6 +196,11 @@ def build_ptm_differential_analysis_report(
 ) -> PtmDifferentialAnalysisReport:
     """Normalize PTM site intensities and test one explicit two-condition contrast."""
 
+    resolved_condition_a, resolved_condition_b = _resolve_selected_contrast(
+        design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+    )
     effective_pairing_field = pairing_field
     if effective_pairing_field is None and all(
         entry.pair_id not in (None, "") for entry in design_entries
@@ -199,9 +213,9 @@ def build_ptm_differential_analysis_report(
             if effective_pairing_field is not None
             else ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
         ),
-        condition_a=condition_a,
-        condition_b=condition_b,
-        batch_field=batch_field if batch_field else None,
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+        batch_field=batch_field or None,
         pairing_field=effective_pairing_field,
     )
     site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
@@ -230,11 +244,6 @@ def build_ptm_differential_analysis_report(
     design_model_fit = fit_quant_design_matrix_model(
         normalized_table,
         design_matrix,
-    )
-    resolved_condition_a, resolved_condition_b = _resolve_selected_contrast(
-        design_entries,
-        condition_a=condition_a,
-        condition_b=condition_b,
     )
     paired_policy = (
         PairedDifferentialPolicy(pair_id_field=effective_pairing_field)
@@ -488,6 +497,14 @@ def _build_ptm_site_differential_report(
                 confidence_interval_low=entry.confidence_interval_low,
                 confidence_interval_high=entry.confidence_interval_high,
                 effect_size_cohens_d=entry.effect_size_cohens_d,
+                no_impute_adjusted_p_value=entry.no_impute_adjusted_p_value,
+                no_impute_log2_fold_change=entry.no_impute_log2_fold_change,
+                imputed_adjusted_p_value=entry.imputed_adjusted_p_value,
+                imputed_log2_fold_change=entry.imputed_log2_fold_change,
+                imputation_significance_change_reason=(
+                    entry.imputation_significance_change_reason
+                ),
+                imputation_dependent_hit=entry.imputation_dependent_hit,
                 protein_log2_fold_change=protein_log2_fold_change,
                 protein_adjusted_p_value=protein_adjusted_p_value,
                 corrected_log2_fold_change=corrected_log2_fold_change,
@@ -573,6 +590,12 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
             "corrected_log2_fold_change",
             "p_value",
             "adjusted_p_value",
+            "no_impute_adjusted_p_value",
+            "no_impute_log2_fold_change",
+            "imputed_adjusted_p_value",
+            "imputed_log2_fold_change",
+            "imputation_significance_change_reason",
+            "imputation_dependent_hit",
             "standard_error",
             "confidence_interval_low",
             "confidence_interval_high",
@@ -608,6 +631,22 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
                 else f"{entry.corrected_log2_fold_change:g}",
                 f"{entry.p_value:g}",
                 "" if entry.adjusted_p_value is None else f"{entry.adjusted_p_value:g}",
+                ""
+                if entry.no_impute_adjusted_p_value is None
+                else f"{entry.no_impute_adjusted_p_value:g}",
+                ""
+                if entry.no_impute_log2_fold_change is None
+                else f"{entry.no_impute_log2_fold_change:g}",
+                ""
+                if entry.imputed_adjusted_p_value is None
+                else f"{entry.imputed_adjusted_p_value:g}",
+                ""
+                if entry.imputed_log2_fold_change is None
+                else f"{entry.imputed_log2_fold_change:g}",
+                ""
+                if entry.imputation_significance_change_reason is None
+                else entry.imputation_significance_change_reason.value,
+                str(entry.imputation_dependent_hit).lower(),
                 "" if entry.standard_error is None else f"{entry.standard_error:g}",
                 ""
                 if entry.confidence_interval_low is None
