@@ -138,6 +138,26 @@ def test_public_benchmark_descriptor_loads_runnable_targeted_contracts() -> None
     )
 
 
+def test_public_benchmark_descriptor_loads_weak_evidence_lfq_contracts() -> None:
+    descriptor = load_public_benchmark_descriptor(
+        public_benchmark_root() / "lfq_sparse_contrast_benchmark_dataset" / "dataset.yml"
+    )
+
+    assert descriptor.search_engine is PublicBenchmarkSearchEngine.LFQ
+    assert descriptor.expected_input_schemas == (
+        "input_tsv",
+        "design_tsv",
+        "proteins_fasta",
+    )
+    assert len(descriptor.sample_metadata) == 5
+    assert descriptor.expected_approximate_counts[1].metric_id == (
+        "significant_protein_count"
+    )
+    assert descriptor.known_limitations[0].severity is (
+        PublicBenchmarkKnownLimitationSeverity.ADVISORY
+    )
+
+
 def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_ptm_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -249,6 +269,27 @@ def test_public_benchmark_runner_executes_runnable_targeted_descriptor(
     assert Path(report.output_dir, "targeted_assay_qc_unreliable_targets.tsv").exists()
     assert Path(report.output_dir, "targeted_assay_qc_fragment_ratios.tsv").exists()
     assert Path(report.output_dir, "targeted_assay_qc_transition_qc.tsv").exists()
+
+
+def test_public_benchmark_runner_executes_weak_evidence_lfq_descriptor(
+    tmp_path: Path,
+) -> None:
+    report = run_public_benchmark_descriptor(
+        public_benchmark_root() / "lfq_sparse_contrast_benchmark_dataset" / "dataset.yml",
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["protein_count"] == 4
+    assert report.verified_counts["significant_protein_count"] == 0
+    assert report.verified_counts["warning_card_count"] == 4
+    assert report.verified_counts["cohort_blocked_stratum_count"] == 2
+    assert report.verified_counts["weak_confidence_section_count"] == 2
+    assert report.verified_counts["invalid_section_count"] == 11
+    assert not report.expected_signal_assessments
+    assert Path(report.output_dir, "biological_rejected_claims.tsv").exists()
+    assert Path(report.output_dir, "biological_report_section_confidence.tsv").exists()
+    assert Path(report.output_dir, "biological_cohort_stratification_summary.tsv").exists()
 
 
 def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts_with_design(
