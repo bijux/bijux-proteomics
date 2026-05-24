@@ -820,6 +820,78 @@ def test_pathway_enrichment_command_emits_pathway_and_unresolved_ledgers() -> No
         )
 
 
+def test_pathway_activity_command_emits_matrix_contributions_and_contrasts() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "pathway-activity",
+                "biological_report_features.tsv",
+                "biological_report_pathways.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--fasta",
+                "biological_report_reference.fasta",
+                "--summary-tsv-out",
+                "pathway_activity.summary.tsv",
+                "--matrix-tsv-out",
+                "pathway_activity.matrix.tsv",
+                "--sample-score-tsv-out",
+                "pathway_activity.samples.tsv",
+                "--condition-score-tsv-out",
+                "pathway_activity.conditions.tsv",
+                "--condition-comparison-tsv-out",
+                "pathway_activity.comparisons.tsv",
+                "--member-contribution-tsv-out",
+                "pathway_activity.members.tsv",
+                "--unresolved-member-tsv-out",
+                "pathway_activity.unresolved.tsv",
+                "--rejected-pathway-tsv-out",
+                "pathway_activity.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["pathway_count"] == 1
+        assert payload["report"]["summary"]["condition_comparison_count"] == 1
+        assert Path("pathway_activity.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("entity_level\tmeasure_kind")
+        assert "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
+            "pathway_activity.matrix.tsv"
+        ).read_text()
+        assert "member_kind\tmember_id\tresolved_protein_refs" in Path(
+            "pathway_activity.members.tsv"
+        ).read_text()
+        assert "condition_a_confidence_status" in Path(
+            "pathway_activity.comparisons.tsv"
+        ).read_text()
+        assert Path("pathway_activity.unresolved.tsv").read_text().splitlines()[0].startswith(
+            "pathway_id\tpathway_name\tsource_name"
+        )
+
+
 def test_complex_enrichment_command_emits_complex_and_unresolved_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
