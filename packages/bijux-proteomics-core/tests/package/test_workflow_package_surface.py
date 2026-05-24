@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import workflow
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.study import build_experiment_design
 
 
@@ -87,6 +88,37 @@ def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
     assert workflow.TargetedWorkflowStage.ASSAY_QC.value == "assay_qc"
+
+
+def test_workflow_package_exports_proteomics_study_result_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("diann_biological.design.tsv")
+        ).accepted_entries
+    )
+    diann_workflow = workflow.build_diann_biological_workflow_bundle(
+        _fixture("diann_biological_report.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+    tmt_workflow = workflow.build_tmt_experiment_workflow_bundle(
+        Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / "maxquant_tmt_evidence.tsv",
+        Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / "tmt.design.tsv",
+        control_channel="126",
+        source_kind=TmtSearchResultSourceKind.MAXQUANT,
+    )
+
+    diann_study = workflow.build_proteomics_study_result(diann_workflow)
+    tmt_study = workflow.build_proteomics_study_result(tmt_workflow)
+
+    assert hasattr(workflow, "build_proteomics_study_result")
+    assert workflow.ProteomicsStudyKind.DIA.value == "dia"
+    assert diann_study.design.sample_count == 6
+    assert tmt_study.design.sample_count == 8
+    assert diann_study.summary.matrix_surface_count == 3
+    assert tmt_study.summary.statistic_surface_count == 1
 
 
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
