@@ -6,8 +6,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
+from bijux_proteomics.targeted import TargetedResultSourceKind
 from bijux_proteomics.workflow import (
     LabelFreeWorkflowConfig,
+    TargetedWorkflowConfig,
+    TargetedWorkflowStage,
     TmtWorkflowConfig,
     WorkflowMode,
     run_proteomics_workflow,
@@ -24,6 +27,10 @@ def _workflow_fixture(name: str) -> Path:
 
 def _multiplex_fixture(name: str) -> Path:
     return _fixture_root() / "multiplex" / name
+
+
+def _targeted_fixture(name: str) -> Path:
+    return _fixture_root() / "formats" / name
 
 
 def test_run_proteomics_workflow_exports_label_free_bundle_assets(
@@ -69,3 +76,63 @@ def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> No
     assert (tmp_path / "tmt_report" / "tmt_workflow_manifest.json").exists()
     assert (tmp_path / "tmt_report" / "label_based_report_manifest.json").exists()
     assert result.outputs["workflow_manifest_json"].endswith("tmt_workflow_manifest.json")
+
+
+def test_run_proteomics_workflow_exports_targeted_matrix_assets(
+    tmp_path: Path,
+) -> None:
+    result = run_proteomics_workflow(
+        TargetedWorkflowConfig(
+            input_tsv_path=_targeted_fixture("skyline_targeted_results.tsv"),
+            source_kind=TargetedResultSourceKind.SKYLINE_EXPORT,
+            stage=TargetedWorkflowStage.MATRIX,
+            output_dir=tmp_path / "targeted_matrix",
+        )
+    )
+
+    assert result.mode is WorkflowMode.TARGETED
+    assert result.export_manifest is not None
+    assert (
+        tmp_path / "targeted_matrix" / "targeted_matrix_workflow_manifest.json"
+    ).exists()
+    assert (
+        tmp_path / "targeted_matrix" / result.export_manifest.artifacts.matrix_targets_tsv
+    ).exists()
+    assert result.outputs["workflow_manifest_json"].endswith(
+        "targeted_matrix_workflow_manifest.json"
+    )
+
+
+def test_run_proteomics_workflow_exports_targeted_assay_qc_assets(
+    tmp_path: Path,
+) -> None:
+    result = run_proteomics_workflow(
+        TargetedWorkflowConfig(
+            input_tsv_path=_targeted_fixture("skyline_targeted_qc_results.tsv"),
+            source_kind=TargetedResultSourceKind.SKYLINE_EXPORT,
+            stage=TargetedWorkflowStage.ASSAY_QC,
+            design_tsv_path=_targeted_fixture("skyline_targeted_qc.design.tsv"),
+            output_dir=tmp_path / "targeted_assay_qc",
+        )
+    )
+
+    assert result.mode is WorkflowMode.TARGETED
+    assert result.export_manifest is not None
+    assert (
+        tmp_path
+        / "targeted_assay_qc"
+        / "targeted_assay_qc_workflow_manifest.json"
+    ).exists()
+    assert (
+        tmp_path
+        / "targeted_assay_qc"
+        / result.export_manifest.artifacts.assay_qc_fragment_ratios_tsv
+    ).exists()
+    assert (
+        tmp_path
+        / "targeted_assay_qc"
+        / result.export_manifest.artifacts.matrix_summary_tsv
+    ).exists()
+    assert result.outputs["workflow_manifest_json"].endswith(
+        "targeted_assay_qc_workflow_manifest.json"
+    )

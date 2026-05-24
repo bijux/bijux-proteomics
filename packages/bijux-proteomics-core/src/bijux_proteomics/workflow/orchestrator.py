@@ -103,6 +103,12 @@ from bijux_proteomics.workflow.tmt_experiment_workflow import (
     build_tmt_experiment_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
 )
+from bijux_proteomics.workflow.targeted_review_workflow import (
+    TargetedAssayQcWorkflowExportManifest,
+    TargetedMatrixWorkflowExportManifest,
+    export_targeted_assay_qc_workflow_artifacts,
+    export_targeted_matrix_workflow_artifacts,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -389,6 +395,8 @@ WorkflowExportManifest = (
     | TmtExperimentWorkflowExportManifest
     | LabelBasedReportExportManifest
     | PtmSiteWorkflowExportManifest
+    | TargetedMatrixWorkflowExportManifest
+    | TargetedAssayQcWorkflowExportManifest
 )
 
 
@@ -778,6 +786,21 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
     )
     if config.stage is TargetedWorkflowStage.MATRIX:
         report = build_targeted_matrix_report(import_report)
+        manifest = None
+        outputs: dict[str, str] = {}
+        if config.output_dir is not None:
+            manifest = export_targeted_matrix_workflow_artifacts(
+                import_report,
+                report,
+                config.output_dir,
+            )
+            manifest_path = config.output_dir / "targeted_matrix_workflow_manifest.json"
+            manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+            outputs = {
+                "output_dir": str(config.output_dir),
+                "workflow_manifest_json": str(manifest_path),
+                "manifest_json": str(manifest_path),
+            }
         note = (
             "workflow orchestrator routed targeted observations through the governed target-matrix owner"
         )
@@ -785,7 +808,8 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             mode=config.mode,
             report=report,
             source_report=import_report,
-            outputs={},
+            export_manifest=manifest,
+            outputs=outputs,
             note=note,
         )
     design_entries: tuple[ExperimentalDesignEntry, ...] = ()
@@ -798,12 +822,30 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         import_report,
         design_entries,
     )
+    manifest = None
+    outputs: dict[str, str] = {}
+    if config.output_dir is not None:
+        matrix_report = build_targeted_matrix_report(import_report)
+        manifest = export_targeted_assay_qc_workflow_artifacts(
+            import_report,
+            matrix_report,
+            report,
+            config.output_dir,
+        )
+        manifest_path = config.output_dir / "targeted_assay_qc_workflow_manifest.json"
+        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        outputs = {
+            "output_dir": str(config.output_dir),
+            "workflow_manifest_json": str(manifest_path),
+            "manifest_json": str(manifest_path),
+        }
     return WorkflowResult(
         mode=config.mode,
         report=report,
         source_report=import_report,
+        export_manifest=manifest,
         design_row_count=design_row_count,
-        outputs={},
+        outputs=outputs,
         note=(
             "workflow orchestrator routed targeted observations through the governed targeted assay-qc owner"
         ),

@@ -30,6 +30,7 @@ from bijux_proteomics.workflow.public_dataset_comparison import *  # noqa: F401,
 from bijux_proteomics.workflow.result_manifest import *  # noqa: F401,F403
 from bijux_proteomics.workflow.result_search_index import *  # noqa: F401,F403
 from bijux_proteomics.workflow.study_result import *  # noqa: F401,F403
+from bijux_proteomics.workflow.targeted_review_workflow import *  # noqa: F401,F403
 from bijux_proteomics.workflow.tmt_experiment_workflow import *  # noqa: F401,F403
 from bijux_proteomics.workflow.trust_bundle import *  # noqa: F401,F403
 from bijux_proteomics.workflow.dia_differential_analysis import *  # noqa: F401,F403
