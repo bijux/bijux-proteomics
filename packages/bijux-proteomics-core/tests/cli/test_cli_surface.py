@@ -8033,6 +8033,11 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
             == "benjamini_hochberg_report_wide_entities"
         )
         assert payload["differential_abundance"]["contrast_name"] == "control_vs_treatment"
+        assert all(
+            "imputation_significance_change_reason" in entry
+            and "imputation_dependent_hit" in entry
+            for entry in payload["differential_abundance"]["entries"]
+        )
         assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
         assert (
             payload["outputs"]["batch_effect_summary_tsv"]
@@ -8074,6 +8079,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert Path("quantify.limma_samples.tsv").exists()
         assert Path("quantify.limma_design.tsv").exists()
         assert Path("quantify.limma_contrasts.tsv").exists()
+        assert "imputation_significance_change_reason" in Path(
+            "quantify.differential.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_quantify_command_reports_confounded_batch_correction_block() -> None:

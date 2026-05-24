@@ -255,6 +255,10 @@ def test_render_differential_abundance_tsv_emits_adjusted_statistics() -> None:
     assert "zero_values_a" in tsv
     assert "robustness_score" in tsv
     assert "robustness_reason_codes" in tsv
+    assert "no_impute_adjusted_p_value" in tsv
+    assert "imputed_adjusted_p_value" in tsv
+    assert "imputation_significance_change_reason" in tsv
+    assert "imputation_dependent_hit" in tsv
     assert "P001\tcase\tcontrol" in tsv
 
 

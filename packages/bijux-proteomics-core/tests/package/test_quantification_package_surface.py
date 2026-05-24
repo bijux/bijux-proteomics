@@ -293,10 +293,18 @@ def test_quantification_package_exports_differential_result_robustness_surface()
         quantification,
         "build_differential_abundance_robustness_report",
     )
+    assert hasattr(
+        quantification,
+        "build_differential_imputation_dependence_report",
+    )
     assert report.entries[0].robustness_score is not None
     assert len(robustness.entries) == len(report.entries)
     assert "robustness_reason_codes" in quantification.render_differential_abundance_tsv(
         report
+    )
+    assert (
+        "imputation_significance_change_reason"
+        in quantification.render_differential_abundance_tsv(report)
     )
 
 
