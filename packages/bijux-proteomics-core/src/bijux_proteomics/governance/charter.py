@@ -295,6 +295,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/evidence_graph_queries.py",
             "review/result_explanations.py",
             "review/result_queries.py",
+            "review/belief_audit.py",
             "review/evidence_graph_contradictions.py",
             "review/evidence_chain_reconstruction.py",
             "review/contracts.py",
