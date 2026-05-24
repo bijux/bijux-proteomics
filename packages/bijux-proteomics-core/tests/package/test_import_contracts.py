@@ -122,7 +122,9 @@ def test_io_package_import_contract() -> None:
     assert hasattr(module, "build_targeted_fragment_ratio_stability_report")
     assert hasattr(module, "pick_chromatographic_peaks")
     assert hasattr(module, "align_chromatographic_peak_retention_times")
+    assert hasattr(module, "extract_xic")
     assert hasattr(module, "extract_mzml_xic_traces")
+    assert hasattr(module, "render_xic_extraction_tsv")
     assert hasattr(module, "validate_precursor_isotope_charge")
 
 
