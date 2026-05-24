@@ -310,6 +310,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interpretation/protein_set_scoring.py",
             "interpretation/ppi_network_modules.py",
             "interpretation/regulator_inference.py",
+            "interpretation/tissue_cell_type_context.py",
             "panels/target_panel.py",
         ),
         release_blocker="Core cannot ship if review-facing scientific artifacts become presentation-only shells without underlying evidence structure.",
