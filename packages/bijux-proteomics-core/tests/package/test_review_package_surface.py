@@ -158,6 +158,25 @@ def test_review_package_exports_analysis_recommendation_surface(tmp_path: Path) 
     assert "detected_condition_code" in review.render_analysis_recommendation_tsv(report)
 
 
+def test_review_package_exports_failure_explanation_surface() -> None:
+    report = review.build_failure_explanation_report(
+        (
+            review.FailureExplanationRequest(
+                failure_id="design",
+                workflow_name="biological-report",
+                failure_text="design table contains rejected rows",
+            ),
+        )
+    )
+
+    assert hasattr(review, "build_failure_explanation_report")
+    assert review.FailureExplanationCategory.INVALID_DESIGN.value == "invalid_design"
+    assert report.summary.explained_count == 1
+    assert (
+        "scientific_condition_code" in review.render_failure_explanation_tsv(report)
+    )
+
+
 def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
     builder = review.ProteomicsEvidenceGraphBuilder()
     protein = builder.add_protein("P11111", label="P11111")
