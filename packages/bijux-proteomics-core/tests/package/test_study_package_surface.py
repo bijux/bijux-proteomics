@@ -154,6 +154,52 @@ def test_study_package_exports_lc_drift_detection_surface() -> None:
     assert "affected_qc_dimension" in rendered
 
 
+def test_study_package_exports_batch_condition_confounding_surface() -> None:
+    report = study.detect_batch_condition_confounding(
+        (
+            ExperimentalDesignEntry(
+                sample_id="case-1",
+                condition="case",
+                replicate=1,
+                fraction=1,
+                spectra_file="case-1.mzml",
+                batch="batch-a",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="case-2",
+                condition="case",
+                replicate=2,
+                fraction=1,
+                spectra_file="case-2.mzml",
+                batch="batch-a",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="ctrl-1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="ctrl-1.mzml",
+                batch="batch-b",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="ctrl-2",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="ctrl-2.mzml",
+                batch="batch-b",
+            ),
+        )
+    )
+    rendered = study.render_batch_condition_confounding_tsv(report)
+
+    assert hasattr(study, "detect_batch_condition_confounding")
+    assert hasattr(study, "render_batch_condition_confounding_tsv")
+    assert report.is_confounded is True
+    assert report.blocked_contrasts == ("case_vs_control",)
+    assert "confounded_terms" in rendered
+
+
 def test_study_package_exports_experiment_design_surface() -> None:
     design = study.build_experiment_design(
         (

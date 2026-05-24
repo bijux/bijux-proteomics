@@ -10,6 +10,7 @@ from bijux_proteomics.study.contracts import *  # noqa: F401,F403
 from bijux_proteomics.study.carryover import *  # noqa: F401,F403
 from bijux_proteomics.study.lc_drift import *  # noqa: F401,F403
 from bijux_proteomics.study.design_classification import *  # noqa: F401,F403
+from bijux_proteomics.study.design_diagnostics import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_feasibility import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_confidence import *  # noqa: F401,F403
 from bijux_proteomics.study.design_validity import *  # noqa: F401,F403
