@@ -142,3 +142,9 @@ def test_workflow_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow")
 
     assert hasattr(module, "run_proteomics_workflow")
+
+
+def test_review_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.review")
+
+    assert hasattr(module, "build_biological_claim_validation_report")

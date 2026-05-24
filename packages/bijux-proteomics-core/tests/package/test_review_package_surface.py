@@ -425,3 +425,35 @@ def test_review_package_exports_evidence_aware_ranking_surface() -> None:
     assert hasattr(review, "render_evidence_aware_ranking_tsv")
     assert report.summary.protein_entry_count == 1
     assert "priority_rank" in review.render_evidence_aware_ranking_tsv(report)
+
+
+def test_review_package_exports_biological_claim_validation_surface() -> None:
+    report = review.build_biological_claim_validation_report(
+        (
+            review.BiologicalClaimCandidate(
+                claim_id="protein-claim:P11111",
+                claim_kind=review.BiologicalClaimKind.PROTEIN_ABUNDANCE_CHANGE,
+                subject_id="P11111",
+                subject_label="TP53",
+                claim_text="Protein TP53 decreased in treatment vs control",
+                condition_a="control",
+                condition_b="treatment",
+                asserted_direction=review.BiologicalClaimDirection.DOWN,
+                significant=True,
+                adjusted_p_value=0.01,
+                effect_size=1.1,
+                robustness_score=0.8,
+                evidence_tier=review.FinalClaimEvidenceTier.HIGH_CONFIDENCE,
+                confidence_tier=review.EvidenceGraphConfidenceTier.HIGH,
+                source_ids=("protein-mechanism-card:P11111",),
+                note="strong protein evidence",
+            ),
+        )
+    )
+
+    assert hasattr(review, "build_biological_claim_validation_report")
+    assert hasattr(review, "render_supported_biological_claim_tsv")
+    assert report.summary.supported_claim_count == 1
+    assert "claim_id\tclaim_kind\tstatus" in review.render_supported_biological_claim_tsv(
+        report
+    )
