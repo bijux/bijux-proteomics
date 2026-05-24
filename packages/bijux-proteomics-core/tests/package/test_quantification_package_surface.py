@@ -437,6 +437,176 @@ def test_quantification_package_exports_missingness_classification_surface() -> 
     assert "entity_id\tlabel\tobserved_sample_count\tmissing_sample_count" in rendered
 
 
+def test_quantification_package_exports_censored_differential_surface() -> None:
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-001",
+                sample_id="case-1",
+                peptide="LOWCASE",
+                canonical_peptide="LOWCASE",
+                intensity=18.0,
+                protein_refs=("P_LOW_CASE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-002",
+                sample_id="case-2",
+                peptide="LOWCASE",
+                canonical_peptide="LOWCASE",
+                intensity=20.0,
+                protein_refs=("P_LOW_CASE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-003",
+                sample_id="ctrl-1",
+                peptide="LOWCASE",
+                canonical_peptide="LOWCASE",
+                intensity=None,
+                protein_refs=("P_LOW_CASE",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-004",
+                sample_id="ctrl-2",
+                peptide="LOWCASE",
+                canonical_peptide="LOWCASE",
+                intensity=None,
+                protein_refs=("P_LOW_CASE",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-005",
+                sample_id="case-1",
+                peptide="STABLE",
+                canonical_peptide="STABLE",
+                intensity=400.0,
+                protein_refs=("P_STABLE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-006",
+                sample_id="case-2",
+                peptide="STABLE",
+                canonical_peptide="STABLE",
+                intensity=420.0,
+                protein_refs=("P_STABLE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-007",
+                sample_id="ctrl-1",
+                peptide="STABLE",
+                canonical_peptide="STABLE",
+                intensity=390.0,
+                protein_refs=("P_STABLE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-008",
+                sample_id="ctrl-2",
+                peptide="STABLE",
+                canonical_peptide="STABLE",
+                intensity=410.0,
+                protein_refs=("P_STABLE",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-009",
+                sample_id="case-1",
+                peptide="LOWANCHOR",
+                canonical_peptide="LOWANCHOR",
+                intensity=6.0,
+                protein_refs=("P_LOW_ANCHOR",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-010",
+                sample_id="case-2",
+                peptide="LOWANCHOR",
+                canonical_peptide="LOWANCHOR",
+                intensity=None,
+                protein_refs=("P_LOW_ANCHOR",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-011",
+                sample_id="ctrl-1",
+                peptide="LOWANCHOR",
+                canonical_peptide="LOWANCHOR",
+                intensity=5.0,
+                protein_refs=("P_LOW_ANCHOR",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="censored-012",
+                sample_id="ctrl-2",
+                peptide="LOWANCHOR",
+                canonical_peptide="LOWANCHOR",
+                intensity=None,
+                protein_refs=("P_LOW_ANCHOR",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+    )
+
+    missingness = quantification.classify_missingness(table, design)
+    report = quantification.test_censored_two_group(
+        table,
+        missingness,
+        design,
+        condition_a="control",
+        condition_b="case",
+    )
+    rendered = quantification.render_censored_differential_tsv(report)
+    entry_lookup = {entry.entity_id: entry for entry in report.entries}
+
+    assert hasattr(quantification, "test_censored_two_group")
+    assert hasattr(quantification, "render_censored_differential_tsv")
+    assert (
+        entry_lookup["P_LOW_CASE"].censoring_status.value
+        == "condition_specific_absence"
+    )
+    assert entry_lookup["P_STABLE"].censoring_status.value == "uncensored"
+    assert (
+        "entity_id\tlog2fc_estimate\tcensored_p_value\tq_value\tcensoring_status"
+        in rendered
+    )
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
