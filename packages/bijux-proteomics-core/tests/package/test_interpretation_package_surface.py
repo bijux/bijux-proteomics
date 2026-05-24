@@ -177,3 +177,51 @@ def test_interpretation_package_exports_biological_context_mapping_surface() -> 
 
     assert "supporting_protein_refs" in rendered.splitlines()[0]
     assert "P04637" in rendered
+
+
+def test_interpretation_package_exports_foreground_background_model_surface() -> None:
+    model = interpretation.build_biological_foreground_background_model(
+        (
+            interpretation.ProteinReferenceEntry(
+                row_number=2,
+                source_row_id="foreground:1",
+                input_protein_ref="P04637",
+                protein_ref="P04637",
+            ),
+        ),
+        (
+            interpretation.ProteinReferenceEntry(
+                row_number=2,
+                source_row_id="background:1",
+                input_protein_ref="P04637",
+                protein_ref="P04637",
+            ),
+            interpretation.ProteinReferenceEntry(
+                row_number=3,
+                source_row_id="background:2",
+                input_protein_ref="Q9Y243",
+                protein_ref="Q9Y243",
+            ),
+        ),
+        foreground_source_kind=(
+            interpretation.BiologicalSetSourceKind.DIFFERENTIAL_SIGNIFICANT_RESULTS
+        ),
+        background_source_kind=interpretation.BiologicalSetSourceKind.MEASURED_QUANT_MATRIX,
+        foreground_policy=interpretation.BiologicalSetFilteringPolicy(
+            policy_name="significant proteins",
+            max_adjusted_p_value=0.1,
+            min_absolute_log2_fold_change=1.0,
+            note="foreground keeps significant proteins from the contrast",
+        ),
+        background_policy=interpretation.BiologicalSetFilteringPolicy(
+            policy_name="measured matrix",
+            note="background keeps all measured proteins",
+        ),
+    )
+
+    assert hasattr(interpretation, "build_biological_foreground_background_model")
+    assert hasattr(interpretation, "render_biological_foreground_background_summary_tsv")
+    assert model.summary.valid_for_enrichment is True
+    assert "foreground_source_kind" in (
+        interpretation.render_biological_foreground_background_summary_tsv(model)
+    )
