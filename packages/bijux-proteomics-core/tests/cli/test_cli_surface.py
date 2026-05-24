@@ -1199,6 +1199,65 @@ def test_regulator_inference_command_emits_separated_site_and_abundance_outputs(
         )
 
 
+def test_disease_phenotype_command_emits_explicit_annotation_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_disease_phenotype.tsv",
+            "biological_report_disease_phenotype.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "disease-phenotype",
+                "biological_report_features.tsv",
+                "biological_report_disease_phenotype.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--summary-tsv-out",
+                "disease_phenotype.summary.tsv",
+                "--interpretation-tsv-out",
+                "disease_phenotype.tsv",
+                "--unknown-annotation-tsv-out",
+                "disease_phenotype.unknown.tsv",
+                "--rejected-context-tsv-out",
+                "disease_phenotype.rejected.tsv",
+                "--max-adjusted-p-value",
+                "1.0",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["term_count"] == 4
+        assert payload["report"]["summary"]["disease_term_count"] == 2
+        assert payload["report"]["summary"]["phenotype_term_count"] == 2
+        assert Path("disease_phenotype.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("term_count\tdisease_term_count\tphenotype_term_count")
+        assert "context_kind\tterm_id\tterm_name\tsource_name" in Path(
+            "disease_phenotype.tsv"
+        ).read_text()
+        assert "DOID:162" in Path("disease_phenotype.tsv").read_text()
+        assert Path("disease_phenotype.unknown.tsv").read_text().splitlines()[
+            0
+        ] == "annotation_scope\tprotein_ref\treason"
+        assert Path("disease_phenotype.rejected.tsv").read_text().splitlines()[
+            0
+        ].startswith("row_number")
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
