@@ -149,3 +149,9 @@ def test_review_package_import_contract() -> None:
 
     assert hasattr(module, "build_biological_claim_validation_report")
     assert hasattr(module, "build_biological_hypothesis_report")
+
+
+def test_targeted_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.targeted")
+
+    assert hasattr(module, "build_discovery_targeted_peptide_selection_report")
