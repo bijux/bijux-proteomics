@@ -9,6 +9,9 @@ from pathlib import Path
 from bijux_proteomics.io.retention_time_alignment import (
     align_chromatographic_peak_retention_times,
     extract_mzml_retention_time_alignment,
+    fit_rt_alignment,
+    RetentionTimeAlignmentAnchor,
+    render_rt_alignment_fit_models_tsv,
     render_retention_time_alignment_failed_anchors_tsv,
     render_retention_time_alignment_models_tsv,
     render_retention_time_alignment_residuals_tsv,
@@ -20,6 +23,29 @@ from bijux_proteomics.io.chromatographic_peak_picking import (
 
 def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
+
+
+def test_fit_rt_alignment_reduces_shifted_run_anchor_residuals() -> None:
+    report = fit_rt_alignment(
+        (
+            _anchor("shifted_run", "anchor_alpha", 20.0, 10.0, 1.0),
+            _anchor("shifted_run", "anchor_beta", 50.0, 40.0, 1.0),
+            _anchor("shifted_run", "anchor_gamma", 80.0, 60.0, 0.5),
+        ),
+        min_anchor_count=2,
+    )
+    model = report.models[0]
+    rendered = render_rt_alignment_fit_models_tsv(report)
+
+    assert model.alignment_model == "confidence_weighted_shift"
+    assert isclose(model.rt_shift or 0.0, 10.0, abs_tol=1e-9)
+    assert isclose(model.rt_residual_median or 0.0, 0.0, abs_tol=1e-9)
+    assert isclose(model.unaligned_rt_residual_median or 0.0, 10.0, abs_tol=1e-9)
+    assert model.rt_residual_median < model.unaligned_rt_residual_median
+    assert rendered.splitlines()[0] == (
+        "run_id\talignment_model\trt_shift\trt_residual_median\tfailed_anchor_count"
+    )
+    assert "shifted_run\tconfidence_weighted_shift\t10\t0\t0" in rendered
 
 
 def test_align_chromatographic_peak_retention_times_builds_shift_models_and_flags_drift() -> None:
@@ -43,9 +69,15 @@ def test_align_chromatographic_peak_retention_times_builds_shift_models_and_flag
     assert len(report.run_models) == 2
     assert report.run_models[0].status.value == "reference"
     assert report.run_models[0].shift_seconds == 0.0
+    assert report.run_models[0].alignment_model == "reference_identity"
+    assert report.run_models[0].rt_shift == 0.0
     assert report.run_models[1].run_id == "rt_alignment_shifted"
     assert report.run_models[1].status.value == "aligned"
+    assert report.run_models[1].alignment_model == "confidence_weighted_shift"
     assert report.run_models[1].anchor_count == 3
+    assert report.run_models[1].failed_anchor_count == 1
+    assert isclose(report.run_models[1].rt_shift or 0.0, 10.0, abs_tol=1e-9)
+    assert isclose(report.run_models[1].rt_residual_median or 0.0, 0.0, abs_tol=1e-9)
     assert isclose(report.run_models[1].shift_seconds or 0.0, 10.0, abs_tol=1e-9)
     assert isclose(
         report.run_models[1].median_absolute_residual_seconds or 0.0,
@@ -108,14 +140,18 @@ def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_
     failed_tsv = render_retention_time_alignment_failed_anchors_tsv(report)
 
     assert models_tsv.splitlines()[0] == (
-        "run_id\tsource_path\treference_run_id\tstatus\tanchor_count\tshift_seconds\t"
+        "run_id\tsource_path\treference_run_id\tstatus\tanchor_count\talignment_model\t"
+        "rt_shift\trt_residual_median\tfailed_anchor_count\tshift_seconds\t"
         "median_absolute_residual_seconds\tmax_absolute_residual_seconds\tfailure_reason"
     )
     assert (
         "rt_alignment_shifted\t"
         in models_tsv
     )
-    assert "\taligned\t3\t10\t0\t10\t" in models_tsv
+    assert (
+        "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t"
+        in models_tsv
+    )
     assert residuals_tsv.splitlines()[0] == (
         "run_id\tsource_path\ttarget_id\treference_peak_id\trun_peak_id\t"
         "reference_apex_time_seconds\tobserved_apex_time_seconds\t"
@@ -138,3 +174,19 @@ def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_
         in failed_tsv
     )
     assert "\tanchor_delta\tmissing_run_peak\t1\t0" in failed_tsv
+
+
+def _anchor(
+    run_id: str,
+    peptide_id: str,
+    observed_rt: float,
+    reference_rt: float,
+    anchor_confidence: float,
+):
+    return RetentionTimeAlignmentAnchor(
+        run_id=run_id,
+        peptide_id=peptide_id,
+        observed_rt=observed_rt,
+        reference_rt=reference_rt,
+        anchor_confidence=anchor_confidence,
+    )
