@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from html import escape
 from io import StringIO
 from pathlib import Path
@@ -299,6 +300,11 @@ class BiologicalResultReportSummary(JsonModel):
     experiment_confidence_score: float = Field(..., ge=0.0, le=1.0)
     experiment_confidence_tier: str = Field(..., min_length=1)
     low_confidence_component_count: int = Field(..., ge=0)
+    high_confidence_section_count: int = Field(..., ge=0)
+    moderate_confidence_section_count: int = Field(..., ge=0)
+    weak_confidence_section_count: int = Field(..., ge=0)
+    exploratory_section_count: int = Field(..., ge=0)
+    invalid_section_count: int = Field(..., ge=0)
     context_entry_count: int = Field(..., ge=0)
     context_unmapped_count: int = Field(..., ge=0)
     context_term_count: int = Field(..., ge=0)
@@ -342,8 +348,54 @@ class BiologicalResultReportBundle(JsonModel):
     heatmap_report: HeatmapPreparationReport
     sample_exploration_report: SampleExplorationReport
     selection_policy: BiologicalResultSelectionPolicy
+    section_confidence_entries: tuple["BiologicalReportSectionConfidenceEntry", ...] = (
+        Field(default_factory=tuple)
+    )
     summary: BiologicalResultReportSummary
     note: str = Field(..., min_length=1)
+
+
+class BiologicalReportSectionKey(StrEnum):
+    """Stable identifiers for biological report sections with scientific confidence."""
+
+    EXPERIMENT_CONFIDENCE = "experiment_confidence"
+    EVIDENCE_AWARE_RANKING = "evidence_aware_ranking"
+    VALIDATED_BIOLOGICAL_CLAIMS = "validated_biological_claims"
+    BIOLOGICAL_HYPOTHESES = "biological_hypotheses"
+    ENRICHMENT_FOREGROUND_BACKGROUND = "enrichment_foreground_background"
+    REGULATOR_INFERENCE = "regulator_inference"
+    DRUG_TARGET_INTERPRETATION = "drug_target_interpretation"
+    DISEASE_PHENOTYPE_INTERPRETATION = "disease_phenotype_interpretation"
+    COHORT_STRATIFICATION = "cohort_stratification"
+    TISSUE_CELL_TYPE_CONTEXT = "tissue_cell_type_context"
+    COMPARTMENT_BIOLOGY = "compartment_biology"
+    PATHWAY_ACTIVITY = "pathway_activity"
+    COMPLEX_ACTIVITY = "complex_activity"
+    PROTEIN_MECHANISM_CARDS = "protein_mechanism_cards"
+
+
+class BiologicalReportSectionConfidenceLabel(StrEnum):
+    """Derived confidence labels for scientific report sections."""
+
+    HIGH = "high"
+    MODERATE = "moderate"
+    WEAK = "weak"
+    EXPLORATORY = "exploratory"
+    INVALID = "invalid"
+
+
+class BiologicalReportSectionConfidenceEntry(JsonModel):
+    """One deterministic confidence assignment for a biological report section."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    section_key: BiologicalReportSectionKey
+    section_title: str = Field(..., min_length=1)
+    confidence_label: BiologicalReportSectionConfidenceLabel
+    rationale: str = Field(..., min_length=1)
+
+
+BiologicalResultReportBundle.model_rebuild()
 
 
 class BiologicalResultReportArtifactPaths(JsonModel):
@@ -461,6 +513,490 @@ class BiologicalResultReportExportManifest(JsonModel):
     pathway_summary_included: bool
     complex_summary_included: bool
     note: str = Field(..., min_length=1)
+
+
+_BIOLOGICAL_REPORT_SECTION_TITLES: dict[BiologicalReportSectionKey, str] = {
+    BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE: "Experiment confidence",
+    BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING: "Evidence-aware ranking",
+    BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS: "Validated biological claims",
+    BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES: "Biological hypotheses",
+    BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND: (
+        "Enrichment foreground/background model"
+    ),
+    BiologicalReportSectionKey.REGULATOR_INFERENCE: "Regulator inference",
+    BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION: "Drug-target interpretation",
+    BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION: (
+        "Disease and phenotype interpretation"
+    ),
+    BiologicalReportSectionKey.COHORT_STRATIFICATION: "Cohort stratification",
+    BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT: "Tissue and cell-type context",
+    BiologicalReportSectionKey.COMPARTMENT_BIOLOGY: "Compartment biology",
+    BiologicalReportSectionKey.PATHWAY_ACTIVITY: "Pathway activity",
+    BiologicalReportSectionKey.COMPLEX_ACTIVITY: "Complex activity",
+    BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS: "Protein mechanism cards",
+}
+
+
+def _build_section_confidence_entry(
+    section_key: BiologicalReportSectionKey,
+    confidence_label: BiologicalReportSectionConfidenceLabel,
+    rationale: str,
+) -> BiologicalReportSectionConfidenceEntry:
+    return BiologicalReportSectionConfidenceEntry(
+        section_key=section_key,
+        section_title=_BIOLOGICAL_REPORT_SECTION_TITLES[section_key],
+        confidence_label=confidence_label,
+        rationale=rationale,
+    )
+
+
+def _build_biological_report_section_confidence_entries(
+    *,
+    experiment_confidence_report: ExperimentConfidenceReport,
+    evidence_aware_ranking_report: EvidenceAwareRankingReport | None,
+    claim_validation_report: BiologicalClaimValidationReport | None,
+    biological_hypothesis_report: BiologicalHypothesisReport | None,
+    foreground_background_model: BiologicalForegroundBackgroundModel,
+    regulator_inference_report: RegulatorInferenceReport | None,
+    drug_target_report: DrugTargetInterpretationReport | None,
+    disease_phenotype_report: DiseasePhenotypeInterpretationReport | None,
+    cohort_stratification_report: CohortStratificationReport | None,
+    tissue_cell_type_context_report: TissueCellTypeContextReport | None,
+    compartment_biology_report: CompartmentBiologyReport | None,
+    pathway_activity_report: PathwayActivityReport | None,
+    complex_activity_report: ComplexActivityReport | None,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+) -> tuple[BiologicalReportSectionConfidenceEntry, ...]:
+    entries: list[BiologicalReportSectionConfidenceEntry] = []
+    summary = experiment_confidence_report.summary
+    if summary.overall_tier.value == "high_confidence":
+        if summary.low_confidence_component_count == 0:
+            entries.append(
+                _build_section_confidence_entry(
+                    BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
+                    BiologicalReportSectionConfidenceLabel.HIGH,
+                    "overall experimental confidence is high and no components were downgraded",
+                )
+            )
+        else:
+            entries.append(
+                _build_section_confidence_entry(
+                    BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
+                    BiologicalReportSectionConfidenceLabel.MODERATE,
+                    "overall experimental confidence is high but at least one component remained low-confidence",
+                )
+            )
+    elif summary.overall_tier.value == "moderate_confidence":
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
+                BiologicalReportSectionConfidenceLabel.MODERATE,
+                "overall experimental confidence is moderate after aggregating metadata, missingness, power, and QC checks",
+            )
+        )
+    else:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
+                BiologicalReportSectionConfidenceLabel.WEAK,
+                "overall experimental confidence is low because multiple design or QC components were downgraded",
+            )
+        )
+
+    if evidence_aware_ranking_report is None or not evidence_aware_ranking_report.entries:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no evidence-aware ranking entries were produced",
+            )
+        )
+    else:
+        top_score = evidence_aware_ranking_report.entries[0].decomposition.final_score
+        if top_score >= 0.8:
+            ranking_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif top_score >= 0.55:
+            ranking_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            ranking_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING,
+                ranking_label,
+                f"ranking confidence derives from the top evidence-aware final score ({top_score:.3f}) across governed findings",
+            )
+        )
+
+    if claim_validation_report is None or claim_validation_report.summary.candidate_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no biological claim candidates were available for validation",
+            )
+        )
+    else:
+        supported_count = claim_validation_report.summary.supported_claim_count
+        candidate_count = claim_validation_report.summary.candidate_count
+        support_fraction = supported_count / candidate_count
+        if supported_count == 0:
+            claim_label = BiologicalReportSectionConfidenceLabel.INVALID
+            claim_rationale = "all candidate biological claims were rejected by directional or evidence checks"
+        elif support_fraction >= 0.75 and claim_validation_report.summary.rejected_claim_count == 0:
+            claim_label = BiologicalReportSectionConfidenceLabel.HIGH
+            claim_rationale = (
+                "most candidate biological claims remained supported and none were rejected"
+            )
+        elif support_fraction >= 0.4:
+            claim_label = BiologicalReportSectionConfidenceLabel.MODERATE
+            claim_rationale = (
+                "supported biological claims remain after validation, but a material fraction were rejected"
+            )
+        else:
+            claim_label = BiologicalReportSectionConfidenceLabel.WEAK
+            claim_rationale = (
+                "validated biological claims are sparse relative to the candidate claim set"
+            )
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
+                claim_label,
+                claim_rationale,
+            )
+        )
+
+    if (
+        biological_hypothesis_report is None
+        or biological_hypothesis_report.summary.candidate_count == 0
+        or biological_hypothesis_report.summary.hypothesis_count == 0
+    ):
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no graph-backed biological hypotheses were produced",
+            )
+        )
+    else:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES,
+                BiologicalReportSectionConfidenceLabel.EXPLORATORY,
+                (
+                    "hypotheses are intentionally exploratory follow-up statements, "
+                    f"with {biological_hypothesis_report.summary.high_confidence_hypothesis_count} high-confidence hypotheses retained"
+                ),
+            )
+        )
+
+    if not foreground_background_model.summary.valid_for_enrichment:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "foreground/background construction failed the enrichment validity checks",
+            )
+        )
+    else:
+        issue_count = foreground_background_model.summary.issue_count
+        if issue_count == 0:
+            enrichment_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif issue_count == 1:
+            enrichment_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            enrichment_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND,
+                enrichment_label,
+                (
+                    "foreground/background confidence derives from enrichment validity and "
+                    f"{issue_count} modeled issue(s)"
+                ),
+            )
+        )
+
+    if regulator_inference_report is None or regulator_inference_report.summary.entry_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.REGULATOR_INFERENCE,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no regulator entries were supported by the supplied evidence tables",
+            )
+        )
+    else:
+        high_scoring = regulator_inference_report.summary.high_scoring_entry_count
+        unresolved_targets = regulator_inference_report.summary.unresolved_target_count
+        if high_scoring > 0 and unresolved_targets == 0:
+            regulator_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif high_scoring > 0:
+            regulator_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            regulator_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.REGULATOR_INFERENCE,
+                regulator_label,
+                (
+                    "regulator confidence derives from high-scoring inferred regulators and "
+                    f"{unresolved_targets} unresolved target set(s)"
+                ),
+            )
+        )
+
+    if drug_target_report is None or drug_target_report.summary.entry_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no drug-target relationships were supported by explicit target annotations",
+            )
+        )
+    else:
+        summary = drug_target_report.summary
+        if summary.high_evidence_entry_count > 0 and summary.direct_target_entry_count > 0:
+            drug_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif summary.high_evidence_entry_count + summary.moderate_evidence_entry_count > 0:
+            drug_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            drug_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION,
+                drug_label,
+                (
+                    "drug-target confidence derives from explicit target evidence tiers and "
+                    f"{summary.direct_target_entry_count} direct target entries"
+                ),
+            )
+        )
+
+    if disease_phenotype_report is None or disease_phenotype_report.summary.evaluated_term_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no disease or phenotype terms were evaluable from the supplied annotations",
+            )
+        )
+    else:
+        summary = disease_phenotype_report.summary
+        if summary.high_confidence_term_count > 0 and summary.unknown_foreground_protein_count == 0:
+            disease_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif summary.filter_passing_term_count > 0:
+            disease_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            disease_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION,
+                disease_label,
+                (
+                    "disease and phenotype confidence derives from passing-term counts and "
+                    f"{summary.unknown_foreground_protein_count} unknown foreground proteins"
+                ),
+            )
+        )
+
+    if cohort_stratification_report is None or cohort_stratification_report.summary.supported_stratum_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COHORT_STRATIFICATION,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no supported subgroup strata passed the cohort stratification feasibility checks",
+            )
+        )
+    else:
+        summary = cohort_stratification_report.summary
+        if summary.subgroup_effect_count > 0 or summary.interaction_candidate_count > 0:
+            cohort_label = BiologicalReportSectionConfidenceLabel.EXPLORATORY
+        else:
+            cohort_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COHORT_STRATIFICATION,
+                cohort_label,
+                (
+                    "cohort stratification confidence derives from supported subgroup strata and "
+                    f"{summary.interaction_candidate_count} interaction candidate(s)"
+                ),
+            )
+        )
+
+    if (
+        tissue_cell_type_context_report is None
+        or tissue_cell_type_context_report.summary.sample_with_marker_definition_count == 0
+    ):
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no samples carried marker definitions for tissue or cell-type validation",
+            )
+        )
+    else:
+        summary = tissue_cell_type_context_report.summary
+        if summary.mismatch_warning_count > 0:
+            tissue_label = BiologicalReportSectionConfidenceLabel.WEAK
+        elif summary.insufficient_marker_support_count > 0:
+            tissue_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            tissue_label = BiologicalReportSectionConfidenceLabel.HIGH
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT,
+                tissue_label,
+                (
+                    "tissue and cell-type context confidence derives from sample marker agreement, "
+                    f"{summary.mismatch_warning_count} mismatch warning(s), and "
+                    f"{summary.insufficient_marker_support_count} insufficient-support sample(s)"
+                ),
+            )
+        )
+
+    if compartment_biology_report is None or compartment_biology_report.summary.compartment_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no compartments were evaluable from the supplied localization context",
+            )
+        )
+    else:
+        summary = compartment_biology_report.summary
+        if (
+            summary.condition_comparison_count > 0
+            and summary.low_confidence_sample_score_count == 0
+            and summary.unresolved_member_count == 0
+            and summary.unknown_foreground_protein_count == 0
+        ):
+            compartment_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif summary.condition_comparison_count > 0:
+            compartment_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            compartment_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
+                compartment_label,
+                (
+                    "compartment confidence derives from condition comparisons, unresolved members, "
+                    "and unknown-localization counts"
+                ),
+            )
+        )
+
+    if pathway_activity_report is None or pathway_activity_report.summary.pathway_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.PATHWAY_ACTIVITY,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no pathways were evaluable for activity scoring",
+            )
+        )
+    else:
+        summary = pathway_activity_report.summary
+        if (
+            summary.condition_comparison_count > 0
+            and summary.low_confidence_sample_score_count == 0
+            and summary.unresolved_member_count == 0
+        ):
+            pathway_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif summary.condition_comparison_count > 0:
+            pathway_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            pathway_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.PATHWAY_ACTIVITY,
+                pathway_label,
+                (
+                    "pathway activity confidence derives from pathway comparisons, "
+                    f"{summary.low_confidence_sample_score_count} low-confidence sample score(s), "
+                    f"and {summary.unresolved_member_count} unresolved member(s)"
+                ),
+            )
+        )
+
+    if complex_activity_report is None or complex_activity_report.summary.complex_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COMPLEX_ACTIVITY,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no complexes were evaluable for activity scoring",
+            )
+        )
+    else:
+        summary = complex_activity_report.summary
+        if (
+            summary.condition_comparison_count > 0
+            and summary.low_confidence_sample_score_count == 0
+            and summary.unresolved_member_count == 0
+        ):
+            complex_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif summary.condition_comparison_count > 0:
+            complex_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            complex_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.COMPLEX_ACTIVITY,
+                complex_label,
+                (
+                    "complex activity confidence derives from complex comparisons, "
+                    f"{summary.low_confidence_sample_score_count} low-confidence sample score(s), "
+                    f"and {summary.unresolved_member_count} unresolved member(s)"
+                ),
+            )
+        )
+
+    if protein_mechanism_cards.summary.card_count == 0:
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS,
+                BiologicalReportSectionConfidenceLabel.INVALID,
+                "no protein mechanism cards were generated",
+            )
+        )
+    else:
+        high_card_count = sum(
+            1 for card in protein_mechanism_cards.cards if card.confidence_tier.value == "high"
+        )
+        moderate_card_count = sum(
+            1
+            for card in protein_mechanism_cards.cards
+            if card.confidence_tier.value == "moderate"
+        )
+        if (
+            high_card_count == protein_mechanism_cards.summary.card_count
+            and protein_mechanism_cards.summary.weak_evidence_card_count == 0
+        ):
+            mechanism_label = BiologicalReportSectionConfidenceLabel.HIGH
+        elif high_card_count + moderate_card_count > 0:
+            mechanism_label = BiologicalReportSectionConfidenceLabel.MODERATE
+        else:
+            mechanism_label = BiologicalReportSectionConfidenceLabel.WEAK
+        entries.append(
+            _build_section_confidence_entry(
+                BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS,
+                mechanism_label,
+                (
+                    "protein mechanism card confidence derives from per-card propagated confidence tiers and "
+                    f"{protein_mechanism_cards.summary.weak_evidence_card_count} weak-evidence card(s)"
+                ),
+            )
+        )
+
+    return tuple(entries)
+
+
+def _count_section_confidence_labels(
+    entries: tuple[BiologicalReportSectionConfidenceEntry, ...],
+) -> dict[BiologicalReportSectionConfidenceLabel, int]:
+    counts = {label: 0 for label in BiologicalReportSectionConfidenceLabel}
+    for entry in entries:
+        counts[entry.confidence_label] += 1
+    return counts
 
 
 def build_biological_result_report_bundle(
@@ -1022,6 +1558,25 @@ def build_biological_result_report_bundle_from_quant_table(
     significant_protein_count = len(
         _select_significant_entity_ids(differential_report, policy=active_selection_policy)
     )
+    section_confidence_entries = _build_biological_report_section_confidence_entries(
+        experiment_confidence_report=experiment_confidence_report,
+        evidence_aware_ranking_report=evidence_aware_ranking_report,
+        claim_validation_report=claim_validation_report,
+        biological_hypothesis_report=biological_hypothesis_report,
+        foreground_background_model=foreground_background_model,
+        regulator_inference_report=regulator_inference_report,
+        drug_target_report=drug_target_report,
+        disease_phenotype_report=disease_phenotype_report,
+        cohort_stratification_report=cohort_stratification_report,
+        tissue_cell_type_context_report=tissue_cell_type_context_report,
+        compartment_biology_report=compartment_biology_report,
+        pathway_activity_report=pathway_activity_report,
+        complex_activity_report=complex_activity_report,
+        protein_mechanism_cards=protein_mechanism_cards,
+    )
+    section_confidence_counts = _count_section_confidence_labels(
+        section_confidence_entries
+    )
     return BiologicalResultReportBundle(
         differential_report=differential_report,
         graph_report=graph_report,
@@ -1051,6 +1606,7 @@ def build_biological_result_report_bundle_from_quant_table(
         heatmap_report=heatmap_report,
         sample_exploration_report=sample_exploration_report,
         selection_policy=active_selection_policy,
+        section_confidence_entries=section_confidence_entries,
         summary=BiologicalResultReportSummary(
             protein_count=len(normalized_table.entity_ids),
             significant_protein_count=significant_protein_count,
@@ -1086,6 +1642,21 @@ def build_biological_result_report_bundle_from_quant_table(
             low_confidence_component_count=(
                 experiment_confidence_report.summary.low_confidence_component_count
             ),
+            high_confidence_section_count=section_confidence_counts[
+                BiologicalReportSectionConfidenceLabel.HIGH
+            ],
+            moderate_confidence_section_count=section_confidence_counts[
+                BiologicalReportSectionConfidenceLabel.MODERATE
+            ],
+            weak_confidence_section_count=section_confidence_counts[
+                BiologicalReportSectionConfidenceLabel.WEAK
+            ],
+            exploratory_section_count=section_confidence_counts[
+                BiologicalReportSectionConfidenceLabel.EXPLORATORY
+            ],
+            invalid_section_count=section_confidence_counts[
+                BiologicalReportSectionConfidenceLabel.INVALID
+            ],
             context_entry_count=(
                 0
                 if context_mapping_report is None
@@ -2239,6 +2810,36 @@ def render_biological_result_report_summary_tsv(
         (
             "low_confidence_component_count",
             report.summary.low_confidence_component_count,
+        )
+    )
+    writer.writerow(
+        (
+            "high_confidence_section_count",
+            report.summary.high_confidence_section_count,
+        )
+    )
+    writer.writerow(
+        (
+            "moderate_confidence_section_count",
+            report.summary.moderate_confidence_section_count,
+        )
+    )
+    writer.writerow(
+        (
+            "weak_confidence_section_count",
+            report.summary.weak_confidence_section_count,
+        )
+    )
+    writer.writerow(
+        (
+            "exploratory_section_count",
+            report.summary.exploratory_section_count,
+        )
+    )
+    writer.writerow(
+        (
+            "invalid_section_count",
+            report.summary.invalid_section_count,
         )
     )
     writer.writerow(("context_entry_count", report.summary.context_entry_count))
