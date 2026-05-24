@@ -16,13 +16,19 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.io.chromatographic_peak_picking import (
     ChromatographicPeak,
     ChromatographicPeakPickingReport,
+    PeakShapeQualityTier,
     extract_mzml_chromatographic_peaks,
+    score_peak_shape,
 )
 from bijux_proteomics.io.retention_time_alignment import (
     RetentionTimeAlignmentReport,
     extract_mzml_retention_time_alignment,
 )
-from bijux_proteomics.io.xic_extraction import XicTargetEntry, XicTargetParseReport
+from bijux_proteomics.io.xic_extraction import (
+    XicTargetEntry,
+    XicTargetParseReport,
+    XicTracePoint,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -128,7 +134,11 @@ def score_chromatographic_evidence(
             detected_run_count += 1
             selected_peak = max(run_peaks, key=lambda peak: (peak.area, peak.height))
             ambiguous_run = len(run_peaks) > 1
-            run_shape_score = _shape_score(selected_peak, ambiguous_run=ambiguous_run)
+            run_shape_score = _shape_score(
+                selected_peak,
+                entry.report,
+                ambiguous_run=ambiguous_run,
+            )
             run_apex_score = _bounded_fraction(
                 selected_peak.apex_intensity,
                 max_apex_by_run[entry.run_id],
@@ -365,11 +375,18 @@ def _peaks_for_target(
     return tuple(peak for peak in report.peaks if peak.target_id == target_id)
 
 
-def _shape_score(peak: ChromatographicPeak, *, ambiguous_run: bool) -> float:
-    left_span = max(peak.apex_time_seconds - peak.start_time_seconds, 0.0)
-    right_span = max(peak.end_time_seconds - peak.apex_time_seconds, 0.0)
-    total_span = max(left_span + right_span, 1.0)
-    symmetry_score = max(0.0, 1.0 - abs(left_span - right_span) / total_span)
+def _shape_score(
+    peak: ChromatographicPeak,
+    report: ChromatographicPeakPickingReport,
+    *,
+    ambiguous_run: bool,
+) -> float:
+    shape = score_peak_shape(_peak_trace(report, peak))
+    raw_shape_score = shape.symmetry_score
+    if shape.shape_quality_tier is PeakShapeQualityTier.JAGGED_NOISY:
+        raw_shape_score *= 0.8
+    elif shape.shape_quality_tier is PeakShapeQualityTier.FLAT_BROAD:
+        raw_shape_score *= 0.6
     penalty = 1.0
     if peak.overlap_flag:
         penalty *= 0.6
@@ -377,7 +394,19 @@ def _shape_score(peak: ChromatographicPeak, *, ambiguous_run: bool) -> float:
         penalty *= 0.7
     if ambiguous_run:
         penalty *= 0.4
-    return round(max(0.0, min(1.0, symmetry_score * penalty)), 4)
+    return round(max(0.0, min(1.0, raw_shape_score * penalty)), 4)
+
+
+def _peak_trace(
+    report: ChromatographicPeakPickingReport,
+    peak: ChromatographicPeak,
+) -> tuple[XicTracePoint, ...]:
+    return tuple(
+        point
+        for point in report.trace_report.trace_points
+        if point.target_id == peak.target_id
+        and peak.start_time_seconds <= point.time_seconds <= peak.end_time_seconds
+    )
 
 
 def _signal_to_noise_score(peak: ChromatographicPeak) -> float:

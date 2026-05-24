@@ -98,7 +98,7 @@ def test_extract_mzml_chromatographic_evidence_composes_alignment_and_renders_ts
         "chromatographic_evidence_score\tflagged_run_ids\tmissing_run_ids\tconcern_codes"
     )
     assert (
-        "anchor_gamma\tPEPC\t700.000000\t2\t2\t0\t0.8334\t1.0000\t1.0000\t0.0000\t1.0000"
+        "anchor_gamma\tPEPC\t700.000000\t2\t2\t0\t0.9166\t1.0000\t1.0000\t0.0000\t1.0000\t0.7792"
         in target_tsv
     )
     assert peptide_tsv.splitlines()[0] == (
