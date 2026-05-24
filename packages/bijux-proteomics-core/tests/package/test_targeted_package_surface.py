@@ -88,12 +88,35 @@ def test_targeted_package_exports_transition_coelution_owner_surface() -> None:
         _format_fixture("skyline_targeted_qc_results.tsv")
     )
     rendered = targeted.render_targeted_transition_coelution_target_tsv(report)
+    raw_rows = targeted.score_transition_coelution(
+        (
+            targeted.TargetedTransitionTracePoint(
+                target_id="PEPTIDEK/2",
+                sample_id="treat_r2",
+                transition_id="y7",
+                rt=13.3,
+                intensity=20000.0,
+            ),
+            targeted.TargetedTransitionTracePoint(
+                target_id="PEPTIDEK/2",
+                sample_id="treat_r2",
+                transition_id="y8",
+                rt=14.0,
+                intensity=18000.0,
+            ),
+        )
+    )
+    raw_rendered = targeted.render_transition_coelution_tsv(raw_rows)
 
     assert hasattr(targeted, "build_targeted_transition_coelution_report")
+    assert hasattr(targeted, "score_transition_coelution")
+    assert hasattr(targeted, "render_transition_coelution_tsv")
     assert hasattr(targeted, "render_targeted_transition_coelution_target_tsv")
     assert hasattr(targeted, "render_targeted_transition_coelution_transition_tsv")
     assert report.summary.target_entry_count == 8
     assert report.summary.flagged_target_entry_count == 3
+    assert raw_rows[0].coelution_tier.value == "insufficient"
+    assert "passing_transition_count" in raw_rendered
     assert "fewer than two coeluting transitions support the target" in rendered
 
 

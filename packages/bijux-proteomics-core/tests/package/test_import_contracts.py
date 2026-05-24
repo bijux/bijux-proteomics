@@ -210,4 +210,6 @@ def test_targeted_package_import_contract() -> None:
     assert hasattr(module, "build_targeted_panel_design_report")
     assert hasattr(module, "build_targeted_result_validation_report")
     assert hasattr(module, "build_targeted_transition_selection_report")
+    assert hasattr(module, "score_transition_coelution")
+    assert hasattr(module, "render_transition_coelution_tsv")
     assert hasattr(module, "build_validation_experiment_planning_report")
