@@ -11,6 +11,7 @@ from bijux_proteomics.ptm import (
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
     build_ptm_report_bundle,
+    parse_ptm_ortholog_site_tsv,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
     render_ptm_report_differential_tsv,
@@ -43,7 +44,12 @@ def _protein_sequences() -> dict[str, str]:
 
 
 def _design_entries():
-    return parse_experimental_design_table(_ptm_fixture("ptm.design.tsv")).accepted_entries
+    return tuple(
+        entry.model_copy(update={"batch": None})
+        for entry in parse_experimental_design_table(
+            _ptm_fixture("ptm.design.tsv")
+        ).accepted_entries
+    )
 
 
 def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
@@ -62,6 +68,7 @@ def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
     assert report.summary.localization_entry_count == 8
     assert report.summary.evidence_card_count == 0
     assert report.summary.narrative_claim_count == 0
+    assert report.summary.ortholog_conservation_entry_count == 0
     assert any(
         entry.localized_peptide == "S[Phospho]PEPTIDEK"
         for entry in report.peptide_entries
@@ -94,7 +101,7 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
         "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
         "quantified_site_row_count\tdifferential_site_count\tmotif_term_count\t"
-        "evidence_card_count\tnarrative_claim_count"
+        "evidence_card_count\tnarrative_claim_count\tortholog_conservation_entry_count"
     )
     assert peptide_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide"
@@ -109,6 +116,7 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
     annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
 
     report = build_ptm_report_bundle(
         evidence.accepted_records,
@@ -127,6 +135,9 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
+        ortholog_site_records=ortholog_sites.accepted_records,
+        ortholog_source_species="Homo sapiens",
+        ortholog_target_species="Mus musculus",
         evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
@@ -134,9 +145,13 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     assert report.summary.differential_site_count == 3
     assert report.summary.evidence_card_count == 3
     assert report.summary.narrative_claim_count == 3
+    assert report.summary.ortholog_conservation_entry_count == 5
     assert report.site_quantification is not None
     assert report.differential_analysis is not None
     assert report.evidence_cards is not None
+    assert report.ortholog_conservation is not None
+    assert report.ortholog_conservation.summary.unmapped_site_count == 2
+    assert report.evidence_cards.cards[0].ortholog_conservation is not None
     assert report.differential_analysis.protein_correction_mode.value == (
         "subtract_unmodified_protein"
     )

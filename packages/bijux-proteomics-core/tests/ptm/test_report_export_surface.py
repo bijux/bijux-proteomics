@@ -14,6 +14,7 @@ from bijux_proteomics.ptm import (
     build_ptm_report_bundle,
     export_ptm_report_bundle,
     parse_ptm_localization_tsv,
+    parse_ptm_ortholog_site_tsv,
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import parse_ms1_feature_table
@@ -42,9 +43,13 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
     annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
-    design_entries = parse_experimental_design_table(
-        _ptm_fixture("ptm.design.tsv")
-    ).accepted_entries
+    ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
+    design_entries = tuple(
+        entry.model_copy(update={"batch": None})
+        for entry in parse_experimental_design_table(
+            _ptm_fixture("ptm.design.tsv")
+        ).accepted_entries
+    )
     report = build_ptm_report_bundle(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -62,6 +67,9 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
+        ortholog_site_records=ortholog_sites.accepted_records,
+        ortholog_source_species="Homo sapiens",
+        ortholog_target_species="Mus musculus",
         evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
@@ -71,6 +79,7 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert manifest.summary.accepted_evidence_count == 8
     assert manifest.summary.quantified_site_row_count == 3
     assert manifest.summary.differential_site_count == 3
+    assert manifest.summary.ortholog_conservation_entry_count == 5
     assert manifest.motif_summary_included is True
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.peptide_tsv).exists()
@@ -79,6 +88,8 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.site_quant_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
+    assert (output_dir / manifest.artifacts.ortholog_conservation_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.ortholog_conservation_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_card_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_claim_tsv).exists()
     assert "S[Phospho]PEPTIDEK" in (
@@ -98,6 +109,12 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     ).read_text()
     assert "exclusive_to_regulated" in (
         output_dir / manifest.artifacts.motif_term_tsv
+    ).read_text()
+    assert "unmapped_site_count" in (
+        output_dir / manifest.artifacts.ortholog_conservation_summary_tsv
+    ).read_text()
+    assert "status" in (
+        output_dir / manifest.artifacts.ortholog_conservation_tsv
     ).read_text()
     assert "card_id" in (output_dir / manifest.artifacts.evidence_card_tsv).read_text()
     assert "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()

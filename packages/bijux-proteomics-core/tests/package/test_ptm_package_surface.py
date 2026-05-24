@@ -272,11 +272,33 @@ def test_ptm_package_exports_crosstalk_owner_surface() -> None:
     assert "pair_key" in ptm.render_ptm_crosstalk_pair_tsv(report)
 
 
+def test_ptm_package_exports_ortholog_site_conservation_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
+    report = ptm.build_ptm_ortholog_conservation_report(
+        site_table,
+        ortholog_sites.accepted_records,
+        source_species="Homo sapiens",
+        target_species="Mus musculus",
+    )
+
+    assert hasattr(ptm, "build_ptm_ortholog_conservation_report")
+    assert hasattr(ptm, "render_ptm_ortholog_conservation_tsv")
+    assert report.summary.unmapped_site_count == 2
+    assert "status" in ptm.render_ptm_ortholog_conservation_tsv(report)
+
+
 def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
     design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
     annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     report = ptm.build_ptm_report_bundle(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -295,6 +317,9 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
+        ortholog_site_records=ortholog_sites.accepted_records,
+        ortholog_source_species="Homo sapiens",
+        ortholog_target_species="Mus musculus",
         evidence_card_policy=ptm.PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
@@ -302,4 +327,5 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     assert hasattr(ptm, "render_ptm_evidence_card_tsv")
     assert report.evidence_cards is not None
     assert report.evidence_cards.summary.card_count == 3
+    assert report.evidence_cards.summary.ortholog_context_card_count == 3
     assert "card_id" in ptm.render_ptm_evidence_card_tsv(report.evidence_cards)

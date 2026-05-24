@@ -23,6 +23,7 @@ from bijux_proteomics.ptm import (
     PtmLocalizationScoringEntry,
     PtmLocalizationScoringReport,
     PtmSiteEntry,
+    build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
     build_ptm_localization_scoring_report,
@@ -33,6 +34,7 @@ from bijux_proteomics.ptm import (
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
+    parse_ptm_ortholog_site_tsv,
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
@@ -121,6 +123,7 @@ def _build_evidence_card_report():
         / "sequences"
         / "protein_region_context.tsv"
     )
+    ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     return build_ptm_evidence_card_report(
         evidence.accepted_records,
         site_table,
@@ -130,6 +133,12 @@ def _build_evidence_card_report():
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
         annotation_mapping_report=annotation_mapping,
+        ortholog_conservation_report=build_ptm_ortholog_conservation_report(
+            site_table,
+            ortholog_sites.accepted_records,
+            source_species="Homo sapiens",
+            target_species="Mus musculus",
+        ),
         protein_records=_protein_report().accepted_records,
         protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
@@ -160,6 +169,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
 
     assert annotated.motif_evidence.centered_windows
     assert annotated.functional_regions
+    assert annotated.ortholog_conservation is not None
+    assert annotated.ortholog_conservation.status.value == "conserved"
     assert any(
         region.region_kind.value == "signal_peptide"
         for region in annotated.functional_regions
@@ -181,6 +192,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
     assert any(
         warning.code.value == "decoy_site" for warning in low_localization.warnings
     )
+    assert low_localization.ortholog_conservation is not None
+    assert low_localization.ortholog_conservation.status.value == "unmapped"
 
 
 def test_ptm_evidence_cards_do_not_call_exact_isoform_without_unique_peptide() -> None:
@@ -557,6 +570,7 @@ def test_ptm_evidence_cards_preserve_crosstalk_partners_and_summary_counts() -> 
     )
 
     assert report.summary.crosstalk_supported_card_count == 2
+    assert report.summary.ortholog_context_card_count == 0
     first_card = report.cards[0]
     assert first_card.crosstalk_partners
     assert first_card.crosstalk_partners[0].partner_site_key in {

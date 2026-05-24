@@ -11,6 +11,7 @@ from bijux_proteomics.ptm import (
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
+    build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
     build_ptm_localization_scoring_report,
@@ -24,6 +25,7 @@ from bijux_proteomics.ptm import (
     export_ptm_evidence_claim_tsv,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
+    parse_ptm_ortholog_site_tsv,
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
@@ -111,6 +113,7 @@ def _build_evidence_card_report():
         / "sequences"
         / "protein_region_context.tsv"
     )
+    ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     return build_ptm_evidence_card_report(
         evidence.accepted_records,
         site_table,
@@ -120,6 +123,12 @@ def _build_evidence_card_report():
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
         annotation_mapping_report=annotation_mapping,
+        ortholog_conservation_report=build_ptm_ortholog_conservation_report(
+            site_table,
+            ortholog_sites.accepted_records,
+            source_species="Homo sapiens",
+            target_species="Mus musculus",
+        ),
         protein_records=_protein_report().accepted_records,
         protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
@@ -139,8 +148,10 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
 
     assert "functional_context_card_count" in summary_path.read_text()
     assert "crosstalk_supported_card_count" in summary_path.read_text()
+    assert "ortholog_context_card_count" in summary_path.read_text()
     assert "functional_regions" in cards_path.read_text()
     assert "crosstalk_partner_site_keys" in cards_path.read_text()
+    assert "ortholog_conservation_status" in cards_path.read_text()
     assert "identity_level" in cards_path.read_text()
     assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
         claims_path.read_text().splitlines()[0]
