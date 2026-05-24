@@ -1014,6 +1014,7 @@ from bijux_proteomics.workflow import (
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
     render_public_benchmark_suite_failures_tsv,
+    render_public_benchmark_suite_signal_assessments_tsv,
     render_public_benchmark_suite_summary_tsv,
     render_cross_study_evidence_card_summary_tsv,
     render_cross_study_evidence_card_tsv,
@@ -5872,6 +5873,10 @@ def diann_benchmark_command(
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--failures-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--signal-assessments-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -5882,6 +5887,7 @@ def public_benchmark_runner_command(
     run_output_root: Path,
     summary_tsv_out: Path | None,
     failures_tsv_out: Path | None,
+    signal_assessments_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Run one public benchmark descriptor or a whole public benchmark root."""
@@ -5926,6 +5932,11 @@ def public_benchmark_runner_command(
         _write_text_output(
             failures_tsv_out,
             render_public_benchmark_suite_failures_tsv(suite),
+        )
+    if signal_assessments_tsv_out is not None:
+        _write_text_output(
+            signal_assessments_tsv_out,
+            render_public_benchmark_suite_signal_assessments_tsv(suite),
         )
     _emit_json(payload, out_path=out_path)
 
