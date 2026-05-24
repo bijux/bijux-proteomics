@@ -231,3 +231,82 @@ def test_targeted_package_exports_transition_selection_surface() -> None:
     assert hasattr(targeted, "render_targeted_transition_selection_rejected_tsv")
     assert report.summary.peptide_entry_count == 1
     assert "assay_entry_id" in rendered
+
+
+def test_targeted_package_exports_assay_interference_surface() -> None:
+    precursor_mz = calculate_peptide_mz("PEPTIDER", charge=2)
+    theoretical = calculate_fragment_ions(
+        "PEPTIDER",
+        charges=(1,),
+        series=(FragmentIonSeries.Y,),
+    )
+    y7 = next(fragment for fragment in theoretical if fragment.ordinal == 7)
+    selected_peptides = (
+        targeted.DiscoveryTargetedPeptideSelectionEntry(
+            target_protein_ref="P00001",
+            target_protein_group_id="protein_group_1",
+            gene_symbol="KIN1",
+            peptide_sequence="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            candidate_source=targeted.TargetedPeptideCandidateSource.OBSERVED_DISCOVERY,
+            rank=1,
+            observed_in_discovery=True,
+            observed_psm_count=5,
+            run_count=3,
+            detection_frequency=1.0,
+            replicate_consistency=0.9,
+            primary_evidence_class=PeptideEvidenceClass.STRONG,
+            uniqueness_class=PeptideUniquenessClass.UNIQUE,
+            uniqueness_score=1.0,
+            detectability_score=0.9,
+            detectability_tier=PeptideDetectabilityTier.HIGH,
+            suitability_score=0.9,
+            liability_tier=PeptideChemicalLiabilityTier.PREFERRED,
+            liability_codes=(),
+            selection_score=0.9,
+            selection_reasons=("strong observed peptide support",),
+        ),
+    )
+    spectral_library_entries = (
+        SpectralLibraryEntry(
+            library_entry_id="mgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P00001",
+            source_format=SpectralLibraryFormat.MGF,
+            spectrum_id="library:PEPTIDER",
+            precursor_mz=precursor_mz,
+            precursor_charge=2,
+            peptide_sequence="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            modification_count=0,
+            protein_refs=("P00001",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            spectrum=SpectrumModel(
+                spectrum_id="library:PEPTIDER",
+                precursor_mz=precursor_mz,
+                precursor_charge=2,
+                peaks=(
+                    SpectrumPeak(mz=175.0, intensity=50.0),
+                    SpectrumPeak(mz=y7.mz_monoisotopic, intensity=1000.0),
+                ),
+            ),
+        ),
+    )
+    transition_report = targeted.build_targeted_transition_selection_report(
+        selected_peptides,
+        spectral_library_entries=spectral_library_entries,
+        maximum_transition_count=3,
+    )
+    report = targeted.build_targeted_assay_interference_report(
+        selected_peptides,
+        transition_report.peptide_entries,
+        _protein_records(),
+        spectral_library_entries=spectral_library_entries,
+    )
+    rendered = targeted.render_targeted_assay_interference_panel_tsv(report)
+
+    assert hasattr(targeted, "build_targeted_assay_interference_report")
+    assert hasattr(targeted, "render_targeted_assay_interference_summary_tsv")
+    assert hasattr(targeted, "render_targeted_assay_interference_assay_tsv")
+    assert hasattr(targeted, "render_targeted_assay_interference_transition_tsv")
+    assert hasattr(targeted, "render_targeted_assay_interference_panel_tsv")
+    assert report.summary.assay_entry_count == 1
+    assert "transition_interference_risk_tier" in rendered
