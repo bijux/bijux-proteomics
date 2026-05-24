@@ -854,6 +854,7 @@ from bijux_proteomics.quantification.differential_abundance import (
 from bijux_proteomics.review import (
     BiomarkerCandidateKind,
     BiomarkerCandidateRankingInput,
+    FailureExplanationRequest,
     ResultExplanationKind,
     ResultExplanationRequest,
     ResultQueryKind,
@@ -861,6 +862,7 @@ from bijux_proteomics.review import (
     VolcanoReviewPolicy,
     build_analysis_recommendation_report_from_artifacts,
     build_biomarker_candidate_ranking_report,
+    build_failure_explanation_report,
     build_result_explanation_report_from_artifacts,
     build_result_query_report_from_artifacts,
     build_dia_volcano_review,
@@ -869,10 +871,13 @@ from bijux_proteomics.review import (
     export_volcano_review_html,
     export_volcano_review_json,
     export_volcano_review_svg,
+    format_failure_explanation_for_cli,
     render_biomarker_candidate_ranking_summary_tsv,
     render_biomarker_candidate_ranking_tsv,
     render_analysis_recommendation_summary_tsv,
     render_analysis_recommendation_tsv,
+    render_failure_explanation_summary_tsv,
+    render_failure_explanation_tsv,
     render_result_explanation_evidence_tsv,
     render_result_explanation_summary_tsv,
     render_result_explanation_tsv,
@@ -1180,7 +1185,19 @@ def _run_orchestrated_workflow(config):
     try:
         return run_proteomics_workflow(config)
     except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
+        workflow_name = getattr(getattr(config, "mode", None), "value", None)
+        report = build_failure_explanation_report(
+            (
+                FailureExplanationRequest(
+                    failure_id="workflow_failure",
+                    workflow_name=workflow_name,
+                    failure_text=str(exc),
+                ),
+            )
+        )
+        raise click.ClickException(
+            format_failure_explanation_for_cli(report.explanations[0])
+        ) from exc
 
 
 def _validate_proteomics_run_inputs(
@@ -8123,6 +8140,62 @@ def result_explanation_command(
             ),
             "evidence_tsv": (
                 None if evidence_tsv_out is None else str(evidence_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("failure-explanation")
+@click.argument("failure_text")
+@click.option("--workflow-name", default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--explanation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def failure_explanation_command(
+    failure_text: str,
+    workflow_name: str | None,
+    summary_tsv_out: Path | None,
+    explanation_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Explain one expected scientific workflow failure deterministically."""
+
+    report = build_failure_explanation_report(
+        (
+            FailureExplanationRequest(
+                failure_id="failure_explanation",
+                workflow_name=workflow_name,
+                failure_text=failure_text,
+            ),
+        )
+    )
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_failure_explanation_summary_tsv(report),
+        )
+    if explanation_tsv_out is not None:
+        _write_text_output(
+            explanation_tsv_out,
+            render_failure_explanation_tsv(report),
+        )
+
+    payload = {
+        "workflow_name": workflow_name,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "explanation_tsv": (
+                None if explanation_tsv_out is None else str(explanation_tsv_out)
             ),
         },
     }
