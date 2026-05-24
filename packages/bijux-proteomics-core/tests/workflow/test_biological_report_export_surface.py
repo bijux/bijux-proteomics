@@ -309,6 +309,55 @@ def test_biological_report_export_writes_tissue_context_artifacts_and_html(
     ).read_text(encoding="utf-8")
 
 
+def test_biological_report_export_writes_cohort_stratification_artifacts_and_html(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report_cohort_stratification.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_cohort_stratification_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_biological_result_report_bundle(
+        report,
+        tmp_path / "biological_report_cohort_stratification",
+    )
+    output_dir = tmp_path / "biological_report_cohort_stratification"
+
+    assert manifest.cohort_stratification_summary_included is True
+    assert report.cohort_stratification_report is not None
+    assert (
+        output_dir / manifest.artifacts.cohort_stratification_summary_tsv
+    ).exists()
+    assert (output_dir / manifest.artifacts.cohort_stratum_tsv).exists()
+    assert (output_dir / manifest.artifacts.cohort_subgroup_effect_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.cohort_interaction_candidate_tsv
+    ).exists()
+    assert "blocked_stratum_count" in (
+        output_dir / manifest.artifacts.cohort_stratification_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "blocked_low_subgroup_sample_count" in (
+        output_dir / manifest.artifacts.cohort_stratum_tsv
+    ).read_text(encoding="utf-8")
+    assert "robustness_score" in (
+        output_dir / manifest.artifacts.cohort_subgroup_effect_tsv
+    ).read_text(encoding="utf-8")
+    assert "direction_conflict" in (
+        output_dir / manifest.artifacts.cohort_interaction_candidate_tsv
+    ).read_text(encoding="utf-8")
+    assert "Cohort stratification" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+
+
 def test_biological_report_export_writes_compartment_biology_assets(
     tmp_path: Path,
 ) -> None:

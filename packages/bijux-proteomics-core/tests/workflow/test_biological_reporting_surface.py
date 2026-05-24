@@ -213,6 +213,35 @@ def test_build_biological_result_report_bundle_preserves_tissue_context_warnings
     assert by_label["liver"].mismatch_warning_count == 1
 
 
+def test_build_biological_result_report_bundle_preserves_cohort_stratification() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report_cohort_stratification.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_cohort_stratification_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.cohort_stratification_report is not None
+    assert report.summary.cohort_blocked_stratum_count == 4
+    assert report.summary.cohort_subgroup_effect_count >= 4
+    assert report.summary.cohort_interaction_candidate_count >= 2
+    by_entity = {
+        entry.entity_id: entry for entry in report.cohort_stratification_report.interaction_candidates
+    }
+    assert by_entity["P04637"].field_name.value == "sex"
+    assert "P62993" in by_entity
+    assert any(
+        entry.candidate_kind.value == "direction_conflict"
+        for entry in report.cohort_stratification_report.interaction_candidates
+    )
+
+
 def test_build_biological_result_report_bundle_preserves_regulator_inference() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
