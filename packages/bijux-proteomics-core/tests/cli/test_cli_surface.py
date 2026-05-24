@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 import shutil
@@ -100,6 +101,46 @@ def _write_run_qc_tsv(path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
+
+
+def _write_run_qc_tsv_with_status(
+    path: Path,
+    *,
+    qc_status: str,
+    reason_codes: str,
+    severity: str,
+    message: str,
+) -> None:
+    path.write_text(
+        "\n".join(
+            (
+                "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key\tmetric_label\tobserved_value\tunit\tseverity\tdisposition\tenforced_violation\tmessage",
+                (
+                    "run\tt2.mzml\t"
+                    f"{qc_status}\t{reason_codes}\tidentification_rate\tIdentification rate\t0.05\tfraction\t"
+                    f"{severity}\tblock\ttrue\t{message}"
+                ),
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def _rewrite_first_tsv_row(path: Path, updates: dict[str, str]) -> None:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError(f"{path.name!r} must include a header row")
+        rows = list(reader)
+        if not rows:
+            raise ValueError(f"{path.name!r} must include at least one data row")
+        rows[0].update(updates)
+        fieldnames = list(reader.fieldnames)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def _similarity_spectrum(
@@ -493,6 +534,189 @@ def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
         hit_tsv = Path("result_search.hits.tsv").read_text()
         assert "evidence_snippets" in hit_tsv
         assert "site_key" in hit_tsv
+
+
+def test_interactive_result_comparison_command_emits_changed_object_payloads() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        design_entries = tuple(
+            parse_experimental_design_table(
+                _workflow_fixture("biological_report.design.tsv")
+            ).accepted_entries
+        )
+        biological_report = build_biological_result_report_bundle(
+            _workflow_fixture("biological_report_features.tsv"),
+            design_entries,
+            proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
+            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
+            condition_a="control",
+            condition_b="treatment",
+        )
+        ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+        ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+        ptm_annotations = parse_ptm_site_annotation_tsv(
+            _ptm_fixture("ptm_site_annotations.tsv")
+        )
+        ptm_report = build_ptm_report_bundle(
+            ptm_evidence.accepted_records,
+            protein_sequences=_protein_sequences(),
+            feature_records=ptm_features.accepted_records,
+            design_entries=_ptm_design_entries(),
+            protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+            batch_field="",
+            condition_a="control",
+            condition_b="treated",
+            annotation_records=ptm_annotations.accepted_records,
+            annotation_target_species="Homo sapiens",
+            regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+                max_adjusted_p_value=1.0,
+                min_absolute_log2_fold_change=0.0,
+            ),
+            evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+        )
+
+        left_biological_dir = Path("left_biological_report")
+        right_biological_dir = Path("right_biological_report")
+        left_ptm_dir = Path("left_ptm_report")
+        right_ptm_dir = Path("right_ptm_report")
+
+        left_biological_manifest = export_biological_result_report_bundle(
+            biological_report,
+            left_biological_dir,
+        )
+        (left_biological_dir / "biological_report_manifest.json").write_text(
+            left_biological_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+        right_biological_manifest = export_biological_result_report_bundle(
+            biological_report,
+            right_biological_dir,
+        )
+        (right_biological_dir / "biological_report_manifest.json").write_text(
+            right_biological_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+        left_ptm_manifest = export_ptm_report_bundle(ptm_report, left_ptm_dir)
+        (left_ptm_dir / "ptm_report_manifest.json").write_text(
+            left_ptm_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+        right_ptm_manifest = export_ptm_report_bundle(ptm_report, right_ptm_dir)
+        (right_ptm_dir / "ptm_report_manifest.json").write_text(
+            right_ptm_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+        _rewrite_first_tsv_row(
+            right_biological_dir / "biological_protein_cards.tsv",
+            {"log2_fold_change": "9.5", "evidence_tier": "exploratory"},
+        )
+        _rewrite_first_tsv_row(
+            right_biological_dir / "biological_report_section_confidence.tsv",
+            {
+                "confidence_label": "invalid",
+                "rationale": "comparison side was downgraded by QC review",
+            },
+        )
+        _rewrite_first_tsv_row(
+            right_biological_dir / "biological_pathway_entries.tsv",
+            {"enrichment_ratio": "0.95", "adjusted_p_value": "0.8"},
+        )
+        _rewrite_first_tsv_row(
+            right_ptm_dir / "ptm_evidence_cards.tsv",
+            {
+                "protein_correction_status": "uncorrected",
+                "mechanism_class": "rewired_signaling",
+            },
+        )
+
+        _write_run_qc_tsv_with_status(
+            Path("left_run_qc.tsv"),
+            qc_status="fail",
+            reason_codes="identification_rate_low",
+            severity="failed",
+            message="left run failed QC",
+        )
+        _write_run_qc_tsv_with_status(
+            Path("right_run_qc.tsv"),
+            qc_status="pass",
+            reason_codes="",
+            severity="passed",
+            message="right run passed QC",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interactive-result-comparison",
+                "--left-biological-report-dir",
+                "left_biological_report",
+                "--left-ptm-report-dir",
+                "left_ptm_report",
+                "--left-run-qc-assessment-tsv",
+                "left_run_qc.tsv",
+                "--right-biological-report-dir",
+                "right_biological_report",
+                "--right-ptm-report-dir",
+                "right_ptm_report",
+                "--right-run-qc-assessment-tsv",
+                "right_run_qc.tsv",
+                "--summary-tsv-out",
+                "interactive_result_comparison.summary.tsv",
+                "--protein-tsv-out",
+                "interactive_result_comparison.proteins.tsv",
+                "--ptm-site-tsv-out",
+                "interactive_result_comparison.ptm_sites.tsv",
+                "--qc-tsv-out",
+                "interactive_result_comparison.qc.tsv",
+                "--pathway-tsv-out",
+                "interactive_result_comparison.pathways.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        summary = payload["payload"]["summary"]
+        assert summary["changed_protein_count"] >= 1
+        assert summary["changed_ptm_site_count"] >= 1
+        assert summary["changed_qc_entry_count"] >= 2
+        assert summary["changed_pathway_count"] >= 1
+        assert any(
+            reason["code"] == "evidence_tier_changed"
+            for entry in payload["payload"]["changed_proteins"]
+            for reason in entry["reasons"]
+        )
+        assert any(
+            reason["code"] == "protein_correction_status_changed"
+            for entry in payload["payload"]["changed_ptm_sites"]
+            for reason in entry["reasons"]
+        )
+        assert any(
+            reason["code"] == "qc_status_changed"
+            for entry in payload["payload"]["changed_qc_entries"]
+            for reason in entry["reasons"]
+        )
+        assert any(
+            reason["code"] == "enrichment_ratio_changed"
+            for entry in payload["payload"]["changed_pathways"]
+            for reason in entry["reasons"]
+        )
+        assert "changed_protein_count" in Path(
+            "interactive_result_comparison.summary.tsv"
+        ).read_text()
+        assert "representative_protein_ref" in Path(
+            "interactive_result_comparison.proteins.tsv"
+        ).read_text()
+        assert "protein_correction_status" in Path(
+            "interactive_result_comparison.ptm_sites.tsv"
+        ).read_text()
+        assert "qc_id" in Path("interactive_result_comparison.qc.tsv").read_text()
+        assert "pathway_id" in Path(
+            "interactive_result_comparison.pathways.tsv"
+        ).read_text()
 
 
 def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
