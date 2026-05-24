@@ -34,6 +34,9 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
     assert "graph_claim_node_id" in workflow.render_protein_evidence_card_tsv(
         report.protein_cards
     )
+    assert "proteogenomic_support_class" in workflow.render_protein_evidence_card_tsv(
+        report.protein_cards
+    )
     assert report.protein_cards.summary.protein_result_count == report.summary.protein_count
     assert report.experiment_confidence_report.summary.component_count == 7
 

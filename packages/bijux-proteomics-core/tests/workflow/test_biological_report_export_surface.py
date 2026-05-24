@@ -94,6 +94,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "functional_regions" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
+    assert "proteogenomic_support_class" in (
+        output_dir / manifest.artifacts.protein_card_tsv
+    ).read_text(encoding="utf-8")
     assert "graph_claim_node_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
@@ -137,6 +140,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Identity" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Proteogenomic support" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "statistical_result:" in (

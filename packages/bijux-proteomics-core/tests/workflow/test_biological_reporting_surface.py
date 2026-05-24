@@ -281,6 +281,102 @@ def test_biological_result_report_bundle_from_quant_table_does_not_call_exact_is
     assert "do not isolate one exact isoform" in card.identity_reason
 
 
+def test_biological_result_report_bundle_from_quant_table_preserves_proteogenomic_variant_support(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    values: list[QuantValue] = []
+    abundances = {
+        "PGREF": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 300.0,
+            "T2": 320.0,
+            "T3": 310.0,
+        },
+        "PGVAR": {
+            "C1": 100.0,
+            "C2": 95.0,
+            "C3": 105.0,
+            "T1": 800.0,
+            "T2": 820.0,
+            "T3": 810.0,
+        },
+    }
+    for entity_id, entity_values in abundances.items():
+        for sample_id, abundance in entity_values.items():
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                    source_feature_count=1,
+                )
+            )
+    table = LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        normalization_method=NormalizationMethod.NONE,
+        sample_ids=("C1", "C2", "C3", "T1", "T2", "T3"),
+        entity_ids=("PGREF", "PGVAR"),
+        values=tuple(values),
+        entity_protein_refs={
+            "PGREF": ("P12345",),
+            "PGVAR": ("Q9AAA1",),
+        },
+        entity_member_peptides={
+            "PGREF": ("REFPEPTIDEK",),
+            "PGVAR": ("ALTPEPTIDEK",),
+        },
+    )
+    reference_fasta_path = tmp_path / "reference.fasta"
+    reference_fasta_path.write_text(
+        ">sp|P12345|REF1_HUMAN Reference 1 GN=REF1\nMREFPEPTIDEKAA\n",
+        encoding="utf-8",
+    )
+    variant_fasta_path = tmp_path / "variant.fasta"
+    variant_fasta_path.write_text(
+        ">sp|Q9AAA1|VAR1_HUMAN Variant 1 GN=VAR1\nMALTPEPTIDEKAA\n",
+        encoding="utf-8",
+    )
+    variant_peptide_tsv_path = tmp_path / "variant_peptides.tsv"
+    variant_peptide_tsv_path.write_text(
+        (
+            "peptide_sequence\tvariant_protein_ref\treference_protein_ref\tvariant_label\n"
+            "ALTPEPTIDEK\tQ9AAA1\tP12345\tp.G12V\n"
+        ),
+        encoding="utf-8",
+    )
+
+    report = build_biological_result_report_bundle_from_quant_table(
+        table,
+        design_entries,
+        proteins_fasta_path=reference_fasta_path,
+        variant_proteins_fasta_path=variant_fasta_path,
+        variant_peptide_tsv_path=variant_peptide_tsv_path,
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    support_by_group = {
+        card.protein_group_id: card.proteogenomic_support
+        for card in report.protein_cards.cards
+    }
+    assert support_by_group["PGREF"] is not None
+    assert support_by_group["PGREF"].support_class.value == "reference_only"
+    assert support_by_group["PGVAR"] is not None
+    assert support_by_group["PGVAR"].support_class.value == "variant_only"
+    assert support_by_group["PGVAR"].variant_only_peptides == ("ALTPEPTIDEK",)
+    assert report.protein_cards.summary.proteogenomic_annotated_card_count == 2
+
+
 def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
