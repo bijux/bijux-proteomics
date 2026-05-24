@@ -33,7 +33,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="control-2.mzml",
-            batch="batch-a",
+            batch="batch-b",
         ),
         ExperimentalDesignEntry(
             sample_id="case-1",
@@ -41,7 +41,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="case-1.mzml",
-            batch="batch-b",
+            batch="batch-a",
         ),
         ExperimentalDesignEntry(
             sample_id="case-2",
@@ -57,7 +57,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=3,
             fraction=1,
             spectra_file="case-3.mzml",
-            batch="batch-b",
+            batch="batch-a",
         ),
     )
 

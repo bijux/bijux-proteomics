@@ -249,8 +249,15 @@ def estimate_sample_weights(
                 reasons.add("low_replicate_correlation")
 
         if outlier_codes := outlier_reasons_by_sample.get(sample_id):
-            weight = min(weight, 0.35)
-            reasons.update(outlier_codes)
+            severe_outlier_codes = tuple(
+                code for code in outlier_codes if code != "flagged_batch_shift"
+            )
+            if severe_outlier_codes:
+                weight = min(weight, 0.35)
+                reasons.update(severe_outlier_codes)
+            if "flagged_batch_shift" in outlier_codes:
+                weight = min(weight, 0.7)
+                reasons.add("flagged_batch_shift")
 
         batch_id = design_by_sample[sample_id].batch
         if batch_id and batch_id in flagged_batch_ids:
