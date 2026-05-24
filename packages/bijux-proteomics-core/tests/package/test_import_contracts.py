@@ -120,6 +120,15 @@ def test_io_package_import_contract() -> None:
     assert hasattr(module, "extract_mzml_xic_traces")
 
 
+def test_identification_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.identification")
+
+    assert hasattr(module, "extract_psm_features")
+    assert hasattr(module, "fit_target_decoy_logistic_model")
+    assert hasattr(module, "explain_rescored_psm")
+    assert hasattr(module, "render_psm_rescoring_explanation_tsv")
+
+
 def test_quantification_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.quantification")
 
