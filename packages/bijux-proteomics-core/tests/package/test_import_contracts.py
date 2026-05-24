@@ -133,6 +133,13 @@ def test_identification_package_import_contract() -> None:
     assert hasattr(module, "render_psm_rescoring_explanation_tsv")
 
 
+def test_ptm_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.ptm")
+
+    assert hasattr(module, "score_ptm_fragments")
+    assert hasattr(module, "render_ptm_fragment_scores_tsv")
+
+
 def test_quantification_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.quantification")
 
