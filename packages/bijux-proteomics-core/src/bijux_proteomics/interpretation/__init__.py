@@ -9,6 +9,7 @@ from bijux_proteomics.interpretation.biological_context_mapping import *  # noqa
 from bijux_proteomics.interpretation.compartment_biology import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.complex_activity import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.complex_enrichment import *  # noqa: F401,F403
+from bijux_proteomics.interpretation.disease_phenotype_interpretation import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.foreground_background_model import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.go_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.ortholog_mapping import *  # noqa: F401,F403
