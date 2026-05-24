@@ -153,6 +153,56 @@ def test_identification_package_exports_psm_rescoring_surface() -> None:
     assert "rescored_q_value" in rendered
 
 
+def test_identification_package_exports_psm_rescoring_explanation_surface() -> None:
+    row = identification.PsmFeatureRow(
+        psm_id="target-1",
+        spectrum_id="target-1-scan",
+        score_native=95.0,
+        q_value_native=0.02,
+        charge=2,
+        peptide_length=8,
+        missed_cleavages=0,
+        precursor_ppm_error=12.0,
+        matched_ion_count=2,
+        explained_intensity=0.1,
+        spectrum_entropy=0.35,
+        top_peak_unmatched_fraction=0.9,
+        target_decoy_label=identification.TargetDecoyLabel.TARGET,
+    )
+    model = identification.PsmRescoringModel(
+        intercept=0.2,
+        feature_parameters=(
+            identification.PsmRescoringFeatureParameter(
+                feature_name="precursor_ppm_error",
+                transform="absolute",
+                mean=2.0,
+                scale=5.0,
+                weight=-1.1,
+            ),
+            identification.PsmRescoringFeatureParameter(
+                feature_name="explained_intensity",
+                transform="identity",
+                mean=0.7,
+                scale=0.2,
+                weight=0.8,
+            ),
+        ),
+        regularization_strength=0.01,
+        iteration_count=8,
+        convergence_delta=1e-7,
+        native_auc=0.6,
+        rescored_auc=0.82,
+    )
+
+    explanation = identification.explain_rescored_psm(model, row)
+    rendered = identification.render_psm_rescoring_explanation_tsv(explanation)
+
+    assert hasattr(identification, "explain_rescored_psm")
+    assert hasattr(identification, "render_psm_rescoring_explanation_tsv")
+    assert explanation[0].psm_id == "target-1"
+    assert "signed_contribution" in rendered
+
+
 def test_identification_package_exports_peptide_target_decoy_fdr_owner_surface() -> (
     None
 ):
