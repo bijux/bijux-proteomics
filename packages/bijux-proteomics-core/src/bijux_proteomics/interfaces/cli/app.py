@@ -569,7 +569,11 @@ from bijux_proteomics.targeted import (
     TargetedPanelTransitionInput,
     TargetedPanelWarningCode,
     TargetedPeptideCandidateSource,
+    TargetedResultValidationPolicy,
     TargetedResultSourceKind,
+    TargetedValidationDiscoveryClaimInput,
+    TargetedValidationPanelAssayInput,
+    TargetedValidationVerdict,
     TargetedTransitionInterferenceRisk,
     TargetedTransitionSelectionFragment,
     TargetedTransitionSelectionPeptideEntry,
@@ -582,6 +586,7 @@ from bijux_proteomics.targeted import (
     build_targeted_panel_design_report,
     build_targeted_assay_interference_report,
     build_discovery_targeted_peptide_selection_report,
+    build_targeted_result_validation_report,
     build_skyline_result_import_report,
     build_targeted_carryover_report,
     build_targeted_transition_selection_report,
@@ -600,6 +605,9 @@ from bijux_proteomics.targeted import (
     render_targeted_panel_design_omitted_candidate_tsv,
     render_targeted_panel_design_panel_tsv,
     render_targeted_panel_design_summary_tsv,
+    render_targeted_result_validation_evidence_tsv,
+    render_targeted_result_validation_summary_tsv,
+    render_targeted_result_validation_tsv,
     render_validation_experiment_planning_plan_tsv,
     render_validation_experiment_planning_summary_tsv,
     render_validation_experiment_planning_warning_tsv,
@@ -3105,6 +3113,172 @@ def _load_validation_planning_pilot_variance(
             except Exception as exc:  # noqa: BLE001
                 raise click.ClickException(
                     f"invalid power-variance row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_targeted_validation_discovery_claims(
+    path: Path,
+) -> tuple[TargetedValidationDiscoveryClaimInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biomarker-candidate TSV must include a header row for targeted result validation"
+            )
+        required_columns = {
+            "candidate_id",
+            "candidate_kind",
+            "display_label",
+            "target_protein_ref",
+            "site_key",
+            "priority_rank",
+            "final_score",
+            "penalty_total",
+            "effect_size",
+            "support_count",
+            "robustness_score",
+            "assay_feasibility_score",
+            "rank_reason_codes",
+            "ranking_note",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biomarker-candidate TSV is missing required columns for targeted result validation: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[TargetedValidationDiscoveryClaimInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    TargetedValidationDiscoveryClaimInput(
+                        candidate_id=str(row.get("candidate_id", "")).strip(),
+                        candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("candidate_kind", "")).strip()
+                        ),
+                        display_label=str(row.get("display_label", "")).strip(),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        site_key=(
+                            None
+                            if not str(row.get("site_key", "")).strip()
+                            else str(row.get("site_key", "")).strip()
+                        ),
+                        priority_rank=int(str(row.get("priority_rank", "")).strip()),
+                        final_score=float(str(row.get("final_score", "")).strip()),
+                        penalty_total=float(str(row.get("penalty_total", "")).strip()),
+                        discovery_effect_size=(
+                            None
+                            if not str(row.get("effect_size", "")).strip()
+                            else float(str(row.get("effect_size", "")).strip())
+                        ),
+                        support_count=int(str(row.get("support_count", "")).strip()),
+                        robustness_score=float(
+                            str(row.get("robustness_score", "")).strip()
+                        ),
+                        assay_feasibility_score=float(
+                            str(row.get("assay_feasibility_score", "")).strip()
+                        ),
+                        rank_reason_codes=_split_semicolon_field(
+                            row.get("rank_reason_codes", "")
+                        ),
+                        ranking_note=str(row.get("ranking_note", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biomarker-candidate row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_targeted_validation_panel_assays(
+    path: Path,
+) -> tuple[TargetedValidationPanelAssayInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "panel assay TSV must include a header row for targeted result validation"
+            )
+        required_columns = {
+            "assay_entry_id",
+            "biomarker_candidate_id",
+            "biomarker_candidate_kind",
+            "biomarker_display_label",
+            "biomarker_priority_rank",
+            "target_protein_ref",
+            "target_protein_group_id",
+            "gene_symbol",
+            "peptide_sequence",
+            "canonical_peptide",
+            "uniqueness_class",
+            "precursor_charge",
+            "selected_transition_count",
+            "exported_transition_count",
+            "warning_codes",
+            "warning_note",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "panel assay TSV is missing required columns for targeted result validation: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[TargetedValidationPanelAssayInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                warning_codes = tuple(
+                    TargetedPanelWarningCode(code)
+                    for code in _split_semicolon_field(row.get("warning_codes", ""))
+                )
+                rows.append(
+                    TargetedValidationPanelAssayInput(
+                        assay_entry_id=str(row.get("assay_entry_id", "")).strip(),
+                        biomarker_candidate_id=str(
+                            row.get("biomarker_candidate_id", "")
+                        ).strip(),
+                        biomarker_candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("biomarker_candidate_kind", "")).strip()
+                        ),
+                        biomarker_display_label=str(
+                            row.get("biomarker_display_label", "")
+                        ).strip(),
+                        biomarker_priority_rank=int(
+                            str(row.get("biomarker_priority_rank", "")).strip()
+                        ),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        target_protein_group_id=str(
+                            row.get("target_protein_group_id", "")
+                        ).strip(),
+                        gene_symbol=(
+                            None
+                            if not str(row.get("gene_symbol", "")).strip()
+                            else str(row.get("gene_symbol", "")).strip()
+                        ),
+                        peptide_sequence=str(row.get("peptide_sequence", "")).strip(),
+                        canonical_peptide=str(
+                            row.get("canonical_peptide", "")
+                        ).strip(),
+                        uniqueness_class=PeptideUniquenessClass(
+                            str(row.get("uniqueness_class", "")).strip()
+                        ),
+                        precursor_charge=int(
+                            str(row.get("precursor_charge", "")).strip()
+                        ),
+                        selected_transition_count=int(
+                            str(row.get("selected_transition_count", "")).strip()
+                        ),
+                        exported_transition_count=int(
+                            str(row.get("exported_transition_count", "")).strip()
+                        ),
+                        warning_codes=warning_codes,
+                        warning_note=str(row.get("warning_note", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid panel assay row {row_number} in {path.name!r}: {exc}"
                 ) from exc
     return tuple(rows)
 
@@ -7167,6 +7341,213 @@ def validation_experiment_planner_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "plan_tsv": None if plan_tsv_out is None else str(plan_tsv_out),
             "warning_tsv": None if warning_tsv_out is None else str(warning_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-result-validator")
+@click.argument(
+    "biomarker_candidate_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "panel_assay_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "targeted_result_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option("--case-condition", required=True)
+@click.option("--control-condition", required=True)
+@click.option(
+    "--minimum-reliable-replicates-per-condition",
+    type=int,
+    default=2,
+    show_default=True,
+)
+@click.option(
+    "--minimum-absolute-validation-log2-effect",
+    type=float,
+    default=0.4,
+    show_default=True,
+)
+@click.option(
+    "--flat-validation-log2-threshold",
+    type=float,
+    default=0.2,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--confirmed-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--contradicted-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--inconclusive-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--evidence-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_result_validator_command(
+    biomarker_candidate_tsv: Path,
+    panel_assay_tsv: Path,
+    targeted_result_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    case_condition: str,
+    control_condition: str,
+    minimum_reliable_replicates_per_condition: int,
+    minimum_absolute_validation_log2_effect: float,
+    flat_validation_log2_threshold: float,
+    summary_tsv_out: Path | None,
+    confirmed_tsv_out: Path | None,
+    contradicted_tsv_out: Path | None,
+    inconclusive_tsv_out: Path | None,
+    evidence_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Validate targeted PRM/SRM results back against discovery biomarker claims."""
+
+    if minimum_reliable_replicates_per_condition < 1:
+        raise click.ClickException(
+            "minimum-reliable-replicates-per-condition must be at least 1"
+        )
+    if minimum_absolute_validation_log2_effect < 0.0:
+        raise click.ClickException(
+            "minimum-absolute-validation-log2-effect must be non-negative"
+        )
+    if flat_validation_log2_threshold < 0.0:
+        raise click.ClickException(
+            "flat-validation-log2-threshold must be non-negative"
+        )
+
+    discovery_claims = _load_targeted_validation_discovery_claims(
+        biomarker_candidate_tsv
+    )
+    panel_assays = _load_targeted_validation_panel_assays(panel_assay_tsv)
+    design_report = parse_experimental_design_table(design_path)
+    source_kind_value = TargetedResultSourceKind(source_kind)
+    if source_kind_value is TargetedResultSourceKind.SKYLINE_EXPORT:
+        import_report = build_skyline_result_import_report(targeted_result_tsv)
+    else:
+        import_report = build_transition_table_result_import_report(targeted_result_tsv)
+
+    try:
+        report = build_targeted_result_validation_report(
+            discovery_claims=discovery_claims,
+            panel_assays=panel_assays,
+            import_report=import_report,
+            design_entries=design_report.accepted_entries,
+            policy=TargetedResultValidationPolicy(
+                case_condition=case_condition,
+                control_condition=control_condition,
+                minimum_reliable_replicates_per_condition=minimum_reliable_replicates_per_condition,
+                minimum_absolute_validation_log2_effect=minimum_absolute_validation_log2_effect,
+                flat_validation_log2_threshold=flat_validation_log2_threshold,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_targeted_result_validation_summary_tsv(report),
+        )
+    if confirmed_tsv_out is not None:
+        _write_text_output(
+            confirmed_tsv_out,
+            render_targeted_result_validation_tsv(
+                report,
+                TargetedValidationVerdict.CONFIRMED,
+            ),
+        )
+    if contradicted_tsv_out is not None:
+        _write_text_output(
+            contradicted_tsv_out,
+            render_targeted_result_validation_tsv(
+                report,
+                TargetedValidationVerdict.CONTRADICTED,
+            ),
+        )
+    if inconclusive_tsv_out is not None:
+        _write_text_output(
+            inconclusive_tsv_out,
+            render_targeted_result_validation_tsv(
+                report,
+                TargetedValidationVerdict.INCONCLUSIVE,
+            ),
+        )
+    if evidence_tsv_out is not None:
+        _write_text_output(
+            evidence_tsv_out,
+            render_targeted_result_validation_evidence_tsv(report),
+        )
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": report.source_name,
+        "biomarker_candidate_count": len(discovery_claims),
+        "panel_assay_count": len(panel_assays),
+        "import_summary": import_report.summary.to_dict(),
+        "design_summary": {
+            "accepted_entry_count": len(design_report.accepted_entries),
+            "rejected_row_count": len(design_report.rejected_rows),
+        },
+        "policy": report.policy.to_dict(),
+        "summary": report.summary.to_dict(),
+        "confirmed_targets": [
+            entry.to_dict()
+            for entry in report.entries
+            if entry.verdict is TargetedValidationVerdict.CONFIRMED
+        ],
+        "contradicted_targets": [
+            entry.to_dict()
+            for entry in report.entries
+            if entry.verdict is TargetedValidationVerdict.CONTRADICTED
+        ],
+        "inconclusive_targets": [
+            entry.to_dict()
+            for entry in report.entries
+            if entry.verdict is TargetedValidationVerdict.INCONCLUSIVE
+        ],
+        "assay_evidence": [entry.to_dict() for entry in report.assay_evidence],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "confirmed_tsv": (
+                None if confirmed_tsv_out is None else str(confirmed_tsv_out)
+            ),
+            "contradicted_tsv": (
+                None
+                if contradicted_tsv_out is None
+                else str(contradicted_tsv_out)
+            ),
+            "inconclusive_tsv": (
+                None
+                if inconclusive_tsv_out is None
+                else str(inconclusive_tsv_out)
+            ),
+            "evidence_tsv": (
+                None if evidence_tsv_out is None else str(evidence_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
