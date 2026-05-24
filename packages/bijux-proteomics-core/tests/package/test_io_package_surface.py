@@ -362,19 +362,65 @@ def test_io_package_exports_chromatographic_evidence_owner_surface() -> None:
 
 
 def test_io_package_exports_dia_fragment_coelution_owner_surface() -> None:
+    raw_scores = io.score_fragment_coelution(
+        (
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y7",
+                rt=10.0,
+                intensity=10.0,
+            ),
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y7",
+                rt=20.0,
+                intensity=60.0,
+            ),
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y7",
+                rt=30.0,
+                intensity=10.0,
+            ),
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y8",
+                rt=20.0,
+                intensity=8.0,
+            ),
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y8",
+                rt=30.0,
+                intensity=55.0,
+            ),
+            io.DiaFragmentTracePoint(
+                precursor_id="prec_alpha",
+                fragment_id="frag_y8",
+                rt=40.0,
+                intensity=8.0,
+            ),
+        )
+    )
     report = io.extract_mzml_dia_fragment_trace_coelution(
         (_format_fixture("dia_fragment_coelution.mzml"),),
         _format_fixture("dia_fragment_targets.tsv"),
         tolerance_ppm=10.0,
     )
+    raw_rendered = io.render_dia_fragment_trace_coelution_tsv(raw_scores)
     rendered = io.render_dia_fragment_coelution_runs_tsv(report)
 
+    assert hasattr(io, "score_fragment_coelution")
     assert hasattr(io, "score_dia_fragment_trace_coelution")
     assert hasattr(io, "extract_mzml_dia_fragment_trace_coelution")
+    assert hasattr(io, "render_dia_fragment_trace_coelution_tsv")
     assert hasattr(io, "render_dia_fragment_coelution_runs_tsv")
     assert hasattr(io, "render_dia_fragment_coelution_fragments_tsv")
+    assert raw_scores[0].failed_fragments == ("frag_y8",)
+    assert raw_scores[0].coelution_score < 0.8
     assert len(report.run_entries) == 2
     assert report.run_entries[0].coelution_score == 1.0
+    assert "prec_alpha\t2\t10.0000" in raw_rendered
     assert "prec_beta\tPEPB\tbeta_y7\t3\t2\t1\t10.0000\t0.5578\t0.2971" in rendered
 
 
