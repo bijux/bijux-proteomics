@@ -888,3 +888,121 @@ def test_quantification_package_exports_peptide_profile_inconsistency_surface() 
     assert inverted_entry.inconsistent_with_protein_profile is True
     assert inverted_entry.outlier_reason.value == "directional_profile_inversion"
     assert "directional_profile_inversion" in rendered
+
+
+def test_quantification_package_exports_multi_contrast_consistency_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc001",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc002",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=110.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc003",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=420.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc004",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=430.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc005",
+            sample_id="rescue-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=260.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="mcc006",
+            sample_id="rescue-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=250.0,
+            protein_refs=("P001",),
+        ),
+    )
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="rescue-1",
+            condition="rescue",
+            replicate=1,
+            fraction=1,
+            spectra_file="rescue-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="rescue-2",
+            condition="rescue",
+            replicate=2,
+            fraction=1,
+            spectra_file="rescue-2.mzml",
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    multi_condition = quantification.build_multi_condition_differential_abundance_report(
+        table,
+        design_entries,
+    )
+    report = quantification.build_multi_contrast_consistency_report(
+        multi_condition,
+        entity_protein_refs=table.entity_protein_refs,
+    )
+    rendered = quantification.render_multi_contrast_consistency_tsv(report)
+
+    assert hasattr(quantification, "build_multi_contrast_consistency_report")
+    assert hasattr(quantification, "render_multi_contrast_consistency_tsv")
+    assert hasattr(quantification, "export_multi_contrast_consistency_tsv")
+    assert report.summary.entity_count == 1
+    assert report.entities[0].shared_hit is True
+    assert "shared_hit" in rendered

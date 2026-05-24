@@ -8831,6 +8831,8 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
                 "median",
                 "--differential-tsv-out",
                 "quantify.multi_condition.tsv",
+                "--multi-contrast-consistency-tsv-out",
+                "quantify.multi_condition.consistency.tsv",
             ],
         )
 
@@ -8840,15 +8842,26 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
         assert payload["design_model_fit"] is not None
         assert payload["differential_abundance"] is None
         assert payload["differential_abundance_multi_condition"] is not None
+        assert payload["multi_contrast_consistency"] is not None
         assert payload["outputs"]["differential_tsv"] == "quantify.multi_condition.tsv"
+        assert (
+            payload["outputs"]["multi_contrast_consistency_tsv"]
+            == "quantify.multi_condition.consistency.tsv"
+        )
         assert Path("quantify.multi_condition.tsv").exists()
+        assert Path("quantify.multi_condition.consistency.tsv").exists()
         tsv = Path("quantify.multi_condition.tsv").read_text(encoding="utf-8")
+        consistency_tsv = Path("quantify.multi_condition.consistency.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "P001\tcontrol\trescue" in tsv
         assert "P001\tcontrol\ttreatment" in tsv
+        assert "direction_conflict" in consistency_tsv
         assert (
             payload["differential_abundance_multi_condition"]["condition_count"] == 3
         )
         assert len(payload["differential_abundance_multi_condition"]["reports"]) == 3
+        assert payload["multi_contrast_consistency"]["summary"]["entity_count"] >= 1
         assert all(
             entry["adjusted_p_value"] is not None
             for report in payload["differential_abundance_multi_condition"]["reports"]
