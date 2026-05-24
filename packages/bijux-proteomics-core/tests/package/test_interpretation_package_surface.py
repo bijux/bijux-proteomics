@@ -428,6 +428,81 @@ def test_interpretation_package_exports_disease_phenotype_interpretation_surface
     )
 
 
+def test_interpretation_package_exports_drug_target_interpretation_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture_path("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    parse_report = parse_ms1_feature_table(
+        _workflow_fixture_path("biological_report_features.tsv"),
+        mapping=Ms1FeatureColumnMapping(
+            sample_id="sample_id",
+            feature_id="feature_id",
+            peptide="peptide",
+            intensity="intensity",
+            protein_refs="proteins",
+            charge="charge",
+            mz="mz",
+            retention_time_seconds="retention_time_seconds",
+            missing_reason="missing_reason",
+        ),
+    )
+    protein_table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    context_report = interpretation.parse_biological_context_table(
+        _workflow_fixture_path("biological_report_drug_targets.tsv")
+    )
+    pathway_report = interpretation.parse_pathway_membership_table(
+        _workflow_fixture_path("biological_report_pathways.tsv")
+    )
+    differential_report = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            protein_table,
+            design_entries,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+    annotation_report = interpretation.build_protein_annotation_mapping_report(
+        tuple(
+            interpretation.ProteinReferenceEntry(
+                row_number=index + 2,
+                source_row_id=entry.entity_id,
+                input_protein_ref=protein_ref,
+                protein_ref=protein_ref,
+            )
+            for index, entry in enumerate(differential_report.entries)
+            for protein_ref in protein_table.entity_protein_refs.get(
+                entry.entity_id, (entry.entity_id,)
+            )
+        ),
+        parse_fasta_document(
+            _workflow_fixture_path("biological_report_reference.fasta").read_text(),
+            mode=FastaParseMode.STRICT,
+        ).accepted_records,
+    )
+    report = interpretation.build_drug_target_interpretation_report(
+        protein_table,
+        differential_report,
+        context_report.accepted_records,
+        pathway_records=pathway_report.accepted_records,
+        annotation_report=annotation_report,
+        policy=interpretation.DrugTargetInterpretationPolicy(max_adjusted_p_value=1.0),
+    )
+
+    assert hasattr(interpretation, "build_drug_target_interpretation_report")
+    assert hasattr(interpretation, "render_drug_target_interpretation_tsv")
+    assert report.summary.direct_target_entry_count == 1
+    assert "relationship" in interpretation.render_drug_target_interpretation_tsv(report)
+
+
 def test_interpretation_package_exports_regulator_inference_surface() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
