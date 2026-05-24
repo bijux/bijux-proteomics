@@ -56,8 +56,8 @@ def test_review_package_exports_result_query_surface(tmp_path: Path) -> None:
     (biological_dir / "biological_protein_cards.tsv").write_text(
         "\n".join(
             (
-                "card_id\tgraph_claim_node_id\tgraph_subject_node_id\tgraph_support_node_ids\tgraph_source_row_refs\tprotein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\tunique_peptide_count\tshared_peptide_count\tcondition_a\tcondition_b\tlog2_fold_change\tadjusted_p_value\tsignificant\twarning_codes",
-                "protein_card_1\tstatistical_result:protein_card_1\tprotein:P11111\tpeptide:PEPA\tdifferential:P11111\tprotein_group_1\tP11111\tP11111\tAKT1\tPEPA\t1\t0\tcontrol\ttreatment\t1.2\t0.01\ttrue\t",
+                "card_id\tgraph_claim_node_id\tgraph_subject_node_id\tgraph_support_node_ids\tgraph_source_row_refs\tprotein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tobserved_sample_count\tmissing_sample_count\tcondition_a\tcondition_b\tlog2_fold_change\tadjusted_p_value\tsignificant\tevidence_tier\twarning_codes",
+                "protein_card_1\tstatistical_result:protein_card_1\tprotein:P11111\tpeptide:PEPA\tdifferential:P11111\tprotein_group_1\tP11111\tP11111\tAKT1\tPEPA\t1\t1\t0\t3\t0\tcontrol\ttreatment\t1.2\t0.01\ttrue\thigh_support\t",
             )
         )
         + "\n",
@@ -90,6 +90,48 @@ def test_review_package_exports_result_query_surface(tmp_path: Path) -> None:
     assert review.ResultQueryKind.PROTEIN_SIGNIFICANCE.value == "protein_significance"
     assert report.summary.answered_query_count == 1
     assert "answer_text" in review.render_result_query_answer_tsv(report)
+
+
+def test_review_package_exports_result_explanation_surface(tmp_path: Path) -> None:
+    biological_dir = tmp_path / "biological_report"
+    biological_dir.mkdir()
+    (biological_dir / "biological_protein_cards.tsv").write_text(
+        "\n".join(
+            (
+                "card_id\tgraph_claim_node_id\tgraph_subject_node_id\tgraph_support_node_ids\tgraph_source_row_refs\tprotein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tobserved_sample_count\tmissing_sample_count\tcondition_a\tcondition_b\tlog2_fold_change\tadjusted_p_value\tsignificant\tevidence_tier\twarning_codes",
+                "protein_card_1\tstatistical_result:protein_card_1\tprotein:P11111\tpeptide:PEPA\tdifferential:P11111\tprotein_group_1\tP11111\tP11111\tAKT1\tPEPA\t1\t1\t0\t3\t0\tcontrol\ttreatment\t1.2\t0.01\ttrue\thigh_support\t",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (biological_dir / "biological_evidence_graph_nodes.tsv").write_text(
+        "\n".join(
+            (
+                "node_id\tentity_type\tentity_ref\tcontext_refs",
+                "protein:P11111\tprotein\tP11111\t",
+                "statistical_result:protein_card_1\tclaim\tprotein_card_1\tprotein:P11111",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = review.build_result_explanation_report_from_artifacts(
+        (
+            review.ResultExplanationRequest(
+                explanation_id="protein",
+                explanation_kind=review.ResultExplanationKind.PROTEIN_RESULT,
+                subject_id="P11111",
+            ),
+        ),
+        biological_report_dir=biological_dir,
+    )
+
+    assert hasattr(review, "build_result_explanation_report_from_artifacts")
+    assert review.ResultExplanationKind.PROTEIN_RESULT.value == "protein_result"
+    assert report.summary.answered_explanation_count == 1
+    assert "claim" in review.render_result_explanation_tsv(report)
 
 
 def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
