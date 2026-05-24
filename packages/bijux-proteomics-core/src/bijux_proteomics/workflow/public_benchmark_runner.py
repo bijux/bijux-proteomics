@@ -485,6 +485,7 @@ def _build_workflow_config(
             search_result_tsv_path=source_map["search_result_tsv"],
             design_tsv_path=source_map["design_tsv"],
             proteins_fasta_path=source_map["proteins_fasta"],
+            source_protein_tsv_path=source_map.get("source_protein_tsv"),
             condition_a=condition_a,
             condition_b=condition_b,
             output_dir=output_dir,
