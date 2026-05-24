@@ -546,3 +546,55 @@ def test_quantification_package_exports_per_value_provenance_surface() -> None:
         excluded.reason_code
         for excluded in value.value_provenance.excluded_contributors
     ) == ("excluded_by_top_n_rollup",)
+
+
+def test_quantification_package_exports_protein_value_contributor_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="contrib001",
+            sample_id="s1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="contrib002",
+            sample_id="s1",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=80.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="contrib003",
+            sample_id="s1",
+            peptide="PEPD",
+            canonical_peptide="PEPD",
+            intensity=60.0,
+            protein_refs=("P001",),
+        ),
+    )
+    report = quantification.build_protein_intensity_matrix_from_features(
+        records,
+        aggregation_method=quantification.QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+    rendered = quantification.render_protein_peptide_contribution_tsv(report)
+    top_entry = next(
+        entry
+        for entry in report.peptide_contribution_entries
+        if entry.peptide_id == "PEPA"
+    )
+    excluded_entry = next(
+        entry
+        for entry in report.peptide_contribution_entries
+        if entry.peptide_id == "PEPD"
+    )
+
+    assert hasattr(quantification, "build_protein_intensity_matrix_from_features")
+    assert hasattr(quantification, "render_protein_peptide_contribution_tsv")
+    assert top_entry.included_abundance_fraction == 0.5555555555555556
+    assert excluded_entry.included_by_policy is False
+    assert excluded_entry.abundance_rank == 3
+    assert "included_abundance_fraction" in rendered
