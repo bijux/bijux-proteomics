@@ -290,6 +290,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interpretation/biological_context_mapping.py",
             "interpretation/compartment_biology.py",
             "interpretation/complex_activity.py",
+            "interpretation/drug_target_interpretation.py",
             "interpretation/disease_phenotype_interpretation.py",
             "interpretation/foreground_background_model.py",
             "interpretation/pathway_activity.py",
