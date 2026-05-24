@@ -188,6 +188,8 @@ class PtmEvidenceCardDifferentialResult(JsonModel):
     confidence_interval_low: float | None = None
     confidence_interval_high: float | None = None
     effect_size_cohens_d: float | None = None
+    imputation_dependent_hit: bool = False
+    uncertainty_note: str | None = None
 
 
 class PtmEvidenceCardProteinCorrection(JsonModel):
@@ -520,6 +522,8 @@ def build_ptm_evidence_card_report(
                     confidence_interval_low=differential_entry.confidence_interval_low,
                     confidence_interval_high=differential_entry.confidence_interval_high,
                     effect_size_cohens_d=differential_entry.effect_size_cohens_d,
+                    imputation_dependent_hit=differential_entry.imputation_dependent_hit,
+                    uncertainty_note=differential_entry.uncertainty_note,
                 ),
                 motif_evidence=motif_evidence,
                 regulator_evidence=regulators,

@@ -81,6 +81,17 @@ from bijux_proteomics.ptm.site_quantification import (
     render_ptm_site_quant_missingness_tsv,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
+from bijux_proteomics.review import (
+    EvidenceAwareRankingCandidate,
+    EvidenceAwareRankingEntityKind,
+    EvidenceAwareRankingReport,
+    build_evidence_aware_ranking_report,
+    normalize_linear_range,
+    render_evidence_aware_ranking_tsv,
+    score_adjusted_p_value,
+    score_effect_size,
+    score_support_count,
+)
 from bijux_proteomics.sequences import NormalizedProteinRecord, ProteinRegionContextRecord
 from bijux_proteomics_foundation import JsonModel
 
@@ -140,6 +151,7 @@ class PtmReportBundle(JsonModel):
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None
     ortholog_conservation: PtmOrthologConservationReport | None = None
     evidence_cards: PtmEvidenceCardReport | None = None
+    evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
     summary: PtmReportSummary
     note: str = Field(..., min_length=1)
 
@@ -168,6 +180,7 @@ class PtmReportArtifactPaths(JsonModel):
     evidence_card_summary_tsv: str | None = None
     evidence_card_tsv: str | None = None
     evidence_claim_tsv: str | None = None
+    evidence_aware_ranking_tsv: str | None = None
 
 
 class PtmReportExportManifest(JsonModel):
@@ -255,6 +268,7 @@ def build_ptm_report_bundle(
     regulator_enrichment = None
     ortholog_conservation = None
     evidence_cards = None
+    evidence_aware_ranking_report = None
     if ortholog_site_records is not None:
         if ortholog_source_species is None or ortholog_target_species is None:
             raise ValueError(
@@ -326,6 +340,9 @@ def build_ptm_report_bundle(
             protein_region_context_records=protein_region_context_records,
             policy=evidence_card_policy,
         )
+        evidence_aware_ranking_report = _build_ptm_evidence_aware_ranking_report(
+            evidence_cards
+        )
     return PtmReportBundle(
         peptide_entries=peptide_entries,
         site_table=site_table,
@@ -337,6 +354,7 @@ def build_ptm_report_bundle(
         regulator_enrichment=regulator_enrichment,
         ortholog_conservation=ortholog_conservation,
         evidence_cards=evidence_cards,
+        evidence_aware_ranking_report=evidence_aware_ranking_report,
         summary=PtmReportSummary(
             accepted_evidence_count=len(records),
             peptide_entry_count=len(peptide_entries),
@@ -386,6 +404,144 @@ def build_ptm_report_bundle(
             "into one owned report bundle"
         ),
     )
+
+
+def _build_ptm_evidence_aware_ranking_report(
+    evidence_cards: PtmEvidenceCardReport,
+) -> EvidenceAwareRankingReport:
+    abundance_by_site = {
+        card.site_key: max(
+            card.differential_result.mean_log2_abundance_a,
+            card.differential_result.mean_log2_abundance_b,
+        )
+        for card in evidence_cards.cards
+    }
+    abundance_scores = normalize_linear_range(abundance_by_site)
+    candidates: list[EvidenceAwareRankingCandidate] = []
+    for card in evidence_cards.cards:
+        abundance_value = abundance_by_site[card.site_key]
+        support_count = len(card.peptide_evidence)
+        localization_probability = card.localization.best_localization_probability or 0.0
+        support_score = min(
+            1.0,
+            (0.7 * score_support_count(support_count, saturation=4))
+            + (0.3 * localization_probability),
+        )
+        annotation_score = min(
+            1.0,
+            (0.2 if card.functional_regions else 0.0)
+            + (0.15 if card.motif_evidence.enriched_terms else 0.0)
+            + (0.15 if card.regulator_evidence else 0.0)
+            + (0.15 if card.crosstalk_partners else 0.0)
+            + (0.2 if card.mechanism_classification is not None else 0.0)
+            + (
+                0.15
+                if card.ortholog_conservation is not None
+                and card.ortholog_conservation.status.value != "unmapped"
+                else 0.0
+            ),
+        )
+        reproducibility_score = min(
+            1.0,
+            (
+                0.5
+                * score_support_count(
+                    min(
+                        card.differential_result.observations_a,
+                        card.differential_result.observations_b,
+                    ),
+                    saturation=3,
+                )
+            )
+            + (
+                0.5
+                * score_support_count(
+                    card.differential_result.complete_pair_count,
+                    saturation=3,
+                )
+            ),
+        )
+        confidence_score = min(
+            1.0,
+            (0.7 * _ptm_localization_score(card.localization.localization_tier.value))
+            + (0.2 if card.mechanism_classification is not None else 0.0)
+            + (
+                0.1
+                if card.ortholog_conservation is not None
+                and card.ortholog_conservation.status.value == "conserved"
+                else 0.0
+            ),
+        )
+        penalties: dict[str, float] = {}
+        if support_count <= 1:
+            penalties["single_peptide_support"] = 0.12
+        if abundance_scores[card.site_key] < 0.25:
+            penalties["low_abundance_signal"] = 0.1
+        if card.differential_result.imputation_dependent_hit:
+            penalties["imputation_dependent_hit"] = 0.08
+        if card.localization.low_localization:
+            penalties["low_localization"] = 0.14
+        if card.localization.ambiguous:
+            penalties["ambiguous_site"] = 0.08
+        if card.localization.shared_peptide:
+            penalties["shared_peptide"] = 0.06
+        if card.warnings:
+            penalties["warning_burden"] = min(0.15, 0.03 * len(card.warnings))
+        candidates.append(
+            EvidenceAwareRankingCandidate(
+                candidate_id=card.site_key,
+                entity_kind=EvidenceAwareRankingEntityKind.PTM_SITE,
+                display_label=card.site_key,
+                effect_size=abs(card.differential_result.log2_fold_change),
+                adjusted_p_value=card.differential_result.adjusted_p_value,
+                abundance_value=abundance_value,
+                support_count=support_count,
+                annotation_label=card.modification_name,
+                effect_score=score_effect_size(
+                    abs(card.differential_result.log2_fold_change),
+                    saturation=2.0,
+                ),
+                significance_score=score_adjusted_p_value(
+                    card.differential_result.adjusted_p_value
+                ),
+                abundance_score=abundance_scores[card.site_key],
+                support_score=support_score,
+                qc_score=reproducibility_score,
+                annotation_score=annotation_score,
+                reproducibility_score=reproducibility_score,
+                confidence_score=confidence_score,
+                penalties=penalties,
+                uncertainty=_ptm_result_uncertainty(card),
+                source_ids=(card.card_id, *card.claim_ids),
+                note=(
+                    "ptm ranking combines site effect, localization, peptide support, "
+                    "mechanism context, ortholog context, and evidence-card warnings"
+                ),
+            )
+        )
+    return build_evidence_aware_ranking_report(tuple(candidates))
+
+
+def _ptm_localization_score(value: str) -> float:
+    return {
+        "high_confidence": 1.0,
+        "medium_confidence": 0.75,
+        "low_confidence": 0.45,
+        "refused": 0.15,
+    }.get(value, 0.4)
+
+
+def _ptm_result_uncertainty(card) -> float:
+    uncertainty = 0.0
+    if card.differential_result.adjusted_p_value is None:
+        uncertainty += 0.08
+    if card.differential_result.uncertainty_note:
+        uncertainty += 0.08
+    if card.localization.low_localization:
+        uncertainty += 0.08
+    if len(card.peptide_evidence) <= 1:
+        uncertainty += 0.06
+    return min(0.35, uncertainty)
 
 
 def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
@@ -502,6 +658,14 @@ def render_ptm_report_differential_tsv(report: PtmReportBundle) -> str:
     return render_ptm_site_differential_tsv(
         report.differential_analysis.differential_report
     )
+
+
+def render_ptm_report_evidence_aware_ranking_tsv(report: PtmReportBundle) -> str:
+    """Render the PTM evidence-aware ranking section as TSV."""
+
+    if report.evidence_aware_ranking_report is None:
+        raise ValueError("ptm report bundle does not include evidence-aware ranking")
+    return render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report)
 
 
 def export_ptm_report_bundle(
@@ -621,6 +785,7 @@ def export_ptm_report_bundle(
     evidence_card_summary_name = None
     evidence_card_name = None
     evidence_claim_name = None
+    evidence_aware_ranking_name = None
     if report.evidence_cards is not None:
         evidence_card_summary_name = "ptm_evidence_card_summary.tsv"
         evidence_card_name = "ptm_evidence_cards.tsv"
@@ -635,6 +800,12 @@ def export_ptm_report_bundle(
         )
         (output_dir / evidence_claim_name).write_text(
             render_ptm_evidence_claim_tsv(report.evidence_cards),
+            encoding="utf-8",
+        )
+    if report.evidence_aware_ranking_report is not None:
+        evidence_aware_ranking_name = "ptm_evidence_aware_ranking.tsv"
+        (output_dir / evidence_aware_ranking_name).write_text(
+            render_ptm_report_evidence_aware_ranking_tsv(report),
             encoding="utf-8",
         )
 
@@ -660,6 +831,7 @@ def export_ptm_report_bundle(
             evidence_card_summary_tsv=evidence_card_summary_name,
             evidence_card_tsv=evidence_card_name,
             evidence_claim_tsv=evidence_claim_name,
+            evidence_aware_ranking_tsv=evidence_aware_ranking_name,
         ),
         motif_summary_included=report.motif_enrichment is not None,
         note=(
