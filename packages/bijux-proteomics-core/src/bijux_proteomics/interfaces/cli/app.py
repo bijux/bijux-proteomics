@@ -862,6 +862,7 @@ from bijux_proteomics.review import (
     VolcanoReviewPolicy,
     build_analysis_recommendation_report_from_artifacts,
     build_biomarker_candidate_ranking_report,
+    build_compact_result_summary_report_from_artifacts,
     build_failure_explanation_report,
     build_result_explanation_report_from_artifacts,
     build_result_query_report_from_artifacts,
@@ -876,6 +877,9 @@ from bijux_proteomics.review import (
     render_biomarker_candidate_ranking_tsv,
     render_analysis_recommendation_summary_tsv,
     render_analysis_recommendation_tsv,
+    render_compact_result_summary_entry_tsv,
+    render_compact_result_summary_markdown,
+    render_compact_result_summary_overview_tsv,
     render_failure_explanation_summary_tsv,
     render_failure_explanation_tsv,
     render_result_explanation_evidence_tsv,
@@ -8577,6 +8581,91 @@ def analysis_recommendations_command(
                 if recommendation_tsv_out is None
                 else str(recommendation_tsv_out)
             ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("compact-result-summary")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--batch-effect-summary-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--overview-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--entry-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--markdown-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def compact_result_summary_command(
+    biological_report_dir: Path,
+    ptm_report_dir: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    batch_effect_summary_tsv: Path | None,
+    overview_tsv_out: Path | None,
+    entry_tsv_out: Path | None,
+    markdown_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Render a short collaborator summary constrained to governed evidence surfaces."""
+
+    try:
+        report = build_compact_result_summary_report_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+            batch_effect_summary_tsv_path=batch_effect_summary_tsv,
+        )
+        markdown = render_compact_result_summary_markdown(report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if overview_tsv_out is not None:
+        _write_text_output(
+            overview_tsv_out,
+            render_compact_result_summary_overview_tsv(report),
+        )
+    if entry_tsv_out is not None:
+        _write_text_output(
+            entry_tsv_out,
+            render_compact_result_summary_entry_tsv(report),
+        )
+    if markdown_out is not None:
+        _write_text_output(markdown_out, markdown)
+
+    payload = {
+        "biological_report_dir": str(biological_report_dir),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "batch_effect_summary_tsv": (
+            None if batch_effect_summary_tsv is None else str(batch_effect_summary_tsv)
+        ),
+        "report": report.to_dict(),
+        "markdown": markdown,
+        "outputs": {
+            "overview_tsv": None if overview_tsv_out is None else str(overview_tsv_out),
+            "entry_tsv": None if entry_tsv_out is None else str(entry_tsv_out),
+            "markdown": None if markdown_out is None else str(markdown_out),
         },
     }
     _emit_json(payload, out_path=out_path)
