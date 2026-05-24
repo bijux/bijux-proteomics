@@ -91,13 +91,22 @@ from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
 from bijux_proteomics.review import (
+    EvidenceAwareRankingCandidate,
+    EvidenceAwareRankingEntityKind,
+    EvidenceAwareRankingReport,
     VolcanoReviewPolicy,
     VolcanoReviewReport,
+    build_evidence_aware_ranking_report,
     build_quantification_volcano_review,
     export_volcano_review_html,
+    normalize_linear_range,
     export_volcano_review_json,
     export_volcano_review_svg,
     render_volcano_review_tsv,
+    render_evidence_aware_ranking_tsv,
+    score_adjusted_p_value,
+    score_effect_size,
+    score_support_count,
 )
 from bijux_proteomics.sequences import (
     FastaParseMode,
@@ -211,6 +220,7 @@ class BiologicalResultReportBundle(JsonModel):
     protein_cards: ProteinEvidenceCardReport
     protein_mechanism_cards: ProteinMechanismCardReport
     experiment_confidence_report: ExperimentConfidenceReport
+    evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
@@ -237,6 +247,7 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     protein_mechanism_card_tsv: str = Field(..., min_length=1)
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
+    evidence_aware_ranking_tsv: str | None = None
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
@@ -644,6 +655,13 @@ def build_biological_result_report_bundle_from_quant_table(
         warning_card_count=protein_cards.summary.warning_card_count,
         protein_card_count=protein_cards.summary.protein_result_count,
     )
+    evidence_aware_ranking_report = _build_biological_evidence_aware_ranking_report(
+        differential_report,
+        protein_cards=protein_cards,
+        protein_mechanism_cards=protein_mechanism_cards,
+        experiment_confidence_report=experiment_confidence_report,
+        pathway_enrichment_report=pathway_enrichment_report,
+    )
     significant_protein_count = len(
         _select_significant_entity_ids(differential_report, policy=active_selection_policy)
     )
@@ -654,6 +672,7 @@ def build_biological_result_report_bundle_from_quant_table(
         protein_cards=protein_cards,
         protein_mechanism_cards=protein_mechanism_cards,
         experiment_confidence_report=experiment_confidence_report,
+        evidence_aware_ranking_report=evidence_aware_ranking_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
         go_enrichment_report=go_enrichment_report,
@@ -835,6 +854,334 @@ def _build_protein_reference_entries(
     return tuple(entries)
 
 
+def _build_biological_evidence_aware_ranking_report(
+    differential_report: DifferentialAbundanceReport,
+    *,
+    protein_cards: ProteinEvidenceCardReport,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    experiment_confidence_report: ExperimentConfidenceReport,
+    pathway_enrichment_report: PathwayEnrichmentReport | None,
+) -> EvidenceAwareRankingReport:
+    protein_candidates = _build_biological_protein_ranking_candidates(
+        differential_report,
+        protein_cards=protein_cards,
+        protein_mechanism_cards=protein_mechanism_cards,
+        experiment_confidence_report=experiment_confidence_report,
+    )
+    pathway_candidates = _build_biological_pathway_ranking_candidates(
+        pathway_enrichment_report,
+        protein_mechanism_cards=protein_mechanism_cards,
+        experiment_confidence_report=experiment_confidence_report,
+    )
+    return build_evidence_aware_ranking_report(
+        protein_candidates + pathway_candidates
+    )
+
+
+def _build_biological_protein_ranking_candidates(
+    differential_report: DifferentialAbundanceReport,
+    *,
+    protein_cards: ProteinEvidenceCardReport,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    experiment_confidence_report: ExperimentConfidenceReport,
+) -> tuple[EvidenceAwareRankingCandidate, ...]:
+    differential_by_entity = {
+        entry.entity_id: entry for entry in differential_report.entries
+    }
+    mechanism_by_protein_group = {
+        card.protein_group_id: card for card in protein_mechanism_cards.cards
+    }
+    abundance_by_entity = {
+        card.protein_group_id: max(
+            card.differential_result.mean_log2_abundance_a,
+            card.differential_result.mean_log2_abundance_b,
+        )
+        for card in protein_cards.cards
+    }
+    abundance_scores = normalize_linear_range(abundance_by_entity)
+
+    candidates: list[EvidenceAwareRankingCandidate] = []
+    for protein_card in protein_cards.cards:
+        mechanism_card = mechanism_by_protein_group.get(protein_card.protein_group_id)
+        if mechanism_card is None:
+            raise ValueError(
+                "biological evidence-aware ranking requires one protein mechanism card per protein card"
+            )
+        differential_entry = differential_by_entity.get(protein_card.protein_group_id)
+        if differential_entry is None:
+            raise ValueError(
+                "biological evidence-aware ranking requires one differential entry per protein card"
+            )
+        abundance_value = abundance_by_entity[protein_card.protein_group_id]
+        unique_support = mechanism_card.peptide_support.unique_peptide_count
+        support_score = min(
+            1.0,
+            (0.7 * score_support_count(unique_support, saturation=4))
+            + (
+                0.3
+                * score_support_count(
+                    mechanism_card.peptide_support.quantifying_peptide_count,
+                    saturation=6,
+                )
+            ),
+        )
+        annotation_score = min(
+            1.0,
+            (0.45 if protein_card.annotation.annotation_status.value != "unmapped" else 0.0)
+            + (0.15 if protein_card.functional_regions else 0.0)
+            + (0.15 if protein_card.pathways else 0.0)
+            + (0.15 if protein_card.ptm_sites else 0.0)
+            + (0.10 if protein_card.context_terms else 0.0),
+        )
+        confidence_score = min(
+            1.0,
+            (
+                0.45 * _tier_score(mechanism_card.confidence_tier.value)
+                + 0.35 * _tier_score(mechanism_card.evidence_tier.value)
+                + max(0.0, 0.2 - (0.04 * len(mechanism_card.downgrade_reasons)))
+            ),
+        )
+        reproducibility_score = (
+            differential_entry.robustness_score
+            if differential_entry.robustness_score is not None
+            else min(
+                1.0,
+                (
+                    0.5
+                    * score_support_count(
+                        min(
+                            differential_entry.observations_a,
+                            differential_entry.observations_b,
+                        ),
+                        saturation=3,
+                    )
+                )
+                + (
+                    0.5
+                    * score_support_count(
+                        differential_entry.complete_pair_count,
+                        saturation=3,
+                    )
+                ),
+            )
+        )
+        qc_score = max(
+            0.0,
+            experiment_confidence_report.summary.overall_score
+            - (0.04 * len(protein_card.warnings)),
+        )
+        penalties: dict[str, float] = {}
+        if unique_support <= 1:
+            penalties["single_peptide_support"] = 0.18
+        if abundance_scores[protein_card.protein_group_id] < 0.25:
+            penalties["low_abundance_signal"] = 0.12
+        if protein_card.warnings:
+            penalties["warning_burden"] = min(0.15, 0.03 * len(protein_card.warnings))
+        if not protein_card.significant:
+            penalties["not_significant"] = 0.1
+        if differential_entry.imputation_dependent_hit:
+            penalties["imputation_dependent_hit"] = 0.08
+        if (
+            differential_entry.robustness_score is not None
+            and differential_entry.robustness_score < 0.5
+        ):
+            penalties["limited_robustness"] = 0.08
+        candidates.append(
+            EvidenceAwareRankingCandidate(
+                candidate_id=protein_card.protein_group_id,
+                entity_kind=EvidenceAwareRankingEntityKind.PROTEIN,
+                display_label=protein_card.representative_protein_ref,
+                effect_size=abs(protein_card.differential_result.log2_fold_change),
+                adjusted_p_value=protein_card.differential_result.adjusted_p_value,
+                abundance_value=abundance_value,
+                support_count=unique_support,
+                annotation_label=protein_card.annotation.gene_symbol
+                or protein_card.annotation.description,
+                effect_score=score_effect_size(
+                    abs(protein_card.differential_result.log2_fold_change),
+                    saturation=2.0,
+                ),
+                significance_score=score_adjusted_p_value(
+                    protein_card.differential_result.adjusted_p_value
+                ),
+                abundance_score=abundance_scores[protein_card.protein_group_id],
+                support_score=support_score,
+                qc_score=qc_score,
+                annotation_score=annotation_score,
+                reproducibility_score=reproducibility_score,
+                confidence_score=confidence_score,
+                penalties=penalties,
+                uncertainty=_biological_result_uncertainty(protein_card),
+                source_ids=(
+                    protein_card.card_id,
+                    mechanism_card.card_id,
+                    protein_card.graph_claim_node_id,
+                ),
+                note=(
+                    "protein ranking combines differential strength, abundance, peptide "
+                    "support, experiment confidence, annotation, and graph confidence"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_biological_pathway_ranking_candidates(
+    pathway_enrichment_report: PathwayEnrichmentReport | None,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    experiment_confidence_report: ExperimentConfidenceReport,
+) -> tuple[EvidenceAwareRankingCandidate, ...]:
+    if pathway_enrichment_report is None:
+        return ()
+    support_by_member_id: dict[str, list[float]] = {}
+    abundance_by_member_id: dict[str, list[float]] = {}
+    reproducibility_by_member_id: dict[str, list[float]] = {}
+    for card in protein_mechanism_cards.cards:
+        support_by_member_id.setdefault(card.protein_group_id, []).append(
+            _tier_score(card.confidence_tier.value)
+        )
+        support_by_member_id.setdefault(card.representative_protein_ref, []).append(
+            _tier_score(card.confidence_tier.value)
+        )
+        if card.gene_symbol:
+            support_by_member_id.setdefault(card.gene_symbol, []).append(
+                _tier_score(card.confidence_tier.value)
+            )
+        abundance = abs(card.abundance_change.log2_fold_change)
+        abundance_by_member_id.setdefault(card.protein_group_id, []).append(abundance)
+        abundance_by_member_id.setdefault(card.representative_protein_ref, []).append(
+            abundance
+        )
+        if card.gene_symbol:
+            abundance_by_member_id.setdefault(card.gene_symbol, []).append(abundance)
+        reproducibility = min(
+            1.0,
+            (
+                0.5
+                * score_support_count(
+                    card.peptide_support.unique_peptide_count,
+                    saturation=4,
+                )
+            )
+            + (0.5 * _tier_score(card.evidence_tier.value)),
+        )
+        reproducibility_by_member_id.setdefault(card.protein_group_id, []).append(
+            reproducibility
+        )
+        reproducibility_by_member_id.setdefault(
+            card.representative_protein_ref,
+            [],
+        ).append(reproducibility)
+        if card.gene_symbol:
+            reproducibility_by_member_id.setdefault(card.gene_symbol, []).append(
+                reproducibility
+            )
+
+    pathway_abundance = {
+        entry.pathway_id: _mean(
+            abundance_by_member_id.get(member_id, ())
+            for member_id in entry.foreground_member_ids
+        )
+        for entry in pathway_enrichment_report.entries
+    }
+    abundance_scores = normalize_linear_range(pathway_abundance)
+
+    candidates: list[EvidenceAwareRankingCandidate] = []
+    for entry in pathway_enrichment_report.entries:
+        support_strength = _mean(
+            support_by_member_id.get(member_id, ())
+            for member_id in entry.foreground_member_ids
+        )
+        reproducibility = _mean(
+            reproducibility_by_member_id.get(member_id, ())
+            for member_id in entry.foreground_member_ids
+        )
+        penalties: dict[str, float] = {}
+        if entry.foreground_overlap_count <= 1:
+            penalties["weak_member_support"] = 0.14
+        if support_strength == 0.0:
+            penalties["unresolved_supporting_members"] = 0.1
+        if support_strength < 0.5:
+            penalties["weak_supporting_proteins"] = 0.08
+        candidates.append(
+            EvidenceAwareRankingCandidate(
+                candidate_id=entry.pathway_id,
+                entity_kind=EvidenceAwareRankingEntityKind.PATHWAY,
+                display_label=entry.pathway_name or entry.pathway_id,
+                effect_size=entry.enrichment_ratio,
+                adjusted_p_value=entry.adjusted_p_value,
+                abundance_value=pathway_abundance[entry.pathway_id],
+                support_count=entry.foreground_overlap_count,
+                annotation_label=entry.source_name,
+                effect_score=score_effect_size(
+                    None
+                    if entry.enrichment_ratio is None
+                    else max(0.0, entry.enrichment_ratio - 1.0),
+                    saturation=2.0,
+                ),
+                significance_score=score_adjusted_p_value(entry.adjusted_p_value),
+                abundance_score=abundance_scores[entry.pathway_id],
+                support_score=min(
+                    1.0,
+                    (0.6 * score_support_count(entry.foreground_overlap_count, saturation=5))
+                    + (0.4 * support_strength),
+                ),
+                qc_score=experiment_confidence_report.summary.overall_score,
+                annotation_score=1.0
+                if entry.pathway_name and entry.source_name
+                else (0.75 if entry.pathway_name else 0.4),
+                reproducibility_score=max(
+                    0.4 * experiment_confidence_report.summary.overall_score,
+                    reproducibility,
+                ),
+                confidence_score=support_strength,
+                penalties=penalties,
+                uncertainty=0.1 if support_strength == 0.0 else 0.05,
+                source_ids=(entry.pathway_id,),
+                note=(
+                    "pathway ranking combines enrichment strength with supporting protein "
+                    "confidence so one-member pathways do not outrank broader supported biology"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _mean(value_groups: object) -> float:
+    values: list[float] = []
+    for group in value_groups:
+        values.extend(group)
+    if not values:
+        return 0.0
+    return sum(values) / len(values)
+
+
+def _tier_score(value: str) -> float:
+    return {
+        "high": 1.0,
+        "high_support": 1.0,
+        "moderate": 0.72,
+        "moderate_support": 0.72,
+        "review": 0.45,
+        "low": 0.3,
+    }.get(value, 0.5)
+
+
+def _biological_result_uncertainty(card) -> float:
+    uncertainty = 0.0
+    if card.differential_result.adjusted_p_value is None:
+        uncertainty += 0.08
+    if card.differential_result.uncertainty_note:
+        uncertainty += 0.08
+    if min(
+        card.differential_result.observations_a,
+        card.differential_result.observations_b,
+    ) < 2:
+        uncertainty += 0.06
+    return min(0.3, uncertainty)
+
+
 def render_biological_result_report_summary_tsv(
     report: BiologicalResultReportBundle,
 ) -> str:
@@ -906,6 +1253,7 @@ def export_biological_result_report_bundle(
     experiment_confidence_components_name = (
         "biological_experiment_confidence_components.tsv"
     )
+    evidence_aware_ranking_name = None
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
@@ -961,6 +1309,12 @@ def export_biological_result_report_bundle(
         render_experiment_confidence_component_tsv(report.experiment_confidence_report),
         encoding="utf-8",
     )
+    if report.evidence_aware_ranking_report is not None:
+        evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
+        (output_dir / evidence_aware_ranking_name).write_text(
+            render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
+            encoding="utf-8",
+        )
     (output_dir / annotation_summary_name).write_text(
         render_protein_annotation_summary_tsv(report.annotation_report),
         encoding="utf-8",
@@ -1102,11 +1456,12 @@ def export_biological_result_report_bundle(
         differential_tsv=differential_name,
         protein_card_summary_tsv=protein_card_summary_name,
         protein_card_tsv=protein_card_name,
-        protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
-        protein_mechanism_card_tsv=protein_mechanism_card_name,
-        experiment_confidence_summary_tsv=experiment_confidence_summary_name,
-        experiment_confidence_components_tsv=experiment_confidence_components_name,
-        annotation_summary_tsv=annotation_summary_name,
+            protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
+            protein_mechanism_card_tsv=protein_mechanism_card_name,
+            experiment_confidence_summary_tsv=experiment_confidence_summary_name,
+            experiment_confidence_components_tsv=experiment_confidence_components_name,
+            evidence_aware_ranking_tsv=evidence_aware_ranking_name,
+            annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
         context_summary_tsv=context_summary_name,
@@ -1173,6 +1528,10 @@ def _render_biological_result_report_html(
             "Experiment confidence components",
             artifacts.experiment_confidence_components_tsv,
         ),
+        (
+            "Evidence-aware ranking",
+            artifacts.evidence_aware_ranking_tsv,
+        ),
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
         ("Unmapped annotations", artifacts.annotation_unmapped_tsv),
@@ -1218,6 +1577,7 @@ def _render_biological_result_report_html(
         if path is not None
     )
     confidence_table_html = _render_experiment_confidence_table_html(report)
+    ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     card_table_html = _render_protein_mechanism_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
@@ -1232,6 +1592,8 @@ def _render_biological_result_report_html(
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
         "<h2>Experiment confidence</h2>"
         f"{confidence_table_html}"
+        "<h2>Evidence-aware ranking</h2>"
+        f"{ranking_table_html}"
         "<h2>Protein mechanism cards</h2>"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
@@ -1323,6 +1685,51 @@ def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBund
         for card in report.protein_mechanism_cards.cards
     )
     return (
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_evidence_aware_ranking_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    ranking_report = report.evidence_aware_ranking_report
+    if ranking_report is None:
+        return "<p>No evidence-aware ranking was generated.</p>"
+    headers = (
+        "Rank",
+        "Kind",
+        "Label",
+        "Score",
+        "Adjusted p-value",
+        "Support",
+        "Penalty codes",
+        "Note",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{entry.priority_rank}</td>"
+            f"<td>{escape(entry.entity_kind.value)}</td>"
+            f"<td>{escape(entry.display_label)}</td>"
+            f"<td>{entry.decomposition.final_score:.3f}</td>"
+            f"<td>{_format_optional_float(entry.adjusted_p_value)}</td>"
+            f"<td>{entry.support_count}</td>"
+            f"<td>{escape('; '.join(entry.penalty_codes))}</td>"
+            f"<td>{escape(entry.ranking_note)}</td>"
+            "</tr>"
+        )
+        for entry in ranking_report.entries[:15]
+    )
+    return (
+        "<p>"
+        f"<strong>Ranked findings</strong>: {ranking_report.summary.entry_count} | "
+        f"<strong>Proteins</strong>: {ranking_report.summary.protein_entry_count} | "
+        f"<strong>Pathways</strong>: {ranking_report.summary.pathway_entry_count}"
+        "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
         f"<tbody>{row_html}</tbody>"
