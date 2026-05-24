@@ -530,7 +530,10 @@ def build_proteomics_study_result_from_maxquant_workflow_bundle(
                 surface_name="import_report",
                 kind=ProteomicsStudyQcKind.MAXQUANT_IMPORT,
                 issue_count=bundle.summary.filtered_protein_group_count,
-                note=bundle.import_report.note,
+                note=(
+                    "maxquant workflow preserves evidence, peptide, protein-group, "
+                    "and rejected-evidence import surfaces for study-level review"
+                ),
             ),
             ProteomicsStudyQcSurface(
                 surface_name="acceptance_policy",

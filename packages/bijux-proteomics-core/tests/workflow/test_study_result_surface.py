@@ -17,6 +17,7 @@ from bijux_proteomics.workflow import (
     ProteomicsRunEngine,
     build_biological_result_report_bundle,
     build_diann_biological_workflow_bundle,
+    build_maxquant_biological_workflow_bundle,
     build_proteomics_run_bundle,
     build_ptm_site_workflow_bundle,
     build_tmt_experiment_workflow_bundle,
@@ -118,12 +119,54 @@ def test_build_proteomics_study_result_preserves_diann_workflow_surfaces() -> No
         surface.kind is ProteomicsStudyStatisticKind.DIFFERENTIAL_PROTEIN
         for surface in study_result.statistic_surfaces
     )
+
+
+def test_build_proteomics_study_result_preserves_maxquant_workflow_surfaces() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture("maxquant_biological/design.tsv")
+        ).accepted_entries
+    )
+    workflow = build_maxquant_biological_workflow_bundle(
+        _workflow_fixture("maxquant_biological/evidence.txt"),
+        build_experiment_design(design_entries),
+        peptides_txt_path=_workflow_fixture("maxquant_biological/peptides.txt"),
+        protein_groups_txt_path=_workflow_fixture(
+            "maxquant_biological/proteinGroups.txt"
+        ),
+        proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+        config_path=_workflow_fixture("maxquant_biological/maxquant_settings.txt"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    study_result = build_proteomics_study_result(workflow)
+
+    assert study_result.study_kind is ProteomicsStudyKind.MAXQUANT
+    assert {
+        surface.kind for surface in study_result.matrix_surfaces
+    } == {
+        ProteomicsStudyMatrixKind.LABEL_FREE_PROTEIN,
+        ProteomicsStudyMatrixKind.HEATMAP_REVIEW,
+    }
     assert any(
-        surface.kind is ProteomicsStudyQcKind.DIA_RUN_QC
+        surface.kind is ProteomicsStudyQcKind.MAXQUANT_IMPORT
         for surface in study_result.qc_surfaces
     )
+    assert any(
+        surface.kind is ProteomicsStudyStatisticKind.DIFFERENTIAL_PROTEIN
+        for surface in study_result.statistic_surfaces
+    )
+    assert {
+        surface.kind for surface in study_result.qc_surfaces
+    } == {
+        ProteomicsStudyQcKind.MAXQUANT_IMPORT,
+        ProteomicsStudyQcKind.MAXQUANT_ACCEPTANCE,
+        ProteomicsStudyQcKind.SAMPLE_EXPLORATION,
+        ProteomicsStudyQcKind.EXPERIMENT_CONFIDENCE,
+    }
     assert study_result.biological_report is workflow.biological_report
-    assert study_result.summary.matrix_surface_count == 3
+    assert study_result.summary.matrix_surface_count == 2
 
 
 def test_build_proteomics_study_result_preserves_tmt_and_ptm_studies_for_comparison() -> (
