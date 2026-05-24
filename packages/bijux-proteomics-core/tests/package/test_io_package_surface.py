@@ -302,22 +302,41 @@ def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
         aligned_rt_tolerance_seconds=5.0,
     )
     fit_rendered = io.render_rt_alignment_fit_models_tsv(fit_report)
+    penalty_rows = io.apply_rt_residuals(
+        (
+            io.RetentionTimeIdentificationRow(
+                entity_id="high_confidence_outlier",
+                run_id="shifted_run",
+                observed_rt=62.0,
+                expected_rt=40.0,
+                imported_confidence=0.99,
+            ),
+        ),
+        fit_report,
+        aligned_rt_tolerance_seconds=5.0,
+    )
+    penalty_rendered = io.render_rt_residual_penalties_tsv(penalty_rows)
     rendered = io.render_retention_time_alignment_residuals_tsv(report)
 
     assert hasattr(io, "fit_rt_alignment")
+    assert hasattr(io, "apply_rt_residuals")
     assert hasattr(io, "align_chromatographic_peak_retention_times")
     assert hasattr(io, "extract_mzml_retention_time_alignment")
     assert hasattr(io, "render_rt_alignment_fit_models_tsv")
+    assert hasattr(io, "render_rt_residual_penalties_tsv")
     assert hasattr(io, "render_retention_time_alignment_models_tsv")
     assert hasattr(io, "render_retention_time_alignment_residuals_tsv")
     assert hasattr(io, "render_retention_time_alignment_failed_anchors_tsv")
     assert fit_report.models[0].alignment_model == "confidence_weighted_shift"
     assert fit_report.models[0].rt_shift == 10.0
+    assert penalty_rows[0].rt_outlier is True
+    assert penalty_rows[0].rt_confidence_penalty == 0.2
     assert report.run_models[1].status.value == "aligned"
     assert report.run_models[1].alignment_model == "confidence_weighted_shift"
     assert report.run_models[1].rt_shift == 10.0
     assert len(report.flagged_residuals) == 1
     assert "shifted_run\tconfidence_weighted_shift\t10\t0\t0" in fit_rendered
+    assert "high_confidence_outlier\t62\t50\t12\ttrue\t0.2000" in penalty_rendered
     assert "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70" in rendered
 
 
