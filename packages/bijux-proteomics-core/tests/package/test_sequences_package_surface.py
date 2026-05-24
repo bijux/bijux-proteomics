@@ -148,3 +148,30 @@ def test_sequences_package_exports_protein_region_context_owner_surface() -> Non
     assert hasattr(sequences, "build_protein_peptide_region_context_report")
     assert report.summary.signal_peptide_record_count == 1
     assert "binding_region_record_count" in rendered
+
+
+def test_sequences_package_exports_protein_identity_resolution_owner_surface() -> None:
+    fasta = sequences.parse_fasta_document(
+        (
+            ">sp|P11111|GENE1_HUMAN Canonical GN=GENE1\nMPEPTIDEK\n"
+            ">sp|P11111-2|GENE1_HUMAN Isoform GN=GENE1\nMPEPTIDEK\n"
+        ),
+        mode=sequences.FastaParseMode.STRICT,
+    )
+    report = sequences.build_protein_identity_resolution_report(
+        (
+            sequences.ProteinIdentityReference(
+                evidence_key="shared-isoform",
+                target_protein_ref="P11111-2",
+                candidate_protein_refs=("P11111-2", "P11111"),
+                peptide_sequences=("PEPTIDEK",),
+            ),
+        ),
+        protein_records=fasta.accepted_records,
+    )
+    rendered = sequences.render_protein_identity_resolution_tsv(report)
+
+    assert hasattr(sequences, "build_protein_identity_resolution_report")
+    assert hasattr(sequences, "render_protein_identity_resolution_tsv")
+    assert report.entries[0].identity_level is sequences.ProteinIdentityLevel.PROTEIN_LEVEL
+    assert "shared-isoform" in rendered
