@@ -175,7 +175,7 @@ known_limitations:
     blocks_workflow_execution: false
     description: The shipped reporter table omits the bridge 129N channel even though the governed design declares it, so the workflow carries explicit missing-source-channel pressure across both plexes.
 command:
-  cli: bijux proteomics public-benchmark-runner benchmarks/public/multiplex_tmtpro_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/multiplex_tmtpro_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship TMTpro reporter-ion table through the owned TMT workflow with channel QC, normalization, ratios, interference review, differential proteins, and report export.
   parameters:
     control_channel: "126"

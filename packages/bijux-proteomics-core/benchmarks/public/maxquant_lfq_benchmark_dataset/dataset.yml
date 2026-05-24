@@ -30,7 +30,7 @@ source_files:
     note: Shipped MaxQuant settings surface paired with the runnable benchmark evidence bundle.
   - source_id: maxquant_support_fasta
     schema_id: proteins_fasta
-    repo_relative_path: benchmarks/public/support/biological_report_reference.fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
     sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
     note: Governed support FASTA used by the owned MaxQuant biological workflow.
 expected_input_schemas:
@@ -152,7 +152,7 @@ known_limitations:
     blocks_workflow_execution: false
     description: The runnable MaxQuant LFQ benchmark depends on the governed shared FASTA rather than shipping a duplicate benchmark-local protein reference.
 command:
-  cli: bijux proteomics public-benchmark-runner benchmarks/public/maxquant_lfq_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/maxquant_lfq_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the governed MaxQuant LFQ benchmark dataset through the owned MaxQuant biological workflow.
   parameters: {}
 output_checks:

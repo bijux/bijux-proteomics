@@ -6,21 +6,18 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.workflow import (
+    public_benchmark_root,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_summary_tsv,
     run_public_benchmark_descriptor_suite,
 )
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
-
-
 def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     tmp_path: Path,
 ) -> None:
     suite = run_public_benchmark_descriptor_suite(
-        _repo_root() / "benchmarks" / "public",
+        public_benchmark_root(),
         output_root=tmp_path / "runs",
     )
 
@@ -37,6 +34,7 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
     assert "maxquant_lfq_benchmark_dataset" in summary_tsv
     assert "ptm_localization_review_package" in summary_tsv
+    assert "targeted_transition_review_package" in summary_tsv
     assert "dia_diann_review_snapshot" in summary_tsv
     assert failures_tsv.splitlines()[0] == (
         "dataset_id\taccession\tstatus\tfailure_kind\tsubject\tmessage"

@@ -20,7 +20,7 @@ source_files:
     note: Shipped PTM reference FASTA from the flagship PTM public package.
   - source_id: ptm_support_design
     schema_id: design_tsv
-    repo_relative_path: benchmarks/public/support/ptm.design.tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/ptm.design.tsv
     sha256: beb7bdd0d2d5103369e68a1a0106006c16d3b07ebb8def58730de6ada3385593
     note: Governed support design that makes the flagship PTM package executable through the owned PTM workflow.
   - source_id: ptm_site_annotations
@@ -116,7 +116,7 @@ known_limitations:
     blocks_workflow_execution: false
     description: The runnable benchmark path depends on a governed support design table because the public PTM package does not ship a full experimental design surface.
 command:
-  cli: bijux proteomics public-benchmark-runner benchmarks/public/ptm_localization_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/ptm_localization_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship PTM localization public package through the owned PTM site workflow with shipped annotation-backed motif, regulator, and evidence-card analysis.
   parameters:
     batch_field: ""

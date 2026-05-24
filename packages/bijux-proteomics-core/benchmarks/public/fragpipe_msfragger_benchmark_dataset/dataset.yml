@@ -20,7 +20,7 @@ source_files:
     note: Shipped study design surface for the runnable FragPipe benchmark workflow.
   - source_id: fragpipe_support_fasta
     schema_id: proteins_fasta
-    repo_relative_path: benchmarks/public/support/biological_report_reference.fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
     sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
     note: Governed support FASTA used by the owned FragPipe biological workflow.
 expected_input_schemas:
@@ -150,7 +150,7 @@ known_limitations:
     blocks_workflow_execution: false
     description: The runnable FragPipe benchmark depends on the governed shared FASTA rather than shipping a duplicate benchmark-local protein reference.
 command:
-  cli: bijux proteomics public-benchmark-runner benchmarks/public/fragpipe_msfragger_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/fragpipe_msfragger_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the governed FragPipe or MSFragger benchmark dataset through the owned FragPipe biological workflow.
   parameters: {}
 output_checks:

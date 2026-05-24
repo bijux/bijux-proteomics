@@ -15,12 +15,12 @@ source_files:
     note: Governed DIA-NN configuration snapshot paired with the runnable benchmark report.
   - source_id: dia_support_design
     schema_id: design_tsv
-    repo_relative_path: benchmarks/public/support/diann_biological.design.tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/diann_biological.design.tsv
     sha256: e7bb7a583caf32dc07c1567f6a410c8f498b5f7580f572caa49864cddb0d4439
     note: Governed support design for the runnable DIA-NN benchmark workflow.
   - source_id: dia_support_fasta
     schema_id: proteins_fasta
-    repo_relative_path: benchmarks/public/support/biological_report_reference.fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
     sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
     note: Governed support FASTA used by the owned DIA biological workflow.
 expected_input_schemas:
@@ -138,7 +138,7 @@ known_limitations:
     blocks_workflow_execution: false
     description: The runnable DIA-NN benchmark depends on governed support design and FASTA inputs rather than a fully self-contained public package root.
 command:
-  cli: bijux proteomics public-benchmark-runner benchmarks/public/dia_diann_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/dia_diann_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the governed DIA-NN benchmark dataset through the owned DIA biological workflow.
   parameters: {}
 output_checks:

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Descriptor contracts for shipped public benchmark datasets."""
+"""Descriptor contracts for package-owned shipped public benchmark datasets."""
 
 from __future__ import annotations
 
@@ -164,7 +164,7 @@ class PublicBenchmarkOutputCheck(JsonModel):
 
 
 class PublicBenchmarkDescriptor(JsonModel):
-    """Descriptor loaded from ``benchmarks/public/<dataset>/dataset.yml``."""
+    """Descriptor loaded from one package-owned ``benchmarks/public/<dataset>/dataset.yml``."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -262,8 +262,14 @@ def load_public_benchmark_descriptor(descriptor_path: Path) -> PublicBenchmarkDe
     return PublicBenchmarkDescriptor.model_validate(payload)
 
 
+def public_benchmark_root() -> Path:
+    """Return the package-owned root for shipped public benchmark descriptors."""
+
+    return Path(__file__).resolve().parents[3] / "benchmarks" / "public"
+
+
 def list_public_benchmark_descriptor_paths(benchmark_root: Path) -> tuple[Path, ...]:
-    """List every descriptor rooted under ``benchmarks/public``."""
+    """List every descriptor rooted under the package-owned benchmark tree."""
 
     return tuple(sorted(benchmark_root.glob("*/dataset.yml")))
 
@@ -283,6 +289,7 @@ __all__ = [
     "PublicBenchmarkSampleMetadata",
     "PublicBenchmarkSearchEngine",
     "PublicBenchmarkSourceFile",
+    "public_benchmark_root",
     "list_public_benchmark_descriptor_paths",
     "load_public_benchmark_descriptor",
 ]
