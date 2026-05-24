@@ -273,8 +273,8 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["passed_count"] == 5
-        assert payload["failed_count"] == 5
+        assert payload["passed_count"] == 6
+        assert payload["failed_count"] == 4
         summary_tsv = Path("public_benchmark.summary.tsv").read_text()
         failures_tsv = Path("public_benchmark.failures.tsv").read_text()
         signal_tsv = Path("public_benchmark.signals.tsv").read_text()
@@ -282,6 +282,7 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
         assert "dia_diann_benchmark_dataset" in summary_tsv
         assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
         assert "maxquant_lfq_benchmark_dataset" in summary_tsv
+        assert "multiplex_tmtpro_review_package" in summary_tsv
         assert "ptm_localization_review_package" in summary_tsv
         assert "dia_diann_review_snapshot" in summary_tsv
         assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
@@ -311,11 +312,14 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["suite_report"]["passed_count"] == 5
-        assert payload["suite_report"]["failed_count"] == 5
+        assert payload["suite_report"]["passed_count"] == 6
+        assert payload["suite_report"]["failed_count"] == 4
         assert Path("trust_bundle/index.html").exists()
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
         assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
+        assert "multiplex_tmtpro_review_package" in Path(
+            "trust_bundle.summary.tsv"
+        ).read_text()
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
 
 
@@ -6848,8 +6852,8 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
     with runner.isolated_filesystem():
         fixture_dir = FIXTURE_ROOT / "multiplex"
         shutil.copy(
-            fixture_dir / "maxquant_tmt_evidence.tsv",
-            "maxquant_tmt_evidence.tsv",
+            fixture_dir / "maxquant_tmt_interference.tsv",
+            "maxquant_tmt_interference.tsv",
         )
         shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
 
@@ -6858,7 +6862,7 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
             [
                 "multiplex",
                 "tmt-report",
-                "maxquant_tmt_evidence.tsv",
+                "maxquant_tmt_interference.tsv",
                 "tmt.design.tsv",
                 "--control-channel",
                 "126",
@@ -6884,6 +6888,10 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
         assert (report_dir / "label_based_report_summary.tsv").exists()
         assert (report_dir / "label_based_sample_qc.tsv").exists()
         assert (report_dir / "tmt_channel_totals.tsv").exists()
+        assert (report_dir / "tmt_interference_summary.tsv").exists()
+        assert (report_dir / "tmt_interference_observations.tsv").exists()
+        assert (report_dir / "tmt_filtered_interference.tsv").exists()
+        assert (report_dir / "tmt_interference_channel_summary.tsv").exists()
         assert (report_dir / "tmt_protein_ratios.tsv").exists()
         assert (report_dir / "label_based_differential_results.tsv").exists()
         assert "accepted_input_row_count" in (
@@ -6897,6 +6905,12 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
         ).read_text(encoding="utf-8")
         assert "total_intensity" in (
             report_dir / "tmt_channel_totals.tsv"
+        ).read_text(encoding="utf-8")
+        assert "threshold_exceeded_count" in (
+            report_dir / "tmt_interference_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "mean_interference_fraction" in (
+            report_dir / "tmt_interference_channel_summary.tsv"
         ).read_text(encoding="utf-8")
         assert "ratio" in (
             report_dir / "tmt_protein_ratios.tsv"
