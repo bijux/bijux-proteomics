@@ -13,9 +13,14 @@ from pathlib import Path
 from bijux_proteomics.interpretation import (
     BiologicalContextImportReport,
     BiologicalContextMappingReport,
+    BiologicalForegroundBackgroundModel,
+    BiologicalSetEntry,
+    BiologicalSetFilteringPolicy,
+    BiologicalSetSourceKind,
     ComplexEnrichmentCorrectionPolicy,
     ComplexEnrichmentReport,
     build_biological_context_mapping_report,
+    build_biological_foreground_background_model,
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
@@ -41,6 +46,9 @@ from bijux_proteomics.interpretation import (
     render_biological_context_mapping_summary_tsv,
     render_biological_context_mapping_tsv,
     render_biological_context_term_tsv,
+    render_biological_foreground_background_entry_tsv,
+    render_biological_foreground_background_issue_tsv,
+    render_biological_foreground_background_summary_tsv,
     render_rejected_biological_context_tsv,
     render_unmapped_biological_context_tsv,
     render_go_enrichment_summary_tsv,
@@ -52,6 +60,7 @@ from bijux_proteomics.interpretation import (
     render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
     render_unmapped_protein_annotation_tsv,
+    require_valid_biological_foreground_background_model,
 )
 from pydantic import ConfigDict, Field
 
@@ -221,6 +230,7 @@ class BiologicalResultReportBundle(JsonModel):
     protein_mechanism_cards: ProteinMechanismCardReport
     experiment_confidence_report: ExperimentConfidenceReport
     evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
+    foreground_background_model: BiologicalForegroundBackgroundModel
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
@@ -248,6 +258,9 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
     evidence_aware_ranking_tsv: str | None = None
+    foreground_background_summary_tsv: str = Field(..., min_length=1)
+    foreground_background_entry_tsv: str = Field(..., min_length=1)
+    foreground_background_issue_tsv: str = Field(..., min_length=1)
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
@@ -504,18 +517,45 @@ def build_biological_result_report_bundle_from_quant_table(
         protein_region_context_records = parse_protein_region_context_tsv(
             protein_region_context_tsv_path
         ).accepted_records
-    background_entries = _build_background_reference_entries(normalized_table)
-    foreground_entries = _build_foreground_reference_entries(
-        differential_report,
-        protein_refs_by_entity=normalized_table.entity_protein_refs,
-        policy=active_selection_policy,
+    foreground_background_model = build_biological_foreground_background_model(
+        _build_foreground_reference_entries(
+            differential_report,
+            protein_refs_by_entity=normalized_table.entity_protein_refs,
+            policy=active_selection_policy,
+        ),
+        _build_background_reference_entries(normalized_table),
+        foreground_source_kind=BiologicalSetSourceKind.DIFFERENTIAL_SIGNIFICANT_RESULTS,
+        background_source_kind=BiologicalSetSourceKind.MEASURED_QUANT_MATRIX,
+        foreground_policy=_build_biological_foreground_filtering_policy(
+            active_selection_policy
+        ),
+        background_policy=_build_biological_background_filtering_policy(),
+    )
+    enrichment_input_requested = any(
+        path is not None
+        for path in (
+            go_annotation_tsv_path,
+            pathway_membership_tsv_path,
+            complex_membership_tsv_path,
+        )
+    )
+    validated_foreground_background_model = (
+        require_valid_biological_foreground_background_model(foreground_background_model)
+        if enrichment_input_requested
+        else foreground_background_model
+    )
+    enrichment_foreground_entries = _build_protein_reference_entries_from_biological_set(
+        validated_foreground_background_model.foreground_entries
+    )
+    enrichment_background_entries = _build_protein_reference_entries_from_biological_set(
+        validated_foreground_background_model.background_entries
     )
     go_enrichment_report = None
     if go_annotation_tsv_path is not None:
         go_enrichment_report = apply_go_enrichment_multiple_testing(
             build_go_enrichment_report(
-                foreground_entries,
-                background_entries,
+                enrichment_foreground_entries,
+                enrichment_background_entries,
                 parse_go_annotation_table(go_annotation_tsv_path).accepted_records,
             ),
             policy=GoEnrichmentCorrectionPolicy(
@@ -527,8 +567,8 @@ def build_biological_result_report_bundle_from_quant_table(
     if pathway_membership_tsv_path is not None:
         pathway_enrichment_report = apply_pathway_enrichment_multiple_testing(
             build_pathway_enrichment_report(
-                foreground_entries,
-                background_entries,
+                enrichment_foreground_entries,
+                enrichment_background_entries,
                 parse_pathway_membership_table(
                     pathway_membership_tsv_path
                 ).accepted_records,
@@ -546,8 +586,8 @@ def build_biological_result_report_bundle_from_quant_table(
     if complex_membership_tsv_path is not None:
         complex_enrichment_report = apply_complex_enrichment_multiple_testing(
             build_complex_enrichment_report(
-                foreground_entries,
-                background_entries,
+                enrichment_foreground_entries,
+                enrichment_background_entries,
                 parse_complex_membership_table(
                     complex_membership_tsv_path
                 ).accepted_records,
@@ -673,6 +713,7 @@ def build_biological_result_report_bundle_from_quant_table(
         protein_mechanism_cards=protein_mechanism_cards,
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
+        foreground_background_model=foreground_background_model,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
         go_enrichment_report=go_enrichment_report,
@@ -829,6 +870,48 @@ def _build_foreground_reference_entries(
             (entity_id, protein_refs_by_entity or {})
             for entity_id in significant_entity_ids
         )
+    )
+
+
+def _build_biological_foreground_filtering_policy(
+    selection_policy: BiologicalResultSelectionPolicy,
+) -> BiologicalSetFilteringPolicy:
+    return BiologicalSetFilteringPolicy(
+        policy_name="biological_result_selection",
+        max_adjusted_p_value=selection_policy.max_adjusted_p_value,
+        min_absolute_log2_fold_change=selection_policy.min_absolute_log2_fold_change,
+        measured_entities_only=True,
+        deduplicate_protein_refs=True,
+        note=(
+            "foreground keeps statistically selected proteins from the governed "
+            "contrast using the biological result selection thresholds"
+        ),
+    )
+
+
+def _build_biological_background_filtering_policy() -> BiologicalSetFilteringPolicy:
+    return BiologicalSetFilteringPolicy(
+        policy_name="measured_protein_quantification_universe",
+        measured_entities_only=True,
+        deduplicate_protein_refs=True,
+        note=(
+            "background keeps every measured protein in the normalized quantification "
+            "table instead of silently broadening to the annotation universe"
+        ),
+    )
+
+
+def _build_protein_reference_entries_from_biological_set(
+    entries: tuple[BiologicalSetEntry, ...],
+) -> tuple[ProteinReferenceEntry, ...]:
+    return tuple(
+        ProteinReferenceEntry(
+            row_number=index,
+            source_row_id=entry.source_row_id,
+            input_protein_ref=entry.protein_ref,
+            protein_ref=entry.protein_ref,
+        )
+        for index, entry in enumerate(entries, start=2)
     )
 
 
@@ -1254,6 +1337,15 @@ def export_biological_result_report_bundle(
         "biological_experiment_confidence_components.tsv"
     )
     evidence_aware_ranking_name = None
+    foreground_background_summary_name = (
+        "biological_enrichment_foreground_background_summary.tsv"
+    )
+    foreground_background_entry_name = (
+        "biological_enrichment_foreground_background_entries.tsv"
+    )
+    foreground_background_issue_name = (
+        "biological_enrichment_foreground_background_issues.tsv"
+    )
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
@@ -1315,6 +1407,24 @@ def export_biological_result_report_bundle(
             render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
             encoding="utf-8",
         )
+    (output_dir / foreground_background_summary_name).write_text(
+        render_biological_foreground_background_summary_tsv(
+            report.foreground_background_model
+        ),
+        encoding="utf-8",
+    )
+    (output_dir / foreground_background_entry_name).write_text(
+        render_biological_foreground_background_entry_tsv(
+            report.foreground_background_model
+        ),
+        encoding="utf-8",
+    )
+    (output_dir / foreground_background_issue_name).write_text(
+        render_biological_foreground_background_issue_tsv(
+            report.foreground_background_model
+        ),
+        encoding="utf-8",
+    )
     (output_dir / annotation_summary_name).write_text(
         render_protein_annotation_summary_tsv(report.annotation_report),
         encoding="utf-8",
@@ -1456,12 +1566,15 @@ def export_biological_result_report_bundle(
         differential_tsv=differential_name,
         protein_card_summary_tsv=protein_card_summary_name,
         protein_card_tsv=protein_card_name,
-            protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
-            protein_mechanism_card_tsv=protein_mechanism_card_name,
-            experiment_confidence_summary_tsv=experiment_confidence_summary_name,
-            experiment_confidence_components_tsv=experiment_confidence_components_name,
-            evidence_aware_ranking_tsv=evidence_aware_ranking_name,
-            annotation_summary_tsv=annotation_summary_name,
+        protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
+        protein_mechanism_card_tsv=protein_mechanism_card_name,
+        experiment_confidence_summary_tsv=experiment_confidence_summary_name,
+        experiment_confidence_components_tsv=experiment_confidence_components_name,
+        evidence_aware_ranking_tsv=evidence_aware_ranking_name,
+        foreground_background_summary_tsv=foreground_background_summary_name,
+        foreground_background_entry_tsv=foreground_background_entry_name,
+        foreground_background_issue_tsv=foreground_background_issue_name,
+        annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
         context_summary_tsv=context_summary_name,
@@ -1505,7 +1618,11 @@ def export_biological_result_report_bundle(
         pathway_summary_included=report.pathway_enrichment_report is not None,
         complex_summary_included=report.complex_enrichment_report is not None,
         note=(
-            "biological report export writes stable differential, protein-card, protein-mechanism-card, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
+            "biological report export writes stable differential, explicit "
+            "foreground/background enrichment inputs, protein-card, "
+            "protein-mechanism-card, annotation, optional biological context, "
+            "enrichment, volcano, heatmap, and sample exploration artifacts into "
+            "one durable output directory"
         ),
     )
 
@@ -1531,6 +1648,18 @@ def _render_biological_result_report_html(
         (
             "Evidence-aware ranking",
             artifacts.evidence_aware_ranking_tsv,
+        ),
+        (
+            "Enrichment foreground/background summary",
+            artifacts.foreground_background_summary_tsv,
+        ),
+        (
+            "Enrichment foreground/background entries",
+            artifacts.foreground_background_entry_tsv,
+        ),
+        (
+            "Enrichment foreground/background issues",
+            artifacts.foreground_background_issue_tsv,
         ),
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
@@ -1578,6 +1707,7 @@ def _render_biological_result_report_html(
     )
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
+    foreground_background_html = _render_foreground_background_model_table_html(report)
     card_table_html = _render_protein_mechanism_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
@@ -1594,6 +1724,8 @@ def _render_biological_result_report_html(
         f"{confidence_table_html}"
         "<h2>Evidence-aware ranking</h2>"
         f"{ranking_table_html}"
+        "<h2>Enrichment foreground/background model</h2>"
+        f"{foreground_background_html}"
         "<h2>Protein mechanism cards</h2>"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
@@ -1685,6 +1817,57 @@ def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBund
         for card in report.protein_mechanism_cards.cards
     )
     return (
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_foreground_background_model_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    model = report.foreground_background_model
+    issue_summary = (
+        "none"
+        if not model.issues
+        else "; ".join(
+            f"{issue.severity.value}:{issue.code}" for issue in model.issues
+        )
+    )
+    headers = ("Role", "Source kind", "Policy", "Protein count")
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(role)}</td>"
+            f"<td>{escape(source_kind)}</td>"
+            f"<td>{escape(policy_name)}</td>"
+            f"<td>{count}</td>"
+            "</tr>"
+        )
+        for role, source_kind, policy_name, count in (
+            (
+                "foreground",
+                model.foreground_source_kind.value,
+                model.foreground_policy.policy_name,
+                model.summary.foreground_size,
+            ),
+            (
+                "background",
+                model.background_source_kind.value,
+                model.background_policy.policy_name,
+                model.summary.background_size,
+            ),
+        )
+    )
+    return (
+        "<p>"
+        f"<strong>Valid for enrichment</strong>: "
+        f"{str(model.summary.valid_for_enrichment).lower()} | "
+        f"<strong>Issues</strong>: {model.summary.issue_count} | "
+        f"<strong>Issue summary</strong>: {escape(issue_summary)}"
+        "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
         f"<tbody>{row_html}</tbody>"
