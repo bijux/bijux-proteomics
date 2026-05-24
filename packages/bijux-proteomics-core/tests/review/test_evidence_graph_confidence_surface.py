@@ -19,6 +19,12 @@ from bijux_proteomics.io.fragment_ratio_stability import (
     FragmentRatioStabilityReport,
     FragmentRatioStabilitySummary,
 )
+from bijux_proteomics.quantification.peptide_profile_inconsistency import (
+    PeptideProfileInconsistencyEntry,
+    PeptideProfileInconsistencyReport,
+    PeptideProfileInconsistencySummary,
+    PeptideProfileOutlierReason,
+)
 from bijux_proteomics.review import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceGraph,
@@ -747,3 +753,170 @@ def test_propagate_evidence_graph_confidence_uses_peptide_chemical_liability() -
 
     assert strong_entry.propagated_score > risky_entry.propagated_score
     assert "peptide chemical liability" in risky_entry.rationale
+
+
+def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_profiles() -> None:
+    builder = ProteomicsEvidenceGraphBuilder()
+
+    strong_spectrum = builder.add_spectrum("scan=4001", label="scan=4001", trust_class="high")
+    inconsistent_spectrum = builder.add_spectrum(
+        "scan=4002",
+        label="scan=4002",
+        trust_class="high",
+    )
+    strong_psm = builder.add_psm("psm:4001", label="psm:4001", trust_class="high")
+    inconsistent_psm = builder.add_psm(
+        "psm:4002",
+        label="psm:4002",
+        trust_class="high",
+    )
+    strong_peptide = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
+    inconsistent_peptide = builder.add_peptide(
+        "PEPVVK",
+        label="PEPVVK",
+        trust_class="high",
+    )
+    strong_protein = builder.add_protein("P77771", label="P77771", trust_class="high")
+    inconsistent_protein = builder.add_protein(
+        "P77772",
+        label="P77772",
+        trust_class="high",
+    )
+    strong_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P77771",
+        label="consistent peptide-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P77771",
+            ),
+        ),
+    )
+    inconsistent_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P77772",
+        label="inconsistent peptide-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P77772",
+            ),
+        ),
+    )
+
+    for row_number, spectrum, psm, peptide, protein, result in (
+        (41, strong_spectrum, strong_psm, strong_peptide, strong_protein, strong_result),
+        (
+            42,
+            inconsistent_spectrum,
+            inconsistent_psm,
+            inconsistent_peptide,
+            inconsistent_protein,
+            inconsistent_result,
+        ),
+    ):
+        builder.add_spectrum_supports_psm(
+            spectrum.node_id,
+            psm.node_id,
+            source_row_ref=f"psm.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted spectrum supports PSM",
+        )
+        builder.add_psm_supports_peptide(
+            psm.node_id,
+            peptide.node_id,
+            source_row_ref=f"peptide.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted PSM supports peptide sequence",
+        )
+        builder.add_peptide_quantifies_protein(
+            peptide.node_id,
+            protein.node_id,
+            source_row_ref=f"protein_matrix.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted peptide quantifies target protein",
+        )
+        builder.add_protein_supports_statistical_result(
+            protein.node_id,
+            result.node_id,
+            source_row_ref=f"protein_stats.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted protein supports final differential result",
+        )
+
+    graph = builder.build()
+    baseline = propagate_evidence_graph_confidence(graph)
+    with_inconsistency = propagate_evidence_graph_confidence(
+        graph,
+        peptide_profile_inconsistency_report=PeptideProfileInconsistencyReport(
+            source_kind="feature",
+            grouping_mode="modified_peptide",
+            target_kind="protein",
+            unique_only=False,
+            sample_ids=("S1", "S2", "S3"),
+            entries=(
+                PeptideProfileInconsistencyEntry(
+                    entity_id="P77771",
+                    target_kind="protein",
+                    peptide_id="PEPA",
+                    peptide_sequence="PEPA",
+                    protein_refs=("P77771",),
+                    reference_peptide_ids=("PEPC", "PEPD"),
+                    overlap_sample_count=3,
+                    reference_peptide_count=2,
+                    correlation_to_protein_profile=1.0,
+                    residual_rmsd_log2=0.05,
+                    max_abs_residual_log2=0.08,
+                    profile_agreement_score=1.0,
+                    inconsistent_with_protein_profile=False,
+                    outlier_reason=PeptideProfileOutlierReason.CONSISTENT,
+                    sample_residuals=(),
+                ),
+                PeptideProfileInconsistencyEntry(
+                    entity_id="P77772",
+                    target_kind="protein",
+                    peptide_id="PEPVVK",
+                    peptide_sequence="PEPVVK",
+                    protein_refs=("P77772",),
+                    reference_peptide_ids=("PEPA", "PEPC", "PEPD"),
+                    overlap_sample_count=3,
+                    reference_peptide_count=3,
+                    correlation_to_protein_profile=-1.0,
+                    residual_rmsd_log2=1.97,
+                    max_abs_residual_log2=2.04,
+                    profile_agreement_score=0.2,
+                    inconsistent_with_protein_profile=True,
+                    outlier_reason=(
+                        PeptideProfileOutlierReason.DIRECTIONAL_PROFILE_INVERSION
+                    ),
+                    sample_residuals=(),
+                ),
+            ),
+            summary=PeptideProfileInconsistencySummary(
+                peptide_row_count=4,
+                protein_row_count=2,
+                evaluated_entry_count=2,
+                inconsistent_entry_count=1,
+                insufficient_overlap_entry_count=0,
+            ),
+            note="synthetic peptide profile inconsistency report",
+        ),
+    )
+
+    baseline_by_claim = {entry.claim_node_ref: entry for entry in baseline.entries}
+    inconsistency_by_claim = {
+        entry.claim_node_ref: entry for entry in with_inconsistency.entries
+    }
+
+    assert (
+        baseline_by_claim["protein:treatment_vs_control:P77771"].propagated_score
+        == baseline_by_claim["protein:treatment_vs_control:P77772"].propagated_score
+    )
+    assert (
+        inconsistency_by_claim["protein:treatment_vs_control:P77771"].propagated_score
+        > inconsistency_by_claim["protein:treatment_vs_control:P77772"].propagated_score
+    )
+    assert "peptide profile inconsistency" in inconsistency_by_claim[
+        "protein:treatment_vs_control:P77772"
+    ].rationale
