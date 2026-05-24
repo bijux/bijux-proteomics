@@ -632,6 +632,49 @@ class ReplicateAndBatchQcReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class SampleReliabilityQcStatus(StrEnum):
+    """Stable sample-QC status classes that can affect quantitative weighting."""
+
+    PASS = "pass"
+    CAUTION = "caution"
+    FAIL = "fail"
+
+
+class SampleReliabilityQcEntry(JsonModel):
+    """One explicit sample-QC posture used for replicate reliability weighting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    qc_status: SampleReliabilityQcStatus
+    blocked: bool = False
+    status_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class SampleReliabilityWeightEntry(JsonModel):
+    """One sample-level reliability weight carried into downstream statistics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    reliability_weight: float = Field(..., ge=0.0, le=1.0)
+    low_weight_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class SampleReliabilityWeightReport(JsonModel):
+    """Stable report over sample-level replicate reliability weights."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_count: int = Field(..., ge=0)
+    low_weight_threshold: float = Field(..., ge=0.0, le=1.0)
+    exclusion_weight_threshold: float = Field(..., ge=0.0, le=1.0)
+    low_weight_sample_count: int = Field(..., ge=0)
+    excluded_sample_count: int = Field(..., ge=0)
+    entries: tuple[SampleReliabilityWeightEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class ReplicateCvConditionEntry(JsonModel):
     """Condition-level coefficient-of-variation summary over shared entities."""
 
@@ -1483,6 +1526,7 @@ class DifferentialAbundanceAssumptionReport(JsonModel):
     variance_assumption: str = Field(..., min_length=1)
     multiple_testing_scope: str = Field(..., min_length=1)
     replicate_policy: DifferentialReplicatePolicy
+    sample_weighting: str = Field(default="unweighted", min_length=1)
     contrast_name: str | None = None
     paired_policy: PairedDifferentialPolicy | None = None
 
