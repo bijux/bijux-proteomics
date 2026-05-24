@@ -54,6 +54,8 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_mechanism_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_mechanism_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.evidence_graph_nodes_tsv).exists()
+    assert (output_dir / manifest.artifacts.evidence_graph_edges_tsv).exists()
     assert (output_dir / manifest.artifacts.experiment_confidence_summary_tsv).exists()
     assert (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
@@ -191,6 +193,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "graph_claim_node_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "node_id\tentity_type\tentity_ref" in (
+        output_dir / manifest.artifacts.evidence_graph_nodes_tsv
+    ).read_text(encoding="utf-8")
+    assert "source_node_id\ttarget_node_id\trelation" in (
+        output_dir / manifest.artifacts.evidence_graph_edges_tsv
     ).read_text(encoding="utf-8")
     assert "representative_protein_ref" in (
         output_dir / manifest.artifacts.protein_mechanism_card_tsv
