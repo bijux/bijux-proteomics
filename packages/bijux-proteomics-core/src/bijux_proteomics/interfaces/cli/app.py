@@ -562,6 +562,10 @@ from bijux_proteomics.targeted import (
     DiscoveryTargetProteinEntry,
     TargetedPeptideCandidateSource,
     TargetedResultSourceKind,
+    TargetedTransitionInterferenceRisk,
+    TargetedTransitionSelectionFragment,
+    TargetedTransitionSelectionPeptideEntry,
+    build_targeted_assay_interference_report,
     build_discovery_targeted_peptide_selection_report,
     build_skyline_result_import_report,
     build_targeted_carryover_report,
@@ -572,6 +576,10 @@ from bijux_proteomics.targeted import (
     render_discovery_targeted_peptide_selection_summary_tsv,
     render_targeted_carryover_candidates_tsv,
     render_targeted_carryover_summary_tsv,
+    render_targeted_assay_interference_assay_tsv,
+    render_targeted_assay_interference_panel_tsv,
+    render_targeted_assay_interference_summary_tsv,
+    render_targeted_assay_interference_transition_tsv,
     render_targeted_assay_qc_coelution_tsv,
     render_targeted_assay_qc_fragment_ratio_tsv,
     render_targeted_assay_qc_replicate_cv_tsv,
@@ -1489,6 +1497,191 @@ def _load_selected_targeted_peptides(
                 raise click.ClickException(
                     f"invalid selected-peptide row {row_number} in {path.name!r}: {exc}"
                 ) from exc
+    return tuple(entries)
+
+
+def _load_selected_targeted_transitions(
+    path: Path,
+) -> tuple[TargetedTransitionSelectionPeptideEntry, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "selected-transition TSV must include a header row for targeted assay interference review"
+            )
+        required_columns = {
+            "assay_entry_id",
+            "target_protein_ref",
+            "target_protein_group_id",
+            "peptide_sequence",
+            "canonical_peptide",
+            "peptide_rank",
+            "precursor_charge",
+            "precursor_mz",
+            "source_library_entry_id",
+            "chemistry_supported_transition_count",
+            "selected_transition_count",
+            "sufficient_transition_support",
+            "transition_rank",
+            "fragment_label",
+            "ion_type",
+            "fragment_ordinal",
+            "fragment_charge",
+            "fragment_sequence",
+            "fragment_mz",
+            "expected_relative_intensity",
+            "interference_risk",
+            "interference_risk_score",
+            "interference_risk_reasons",
+            "selection_score",
+            "selection_reasons",
+            "instrument_caveats",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "selected-transition TSV is missing required columns for targeted assay interference review: "
+                + ", ".join(sorted(missing_columns))
+            )
+        entries_by_assay: dict[str, dict[str, object]] = {}
+        assay_order: list[str] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                assay_entry_id = str(row.get("assay_entry_id", "")).strip()
+                if assay_entry_id not in entries_by_assay:
+                    assay_order.append(assay_entry_id)
+                    entries_by_assay[assay_entry_id] = {
+                        "target_protein_ref": str(
+                            row.get("target_protein_ref", "")
+                        ).strip(),
+                        "target_protein_group_id": str(
+                            row.get("target_protein_group_id", "")
+                        ).strip(),
+                        "gene_symbol": (
+                            value
+                            if (value := str(row.get("gene_symbol", "")).strip())
+                            else None
+                        ),
+                        "peptide_sequence": str(
+                            row.get("peptide_sequence", "")
+                        ).strip(),
+                        "canonical_peptide": str(
+                            row.get("canonical_peptide", "")
+                        ).strip(),
+                        "peptide_rank": int(str(row.get("peptide_rank", "")).strip()),
+                        "precursor_charge": int(
+                            str(row.get("precursor_charge", "")).strip()
+                        ),
+                        "precursor_mz": float(
+                            str(row.get("precursor_mz", "")).strip()
+                        ),
+                        "source_library_entry_id": (
+                            value
+                            if (value := str(row.get("source_library_entry_id", "")).strip())
+                            else None
+                        ),
+                        "chemistry_supported_transition_count": int(
+                            str(
+                                row.get("chemistry_supported_transition_count", "")
+                            ).strip()
+                        ),
+                        "selected_transition_count": int(
+                            str(row.get("selected_transition_count", "")).strip()
+                        ),
+                        "sufficient_transition_support": _parse_cli_bool(
+                            row.get("sufficient_transition_support", ""),
+                            field_name="sufficient_transition_support",
+                        ),
+                        "instrument_caveats": _split_semicolon_field(
+                            row.get("instrument_caveats", "")
+                        ),
+                        "selected_transitions": [],
+                    }
+                selected_transitions = entries_by_assay[assay_entry_id][
+                    "selected_transitions"
+                ]
+                assert isinstance(selected_transitions, list)
+                selected_transitions.append(
+                    TargetedTransitionSelectionFragment(
+                        rank=int(str(row.get("transition_rank", "")).strip()),
+                        fragment_label=str(row.get("fragment_label", "")).strip(),
+                        ion_type=FragmentIonSeries(
+                            str(row.get("ion_type", "")).strip()
+                        ),
+                        fragment_ordinal=int(
+                            str(row.get("fragment_ordinal", "")).strip()
+                        ),
+                        fragment_charge=int(
+                            str(row.get("fragment_charge", "")).strip()
+                        ),
+                        fragment_sequence=str(
+                            row.get("fragment_sequence", "")
+                        ).strip(),
+                        fragment_mz=float(str(row.get("fragment_mz", "")).strip()),
+                        expected_relative_intensity=(
+                            None
+                            if not str(
+                                row.get("expected_relative_intensity", "")
+                            ).strip()
+                            else float(
+                                str(row.get("expected_relative_intensity", "")).strip()
+                            )
+                        ),
+                        interference_risk=TargetedTransitionInterferenceRisk(
+                            str(row.get("interference_risk", "")).strip()
+                        ),
+                        interference_risk_score=float(
+                            str(row.get("interference_risk_score", "")).strip()
+                        ),
+                        interference_risk_reasons=_split_semicolon_field(
+                            row.get("interference_risk_reasons", "")
+                        ),
+                        selection_score=float(
+                            str(row.get("selection_score", "")).strip()
+                        ),
+                        selection_reasons=_split_semicolon_field(
+                            row.get("selection_reasons", "")
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid selected-transition row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    entries: list[TargetedTransitionSelectionPeptideEntry] = []
+    for assay_entry_id in assay_order:
+        assay_payload = entries_by_assay[assay_entry_id]
+        selected_transitions = tuple(
+            sorted(
+                assay_payload["selected_transitions"],
+                key=lambda fragment: (fragment.rank, fragment.fragment_mz),
+            )
+        )
+        entries.append(
+            TargetedTransitionSelectionPeptideEntry(
+                assay_entry_id=assay_entry_id,
+                target_protein_ref=assay_payload["target_protein_ref"],
+                target_protein_group_id=assay_payload["target_protein_group_id"],
+                gene_symbol=assay_payload["gene_symbol"],
+                peptide_sequence=assay_payload["peptide_sequence"],
+                canonical_peptide=assay_payload["canonical_peptide"],
+                peptide_rank=assay_payload["peptide_rank"],
+                precursor_charge=assay_payload["precursor_charge"],
+                precursor_mz=assay_payload["precursor_mz"],
+                source_library_entry_id=assay_payload["source_library_entry_id"],
+                chemistry_supported_transition_count=assay_payload[
+                    "chemistry_supported_transition_count"
+                ],
+                selected_transition_count=assay_payload[
+                    "selected_transition_count"
+                ],
+                sufficient_transition_support=assay_payload[
+                    "sufficient_transition_support"
+                ],
+                instrument_caveats=assay_payload["instrument_caveats"],
+                selected_transitions=selected_transitions,
+            )
+        )
     return tuple(entries)
 
 
@@ -5017,6 +5210,190 @@ def targeted_transition_selection_command(
             "rejected_tsv": (
                 None if rejected_tsv_out is None else str(rejected_tsv_out)
             ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-assay-interference")
+@click.argument(
+    "selected_peptide_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "selected_transition_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "input_fasta",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--spectral-library",
+    "spectral_library_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--spectral-library-format",
+    type=click.Choice([entry.value for entry in SpectralLibraryFormat]),
+    default=None,
+)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option("--missed-cleavages", default=0, type=int, show_default=True)
+@click.option("--precursor-tolerance-da", default=1.0, type=float, show_default=True)
+@click.option("--fragment-tolerance-da", default=0.02, type=float, show_default=True)
+@click.option(
+    "--coelution-rt-window-minutes",
+    default=0.5,
+    type=float,
+    show_default=True,
+)
+@click.option(
+    "--min-export-transitions",
+    default=3,
+    type=int,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--assay-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--transition-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--panel-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_assay_interference_command(
+    selected_peptide_tsv: Path,
+    selected_transition_tsv: Path,
+    input_fasta: Path,
+    spectral_library_path: Path | None,
+    spectral_library_format: str | None,
+    protease: str,
+    missed_cleavages: int,
+    precursor_tolerance_da: float,
+    fragment_tolerance_da: float,
+    coelution_rt_window_minutes: float,
+    min_export_transitions: int,
+    summary_tsv_out: Path | None,
+    assay_tsv_out: Path | None,
+    transition_tsv_out: Path | None,
+    panel_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score targeted assay interference before panel export."""
+
+    if missed_cleavages < 0:
+        raise click.ClickException("missed-cleavages must be non-negative")
+    if precursor_tolerance_da <= 0.0:
+        raise click.ClickException("precursor-tolerance-da must be greater than zero")
+    if fragment_tolerance_da <= 0.0:
+        raise click.ClickException("fragment-tolerance-da must be greater than zero")
+    if coelution_rt_window_minutes <= 0.0:
+        raise click.ClickException(
+            "coelution-rt-window-minutes must be greater than zero"
+        )
+    if min_export_transitions < 1:
+        raise click.ClickException("min-export-transitions must be at least 1")
+
+    selected_peptides = _load_selected_targeted_peptides(selected_peptide_tsv)
+    selected_transition_entries = _load_selected_targeted_transitions(
+        selected_transition_tsv
+    )
+    fasta_report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode.STRICT,
+        allow_rejected=False,
+    )
+    spectral_library_entries: tuple[SpectralLibraryEntry, ...] = ()
+    spectral_library_summary: dict[str, object] | None = None
+    if spectral_library_path is not None:
+        import_report = import_spectral_library(
+            spectral_library_path,
+            library_format=(
+                None
+                if spectral_library_format is None
+                else SpectralLibraryFormat(spectral_library_format)
+            ),
+        )
+        spectral_library_entries = import_report.entries
+        summary = build_spectral_library_summary(import_report)
+        spectral_library_summary = {
+            "source_path": str(spectral_library_path),
+            "source_format": import_report.source_format.value,
+            "accepted_entry_count": import_report.accepted_entry_count,
+            "rejected_entry_count": import_report.rejected_entry_count,
+            "summary": summary.to_dict(),
+        }
+
+    try:
+        report = build_targeted_assay_interference_report(
+            selected_peptides,
+            selected_transition_entries,
+            fasta_report.accepted_records,
+            spectral_library_entries=spectral_library_entries,
+            protease=protease,
+            missed_cleavages=missed_cleavages,
+            precursor_tolerance_da=precursor_tolerance_da,
+            fragment_tolerance_da=fragment_tolerance_da,
+            coelution_rt_window_minutes=coelution_rt_window_minutes,
+            minimum_export_transitions=min_export_transitions,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_targeted_assay_interference_summary_tsv(report),
+        )
+    if assay_tsv_out is not None:
+        _write_text_output(
+            assay_tsv_out,
+            render_targeted_assay_interference_assay_tsv(report),
+        )
+    if transition_tsv_out is not None:
+        _write_text_output(
+            transition_tsv_out,
+            render_targeted_assay_interference_transition_tsv(report),
+        )
+    if panel_tsv_out is not None:
+        _write_text_output(
+            panel_tsv_out,
+            render_targeted_assay_interference_panel_tsv(report),
+        )
+
+    payload = {
+        "selected_peptide_count": len(selected_peptides),
+        "selected_transition_assay_count": len(selected_transition_entries),
+        "spectral_library": spectral_library_summary,
+        "fasta_summary": {
+            "accepted_record_count": len(fasta_report.accepted_records),
+            "rejected_record_count": len(fasta_report.rejected_records),
+        },
+        "protease": report.protease,
+        "missed_cleavages": report.missed_cleavages,
+        "precursor_tolerance_da": report.precursor_tolerance_da,
+        "fragment_tolerance_da": report.fragment_tolerance_da,
+        "coelution_rt_window_minutes": report.coelution_rt_window_minutes,
+        "minimum_export_transitions": report.minimum_export_transitions,
+        "interference_summary": report.summary.to_dict(),
+        "assay_entries": [entry.to_dict() for entry in report.assay_entries],
+        "transition_entries": [entry.to_dict() for entry in report.transition_entries],
+        "panel_entries": [entry.to_dict() for entry in report.panel_entries],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "assay_tsv": None if assay_tsv_out is None else str(assay_tsv_out),
+            "transition_tsv": (
+                None if transition_tsv_out is None else str(transition_tsv_out)
+            ),
+            "panel_tsv": None if panel_tsv_out is None else str(panel_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
