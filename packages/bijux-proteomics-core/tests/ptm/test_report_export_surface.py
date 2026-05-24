@@ -95,6 +95,7 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.ortholog_conservation_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_card_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_claim_tsv).exists()
+    assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
     assert "S[Phospho]PEPTIDEK" in (
         output_dir / manifest.artifacts.peptide_tsv
     ).read_text()
@@ -127,3 +128,6 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     ).read_text()
     assert "card_id" in (output_dir / manifest.artifacts.evidence_card_tsv).read_text()
     assert "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()
+    assert "ptm_site" in (
+        output_dir / manifest.artifacts.evidence_aware_ranking_tsv
+    ).read_text()

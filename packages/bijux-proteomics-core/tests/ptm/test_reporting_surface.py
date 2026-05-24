@@ -15,6 +15,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
     render_ptm_report_differential_tsv,
+    render_ptm_report_evidence_aware_ranking_tsv,
     render_ptm_report_localization_tsv,
     render_ptm_report_peptide_tsv,
     render_ptm_report_site_quant_matrix_tsv,
@@ -152,6 +153,7 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     assert report.differential_analysis is not None
     assert report.mechanism_classification is not None
     assert report.evidence_cards is not None
+    assert report.evidence_aware_ranking_report is not None
     assert report.mechanism_classification.summary.site_specific_count == 1
     assert report.ortholog_conservation is not None
     assert report.ortholog_conservation.summary.unmapped_site_count == 2
@@ -162,3 +164,4 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     )
     assert "P11111:S5:Phospho" in render_ptm_report_site_quant_matrix_tsv(report)
     assert "P11111:S5:Phospho" in render_ptm_report_differential_tsv(report)
+    assert "priority_rank" in render_ptm_report_evidence_aware_ranking_tsv(report)

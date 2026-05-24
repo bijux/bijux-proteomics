@@ -359,7 +359,9 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     assert hasattr(ptm, "build_ptm_evidence_card_report")
     assert hasattr(ptm, "render_ptm_evidence_card_tsv")
     assert report.evidence_cards is not None
+    assert report.evidence_aware_ranking_report is not None
     assert report.evidence_cards.summary.card_count == 3
     assert report.evidence_cards.summary.mechanism_classified_card_count == 3
     assert report.evidence_cards.summary.ortholog_context_card_count == 3
     assert "card_id" in ptm.render_ptm_evidence_card_tsv(report.evidence_cards)
+    assert report.evidence_aware_ranking_report.summary.ptm_site_entry_count == 3
