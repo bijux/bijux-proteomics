@@ -6,6 +6,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.targeted as targeted
+from bijux_proteomics.chemistry import (
+    FragmentIonSeries,
+    calculate_fragment_ions,
+    calculate_peptide_mz,
+)
 from bijux_proteomics.identification.peptide_evidence import (
     PeptideEvidenceClass,
     PeptideEvidenceEntry,
@@ -17,8 +22,19 @@ from bijux_proteomics.identification.contracts import (
 from bijux_proteomics.identification.cross_run_reproducibility import (
     CrossRunReproducibilityClass,
 )
+from bijux_proteomics.io import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+    SpectrumModel,
+    SpectrumPeak,
+)
 from bijux_proteomics.io import parse_experimental_design_table
-from bijux_proteomics.sequences import parse_fasta_document
+from bijux_proteomics.sequences import (
+    PeptideChemicalLiabilityTier,
+    PeptideDetectabilityTier,
+    PeptideUniquenessClass,
+    parse_fasta_document,
+)
 
 
 def _format_fixture(name: str) -> Path:
@@ -145,3 +161,73 @@ def test_targeted_package_exports_discovery_peptide_selection_surface() -> None:
     assert hasattr(targeted, "render_discovery_targeted_peptide_selection_rejected_tsv")
     assert report.summary.selected_entry_count == 1
     assert "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER" in rendered
+
+
+def test_targeted_package_exports_transition_selection_surface() -> None:
+    precursor_mz = calculate_peptide_mz("PEPTIDER", charge=2)
+    theoretical = calculate_fragment_ions(
+        "PEPTIDER",
+        charges=(1,),
+        series=(FragmentIonSeries.Y,),
+    )
+    y7 = next(fragment for fragment in theoretical if fragment.ordinal == 7)
+    report = targeted.build_targeted_transition_selection_report(
+        (
+            targeted.DiscoveryTargetedPeptideSelectionEntry(
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                candidate_source=targeted.TargetedPeptideCandidateSource.OBSERVED_DISCOVERY,
+                rank=1,
+                observed_in_discovery=True,
+                observed_psm_count=5,
+                run_count=3,
+                detection_frequency=1.0,
+                replicate_consistency=0.9,
+                primary_evidence_class=PeptideEvidenceClass.STRONG,
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                uniqueness_score=1.0,
+                detectability_score=0.9,
+                detectability_tier=PeptideDetectabilityTier.HIGH,
+                suitability_score=0.9,
+                liability_tier=PeptideChemicalLiabilityTier.PREFERRED,
+                liability_codes=(),
+                selection_score=0.9,
+                selection_reasons=("strong observed peptide support",),
+            ),
+        ),
+        spectral_library_entries=(
+            SpectralLibraryEntry(
+                library_entry_id="mgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P00001",
+                source_format=SpectralLibraryFormat.MGF,
+                spectrum_id="library:PEPTIDER",
+                precursor_mz=precursor_mz,
+                precursor_charge=2,
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                modification_count=0,
+                protein_refs=("P00001",),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+                spectrum=SpectrumModel(
+                    spectrum_id="library:PEPTIDER",
+                    precursor_mz=precursor_mz,
+                    precursor_charge=2,
+                    peaks=(
+                        SpectrumPeak(mz=175.0, intensity=50.0),
+                        SpectrumPeak(mz=y7.mz_monoisotopic, intensity=1000.0),
+                    ),
+                ),
+            ),
+        ),
+        maximum_transition_count=3,
+    )
+    rendered = targeted.render_targeted_transition_selection_selected_tsv(report)
+
+    assert hasattr(targeted, "build_targeted_transition_selection_report")
+    assert hasattr(targeted, "render_targeted_transition_selection_summary_tsv")
+    assert hasattr(targeted, "render_targeted_transition_selection_selected_tsv")
+    assert hasattr(targeted, "render_targeted_transition_selection_rejected_tsv")
+    assert report.summary.peptide_entry_count == 1
+    assert "assay_entry_id" in rendered
