@@ -169,7 +169,9 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "classify_missingness")
     assert hasattr(module, "estimate_protein_uncertainty")
     assert hasattr(module, "fit_mean_variance_trend")
+    assert hasattr(module, "test_censored_two_group")
     assert hasattr(module, "render_missingness_classification_tsv")
+    assert hasattr(module, "render_censored_differential_tsv")
     assert hasattr(module, "render_mean_variance_trend_tsv")
     assert hasattr(module, "render_protein_uncertainty_tsv")
 
