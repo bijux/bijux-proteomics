@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.review.biomarker_candidate_ranking import *  # noqa: F401,F403
+from bijux_proteomics.review.analysis_recommendations import *  # noqa: F401,F403
 from bijux_proteomics.review.biological_claim_validation import *  # noqa: F401,F403
 from bijux_proteomics.review.biological_hypotheses import *  # noqa: F401,F403
 from bijux_proteomics.review.collaboration import *  # noqa: F401,F403
