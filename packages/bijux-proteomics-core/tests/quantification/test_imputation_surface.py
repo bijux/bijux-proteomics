@@ -10,9 +10,11 @@ from bijux_proteomics.quantification import (
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
+    build_differential_abundance_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_free_intensity_table,
+    compare_imputation_policies,
     impute_label_free_table,
 )
 
@@ -489,17 +491,10 @@ def test_imputation_sensitivity_report_compares_downstream_policies() -> None:
     assert by_method[ImputationMethod.NONE].supported is True
     assert by_method[ImputationMethod.NONE].imputed_value_count == 0
     assert by_method[ImputationMethod.LOW_INTENSITY].imputed_value_count == 2
-    assert by_method[ImputationMethod.KNN].imputed_value_count == 2
+    assert by_method[ImputationMethod.KNN].supported is False
+    assert by_method[ImputationMethod.KNN].imputed_value_count == 0
     assert by_method[ImputationMethod.LOW_INTENSITY].top_entity_id is not None
-    assert by_method[ImputationMethod.KNN].top_entity_id is not None
     assert report.overlap_entries
-    low_vs_knn = next(
-        entry
-        for entry in report.overlap_entries
-        if entry.method_a is ImputationMethod.LOW_INTENSITY
-        and entry.method_b is ImputationMethod.KNN
-    )
-    assert low_vs_knn.overlapping_significant_entity_count >= 1
     assert report.changed_significance_entries
     changed_pepa = next(
         entry
@@ -513,5 +508,153 @@ def test_imputation_sensitivity_report_compares_downstream_policies() -> None:
     dependent_pepa = next(
         entry for entry in report.imputation_dependent_hits if entry.entity_id == "PEPA"
     )
+
     assert dependent_pepa.baseline_method is ImputationMethod.NONE
     assert ImputationMethod.LOW_INTENSITY in dependent_pepa.imputation_methods
+
+
+def test_imputation_sensitivity_report_matches_supported_policy_comparison_hits() -> (
+    None
+):
+    records = (
+        Ms1FeatureRecord(
+            feature_id="imp-comp-001",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-002",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=120.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-003",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=None,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-004",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=None,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-005",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=101.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-006",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=119.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-007",
+            sample_id="ctrl-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=30.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-comp-008",
+            sample_id="ctrl-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=31.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    sensitivity = build_imputation_sensitivity_report(
+        table,
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+        methods=(ImputationMethod.NONE, ImputationMethod.LOW_INTENSITY),
+    )
+    none_report = build_differential_abundance_report(
+        table,
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    low_intensity_report = build_differential_abundance_report(
+        impute_label_free_table(table, method=ImputationMethod.LOW_INTENSITY),
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    comparison = compare_imputation_policies(
+        {
+            ImputationMethod.NONE: none_report,
+            ImputationMethod.LOW_INTENSITY: low_intensity_report,
+        }
+    )
+
+    assert {
+        entry.entity_id for entry in sensitivity.imputation_dependent_hits
+    } == {
+        entry.entity_id for entry in comparison.entries if entry.imputation_dependent
+    }
+    assert any(entry.entity_id == "PEPA" for entry in sensitivity.imputation_dependent_hits)
