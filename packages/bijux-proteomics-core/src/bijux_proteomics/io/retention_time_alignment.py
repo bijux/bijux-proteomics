@@ -736,6 +736,37 @@ def render_rt_alignment_fit_models_tsv(
     return buffer.getvalue()
 
 
+def render_rt_residual_penalties_tsv(
+    rows: tuple[RetentionTimeConfidencePenalty, ...],
+) -> str:
+    """Render RT residual downgrade rows into deterministic TSV output."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "observed_rt",
+            "expected_rt",
+            "rt_residual",
+            "rt_outlier",
+            "rt_confidence_penalty",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                row.entity_id,
+                f"{row.observed_rt:g}",
+                f"{row.expected_rt:g}",
+                f"{row.rt_residual:g}",
+                str(row.rt_outlier).lower(),
+                f"{row.rt_confidence_penalty:.4f}",
+            )
+        )
+    return buffer.getvalue()
+
+
 def render_retention_time_alignment_residuals_tsv(
     report: RetentionTimeAlignmentReport,
 ) -> str:
