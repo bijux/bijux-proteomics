@@ -117,3 +117,17 @@ def test_sequences_package_exports_peptide_detectability_owner_surface() -> None
     assert hasattr(sequences, "render_peptide_detectability_tsv")
     assert report.detectability_tier is sequences.PeptideDetectabilityTier.HIGH
     assert "detectability_score" in rendered
+
+
+def test_sequences_package_exports_peptide_chemical_liability_owner_surface() -> None:
+    report = sequences.build_peptide_chemical_liability_report(
+        "MNNQVVVVVVILKKDG",
+        charge=4,
+        protease="trypsin",
+    )
+    rendered = sequences.render_peptide_chemical_liability_tsv(report)
+
+    assert hasattr(sequences, "build_peptide_chemical_liability_report")
+    assert hasattr(sequences, "render_peptide_chemical_liability_tsv")
+    assert report.liability_tier is sequences.PeptideChemicalLiabilityTier.AVOID
+    assert "instability_motif" in rendered
