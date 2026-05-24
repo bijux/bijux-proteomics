@@ -17,14 +17,20 @@ from bijux_proteomics.io.formats import (
 )
 from bijux_proteomics.multiplex import (
     MultiplexMetadataValidationReport,
+    TmtInterferenceReport,
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
+    build_tmt_interference_report,
     build_multiplex_metadata_validation_report,
     export_multiplex_channel_assignment_tsv,
     export_multiplex_duplicate_assignment_tsv,
     export_multiplex_metadata_summary_tsv,
     export_multiplex_missing_condition_tsv,
+    export_tmt_filtered_interference_tsv,
+    export_tmt_interference_channel_summary_tsv,
+    export_tmt_interference_observation_tsv,
+    export_tmt_interference_summary_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.study import build_experiment_design
@@ -56,6 +62,8 @@ class TmtExperimentWorkflowSummary(JsonModel):
     protein_ratio_count: int = Field(..., ge=0)
     differential_result_count: int = Field(..., ge=0)
     sample_qc_entry_count: int = Field(..., ge=0)
+    interference_observation_count: int = Field(..., ge=0)
+    flagged_interference_count: int = Field(..., ge=0)
 
 
 class TmtExperimentWorkflowBundle(JsonModel):
@@ -66,6 +74,7 @@ class TmtExperimentWorkflowBundle(JsonModel):
     source_kind: TmtSearchResultSourceKind
     design_report: ExperimentalDesignReport
     metadata_validation_report: MultiplexMetadataValidationReport
+    interference_report: TmtInterferenceReport
     report: LabelBasedReportBundle
     summary: TmtExperimentWorkflowSummary
     note: str = Field(..., min_length=1)
@@ -84,6 +93,10 @@ class TmtExperimentWorkflowArtifactPaths(JsonModel):
     channel_assignments_tsv: str = Field(..., min_length=1)
     duplicate_assignments_tsv: str = Field(..., min_length=1)
     missing_conditions_tsv: str = Field(..., min_length=1)
+    interference_summary_tsv: str = Field(..., min_length=1)
+    interference_observations_tsv: str = Field(..., min_length=1)
+    filtered_interference_tsv: str = Field(..., min_length=1)
+    interference_channel_summary_tsv: str = Field(..., min_length=1)
     label_based_report_manifest_json: str = Field(..., min_length=1)
 
 
@@ -147,10 +160,15 @@ def build_tmt_experiment_workflow_bundle(
     if report.tmt_ratio_report is None:
         raise ValueError("tmt workflow requires protein-ratio review in the report")
     matrix_report = report.tmt_matrix_report
+    interference_report = build_tmt_interference_report(
+        matrix_report.source_report,
+        design_entries=tuple(design_report.accepted_entries),
+    )
     return TmtExperimentWorkflowBundle(
         source_kind=source_kind,
         design_report=design_report,
         metadata_validation_report=metadata_validation_report,
+        interference_report=interference_report,
         report=report,
         summary=TmtExperimentWorkflowSummary(
             accepted_input_row_count=(
@@ -169,9 +187,15 @@ def build_tmt_experiment_workflow_bundle(
             protein_ratio_count=report.summary.protein_ratio_count,
             differential_result_count=report.summary.differential_result_count,
             sample_qc_entry_count=report.summary.sample_qc_entry_count,
+            interference_observation_count=(
+                interference_report.summary.observed_channel_row_count
+            ),
+            flagged_interference_count=(
+                interference_report.summary.threshold_exceeded_count
+            ),
         ),
         note=(
-            "TMT workflow parses reporter-ion search output, requires workflow-ready multiplex design metadata, and routes accepted channel evidence through the owned labeled report bundle for normalization, protein ratios, differential analysis, and report export"
+            "TMT workflow parses reporter-ion search output, requires workflow-ready multiplex design metadata, preserves interference review, and routes accepted channel evidence through the owned labeled report bundle for normalization, protein ratios, differential analysis, and report export"
         ),
     )
 
@@ -196,6 +220,8 @@ def render_tmt_experiment_workflow_summary_tsv(
         ("protein_ratio_count", report.summary.protein_ratio_count),
         ("differential_result_count", report.summary.differential_result_count),
         ("sample_qc_entry_count", report.summary.sample_qc_entry_count),
+        ("interference_observation_count", report.summary.interference_observation_count),
+        ("flagged_interference_count", report.summary.flagged_interference_count),
         ("note", report.note),
     ):
         writer.writerow((field_name, value))
@@ -303,6 +329,10 @@ def export_tmt_experiment_workflow_bundle(
     channel_assignments_name = "tmt_channel_assignments.tsv"
     duplicate_assignments_name = "tmt_duplicate_assignments.tsv"
     missing_conditions_name = "tmt_missing_conditions.tsv"
+    interference_summary_name = "tmt_interference_summary.tsv"
+    interference_observations_name = "tmt_interference_observations.tsv"
+    filtered_interference_name = "tmt_filtered_interference.tsv"
+    interference_channel_summary_name = "tmt_interference_channel_summary.tsv"
     report_manifest_name = "label_based_report_manifest.json"
 
     (output_dir / summary_name).write_text(
@@ -337,6 +367,22 @@ def export_tmt_experiment_workflow_bundle(
         report.metadata_validation_report,
         output_dir / missing_conditions_name,
     )
+    export_tmt_interference_summary_tsv(
+        report.interference_report,
+        output_dir / interference_summary_name,
+    )
+    export_tmt_interference_observation_tsv(
+        report.interference_report,
+        output_dir / interference_observations_name,
+    )
+    export_tmt_filtered_interference_tsv(
+        report.interference_report,
+        output_dir / filtered_interference_name,
+    )
+    export_tmt_interference_channel_summary_tsv(
+        report.interference_report,
+        output_dir / interference_channel_summary_name,
+    )
     label_based_report_manifest = export_label_based_report_bundle(
         report.report,
         output_dir,
@@ -357,11 +403,15 @@ def export_tmt_experiment_workflow_bundle(
             channel_assignments_tsv=channel_assignments_name,
             duplicate_assignments_tsv=duplicate_assignments_name,
             missing_conditions_tsv=missing_conditions_name,
+            interference_summary_tsv=interference_summary_name,
+            interference_observations_tsv=interference_observations_name,
+            filtered_interference_tsv=filtered_interference_name,
+            interference_channel_summary_tsv=interference_channel_summary_name,
             label_based_report_manifest_json=report_manifest_name,
         ),
         label_based_report_manifest=label_based_report_manifest,
         note=(
-            "TMT workflow export preserves reporter-ion import review, multiplex metadata review, and the downstream labeled report bundle in one durable directory"
+            "TMT workflow export preserves reporter-ion import review, multiplex metadata review, interference review, and the downstream labeled report bundle in one durable directory"
         ),
     )
 

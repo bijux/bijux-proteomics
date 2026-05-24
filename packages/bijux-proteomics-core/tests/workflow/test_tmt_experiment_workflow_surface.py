@@ -23,7 +23,7 @@ def test_build_tmt_experiment_workflow_bundle_preserves_import_metadata_and_repo
     None
 ):
     report = build_tmt_experiment_workflow_bundle(
-        _multiplex_fixture("maxquant_tmt_evidence.tsv"),
+        _multiplex_fixture("maxquant_tmt_interference.tsv"),
         _multiplex_fixture("tmt.design.tsv"),
         control_channel="126",
         source_kind=TmtSearchResultSourceKind.MAXQUANT,
@@ -40,8 +40,11 @@ def test_build_tmt_experiment_workflow_bundle_preserves_import_metadata_and_repo
     assert report.summary.protein_ratio_count == 12
     assert report.summary.differential_result_count == 2
     assert report.summary.sample_qc_entry_count == 8
+    assert report.summary.interference_observation_count == 12
+    assert report.summary.flagged_interference_count == 6
     assert report.metadata_validation_report.summary.duplicate_assignment_count == 0
     assert report.metadata_validation_report.summary.missing_condition_count == 0
+    assert report.interference_report.summary.threshold_exceeded_count == 6
     assert report.report.tmt_matrix_report is not None
     assert report.report.tmt_matrix_report.source_report.summary.reporter_channel_count == 3
     assert report.report.differential_analysis_report.differential_abundance_report is not None

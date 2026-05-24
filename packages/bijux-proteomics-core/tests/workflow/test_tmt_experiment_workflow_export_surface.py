@@ -24,7 +24,7 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     tmp_path: Path,
 ) -> None:
     report = build_tmt_experiment_workflow_bundle(
-        _workflow_fixture("tmt_reporter_parse_issues.tsv"),
+        _multiplex_fixture("maxquant_tmt_interference.tsv"),
         _multiplex_fixture("tmt.design.tsv"),
         control_channel="126",
         source_kind=TmtSearchResultSourceKind.MAXQUANT,
@@ -41,6 +41,10 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     assert (output_dir / manifest.artifacts.channel_assignments_tsv).exists()
     assert (output_dir / manifest.artifacts.duplicate_assignments_tsv).exists()
     assert (output_dir / manifest.artifacts.missing_conditions_tsv).exists()
+    assert (output_dir / manifest.artifacts.interference_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.interference_observations_tsv).exists()
+    assert (output_dir / manifest.artifacts.filtered_interference_tsv).exists()
+    assert (output_dir / manifest.artifacts.interference_channel_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.label_based_report_manifest_json).exists()
     assert "accepted_input_row_count" in (
         output_dir / manifest.artifacts.summary_tsv
@@ -56,6 +60,18 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     ).read_text(encoding="utf-8").splitlines()[0]
     assert "assigned_channel_count" in (
         output_dir / manifest.artifacts.metadata_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "threshold_exceeded_count" in (
+        output_dir / manifest.artifacts.interference_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "isolation_interference_fraction" in (
+        output_dir / manifest.artifacts.interference_observations_tsv
+    ).read_text(encoding="utf-8")
+    assert "threshold and should be considered unreliable" in (
+        output_dir / manifest.artifacts.filtered_interference_tsv
+    ).read_text(encoding="utf-8")
+    assert "mean_interference_fraction" in (
+        output_dir / manifest.artifacts.interference_channel_summary_tsv
     ).read_text(encoding="utf-8")
     assert (output_dir / manifest.label_based_report_manifest.artifacts.summary_tsv).exists()
     assert (
