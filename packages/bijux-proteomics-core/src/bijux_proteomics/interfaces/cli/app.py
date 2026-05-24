@@ -646,11 +646,11 @@ from bijux_proteomics.quantification import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_precursors,
     build_peptide_intensity_matrix_from_psms,
+    build_peptide_profile_inconsistency_report,
     build_power_estimation_report,
     build_protein_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_psms,
-    build_protein_lfq_report_from_features,
-    build_protein_lfq_report_from_psms,
+    build_protein_lfq_report_from_peptides,
     build_replicate_and_batch_qc_report,
     build_sample_exploration_report,
     build_spectral_count_table,
@@ -704,6 +704,7 @@ from bijux_proteomics.quantification import (
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
+    render_peptide_profile_inconsistency_tsv,
     render_protein_lfq_summary_tsv,
     summarize_missing_values,
 )
@@ -11243,6 +11244,12 @@ def protein_matrix_command(
     default=None,
 )
 @click.option(
+    "--peptide-profile-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional peptide profile inconsistency TSV output path.",
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -11281,6 +11288,7 @@ def protein_lfq_command(
     pairwise_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
     disconnected_components_tsv_out: Path | None,
+    peptide_profile_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence."""
@@ -11302,21 +11310,32 @@ def protein_lfq_command(
                 protein_separator=protein_separator,
             )
             parse_report = parse_ms1_feature_table(input_table, mapping=feature_mapping)
-            report = build_protein_lfq_report_from_features(
+            peptide_matrix = build_peptide_intensity_matrix_from_features(
                 parse_report.accepted_records,
                 grouping_mode=grouping,
-                target_kind=active_target_kind,
                 separate_charge_states=separate_charge_states,
                 aggregation_method=rollup_method,
+                top_n=top_n,
+            )
+            report = build_protein_lfq_report_from_peptides(
+                peptide_matrix,
+                target_kind=active_target_kind,
                 unique_only=unique_peptide_only,
                 minimum_shared_peptides=minimum_shared_peptides,
-                top_n=top_n,
+            )
+            peptide_profile_report = build_peptide_profile_inconsistency_report(
+                peptide_matrix,
+                target_kind=active_target_kind,
+                unique_only=unique_peptide_only,
             )
             payload = {
                 "input_kind": input_kind,
                 "accepted_source_records": len(parse_report.accepted_records),
                 "rejected_source_records": len(parse_report.rejected_rows),
                 "report": report.to_dict(),
+                "peptide_profile_inconsistency_report": (
+                    peptide_profile_report.to_dict()
+                ),
             }
         else:
             psm_mapping = _build_psm_mapping(
@@ -11334,21 +11353,32 @@ def protein_lfq_command(
                 intensity_column=intensity_column,
             )
             psm_parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
-            report = build_protein_lfq_report_from_psms(
+            peptide_matrix = build_peptide_intensity_matrix_from_psms(
                 psm_parse_report.accepted_records,
                 grouping_mode=grouping,
-                target_kind=active_target_kind,
                 separate_charge_states=separate_charge_states,
                 aggregation_method=rollup_method,
+                top_n=top_n,
+            )
+            report = build_protein_lfq_report_from_peptides(
+                peptide_matrix,
+                target_kind=active_target_kind,
                 unique_only=unique_peptide_only,
                 minimum_shared_peptides=minimum_shared_peptides,
-                top_n=top_n,
+            )
+            peptide_profile_report = build_peptide_profile_inconsistency_report(
+                peptide_matrix,
+                target_kind=active_target_kind,
+                unique_only=unique_peptide_only,
             )
             payload = {
                 "input_kind": input_kind,
                 "accepted_source_records": len(psm_parse_report.accepted_records),
                 "rejected_source_records": len(psm_parse_report.rejected_rows),
                 "report": report.to_dict(),
+                "peptide_profile_inconsistency_report": (
+                    peptide_profile_report.to_dict()
+                ),
             }
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -11372,6 +11402,11 @@ def protein_lfq_command(
             disconnected_components_tsv_out,
             render_protein_lfq_disconnected_components_tsv(report),
         )
+    if peptide_profile_tsv_out is not None:
+        _write_text_output(
+            peptide_profile_tsv_out,
+            render_peptide_profile_inconsistency_tsv(peptide_profile_report),
+        )
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
@@ -11383,6 +11418,9 @@ def protein_lfq_command(
             None
             if disconnected_components_tsv_out is None
             else str(disconnected_components_tsv_out)
+        ),
+        "peptide_profile_tsv": (
+            None if peptide_profile_tsv_out is None else str(peptide_profile_tsv_out)
         ),
     }
     _emit_json(payload, out_path=out_path)
