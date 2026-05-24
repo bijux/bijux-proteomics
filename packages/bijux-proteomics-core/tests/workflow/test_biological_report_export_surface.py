@@ -42,6 +42,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     )
     output_dir = tmp_path / "biological_report"
 
+    assert manifest.claim_validation_included is True
     assert manifest.context_summary_included is True
     assert manifest.go_summary_included is True
     assert manifest.pathway_summary_included is True
@@ -57,6 +58,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).exists()
     assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
+    assert (output_dir / manifest.artifacts.claim_validation_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.supported_claim_tsv).exists()
+    assert (output_dir / manifest.artifacts.rejected_claim_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_issue_tsv).exists()
@@ -112,6 +116,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "priority_rank" in (
         output_dir / manifest.artifacts.evidence_aware_ranking_tsv
+    ).read_text(encoding="utf-8")
+    assert "supported_claim_count" in (
+        output_dir / manifest.artifacts.claim_validation_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "claim_text" in (
+        output_dir / manifest.artifacts.supported_claim_tsv
+    ).read_text(encoding="utf-8")
+    assert "reason_codes" in (
+        output_dir / manifest.artifacts.rejected_claim_tsv
     ).read_text(encoding="utf-8")
     assert "foreground_source_kind" in (
         output_dir / manifest.artifacts.foreground_background_summary_tsv
@@ -210,6 +223,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Evidence-aware ranking" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Validated biological claims" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Enrichment foreground/background model" in (

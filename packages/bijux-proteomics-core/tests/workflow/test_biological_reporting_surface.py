@@ -37,6 +37,8 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         build_experiment_design(design_entries),
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
         condition_a="control",
         condition_b="treatment",
     )
@@ -67,10 +69,13 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.sample_exploration_report.summary.sample_count == 6
     assert report.heatmap_report.summary.output_entity_count >= 3
     assert report.evidence_aware_ranking_report is not None
+    assert report.claim_validation_report is not None
     assert (
         report.evidence_aware_ranking_report.summary.protein_entry_count
         == report.summary.protein_count
     )
+    assert report.claim_validation_report.summary.candidate_count >= 3
+    assert report.claim_validation_report.summary.supported_claim_count >= 1
     assert report.foreground_background_model.summary.valid_for_enrichment is True
     assert (
         report.foreground_background_model.foreground_source_kind.value
@@ -181,6 +186,7 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
 
     assert report.regulator_evidence_import_report is not None
     assert report.regulator_inference_report is not None
+    assert report.claim_validation_report is not None
     assert report.regulator_inference_report.summary.entry_count == 5
     assert report.regulator_inference_report.summary.site_regulation_entry_count == 1
     assert report.regulator_inference_report.summary.pathway_activity_entry_count == 1
@@ -198,6 +204,17 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
         entry.target_value == "UNSEEN"
         for entry in report.regulator_inference_report.unresolved_targets
     )
+    supported_claims = {
+        entry.subject_id: entry for entry in report.claim_validation_report.supported_claims
+    }
+    rejected_claims = {
+        entry.subject_id: entry for entry in report.claim_validation_report.rejected_claims
+    }
+    assert supported_claims["MAPK14"].claim_text.startswith("Kinase MAPK14 active")
+    assert rejected_claims["OrphanTF"].status.value == "rejected"
+    assert "unsupported_regulator_direction" in {
+        reason.value for reason in rejected_claims["OrphanTF"].reason_codes
+    }
 
 
 def test_build_biological_result_report_bundle_preserves_drug_target_interpretation() -> (
