@@ -68,6 +68,7 @@ from bijux_proteomics.ptm.site_quantification import (
     render_ptm_site_quant_missingness_tsv,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
+from bijux_proteomics.sequences import ProteinRegionContextRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -180,6 +181,7 @@ def build_ptm_report_bundle(
     annotation_records: tuple[PtmSiteAnnotationRecord, ...] | None = None,
     annotation_target_species: str | None = None,
     regulator_enrichment_policy: PtmRegulatorEnrichmentPolicy | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
     evidence_card_policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmReportBundle:
     """Build the core PTM report bundle from evidence rows and protein context."""
@@ -276,6 +278,7 @@ def build_ptm_report_bundle(
             site_quantification=site_quantification,
             motif_enrichment=motif_enrichment,
             regulator_enrichment=regulator_enrichment,
+            protein_region_context_records=protein_region_context_records,
             policy=evidence_card_policy,
         )
     return PtmReportBundle(

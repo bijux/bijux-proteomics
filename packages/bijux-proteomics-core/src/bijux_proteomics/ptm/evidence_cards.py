@@ -39,6 +39,12 @@ from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantificationReport,
 )
 from bijux_proteomics.quantification.contracts import MissingValueKind
+from bijux_proteomics.sequences import (
+    ProteinFunctionalRegionEvidence,
+    ProteinRegionContextRecord,
+    ProteinSiteRegionReference,
+    build_protein_site_region_context_report,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -220,6 +226,9 @@ class PtmEvidenceCard(JsonModel):
     regulator_evidence: tuple[PtmEvidenceCardRegulatorEvidence, ...] = Field(
         default_factory=tuple
     )
+    functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
+        default_factory=tuple
+    )
     protein_correction: PtmEvidenceCardProteinCorrection
     warnings: tuple[PtmEvidenceCardWarning, ...] = Field(default_factory=tuple)
     claim_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -253,6 +262,7 @@ class PtmEvidenceCardSummary(JsonModel):
     narrative_claim_count: int = Field(..., ge=0)
     regulator_supported_card_count: int = Field(..., ge=0)
     motif_annotated_card_count: int = Field(..., ge=0)
+    functional_context_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
 
 
@@ -279,6 +289,7 @@ def build_ptm_evidence_card_report(
     site_quantification: PtmSiteQuantificationReport | None = None,
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None,
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
     policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmEvidenceCardReport:
     """Build one PTM evidence-card report over significant differential sites."""
@@ -301,6 +312,23 @@ def build_ptm_evidence_card_report(
         for entry in regulator_enrichment.entries:
             for site_key in entry.supporting_sites:
                 regulator_entries_by_site.setdefault(site_key, []).append(entry)
+    functional_context_by_site: dict[str, tuple[ProteinFunctionalRegionEvidence, ...]] = {}
+    if protein_region_context_records:
+        functional_context_report = build_protein_site_region_context_report(
+            tuple(
+                ProteinSiteRegionReference(
+                    site_key=site_entry.site_key,
+                    protein_ref=site_entry.protein_ref,
+                    position=site_entry.position,
+                )
+                for site_entry in site_entries
+            ),
+            protein_region_context_records,
+        )
+        functional_context_by_site = {
+            entry.site_key: entry.functional_regions
+            for entry in functional_context_report.entries
+        }
 
     cards: list[PtmEvidenceCard] = []
     narrative_claims: list[PtmEvidenceCardClaim] = []
@@ -380,6 +408,10 @@ def build_ptm_evidence_card_report(
                 ),
                 motif_evidence=motif_evidence,
                 regulator_evidence=regulators,
+                functional_regions=functional_context_by_site.get(
+                    differential_entry.site_key,
+                    (),
+                ),
                 protein_correction=PtmEvidenceCardProteinCorrection(
                     mode=differential_analysis.protein_correction_mode,
                     status=differential_entry.protein_correction_status,
@@ -441,10 +473,16 @@ def build_ptm_evidence_card_report(
             motif_annotated_card_count=sum(
                 1 for entry in stable_cards if entry.motif_evidence.centered_windows
             ),
+            functional_context_card_count=sum(
+                1 for entry in stable_cards if entry.functional_regions
+            ),
             warning_card_count=sum(1 for entry in stable_cards if entry.warnings),
         ),
         note=(
-            "ptm evidence cards preserve one structured object per significant site, carry peptide, localization, quantification, differential, motif, regulator, and protein-correction evidence together, and link every narrative claim back to a stable card id"
+            "ptm evidence cards preserve one structured object per significant site, "
+            "carry peptide, localization, quantification, differential, motif, "
+            "functional-region, regulator, and protein-correction evidence together, "
+            "and link every narrative claim back to a stable card id"
         ),
     )
 
@@ -463,6 +501,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             "narrative_claim_count",
             "regulator_supported_card_count",
             "motif_annotated_card_count",
+            "functional_context_card_count",
             "warning_card_count",
         )
     )
@@ -475,6 +514,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             report.summary.narrative_claim_count,
             report.summary.regulator_supported_card_count,
             report.summary.motif_annotated_card_count,
+            report.summary.functional_context_card_count,
             report.summary.warning_card_count,
         )
     )
@@ -504,6 +544,7 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "peptide_spectrum_count",
             "observed_sample_count",
             "centered_windows",
+            "functional_regions",
             "regulators",
             "warning_codes",
             "claim_ids",
@@ -528,6 +569,10 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 len(entry.peptide_evidence),
                 0 if entry.quantification is None else entry.quantification.observed_sample_count,
                 ";".join(entry.motif_evidence.centered_windows),
+                ";".join(
+                    f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
+                    for region in entry.functional_regions
+                ),
                 ";".join(
                     f"{regulator.regulator}:{regulator.direction}"
                     for regulator in entry.regulator_evidence
