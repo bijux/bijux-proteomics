@@ -133,6 +133,35 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     )
 
 
+def test_build_biological_result_report_bundle_preserves_compartment_biology() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_compartments.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.compartment_biology_report is not None
+    assert report.compartment_biology_report.summary.compartment_count == 2
+    assert report.compartment_biology_report.summary.unknown_foreground_protein_count == 1
+    assert report.compartment_biology_report.summary.unknown_background_protein_count == 2
+    assert any(
+        entry.localization_scope.value == "foreground" and entry.protein_ref == "Q9Y243"
+        for entry in report.compartment_biology_report.unknown_localization_entries
+    )
+    assert any(
+        entry.set_id == "GO:0005634"
+        for entry in report.compartment_biology_report.activity_report.condition_comparisons
+    )
+
+
 def test_build_biological_result_report_bundle_from_quant_table_uses_entity_protein_refs_for_annotation() -> (
     None
 ):

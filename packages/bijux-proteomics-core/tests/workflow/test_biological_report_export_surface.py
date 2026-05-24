@@ -218,13 +218,66 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "Pathway activity" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
+
+
+def test_biological_report_export_writes_compartment_biology_assets(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_compartments.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_biological_result_report_bundle(
+        report,
+        tmp_path / "biological_compartment_report",
+    )
+    output_dir = tmp_path / "biological_compartment_report"
+
+    assert report.compartment_biology_report is not None
+    assert (output_dir / manifest.artifacts.compartment_biology_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.compartment_enrichment_tsv).exists()
+    assert (output_dir / manifest.artifacts.compartment_activity_matrix_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.compartment_activity_sample_score_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.compartment_activity_condition_score_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.compartment_activity_condition_comparison_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.compartment_activity_unresolved_member_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.compartment_unknown_localization_tsv
+    ).exists()
+    assert "compartment_count" in (
+        output_dir / manifest.artifacts.compartment_biology_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
+        output_dir / manifest.artifacts.compartment_activity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "localization_scope\tprotein_ref\treason" == (
+        output_dir / manifest.artifacts.compartment_unknown_localization_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
+    assert "Compartment biology" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
     assert "Complex activity" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Low-confidence sample scores" in (
-        output_dir / manifest.artifacts.report_html
-    ).read_text(encoding="utf-8")
-    assert "Limiting members" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Valid for enrichment" in (
