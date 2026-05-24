@@ -276,6 +276,51 @@ def test_interpretation_package_exports_pathway_activity_surface() -> None:
     assert "pathway_id" in interpretation.render_pathway_activity_matrix_tsv(report)
 
 
+def test_interpretation_package_exports_tissue_cell_type_context_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture_path("biological_report_tissue_context.design.tsv")
+        ).accepted_entries
+    )
+    context_import = interpretation.parse_biological_context_table(
+        _workflow_fixture_path("biological_report_tissue_markers.tsv")
+    )
+    parse_report = parse_ms1_feature_table(
+        _workflow_fixture_path("biological_report_features.tsv"),
+        mapping=Ms1FeatureColumnMapping(
+            sample_id="sample_id",
+            feature_id="feature_id",
+            peptide="peptide",
+            intensity="intensity",
+            protein_refs="proteins",
+            charge="charge",
+            mz="mz",
+            retention_time_seconds="retention_time_seconds",
+            missing_reason="missing_reason",
+        ),
+    )
+    protein_table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    report = interpretation.build_tissue_cell_type_context_report(
+        protein_table,
+        design_entries,
+        context_import.accepted_records,
+    )
+
+    assert hasattr(interpretation, "build_tissue_cell_type_context_report")
+    assert hasattr(interpretation, "render_tissue_cell_type_sample_consistency_tsv")
+    rendered = interpretation.render_tissue_cell_type_sample_consistency_tsv(report)
+
+    assert "warning_code" in rendered.splitlines()[0]
+    assert "unexpected_marker_context_dominates" in rendered
+
+
 def test_interpretation_package_exports_complex_activity_surface() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
