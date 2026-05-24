@@ -496,6 +496,79 @@ def test_analysis_recommendations_command_emits_condition_tied_actions() -> None
         assert "avoid_batch_correction" in recommendation_tsv
 
 
+def test_failure_explanation_command_emits_scientific_category_and_fix() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "failure-explanation",
+                "design table contains rejected rows",
+                "--workflow-name",
+                "biological-report",
+                "--summary-tsv-out",
+                "failure_explanation.summary.tsv",
+                "--explanation-tsv-out",
+                "failure_explanation.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        explanation = payload["report"]["explanations"][0]
+        assert explanation["status"] == "explained"
+        assert explanation["failure_category"] == "invalid_design"
+        assert explanation["scientific_condition_code"] == "invalid_study_design"
+        assert "invalid_design_count" in Path(
+            "failure_explanation.summary.tsv"
+        ).read_text()
+        explanation_tsv = Path("failure_explanation.tsv").read_text()
+        assert "scientific_condition_code" in explanation_tsv
+        assert "repair rejected design rows" in explanation_tsv
+
+
+def test_biological_report_command_explains_invalid_design_failure_without_traceback() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        Path("bad.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate",
+                    "control_1\tcontrol\tnot_an_integer",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biological-report",
+                "biological_report_features.tsv",
+                "bad.design.tsv",
+                "biological_report_reference.fasta",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "invalid_design" in result.output
+        assert "study design is invalid or inconsistent" in result.output
+        assert "fix input: repair rejected design rows" in result.output.lower()
+        assert "traceback" not in result.output.lower()
+
+
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
