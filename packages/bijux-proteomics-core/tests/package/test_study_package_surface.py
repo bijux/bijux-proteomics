@@ -77,6 +77,33 @@ def test_study_package_exports_lab_qc_status_surface() -> None:
     assert "qc_status" in study.render_qc_assessment_tsv(assessment).splitlines()[0]
 
 
+def test_study_package_exports_carryover_detection_surface() -> None:
+    rows = study.detect_carryover(
+        (
+            study.CarryoverRunOrderEntry(run_id="source_high.raw", run_order=1),
+            study.CarryoverRunOrderEntry(run_id="blank_after_source.raw", run_order=2),
+        ),
+        (
+            study.CarryoverIntensityEntry(
+                run_id="source_high.raw",
+                entity_id="CARRYPEP/2",
+                intensity=200000.0,
+            ),
+            study.CarryoverIntensityEntry(
+                run_id="blank_after_source.raw",
+                entity_id="CARRYPEP/2",
+                intensity=4000.0,
+            ),
+        ),
+    )
+    rendered = study.render_carryover_detection_tsv(rows)
+
+    assert hasattr(study, "detect_carryover")
+    assert hasattr(study, "render_carryover_detection_tsv")
+    assert rows[0].carryover_score == 0.9333
+    assert "affected_intensity" in rendered
+
+
 def test_study_package_exports_experiment_design_surface() -> None:
     design = study.build_experiment_design(
         (

@@ -165,6 +165,8 @@ def test_quantification_package_import_contract() -> None:
 def test_study_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.study")
 
+    assert hasattr(module, "detect_carryover")
+    assert hasattr(module, "render_carryover_detection_tsv")
     assert hasattr(module, "build_run_qc_assessment")
 
 
