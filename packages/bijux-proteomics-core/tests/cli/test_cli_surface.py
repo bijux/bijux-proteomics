@@ -9102,9 +9102,18 @@ def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> Non
         assert "P1\tprotein\tP1\t2\t2\t0\tPEPAAK;PEPMTK\t1600\t2100" in Path(
             "protein_matrix.matrix.tsv"
         ).read_text(encoding="utf-8")
-        assert "included_by_policy" in Path(
-            "protein_matrix.contributions.tsv"
-        ).read_text(encoding="utf-8")
+        contribution_tsv = Path("protein_matrix.contributions.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "included_abundance_fraction" in contribution_tsv
+        assert (
+            "P1\tprotein\tS1\tPEPAAK\tPEPAAK\tP1\t1000\tobserved\tfalse\ttrue\ttrue\t1600\t1\t0.625000\t0.625000\tunique_only"
+            in contribution_tsv
+        )
+        assert (
+            "P1\tprotein\tS1\tSHAREDK\tSHAREDK\tP1\t300\tobserved\ttrue\tfalse\tfalse\t1600\t3\t\t0.187500\tunique_only"
+            in contribution_tsv
+        )
 
 
 def test_protein_matrix_command_emits_psm_backed_group_rollup() -> None:
