@@ -7589,6 +7589,115 @@ def test_biomarker_stability_analysis_command_downgrades_unstable_candidates() -
         )
 
 
+def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tpenalty_total\trank_reason_codes\tranking_note\n"
+            "protein:P11111\tprotein\tREP1\tP11111\t\t1\t0.92\t0.05\tassay_ready\tprimary candidate\n"
+            "protein:P22222\tprotein\tRED2\tP22222\t\t2\t0.81\t0.09\tassay_ready\thighly correlated neighbor\n"
+            "protein:P33333\tprotein\tDISTINCT3\tP33333\t\t3\t0.76\t0.10\tassay_ready\tdistinct candidate\n",
+            encoding="utf-8",
+        )
+        Path("panel.assays.tsv").write_text(
+            "assay_entry_id\tbiomarker_candidate_id\tbiomarker_candidate_kind\tbiomarker_display_label\tbiomarker_priority_rank\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tuniqueness_class\tprecursor_charge\tselected_transition_count\texported_transition_count\twarning_codes\twarning_note\n"
+            "assay:P11111:PEPTIDER\tprotein:P11111\tprotein\tREP1\t1\tP11111\tprotein_group_1\tREP1\tPEPTIDER\tPEPTIDER\tunique\t2\t2\t2\t\tassay retained\n"
+            "assay:P22222:AAAAK\tprotein:P22222\tprotein\tRED2\t2\tP22222\tprotein_group_2\tRED2\tAAAAK\tAAAAK\tunique\t2\t2\t2\t\tassay retained\n"
+            "assay:P33333:BBBBK\tprotein:P33333\tprotein\tDISTINCT3\t3\tP33333\tprotein_group_3\tDISTINCT3\tBBBBK\tBBBBK\tunique\t2\t2\t2\t\tassay retained\n",
+            encoding="utf-8",
+        )
+        Path("targeted_results.tsv").write_text(
+            "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t10000\t12.50\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r1\t8200\t12.56\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r2\t10500\t12.49\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r2\t8400\t12.55\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r1\t22000\t12.50\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r1\t17800\t12.56\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r2\t22500\t12.49\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r2\t18100\t12.55\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r1\t8000\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r1\t6600\t18.47\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r2\t8400\t18.41\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r2\t6900\t18.48\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r1\t17600\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r1\t14400\t18.47\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r2\t18000\t18.41\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r2\t14700\t18.48\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\tcontrol_r1\t20000\t16.40\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\tcontrol_r1\t16200\t16.47\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\tcontrol_r2\t20500\t16.42\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\tcontrol_r2\t16600\t16.46\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_r1\t9000\t16.41\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_r1\t7300\t16.48\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_r2\t9200\t16.40\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_r2\t7500\t16.45\tpass\n",
+            encoding="utf-8",
+        )
+        Path("targeted.design.tsv").write_text(
+            "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\n"
+            "control_r1\tcontrol\t1\t1\tcontrol_r1.raw\tcontrol_r1.tsv\tb1\n"
+            "control_r2\tcontrol\t2\t1\tcontrol_r2.raw\tcontrol_r2.tsv\tb1\n"
+            "treat_r1\ttreatment\t1\t1\ttreat_r1.raw\ttreat_r1.tsv\tb1\n"
+            "treat_r2\ttreatment\t2\t1\ttreat_r2.raw\ttreat_r2.tsv\tb1\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biomarker-panel-redundancy-analysis",
+                "biomarker.candidates.tsv",
+                "panel.assays.tsv",
+                "targeted_results.tsv",
+                "targeted.design.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--summary-tsv-out",
+                "redundancy.summary.tsv",
+                "--cluster-tsv-out",
+                "redundancy.clusters.tsv",
+                "--reduced-candidate-tsv-out",
+                "redundancy.candidates.tsv",
+                "--dropped-candidate-tsv-out",
+                "redundancy.dropped.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["candidate_count"] == 3
+        assert payload["summary"]["cluster_count"] == 2
+        assert payload["summary"]["dropped_candidate_count"] == 1
+        cluster_with_drop = next(
+            entry for entry in payload["clusters"] if entry["dropped_count"] == 1
+        )
+        assert cluster_with_drop["representative_candidate_id"] == "protein:P11111"
+        assert "protein:P22222" in cluster_with_drop["dropped_candidate_ids"]
+        candidates_by_id = {
+            entry["candidate_id"]: entry for entry in payload["candidates"]
+        }
+        assert candidates_by_id["protein:P11111"]["representative"] is True
+        assert candidates_by_id["protein:P22222"]["dropped"] is True
+        assert "high_signal_correlation" in candidates_by_id["protein:P22222"][
+            "redundancy_reason_codes"
+        ]
+        assert payload["outputs"]["summary_tsv"] == "redundancy.summary.tsv"
+        assert Path("redundancy.summary.tsv").exists()
+        assert Path("redundancy.clusters.tsv").exists()
+        assert Path("redundancy.candidates.tsv").exists()
+        assert Path("redundancy.dropped.tsv").exists()
+        assert "dropped_candidate_count\t1" in Path(
+            "redundancy.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "cluster:001" in Path("redundancy.clusters.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "protein:P22222" in Path("redundancy.dropped.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
