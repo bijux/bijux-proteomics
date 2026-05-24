@@ -202,6 +202,76 @@ def test_io_package_exports_chromatographic_peak_picking_owner_surface() -> None
     assert "target_single_peak_001\ttarget_single\t0\t60\t30\t160" in rendered
 
 
+def test_io_package_exports_peak_shape_scoring_owner_surface() -> None:
+    shape = io.score_peak_shape(
+        (
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=0.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=0.0,
+                scan_id="scan=1",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=10.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=25.0,
+                scan_id="scan=2",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=20.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=90.0,
+                scan_id="scan=3",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=30.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=160.0,
+                scan_id="scan=4",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=40.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=90.0,
+                scan_id="scan=5",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=50.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=25.0,
+                scan_id="scan=6",
+            ),
+            io.XicExtractionPoint(
+                target_id="shape_target",
+                rt=60.0,
+                mz_lower=499.99,
+                mz_upper=500.01,
+                intensity=0.0,
+                scan_id="scan=7",
+            ),
+        )
+    )
+    rendered = io.render_peak_shape_score_tsv((shape,))
+
+    assert hasattr(io, "score_peak_shape")
+    assert hasattr(io, "render_peak_shape_score_tsv")
+    assert shape.shape_quality_tier.value == "gaussian_like"
+    assert shape.smoothness_score > 0.9
+    assert "shape_quality_tier" in rendered
+
+
 def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
     report = io.extract_mzml_retention_time_alignment(
         (
