@@ -29,6 +29,7 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.raw_signal_evidence_cards",
     "bijux_proteomics.io.chromatographic_peak_picking",
     "bijux_proteomics.io.retention_time_alignment",
+    "bijux_proteomics.io.spectral_library_intensity_agreement",
     "bijux_proteomics.io.xic_extraction",
     "bijux_proteomics.io.spectral_library",
 )
