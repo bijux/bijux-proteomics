@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -13,6 +14,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from bijux_proteomics.io.mzml_reader import stream_mzml_spectra
+from bijux_proteomics.io.spectra import SpectrumModel
 from bijux_proteomics.tabular import (
     DelimitedColumnSpec,
     DelimitedTableIssue,
@@ -35,6 +37,7 @@ class XicTargetEntry(JsonModel):
 
     target_id: str = Field(..., min_length=1)
     precursor_mz: float = Field(..., gt=0.0)
+    rt_expected_seconds: float | None = Field(default=None, ge=0.0)
     rt_start_seconds: float | None = Field(default=None, ge=0.0)
     rt_end_seconds: float | None = Field(default=None, ge=0.0)
     expected_charge: int | None = Field(default=None, ge=1)
@@ -95,6 +98,19 @@ class XicTracePoint(JsonModel):
     matched_peak_count: int = Field(..., ge=0)
 
 
+class XicExtractionPoint(JsonModel):
+    """One raw XIC extraction row with the engine output contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    rt: float = Field(..., ge=0.0)
+    mz_lower: float = Field(..., gt=0.0)
+    mz_upper: float = Field(..., gt=0.0)
+    intensity: float = Field(..., ge=0.0)
+    scan_id: str = Field(..., min_length=1)
+
+
 class XicTraceReport(JsonModel):
     """Stable extracted XIC traces over one mzML file and target table."""
 
@@ -120,6 +136,7 @@ def parse_xic_target_table(path: Path) -> XicTargetParseReport:
         column_specs=(
             DelimitedColumnSpec(name="target_id", source_columns=("id",)),
             DelimitedColumnSpec(name="precursor_mz", source_columns=("mz", "q1")),
+            DelimitedColumnSpec(name="rt_expected_seconds", source_columns=("rt_expected",)),
             DelimitedColumnSpec(
                 name="rt_start_seconds",
                 source_columns=("rt_start", "rt_window_start"),
@@ -186,42 +203,44 @@ def extract_mzml_xic_traces(
         tolerance_da=tolerance_da,
         tolerance_ppm=tolerance_ppm,
     )
-    trace_points: list[XicTracePoint] = []
     total_spectra = 0
     eligible_spectra = 0
+    eligible_spectra_buffer: list[SpectrumModel] = []
     for spectrum in stream_mzml_spectra(mzml_path):
         total_spectra += 1
         if spectrum.ms_level != ms_level or spectrum.retention_time_seconds is None:
             continue
         eligible_spectra += 1
-        time_seconds = spectrum.retention_time_seconds
-        for target in target_report.accepted_entries:
-            if target.rt_start_seconds is not None and time_seconds < target.rt_start_seconds:
-                continue
-            if target.rt_end_seconds is not None and time_seconds > target.rt_end_seconds:
-                continue
-            mz_window_lower, mz_window_upper = _mz_window(
-                target.precursor_mz,
-                tolerance_unit=tolerance_unit,
-                tolerance_value=tolerance_value,
-            )
-            matched_peaks = tuple(
-                peak
-                for peak in spectrum.peaks
-                if mz_window_lower <= peak.mz <= mz_window_upper
-            )
-            trace_points.append(
-                XicTracePoint(
-                    target_id=target.target_id,
-                    spectrum_id=spectrum.spectrum_id,
-                    time_seconds=time_seconds,
-                    precursor_mz=target.precursor_mz,
-                    mz_window_lower=mz_window_lower,
-                    mz_window_upper=mz_window_upper,
-                    intensity=sum(peak.intensity for peak in matched_peaks),
-                    matched_peak_count=len(matched_peaks),
-                )
-            )
+        eligible_spectra_buffer.append(spectrum)
+    extraction_rows = extract_xic(
+        eligible_spectra_buffer,
+        target_report.accepted_entries,
+        tolerance=tolerance_value,
+        tolerance_unit=tolerance_unit,
+        ms_level=ms_level,
+    )
+    spectra_by_id = {
+        spectrum.spectrum_id: spectrum for spectrum in eligible_spectra_buffer
+    }
+    targets_by_id = {
+        target.target_id: target for target in target_report.accepted_entries
+    }
+    trace_points = tuple(
+        XicTracePoint(
+            target_id=row.target_id,
+            spectrum_id=row.scan_id,
+            time_seconds=row.rt,
+            precursor_mz=targets_by_id[row.target_id].precursor_mz,
+            mz_window_lower=row.mz_lower,
+            mz_window_upper=row.mz_upper,
+            intensity=row.intensity,
+            matched_peak_count=_matched_peak_count(
+                spectra_by_id[row.scan_id],
+                row,
+            ),
+        )
+        for row in extraction_rows
+    )
     return XicTraceReport(
         source_path=str(mzml_path),
         target_source_path=target_report.source_path,
@@ -232,7 +251,7 @@ def extract_mzml_xic_traces(
         eligible_spectra=eligible_spectra,
         accepted_targets=target_report.accepted_entries,
         rejected_target_rows=target_report.rejected_rows,
-        trace_points=tuple(trace_points),
+        trace_points=trace_points,
     )
 
 
@@ -272,6 +291,78 @@ def render_xic_traces_tsv(report: XicTraceReport) -> str:
     return buffer.getvalue()
 
 
+def extract_xic(
+    mzml_reader: Iterable[SpectrumModel],
+    targets: tuple[XicTargetEntry, ...],
+    *,
+    tolerance: float,
+    tolerance_unit: XicToleranceUnit = XicToleranceUnit.PPM,
+    rt_window: float | None = None,
+    ms_level: int = 1,
+) -> tuple[XicExtractionPoint, ...]:
+    """Extract raw XIC rows from one mzML spectrum stream and target set."""
+
+    if tolerance <= 0.0:
+        raise ValueError("tolerance must be greater than zero")
+    if rt_window is not None and rt_window < 0.0:
+        raise ValueError("rt_window must be greater than or equal to zero")
+    if ms_level <= 0:
+        raise ValueError("ms_level must be greater than zero")
+    rows: list[XicExtractionPoint] = []
+    for spectrum in mzml_reader:
+        if spectrum.ms_level != ms_level or spectrum.retention_time_seconds is None:
+            continue
+        for target in targets:
+            rt_start_seconds, rt_end_seconds = _resolve_target_rt_window(
+                target,
+                rt_window=rt_window,
+            )
+            if rt_start_seconds is not None and spectrum.retention_time_seconds < rt_start_seconds:
+                continue
+            if rt_end_seconds is not None and spectrum.retention_time_seconds > rt_end_seconds:
+                continue
+            mz_lower, mz_upper = _mz_window(
+                target.precursor_mz,
+                tolerance_unit=tolerance_unit,
+                tolerance_value=tolerance,
+            )
+            rows.append(
+                XicExtractionPoint(
+                    target_id=target.target_id,
+                    rt=spectrum.retention_time_seconds,
+                    mz_lower=mz_lower,
+                    mz_upper=mz_upper,
+                    intensity=sum(
+                        peak.intensity
+                        for peak in spectrum.peaks
+                        if mz_lower <= peak.mz <= mz_upper
+                    ),
+                    scan_id=spectrum.spectrum_id,
+                )
+            )
+    return tuple(sorted(rows, key=lambda row: (row.target_id, row.rt, row.scan_id)))
+
+
+def render_xic_extraction_tsv(rows: tuple[XicExtractionPoint, ...]) -> str:
+    """Render raw XIC extraction rows with the engine column contract."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("target_id", "rt", "mz_lower", "mz_upper", "intensity", "scan_id"))
+    for row in rows:
+        writer.writerow(
+            (
+                row.target_id,
+                f"{row.rt:g}",
+                f"{row.mz_lower:.6f}",
+                f"{row.mz_upper:.6f}",
+                f"{row.intensity:g}",
+                row.scan_id,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _parse_xic_target_row(
     row: dict[str, str],
     fieldnames: set[str],
@@ -293,6 +384,8 @@ def _parse_xic_target_row(
             "precursor_mz",
             "mz",
             "q1",
+            "rt_expected_seconds",
+            "rt_expected",
             "rt_start_seconds",
             "rt_start",
             "rt_window_start",
@@ -310,6 +403,9 @@ def _parse_xic_target_row(
     return XicTargetEntry(
         target_id=target_id,
         precursor_mz=float(precursor_mz),
+        rt_expected_seconds=_optional_float(
+            row.get("rt_expected_seconds") or row.get("rt_expected")
+        ),
         rt_start_seconds=_optional_float(
             row.get("rt_start_seconds") or row.get("rt_start") or row.get("rt_window_start")
         ),
@@ -366,6 +462,30 @@ def _mz_window(
     else:
         half_width = precursor_mz * tolerance_value / 1_000_000.0
     return precursor_mz - half_width, precursor_mz + half_width
+
+
+def _resolve_target_rt_window(
+    target: XicTargetEntry,
+    *,
+    rt_window: float | None,
+) -> tuple[float | None, float | None]:
+    if target.rt_start_seconds is not None or target.rt_end_seconds is not None:
+        return target.rt_start_seconds, target.rt_end_seconds
+    if target.rt_expected_seconds is None or rt_window is None:
+        return None, None
+    return (
+        max(0.0, target.rt_expected_seconds - rt_window),
+        target.rt_expected_seconds + rt_window,
+    )
+
+
+def _matched_peak_count(
+    spectrum: SpectrumModel,
+    row: XicExtractionPoint,
+) -> int:
+    return sum(
+        1 for peak in spectrum.peaks if row.mz_lower <= peak.mz <= row.mz_upper
+    )
 
 
 def _optional_float(value: str | None) -> float | None:
