@@ -27,6 +27,7 @@ _QUANTIFICATION_EXPORT_MODULES = (
     "bijux_proteomics.quantification.sample_exploration",
     "bijux_proteomics.quantification.statistical_backend",
     "bijux_proteomics.quantification.time_course_differential",
+    "bijux_proteomics.quantification.value_provenance",
 )
 
 
@@ -38,4 +39,3 @@ def __getattr__(name: str) -> object:
             globals()[name] = value
             return value
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-
