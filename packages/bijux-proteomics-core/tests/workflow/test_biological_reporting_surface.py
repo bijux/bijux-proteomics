@@ -148,6 +148,39 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         entry.protein_ref == "Q9Y243"
         for entry in report.context_mapping_report.unmapped_entries
     )
+    assert len(report.section_confidence_entries) == 14
+    by_section = {
+        entry.section_key.value: entry for entry in report.section_confidence_entries
+    }
+    assert by_section["experiment_confidence"].confidence_label.value in {
+        "high",
+        "moderate",
+        "weak",
+    }
+    assert by_section["evidence_aware_ranking"].confidence_label.value in {
+        "high",
+        "moderate",
+        "weak",
+    }
+    assert (
+        by_section["biological_hypotheses"].confidence_label.value == "exploratory"
+    )
+    assert (
+        by_section["enrichment_foreground_background"].confidence_label.value
+        in {"high", "moderate", "weak"}
+    )
+    assert by_section["pathway_activity"].confidence_label.value in {
+        "high",
+        "moderate",
+        "weak",
+    }
+    assert by_section["complex_activity"].confidence_label.value in {
+        "high",
+        "moderate",
+        "weak",
+    }
+    assert report.summary.exploratory_section_count >= 1
+    assert report.summary.invalid_section_count >= 1
 
 
 def test_build_biological_result_report_bundle_preserves_compartment_biology() -> None:
@@ -211,6 +244,10 @@ def test_build_biological_result_report_bundle_preserves_tissue_context_warnings
         for entry in report.tissue_cell_type_context_report.interpretation_entries
     }
     assert by_label["liver"].mismatch_warning_count == 1
+    by_section = {
+        entry.section_key.value: entry for entry in report.section_confidence_entries
+    }
+    assert by_section["tissue_cell_type_context"].confidence_label.value == "weak"
 
 
 def test_build_biological_result_report_bundle_preserves_cohort_stratification() -> None:
