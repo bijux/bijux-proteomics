@@ -410,6 +410,91 @@ def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary
         ).read_text()
 
 
+def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        design_entries = tuple(
+            parse_experimental_design_table(
+                _workflow_fixture("biological_report.design.tsv")
+            ).accepted_entries
+        )
+        biological_report = build_biological_result_report_bundle(
+            _workflow_fixture("biological_report_features.tsv"),
+            design_entries,
+            proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
+            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
+            condition_a="control",
+            condition_b="treatment",
+        )
+        biological_dir = Path("biological_report")
+        biological_manifest = export_biological_result_report_bundle(
+            biological_report,
+            biological_dir,
+        )
+        (biological_dir / "biological_report_manifest.json").write_text(
+            biological_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+        ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+        ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+        ptm_annotations = parse_ptm_site_annotation_tsv(
+            _ptm_fixture("ptm_site_annotations.tsv")
+        )
+        ptm_report = build_ptm_report_bundle(
+            ptm_evidence.accepted_records,
+            protein_sequences=_protein_sequences(),
+            feature_records=ptm_features.accepted_records,
+            design_entries=_ptm_design_entries(),
+            protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+            batch_field="",
+            condition_a="control",
+            condition_b="treated",
+            annotation_records=ptm_annotations.accepted_records,
+            annotation_target_species="Homo sapiens",
+            regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+                max_adjusted_p_value=1.0,
+                min_absolute_log2_fold_change=0.0,
+            ),
+            evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+        )
+        ptm_dir = Path("ptm_report")
+        ptm_manifest = export_ptm_report_bundle(ptm_report, ptm_dir)
+        (ptm_dir / "ptm_report_manifest.json").write_text(
+            ptm_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "result-search",
+                "--biological-report-dir",
+                "biological_report",
+                "--ptm-report-dir",
+                "ptm_report",
+                "--query",
+                "P11111:S5:Phospho",
+                "--summary-tsv-out",
+                "result_search.summary.tsv",
+                "--hit-tsv-out",
+                "result_search.hits.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["index"]["summary"]["ptm_site_document_count"] >= 3
+        assert payload["report"]["summary"]["hit_count"] >= 1
+        assert payload["report"]["hits"][0]["object_id"] == "P11111:S5:Phospho"
+        assert "indexed_document_count" in Path("result_search.summary.tsv").read_text()
+        hit_tsv = Path("result_search.hits.tsv").read_text()
+        assert "evidence_snippets" in hit_tsv
+        assert "site_key" in hit_tsv
+
+
 def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
