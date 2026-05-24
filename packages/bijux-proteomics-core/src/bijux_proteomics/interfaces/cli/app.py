@@ -859,6 +859,7 @@ from bijux_proteomics.review import (
     ResultQueryKind,
     ResultQueryRequest,
     VolcanoReviewPolicy,
+    build_analysis_recommendation_report_from_artifacts,
     build_biomarker_candidate_ranking_report,
     build_result_explanation_report_from_artifacts,
     build_result_query_report_from_artifacts,
@@ -870,6 +871,8 @@ from bijux_proteomics.review import (
     export_volcano_review_svg,
     render_biomarker_candidate_ranking_summary_tsv,
     render_biomarker_candidate_ranking_tsv,
+    render_analysis_recommendation_summary_tsv,
+    render_analysis_recommendation_tsv,
     render_result_explanation_evidence_tsv,
     render_result_explanation_summary_tsv,
     render_result_explanation_tsv,
@@ -8120,6 +8123,100 @@ def result_explanation_command(
             ),
             "evidence_tsv": (
                 None if evidence_tsv_out is None else str(evidence_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("analysis-recommendations")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--batch-effect-summary-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--recommendation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def analysis_recommendations_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    batch_effect_summary_tsv: Path | None,
+    summary_tsv_out: Path | None,
+    recommendation_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Recommend deterministic next analysis actions from governed artifacts."""
+
+    if (
+        biological_report_dir is None
+        and ptm_report_dir is None
+        and not run_qc_assessment_tsv_paths
+        and batch_effect_summary_tsv is None
+    ):
+        raise click.ClickException(
+            "at least one governed biological report, PTM report, QC assessment, or batch summary input must be provided"
+        )
+
+    try:
+        report = build_analysis_recommendation_report_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+            batch_effect_summary_tsv_path=batch_effect_summary_tsv,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_analysis_recommendation_summary_tsv(report))
+    if recommendation_tsv_out is not None:
+        _write_text_output(
+            recommendation_tsv_out,
+            render_analysis_recommendation_tsv(report),
+        )
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "batch_effect_summary_tsv": (
+            None if batch_effect_summary_tsv is None else str(batch_effect_summary_tsv)
+        ),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "recommendation_tsv": (
+                None
+                if recommendation_tsv_out is None
+                else str(recommendation_tsv_out)
             ),
         },
     }
