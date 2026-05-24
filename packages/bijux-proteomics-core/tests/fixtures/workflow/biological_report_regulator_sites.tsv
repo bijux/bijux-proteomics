@@ -1,0 +1,3 @@
+site_key	protein_ref	log2_fold_change	adjusted_p_value
+P04637:S15:Phospho	P04637	2.2	0.01
+Q9Y243:Y77:Phospho	Q9Y243	-1.4	0.03
