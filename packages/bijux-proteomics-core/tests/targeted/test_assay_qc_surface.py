@@ -113,6 +113,19 @@ def test_build_targeted_assay_qc_report_keeps_fragment_ratios_visible() -> None:
     assert failing_transition_qc.failure_reasons == (
         "source quality flag is not pass",
     )
+    stable_but_excluded_transition = next(
+        entry
+        for entry in report.transition_qc
+        if entry.target_id == "PEPTIDEK/2"
+        and entry.sample_id == "control_r1"
+        and entry.transition_id == "y8"
+    )
+    assert stable_but_excluded_transition.ratio_flagged is True
+    assert stable_but_excluded_transition.ratio_drift_flagged is False
+    assert stable_but_excluded_transition.ratio_unstable_transition_flagged is True
+    assert stable_but_excluded_transition.failure_reasons == (
+        "fragment-ion ratio is unstable across runs",
+    )
 
 
 def test_build_targeted_assay_qc_report_keeps_retention_consistency_visible() -> None:
