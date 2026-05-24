@@ -7130,7 +7130,7 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert "Volcano plot:" in (
             report_dir / "biological_volcano.html"
         ).read_text(encoding="utf-8")
-        assert "Final protein cards" in (
+        assert "Protein mechanism cards" in (
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
         assert "Experiment confidence" in (
