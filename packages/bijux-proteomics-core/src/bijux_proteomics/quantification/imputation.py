@@ -13,6 +13,9 @@ from bijux_proteomics.quantification.core_matrix import (
     quant_matrix_to_dense_array,
     rebuild_quant_matrix_from_dense_array,
 )
+from bijux_proteomics.quantification.differential_imputation_dependence import (
+    compare_imputation_policies,
+)
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
     ImputationEntry,
@@ -212,6 +215,13 @@ def build_imputation_sensitivity_report(
             "imputation sensitivity requires resolvable contrast conditions"
         )
 
+    policy_comparison = None
+    if ImputationMethod.NONE in differential_by_method and len(differential_by_method) >= 2:
+        policy_comparison = compare_imputation_policies(
+            differential_by_method,
+            significance_threshold=significance_threshold,
+        )
+
     supported_methods = tuple(
         entry.method for entry in entries if entry.supported and entry.method in differential_by_method
     )
@@ -300,15 +310,13 @@ def build_imputation_sensitivity_report(
                         ),
                     )
                 )
-        imputation_only_entities = sorted(
-            set().union(
-                *(
-                    significant_entities_by_method[method] - baseline_significant
-                    for method in supported_methods
-                    if method is not baseline_method
-                )
+        imputation_only_entities = ()
+        if policy_comparison is not None:
+            imputation_only_entities = tuple(
+                entry.entity_id
+                for entry in policy_comparison.entries
+                if entry.imputation_dependent
             )
-        )
         for entity_id in imputation_only_entities:
             supporting_methods = tuple(
                 method
