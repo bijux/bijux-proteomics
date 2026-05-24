@@ -5586,6 +5586,10 @@ def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anc
         assert payload["reference_run_id"] == "rt_alignment_reference"
         assert len(payload["run_models"]) == 2
         assert payload["run_models"][1]["status"] == "aligned"
+        assert payload["run_models"][1]["alignment_model"] == "confidence_weighted_shift"
+        assert payload["run_models"][1]["rt_shift"] == 10.0
+        assert payload["run_models"][1]["rt_residual_median"] == 0.0
+        assert payload["run_models"][1]["failed_anchor_count"] == 1
         assert payload["run_models"][1]["shift_seconds"] == 10.0
         assert len(payload["flagged_residuals"]) == 1
         assert payload["flagged_residuals"][0]["target_id"] == "anchor_gamma"
@@ -5598,8 +5602,9 @@ def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anc
         assert Path("rt.models.tsv").exists()
         assert Path("rt.residuals.tsv").exists()
         assert Path("rt.failed.tsv").exists()
-        assert "\taligned\t3\t10\t0\t10\t" in Path("rt.models.tsv").read_text(
-            encoding="utf-8"
+        assert (
+            "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t"
+            in Path("rt.models.tsv").read_text(encoding="utf-8")
         )
         assert (
             "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70\t10\t10\t10\ttrue"
