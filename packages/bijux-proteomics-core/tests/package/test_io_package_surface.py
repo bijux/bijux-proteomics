@@ -258,3 +258,43 @@ def test_io_package_exports_precursor_isotope_fit_owner_surface() -> None:
     assert report.summary.flagged_entry_count == 2
     assert report.entries[0].run_id == "precursor_isotope_fit_reference"
     assert "precursor_isotope_fit_shifted\tprec_peptide_ms1\tprec_peptide" in rendered
+
+
+def test_io_package_exports_precursor_validation_owner_surface() -> None:
+    peptide_mass = 781.34938
+    monoisotopic_mz = (peptide_mass + (2 * 1.007276466812)) / 2
+    report = io.validate_precursor_isotope_charge(
+        (
+            io.PrecursorValidationWindow(
+                precursor_id="precursor-001",
+                rt=120.0,
+                peaks=(
+                    SpectrumPeak(mz=monoisotopic_mz, intensity=1200.0),
+                    SpectrumPeak(
+                        mz=monoisotopic_mz + (1.0033548378 / 2),
+                        intensity=540.0,
+                    ),
+                    SpectrumPeak(
+                        mz=monoisotopic_mz + ((2 * 1.0033548378) / 2),
+                        intensity=210.0,
+                    ),
+                ),
+            ),
+        ),
+        (
+            io.PrecursorValidationQuery(
+                precursor_id="precursor-001",
+                assigned_mz=monoisotopic_mz,
+                assigned_charge=3,
+                rt=120.0,
+                peptide_mass=peptide_mass,
+            ),
+        ),
+    )
+    rendered = io.render_precursor_validation_entries_tsv(report)
+
+    assert hasattr(io, "validate_precursor_isotope_charge")
+    assert hasattr(io, "render_precursor_validation_entries_tsv")
+    assert hasattr(io, "render_precursor_validation_summary_tsv")
+    assert report.entries[0].inferred_charge == 2
+    assert "charge_mismatch" in rendered
