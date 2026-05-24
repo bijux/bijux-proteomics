@@ -593,3 +593,20 @@ def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     assert hasattr(workflow, "build_public_benchmark_trust_bundle")
     assert report.suite_report.passed_count == 2
     assert Path(report.html_index_path).exists()
+
+
+def test_workflow_package_exports_public_dataset_comparison_surface(
+    tmp_path: Path,
+) -> None:
+    report = workflow.build_public_dataset_comparison_report(
+        Path(__file__).resolve().parents[4] / "benchmarks" / "public",
+        run_output_root=tmp_path / "public_dataset_runs",
+    )
+
+    assert hasattr(workflow, "build_public_dataset_comparison_report")
+    assert workflow.PublicDatasetComparisonDatasetStatus.PASSED.value == "passed"
+    assert report.summary.descriptor_count == 7
+    assert report.summary.failed_dataset_count == 5
+    assert "failure_entry_count" in workflow.render_public_dataset_combined_summary_tsv(
+        report
+    )
