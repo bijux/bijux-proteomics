@@ -6,12 +6,14 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.xic_extraction import (
+    XicExtractionPoint,
     XicTargetEntry,
     XicTargetParseReport,
     XicTracePoint,
@@ -19,6 +21,31 @@ from bijux_proteomics.io.xic_extraction import (
     extract_mzml_xic_traces,
 )
 from bijux_proteomics_foundation import JsonModel
+
+
+class ChromatographicPeakQuality(StrEnum):
+    """Quality classification for one picked chromatographic peak."""
+
+    CLEAN = "clean"
+    OVERLAP = "overlap"
+    SHOULDER = "shoulder"
+    WEAK = "weak"
+
+
+class PickedChromatographicPeak(JsonModel):
+    """One raw chromatographic peak with the engine output contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rt_start: float = Field(..., ge=0.0)
+    rt_apex: float = Field(..., ge=0.0)
+    rt_end: float = Field(..., ge=0.0)
+    area: float = Field(..., ge=0.0)
+    height: float = Field(..., ge=0.0)
+    baseline: float = Field(..., ge=0.0)
+    peak_width: float = Field(..., ge=0.0)
+    overlap_flag: bool
+    peak_quality: ChromatographicPeakQuality
 
 
 class ChromatographicPeak(JsonModel):
@@ -49,6 +76,41 @@ class ChromatographicPeakPickingReport(JsonModel):
 
     trace_report: XicTraceReport
     peaks: tuple[ChromatographicPeak, ...] = Field(default_factory=tuple)
+
+
+def pick_peak(
+    xic_trace: tuple[XicExtractionPoint | XicTracePoint, ...],
+    *,
+    min_peak_height: float = 1.0,
+    shoulder_boundary_fraction_threshold: float = 0.5,
+) -> tuple[PickedChromatographicPeak, ...]:
+    """Pick chromatographic peaks from one XIC trace."""
+
+    normalized_points = _normalize_trace_points(xic_trace)
+    fake_target = XicTargetEntry(
+        target_id=_trace_target_id(xic_trace),
+        precursor_mz=1.0,
+    )
+    legacy_peaks = _pick_target_peaks(
+        fake_target,
+        normalized_points,
+        min_peak_height=min_peak_height,
+        shoulder_boundary_fraction_threshold=shoulder_boundary_fraction_threshold,
+    )
+    return tuple(
+        PickedChromatographicPeak(
+            rt_start=peak.start_time_seconds,
+            rt_apex=peak.apex_time_seconds,
+            rt_end=peak.end_time_seconds,
+            area=peak.area,
+            height=peak.height,
+            baseline=peak.baseline_at_apex,
+            peak_width=peak.end_time_seconds - peak.start_time_seconds,
+            overlap_flag=peak.overlap_flag,
+            peak_quality=_classify_peak_quality(peak),
+        )
+        for peak in legacy_peaks
+    )
 
 
 def pick_chromatographic_peaks(
@@ -166,6 +228,43 @@ def render_chromatographic_peaks_tsv(
     return buffer.getvalue()
 
 
+def render_picked_chromatographic_peaks_tsv(
+    peaks: tuple[PickedChromatographicPeak, ...],
+) -> str:
+    """Render raw picked chromatographic peaks with the engine column contract."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "rt_start",
+            "rt_apex",
+            "rt_end",
+            "area",
+            "height",
+            "baseline",
+            "peak_width",
+            "overlap_flag",
+            "peak_quality",
+        )
+    )
+    for peak in peaks:
+        writer.writerow(
+            (
+                f"{peak.rt_start:g}",
+                f"{peak.rt_apex:g}",
+                f"{peak.rt_end:g}",
+                f"{peak.area:g}",
+                f"{peak.height:g}",
+                f"{peak.baseline:g}",
+                f"{peak.peak_width:g}",
+                str(peak.overlap_flag).lower(),
+                peak.peak_quality.value,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _pick_target_peaks(
     target: XicTargetEntry,
     points: list[XicTracePoint],
@@ -213,6 +312,54 @@ def _pick_target_peaks(
             )
         )
     return peaks
+
+
+def _normalize_trace_points(
+    xic_trace: tuple[XicExtractionPoint | XicTracePoint, ...],
+) -> list[XicTracePoint]:
+    normalized: list[XicTracePoint] = []
+    target_id = _trace_target_id(xic_trace)
+    for point in xic_trace:
+        if isinstance(point, XicExtractionPoint):
+            normalized.append(
+                XicTracePoint(
+                    target_id=target_id,
+                    spectrum_id=point.scan_id,
+                    time_seconds=point.rt,
+                    precursor_mz=(point.mz_lower + point.mz_upper) / 2.0,
+                    mz_window_lower=point.mz_lower,
+                    mz_window_upper=point.mz_upper,
+                    intensity=point.intensity,
+                    matched_peak_count=0,
+                )
+            )
+        else:
+            normalized.append(point)
+    return sorted(
+        normalized,
+        key=lambda point: (point.time_seconds, point.spectrum_id),
+    )
+
+
+def _trace_target_id(
+    xic_trace: tuple[XicExtractionPoint | XicTracePoint, ...],
+) -> str:
+    if not xic_trace:
+        return "xic_trace"
+    first = xic_trace[0]
+    return first.target_id
+
+
+def _classify_peak_quality(
+    peak: ChromatographicPeak,
+) -> ChromatographicPeakQuality:
+    if peak.height < 1.0:
+        return ChromatographicPeakQuality.WEAK
+    if peak.shoulder_flag:
+        return ChromatographicPeakQuality.SHOULDER
+    if peak.overlap_flag:
+        return ChromatographicPeakQuality.OVERLAP
+    return ChromatographicPeakQuality.CLEAN
 
 
 def _signal_segments(points: list[XicTracePoint]) -> tuple[tuple[int, int], ...]:
