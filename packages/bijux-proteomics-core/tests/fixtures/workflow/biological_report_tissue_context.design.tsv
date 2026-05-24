@@ -1,0 +1,7 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	tissue_or_cell_type
+C1	control	1	1	c1.mzml	c1.tsv	batch-a	orbitrap-a	sage	liver
+C2	control	2	1	c2.mzml	c2.tsv	batch-b	orbitrap-b	sage	liver
+C3	control	3	1	c3.mzml	c3.tsv	batch-c	orbitrap-c	sage	liver
+T1	treatment	1	1	t1.mzml	t1.tsv	batch-a	orbitrap-a	sage	neuron
+T2	treatment	2	1	t2.mzml	t2.tsv	batch-b	orbitrap-b	sage	neuron
+T3	treatment	3	1	t3.mzml	t3.tsv	batch-c	orbitrap-c	sage	liver

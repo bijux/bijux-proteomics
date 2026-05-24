@@ -1,0 +1,5 @@
+protein_ref	context_kind	context_id	context_name	source_name	source_accession	evidence
+Q9Y243	tissue_marker	liver	Liver	Human Protein Atlas	HPA:liver	reviewed
+P62993	tissue_marker	liver	Liver	Human Protein Atlas	HPA:liver	reviewed
+P04637	cell_type_marker	neuron	Neuron	PanglaoDB	PANG:neuron	curated
+O14920	cell_type_marker	neuron	Neuron	PanglaoDB	PANG:neuron	curated
