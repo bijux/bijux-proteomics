@@ -495,3 +495,79 @@ def test_targeted_package_exports_validation_planning_surface() -> None:
     assert hasattr(targeted, "render_validation_experiment_planning_warning_tsv")
     assert report.summary.planned_assay_count == 1
     assert "recommended_minimum_samples_per_group" in rendered
+
+
+def test_targeted_package_exports_result_validation_surface(tmp_path: Path) -> None:
+    skyline_path = tmp_path / "targeted_validation.skyline.tsv"
+    skyline_path.write_text(
+        "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t25000\t12.50\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r1\t20000\t12.56\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r2\t27000\t12.48\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r2\t21000\t12.55\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r1\t120000\t12.51\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r1\t98000\t12.57\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r2\t118000\t12.52\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r2\t95000\t12.58\tpass\n",
+        encoding="utf-8",
+    )
+
+    import_report = targeted.build_skyline_result_import_report(skyline_path)
+    design_entries = parse_experimental_design_table(
+        _format_fixture("skyline_targeted_qc.design.tsv")
+    ).accepted_entries
+    report = targeted.build_targeted_result_validation_report(
+        discovery_claims=(
+            targeted.TargetedValidationDiscoveryClaimInput(
+                candidate_id="protein:P11111",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="P11111 robust candidate",
+                target_protein_ref="P11111",
+                priority_rank=1,
+                final_score=0.91,
+                penalty_total=0.0,
+                discovery_effect_size=1.0,
+                support_count=4,
+                robustness_score=0.85,
+                assay_feasibility_score=0.92,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="strong validation-ready candidate",
+            ),
+        ),
+        panel_assays=(
+            targeted.TargetedValidationPanelAssayInput(
+                assay_entry_id="assay:P11111:PEPTIDER",
+                biomarker_candidate_id="protein:P11111",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="P11111 robust candidate",
+                biomarker_priority_rank=1,
+                target_protein_ref="P11111",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="GENE1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                precursor_charge=2,
+                selected_transition_count=3,
+                exported_transition_count=3,
+                warning_note="assay retained for panel export",
+            ),
+        ),
+        import_report=import_report,
+        design_entries=design_entries,
+        policy=targeted.TargetedResultValidationPolicy(
+            case_condition="treatment",
+            control_condition="control",
+        ),
+    )
+    confirmed_tsv = targeted.render_targeted_result_validation_tsv(
+        report,
+        targeted.TargetedValidationVerdict.CONFIRMED,
+    )
+
+    assert hasattr(targeted, "build_targeted_result_validation_report")
+    assert hasattr(targeted, "render_targeted_result_validation_summary_tsv")
+    assert hasattr(targeted, "render_targeted_result_validation_tsv")
+    assert hasattr(targeted, "render_targeted_result_validation_evidence_tsv")
+    assert report.summary.confirmed_count == 1
+    assert "protein:P11111" in confirmed_tsv
