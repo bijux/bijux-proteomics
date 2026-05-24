@@ -272,3 +272,46 @@ def test_interpretation_package_exports_pathway_activity_surface() -> None:
     assert hasattr(interpretation, "render_pathway_activity_matrix_tsv")
     assert report.summary.pathway_count == 1
     assert "pathway_id" in interpretation.render_pathway_activity_matrix_tsv(report)
+
+
+def test_interpretation_package_exports_complex_activity_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture_path("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    parse_report = parse_ms1_feature_table(
+        _workflow_fixture_path("biological_report_features.tsv"),
+        mapping=Ms1FeatureColumnMapping(
+            sample_id="sample_id",
+            feature_id="feature_id",
+            peptide="peptide",
+            intensity="intensity",
+            protein_refs="proteins",
+            charge="charge",
+            mz="mz",
+            retention_time_seconds="retention_time_seconds",
+            missing_reason="missing_reason",
+        ),
+    )
+    protein_table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    complex_records = interpretation.parse_complex_membership_table(
+        _workflow_fixture_path("biological_report_complexes.tsv")
+    )
+    report = interpretation.build_complex_activity_report(
+        protein_table,
+        complex_records.accepted_records,
+        design_entries=design_entries,
+    )
+
+    assert hasattr(interpretation, "build_complex_activity_report")
+    assert hasattr(interpretation, "render_complex_activity_matrix_tsv")
+    assert report.summary.complex_count == 1
+    assert "complex_id" in interpretation.render_complex_activity_matrix_tsv(report)
