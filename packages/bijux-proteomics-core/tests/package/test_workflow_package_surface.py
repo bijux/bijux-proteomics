@@ -20,6 +20,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
 )
 from bijux_proteomics.study import build_experiment_design
+from bijux_proteomics_foundation import DocumentSchema
 import yaml
 
 
@@ -156,6 +157,85 @@ def test_workflow_package_exports_proteomics_study_result_surface() -> None:
     assert tmt_study.design.sample_count == 8
     assert diann_study.summary.matrix_surface_count == 3
     assert tmt_study.summary.statistic_surface_count == 1
+
+
+def test_workflow_package_exports_result_manifest_surface() -> None:
+    report = workflow.ResultManifestReport(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="result_manifest",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        summary=workflow.ResultManifestSummary(
+            schema_version="1.0.0",
+            source_report_count=1,
+            input_count=1,
+            command_count=1,
+            file_count=1,
+            existing_file_count=1,
+            missing_required_file_count=0,
+            warning_count=0,
+            sample_count=1,
+            protein_count=1,
+            peptide_count=0,
+            ptm_site_count=0,
+            pathway_count=0,
+            qc_entry_count=0,
+            card_count=0,
+            graph_node_count=0,
+            graph_edge_count=0,
+            plot_count=0,
+        ),
+        source_reports=(
+            workflow.ResultManifestSourceReport(
+                source_kind=workflow.ResultManifestSourceKind.BIOLOGICAL_REPORT,
+                report_dir="biological_report",
+                manifest_json="biological_report_manifest.json",
+                artifact_count=1,
+                required_artifact_count=1,
+            ),
+        ),
+        inputs=(
+            workflow.ResultManifestInput(
+                input_id="input:1",
+                input_kind=workflow.ResultManifestInputKind.ADDITIONAL_INPUT,
+                path="features.tsv",
+                sha256="abc123",
+                byte_size=12,
+                note="test input",
+            ),
+        ),
+        commands=(
+            workflow.ResultManifestCommand(
+                command_id="command:1",
+                command_text="biological-report features.tsv design.tsv reference.fasta",
+                note="test command",
+            ),
+        ),
+        files=(
+            workflow.ResultManifestFileEntry(
+                file_id="biological_report:summary_tsv",
+                source_kind=workflow.ResultManifestSourceKind.BIOLOGICAL_REPORT,
+                artifact_key="summary_tsv",
+                relative_path="biological_report_summary.tsv",
+                required=True,
+                exists=True,
+                media_type="text/tab-separated-values",
+                byte_size=32,
+                sha256="def456",
+                row_count=1,
+                note="test file",
+            ),
+        ),
+        warnings=(),
+        note="test manifest",
+    )
+
+    assert hasattr(workflow, "build_result_manifest_from_artifacts")
+    assert workflow.ResultManifestSourceKind.PTM_REPORT.value == "ptm_report"
+    assert "artifact_key" in workflow.render_result_manifest_file_tsv(report)
+    assert "schema_version" in workflow.render_result_manifest_summary_tsv(report)
 
 
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
