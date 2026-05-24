@@ -1,0 +1,6 @@
+source_species	source_protein_ref	source_residue	source_position	source_modification_name	target_species	target_protein_ref	target_residue	target_position	target_modification_name	evidence	source_name	source_accession
+Homo sapiens	P11111	S	5	Phospho	Mus musculus	M11111	S	5	Phospho	curated	Orthology	ORTH:P11111-S5
+Homo sapiens	P11111	S	17	Phospho	Mus musculus	M11111	S	19	Phospho	curated	Orthology	ORTH:P11111-S17
+Homo sapiens	P22222	Y	18	Phospho	Mus musculus								curated	Orthology	ORTH:P22222-Y18
+Homo sapiens	P11111	S	17	Phospho	Mus musculus	M11111	S	19	Phospho	curated	Orthology	ORTH:P11111-S17
+Homo sapiens	Q9DEC1	S	5	Phospho	Mus musculus	M9DEC1	S			curated	Orthology	ORTH:Q9DEC1-S5
