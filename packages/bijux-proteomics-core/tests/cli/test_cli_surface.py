@@ -7155,6 +7155,99 @@ def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries(
         )
 
 
+def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        biological_report_dir = Path("biological_report")
+        biological_report_dir.mkdir()
+        biological_report_dir.joinpath("biological_report_summary.tsv").write_text(
+            "field\tvalue\n"
+            "experiment_confidence_score\t0.92\n",
+            encoding="utf-8",
+        )
+        biological_report_dir.joinpath("biological_protein_cards.tsv").write_text(
+            "card_id\tprotein_group_id\trepresentative_protein_ref\tgene_symbol\tidentity_level\tunique_peptide_count\tshared_peptide_count\tevidence_tier\tpathway_ids\tcontext_ids\tfunctional_regions\tproteogenomic_support_class\tptm_sites\twarning_codes\n"
+            "protein-card:strong\tprotein_group_strong\tP11111\tROBUST1\tprotein_level\t3\t0\thigh\tstress_response\tcytosol\tkinase_domain\tshared\tS15\t\n"
+            "protein-card:famous\tprotein_group_famous\tP22222\tFAMOUS1\tgene_level\t0\t2\twarning\tapoptosis;cell_cycle\tsecreted;membrane\thotspot;motif\tvariant_only\tS34;T56\tlow_support\n",
+            encoding="utf-8",
+        )
+        biological_report_dir.joinpath("biological_differential.tsv").write_text(
+            "entity_id\tlog2_fold_change\tadjusted_p_value\trobustness_score\n"
+            "protein_group_strong\t1.8\t0.002\t0.91\n"
+            "protein_group_famous\t0.2\t0.045\t0.18\n",
+            encoding="utf-8",
+        )
+        ptm_report_dir = Path("ptm_report")
+        ptm_report_dir.mkdir()
+        ptm_report_dir.joinpath("ptm_evidence_cards.tsv").write_text(
+            "card_id\tsite_key\tprotein_ref\tresidue\tposition\tmodification_name\tidentity_level\tlocalization_tier\tmechanism_class\tpeptide_spectrum_count\tobserved_sample_count\tcentered_windows\tortholog_conservation_status\tfunctional_regions\tregulators\twarning_codes\n"
+            "ptm-card:1\tP33333:S21:phosphorylation\tP33333\tS\t21\tphosphorylation\tprotein_level\thigh\tsite_specific\t7\t4\tRXXS\tconserved\tactivation_loop\tKINASE_A\t\n",
+            encoding="utf-8",
+        )
+        ptm_report_dir.joinpath("ptm_differential.tsv").write_text(
+            "site_key\tlow_localization\tambiguous\tshared_peptide\tlog2_fold_change\tadjusted_p_value\timputation_dependent_hit\tprotein_correction_status\n"
+            "P33333:S21:phosphorylation\tfalse\tfalse\tfalse\t1.1\t0.004\tfalse\tcorrected\n",
+            encoding="utf-8",
+        )
+        Path("selected_peptides.tsv").write_text(
+            "target_protein_ref\tdetectability_score\tuniqueness_score\tsuitability_score\n"
+            "P11111\t0.96\t0.98\t0.94\n"
+            "P22222\t0.05\t0.10\t0.04\n",
+            encoding="utf-8",
+        )
+        Path("assay_interference.assays.tsv").write_text(
+            "target_protein_ref\tinterference_risk_score\tpanel_export_allowed\texported_transition_count\n"
+            "P11111\t0.08\ttrue\t4\n"
+            "P22222\t0.96\tfalse\t1\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biomarker-candidate-ranking",
+                "--biological-report-dir",
+                "biological_report",
+                "--ptm-report-dir",
+                "ptm_report",
+                "--selected-peptide-tsv",
+                "selected_peptides.tsv",
+                "--assay-interference-assay-tsv",
+                "assay_interference.assays.tsv",
+                "--summary-tsv-out",
+                "biomarker.summary.tsv",
+                "--candidate-tsv-out",
+                "biomarker.candidates.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["biological_report_dir"] == "biological_report"
+        assert payload["ptm_report_dir"] == "ptm_report"
+        assert payload["summary"]["candidate_count"] == 3
+        assert payload["summary"]["protein_candidate_count"] == 2
+        assert payload["summary"]["ptm_site_candidate_count"] == 1
+        assert payload["entries"][0]["candidate_id"] == "protein:protein_group_strong"
+        assert payload["entries"][0]["candidate_kind"] == "protein"
+        assert "assay_ready" in payload["entries"][0]["rank_reason_codes"]
+        assert payload["entries"][-1]["candidate_id"] == "protein:protein_group_famous"
+        assert "annotation_outpaces_evidence" in payload["entries"][-1][
+            "rank_reason_codes"
+        ]
+        assert payload["outputs"]["summary_tsv"] == "biomarker.summary.tsv"
+        assert payload["outputs"]["candidate_tsv"] == "biomarker.candidates.tsv"
+        assert Path("biomarker.summary.tsv").exists()
+        assert Path("biomarker.candidates.tsv").exists()
+        assert "candidate_count\t3" in Path("biomarker.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        candidate_tsv = Path("biomarker.candidates.tsv").read_text(encoding="utf-8")
+        assert "protein:protein_group_strong\tprotein\tROBUST1\tP11111" in candidate_tsv
+        assert "ptm_site:P33333:S21:phosphorylation\tptm_site" in candidate_tsv
+        assert "annotation_outpaces_evidence" in candidate_tsv
+
+
 def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
