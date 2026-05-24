@@ -1114,6 +1114,91 @@ def test_compartment_biology_command_emits_enrichment_activity_and_unknown_local
         ].startswith("row_number")
 
 
+def test_regulator_inference_command_emits_separated_site_and_abundance_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_regulator_evidence.tsv",
+            "biological_report_regulator_evidence.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_regulator_sites.tsv",
+            "biological_report_regulator_sites.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "regulator-inference",
+                "biological_report_features.tsv",
+                "biological_report_regulator_evidence.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--fasta",
+                "biological_report_reference.fasta",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--site-differential-tsv",
+                "biological_report_regulator_sites.tsv",
+                "--summary-tsv-out",
+                "regulator_inference.summary.tsv",
+                "--inference-tsv-out",
+                "regulator_inference.tsv",
+                "--unresolved-target-tsv-out",
+                "regulator_inference.unresolved.tsv",
+                "--rejected-evidence-tsv-out",
+                "regulator_inference.rejected.tsv",
+                "--rejected-site-signal-tsv-out",
+                "regulator_sites.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["entry_count"] == 5
+        assert payload["report"]["summary"]["site_regulation_entry_count"] == 1
+        assert payload["report"]["summary"]["pathway_activity_entry_count"] == 1
+        assert Path("regulator_inference.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("condition_a\tcondition_b\tregulator_count")
+        assert "regulator\tevidence_type\tsignal_surface" in Path(
+            "regulator_inference.tsv"
+        ).read_text()
+        assert "MAPK14\tkinase_substrate\tsite_regulation" in Path(
+            "regulator_inference.tsv"
+        ).read_text()
+        assert "Stress commander\tpathway\tpathway_activity" in Path(
+            "regulator_inference.tsv"
+        ).read_text()
+        assert "target_field\ttarget_value" in Path(
+            "regulator_inference.unresolved.tsv"
+        ).read_text()
+        assert Path("regulator_inference.rejected.tsv").read_text().splitlines()[
+            0
+        ] == "row_number\treason\tvalues"
+        assert Path("regulator_sites.rejected.tsv").read_text().splitlines()[0] == (
+            "row_number\treason\tvalues"
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
