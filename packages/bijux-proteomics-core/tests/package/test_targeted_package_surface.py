@@ -120,6 +120,43 @@ def test_targeted_package_exports_transition_coelution_owner_surface() -> None:
     assert "fewer than two coeluting transitions support the target" in rendered
 
 
+def test_targeted_package_exports_fragment_ratio_drift_owner_surface() -> None:
+    rows = targeted.score_fragment_ratio_drift(
+        (
+            targeted.TargetedFragmentRatioMatrixEntry(
+                target_id="PEPTIDEK/2",
+                sample_id="control_r1",
+                transition_id="y7",
+                intensity=80000.0,
+            ),
+            targeted.TargetedFragmentRatioMatrixEntry(
+                target_id="PEPTIDEK/2",
+                sample_id="control_r1",
+                transition_id="y8",
+                intensity=20000.0,
+            ),
+            targeted.TargetedFragmentRatioMatrixEntry(
+                target_id="PEPTIDEK/2",
+                sample_id="treat_r1",
+                transition_id="y7",
+                intensity=95000.0,
+            ),
+            targeted.TargetedFragmentRatioMatrixEntry(
+                target_id="PEPTIDEK/2",
+                sample_id="treat_r1",
+                transition_id="y8",
+                intensity=5000.0,
+            ),
+        )
+    )
+    rendered = targeted.render_fragment_ratio_drift_tsv(rows)
+
+    assert hasattr(targeted, "score_fragment_ratio_drift")
+    assert hasattr(targeted, "render_fragment_ratio_drift_tsv")
+    assert rows[1].drift_flag is True
+    assert "observed_ratio_cv" in rendered
+
+
 def test_targeted_package_exports_carryover_owner_surface() -> None:
     import_report = targeted.build_skyline_result_import_report(
         _format_fixture("skyline_targeted_carryover_results.tsv")
