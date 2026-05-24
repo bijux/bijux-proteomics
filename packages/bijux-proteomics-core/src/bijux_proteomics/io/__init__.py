@@ -10,6 +10,7 @@ from importlib import import_module
 _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.formats",
     "bijux_proteomics.io.format_validation",
+    "bijux_proteomics.io.deisotoping",
     "bijux_proteomics.io.mgf_streaming",
     "bijux_proteomics.io.mzml_reader",
     "bijux_proteomics.io.noise",
