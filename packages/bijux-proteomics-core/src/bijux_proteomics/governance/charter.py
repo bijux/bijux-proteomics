@@ -162,6 +162,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/dia_fragment_coelution.py",
             "io/fragment_ratio_stability.py",
             "io/precursor_isotope_fit.py",
+            "io/precursor_validation.py",
             "io/raw_signal_evidence_cards.py",
             "io/retention_time_alignment.py",
             "io/xic_extraction.py",
