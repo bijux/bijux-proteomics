@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    bootstrap_effect_stability,
     DifferentialResultRobustnessQcStatus,
     DifferentialResultRobustnessReasonCode,
     ImputationMethod,
@@ -255,3 +256,18 @@ def test_differential_result_robustness_penalizes_missing_imputed_single_peptide
         by_result["PWEAK"].robustness_reason_codes
         == by_entity["PWEAK"].reason_codes
     )
+
+
+def test_bootstrap_effect_stability_stays_stronger_for_supported_entities() -> None:
+    report = bootstrap_effect_stability(
+        _table(),
+        _design(),
+        condition_a="case",
+        condition_b="control",
+        n_resamples=80,
+        random_seed=11,
+    )
+    by_entity = {entry.entity_id: entry for entry in report.entries}
+
+    assert by_entity["PSTRONG"].sign_consistency >= by_entity["PWEAK"].sign_consistency
+    assert abs(by_entity["PSTRONG"].median_log2fc) > abs(by_entity["PWEAK"].median_log2fc)
