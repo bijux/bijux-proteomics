@@ -262,6 +262,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/context_annotation.py",
             "ptm/crosstalk.py",
             "ptm/evidence_cards.py",
+            "ptm/fragment_scoring.py",
             "ptm/localization_scoring.py",
             "ptm/mechanism_classification.py",
             "ptm/motif_analysis.py",
