@@ -23,6 +23,7 @@ from bijux_proteomics.identification.cross_run_reproducibility import (
     CrossRunReproducibilityClass,
 )
 from bijux_proteomics.io import (
+    ExperimentalDesignEntry,
     SpectralLibraryEntry,
     SpectralLibraryFormat,
     SpectrumModel,
@@ -646,3 +647,180 @@ def test_targeted_package_exports_biomarker_stability_surface(tmp_path: Path) ->
     assert hasattr(targeted, "render_biomarker_stability_candidate_tsv")
     assert report.summary.candidate_count == 1
     assert "protein:P11111" in rendered
+
+
+def test_targeted_package_exports_panel_redundancy_surface(tmp_path: Path) -> None:
+    skyline_path = tmp_path / "targeted_redundancy.skyline.tsv"
+    skyline_path.write_text(
+        "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t10000\t12.50\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r1\t8200\t12.56\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r2\t10500\t12.49\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r2\t8400\t12.55\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r1\t22000\t12.50\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r1\t17800\t12.56\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r2\t22500\t12.49\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r2\t18100\t12.55\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r1\t8000\t18.40\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r1\t6600\t18.47\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r2\t8400\t18.41\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r2\t6900\t18.48\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r1\t17600\t18.40\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r1\t14400\t18.47\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r2\t18000\t18.41\tpass\n"
+        "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r2\t14700\t18.48\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty3\t460.2\tcontrol_r1\t20000\t16.40\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty4\t531.2\tcontrol_r1\t16200\t16.47\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty3\t460.2\tcontrol_r2\t20500\t16.42\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty4\t531.2\tcontrol_r2\t16600\t16.46\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_r1\t9000\t16.41\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_r1\t7300\t16.48\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_r2\t9200\t16.40\tpass\n"
+        "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_r2\t7500\t16.45\tpass\n",
+        encoding="utf-8",
+    )
+
+    report = targeted.build_panel_redundancy_report(
+        biomarker_candidates=(
+            targeted.PanelRedundancyCandidateInput(
+                candidate_id="protein:P11111",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="REP1",
+                target_protein_ref="P11111",
+                priority_rank=1,
+                final_score=0.92,
+                penalty_total=0.05,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="primary candidate",
+            ),
+            targeted.PanelRedundancyCandidateInput(
+                candidate_id="protein:P22222",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="RED2",
+                target_protein_ref="P22222",
+                priority_rank=2,
+                final_score=0.81,
+                penalty_total=0.09,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="highly correlated neighbor",
+            ),
+            targeted.PanelRedundancyCandidateInput(
+                candidate_id="protein:P33333",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="DISTINCT3",
+                target_protein_ref="P33333",
+                priority_rank=3,
+                final_score=0.76,
+                penalty_total=0.10,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="distinct candidate",
+            ),
+        ),
+        panel_assays=(
+            targeted.TargetedValidationPanelAssayInput(
+                assay_entry_id="assay:P11111:PEPTIDER",
+                biomarker_candidate_id="protein:P11111",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="REP1",
+                biomarker_priority_rank=1,
+                target_protein_ref="P11111",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="REP1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                precursor_charge=2,
+                selected_transition_count=2,
+                exported_transition_count=2,
+                warning_note="assay retained",
+            ),
+            targeted.TargetedValidationPanelAssayInput(
+                assay_entry_id="assay:P22222:AAAAK",
+                biomarker_candidate_id="protein:P22222",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="RED2",
+                biomarker_priority_rank=2,
+                target_protein_ref="P22222",
+                target_protein_group_id="protein_group_2",
+                gene_symbol="RED2",
+                peptide_sequence="AAAAK",
+                canonical_peptide="AAAAK",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                precursor_charge=2,
+                selected_transition_count=2,
+                exported_transition_count=2,
+                warning_note="assay retained",
+            ),
+            targeted.TargetedValidationPanelAssayInput(
+                assay_entry_id="assay:P33333:BBBBK",
+                biomarker_candidate_id="protein:P33333",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="DISTINCT3",
+                biomarker_priority_rank=3,
+                target_protein_ref="P33333",
+                target_protein_group_id="protein_group_3",
+                gene_symbol="DISTINCT3",
+                peptide_sequence="BBBBK",
+                canonical_peptide="BBBBK",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                precursor_charge=2,
+                selected_transition_count=2,
+                exported_transition_count=2,
+                warning_note="assay retained",
+            ),
+        ),
+        import_report=targeted.build_skyline_result_import_report(skyline_path),
+        design_entries=(
+            ExperimentalDesignEntry(
+                sample_id="control_r1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control_r1.raw",
+                identifications_file="control_r1.tsv",
+                batch="b1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="control_r2",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="control_r2.raw",
+                identifications_file="control_r2.tsv",
+                batch="b1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treat_r1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treat_r1.raw",
+                identifications_file="treat_r1.tsv",
+                batch="b1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treat_r2",
+                condition="treatment",
+                replicate=2,
+                fraction=1,
+                spectra_file="treat_r2.raw",
+                identifications_file="treat_r2.tsv",
+                batch="b1",
+            ),
+        ),
+        policy=targeted.PanelRedundancyPolicy(
+            minimum_shared_samples=4,
+            correlation_threshold=0.95,
+        ),
+    )
+    rendered = targeted.render_panel_redundancy_candidate_tsv(report)
+
+    assert hasattr(targeted, "build_panel_redundancy_report")
+    assert hasattr(targeted, "render_panel_redundancy_summary_tsv")
+    assert hasattr(targeted, "render_panel_redundancy_cluster_tsv")
+    assert hasattr(targeted, "render_panel_redundancy_candidate_tsv")
+    assert hasattr(targeted, "render_panel_redundancy_dropped_tsv")
+    assert report.summary.cluster_count == 2
+    assert report.summary.dropped_candidate_count == 1
+    assert "protein:P22222" in rendered
+    assert "high_signal_correlation" in rendered

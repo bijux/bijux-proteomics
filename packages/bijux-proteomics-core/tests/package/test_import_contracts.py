@@ -155,6 +155,7 @@ def test_review_package_import_contract() -> None:
 def test_targeted_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.targeted")
 
+    assert hasattr(module, "build_panel_redundancy_report")
     assert hasattr(module, "build_discovery_targeted_peptide_selection_report")
     assert hasattr(module, "build_targeted_assay_interference_report")
     assert hasattr(module, "build_biomarker_stability_report")
