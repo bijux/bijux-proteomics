@@ -854,10 +854,13 @@ from bijux_proteomics.quantification.differential_abundance import (
 from bijux_proteomics.review import (
     BiomarkerCandidateKind,
     BiomarkerCandidateRankingInput,
+    ResultExplanationKind,
+    ResultExplanationRequest,
     ResultQueryKind,
     ResultQueryRequest,
     VolcanoReviewPolicy,
     build_biomarker_candidate_ranking_report,
+    build_result_explanation_report_from_artifacts,
     build_result_query_report_from_artifacts,
     build_dia_volcano_review,
     build_label_based_volcano_review,
@@ -867,6 +870,9 @@ from bijux_proteomics.review import (
     export_volcano_review_svg,
     render_biomarker_candidate_ranking_summary_tsv,
     render_biomarker_candidate_ranking_tsv,
+    render_result_explanation_evidence_tsv,
+    render_result_explanation_summary_tsv,
+    render_result_explanation_tsv,
     render_result_query_answer_tsv,
     render_result_query_evidence_tsv,
     render_result_query_summary_tsv,
@@ -8003,6 +8009,115 @@ def result_question_answer_command(
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "answer_tsv": None if answer_tsv_out is None else str(answer_tsv_out),
+            "evidence_tsv": (
+                None if evidence_tsv_out is None else str(evidence_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("result-explanation")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--explanation-kind",
+    type=click.Choice([entry.value for entry in ResultExplanationKind]),
+    required=True,
+)
+@click.option("--subject-id", default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--explanation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--evidence-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def result_explanation_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    explanation_kind: str,
+    subject_id: str | None,
+    summary_tsv_out: Path | None,
+    explanation_tsv_out: Path | None,
+    evidence_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Explain deterministic result decisions from governed report artifacts."""
+
+    if (
+        biological_report_dir is None
+        and ptm_report_dir is None
+        and not run_qc_assessment_tsv_paths
+    ):
+        raise click.ClickException(
+            "at least one governed biological report, PTM report, or QC assessment input must be provided"
+        )
+
+    try:
+        report = build_result_explanation_report_from_artifacts(
+            (
+                ResultExplanationRequest(
+                    explanation_id="result_explanation",
+                    explanation_kind=ResultExplanationKind(explanation_kind),
+                    subject_id=subject_id,
+                ),
+            ),
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_result_explanation_summary_tsv(report),
+        )
+    if explanation_tsv_out is not None:
+        _write_text_output(
+            explanation_tsv_out,
+            render_result_explanation_tsv(report),
+        )
+    if evidence_tsv_out is not None:
+        _write_text_output(
+            evidence_tsv_out,
+            render_result_explanation_evidence_tsv(report),
+        )
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "explanation_tsv": (
+                None if explanation_tsv_out is None else str(explanation_tsv_out)
+            ),
             "evidence_tsv": (
                 None if evidence_tsv_out is None else str(evidence_tsv_out)
             ),
