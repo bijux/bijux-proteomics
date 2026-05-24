@@ -175,7 +175,9 @@ def test_io_package_exports_xic_extraction_owner_surface() -> None:
     rendered = io.render_xic_traces_tsv(report)
 
     assert hasattr(io, "parse_xic_target_table")
+    assert hasattr(io, "extract_xic")
     assert hasattr(io, "extract_mzml_xic_traces")
+    assert hasattr(io, "render_xic_extraction_tsv")
     assert hasattr(io, "render_xic_traces_tsv")
     assert report.eligible_spectra == 3
     assert len(report.trace_points) == 8
