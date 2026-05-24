@@ -310,3 +310,100 @@ def test_targeted_package_exports_assay_interference_surface() -> None:
     assert hasattr(targeted, "render_targeted_assay_interference_panel_tsv")
     assert report.summary.assay_entry_count == 1
     assert "transition_interference_risk_tier" in rendered
+
+
+def test_targeted_package_exports_panel_design_surface() -> None:
+    report = targeted.build_targeted_panel_design_report(
+        biomarker_candidates=(
+            targeted.TargetedPanelBiomarkerCandidateInput(
+                candidate_id="protein:P00001",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="KIN1",
+                target_protein_ref="P00001",
+                priority_rank=1,
+                final_score=0.9,
+                penalty_total=0.0,
+                rank_reason_codes=("assay_ready",),
+            ),
+        ),
+        selected_peptides=(
+            targeted.TargetedPanelSelectedPeptideInput(
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                rank=1,
+                observed_in_discovery=True,
+                observed_psm_count=5,
+                run_count=3,
+                detection_frequency=1.0,
+                replicate_consistency=0.9,
+                primary_evidence_class=PeptideEvidenceClass.STRONG,
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                uniqueness_score=1.0,
+                detectability_score=0.9,
+                detectability_tier=PeptideDetectabilityTier.HIGH,
+                suitability_score=0.9,
+                liability_tier=PeptideChemicalLiabilityTier.PREFERRED,
+                liability_codes=(),
+                selection_score=0.9,
+                selection_reasons=("selected for targeted follow-up",),
+            ),
+        ),
+        assay_entries=(
+            targeted.TargetedPanelAssayInput(
+                assay_entry_id="assay:P00001:PEPTIDER",
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                peptide_rank=1,
+                precursor_charge=2,
+                precursor_mz=500.2,
+                selected_transition_count=3,
+                exported_transition_count=3,
+                interference_risk_score=0.08,
+                interference_risk_tier=targeted.TargetedAssayInterferenceRiskTier.LOW,
+                downgrade_reasons=(),
+                panel_export_allowed=True,
+                panel_export_caveat="assay is retained for panel export because interference evidence remains below the governed refusal threshold",
+                source_library_entry_id=None,
+            ),
+        ),
+        transition_entries=(
+            targeted.TargetedPanelTransitionInput(
+                assay_entry_id="assay:P00001:PEPTIDER",
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                precursor_charge=2,
+                precursor_mz=500.2,
+                fragment_label="y7+1",
+                ion_type="y",
+                fragment_ordinal=7,
+                fragment_charge=1,
+                fragment_sequence="PEPTIDER",
+                fragment_mz=700.3,
+                expected_relative_intensity=0.9,
+                selected_transition_rank=1,
+                interference_risk_score=0.05,
+                interference_risk_tier=targeted.TargetedAssayInterferenceRiskTier.LOW,
+                downgrade_reasons=(),
+                export_allowed=True,
+                export_caveat="transition is retained for targeted panel export",
+            ),
+        ),
+    )
+    rendered = targeted.render_targeted_panel_design_panel_tsv(report)
+
+    assert hasattr(targeted, "build_targeted_panel_design_report")
+    assert hasattr(targeted, "render_targeted_panel_design_summary_tsv")
+    assert hasattr(targeted, "render_targeted_panel_design_assay_tsv")
+    assert hasattr(targeted, "render_targeted_panel_design_panel_tsv")
+    assert hasattr(targeted, "render_targeted_panel_design_omitted_candidate_tsv")
+    assert report.summary.retained_assay_count == 1
+    assert "transition_id" in rendered
