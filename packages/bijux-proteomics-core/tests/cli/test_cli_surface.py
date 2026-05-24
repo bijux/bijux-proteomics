@@ -208,6 +208,57 @@ def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() 
         assert "comparison_status" in Path("public_dataset.pathway.tsv").read_text()
 
 
+def test_public_dataset_evidence_cards_command_emits_card_and_dataset_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        benchmark_root = Path("benchmarks")
+        _write_public_descriptor_copy(
+            source_name="lfq_cohort_review_package",
+            benchmark_root=benchmark_root,
+            dataset_id="lfq_question_a",
+            accession="flagship_public_package:lfq_question_a",
+        )
+        _write_public_descriptor_copy(
+            source_name="lfq_cohort_review_package",
+            benchmark_root=benchmark_root,
+            dataset_id="lfq_question_b",
+            accession="flagship_public_package:lfq_question_b",
+        )
+        _write_public_descriptor_copy(
+            source_name="dda_maxquant_review_snapshot",
+            benchmark_root=benchmark_root,
+            dataset_id="maxquant_missing_bundle",
+            accession="flagship_public_package:maxquant_missing_bundle",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "public-dataset-evidence-cards",
+                "--benchmarks",
+                str(benchmark_root),
+                "--run-output-root",
+                "public_dataset_evidence_runs",
+                "--summary-tsv-out",
+                "public_dataset_evidence.summary.tsv",
+                "--cards-tsv-out",
+                "public_dataset_evidence.cards.tsv",
+                "--dataset-evidence-tsv-out",
+                "public_dataset_evidence.dataset.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["card_count"] > 0
+        assert payload["summary"]["failed_dataset_reference_count"] > 0
+        assert "card_count" in Path("public_dataset_evidence.summary.tsv").read_text()
+        assert "consistent_replication" in Path(
+            "public_dataset_evidence.cards.tsv"
+        ).read_text()
+        assert "dataset_failed" in Path("public_dataset_evidence.dataset.tsv").read_text()
+
+
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
