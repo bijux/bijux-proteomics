@@ -673,3 +673,30 @@ def test_workflow_package_exports_cross_study_evidence_card_surface(
     assert report.summary.card_count > 0
     assert "final_status" in workflow.render_cross_study_evidence_card_tsv(report)
     assert "dataset_state" in workflow.render_cross_study_evidence_dataset_tsv(report)
+
+
+def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
+    bundle = workflow.InteractiveResultBundle(
+        summary=workflow.InteractiveResultBundleSummary(
+            biological_report_available=False,
+            ptm_report_available=False,
+            run_qc_input_count=0,
+            sample_count=0,
+            protein_count=0,
+            peptide_count=0,
+            ptm_site_count=0,
+            pathway_count=0,
+            qc_entry_count=0,
+            card_count=0,
+            graph_node_count=0,
+            graph_edge_count=0,
+            plot_count=0,
+        ),
+        note="package surface smoke test",
+    )
+
+    assert hasattr(workflow, "build_interactive_result_bundle_from_artifacts")
+    assert hasattr(workflow, "render_interactive_result_bundle_summary_tsv")
+    assert "sample_count" in workflow.render_interactive_result_bundle_summary_tsv(
+        bundle
+    )
