@@ -13,4 +13,5 @@ from bijux_proteomics.sequences.peptide_chemical_liability import *  # noqa: F40
 from bijux_proteomics.sequences.peptide_detectability import *  # noqa: F401,F403
 from bijux_proteomics.sequences.peptide_uniqueness_index import *  # noqa: F401,F403
 from bijux_proteomics.sequences.peptide_properties import *  # noqa: F401,F403
+from bijux_proteomics.sequences.protein_region_context import *  # noqa: F401,F403
 from bijux_proteomics.sequences.theoretical_digest import *  # noqa: F401,F403
