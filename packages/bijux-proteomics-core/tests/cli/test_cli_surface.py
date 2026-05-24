@@ -259,7 +259,7 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
             cli,
             [
                 "public-benchmark-runner",
-                str(public_benchmark_root()),
+                "benchmarks/public",
                 "--run-output-root",
                 "public_benchmark_runs",
                 "--summary-tsv-out",
@@ -302,7 +302,7 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
             [
                 "build-trust-bundle",
                 "--benchmarks",
-                str(public_benchmark_root()),
+                "benchmarks/public",
                 "--out",
                 "trust_bundle",
                 "--summary-tsv-out",
@@ -318,6 +318,7 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert payload["suite_report"]["failed_count"] == 3
         assert Path("trust_bundle/index.html").exists()
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
+        assert Path("trust_bundle/evidence_graphs/index.tsv").exists()
         assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
         assert "lfq_sparse_contrast_benchmark_dataset" in Path(
             "trust_bundle.summary.tsv"
@@ -329,6 +330,7 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
             "trust_bundle.summary.tsv"
         ).read_text()
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
+        assert "evidence_graphs/index.tsv" in Path("trust_bundle/index.html").read_text()
 
 
 def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() -> None:
