@@ -200,6 +200,44 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
     )
 
 
+def test_build_biological_result_report_bundle_preserves_drug_target_interpretation() -> (
+    None
+):
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_drug_targets.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.drug_target_report is not None
+    assert report.drug_target_report.summary.drug_count == 1
+    assert report.drug_target_report.summary.direct_target_entry_count == 1
+    assert report.drug_target_report.summary.indirect_pathway_neighbor_entry_count == 2
+    direct_entry = next(
+        entry
+        for entry in report.drug_target_report.entries
+        if entry.relationship.value == "direct_target"
+    )
+    assert direct_entry.protein_ref == "P04637"
+    indirect_entry = next(
+        entry
+        for entry in report.drug_target_report.entries
+        if entry.protein_ref == "Q9Y243"
+    )
+    assert indirect_entry.relationship.value == "indirect_pathway_neighbor"
+    assert indirect_entry.supporting_direct_target_refs == ("P04637",)
+    assert indirect_entry.supporting_pathway_ids == ("custom:response",)
+
+
 def test_build_biological_result_report_bundle_preserves_disease_phenotype_interpretation() -> (
     None
 ):

@@ -350,6 +350,48 @@ def test_biological_report_export_writes_regulator_inference_assets(
     ).read_text(encoding="utf-8")
 
 
+def test_biological_report_export_writes_drug_target_assets(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_drug_targets.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_biological_result_report_bundle(
+        report,
+        tmp_path / "biological_drug_target_report",
+    )
+    output_dir = tmp_path / "biological_drug_target_report"
+
+    assert report.drug_target_report is not None
+    assert manifest.drug_target_summary_included is True
+    assert (output_dir / manifest.artifacts.drug_target_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.drug_target_tsv).exists()
+    assert "drug_count" in (
+        output_dir / manifest.artifacts.drug_target_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "relationship" in (
+        output_dir / manifest.artifacts.drug_target_tsv
+    ).read_text(encoding="utf-8")
+    assert "indirect_pathway_neighbor" in (
+        output_dir / manifest.artifacts.drug_target_tsv
+    ).read_text(encoding="utf-8")
+    assert "Drug-target interpretation" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+
+
 def test_biological_report_export_writes_disease_phenotype_assets(
     tmp_path: Path,
 ) -> None:
