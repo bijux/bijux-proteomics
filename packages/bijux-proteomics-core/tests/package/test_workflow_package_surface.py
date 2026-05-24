@@ -121,6 +121,49 @@ def test_workflow_package_exports_proteomics_study_result_surface() -> None:
     assert tmt_study.summary.statistic_surface_count == 1
 
 
+def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
+    report = workflow.build_cross_study_protein_harmonization_report_from_observations(
+        (
+            workflow.CrossStudyProteinObservation(
+                observation_id="study_a:card_1",
+                study_id="study_a",
+                study_label="study a",
+                study_kind=workflow.ProteomicsStudyKind.LABEL_FREE,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="card_1",
+                representative_protein_ref="P11111",
+                protein_refs=("P11111",),
+                accession_aliases=(),
+                gene_symbol="STAT1",
+                note="study a card",
+            ),
+            workflow.CrossStudyProteinObservation(
+                observation_id="study_b:card_2",
+                study_id="study_b",
+                study_label="study b",
+                study_kind=workflow.ProteomicsStudyKind.DIA,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="card_2",
+                representative_protein_ref="A0A0HUMAN1",
+                protein_refs=("A0A0HUMAN1",),
+                accession_aliases=("P11111",),
+                gene_symbol="STAT1",
+                note="study b alias-backed card",
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "build_cross_study_protein_harmonization_report")
+    assert workflow.CrossStudyProteinMatchBasis.EXACT_ACCESSION.value == "exact_accession"
+    assert report.summary.harmonized_group_count == 1
+    assert report.unresolved_entries == ()
+    assert "harmonized_id" in workflow.render_cross_study_protein_harmonization_tsv(report)
+
+
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     descriptor = workflow.load_public_benchmark_descriptor(
         Path(__file__).resolve().parents[4]
