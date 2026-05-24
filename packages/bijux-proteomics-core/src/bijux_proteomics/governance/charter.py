@@ -293,6 +293,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/evidence_graph_export.py",
             "review/evidence_graph_run_diff.py",
             "review/evidence_graph_queries.py",
+            "review/result_explanations.py",
             "review/result_queries.py",
             "review/evidence_graph_contradictions.py",
             "review/evidence_chain_reconstruction.py",
