@@ -700,3 +700,40 @@ def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
     assert "sample_count" in workflow.render_interactive_result_bundle_summary_tsv(
         bundle
     )
+
+
+def test_workflow_package_exports_result_search_index_surface() -> None:
+    report = workflow.ResultSearchReport(
+        query_text="P04637",
+        summary=workflow.ResultSearchReportSummary(
+            query_text="P04637",
+            indexed_document_count=1,
+            indexed_token_count=3,
+            hit_count=1,
+            truncated=False,
+        ),
+        hits=(
+            workflow.ResultSearchHit(
+                document_id="protein:protein:pg-P04637",
+                object_id="protein:pg-P04637",
+                document_kind=workflow.ResultSearchDocumentKind.PROTEIN,
+                title="SIGA",
+                matched_fields=(workflow.ResultSearchField.ACCESSION,),
+                evidence_snippets=(
+                    workflow.ResultSearchSnippet(
+                        field=workflow.ResultSearchField.ACCESSION,
+                        text="P04637",
+                    ),
+                ),
+                graph_node_ids=(),
+                score=9,
+            ),
+        ),
+        normalized_tokens=("p04637",),
+        note="package surface smoke test",
+    )
+
+    assert hasattr(workflow, "build_result_search_index_from_artifacts")
+    assert hasattr(workflow, "search_result_index")
+    assert "indexed_document_count" in workflow.render_result_search_summary_tsv(report)
+    assert "evidence_snippets" in workflow.render_result_search_hit_tsv(report)
