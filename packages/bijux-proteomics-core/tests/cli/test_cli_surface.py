@@ -17,6 +17,11 @@ from bijux_proteomics.chemistry import (
 )
 from bijux_proteomics.interfaces.cli import cli
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.workflow import (
+    build_biological_result_report_bundle,
+    export_biological_result_report_bundle,
+)
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -39,6 +44,10 @@ def _write_public_descriptor_copy(
         yaml.safe_dump(payload, sort_keys=False),
         encoding="utf-8",
     )
+
+
+def _workflow_fixture(name: str) -> Path:
+    return FIXTURE_ROOT / "workflow" / name
 
 
 def _similarity_spectrum(
@@ -257,6 +266,68 @@ def test_public_dataset_evidence_cards_command_emits_card_and_dataset_outputs() 
             "public_dataset_evidence.cards.tsv"
         ).read_text()
         assert "dataset_failed" in Path("public_dataset_evidence.dataset.tsv").read_text()
+
+
+def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        design_entries = tuple(
+            parse_experimental_design_table(
+                _workflow_fixture("biological_report.design.tsv")
+            ).accepted_entries
+        )
+        biological_report = build_biological_result_report_bundle(
+            _workflow_fixture("biological_report_features.tsv"),
+            design_entries,
+            proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            condition_a="control",
+            condition_b="treatment",
+        )
+        export_biological_result_report_bundle(
+            biological_report,
+            Path("biological_report"),
+        )
+        Path("run_qc.tsv").write_text(
+            "\n".join(
+                (
+                    "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key\tmetric_label\tobserved_value\tunit\tseverity\tdisposition\tenforced_violation\tmessage",
+                    "run\tt2.mzml\tfail\tidentification_rate_low\tidentification_rate\tIdentification rate\t0.05\tfraction\tfailed\tblock\ttrue\tidentification rate fell below enforced threshold",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "result-question-answer",
+                "--biological-report-dir",
+                "biological_report",
+                "--run-qc-assessment-tsv",
+                "run_qc.tsv",
+                "--query-kind",
+                "sample_qc_failure",
+                "--subject-id",
+                "T2",
+                "--summary-tsv-out",
+                "result_query.summary.tsv",
+                "--answer-tsv-out",
+                "result_query.answers.tsv",
+                "--evidence-tsv-out",
+                "result_query.evidence.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        answer = payload["report"]["answers"][0]
+        assert answer["status"] == "answered"
+        assert "t2.mzml" in answer["result_row_ids"]
+        assert any(node_id.startswith("sample:") for node_id in answer["graph_node_ids"])
+        assert "answered_query_count" in Path("result_query.summary.tsv").read_text()
+        assert "answer_text" in Path("result_query.answers.tsv").read_text()
+        assert "graph_node_ids" in Path("result_query.evidence.tsv").read_text()
 
 
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
