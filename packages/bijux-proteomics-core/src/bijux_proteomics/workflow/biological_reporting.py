@@ -176,10 +176,13 @@ from bijux_proteomics.review import (
     build_biological_hypothesis_report,
     build_evidence_aware_ranking_report,
     build_quantification_volcano_review,
+    export_proteomics_evidence_graph,
     export_volcano_review_html,
     normalize_linear_range,
     export_volcano_review_json,
     export_volcano_review_svg,
+    render_proteomics_evidence_graph_edges_tsv,
+    render_proteomics_evidence_graph_nodes_tsv,
     render_biological_claim_validation_summary_tsv,
     render_biological_hypothesis_summary_tsv,
     render_biological_hypothesis_tsv,
@@ -354,6 +357,8 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     protein_card_tsv: str = Field(..., min_length=1)
     protein_mechanism_card_summary_tsv: str = Field(..., min_length=1)
     protein_mechanism_card_tsv: str = Field(..., min_length=1)
+    evidence_graph_nodes_tsv: str = Field(..., min_length=1)
+    evidence_graph_edges_tsv: str = Field(..., min_length=1)
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
     evidence_aware_ranking_tsv: str | None = None
@@ -2267,6 +2272,8 @@ def export_biological_result_report_bundle(
     protein_card_name = "biological_protein_cards.tsv"
     protein_mechanism_card_summary_name = "biological_protein_mechanism_card_summary.tsv"
     protein_mechanism_card_name = "biological_protein_mechanism_cards.tsv"
+    evidence_graph_nodes_name = "biological_evidence_graph_nodes.tsv"
+    evidence_graph_edges_name = "biological_evidence_graph_edges.tsv"
     experiment_confidence_summary_name = "biological_experiment_confidence_summary.tsv"
     experiment_confidence_components_name = (
         "biological_experiment_confidence_components.tsv"
@@ -2352,6 +2359,15 @@ def export_biological_result_report_bundle(
     )
     (output_dir / protein_mechanism_card_name).write_text(
         render_protein_mechanism_card_tsv(report.protein_mechanism_cards),
+        encoding="utf-8",
+    )
+    graph_export = export_proteomics_evidence_graph(report.graph_report.graph)
+    (output_dir / evidence_graph_nodes_name).write_text(
+        render_proteomics_evidence_graph_nodes_tsv(graph_export),
+        encoding="utf-8",
+    )
+    (output_dir / evidence_graph_edges_name).write_text(
+        render_proteomics_evidence_graph_edges_tsv(graph_export),
         encoding="utf-8",
     )
     (output_dir / experiment_confidence_summary_name).write_text(
@@ -2871,6 +2887,8 @@ def export_biological_result_report_bundle(
         protein_card_tsv=protein_card_name,
         protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
         protein_mechanism_card_tsv=protein_mechanism_card_name,
+        evidence_graph_nodes_tsv=evidence_graph_nodes_name,
+        evidence_graph_edges_tsv=evidence_graph_edges_name,
         experiment_confidence_summary_tsv=experiment_confidence_summary_name,
         experiment_confidence_components_tsv=experiment_confidence_components_name,
         evidence_aware_ranking_tsv=evidence_aware_ranking_name,
