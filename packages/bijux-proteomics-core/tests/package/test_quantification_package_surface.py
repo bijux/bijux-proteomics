@@ -383,6 +383,76 @@ def test_quantification_package_exports_replicate_reliability_weight_surface() -
     assert "low_weight_reasons" in rendered
 
 
+def test_quantification_package_exports_compositional_bias_surface() -> None:
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-001",
+                sample_id="balanced",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-002",
+                sample_id="balanced",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=95.0,
+                protein_refs=("P002",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-003",
+                sample_id="balanced",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=90.0,
+                protein_refs=("P003",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-004",
+                sample_id="dominated",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=1200.0,
+                protein_refs=("PDOM",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-005",
+                sample_id="dominated",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=110.0,
+                protein_refs=("P002",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-comp-006",
+                sample_id="dominated",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=95.0,
+                protein_refs=("P003",),
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    report = quantification.detect_compositional_bias(table)
+    rendered = quantification.render_compositional_bias_tsv(report)
+    by_sample = {entry.sample_id: entry for entry in report.entries}
+
+    assert hasattr(quantification, "detect_compositional_bias")
+    assert hasattr(quantification, "render_compositional_bias_tsv")
+    assert (
+        by_sample["dominated"].normalization_risk
+        is quantification.CompositionalBiasRisk.HIGH
+    )
+    assert rendered.startswith(
+        "sample_id\tdominant_entity_fraction\ttotal_signal_skew\tnormalization_risk\tdominant_entities\n"
+    )
+
+
 def test_quantification_package_exports_variance_model_owner_surface() -> None:
     table = quantification.build_label_free_intensity_table(
         (
