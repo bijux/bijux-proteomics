@@ -146,6 +146,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "scientific_tables.py",
             "io/format_validation.py",
             "io/formats.py",
+            "io/deisotoping.py",
             "io/ingestion.py",
             "io/mgf_streaming.py",
             "io/mzml_reader.py",
