@@ -8038,7 +8038,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in Path(
             "assay.transitions.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tfalse\tfewer than two coeluting transitions support the target" in Path(
+        assert "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tinsufficient\tfalse\tfewer than two coeluting transitions support the target" in Path(
             "assay.coelution.tsv"
         ).read_text(encoding="utf-8")
         assert "ACDMPEP/3\ttreat_r2\ty5\ttrue\t20.2\ty5\t20.2\t18.2\t0\t2\ttrue\ttransition is misaligned from the target reference window" in Path(
