@@ -68,6 +68,85 @@ def test_quantification_package_exports_model_rollup_owner_surface() -> None:
     assert "residual_log2" in residual_tsv
 
 
+def test_quantification_package_exports_protein_uncertainty_owner_surface() -> None:
+    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty001",
+                sample_id="sample-a",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty002",
+                sample_id="sample-b",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty003",
+                sample_id="sample-a",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty004",
+                sample_id="sample-b",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=1600.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty005",
+                sample_id="sample-a",
+                peptide="QLTK",
+                canonical_peptide="QLTK",
+                intensity=220.0,
+                protein_refs=("P002",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="uncertainty006",
+                sample_id="sample-b",
+                peptide="QLTK",
+                canonical_peptide="QLTK",
+                intensity=880.0,
+                protein_refs=("P002",),
+            ),
+        )
+    )
+    rollup = quantification.fit_peptide_bias_model(
+        peptide_matrix,
+        (
+            quantification.PeptideToProteinEntry(peptide_id="PEPA", protein_id="P001"),
+            quantification.PeptideToProteinEntry(peptide_id="PEPG", protein_id="P001"),
+            quantification.PeptideToProteinEntry(peptide_id="QLTK", protein_id="P002"),
+        ),
+    )
+
+    report = quantification.estimate_protein_uncertainty(rollup)
+    rendered = quantification.render_protein_uncertainty_tsv(report)
+    entry_lookup = {(entry.protein_id, entry.sample_id): entry for entry in report.entries}
+
+    assert hasattr(quantification, "estimate_protein_uncertainty")
+    assert hasattr(quantification, "render_protein_uncertainty_tsv")
+    assert (
+        entry_lookup[("P002", "sample-a")].upper_ci
+        - entry_lookup[("P002", "sample-a")].lower_ci
+    ) > (
+        entry_lookup[("P001", "sample-a")].upper_ci
+        - entry_lookup[("P001", "sample-a")].lower_ci
+    )
+    assert "uncertainty_source" in rendered
+    assert "supporting_peptide_count" in rendered
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
