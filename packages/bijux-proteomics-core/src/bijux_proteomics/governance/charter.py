@@ -152,6 +152,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/mzml_reader.py",
             "io/noise.py",
             "io/run_qc.py",
+            "io/spectrum_entropy.py",
             "io/spectrum_peak_matching.py",
             "io/spectra.py",
             "io/spectral_library.py",
