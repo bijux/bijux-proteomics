@@ -9233,6 +9233,48 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
         )
 
 
+def test_protein_lfq_command_emits_peptide_profile_inconsistency_output() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "protein_profile_inconsistency_features.tsv",
+            "protein_profile_inconsistency_features.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-lfq",
+                "protein_profile_inconsistency_features.tsv",
+                "--input-kind",
+                "feature",
+                "--target-kind",
+                "protein",
+                "--minimum-shared-peptides",
+                "1",
+                "--peptide-profile-tsv-out",
+                "protein_lfq.peptide_profile.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "feature"
+        assert (
+            payload["peptide_profile_inconsistency_report"]["summary"][
+                "inconsistent_entry_count"
+            ]
+            == 1
+        )
+        assert payload["outputs"]["peptide_profile_tsv"] == "protein_lfq.peptide_profile.tsv"
+        peptide_profile_tsv = Path("protein_lfq.peptide_profile.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "directional_profile_inversion" in peptide_profile_tsv
+        assert "PEPVVK" in peptide_profile_tsv
+
+
 def test_protein_lfq_command_emits_psm_backed_group_rollup_and_skipped_rows() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
