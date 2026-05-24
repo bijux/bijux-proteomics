@@ -702,6 +702,57 @@ def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
     )
 
 
+def test_workflow_package_exports_interactive_result_comparison_surface() -> None:
+    payload = workflow.InteractiveResultComparisonPayload(
+        left_source_reports=(),
+        right_source_reports=(),
+        left_summary={"protein_count": 1, "ptm_site_count": 1},
+        right_summary={"protein_count": 1, "ptm_site_count": 1},
+        changed_proteins=(
+            workflow.InteractiveResultProteinComparisonEntry(
+                object_id="protein:pg-P04637",
+                status=workflow.InteractiveResultComparisonStatus.CHANGED,
+                representative_protein_ref="P04637",
+                gene_symbol="SIGA",
+                left_protein=None,
+                right_protein=None,
+                reasons=(
+                    workflow.InteractiveResultComparisonReason(
+                        code=workflow.InteractiveResultComparisonReasonCode.EVIDENCE_TIER_CHANGED,
+                        field_name="evidence_tier",
+                        left_value="supported",
+                        right_value="exploratory",
+                        message="evidence tier changed between the two result bundles",
+                    ),
+                ),
+                note="protein changed because evidence_tier_changed",
+            ),
+        ),
+        changed_ptm_sites=(),
+        changed_qc_entries=(),
+        changed_pathways=(),
+        summary=workflow.InteractiveResultComparisonSummary(
+            left_source_count=1,
+            right_source_count=1,
+            changed_protein_count=1,
+            changed_ptm_site_count=0,
+            changed_qc_entry_count=0,
+            changed_pathway_count=0,
+            total_change_count=1,
+            total_reason_count=1,
+        ),
+        note="package surface smoke test",
+    )
+
+    assert hasattr(workflow, "build_interactive_result_comparison_from_artifacts")
+    assert "changed_protein_count" in (
+        workflow.render_interactive_result_comparison_summary_tsv(payload)
+    )
+    assert "representative_protein_ref" in (
+        workflow.render_interactive_result_comparison_protein_tsv(payload)
+    )
+
+
 def test_workflow_package_exports_result_search_index_surface() -> None:
     report = workflow.ResultSearchReport(
         query_text="P04637",

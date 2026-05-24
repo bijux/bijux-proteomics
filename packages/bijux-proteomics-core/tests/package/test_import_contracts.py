@@ -143,6 +143,7 @@ def test_workflow_package_import_contract() -> None:
 
     assert hasattr(module, "run_proteomics_workflow")
     assert hasattr(module, "build_interactive_result_bundle_from_artifacts")
+    assert hasattr(module, "build_interactive_result_comparison_from_artifacts")
     assert hasattr(module, "build_result_search_index_from_artifacts")
 
 
