@@ -19,13 +19,15 @@ from bijux_proteomics.quantification.contracts import (
     BatchEffectBatchEntry,
     LabelFreeQuantTable,
     QuantAssessmentDisposition,
-    _condition_lookup,
     _log2_values,
 )
 from bijux_proteomics.quantification.design_matrix import _resolve_design_value
 from bijux_proteomics.quantification.sample_exploration import (
     build_sample_pca_report,
     build_sample_pca_variance_report,
+)
+from bijux_proteomics.study.design_diagnostics import (
+    detect_batch_condition_confounding,
 )
 
 
@@ -57,7 +59,6 @@ def build_batch_effect_estimator_report(
             note="No batch metadata was provided; batch estimation remains empty.",
         )
 
-    condition_by_sample = _condition_lookup(design_entries)
     per_sample = {
         sample_id: _log2_values(table, sample_id) for sample_id in table.sample_ids
     }
@@ -126,11 +127,13 @@ def build_batch_effect_estimator_report(
             if entry.associated_with_batch
         ),
     )
-    fully_confounded = _batch_fully_confounded_with_condition(
-        batch_by_sample=batch_by_sample,
-        condition_by_sample=condition_by_sample,
-        sample_ids=table.sample_ids,
+    relevant_design_entries = tuple(
+        entry for entry in design_entries if entry.sample_id in table.sample_ids
     )
+    fully_confounded = detect_batch_condition_confounding(
+        relevant_design_entries,
+        batch_field=batch_field,
+    ).is_confounded
     correction_blocked = fully_confounded
     warning = _batch_warning(
         batches=tuple(batches),
@@ -328,33 +331,6 @@ def _batch_association_ratio(
         batch_mean = float(np.mean(np.array(values, dtype=float)))
         between_ss += len(values) * (batch_mean - grand_mean) ** 2
     return max(0.0, min(1.0, between_ss / total_ss))
-
-
-def _batch_fully_confounded_with_condition(
-    *,
-    batch_by_sample: dict[str, str],
-    condition_by_sample: dict[str, str],
-    sample_ids: tuple[str, ...],
-) -> bool:
-    paired_samples = [
-        sample_id
-        for sample_id in sample_ids
-        if sample_id in batch_by_sample and sample_id in condition_by_sample
-    ]
-    if len(paired_samples) < 2:
-        return False
-    conditions_by_batch: dict[str, set[str]] = {}
-    batches_by_condition: dict[str, set[str]] = {}
-    for sample_id in paired_samples:
-        batch_id = batch_by_sample[sample_id]
-        condition = condition_by_sample[sample_id]
-        conditions_by_batch.setdefault(batch_id, set()).add(condition)
-        batches_by_condition.setdefault(condition, set()).add(batch_id)
-    if len(conditions_by_batch) < 2 or len(batches_by_condition) < 2:
-        return False
-    return all(len(values) == 1 for values in conditions_by_batch.values()) and all(
-        len(values) == 1 for values in batches_by_condition.values()
-    )
 
 
 def _batch_warning(
