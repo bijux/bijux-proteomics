@@ -18,6 +18,7 @@ _QUANTIFICATION_EXPORT_MODULES = (
     "bijux_proteomics.quantification.heatmap_preparation",
     "bijux_proteomics.quantification.imputation",
     "bijux_proteomics.quantification.missingness",
+    "bijux_proteomics.quantification.multi_contrast_consistency",
     "bijux_proteomics.quantification.normalization",
     "bijux_proteomics.quantification.peptide_intensity_matrix",
     "bijux_proteomics.quantification.peptide_profile_inconsistency",
