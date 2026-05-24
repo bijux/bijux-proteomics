@@ -127,6 +127,26 @@ def test_public_benchmark_descriptor_loads_runnable_fragpipe_contracts() -> None
     assert descriptor.expected_biological_signals[0].subject_id == "P04637"
 
 
+def test_public_benchmark_descriptor_loads_runnable_tmt_contracts() -> None:
+    descriptor = load_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "multiplex_tmtpro_review_package"
+        / "dataset.yml"
+    )
+
+    assert descriptor.search_engine is PublicBenchmarkSearchEngine.TMT
+    assert descriptor.expected_input_schemas == ("result_tsv", "design_tsv")
+    assert len(descriptor.sample_metadata) == 8
+    assert descriptor.expected_approximate_counts[-1].metric_id == (
+        "flagged_interference_count"
+    )
+    assert descriptor.known_limitations[0].severity is (
+        PublicBenchmarkKnownLimitationSeverity.ADVISORY
+    )
+
+
 def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_ptm_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -150,6 +170,8 @@ def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_
     assert Path(report.output_dir, "ptm_regulator_enrichment_summary.tsv").exists()
     assert Path(report.output_dir, "ptm_regulator_enrichment.tsv").exists()
     assert Path(report.output_dir, "ptm_evidence_cards.tsv").exists()
+
+
 def test_public_benchmark_runner_executes_runnable_maxquant_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -214,6 +236,30 @@ def test_public_benchmark_runner_executes_runnable_diann_descriptor(
     } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
     assert Path(report.output_dir, "diann_precursor_quantity_matrix.tsv").exists()
     assert Path(report.output_dir, "diann_import_rejected_evidence.tsv").exists()
+
+
+def test_public_benchmark_runner_executes_runnable_tmt_descriptor(
+    tmp_path: Path,
+) -> None:
+    report = run_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "multiplex_tmtpro_review_package"
+        / "dataset.yml",
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["accepted_input_row_count"] == 4
+    assert report.verified_counts["protein_ratio_count"] == 12
+    assert report.verified_counts["interference_observation_count"] == 12
+    assert report.verified_counts["flagged_interference_count"] == 6
+    assert not report.expected_signal_assessments
+    assert Path(report.output_dir, "tmt_validation_summary.tsv").exists()
+    assert Path(report.output_dir, "tmt_normalization_summary.tsv").exists()
+    assert Path(report.output_dir, "tmt_interference_summary.tsv").exists()
+    assert Path(report.output_dir, "label_based_differential_results.tsv").exists()
 
 
 def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts_with_design(
