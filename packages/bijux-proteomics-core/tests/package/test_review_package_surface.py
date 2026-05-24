@@ -134,6 +134,30 @@ def test_review_package_exports_result_explanation_surface(tmp_path: Path) -> No
     assert "claim" in review.render_result_explanation_tsv(report)
 
 
+def test_review_package_exports_analysis_recommendation_surface(tmp_path: Path) -> None:
+    ptm_dir = tmp_path / "ptm_report"
+    ptm_dir.mkdir()
+    (ptm_dir / "ptm_evidence_cards.tsv").write_text(
+        "\n".join(
+            (
+                "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
+                "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = review.build_analysis_recommendation_report_from_artifacts(
+        ptm_report_dir=ptm_dir,
+    )
+
+    assert hasattr(review, "build_analysis_recommendation_report_from_artifacts")
+    assert review.AnalysisRecommendationKind.RUN_PTM_CORRECTION.value == "run_ptm_correction"
+    assert report.summary.recommendation_count == 1
+    assert "detected_condition_code" in review.render_analysis_recommendation_tsv(report)
+
+
 def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
     builder = review.ProteomicsEvidenceGraphBuilder()
     protein = builder.add_protein("P11111", label="P11111")
