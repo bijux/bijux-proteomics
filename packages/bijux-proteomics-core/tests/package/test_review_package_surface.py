@@ -394,3 +394,34 @@ def test_review_package_exports_evidence_graph_external_export_surface() -> None
     assert bundle.node_count == 4
     assert bundle.edge_count == 2
     assert bundle.contradiction_node_count == 1
+
+
+def test_review_package_exports_evidence_aware_ranking_surface() -> None:
+    report = review.build_evidence_aware_ranking_report(
+        (
+            review.EvidenceAwareRankingCandidate(
+                candidate_id="protein:P11111",
+                entity_kind=review.EvidenceAwareRankingEntityKind.PROTEIN,
+                display_label="P11111",
+                effect_size=1.2,
+                adjusted_p_value=0.01,
+                abundance_value=11.0,
+                support_count=3,
+                annotation_label="kinase",
+                effect_score=0.6,
+                significance_score=0.33,
+                abundance_score=0.8,
+                support_score=0.75,
+                qc_score=0.8,
+                annotation_score=0.7,
+                reproducibility_score=0.8,
+                confidence_score=0.85,
+                note="supported protein result",
+            ),
+        )
+    )
+
+    assert hasattr(review, "build_evidence_aware_ranking_report")
+    assert hasattr(review, "render_evidence_aware_ranking_tsv")
+    assert report.summary.protein_entry_count == 1
+    assert "priority_rank" in review.render_evidence_aware_ranking_tsv(report)
