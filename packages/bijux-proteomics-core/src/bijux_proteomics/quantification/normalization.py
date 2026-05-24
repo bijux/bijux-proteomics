@@ -9,6 +9,9 @@ import math
 
 import numpy as np
 
+from bijux_proteomics.quantification.composition import (
+    detect_compositional_bias,
+)
 from bijux_proteomics.quantification.core_matrix import (
     quant_matrix_to_dense_array,
     rebuild_quant_matrix_from_dense_array,
@@ -72,6 +75,8 @@ def build_normalization_strategy_comparison_report(
     ),
 ) -> NormalizationStrategyComparisonReport:
     """Compare normalization methods using stable sample-balance summary metrics."""
+    composition_report = detect_compositional_bias(table)
+    tic_penalty = _tic_composition_penalty(composition_report)
     entries: list[NormalizationStrategySummaryEntry] = []
     for method in methods:
         candidate = normalize_label_free_table(table, method=method)
@@ -87,13 +92,16 @@ def build_normalization_strategy_comparison_report(
         iqr_cv = _coefficient_of_variation(
             [snapshot.interquartile_range for snapshot in snapshots]
         )
+        balance_score = total_cv + median_cv + iqr_cv
+        if method is NormalizationMethod.TIC:
+            balance_score += tic_penalty
         entries.append(
             NormalizationStrategySummaryEntry(
                 method=method,
                 total_abundance_cv=total_cv,
                 median_abundance_cv=median_cv,
                 interquartile_range_cv=iqr_cv,
-                balance_score=total_cv + median_cv + iqr_cv,
+                balance_score=balance_score,
             )
         )
     ordered = tuple(
@@ -336,6 +344,14 @@ def _coefficient_of_variation(values: list[float]) -> float:
     if mean_value == 0.0:
         return 0.0
     return float(np.std(np.array(values, dtype=float)) / mean_value)
+
+
+def _tic_composition_penalty(composition_report) -> float:
+    if composition_report.high_risk_sample_count:
+        return 1.0
+    if composition_report.caution_sample_count:
+        return 0.2
+    return 0.0
 
 
 def _sample_snapshot(
