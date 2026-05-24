@@ -17,7 +17,9 @@ from bijux_proteomics.quantification import (
     build_differential_imputation_dependence_report,
     build_label_free_intensity_table,
     build_no_impute_reference_table,
+    compare_imputation_policies,
     impute_label_free_table,
+    render_imputation_policy_comparison_tsv,
 )
 
 
@@ -218,4 +220,50 @@ def test_differential_abundance_report_preserves_imputation_dependence_fields() 
     assert (
         DifferentialResultRobustnessReasonCode.IMPUTATION_DEPENDENT_SIGNIFICANCE
         in by_entity["PEPA"].robustness_reason_codes
+    )
+
+
+def test_compare_imputation_policies_flags_imputation_only_hits_as_sensitive() -> None:
+    table = _table()
+    no_impute_report = build_differential_abundance_report(
+        table,
+        _design(),
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    low_intensity_report = build_differential_abundance_report(
+        impute_label_free_table(
+            table,
+            method=ImputationMethod.LOW_INTENSITY,
+        ),
+        _design(),
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    knn_report = no_impute_report.model_copy(
+        update={
+            "imputation_method": ImputationMethod.KNN,
+            "note": "controlled non-significant kNN comparison surface",
+        }
+    )
+
+    comparison = compare_imputation_policies(
+        {
+            ImputationMethod.NONE: no_impute_report,
+            ImputationMethod.LOW_INTENSITY: low_intensity_report,
+            ImputationMethod.KNN: knn_report,
+        }
+    )
+    rendered = render_imputation_policy_comparison_tsv(comparison)
+    by_entity = {entry.entity_id: entry for entry in comparison.entries}
+
+    assert by_entity["PEPA"].significant_without_imputation is False
+    assert by_entity["PEPA"].significant_after_imputation is True
+    assert by_entity["PEPA"].imputation_dependent is True
+    assert by_entity["PEPA"].policy_sensitive is True
+    assert by_entity["PEPB"].imputation_dependent is True
+    assert (
+        "entity_id\tsignificant_without_imputation\tsignificant_after_imputation"
+        "\timputation_dependent\tpolicy_sensitive"
+        in rendered
     )
