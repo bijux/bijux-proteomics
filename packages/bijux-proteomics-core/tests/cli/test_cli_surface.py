@@ -7155,6 +7155,113 @@ def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries(
         )
 
 
+def test_targeted_panel_builder_command_emits_reviewable_transition_list_rows() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tweighted_evidence_total\tpenalty_total\tuncertainty\teffect_size\tadjusted_p_value\tsupport_count\teffect_score\trobustness_score\tdetectability_score\tspecificity_score\tannotation_score\tassay_feasibility_score\tsample_qc_score\tannotation_labels\trank_reason_codes\tsource_ids\tranking_note\n"
+            "protein:P11111\tprotein\tROBUST1\tP11111\t\t1\t0.91\t0.91\t0.00\t0.00\t1.4\t0.003\t4\t0.70\t0.91\t0.95\t0.94\t0.55\t0.92\t0.90\tpathway:stress\tassay_ready\tbio-card-1\tstrong validation-ready candidate\n"
+            "protein:P22222\tprotein\tWARN2\tP22222\t\t2\t0.61\t0.70\t0.18\t0.00\t0.8\t0.020\t3\t0.40\t0.34\t0.62\t0.40\t0.30\t0.58\t0.90\tcontext:secreted\tweak_robustness\tbio-card-2\tcandidate carries evidence penalties\n"
+            "ptm_site:P33333:S21\tptm_site\tP33333 S21 phospho-site\tP33333\tP33333:S21:phosphorylation\t3\t0.73\t0.73\t0.00\t0.00\t1.0\t0.005\t5\t0.50\t0.80\t0.70\t0.80\t0.70\t0.30\t0.90\tregulator:KINASE_A\tsite_specific\tptm-card-1\tsite-specific candidate\n",
+            encoding="utf-8",
+        )
+        Path("selected_peptides.tsv").write_text(
+            "target_protein_ref\ttarget_protein_group_id\tgene_symbol\trank\tcandidate_source\tpeptide_sequence\tcanonical_peptide\tobserved_in_discovery\tobserved_psm_count\trun_count\tdetection_frequency\treplicate_consistency\tprimary_evidence_class\tuniqueness_class\tuniqueness_score\tdetectability_score\tdetectability_tier\tsuitability_score\tliability_tier\tliability_codes\tselection_score\tselection_reasons\n"
+            "P11111\tprotein_group_1\tROBUST1\t1\tobserved_discovery\tPEPTIDER\tPEPTIDER\ttrue\t6\t4\t1.0\t0.95\tstrong\tunique\t1.0\t0.95\thigh\t0.92\tpreferred\t\t0.95\tselected for targeted follow-up\n"
+            "P22222\tprotein_group_2\tWARN2\t1\tobserved_discovery\tAAASHALEDK\tAAASHALEDK\ttrue\t5\t3\t0.75\t0.80\tstrong\tshared\t0.45\t0.62\tmedium\t0.58\tcaution\tdeamidation\t0.64\tselected for targeted follow-up\n",
+            encoding="utf-8",
+        )
+        Path("assay_interference.assays.tsv").write_text(
+            "assay_entry_id\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tpeptide_rank\tprecursor_charge\tprecursor_mz\tselected_transition_count\texported_transition_count\tshared_peptide_penalty\tpanel_overlap_transition_count\tbackground_overlap_peptide_count\tlibrary_overlap_peptide_count\tcoeluting_library_overlap_peptide_count\tintrinsic_transition_risk_score\tinterference_risk_score\tinterference_risk_tier\tdowngrade_reasons\tpanel_export_allowed\tpanel_export_caveat\tsource_library_entry_id\n"
+            "assay:P11111:PEPTIDER\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\t1\t2\t501.250000\t3\t3\t0.000000\t0\t0\t0\t0\t0.120000\t0.080000\tlow\t\ttrue\tassay is retained for panel export because interference evidence remains below the governed refusal threshold\tmgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111\n"
+            "assay:P22222:AAASHALEDK\tP22222\tprotein_group_2\tWARN2\tAAASHALEDK\tAAASHALEDK\t1\t2\t551.250000\t4\t3\t0.350000\t1\t1\t0\t0\t0.420000\t0.520000\tmedium\tlibrary_fragment_overlap\ttrue\tassay is retained but still carries measurable interference risk\t\n",
+            encoding="utf-8",
+        )
+        Path("assay_interference.transitions.tsv").write_text(
+            "assay_entry_id\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tprecursor_charge\tprecursor_mz\tfragment_label\tion_type\tfragment_ordinal\tfragment_charge\tfragment_sequence\tfragment_mz\texpected_relative_intensity\tselected_transition_rank\tintrinsic_interference_risk_score\tpanel_overlap_transition_count\tbackground_overlap_peptide_count\tlibrary_overlap_peptide_count\tcoeluting_library_overlap_peptide_count\tinterference_risk_score\tinterference_risk_tier\tdowngrade_reasons\texport_allowed\texport_caveat\n"
+            "assay:P11111:PEPTIDER\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\t2\t501.250000\ty7+1\ty\t7\t1\tPEPTIDER\t701.400000\t0.900000\t1\t0.120000\t0\t0\t0\t0\t0.100000\tlow\t\ttrue\ttransition is retained for targeted panel export\n"
+            "assay:P11111:PEPTIDER\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\t2\t501.250000\ty6+1\ty\t6\t1\tEPTIDER\t602.300000\t0.800000\t2\t0.110000\t0\t0\t0\t0\t0.090000\tlow\t\ttrue\ttransition is retained for targeted panel export\n"
+            "assay:P22222:AAASHALEDK\tP22222\tprotein_group_2\tWARN2\tAAASHALEDK\tAAASHALEDK\t2\t551.250000\ty8+1\ty\t8\t1\tASHALEDK\t812.500000\t0.850000\t1\t0.220000\t1\t1\t0\t0\t0.410000\tmedium\tlibrary_fragment_overlap\ttrue\ttransition is retained for targeted panel export\n",
+            encoding="utf-8",
+        )
+        Path("library.mgf").write_text(
+            render_mgf(
+                (
+                    SpectrumModel(
+                        spectrum_id="SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111",
+                        title="SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111",
+                        precursor_mz=501.25,
+                        precursor_charge=2,
+                        retention_time_seconds=18.4 * 60.0,
+                        peaks=(
+                            SpectrumPeak(mz=701.4, intensity=1000.0),
+                            SpectrumPeak(mz=602.3, intensity=800.0),
+                        ),
+                    ),
+                )
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-panel-builder",
+                "biomarker.candidates.tsv",
+                "selected_peptides.tsv",
+                "assay_interference.assays.tsv",
+                "assay_interference.transitions.tsv",
+                "--spectral-library",
+                "library.mgf",
+                "--summary-tsv-out",
+                "panel.summary.tsv",
+                "--assay-tsv-out",
+                "panel.assays.tsv",
+                "--panel-tsv-out",
+                "panel.transitions.tsv",
+                "--omitted-tsv-out",
+                "panel.omitted.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["biomarker_candidate_count"] == 3
+        assert payload["summary"]["retained_assay_count"] == 2
+        assert payload["summary"]["panel_transition_count"] == 3
+        assert payload["summary"]["omitted_candidate_count"] == 1
+        assert payload["panel_entries"][0]["biomarker_candidate_id"] == "protein:P11111"
+        assert payload["panel_entries"][0]["expected_retention_time_minutes"] == 18.4
+        assert payload["assay_entries"][1]["warning_codes"] == [
+            "candidate_penalized",
+            "elevated_interference_risk",
+            "missing_expected_retention_time",
+            "non_unique_target",
+            "reduced_transition_support",
+        ]
+        assert payload["omitted_candidates"][0]["candidate_id"] == "ptm_site:P33333:S21"
+        assert payload["outputs"]["panel_tsv"] == "panel.transitions.tsv"
+        assert Path("panel.summary.tsv").exists()
+        assert Path("panel.assays.tsv").exists()
+        assert Path("panel.transitions.tsv").exists()
+        assert Path("panel.omitted.tsv").exists()
+        assert "retained_assay_count\t2" in Path("panel.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "expected_retention_time_minutes" in Path(
+            "panel.transitions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "uniqueness_class" in Path("panel.transitions.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "candidate_penalized" in Path("panel.assays.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "ptm_site:P33333:S21" in Path("panel.omitted.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
