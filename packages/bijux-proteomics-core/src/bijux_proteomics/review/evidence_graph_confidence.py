@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
@@ -25,6 +26,11 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNodeKind,
 )
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.quantification.peptide_profile_inconsistency import (
+        PeptideProfileInconsistencyReport,
+    )
 
 
 class EvidenceGraphConfidenceTier(StrEnum):
@@ -68,6 +74,7 @@ def propagate_evidence_graph_confidence(
     chromatographic_score_report: ChromatographicEvidenceScoreReport | None = None,
     dia_fragment_coelution_report: DiaFragmentCoelutionReport | None = None,
     dia_fragment_ratio_stability_report: FragmentRatioStabilityReport | None = None,
+    peptide_profile_inconsistency_report: PeptideProfileInconsistencyReport | None = None,
     peptide_liability_reports: tuple[PeptideChemicalLiabilityReport, ...] = (),
 ) -> EvidenceGraphConfidenceReport:
     """Propagate upstream evidence quality into final protein, PTM, and pathway claims."""
@@ -91,6 +98,14 @@ def propagate_evidence_graph_confidence(
         {}
         if dia_fragment_ratio_stability_report is None
         else _ratio_stability_scores_by_analyte(dia_fragment_ratio_stability_report)
+    )
+    peptide_profile_scores_by_protein_and_peptide = (
+        {}
+        if peptide_profile_inconsistency_report is None
+        else {
+            (entry.entity_id, entry.peptide_sequence): entry.profile_agreement_score
+            for entry in peptide_profile_inconsistency_report.entries
+        }
     )
     peptide_liability_scores_by_peptide = {
         report.detectability_report.property_report.residue_sequence: (
@@ -120,6 +135,9 @@ def propagate_evidence_graph_confidence(
                 chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
                 coelution_scores_by_precursor=coelution_scores_by_precursor,
                 ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+                peptide_profile_scores_by_protein_and_peptide=(
+                    peptide_profile_scores_by_protein_and_peptide
+                ),
                 peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
             )
             propagated_score = _average(
@@ -148,6 +166,9 @@ def propagate_evidence_graph_confidence(
                         propagated_score,
                         peptide_chromatography_used=bool(chromatographic_scores_by_peptide),
                         fragment_ratio_used=bool(ratio_stability_scores_by_precursor),
+                        peptide_profile_used=bool(
+                            peptide_profile_scores_by_protein_and_peptide
+                        ),
                         peptide_liability_used=bool(peptide_liability_scores_by_peptide),
                     ),
                 )
@@ -200,6 +221,7 @@ def _subject_confidence(
     chromatographic_scores_by_peptide: dict[str, float],
     coelution_scores_by_precursor: dict[str, float],
     ratio_stability_scores_by_precursor: dict[str, float],
+    peptide_profile_scores_by_protein_and_peptide: dict[tuple[str, str], float],
     peptide_liability_scores_by_peptide: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     if subject.entity_type is ProteomicsEvidenceNodeKind.PROTEIN:
@@ -210,6 +232,9 @@ def _subject_confidence(
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
             coelution_scores_by_precursor=coelution_scores_by_precursor,
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+            peptide_profile_scores_by_protein_and_peptide=(
+                peptide_profile_scores_by_protein_and_peptide
+            ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
     if subject.entity_type is ProteomicsEvidenceNodeKind.PTM_SITE:
@@ -221,6 +246,9 @@ def _subject_confidence(
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
             coelution_scores_by_precursor=coelution_scores_by_precursor,
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+            peptide_profile_scores_by_protein_and_peptide=(
+                peptide_profile_scores_by_protein_and_peptide
+            ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
     if subject.entity_type is ProteomicsEvidenceNodeKind.PATHWAY:
@@ -231,6 +259,9 @@ def _subject_confidence(
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
             coelution_scores_by_precursor=coelution_scores_by_precursor,
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+            peptide_profile_scores_by_protein_and_peptide=(
+                peptide_profile_scores_by_protein_and_peptide
+            ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
     raise ValueError(f"unsupported confidence subject kind: {subject.entity_type.value}")
@@ -244,6 +275,7 @@ def _protein_confidence(
     chromatographic_scores_by_peptide: dict[str, float],
     coelution_scores_by_precursor: dict[str, float],
     ratio_stability_scores_by_precursor: dict[str, float],
+    peptide_profile_scores_by_protein_and_peptide: dict[tuple[str, str], float],
     peptide_liability_scores_by_peptide: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     cached = protein_cache.get(protein_node_id)
@@ -276,6 +308,11 @@ def _protein_confidence(
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
+        profile_score = peptide_profile_scores_by_protein_and_peptide.get(
+            (protein.entity_ref, peptide.entity_ref)
+        )
+        if profile_score is not None:
+            peptide_score = _average((peptide_score, profile_score))
         path_scores.append(
             _average((edge.confidence, peptide_score, _trust_score(peptide.trust_class)))
         )
@@ -301,6 +338,7 @@ def _ptm_site_confidence(
     chromatographic_scores_by_peptide: dict[str, float],
     coelution_scores_by_precursor: dict[str, float],
     ratio_stability_scores_by_precursor: dict[str, float],
+    peptide_profile_scores_by_protein_and_peptide: dict[tuple[str, str], float],
     peptide_liability_scores_by_peptide: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     cached = ptm_cache.get(ptm_site_node_id)
@@ -367,6 +405,9 @@ def _ptm_site_confidence(
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
             coelution_scores_by_precursor=coelution_scores_by_precursor,
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+            peptide_profile_scores_by_protein_and_peptide=(
+                peptide_profile_scores_by_protein_and_peptide
+            ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
         protein_scores.append(_average((edge.confidence, protein_score)))
@@ -404,6 +445,7 @@ def _pathway_confidence(
     chromatographic_scores_by_peptide: dict[str, float],
     coelution_scores_by_precursor: dict[str, float],
     ratio_stability_scores_by_precursor: dict[str, float],
+    peptide_profile_scores_by_protein_and_peptide: dict[tuple[str, str], float],
     peptide_liability_scores_by_peptide: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     pathway = _require_node_by_id(graph, pathway_node_id)
@@ -424,6 +466,9 @@ def _pathway_confidence(
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
             coelution_scores_by_precursor=coelution_scores_by_precursor,
             ratio_stability_scores_by_precursor=ratio_stability_scores_by_precursor,
+            peptide_profile_scores_by_protein_and_peptide=(
+                peptide_profile_scores_by_protein_and_peptide
+            ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
         member_scores.append(
@@ -605,6 +650,7 @@ def _build_rationale(
     *,
     peptide_chromatography_used: bool,
     fragment_ratio_used: bool,
+    peptide_profile_used: bool,
     peptide_liability_used: bool,
 ) -> str:
     qualifiers: list[str] = []
@@ -612,6 +658,8 @@ def _build_rationale(
         qualifiers.append("peptide chromatographic evidence")
     if peptide_liability_used:
         qualifiers.append("peptide chemical liability")
+    if peptide_profile_used:
+        qualifiers.append("peptide profile inconsistency")
     if fragment_ratio_used:
         qualifiers.append("fragment-ratio stability")
     qualifier = "" if not qualifiers else " and " + " and ".join(qualifiers)
