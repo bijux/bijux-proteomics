@@ -234,6 +234,14 @@ from bijux_proteomics.workflow.biological_result_graph import (
     BiologicalResultGraphReport,
     build_biological_result_graph_report,
 )
+from bijux_proteomics.workflow.cohort_stratification import (
+    CohortStratificationReport,
+    build_cohort_stratification_report,
+    render_cohort_interaction_candidate_tsv,
+    render_cohort_stratification_summary_tsv,
+    render_cohort_stratum_tsv,
+    render_cohort_subgroup_effect_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -282,6 +290,9 @@ class BiologicalResultReportSummary(JsonModel):
     protein_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
     tissue_mismatch_warning_count: int = Field(..., ge=0)
+    cohort_blocked_stratum_count: int = Field(..., ge=0)
+    cohort_subgroup_effect_count: int = Field(..., ge=0)
+    cohort_interaction_candidate_count: int = Field(..., ge=0)
     experiment_confidence_score: float = Field(..., ge=0.0, le=1.0)
     experiment_confidence_tier: str = Field(..., min_length=1)
     low_confidence_component_count: int = Field(..., ge=0)
@@ -314,6 +325,7 @@ class BiologicalResultReportBundle(JsonModel):
     regulator_inference_report: RegulatorInferenceReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    cohort_stratification_report: CohortStratificationReport | None = None
     tissue_cell_type_context_report: TissueCellTypeContextReport | None = None
     drug_target_report: DrugTargetInterpretationReport | None = None
     disease_phenotype_report: DiseasePhenotypeInterpretationReport | None = None
@@ -366,6 +378,10 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    cohort_stratification_summary_tsv: str | None = None
+    cohort_stratum_tsv: str | None = None
+    cohort_subgroup_effect_tsv: str | None = None
+    cohort_interaction_candidate_tsv: str | None = None
     tissue_context_summary_tsv: str | None = None
     tissue_context_sample_consistency_tsv: str | None = None
     tissue_context_unexpected_signal_tsv: str | None = None
@@ -432,6 +448,7 @@ class BiologicalResultReportExportManifest(JsonModel):
     claim_validation_included: bool
     hypothesis_summary_included: bool
     context_summary_included: bool
+    cohort_stratification_summary_included: bool
     tissue_context_summary_included: bool
     drug_target_summary_included: bool
     disease_phenotype_summary_included: bool
@@ -938,6 +955,14 @@ def build_biological_result_report_bundle_from_quant_table(
         normalized_table,
         design_entries,
     )
+    cohort_stratification_report = build_cohort_stratification_report(
+        normalized_table,
+        experiment_design,
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+    )
+    if cohort_stratification_report.summary.field_count == 0:
+        cohort_stratification_report = None
     feasibility_report = build_experiment_feasibility_report(
         experiment_design,
         condition_a=resolved_condition_a,
@@ -1007,6 +1032,7 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_inference_report=regulator_inference_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        cohort_stratification_report=cohort_stratification_report,
         tissue_cell_type_context_report=tissue_cell_type_context_report,
         drug_target_report=drug_target_report,
         disease_phenotype_report=disease_phenotype_report,
@@ -1032,6 +1058,21 @@ def build_biological_result_report_bundle_from_quant_table(
                 0
                 if tissue_cell_type_context_report is None
                 else tissue_cell_type_context_report.summary.mismatch_warning_count
+            ),
+            cohort_blocked_stratum_count=(
+                0
+                if cohort_stratification_report is None
+                else cohort_stratification_report.summary.blocked_stratum_count
+            ),
+            cohort_subgroup_effect_count=(
+                0
+                if cohort_stratification_report is None
+                else cohort_stratification_report.summary.subgroup_effect_count
+            ),
+            cohort_interaction_candidate_count=(
+                0
+                if cohort_stratification_report is None
+                else cohort_stratification_report.summary.interaction_candidate_count
             ),
             experiment_confidence_score=experiment_confidence_report.summary.overall_score,
             experiment_confidence_tier=(
@@ -2166,6 +2207,21 @@ def render_biological_result_report_summary_tsv(
         ("tissue_mismatch_warning_count", report.summary.tissue_mismatch_warning_count)
     )
     writer.writerow(
+        ("cohort_blocked_stratum_count", report.summary.cohort_blocked_stratum_count)
+    )
+    writer.writerow(
+        (
+            "cohort_subgroup_effect_count",
+            report.summary.cohort_subgroup_effect_count,
+        )
+    )
+    writer.writerow(
+        (
+            "cohort_interaction_candidate_count",
+            report.summary.cohort_interaction_candidate_count,
+        )
+    )
+    writer.writerow(
         (
             "experiment_confidence_score",
             f"{report.summary.experiment_confidence_score:.4f}",
@@ -2441,6 +2497,36 @@ def export_biological_result_report_bundle(
         context_term_name = None
         context_unmapped_name = None
         context_rejected_name = None
+    if report.cohort_stratification_report is not None:
+        cohort_summary_name = "biological_cohort_stratification_summary.tsv"
+        cohort_stratum_name = "biological_cohort_strata.tsv"
+        cohort_effect_name = "biological_cohort_subgroup_effects.tsv"
+        cohort_interaction_name = "biological_cohort_interaction_candidates.tsv"
+        (output_dir / cohort_summary_name).write_text(
+            render_cohort_stratification_summary_tsv(
+                report.cohort_stratification_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / cohort_stratum_name).write_text(
+            render_cohort_stratum_tsv(report.cohort_stratification_report),
+            encoding="utf-8",
+        )
+        (output_dir / cohort_effect_name).write_text(
+            render_cohort_subgroup_effect_tsv(report.cohort_stratification_report),
+            encoding="utf-8",
+        )
+        (output_dir / cohort_interaction_name).write_text(
+            render_cohort_interaction_candidate_tsv(
+                report.cohort_stratification_report
+            ),
+            encoding="utf-8",
+        )
+    else:
+        cohort_summary_name = None
+        cohort_stratum_name = None
+        cohort_effect_name = None
+        cohort_interaction_name = None
     if report.tissue_cell_type_context_report is not None:
         tissue_context_summary_name = "biological_tissue_context_summary.tsv"
         tissue_context_sample_name = "biological_tissue_context_sample_consistency.tsv"
@@ -2809,6 +2895,10 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        cohort_stratification_summary_tsv=cohort_summary_name,
+        cohort_stratum_tsv=cohort_stratum_name,
+        cohort_subgroup_effect_tsv=cohort_effect_name,
+        cohort_interaction_candidate_tsv=cohort_interaction_name,
         tissue_context_summary_tsv=tissue_context_summary_name,
         tissue_context_sample_consistency_tsv=tissue_context_sample_name,
         tissue_context_unexpected_signal_tsv=tissue_context_unexpected_name,
@@ -2878,6 +2968,9 @@ def export_biological_result_report_bundle(
         claim_validation_included=report.claim_validation_report is not None,
         hypothesis_summary_included=report.biological_hypothesis_report is not None,
         context_summary_included=report.context_mapping_report is not None,
+        cohort_stratification_summary_included=(
+            report.cohort_stratification_report is not None
+        ),
         tissue_context_summary_included=report.tissue_cell_type_context_report is not None,
         drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
@@ -2888,9 +2981,9 @@ def export_biological_result_report_bundle(
             "biological report export writes stable differential, explicit "
             "foreground/background enrichment inputs, protein-card, "
             "protein-mechanism-card, annotation, optional biological hypotheses, "
-            "optional biological context, optional tissue and cell-type context, "
-            "enrichment, volcano, heatmap, and sample exploration artifacts into "
-            "one durable output directory"
+            "optional biological context, optional cohort stratification, "
+            "optional tissue and cell-type context, enrichment, volcano, heatmap, "
+            "and sample exploration artifacts into one durable output directory"
         ),
     )
 
@@ -2991,6 +3084,22 @@ def _render_biological_result_report_html(
         (
             "Biological context rejected rows",
             artifacts.context_rejected_tsv,
+        ),
+        (
+            "Cohort stratification summary",
+            artifacts.cohort_stratification_summary_tsv,
+        ),
+        (
+            "Cohort strata",
+            artifacts.cohort_stratum_tsv,
+        ),
+        (
+            "Cohort subgroup effects",
+            artifacts.cohort_subgroup_effect_tsv,
+        ),
+        (
+            "Cohort interaction candidates",
+            artifacts.cohort_interaction_candidate_tsv,
         ),
         (
             "Tissue and cell-type context summary",
@@ -3134,6 +3243,7 @@ def _render_biological_result_report_html(
     regulator_inference_html = _render_regulator_inference_table_html(report)
     drug_target_html = _render_drug_target_table_html(report)
     disease_phenotype_html = _render_disease_phenotype_table_html(report)
+    cohort_stratification_html = _render_cohort_stratification_table_html(report)
     tissue_context_html = _render_tissue_cell_type_context_table_html(report)
     compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
@@ -3148,6 +3258,8 @@ def _render_biological_result_report_html(
         f"<strong>Protein cards</strong>: {report.summary.protein_card_count} | "
         f"<strong>Experiment confidence</strong>: {report.summary.experiment_confidence_score:.2f} "
         f"({escape(report.summary.experiment_confidence_tier)}) | "
+        f"<strong>Cohort interaction candidates</strong>: "
+        f"{report.summary.cohort_interaction_candidate_count} | "
         f"<strong>Tissue mismatch warnings</strong>: "
         f"{report.summary.tissue_mismatch_warning_count} | "
         f"<strong>Annotated</strong>: {report.summary.annotation_entry_count} | "
@@ -3168,6 +3280,8 @@ def _render_biological_result_report_html(
         f"{drug_target_html}"
         "<h2>Disease and phenotype interpretation</h2>"
         f"{disease_phenotype_html}"
+        "<h2>Cohort stratification</h2>"
+        f"{cohort_stratification_html}"
         "<h2>Tissue and cell-type context</h2>"
         f"{tissue_context_html}"
         "<h2>Compartment biology</h2>"
@@ -3583,6 +3697,50 @@ def _render_tissue_cell_type_context_table_html(
         f"<strong>Marker contexts</strong>: {summary.marker_context_count} | "
         f"<strong>QC warnings</strong>: {summary.mismatch_warning_count} | "
         f"<strong>Unexpected signals</strong>: {summary.unexpected_signal_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_cohort_stratification_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    cohort_report = report.cohort_stratification_report
+    if cohort_report is None:
+        return "<p>No cohort stratification report was generated.</p>"
+    headers = (
+        "Field",
+        "Left subgroup",
+        "Right subgroup",
+        "Entity",
+        "Kind",
+        "Delta",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.field_name.value)}</td>"
+            f"<td>{escape(entry.left_subgroup_value)}</td>"
+            f"<td>{escape(entry.right_subgroup_value)}</td>"
+            f"<td>{escape(entry.entity_id)}</td>"
+            f"<td>{escape(entry.candidate_kind.value)}</td>"
+            f"<td>{entry.interaction_delta:.4f}</td>"
+            "</tr>"
+        )
+        for entry in cohort_report.interaction_candidates[:10]
+    )
+    summary = cohort_report.summary
+    return (
+        "<p>"
+        f"<strong>Fields</strong>: {summary.field_count} | "
+        f"<strong>Supported strata</strong>: {summary.supported_stratum_count} | "
+        f"<strong>Blocked strata</strong>: {summary.blocked_stratum_count} | "
+        f"<strong>Subgroup effects</strong>: {summary.subgroup_effect_count} | "
+        f"<strong>Interaction candidates</strong>: {summary.interaction_candidate_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
