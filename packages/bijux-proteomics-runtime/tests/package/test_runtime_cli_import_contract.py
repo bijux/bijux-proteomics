@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -15,10 +16,27 @@ def _source_pythonpath() -> str:
     return ":".join(str(path) for path in src_roots)
 
 
+def _repository_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
 def test_runtime_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics_runtime.api.cli")
 
     assert module.cli is not None
+
+
+def test_runtime_cli_import_contract_succeeds_from_clean_checkout() -> None:
+    result = subprocess.run(
+        [sys.executable, "-c", "from bijux_proteomics_runtime.api.cli import cli"],
+        capture_output=True,
+        text=True,
+        cwd=_repository_root(),
+        env={key: value for key, value in os.environ.items() if key != "PYTHONPATH"},
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
 
 
 def test_runtime_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> (
