@@ -685,6 +685,9 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     assert descriptor.dataset_id == "ptm_localization_review_package"
     assert descriptor.sample_metadata[0].sample_id == "C1"
     assert descriptor.expected_biological_signals[0].subject_id == "P11111:S5:Phospho"
+    assert workflow.resolve_public_benchmark_root(Path("benchmarks/public")) == (
+        workflow.public_benchmark_root()
+    )
     assert hasattr(workflow, "render_public_benchmark_suite_signal_assessments_tsv")
 
 
@@ -696,6 +699,7 @@ def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
 
     assert hasattr(workflow, "build_public_benchmark_trust_bundle")
     assert report.suite_report.passed_count == 8
+    assert report.evidence_graph_artifacts
     assert Path(report.html_index_path).exists()
 
 
