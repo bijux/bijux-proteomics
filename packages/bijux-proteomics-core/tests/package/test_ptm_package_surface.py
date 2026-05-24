@@ -6,7 +6,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.ptm as ptm
+from bijux_proteomics.chemistry import FragmentIonSeries, calculate_fragment_ions, parse_modified_peptide
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.spectra import SpectrumPeak
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -58,6 +60,43 @@ def test_ptm_package_exports_localization_scoring_owner_surface() -> None:
     assert hasattr(ptm, "PtmLocalizationConfidenceTier")
     assert report.high_confidence_entry_count == 1
     assert "localization_tier" in rendered.splitlines()[0]
+
+
+def test_ptm_package_exports_fragment_scoring_owner_surface() -> None:
+    peptide = parse_modified_peptide("AS[Phospho]TYK")
+    ions = calculate_fragment_ions(
+        peptide,
+        charges=(1,),
+        series=(FragmentIonSeries.B,),
+        include_neutral_losses=True,
+    )
+    b2 = next(
+        ion
+        for ion in ions
+        if ion.series is FragmentIonSeries.B and ion.ordinal == 2 and ion.neutral_loss is None
+    )
+    b2_neutral_loss = next(
+        ion
+        for ion in ions
+        if ion.series is FragmentIonSeries.B
+        and ion.ordinal == 2
+        and ion.neutral_loss == "phosphoric_acid"
+    )
+    report = ptm.score_ptm_fragments(
+        "AS[Phospho]TYK",
+        (
+            SpectrumPeak(mz=b2.mz_monoisotopic, intensity=120.0),
+            SpectrumPeak(mz=b2_neutral_loss.mz_monoisotopic, intensity=95.0),
+        ),
+        tolerance=0.01,
+    )
+    rendered = ptm.render_ptm_fragment_scores_tsv(report)
+
+    assert hasattr(ptm, "score_ptm_fragments")
+    assert hasattr(ptm, "render_ptm_fragment_scores_tsv")
+    assert any(row.site_determining for row in report)
+    assert any(row.neutral_loss == "phosphoric_acid" for row in report)
+    assert "site_determining" in rendered
 
 
 def test_ptm_package_exports_site_quantification_owner_surface() -> None:
