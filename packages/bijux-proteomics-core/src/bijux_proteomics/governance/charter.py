@@ -343,6 +343,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/protein_mechanism_cards.py",
             "workflow/public_benchmark_runner.py",
             "workflow/public_dataset_comparison.py",
+            "workflow/result_manifest.py",
             "workflow/result_search_index.py",
             "workflow/study_result.py",
             "workflow/trust_bundle.py",
