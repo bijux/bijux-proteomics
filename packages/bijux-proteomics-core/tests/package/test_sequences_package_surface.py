@@ -175,3 +175,47 @@ def test_sequences_package_exports_protein_identity_resolution_owner_surface() -
     assert hasattr(sequences, "render_protein_identity_resolution_tsv")
     assert report.entries[0].identity_level is sequences.ProteinIdentityLevel.PROTEIN_LEVEL
     assert "shared-isoform" in rendered
+
+
+def test_sequences_package_exports_proteogenomic_peptide_support_owner_surface(
+    tmp_path: Path,
+) -> None:
+    reference_records = sequences.parse_fasta_document(
+        ">sp|P12345|REF1_HUMAN Reference 1\nMREFPEPTIDEKAA\n",
+        mode=sequences.FastaParseMode.STRICT,
+    ).accepted_records
+    variant_records = sequences.parse_fasta_document(
+        ">sp|Q9AAA1|VAR1_HUMAN Variant 1\nMALTPEPTIDEKAA\n",
+        mode=sequences.FastaParseMode.STRICT,
+    ).accepted_records
+    variant_table_path = tmp_path / "variant_support.tsv"
+    variant_table_path.write_text(
+        (
+            "peptide_sequence\tvariant_protein_ref\treference_protein_ref\tvariant_label\n"
+            "ALTPEPTIDEK\tQ9AAA1\tP12345\tp.G12V\n"
+        ),
+        encoding="utf-8",
+    )
+    report = sequences.build_proteogenomic_peptide_support_report(
+        (
+            sequences.ProteogenomicPeptideReference(
+                evidence_key="variant-peptide",
+                peptide_sequences=("ALTPEPTIDEK",),
+                target_protein_refs=("Q9AAA1",),
+            ),
+        ),
+        reference_protein_records=reference_records,
+        variant_protein_records=variant_records,
+        variant_peptide_records=sequences.parse_proteogenomic_variant_peptide_table(
+            variant_table_path
+        ).accepted_records,
+    )
+    rendered = sequences.render_proteogenomic_peptide_support_tsv(report)
+
+    assert hasattr(sequences, "build_proteogenomic_peptide_support_report")
+    assert hasattr(sequences, "parse_proteogenomic_variant_peptide_table")
+    assert (
+        report.entries[0].support_class
+        is sequences.ProteogenomicPeptideSupportClass.VARIANT_ONLY
+    )
+    assert "variant-peptide" in rendered
