@@ -7353,6 +7353,115 @@ def test_validation_experiment_planner_command_flags_underpowered_designs() -> N
         )
 
 
+def test_targeted_result_validator_command_preserves_confirmed_contradicted_and_inconclusive_targets() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tweighted_evidence_total\tpenalty_total\tuncertainty\teffect_size\tadjusted_p_value\tsupport_count\teffect_score\trobustness_score\tdetectability_score\tspecificity_score\tannotation_score\tassay_feasibility_score\tsample_qc_score\tannotation_labels\trank_reason_codes\tsource_ids\tranking_note\n"
+            "protein:P11111\tprotein\tROBUST1\tP11111\t\t1\t0.91\t0.91\t0.00\t0.10\t1.10\t0.003\t4\t0.70\t0.85\t0.95\t0.94\t0.55\t0.92\t0.90\tpathway:stress\tassay_ready\tbio-card-1\tstrong validation-ready candidate\n"
+            "protein:P22222\tprotein\tWARN2\tP22222\t\t2\t0.71\t0.75\t0.00\t0.20\t0.90\t0.010\t3\t0.55\t0.74\t0.70\t0.80\t0.40\t0.84\t0.90\tcontext:secreted\tassay_ready\tbio-card-2\tdiscovery claimed treatment increase\n"
+            "ptm_site:P33333:S21\tptm_site\tP33333 S21 site\tP33333\tP33333:S21:phosphorylation\t3\t0.67\t0.70\t0.00\t0.20\t0.80\t0.020\t2\t0.50\t0.66\t0.30\t0.60\t0.25\t0.40\t0.90\tptm:site\tlow_assay_feasibility\tptm-card-1\tsite candidate was not converted into a site-specific assay\n",
+            encoding="utf-8",
+        )
+        Path("panel.assays.tsv").write_text(
+            "assay_entry_id\tbiomarker_candidate_id\tbiomarker_candidate_kind\tbiomarker_display_label\tbiomarker_priority_rank\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tuniqueness_class\tuniqueness_score\tprecursor_charge\tprecursor_mz\texpected_retention_time_minutes\tretention_window_start_minutes\tretention_window_end_minutes\tselected_transition_count\texported_transition_count\tassay_interference_risk_tier\twarning_codes\twarning_note\tsource_library_entry_id\n"
+            "assay:P11111:PEPTIDER\tprotein:P11111\tprotein\tROBUST1\t1\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\tunique\t1.000000\t2\t501.250000\t18.400000\t16.900000\t19.900000\t3\t3\tlow\t\tassay retained for targeted panel review\tmgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111\n"
+            "assay:P22222:AAAAK\tprotein:P22222\tprotein\tWARN2\t2\tP22222\tprotein_group_2\tWARN2\tAAAAK\tAAAAK\tunique\t1.000000\t2\t451.250000\t18.400000\t16.900000\t19.900000\t3\t3\tlow\t\tassay retained for targeted panel review\tmgf:2:SEQ=AAAAK|PEPTIDE=AAAAK|PROTEINS=P22222\n",
+            encoding="utf-8",
+        )
+        Path("targeted_results.tsv").write_text(
+            "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t25000\t12.50\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r1\t20000\t12.56\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r2\t27000\t12.48\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r2\t21000\t12.55\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r1\t120000\t12.51\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r1\t98000\t12.57\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r2\t118000\t12.52\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r2\t95000\t12.58\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r1\t90000\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r1\t87000\t18.47\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_r2\t92000\t18.41\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_r2\t86000\t18.48\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r1\t93000\t18.42\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r1\t85000\t18.46\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_r2\t91500\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_r2\t85500\t18.45\tpass\n",
+            encoding="utf-8",
+        )
+        Path("targeted.design.tsv").write_text(
+            "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\n"
+            "control_r1\tcontrol\t1\t1\tcontrol_r1.raw\tcontrol_r1.tsv\n"
+            "control_r2\tcontrol\t2\t1\tcontrol_r2.raw\tcontrol_r2.tsv\n"
+            "treat_r1\ttreatment\t1\t1\ttreat_r1.raw\ttreat_r1.tsv\n"
+            "treat_r2\ttreatment\t2\t1\ttreat_r2.raw\ttreat_r2.tsv\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-result-validator",
+                "biomarker.candidates.tsv",
+                "panel.assays.tsv",
+                "targeted_results.tsv",
+                "targeted.design.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--case-condition",
+                "treatment",
+                "--control-condition",
+                "control",
+                "--summary-tsv-out",
+                "validation.summary.tsv",
+                "--confirmed-tsv-out",
+                "validation.confirmed.tsv",
+                "--contradicted-tsv-out",
+                "validation.contradicted.tsv",
+                "--inconclusive-tsv-out",
+                "validation.inconclusive.tsv",
+                "--evidence-tsv-out",
+                "validation.evidence.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "skyline_export"
+        assert payload["summary"]["discovery_claim_count"] == 3
+        assert payload["summary"]["confirmed_count"] == 1
+        assert payload["summary"]["contradicted_count"] == 1
+        assert payload["summary"]["inconclusive_count"] == 1
+        assert payload["confirmed_targets"][0]["candidate_id"] == "protein:P11111"
+        assert payload["contradicted_targets"][0]["candidate_id"] == "protein:P22222"
+        assert payload["inconclusive_targets"][0]["candidate_id"] == "ptm_site:P33333:S21"
+        assay_evidence_by_candidate = {
+            entry["candidate_id"]: entry for entry in payload["assay_evidence"]
+        }
+        assert assay_evidence_by_candidate["protein:P11111"]["matched_target_id"] == "PEPTIDER/2"
+        assert assay_evidence_by_candidate["protein:P22222"]["matched_target_id"] == "AAAAK/2"
+        assert Path("validation.summary.tsv").exists()
+        assert Path("validation.confirmed.tsv").exists()
+        assert Path("validation.contradicted.tsv").exists()
+        assert Path("validation.inconclusive.tsv").exists()
+        assert Path("validation.evidence.tsv").exists()
+        assert "confirmed_count\t1" in Path("validation.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "protein:P11111" in Path("validation.confirmed.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "validation_effect_flat_against_discovery" in Path(
+            "validation.contradicted.tsv"
+        ).read_text(encoding="utf-8")
+        assert "site_specific_validation_not_available" in Path(
+            "validation.inconclusive.tsv"
+        ).read_text(encoding="utf-8")
+        assert "assay:P11111:PEPTIDER" in Path("validation.evidence.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
