@@ -160,6 +160,10 @@ def test_quantification_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.quantification")
 
     assert hasattr(module, "build_label_free_intensity_table")
+    assert hasattr(module, "fit_peptide_bias_model")
+    assert hasattr(module, "render_protein_abundance_tsv")
+    assert hasattr(module, "render_peptide_bias_tsv")
+    assert hasattr(module, "render_rollup_residuals_tsv")
 
 
 def test_study_package_import_contract() -> None:
