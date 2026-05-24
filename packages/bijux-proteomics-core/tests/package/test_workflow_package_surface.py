@@ -41,6 +41,46 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
     assert report.experiment_confidence_report.summary.component_count == 7
 
 
+def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    fasta_path = tmp_path / "matching_regions.fasta"
+    fasta_path.write_text(
+        (
+            ">sp|P04637|SIGA_HUMAN Signaling protein A\nMPEPAAAK\n"
+            ">sp|Q9Y243|SIGB_HUMAN Signaling protein B\nMPEPDDDK\n"
+            ">sp|O14920|SIGC_HUMAN Signaling protein C\nMPEPCCCK\n"
+        ),
+        encoding="utf-8",
+    )
+    report = workflow.build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=fasta_path,
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        protein_region_context_tsv_path=_fixture("biological_report_regions.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert hasattr(workflow, "build_protein_mechanism_card_report")
+    assert "evidence_tier" in workflow.render_protein_mechanism_card_tsv(
+        report.protein_mechanism_cards
+    )
+    assert "graph_claim_node_id" in workflow.render_protein_mechanism_card_tsv(
+        report.protein_mechanism_cards
+    )
+    assert (
+        report.protein_mechanism_cards.summary.card_count
+        == report.summary.protein_count
+    )
+    assert report.protein_mechanism_cards.summary.domain_annotated_card_count >= 1
+
+
 def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
