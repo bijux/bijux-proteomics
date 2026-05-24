@@ -91,6 +91,7 @@ class TargetedTransitionCoelutionTargetEntry(JsonModel):
     reference_retention_time_minutes: float | None = Field(default=None, ge=0.0)
     absolute_alignment_delta_minutes: float | None = Field(default=None, ge=0.0)
     alignment_flagged: bool = False
+    coelution_tier: TargetedTransitionCoelutionTier
     reliable_transition_support: bool
     reliability_reasons: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -234,6 +235,13 @@ def build_targeted_transition_coelution_report(
         )
         for target_id in target_ids
     }
+    raw_scores_by_group = {
+        (entry.target_id, entry.sample_id): entry
+        for entry in score_transition_coelution(
+            _transition_trace_points(import_report),
+            coelution_rt_delta_threshold_minutes=coelution_rt_delta_threshold_minutes,
+        )
+    }
 
     target_entries: list[TargetedTransitionCoelutionTargetEntry] = []
     transition_entries: list[TargetedTransitionCoelutionTransitionEntry] = []
@@ -362,7 +370,12 @@ def build_targeted_transition_coelution_report(
                 )
 
             reliability_reasons: list[str] = []
-            if len(coeluting_transition_ids) < 2:
+            raw_score = raw_scores_by_group[(target_id, sample_id)]
+            target_coelution_tier = _coelution_tier(
+                transition_count=len(expected_transition_ids),
+                passing_transition_count=raw_score.passing_transition_count,
+            )
+            if raw_score.passing_transition_count < 2:
                 reliability_reasons.append(
                     "fewer than two coeluting transitions support the target"
                 )
@@ -385,7 +398,11 @@ def build_targeted_transition_coelution_report(
                     reference_retention_time_minutes=reference_retention_time,
                     absolute_alignment_delta_minutes=absolute_alignment_delta,
                     alignment_flagged=alignment_flagged,
-                    reliable_transition_support=not reliability_reasons,
+                    coelution_tier=target_coelution_tier,
+                    reliable_transition_support=(
+                        target_coelution_tier is TargetedTransitionCoelutionTier.RELIABLE
+                        and not reliability_reasons
+                    ),
                     reliability_reasons=tuple(sorted(reliability_reasons)),
                 )
             )
@@ -471,6 +488,7 @@ def render_targeted_transition_coelution_target_tsv(
             "reference_retention_time_minutes",
             "absolute_alignment_delta_minutes",
             "alignment_flagged",
+            "coelution_tier",
             "reliable_transition_support",
             "reliability_reasons",
         )
@@ -507,6 +525,7 @@ def render_targeted_transition_coelution_target_tsv(
                     else f"{entry.absolute_alignment_delta_minutes:g}"
                 ),
                 str(entry.alignment_flagged).lower(),
+                entry.coelution_tier.value,
                 str(entry.reliable_transition_support).lower(),
                 "; ".join(entry.reliability_reasons),
             )
