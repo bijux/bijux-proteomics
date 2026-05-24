@@ -8992,6 +8992,11 @@ def test_public_case_study_command_emits_summary_and_biological_report_assets() 
             report_dir / "biological-report" / "biological_report_manifest.json"
         ).exists()
         assert (report_dir / "biological-report" / "biological_report.html").exists()
+        assert (
+            report_dir
+            / "biological-report"
+            / "biological_report_section_confidence.tsv"
+        ).exists()
         assert "public_case_study:lfq_cohort_biological_case_study" in Path(
             "public_case_study.summary.tsv"
         ).read_text(encoding="utf-8")
@@ -8999,6 +9004,9 @@ def test_public_case_study_command_emits_summary_and_biological_report_assets() 
             report_dir / "public_case_study_manifest.json"
         ).read_text(encoding="utf-8")
         assert "Biological result report" in (
+            report_dir / "biological-report" / "biological_report.html"
+        ).read_text(encoding="utf-8")
+        assert "Section confidence" in (
             report_dir / "biological-report" / "biological_report.html"
         ).read_text(encoding="utf-8")
 
