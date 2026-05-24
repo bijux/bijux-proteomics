@@ -182,8 +182,10 @@ def test_study_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.study")
 
     assert hasattr(module, "detect_carryover")
+    assert hasattr(module, "detect_batch_condition_confounding")
     assert hasattr(module, "detect_lc_drift")
     assert hasattr(module, "render_carryover_detection_tsv")
+    assert hasattr(module, "render_batch_condition_confounding_tsv")
     assert hasattr(module, "render_lc_drift_tsv")
     assert hasattr(module, "build_run_qc_assessment")
 
