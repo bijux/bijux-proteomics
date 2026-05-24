@@ -67,6 +67,8 @@ from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentPolicy,
     PtmRegulatorEnrichmentReport,
     build_ptm_regulator_enrichment_report,
+    render_ptm_regulator_enrichment_summary_tsv,
+    render_ptm_regulator_enrichment_tsv,
 )
 from bijux_proteomics.ptm.protein_site_mapping import render_ptm_site_table_tsv
 from bijux_proteomics.ptm.site_annotation_import import (
@@ -173,6 +175,8 @@ class PtmReportArtifactPaths(JsonModel):
     motif_frequency_tsv: str | None = None
     motif_term_tsv: str | None = None
     motif_logo_tsv: str | None = None
+    regulator_enrichment_summary_tsv: str | None = None
+    regulator_enrichment_tsv: str | None = None
     mechanism_classification_summary_tsv: str | None = None
     mechanism_classification_tsv: str | None = None
     ortholog_conservation_summary_tsv: str | None = None
@@ -752,6 +756,20 @@ def export_ptm_report_bundle(
             encoding="utf-8",
         )
 
+    regulator_enrichment_summary_name = None
+    regulator_enrichment_name = None
+    if report.regulator_enrichment is not None:
+        regulator_enrichment_summary_name = "ptm_regulator_enrichment_summary.tsv"
+        regulator_enrichment_name = "ptm_regulator_enrichment.tsv"
+        (output_dir / regulator_enrichment_summary_name).write_text(
+            render_ptm_regulator_enrichment_summary_tsv(report.regulator_enrichment),
+            encoding="utf-8",
+        )
+        (output_dir / regulator_enrichment_name).write_text(
+            render_ptm_regulator_enrichment_tsv(report.regulator_enrichment),
+            encoding="utf-8",
+        )
+
     mechanism_classification_summary_name = None
     mechanism_classification_name = None
     if report.mechanism_classification is not None:
@@ -824,6 +842,8 @@ def export_ptm_report_bundle(
             motif_frequency_tsv=motif_frequency_name,
             motif_term_tsv=motif_term_name,
             motif_logo_tsv=motif_logo_name,
+            regulator_enrichment_summary_tsv=regulator_enrichment_summary_name,
+            regulator_enrichment_tsv=regulator_enrichment_name,
             mechanism_classification_summary_tsv=mechanism_classification_summary_name,
             mechanism_classification_tsv=mechanism_classification_name,
             ortholog_conservation_summary_tsv=ortholog_conservation_summary_name,
@@ -835,6 +855,6 @@ def export_ptm_report_bundle(
         ),
         motif_summary_included=report.motif_enrichment is not None,
         note=(
-            "ptm report export writes stable peptide, site, localization, quantification, differential, and motif files into one durable output directory"
+            "ptm report export writes stable peptide, site, localization, quantification, differential, motif, regulator, and evidence-card files into one durable output directory"
         ),
     )

@@ -89,6 +89,8 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.site_quant_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
+    assert (output_dir / manifest.artifacts.regulator_enrichment_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.regulator_enrichment_tsv).exists()
     assert (output_dir / manifest.artifacts.mechanism_classification_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.mechanism_classification_tsv).exists()
     assert (output_dir / manifest.artifacts.ortholog_conservation_summary_tsv).exists()
@@ -113,6 +115,12 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     ).read_text()
     assert "exclusive_to_regulated" in (
         output_dir / manifest.artifacts.motif_term_tsv
+    ).read_text()
+    assert "evaluated_regulator_count" in (
+        output_dir / manifest.artifacts.regulator_enrichment_summary_tsv
+    ).read_text()
+    assert "supporting_sites" in (
+        output_dir / manifest.artifacts.regulator_enrichment_tsv
     ).read_text()
     assert "site_specific_count" in (
         output_dir / manifest.artifacts.mechanism_classification_summary_tsv
