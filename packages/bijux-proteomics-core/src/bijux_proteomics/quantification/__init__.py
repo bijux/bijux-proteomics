@@ -34,6 +34,7 @@ _QUANTIFICATION_EXPORT_MODULES = (
     "bijux_proteomics.quantification.statistical_backend",
     "bijux_proteomics.quantification.time_course_differential",
     "bijux_proteomics.quantification.uncertainty",
+    "bijux_proteomics.quantification.variance_model",
     "bijux_proteomics.quantification.value_provenance",
 )
 
