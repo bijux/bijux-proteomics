@@ -280,7 +280,7 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
             replicate=1,
             fraction=1,
             spectra_file="s5.mzml",
-            batch="b1",
+            batch="batch-a",
         ),
         ExperimentalDesignEntry(
             sample_id="s6",
@@ -288,7 +288,7 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
             replicate=2,
             fraction=1,
             spectra_file="s6.mzml",
-            batch="b2",
+            batch="batch-a",
         ),
     )
 
@@ -304,8 +304,14 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
     assert bundle.design_matrix_report.contrasts
     assert bundle.design_model_fit_report.contrast_estimates
     assert bundle.differential_abundance_multi_condition_report is not None
+    assert bundle.multi_contrast_consistency_report is not None
     assert len(bundle.differential_abundance_multi_condition_report.reports) == 3
+    assert bundle.multi_contrast_consistency_report.summary.shared_hit_count >= 1
     assert (
         "quant_artifact_bundle.differential_abundance_multi_condition_report"
+        in bundle.evidence_pointers
+    )
+    assert (
+        "quant_review_bundle.multi_contrast_consistency_report.entities"
         in bundle.evidence_pointers
     )
