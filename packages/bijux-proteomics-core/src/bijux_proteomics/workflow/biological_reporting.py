@@ -21,9 +21,12 @@ from bijux_proteomics.interpretation import (
     ComplexActivityReport,
     ComplexEnrichmentCorrectionPolicy,
     ComplexEnrichmentReport,
+    DiseasePhenotypeInterpretationPolicy,
+    DiseasePhenotypeInterpretationReport,
     build_complex_activity_report,
     build_biological_context_mapping_report,
     build_biological_foreground_background_model,
+    build_disease_phenotype_interpretation_report,
     render_complex_activity_condition_comparison_tsv,
     render_complex_activity_condition_score_tsv,
     render_complex_activity_matrix_tsv,
@@ -34,6 +37,9 @@ from bijux_proteomics.interpretation import (
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
+    render_disease_phenotype_interpretation_summary_tsv,
+    render_disease_phenotype_interpretation_tsv,
+    render_unknown_disease_phenotype_annotation_tsv,
     PathwayEnrichmentCorrectionPolicy,
     PathwayEnrichmentReport,
     PathwayActivityReport,
@@ -277,6 +283,7 @@ class BiologicalResultReportBundle(JsonModel):
     regulator_inference_report: RegulatorInferenceReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    disease_phenotype_report: DiseasePhenotypeInterpretationReport | None = None
     compartment_biology_report: CompartmentBiologyReport | None = None
     pathway_activity_report: PathwayActivityReport | None = None
     complex_activity_report: ComplexActivityReport | None = None
@@ -320,6 +327,9 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    disease_phenotype_summary_tsv: str | None = None
+    disease_phenotype_term_tsv: str | None = None
+    disease_phenotype_unknown_annotation_tsv: str | None = None
     compartment_biology_summary_tsv: str | None = None
     compartment_enrichment_tsv: str | None = None
     compartment_activity_matrix_tsv: str | None = None
@@ -375,6 +385,7 @@ class BiologicalResultReportExportManifest(JsonModel):
     summary: BiologicalResultReportSummary
     artifacts: BiologicalResultReportArtifactPaths
     context_summary_included: bool
+    disease_phenotype_summary_included: bool
     go_summary_included: bool
     pathway_summary_included: bool
     complex_summary_included: bool
@@ -600,6 +611,29 @@ def build_biological_result_report_bundle_from_quant_table(
         context_mapping_report = build_biological_context_mapping_report(
             differential_reference_entries,
             context_import_report.accepted_records,
+        )
+    disease_phenotype_report = None
+    if (
+        context_import_report is not None
+        and any(
+            record.context_kind in {
+                BiologicalContextKind.DISEASE_TERM,
+                BiologicalContextKind.PHENOTYPE_TERM,
+            }
+            for record in context_import_report.accepted_records
+        )
+    ):
+        disease_phenotype_report = build_disease_phenotype_interpretation_report(
+            normalized_table,
+            differential_report,
+            context_import_report.accepted_records,
+            policy=DiseasePhenotypeInterpretationPolicy(
+                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
+                min_absolute_log2_fold_change=(
+                    active_selection_policy.min_absolute_log2_fold_change
+                ),
+                min_enrichment_ratio=1.0,
+            ),
         )
     compartment_biology_report = None
     if (
@@ -872,6 +906,7 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_inference_report=regulator_inference_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        disease_phenotype_report=disease_phenotype_report,
         compartment_biology_report=compartment_biology_report,
         pathway_activity_report=pathway_activity_report,
         complex_activity_report=complex_activity_report,
@@ -1517,6 +1552,9 @@ def export_biological_result_report_bundle(
     context_term_name = None
     context_unmapped_name = None
     context_rejected_name = None
+    disease_phenotype_summary_name = None
+    disease_phenotype_term_name = None
+    disease_phenotype_unknown_name = None
     pathway_activity_summary_name = None
     pathway_activity_matrix_name = None
     pathway_activity_sample_name = None
@@ -1668,6 +1706,36 @@ def export_biological_result_report_bundle(
         context_term_name = None
         context_unmapped_name = None
         context_rejected_name = None
+    if report.disease_phenotype_report is not None:
+        disease_phenotype_summary_name = (
+            "biological_disease_phenotype_summary.tsv"
+        )
+        disease_phenotype_term_name = "biological_disease_phenotype_terms.tsv"
+        disease_phenotype_unknown_name = (
+            "biological_disease_phenotype_unknown_annotations.tsv"
+        )
+        (output_dir / disease_phenotype_summary_name).write_text(
+            render_disease_phenotype_interpretation_summary_tsv(
+                report.disease_phenotype_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / disease_phenotype_term_name).write_text(
+            render_disease_phenotype_interpretation_tsv(
+                report.disease_phenotype_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / disease_phenotype_unknown_name).write_text(
+            render_unknown_disease_phenotype_annotation_tsv(
+                report.disease_phenotype_report
+            ),
+            encoding="utf-8",
+        )
+    else:
+        disease_phenotype_summary_name = None
+        disease_phenotype_term_name = None
+        disease_phenotype_unknown_name = None
     if report.compartment_biology_report is not None:
         compartment_summary_name = "biological_compartment_biology_summary.tsv"
         compartment_enrichment_name = "biological_compartment_enrichment.tsv"
@@ -1950,6 +2018,9 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        disease_phenotype_summary_tsv=disease_phenotype_summary_name,
+        disease_phenotype_term_tsv=disease_phenotype_term_name,
+        disease_phenotype_unknown_annotation_tsv=disease_phenotype_unknown_name,
         compartment_biology_summary_tsv=compartment_summary_name,
         compartment_enrichment_tsv=compartment_enrichment_name,
         compartment_activity_matrix_tsv=compartment_activity_matrix_name,
@@ -2008,6 +2079,7 @@ def export_biological_result_report_bundle(
         summary=report.summary,
         artifacts=artifacts,
         context_summary_included=report.context_mapping_report is not None,
+        disease_phenotype_summary_included=report.disease_phenotype_report is not None,
         go_summary_included=report.go_enrichment_report is not None,
         pathway_summary_included=report.pathway_enrichment_report is not None,
         complex_summary_included=report.complex_enrichment_report is not None,
@@ -2198,6 +2270,13 @@ def _render_biological_result_report_html(
         sections.append(("Pathway enrichment", artifacts.pathway_entry_tsv))
     if artifacts.complex_entry_tsv is not None:
         sections.append(("Complex enrichment", artifacts.complex_entry_tsv))
+    if artifacts.disease_phenotype_term_tsv is not None:
+        sections.append(
+            (
+                "Disease and phenotype interpretation",
+                artifacts.disease_phenotype_term_tsv,
+            )
+        )
     section_html = "".join(
         f"<li><strong>{escape(label)}</strong>: <code>{escape(path)}</code></li>"
         for label, path in sections
@@ -2207,6 +2286,7 @@ def _render_biological_result_report_html(
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
     regulator_inference_html = _render_regulator_inference_table_html(report)
+    disease_phenotype_html = _render_disease_phenotype_table_html(report)
     compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
     complex_activity_html = _render_complex_activity_table_html(report)
@@ -2230,6 +2310,8 @@ def _render_biological_result_report_html(
         f"{foreground_background_html}"
         "<h2>Regulator inference</h2>"
         f"{regulator_inference_html}"
+        "<h2>Disease and phenotype interpretation</h2>"
+        f"{disease_phenotype_html}"
         "<h2>Compartment biology</h2>"
         f"{compartment_biology_html}"
         "<h2>Pathway activity</h2>"
@@ -2425,6 +2507,54 @@ def _render_regulator_inference_table_html(
         f"{regulator_report.summary.protein_abundance_entry_count} | "
         f"<strong>Unresolved targets</strong>: "
         f"{regulator_report.summary.unresolved_target_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_disease_phenotype_table_html(report: BiologicalResultReportBundle) -> str:
+    disease_phenotype_report = report.disease_phenotype_report
+    if disease_phenotype_report is None:
+        return "<p>No disease or phenotype interpretation report was generated.</p>"
+    headers = (
+        "Kind",
+        "Term",
+        "Source",
+        "Foreground overlap",
+        "Adjusted p-value",
+        "Confidence",
+        "Supporting proteins",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.context_kind.value)}</td>"
+            f"<td>{escape(entry.term_name or entry.term_id)}</td>"
+            f"<td>{escape(entry.source_name or '')}</td>"
+            f"<td>{entry.foreground_overlap_count}</td>"
+            f"<td>{_format_optional_float(entry.adjusted_p_value)}</td>"
+            f"<td>{escape(entry.confidence_status.value)}</td>"
+            f"<td>{escape('; '.join(entry.supporting_protein_refs))}</td>"
+            "</tr>"
+        )
+        for entry in disease_phenotype_report.entries[:10]
+    )
+    return (
+        "<p>"
+        f"<strong>Evaluated terms</strong>: "
+        f"{disease_phenotype_report.summary.evaluated_term_count} | "
+        f"<strong>Passing terms</strong>: "
+        f"{disease_phenotype_report.summary.filter_passing_term_count} | "
+        f"<strong>High-confidence terms</strong>: "
+        f"{disease_phenotype_report.summary.high_confidence_term_count} | "
+        f"<strong>Unknown foreground proteins</strong>: "
+        f"{disease_phenotype_report.summary.unknown_foreground_protein_count} | "
+        f"<strong>Unknown background proteins</strong>: "
+        f"{disease_phenotype_report.summary.unknown_background_protein_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
