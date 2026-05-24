@@ -372,6 +372,62 @@ def test_interpretation_package_exports_compartment_biology_surface() -> None:
     assert "compartment_id" in interpretation.render_compartment_enrichment_tsv(report)
 
 
+def test_interpretation_package_exports_disease_phenotype_interpretation_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture_path("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    parse_report = parse_ms1_feature_table(
+        _workflow_fixture_path("biological_report_features.tsv"),
+        mapping=Ms1FeatureColumnMapping(
+            sample_id="sample_id",
+            feature_id="feature_id",
+            peptide="peptide",
+            intensity="intensity",
+            protein_refs="proteins",
+            charge="charge",
+            mz="mz",
+            retention_time_seconds="retention_time_seconds",
+            missing_reason="missing_reason",
+        ),
+    )
+    protein_table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    context_report = interpretation.parse_biological_context_table(
+        _workflow_fixture_path("biological_report_disease_phenotype.tsv")
+    )
+    differential_report = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            protein_table,
+            design_entries,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+    report = interpretation.build_disease_phenotype_interpretation_report(
+        protein_table,
+        differential_report,
+        context_report.accepted_records,
+        policy=interpretation.DiseasePhenotypeInterpretationPolicy(
+            max_adjusted_p_value=1.0,
+        ),
+    )
+
+    assert hasattr(interpretation, "build_disease_phenotype_interpretation_report")
+    assert hasattr(interpretation, "render_disease_phenotype_interpretation_tsv")
+    assert report.summary.term_count == 4
+    assert "context_kind" in interpretation.render_disease_phenotype_interpretation_tsv(
+        report
+    )
+
+
 def test_interpretation_package_exports_regulator_inference_surface() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
