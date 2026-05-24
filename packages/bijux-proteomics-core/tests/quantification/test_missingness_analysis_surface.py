@@ -10,6 +10,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
+    classify_missingness,
     build_missingness_classifier_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
@@ -361,3 +362,22 @@ def test_missingness_classifier_report_distinguishes_condition_specific_and_rand
     assert (
         random_entry.mechanism.value == "missing_completely_at_random"
     )
+
+
+def test_classify_missingness_preserves_condition_specific_absence_outside_random_bucket() -> (
+    None
+):
+    table, design = _table_and_design()
+
+    condition_summary = build_missingness_condition_summary_report(
+        table,
+        design_entries=design,
+    )
+    classification = classify_missingness(table, design)
+    labels = {entry.entity_id: entry.label.value for entry in classification.entries}
+
+    ctrl_entry = next(entry for entry in condition_summary.entries if entry.condition == "ctrl")
+
+    assert ctrl_entry.condition_specific_absence_entity_ids == ("PEPA",)
+    assert labels["PEPA"] == "condition_specific"
+    assert labels["PEPA"] != "random"
