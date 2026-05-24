@@ -21,11 +21,14 @@ from bijux_proteomics.interpretation import (
     ComplexActivityReport,
     ComplexEnrichmentCorrectionPolicy,
     ComplexEnrichmentReport,
+    DrugTargetInterpretationPolicy,
+    DrugTargetInterpretationReport,
     DiseasePhenotypeInterpretationPolicy,
     DiseasePhenotypeInterpretationReport,
     build_complex_activity_report,
     build_biological_context_mapping_report,
     build_biological_foreground_background_model,
+    build_drug_target_interpretation_report,
     build_disease_phenotype_interpretation_report,
     render_complex_activity_condition_comparison_tsv,
     render_complex_activity_condition_score_tsv,
@@ -37,6 +40,8 @@ from bijux_proteomics.interpretation import (
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
+    render_drug_target_interpretation_summary_tsv,
+    render_drug_target_interpretation_tsv,
     render_disease_phenotype_interpretation_summary_tsv,
     render_disease_phenotype_interpretation_tsv,
     render_unknown_disease_phenotype_annotation_tsv,
@@ -283,6 +288,7 @@ class BiologicalResultReportBundle(JsonModel):
     regulator_inference_report: RegulatorInferenceReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    drug_target_report: DrugTargetInterpretationReport | None = None
     disease_phenotype_report: DiseasePhenotypeInterpretationReport | None = None
     compartment_biology_report: CompartmentBiologyReport | None = None
     pathway_activity_report: PathwayActivityReport | None = None
@@ -327,6 +333,8 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    drug_target_summary_tsv: str | None = None
+    drug_target_tsv: str | None = None
     disease_phenotype_summary_tsv: str | None = None
     disease_phenotype_term_tsv: str | None = None
     disease_phenotype_unknown_annotation_tsv: str | None = None
@@ -385,6 +393,7 @@ class BiologicalResultReportExportManifest(JsonModel):
     summary: BiologicalResultReportSummary
     artifacts: BiologicalResultReportArtifactPaths
     context_summary_included: bool
+    drug_target_summary_included: bool
     disease_phenotype_summary_included: bool
     go_summary_included: bool
     pathway_summary_included: bool
@@ -611,6 +620,29 @@ def build_biological_result_report_bundle_from_quant_table(
         context_mapping_report = build_biological_context_mapping_report(
             differential_reference_entries,
             context_import_report.accepted_records,
+        )
+    drug_target_report = None
+    if (
+        context_import_report is not None
+        and any(
+            record.context_kind is BiologicalContextKind.DRUG_TARGET
+            for record in context_import_report.accepted_records
+        )
+    ):
+        drug_target_report = build_drug_target_interpretation_report(
+            normalized_table,
+            differential_report,
+            context_import_report.accepted_records,
+            pathway_records=()
+            if pathway_membership_report is None
+            else pathway_membership_report.accepted_records,
+            annotation_report=annotation_report,
+            policy=DrugTargetInterpretationPolicy(
+                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
+                min_absolute_log2_fold_change=(
+                    active_selection_policy.min_absolute_log2_fold_change
+                ),
+            ),
         )
     disease_phenotype_report = None
     if (
@@ -906,6 +938,7 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_inference_report=regulator_inference_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        drug_target_report=drug_target_report,
         disease_phenotype_report=disease_phenotype_report,
         compartment_biology_report=compartment_biology_report,
         pathway_activity_report=pathway_activity_report,
@@ -1552,6 +1585,8 @@ def export_biological_result_report_bundle(
     context_term_name = None
     context_unmapped_name = None
     context_rejected_name = None
+    drug_target_summary_name = None
+    drug_target_name = None
     disease_phenotype_summary_name = None
     disease_phenotype_term_name = None
     disease_phenotype_unknown_name = None
@@ -1706,6 +1741,20 @@ def export_biological_result_report_bundle(
         context_term_name = None
         context_unmapped_name = None
         context_rejected_name = None
+    if report.drug_target_report is not None:
+        drug_target_summary_name = "biological_drug_target_summary.tsv"
+        drug_target_name = "biological_drug_target_interpretation.tsv"
+        (output_dir / drug_target_summary_name).write_text(
+            render_drug_target_interpretation_summary_tsv(report.drug_target_report),
+            encoding="utf-8",
+        )
+        (output_dir / drug_target_name).write_text(
+            render_drug_target_interpretation_tsv(report.drug_target_report),
+            encoding="utf-8",
+        )
+    else:
+        drug_target_summary_name = None
+        drug_target_name = None
     if report.disease_phenotype_report is not None:
         disease_phenotype_summary_name = (
             "biological_disease_phenotype_summary.tsv"
@@ -2018,6 +2067,8 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        drug_target_summary_tsv=drug_target_summary_name,
+        drug_target_tsv=drug_target_name,
         disease_phenotype_summary_tsv=disease_phenotype_summary_name,
         disease_phenotype_term_tsv=disease_phenotype_term_name,
         disease_phenotype_unknown_annotation_tsv=disease_phenotype_unknown_name,
@@ -2079,6 +2130,7 @@ def export_biological_result_report_bundle(
         summary=report.summary,
         artifacts=artifacts,
         context_summary_included=report.context_mapping_report is not None,
+        drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
         go_summary_included=report.go_enrichment_report is not None,
         pathway_summary_included=report.pathway_enrichment_report is not None,
@@ -2270,6 +2322,8 @@ def _render_biological_result_report_html(
         sections.append(("Pathway enrichment", artifacts.pathway_entry_tsv))
     if artifacts.complex_entry_tsv is not None:
         sections.append(("Complex enrichment", artifacts.complex_entry_tsv))
+    if artifacts.drug_target_tsv is not None:
+        sections.append(("Drug-target interpretation", artifacts.drug_target_tsv))
     if artifacts.disease_phenotype_term_tsv is not None:
         sections.append(
             (
@@ -2286,6 +2340,7 @@ def _render_biological_result_report_html(
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
     regulator_inference_html = _render_regulator_inference_table_html(report)
+    drug_target_html = _render_drug_target_table_html(report)
     disease_phenotype_html = _render_disease_phenotype_table_html(report)
     compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
@@ -2310,6 +2365,8 @@ def _render_biological_result_report_html(
         f"{foreground_background_html}"
         "<h2>Regulator inference</h2>"
         f"{regulator_inference_html}"
+        "<h2>Drug-target interpretation</h2>"
+        f"{drug_target_html}"
         "<h2>Disease and phenotype interpretation</h2>"
         f"{disease_phenotype_html}"
         "<h2>Compartment biology</h2>"
@@ -2507,6 +2564,47 @@ def _render_regulator_inference_table_html(
         f"{regulator_report.summary.protein_abundance_entry_count} | "
         f"<strong>Unresolved targets</strong>: "
         f"{regulator_report.summary.unresolved_target_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_drug_target_table_html(report: BiologicalResultReportBundle) -> str:
+    drug_target_report = report.drug_target_report
+    if drug_target_report is None:
+        return "<p>No drug-target interpretation report was generated.</p>"
+    headers = (
+        "Drug",
+        "Protein",
+        "Relationship",
+        "Evidence tier",
+        "Effect",
+        "Pathways",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.drug_name or entry.drug_id)}</td>"
+            f"<td>{escape(entry.protein_ref)}</td>"
+            f"<td>{escape(entry.relationship.value)}</td>"
+            f"<td>{escape(entry.evidence_tier.value)}</td>"
+            f"<td>{escape(entry.effect_direction.value)} ({entry.log2_fold_change:.3f})</td>"
+            f"<td>{escape('; '.join(entry.supporting_pathway_ids))}</td>"
+            "</tr>"
+        )
+        for entry in drug_target_report.entries[:10]
+    )
+    return (
+        "<p>"
+        f"<strong>Drugs</strong>: {drug_target_report.summary.drug_count} | "
+        f"<strong>Direct targets</strong>: "
+        f"{drug_target_report.summary.direct_target_entry_count} | "
+        f"<strong>Indirect pathway neighbors</strong>: "
+        f"{drug_target_report.summary.indirect_pathway_neighbor_entry_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
