@@ -155,6 +155,9 @@ def build_public_dataset_comparison_report_from_suite(
     successful_dataset_contexts: list[
         tuple[PublicBenchmarkRunReport, str, str, str, ProteomicsStudyResult]
     ] = []
+    passed_dataset_without_study_contexts: list[
+        tuple[PublicBenchmarkRunReport, str, str, str, str]
+    ] = []
     failed_dataset_contexts: list[tuple[PublicBenchmarkRunReport, str, str, str]] = []
     successful_studies: list[CrossStudyProteinStudyInput] = []
 
@@ -186,7 +189,19 @@ def build_public_dataset_comparison_report_from_suite(
             raise ValueError(
                 f"public benchmark run '{run.dataset_id}' passed without a workflow result"
             )
-        study_result = build_proteomics_study_result(run.workflow_result.report)
+        try:
+            study_result = build_proteomics_study_result(run.workflow_result.report)
+        except (TypeError, ValueError) as exc:
+            passed_dataset_without_study_contexts.append(
+                (
+                    run,
+                    descriptor.species,
+                    descriptor.contrast.condition_a,
+                    descriptor.contrast.condition_b,
+                    str(exc),
+                )
+            )
+            continue
         successful_dataset_contexts.append(
             (
                 run,
@@ -272,6 +287,26 @@ def build_public_dataset_comparison_report_from_suite(
             search_engine=run.search_engine,
             condition_a=condition_a,
             condition_b=condition_b,
+            status=PublicDatasetComparisonDatasetStatus.PASSED,
+            failure_count=0,
+            effect_comparison_supported=False,
+            pathway_comparison_supported=False,
+            note=(
+                f"{run.note} Cross-study comparison skipped because the passed "
+                f"workflow output does not normalize into a proteomics study result: "
+                f"{reason}"
+            ),
+        )
+        for run, descriptor_species, condition_a, condition_b, reason in passed_dataset_without_study_contexts
+    )
+    dataset_summaries.extend(
+        PublicDatasetComparisonDatasetSummary(
+            dataset_id=run.dataset_id,
+            accession=run.accession,
+            species=descriptor_species,
+            search_engine=run.search_engine,
+            condition_a=condition_a,
+            condition_b=condition_b,
             status=PublicDatasetComparisonDatasetStatus.FAILED,
             failure_count=len(run.failures),
             note=run.note,
@@ -298,7 +333,7 @@ def build_public_dataset_comparison_report_from_suite(
         passed_dataset_count=suite_report.passed_count,
         failed_dataset_count=suite_report.failed_count,
         failure_entry_count=len(ordered_failures),
-        successful_study_count=suite_report.passed_count,
+        successful_study_count=len(successful_dataset_contexts),
         effect_support_study_count=(
             0
             if effect_comparison_report is None

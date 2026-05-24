@@ -10,6 +10,7 @@ import yaml
 from bijux_proteomics.workflow import (
     PublicDatasetComparisonDatasetStatus,
     build_public_dataset_comparison_report,
+    public_benchmark_root,
     render_public_dataset_combined_summary_tsv,
     render_public_dataset_dataset_summary_tsv,
     render_public_dataset_failure_tsv,
@@ -18,12 +19,8 @@ from bijux_proteomics.workflow import (
 )
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
-
-
 def _benchmark_descriptor(source_name: str) -> Path:
-    return _repo_root() / "benchmarks" / "public" / source_name / "dataset.yml"
+    return public_benchmark_root() / source_name / "dataset.yml"
 
 
 def _write_descriptor_copy(
@@ -112,3 +109,43 @@ def test_build_public_dataset_comparison_report_preserves_per_dataset_and_combin
     assert "missing_required_schema" in failure_tsv
     assert "combined_log2_fold_change" in meta_analysis_tsv
     assert "comparison_status" in pathway_comparison_tsv
+
+
+def test_build_public_dataset_comparison_report_keeps_passed_targeted_benchmarks_visible_without_study_normalization(
+    tmp_path: Path,
+) -> None:
+    benchmark_root = tmp_path / "benchmarks"
+    _write_descriptor_copy(
+        source_name="lfq_cohort_review_package",
+        benchmark_root=benchmark_root,
+        dataset_id="lfq_reference",
+        accession="flagship_public_package:lfq_reference",
+    )
+    _write_descriptor_copy(
+        source_name="targeted_transition_review_package",
+        benchmark_root=benchmark_root,
+        dataset_id="targeted_validation",
+        accession="flagship_public_package:targeted_validation",
+    )
+
+    report = build_public_dataset_comparison_report(
+        benchmark_root,
+        run_output_root=tmp_path / "runs",
+    )
+
+    assert report.summary.descriptor_count == 2
+    assert report.summary.passed_dataset_count == 2
+    assert report.summary.failed_dataset_count == 0
+    assert report.summary.successful_study_count == 1
+    assert report.summary.effect_support_study_count == 1
+    assert report.summary.pathway_support_study_count == 0
+
+    dataset_by_id = {entry.dataset_id: entry for entry in report.dataset_summaries}
+    assert dataset_by_id["targeted_validation"].status is (
+        PublicDatasetComparisonDatasetStatus.PASSED
+    )
+    assert dataset_by_id["targeted_validation"].effect_comparison_supported is False
+    assert dataset_by_id["targeted_validation"].pathway_comparison_supported is False
+    assert "workflow output does not normalize into a proteomics study result" in (
+        dataset_by_id["targeted_validation"].note
+    )
