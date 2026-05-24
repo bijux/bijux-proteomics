@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 
 from click.testing import CliRunner
+import yaml
 
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
@@ -19,6 +20,25 @@ from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _write_public_descriptor_copy(
+    *,
+    source_name: str,
+    benchmark_root: Path,
+    dataset_id: str,
+    accession: str,
+) -> None:
+    source_path = REPO_ROOT / "benchmarks" / "public" / source_name / "dataset.yml"
+    payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    payload["dataset_id"] = dataset_id
+    payload["accession"] = accession
+    target_dir = benchmark_root / dataset_id
+    target_dir.mkdir(parents=True, exist_ok=True)
+    (target_dir / "dataset.yml").write_text(
+        yaml.safe_dump(payload, sort_keys=False),
+        encoding="utf-8",
+    )
 
 
 def _similarity_spectrum(
@@ -125,6 +145,67 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
         assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
+
+
+def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        benchmark_root = Path("benchmarks")
+        _write_public_descriptor_copy(
+            source_name="lfq_cohort_review_package",
+            benchmark_root=benchmark_root,
+            dataset_id="lfq_question_a",
+            accession="flagship_public_package:lfq_question_a",
+        )
+        _write_public_descriptor_copy(
+            source_name="lfq_cohort_review_package",
+            benchmark_root=benchmark_root,
+            dataset_id="lfq_question_b",
+            accession="flagship_public_package:lfq_question_b",
+        )
+        _write_public_descriptor_copy(
+            source_name="dda_maxquant_review_snapshot",
+            benchmark_root=benchmark_root,
+            dataset_id="maxquant_missing_bundle",
+            accession="flagship_public_package:maxquant_missing_bundle",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "public-dataset-comparison",
+                "--benchmarks",
+                str(benchmark_root),
+                "--run-output-root",
+                "public_dataset_runs",
+                "--dataset-summary-tsv-out",
+                "public_dataset.dataset_summary.tsv",
+                "--failure-tsv-out",
+                "public_dataset.failures.tsv",
+                "--combined-summary-tsv-out",
+                "public_dataset.combined_summary.tsv",
+                "--effect-comparison-tsv-out",
+                "public_dataset.effect.tsv",
+                "--meta-analysis-tsv-out",
+                "public_dataset.meta.tsv",
+                "--pathway-comparison-tsv-out",
+                "public_dataset.pathway.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["passed_dataset_count"] == 2
+        assert payload["summary"]["failed_dataset_count"] == 1
+        assert payload["summary"]["meta_analysis_entry_count"] > 0
+        assert "lfq_question_a" in Path("public_dataset.dataset_summary.tsv").read_text()
+        assert "missing_required_schema" in Path("public_dataset.failures.tsv").read_text()
+        assert "meta_analysis_entry_count" in Path(
+            "public_dataset.combined_summary.tsv"
+        ).read_text()
+        assert "comparison_status" in Path("public_dataset.effect.tsv").read_text()
+        assert "combined_log2_fold_change" in Path("public_dataset.meta.tsv").read_text()
+        assert "comparison_status" in Path("public_dataset.pathway.tsv").read_text()
 
 
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
