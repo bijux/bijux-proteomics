@@ -7262,6 +7262,97 @@ def test_targeted_panel_builder_command_emits_reviewable_transition_list_rows() 
         )
 
 
+def test_validation_experiment_planner_command_flags_underpowered_designs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tweighted_evidence_total\tpenalty_total\tuncertainty\teffect_size\tadjusted_p_value\tsupport_count\teffect_score\trobustness_score\tdetectability_score\tspecificity_score\tannotation_score\tassay_feasibility_score\tsample_qc_score\tannotation_labels\trank_reason_codes\tsource_ids\tranking_note\n"
+            "protein:P11111\tprotein\tROBUST1\tP11111\t\t1\t0.91\t0.91\t0.00\t0.10\t1.10\t0.003\t4\t0.70\t0.85\t0.95\t0.94\t0.55\t0.92\t0.90\tpathway:stress\tassay_ready\tbio-card-1\tstrong validation-ready candidate\n"
+            "protein:P22222\tprotein\tWARN2\tP22222\t\t2\t0.61\t0.70\t0.18\t0.30\t0.55\t0.020\t3\t0.40\t0.38\t0.62\t0.40\t0.30\t0.58\t0.90\tcontext:secreted\tweak_robustness\tbio-card-2\tcandidate carries evidence penalties\n",
+            encoding="utf-8",
+        )
+        Path("selected_peptides.tsv").write_text(
+            "target_protein_ref\ttarget_protein_group_id\tgene_symbol\trank\tcandidate_source\tpeptide_sequence\tcanonical_peptide\tobserved_in_discovery\tobserved_psm_count\trun_count\tdetection_frequency\treplicate_consistency\tprimary_evidence_class\tuniqueness_class\tuniqueness_score\tdetectability_score\tdetectability_tier\tsuitability_score\tliability_tier\tliability_codes\tselection_score\tselection_reasons\n"
+            "P11111\tprotein_group_1\tROBUST1\t1\tobserved_discovery\tPEPTIDER\tPEPTIDER\ttrue\t6\t4\t0.95\t0.92\tstrong\tunique\t1.0\t0.95\thigh\t0.92\tpreferred\t\t0.95\tselected for targeted follow-up\n"
+            "P22222\tprotein_group_2\tWARN2\t1\tobserved_discovery\tAAASHALEDK\tAAASHALEDK\ttrue\t5\t3\t0.58\t0.62\tstrong\tshared\t0.45\t0.62\tmedium\t0.58\tcaution\tdeamidation\t0.64\tselected for targeted follow-up\n",
+            encoding="utf-8",
+        )
+        Path("panel.assays.tsv").write_text(
+            "assay_entry_id\tbiomarker_candidate_id\tbiomarker_candidate_kind\tbiomarker_display_label\tbiomarker_priority_rank\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tuniqueness_class\tuniqueness_score\tprecursor_charge\tprecursor_mz\texpected_retention_time_minutes\tretention_window_start_minutes\tretention_window_end_minutes\tselected_transition_count\texported_transition_count\tassay_interference_risk_tier\twarning_codes\twarning_note\tsource_library_entry_id\n"
+            "assay:P11111:PEPTIDER\tprotein:P11111\tprotein\tROBUST1\t1\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\tunique\t1.000000\t2\t501.250000\t18.400000\t16.900000\t19.900000\t3\t3\tlow\t\tassay retained for targeted panel review\tmgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111\n"
+            "assay:P22222:AAASHALEDK\tprotein:P22222\tprotein\tWARN2\t2\tP22222\tprotein_group_2\tWARN2\tAAASHALEDK\tAAASHALEDK\tshared\t0.450000\t2\t551.250000\t\t\t\t4\t2\tmedium\tcandidate_penalized;non_unique_target;reduced_transition_support\tassay retained for targeted panel review\t\n",
+            encoding="utf-8",
+        )
+        Path("panel.omitted.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tomission_reason\n"
+            "ptm_site:P33333:S21\tptm_site\tP33333 S21 phospho-site\tP33333\tP33333:S21:phosphorylation\t3\tPTM-site candidate requires site-specific targeted assay design before validation planning\n",
+            encoding="utf-8",
+        )
+        Path("power.variance.tsv").write_text(
+            "entity_id\tprotein_refs\tobserved_sample_count\tmissing_sample_count\tmissing_fraction\tcontributing_condition_count\tused_global_variance_fallback\tpooled_log2_variance\tpooled_log2_stddev\n"
+            "protein:P11111\tP11111\t8\t1\t0.08\t2\tfalse\t0.078400\t0.280000\n"
+            "protein:P22222\tP22222\t8\t3\t0.36\t0\ttrue\t0.176400\t0.420000\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "validation-experiment-planner",
+                "biomarker.candidates.tsv",
+                "selected_peptides.tsv",
+                "panel.assays.tsv",
+                "--panel-omitted-tsv",
+                "panel.omitted.tsv",
+                "--power-variance-tsv",
+                "power.variance.tsv",
+                "--proposed-samples-per-group",
+                "6",
+                "--summary-tsv-out",
+                "validation.summary.tsv",
+                "--plan-tsv-out",
+                "validation.plan.tsv",
+                "--warning-tsv-out",
+                "validation.warnings.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["biomarker_candidate_count"] == 2
+        assert payload["summary"]["planned_assay_count"] == 2
+        assert payload["summary"]["omitted_candidate_count"] == 1
+        assert payload["summary"]["underpowered_assay_count"] == 1
+        by_assay = {
+            entry["assay_entry_id"]: entry for entry in payload["plan_entries"]
+        }
+        assert by_assay["assay:P11111:PEPTIDER"]["planning_mode"] == "pilot_backed"
+        assert by_assay["assay:P11111:PEPTIDER"]["underpowered"] is False
+        assert by_assay["assay:P22222:AAASHALEDK"]["underpowered"] is True
+        assert (
+            by_assay["assay:P22222:AAASHALEDK"][
+                "recommended_minimum_samples_per_group"
+            ]
+            > 6
+        )
+        warning_codes = {
+            entry["warning_code"]: entry for entry in payload["warnings"]
+        }
+        assert "site_candidate_not_panelized" in warning_codes
+        assert Path("validation.summary.tsv").exists()
+        assert Path("validation.plan.tsv").exists()
+        assert Path("validation.warnings.tsv").exists()
+        assert "recommended_panel_samples_per_group" in Path(
+            "validation.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "planning_mode" in Path("validation.plan.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "underpowered_design" in Path("validation.warnings.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
