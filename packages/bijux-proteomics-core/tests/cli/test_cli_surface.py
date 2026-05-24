@@ -1258,6 +1258,78 @@ def test_disease_phenotype_command_emits_explicit_annotation_outputs() -> None:
         ].startswith("row_number")
 
 
+def test_drug_target_command_emits_direct_and_indirect_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_drug_targets.tsv",
+            "biological_report_drug_targets.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "drug-target",
+                "biological_report_features.tsv",
+                "biological_report_drug_targets.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--fasta",
+                "biological_report_reference.fasta",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--summary-tsv-out",
+                "drug_target.summary.tsv",
+                "--interpretation-tsv-out",
+                "drug_target.tsv",
+                "--rejected-context-tsv-out",
+                "drug_target.rejected.tsv",
+                "--rejected-pathway-tsv-out",
+                "drug_target.pathways.rejected.tsv",
+                "--max-adjusted-p-value",
+                "1.0",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["drug_count"] == 1
+        assert payload["report"]["summary"]["direct_target_entry_count"] == 1
+        assert (
+            payload["report"]["summary"]["indirect_pathway_neighbor_entry_count"] == 2
+        )
+        assert Path("drug_target.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("condition_a\tcondition_b\tdrug_count\tentry_count")
+        assert "relationship" in Path("drug_target.tsv").read_text()
+        assert "direct_target" in Path("drug_target.tsv").read_text()
+        assert "indirect_pathway_neighbor" in Path("drug_target.tsv").read_text()
+        assert Path("drug_target.rejected.tsv").read_text().splitlines()[
+            0
+        ].startswith("row_number")
+        assert Path("drug_target.pathways.rejected.tsv").read_text().splitlines()[
+            0
+        ].startswith("row_number")
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
