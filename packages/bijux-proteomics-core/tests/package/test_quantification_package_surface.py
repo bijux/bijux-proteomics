@@ -147,6 +147,127 @@ def test_quantification_package_exports_protein_uncertainty_owner_surface() -> N
     assert "supporting_peptide_count" in rendered
 
 
+def test_quantification_package_exports_peptide_level_differential_owner_surface() -> (
+    None
+):
+    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-001",
+                sample_id="control-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-002",
+                sample_id="control-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=110.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-003",
+                sample_id="case-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-004",
+                sample_id="case-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=440.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-005",
+                sample_id="control-1",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-006",
+                sample_id="control-2",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=440.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-007",
+                sample_id="case-1",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=1600.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="peptide-da-008",
+                sample_id="case-2",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=1760.0,
+                protein_refs=("P001",),
+            ),
+        )
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="control-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="control-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="control-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="control-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+    )
+
+    report = quantification.test_protein_effect_from_peptides(
+        peptide_matrix,
+        design,
+        condition_a="control",
+        condition_b="case",
+    )
+    rendered = quantification.render_peptide_level_differential_tsv(report)
+
+    assert hasattr(quantification, "test_protein_effect_from_peptides")
+    assert hasattr(quantification, "render_peptide_level_differential_tsv")
+    assert len(report.entries) == 1
+    assert report.entries[0].log2fc > 1.9
+    assert report.entries[0].peptide_disagreement_score < 0.05
+    assert (
+        "protein_id\tlog2fc\tp_value\tq_value\tpeptide_count\tpeptide_disagreement_score"
+        in rendered
+    )
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
