@@ -51,8 +51,8 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 5
-    assert suite.failed_count == 5
+    assert suite.passed_count == 6
+    assert suite.failed_count == 4
 
     diann_benchmark_run = runs["dia_diann_benchmark_dataset"]
     assert diann_benchmark_run.status == "passed"
@@ -108,9 +108,11 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     }
 
     tmt_run = runs["multiplex_tmtpro_review_package"]
-    assert tmt_run.status == "failed"
-    assert tmt_run.failures[0].kind == "execution_failed"
-    assert "Modified sequence" in tmt_run.failures[0].message
+    assert tmt_run.status == "passed"
+    assert tmt_run.verified_counts["accepted_input_row_count"] == 4
+    assert tmt_run.verified_counts["flagged_interference_count"] == 6
+    assert Path(tmt_run.output_dir, "tmt_workflow_manifest.json").exists()
+    assert Path(tmt_run.output_dir, "tmt_interference_summary.tsv").exists()
 
     targeted_run = runs["targeted_transition_review_package"]
     assert targeted_run.status == "failed"
