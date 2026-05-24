@@ -8,6 +8,66 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
+def test_quantification_package_exports_model_rollup_owner_surface() -> None:
+    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="rollup001",
+                sample_id="control-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="rollup002",
+                sample_id="case-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="rollup003",
+                sample_id="control-1",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=400.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="rollup004",
+                sample_id="case-1",
+                peptide="PEPG",
+                canonical_peptide="PEPG",
+                intensity=1600.0,
+                protein_refs=("P001",),
+            ),
+        )
+    )
+
+    report = quantification.fit_peptide_bias_model(
+        peptide_matrix,
+        (
+            quantification.PeptideToProteinEntry(peptide_id="PEPA", protein_id="P001"),
+            quantification.PeptideToProteinEntry(peptide_id="PEPG", protein_id="P001"),
+        ),
+    )
+    abundance_tsv = quantification.render_protein_abundance_tsv(report)
+    bias_tsv = quantification.render_peptide_bias_tsv(report)
+    residual_tsv = quantification.render_rollup_residuals_tsv(report)
+
+    assert hasattr(quantification, "fit_peptide_bias_model")
+    assert hasattr(quantification, "render_protein_abundance_tsv")
+    assert hasattr(quantification, "render_peptide_bias_tsv")
+    assert hasattr(quantification, "render_rollup_residuals_tsv")
+    assert len(report.protein_abundance) == 2
+    assert report.protein_abundance[0].supporting_peptide_count == 2
+    assert "supporting_peptide_count" in abundance_tsv
+    assert "peptide_bias_log2" in bias_tsv
+    assert "residual_log2" in residual_tsv
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
