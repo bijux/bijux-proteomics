@@ -151,6 +151,7 @@ def test_review_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.review")
 
     assert hasattr(module, "build_analysis_recommendation_report_from_artifacts")
+    assert hasattr(module, "build_compact_result_summary_report_from_artifacts")
     assert hasattr(module, "build_failure_explanation_report")
     assert hasattr(module, "build_biological_claim_validation_report")
     assert hasattr(module, "build_biological_hypothesis_report")

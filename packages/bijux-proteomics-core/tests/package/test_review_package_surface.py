@@ -158,6 +158,40 @@ def test_review_package_exports_analysis_recommendation_surface(tmp_path: Path) 
     assert "detected_condition_code" in review.render_analysis_recommendation_tsv(report)
 
 
+def test_review_package_exports_compact_result_summary_surface() -> None:
+    report = review.CompactResultSummaryReport(
+        sections=(
+            review.CompactResultSummarySection(
+                section_kind=review.CompactResultSummarySectionKind.SAMPLE_QC,
+                title="Sample QC",
+                entries=(
+                    review.CompactResultSummaryEntry(
+                        entry_id="sample-qc-1",
+                        section_kind=review.CompactResultSummarySectionKind.SAMPLE_QC,
+                        summary_text="One governed QC entry was retained.",
+                        note="sample QC statements remain tied to explicit QC ledgers",
+                    ),
+                ),
+            ),
+        ),
+        overview=review.CompactResultSummaryOverview(
+            section_count=1,
+            entry_count=1,
+            sample_qc_entry_count=1,
+            strongest_finding_count=0,
+            weak_finding_count=0,
+            failed_assumption_count=0,
+            next_validation_target_count=0,
+        ),
+        note="compact summaries remain evidence constrained",
+    )
+
+    assert hasattr(review, "build_compact_result_summary_report_from_artifacts")
+    assert review.CompactResultSummarySectionKind.SAMPLE_QC.value == "sample_qc"
+    assert "Sample QC" in review.render_compact_result_summary_markdown(report)
+    assert "summary_text" in review.render_compact_result_summary_entry_tsv(report)
+
+
 def test_review_package_exports_failure_explanation_surface() -> None:
     report = review.build_failure_explanation_report(
         (
