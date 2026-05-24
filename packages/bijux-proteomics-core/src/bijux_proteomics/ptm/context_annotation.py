@@ -13,6 +13,13 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
+from bijux_proteomics.sequences import (
+    ProteinRegionContextColumnMapping,
+    ProteinRegionContextRecord,
+    ProteinSiteRegionReference,
+    build_protein_site_region_context_report,
+    parse_protein_region_context_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -179,188 +186,70 @@ def parse_ptm_site_context_tsv(
         source_name="source_name",
         source_accession="source_accession",
     )
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        if reader.fieldnames is None:
-            raise ValueError("PTM site context TSV must include a header row")
-        _validate_required_columns(reader.fieldnames, active_mapping)
-
-        accepted: list[PtmSiteContextRecord] = []
-        rejected: list[RejectedPtmSiteContextRow] = []
-        for row_number, row in enumerate(reader, start=2):
-            raw_fields = {
-                str(key): str(value or "")
-                for key, value in row.items()
-                if key is not None
-            }
-            issues: list[PtmSiteContextValidationIssue] = []
-
-            protein_ref = raw_fields.get(active_mapping.protein_ref, "").strip()
-            start_token = raw_fields.get(active_mapping.start, "").strip()
-            end_token = raw_fields.get(active_mapping.end, "").strip()
-            domain_name = _row_value(raw_fields, active_mapping.domain_name)
-            disorder_region = _row_value(raw_fields, active_mapping.disorder_region)
-            transmembrane_region = _row_value(
-                raw_fields,
-                active_mapping.transmembrane_region,
-            )
-            active_site_label = _row_value(raw_fields, active_mapping.active_site_label)
-            motif_name = _row_value(raw_fields, active_mapping.motif_name)
-            conservation_token = _row_value(raw_fields, active_mapping.conservation_score)
-
-            if not protein_ref:
-                issues.append(
-                    _row_issue(
-                        "missing_protein_ref",
-                        "missing protein reference",
-                        row_number,
-                    )
-                )
-            if not any(
-                value is not None
-                for value in (
-                    domain_name,
-                    disorder_region,
-                    transmembrane_region,
-                    active_site_label,
-                    motif_name,
-                    conservation_token,
-                )
-            ):
-                issues.append(
-                    _row_issue(
-                        "missing_context_fields",
-                        "site-context row requires at least one annotation field",
-                        row_number,
-                    )
-                )
-
-            start: int | None = None
-            end: int | None = None
-            try:
-                start = int(start_token)
-                if start < 1:
-                    raise ValueError
-            except ValueError:
-                issues.append(
-                    _row_issue(
-                        "invalid_start",
-                        "start must be a positive integer",
-                        row_number,
-                    )
-                )
-            try:
-                end = int(end_token)
-                if end < 1:
-                    raise ValueError
-            except ValueError:
-                issues.append(
-                    _row_issue(
-                        "invalid_end",
-                        "end must be a positive integer",
-                        row_number,
-                    )
-                )
-            if start is not None and end is not None and end < start:
-                issues.append(
-                    _row_issue(
-                        "inverted_interval",
-                        "end must be greater than or equal to start",
-                        row_number,
-                    )
-                )
-
-            conservation_score: float | None = None
-            if conservation_token is not None:
-                try:
-                    conservation_score = float(conservation_token)
-                    if conservation_score < 0.0 or conservation_score > 1.0:
-                        raise ValueError
-                except ValueError:
-                    issues.append(
-                        _row_issue(
-                            "invalid_conservation_score",
-                            "conservation score must be between 0.0 and 1.0",
-                            row_number,
-                        )
-                    )
-
-            if issues:
-                rejected.append(
-                    RejectedPtmSiteContextRow(
-                        row_number=row_number,
-                        raw_fields=raw_fields,
-                        issues=tuple(issues),
-                    )
-                )
-                continue
-
-            accepted.append(
-                PtmSiteContextRecord(
-                    protein_ref=protein_ref,
-                    start=start,
-                    end=end,
-                    domain_name=domain_name,
-                    disorder_region=disorder_region,
-                    transmembrane_region=transmembrane_region,
-                    active_site_label=active_site_label,
-                    motif_name=motif_name,
-                    conservation_score=conservation_score,
-                    source_name=_row_value(raw_fields, active_mapping.source_name),
-                    source_accession=_row_value(
-                        raw_fields,
-                        active_mapping.source_accession,
-                    ),
-                )
-            )
-
+    generic_report = parse_protein_region_context_tsv(
+        path,
+        mapping=ProteinRegionContextColumnMapping(
+            protein_ref=active_mapping.protein_ref,
+            start=active_mapping.start,
+            end=active_mapping.end,
+            domain_name=active_mapping.domain_name,
+            signal_peptide=None,
+            transmembrane_region=active_mapping.transmembrane_region,
+            disorder_region=active_mapping.disorder_region,
+            low_complexity_region=None,
+            active_site_label=active_mapping.active_site_label,
+            binding_region=None,
+            motif_name=active_mapping.motif_name,
+            conservation_score=active_mapping.conservation_score,
+            source_name=active_mapping.source_name,
+            source_accession=active_mapping.source_accession,
+        ),
+    )
     accepted_records = tuple(
-        sorted(
-            accepted,
-            key=lambda record: (
-                record.protein_ref,
-                record.start,
-                record.end,
-                record.domain_name or "",
-                record.motif_name or "",
-            ),
+        PtmSiteContextRecord(
+            protein_ref=record.protein_ref,
+            start=record.start,
+            end=record.end,
+            domain_name=record.domain_name,
+            disorder_region=record.disorder_region,
+            transmembrane_region=record.transmembrane_region,
+            active_site_label=record.active_site_label,
+            motif_name=record.motif_name,
+            conservation_score=record.conservation_score,
+            source_name=record.source_name,
+            source_accession=record.source_accession,
         )
+        for record in generic_report.accepted_records
     )
     return PtmSiteContextImportReport(
-        total_rows=len(accepted_records) + len(rejected),
+        total_rows=generic_report.total_rows,
         accepted_records=accepted_records,
-        rejected_rows=tuple(rejected),
+        rejected_rows=tuple(
+            RejectedPtmSiteContextRow(
+                row_number=row.row_number,
+                raw_fields=row.raw_fields,
+                issues=tuple(
+                    PtmSiteContextValidationIssue(
+                        code=issue.code,
+                        message=issue.message,
+                        row_number=issue.row_number,
+                    )
+                    for issue in row.issues
+                ),
+            )
+            for row in generic_report.rejected_rows
+        ),
         column_mapping=active_mapping,
         summary=PtmSiteContextImportSummary(
-            accepted_record_count=len(accepted_records),
-            rejected_row_count=len(rejected),
-            distinct_protein_ref_count=len(
-                {record.protein_ref for record in accepted_records}
-            ),
-            domain_record_count=sum(
-                1 for record in accepted_records if record.domain_name is not None
-            ),
-            disorder_record_count=sum(
-                1 for record in accepted_records if record.disorder_region is not None
-            ),
-            transmembrane_record_count=sum(
-                1
-                for record in accepted_records
-                if record.transmembrane_region is not None
-            ),
-            active_site_record_count=sum(
-                1
-                for record in accepted_records
-                if record.active_site_label is not None
-            ),
-            motif_record_count=sum(
-                1 for record in accepted_records if record.motif_name is not None
-            ),
-            conservation_record_count=sum(
-                1
-                for record in accepted_records
-                if record.conservation_score is not None
-            ),
+            accepted_record_count=generic_report.summary.accepted_record_count,
+            rejected_row_count=generic_report.summary.rejected_row_count,
+            distinct_protein_ref_count=generic_report.summary.distinct_protein_ref_count,
+            domain_record_count=generic_report.summary.domain_record_count,
+            disorder_record_count=generic_report.summary.disorder_record_count,
+            transmembrane_record_count=generic_report.summary.transmembrane_record_count,
+            active_site_record_count=generic_report.summary.active_site_record_count,
+            motif_record_count=generic_report.summary.motif_record_count,
+            conservation_record_count=generic_report.summary.conservation_record_count,
         ),
         note=(
             "ptm site context import preserves protein-region annotations for domains, disorder, transmembrane spans, active sites, motifs, and conservation before observed-site mapping"
@@ -374,135 +263,75 @@ def build_ptm_site_context_report(
 ) -> PtmSiteContextReport:
     """Map provided protein-region context annotations onto observed PTM sites."""
 
-    context_by_protein: dict[str, list[PtmSiteContextRecord]] = {}
-    for record in context_records:
-        context_by_protein.setdefault(record.protein_ref, []).append(record)
-
-    entries: list[PtmSiteContextEntry] = []
-    for site_entry in site_entries:
-        matched_records = tuple(
-            record
-            for record in context_by_protein.get(site_entry.protein_ref, ())
-            if record.start <= site_entry.position <= record.end
-        )
-        domain_names = _unique_sorted(
-            record.domain_name
-            for record in matched_records
-            if record.domain_name is not None
-        )
-        disorder_regions = _unique_sorted(
-            record.disorder_region
-            for record in matched_records
-            if record.disorder_region is not None
-        )
-        transmembrane_regions = _unique_sorted(
-            record.transmembrane_region
-            for record in matched_records
-            if record.transmembrane_region is not None
-        )
-        active_site_labels = _unique_sorted(
-            record.active_site_label
-            for record in matched_records
-            if record.active_site_label is not None
-        )
-        motif_names = _unique_sorted(
-            record.motif_name
-            for record in matched_records
-            if record.motif_name is not None
-        )
-        conservation_scores = tuple(
-            sorted(
-                {
-                    round(record.conservation_score, 6)
-                    for record in matched_records
-                    if record.conservation_score is not None
-                }
-            )
-        )
-        source_names = _unique_sorted(
-            record.source_name
-            for record in matched_records
-            if record.source_name is not None
-        )
-        source_accessions = _unique_sorted(
-            record.source_accession
-            for record in matched_records
-            if record.source_accession is not None
-        )
-        context_status = (
-            PtmSiteContextStatus.CONTEXT_ANNOTATED
-            if matched_records
-            else PtmSiteContextStatus.OUTSIDE_PROVIDED_ANNOTATIONS
-        )
-        entries.append(
-            PtmSiteContextEntry(
+    generic_report = build_protein_site_region_context_report(
+        tuple(
+            ProteinSiteRegionReference(
                 site_key=site_entry.site_key,
                 protein_ref=site_entry.protein_ref,
-                residue=site_entry.residue,
                 position=site_entry.position,
-                modification_name=site_entry.modification_name,
-                ambiguous_site=site_entry.ambiguous,
-                shared_peptide_site=site_entry.shared_peptide,
-                matched_context_record_count=len(matched_records),
-                context_status=context_status,
-                domain_names=domain_names,
-                disorder_regions=disorder_regions,
-                transmembrane_regions=transmembrane_regions,
-                active_site_labels=active_site_labels,
-                motif_names=motif_names,
-                conservation_scores=conservation_scores,
-                max_conservation_score=(
-                    None if not conservation_scores else conservation_scores[-1]
-                ),
-                source_names=source_names,
-                source_accessions=source_accessions,
             )
-        )
-
+            for site_entry in site_entries
+        ),
+        tuple(
+            ProteinRegionContextRecord(
+                protein_ref=record.protein_ref,
+                start=record.start,
+                end=record.end,
+                domain_name=record.domain_name,
+                signal_peptide=None,
+                transmembrane_region=record.transmembrane_region,
+                disorder_region=record.disorder_region,
+                low_complexity_region=None,
+                active_site_label=record.active_site_label,
+                binding_region=None,
+                motif_name=record.motif_name,
+                conservation_score=record.conservation_score,
+                source_name=record.source_name,
+                source_accession=record.source_accession,
+            )
+            for record in context_records
+        ),
+    )
+    site_entry_by_key = {entry.site_key: entry for entry in site_entries}
     stable_entries = tuple(
-        sorted(
-            entries,
-            key=lambda entry: (
-                entry.protein_ref,
-                entry.position,
-                entry.modification_name,
-                entry.site_key,
+        PtmSiteContextEntry(
+            site_key=entry.site_key,
+            protein_ref=entry.protein_ref,
+            residue=site_entry_by_key[entry.site_key].residue,
+            position=entry.position,
+            modification_name=site_entry_by_key[entry.site_key].modification_name,
+            ambiguous_site=site_entry_by_key[entry.site_key].ambiguous,
+            shared_peptide_site=site_entry_by_key[entry.site_key].shared_peptide,
+            matched_context_record_count=entry.matched_context_record_count,
+            context_status=(
+                PtmSiteContextStatus.CONTEXT_ANNOTATED
+                if entry.context_status.value == "context_annotated"
+                else PtmSiteContextStatus.OUTSIDE_PROVIDED_ANNOTATIONS
             ),
+            domain_names=entry.domain_names,
+            disorder_regions=entry.disorder_regions,
+            transmembrane_regions=entry.transmembrane_regions,
+            active_site_labels=entry.active_site_labels,
+            motif_names=entry.motif_names,
+            conservation_scores=entry.conservation_scores,
+            max_conservation_score=entry.max_conservation_score,
+            source_names=entry.source_names,
+            source_accessions=entry.source_accessions,
         )
+        for entry in generic_report.entries
     )
     return PtmSiteContextReport(
         entries=stable_entries,
         summary=PtmSiteContextSummary(
-            site_count=len(stable_entries),
-            context_annotated_site_count=sum(
-                1
-                for entry in stable_entries
-                if entry.context_status is PtmSiteContextStatus.CONTEXT_ANNOTATED
-            ),
-            outside_annotation_site_count=sum(
-                1
-                for entry in stable_entries
-                if entry.context_status
-                is PtmSiteContextStatus.OUTSIDE_PROVIDED_ANNOTATIONS
-            ),
-            domain_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.domain_names
-            ),
-            disorder_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.disorder_regions
-            ),
-            transmembrane_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.transmembrane_regions
-            ),
-            active_site_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.active_site_labels
-            ),
-            motif_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.motif_names
-            ),
-            conservation_annotated_site_count=sum(
-                1 for entry in stable_entries if entry.conservation_scores
-            ),
+            site_count=generic_report.summary.site_count,
+            context_annotated_site_count=generic_report.summary.context_annotated_site_count,
+            outside_annotation_site_count=generic_report.summary.outside_annotation_site_count,
+            domain_annotated_site_count=generic_report.summary.domain_annotated_site_count,
+            disorder_annotated_site_count=generic_report.summary.disorder_annotated_site_count,
+            transmembrane_annotated_site_count=generic_report.summary.transmembrane_annotated_site_count,
+            active_site_annotated_site_count=generic_report.summary.active_site_annotated_site_count,
+            motif_annotated_site_count=generic_report.summary.motif_annotated_site_count,
+            conservation_annotated_site_count=generic_report.summary.conservation_annotated_site_count,
         ),
         note=(
             "ptm site context annotation preserves one row for every observed PTM site, keeps provided domain and region context when present, and marks sites outside the provided annotations explicitly"
@@ -617,42 +446,3 @@ def export_ptm_site_context_tsv(
     """Write PTM site-context rows to a stable TSV artifact."""
 
     path.write_text(render_ptm_site_context_tsv(report), encoding="utf-8")
-
-
-def _row_issue(
-    code: str,
-    message: str,
-    row_number: int,
-) -> PtmSiteContextValidationIssue:
-    return PtmSiteContextValidationIssue(
-        code=code,
-        message=message,
-        row_number=row_number,
-    )
-
-
-def _row_value(raw_fields: dict[str, str], column: str | None) -> str | None:
-    if column is None:
-        return None
-    value = raw_fields.get(column, "").strip()
-    return value or None
-
-
-def _validate_required_columns(
-    fieldnames: list[str],
-    mapping: PtmSiteContextColumnMapping,
-) -> None:
-    required = (
-        mapping.protein_ref,
-        mapping.start,
-        mapping.end,
-    )
-    for column in required:
-        if column not in fieldnames:
-            raise ValueError(f"missing required PTM site context column {column!r}")
-
-
-def _unique_sorted(
-    values: list[str] | tuple[str, ...] | set[str] | object,
-) -> tuple[str, ...]:
-    return tuple(sorted({value for value in values if value}))
