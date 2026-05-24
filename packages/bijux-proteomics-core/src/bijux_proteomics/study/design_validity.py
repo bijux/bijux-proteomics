@@ -13,6 +13,9 @@ import re
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.study.design_diagnostics import (
+    detect_batch_condition_confounding,
+)
 from bijux_proteomics.study.experiment_design import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
@@ -375,38 +378,34 @@ def _confounded_batch_condition_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if batch_field in (None, "") or len(selected_conditions) < 2:
         return ()
-    entries = tuple(
-        entry
-        for entry in experiment_design.entries
-        if entry.condition in selected_conditions
+    report = detect_batch_condition_confounding(
+        experiment_design,
+        batch_field=batch_field,
+        selected_conditions=selected_conditions,
     )
-    if not entries:
+    if not report.is_confounded:
         return ()
-    batch_to_conditions: dict[str, set[str]] = defaultdict(set)
-    batches: set[str] = set()
-    for entry in entries:
-        batch = _resolve_entry_value(entry, batch_field)
-        if batch in (None, ""):
-            continue
-        batch_value = str(batch)
-        batches.add(batch_value)
-        batch_to_conditions[batch_value].add(entry.condition)
-    if len(batches) <= 1:
-        return ()
-    if batch_to_conditions and all(len(conditions) == 1 for conditions in batch_to_conditions.values()):
-        return (
-            ExperimentDesignValidityIssue(
-                code="confounded_batch_condition",
-                message=(
-                    "batch assignments are confounded with condition labels for the "
-                    "selected differential analysis"
-                ),
-                field=batch_field,
-                condition_ids=selected_conditions,
-                batch_ids=tuple(sorted(batches)),
-            ),
+    batch_ids = tuple(
+        sorted(
+            {
+                term.split(":", 1)[1]
+                for term in report.confounded_terms
+                if ":" in term
+            }
         )
-    return ()
+    )
+    return (
+        ExperimentDesignValidityIssue(
+            code="confounded_batch_condition",
+            message=(
+                "batch assignments are confounded with condition labels for the "
+                "selected differential analysis"
+            ),
+            field=batch_field,
+            condition_ids=selected_conditions,
+            batch_ids=batch_ids,
+        ),
+    )
 
 
 def _broken_pair_issues(
