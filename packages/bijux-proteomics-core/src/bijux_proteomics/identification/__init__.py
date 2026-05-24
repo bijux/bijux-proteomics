@@ -34,6 +34,7 @@ from bijux_proteomics.identification.protein_target_decoy_fdr import *  # noqa: 
 from bijux_proteomics.identification.psm_inspection import *  # noqa: F401,F403
 from bijux_proteomics.identification.peptide_target_decoy_fdr import *  # noqa: F401,F403
 from bijux_proteomics.identification.psm_features import *  # noqa: F401,F403
+from bijux_proteomics.identification.psm_rescoring import *  # noqa: F401,F403
 from bijux_proteomics.identification.psm_target_decoy_fdr import *  # noqa: F401,F403
 from bijux_proteomics.identification.rejected_evidence_table import *  # noqa: F401,F403
 from bijux_proteomics.identification.score_separation_diagnostic import *  # noqa: F401,F403
