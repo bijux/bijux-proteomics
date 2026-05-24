@@ -422,8 +422,8 @@ def _resolve_batch_field(
     experiment_design: ExperimentDesign,
     batch_field: str | None,
 ) -> str | None:
-    if batch_field:
-        return batch_field
+    if batch_field is not None:
+        return batch_field or None
     if experiment_design.batches:
         return "batch"
     return None
@@ -433,8 +433,8 @@ def _resolve_pairing_field(
     experiment_design: ExperimentDesign,
     pairing_field: str | None,
 ) -> str | None:
-    if pairing_field:
-        return pairing_field
+    if pairing_field is not None:
+        return pairing_field or None
     if experiment_design.pair_ids:
         return "pair_id"
     return None
@@ -444,8 +444,8 @@ def _resolve_timepoint_field(
     experiment_design: ExperimentDesign,
     timepoint_field: str | None,
 ) -> str | None:
-    if timepoint_field:
-        return timepoint_field
+    if timepoint_field is not None:
+        return timepoint_field or None
     if experiment_design.timepoints:
         return "timepoint"
     return None

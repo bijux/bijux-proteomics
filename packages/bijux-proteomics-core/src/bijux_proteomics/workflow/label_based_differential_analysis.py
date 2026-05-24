@@ -335,7 +335,6 @@ def build_label_based_differential_analysis_report(
         ),
         batch_field=batch_field if batch_field else None,
         pairing_field=pairing_field,
-        require_complete_plex_channels=bool(experiment_design.plexes),
     )
     differential_report: DifferentialAbundanceReport | None = None
     multi_condition_report: MultiConditionDifferentialAbundanceReport | None = None

@@ -196,18 +196,23 @@ def build_ptm_differential_analysis_report(
 ) -> PtmDifferentialAnalysisReport:
     """Normalize PTM site intensities and test one explicit two-condition contrast."""
 
+    analysis_design_entries = (
+        _clear_batch_assignments(design_entries)
+        if batch_field == ""
+        else design_entries
+    )
     resolved_condition_a, resolved_condition_b = _resolve_selected_contrast(
-        design_entries,
+        analysis_design_entries,
         condition_a=condition_a,
         condition_b=condition_b,
     )
     effective_pairing_field = pairing_field
     if effective_pairing_field is None and all(
-        entry.pair_id not in (None, "") for entry in design_entries
+        entry.pair_id not in (None, "") for entry in analysis_design_entries
     ):
         effective_pairing_field = "pair_id"
     require_feasible_experiment_design_for_analysis(
-        design_entries,
+        analysis_design_entries,
         chosen_analysis_family=(
             ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL
             if effective_pairing_field is not None
@@ -215,7 +220,7 @@ def build_ptm_differential_analysis_report(
         ),
         condition_a=resolved_condition_a,
         condition_b=resolved_condition_b,
-        batch_field=batch_field or None,
+        batch_field=batch_field,
         pairing_field=effective_pairing_field,
     )
     site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
@@ -236,7 +241,7 @@ def build_ptm_differential_analysis_report(
         normalized_table,
     )
     design_matrix = build_quant_design_matrix_report(
-        design_entries,
+        analysis_design_entries,
         batch_field=batch_field,
         covariate_fields=tuple(dict.fromkeys(covariate_fields)),
         pairing_field=effective_pairing_field,
@@ -252,7 +257,7 @@ def build_ptm_differential_analysis_report(
     )
     differential = build_differential_abundance_report(
         normalized_table,
-        design_entries,
+        analysis_design_entries,
         condition_a=resolved_condition_a,
         condition_b=resolved_condition_b,
         test_type=(
@@ -263,7 +268,7 @@ def build_ptm_differential_analysis_report(
         paired_policy=paired_policy,
     )
     protein_differential_lookup = _build_protein_differential_lookup(
-        design_entries,
+        analysis_design_entries,
         normalization_method=normalization_method,
         condition_a=resolved_condition_a,
         condition_b=resolved_condition_b,
@@ -292,6 +297,14 @@ def build_ptm_differential_analysis_report(
             "ptm differential analysis normalizes exact-site testing against one non-duplicated PTM signal matrix, preserves explicit design encoding, and emits benjamini-hochberg-corrected site testing"
         ),
     )
+
+
+def _clear_batch_assignments(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[ExperimentalDesignEntry, ...]:
+    """Drop batch metadata when callers explicitly disable batch handling."""
+
+    return tuple(entry.model_copy(update={"batch": None}) for entry in design_entries)
 
 
 def build_ptm_differential_volcano_plot(
