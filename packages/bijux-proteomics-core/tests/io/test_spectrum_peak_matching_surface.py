@@ -76,3 +76,38 @@ def test_spectrum_peak_matching_preserves_unmatched_peak_rows() -> None:
         (100.0, 40.0),
         (250.0, 60.0),
     )
+
+
+def test_spectrum_peak_matching_ignores_tolerance_compatible_noise_peaks() -> None:
+    fragment = calculate_fragment_ions(
+        "PEPTIDE",
+        include_neutral_losses=False,
+    )[0]
+    spectrum = SpectrumModel(
+        spectrum_id="scan=noise-filter",
+        precursor_mz=500.2,
+        precursor_charge=2,
+        peaks=(
+            SpectrumPeak(mz=fragment.mz_monoisotopic, intensity=5.0),
+            SpectrumPeak(mz=200.0, intensity=10.0),
+            SpectrumPeak(mz=350.0, intensity=70.0),
+            SpectrumPeak(mz=500.0, intensity=140.0),
+        ),
+    )
+
+    report = build_spectrum_peak_match_report(
+        spectrum,
+        peptide="PEPTIDE",
+        tolerance_da=0.01,
+        include_neutral_losses=False,
+    )
+
+    assert report.matched_peak_count == 0
+    assert report.unmatched_peak_count == 4
+    assert report.explained_intensity_fraction == 0.0
+    assert tuple((peak.mz, peak.intensity) for peak in report.unmatched_peaks) == (
+        (fragment.mz_monoisotopic, 5.0),
+        (200.0, 10.0),
+        (350.0, 70.0),
+        (500.0, 140.0),
+    )
