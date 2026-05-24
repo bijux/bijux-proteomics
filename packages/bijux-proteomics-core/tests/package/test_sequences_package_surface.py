@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics import sequences
 from bijux_proteomics.sequences.digestion import PeptideDigestionMode
 
@@ -131,3 +133,18 @@ def test_sequences_package_exports_peptide_chemical_liability_owner_surface() ->
     assert hasattr(sequences, "render_peptide_chemical_liability_tsv")
     assert report.liability_tier is sequences.PeptideChemicalLiabilityTier.AVOID
     assert "instability_motif" in rendered
+
+
+def test_sequences_package_exports_protein_region_context_owner_surface() -> None:
+    report = sequences.parse_protein_region_context_tsv(
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "sequences"
+        / "protein_region_context.tsv"
+    )
+    rendered = sequences.render_protein_region_context_summary_tsv(report)
+
+    assert hasattr(sequences, "build_protein_site_region_context_report")
+    assert hasattr(sequences, "build_protein_peptide_region_context_report")
+    assert report.summary.signal_peptide_record_count == 1
+    assert "binding_region_record_count" in rendered
