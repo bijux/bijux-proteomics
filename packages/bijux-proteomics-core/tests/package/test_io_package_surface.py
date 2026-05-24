@@ -273,6 +273,25 @@ def test_io_package_exports_peak_shape_scoring_owner_surface() -> None:
 
 
 def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
+    fit_report = io.fit_rt_alignment(
+        (
+            io.RetentionTimeAlignmentAnchor(
+                run_id="shifted_run",
+                peptide_id="anchor_alpha",
+                observed_rt=20.0,
+                reference_rt=10.0,
+                anchor_confidence=1.0,
+            ),
+            io.RetentionTimeAlignmentAnchor(
+                run_id="shifted_run",
+                peptide_id="anchor_beta",
+                observed_rt=50.0,
+                reference_rt=40.0,
+                anchor_confidence=1.0,
+            ),
+        ),
+        min_anchor_count=2,
+    )
     report = io.extract_mzml_retention_time_alignment(
         (
             _format_fixture("rt_alignment_reference.mzml"),
@@ -282,15 +301,23 @@ def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
         tolerance_ppm=10.0,
         aligned_rt_tolerance_seconds=5.0,
     )
+    fit_rendered = io.render_rt_alignment_fit_models_tsv(fit_report)
     rendered = io.render_retention_time_alignment_residuals_tsv(report)
 
+    assert hasattr(io, "fit_rt_alignment")
     assert hasattr(io, "align_chromatographic_peak_retention_times")
     assert hasattr(io, "extract_mzml_retention_time_alignment")
+    assert hasattr(io, "render_rt_alignment_fit_models_tsv")
     assert hasattr(io, "render_retention_time_alignment_models_tsv")
     assert hasattr(io, "render_retention_time_alignment_residuals_tsv")
     assert hasattr(io, "render_retention_time_alignment_failed_anchors_tsv")
+    assert fit_report.models[0].alignment_model == "confidence_weighted_shift"
+    assert fit_report.models[0].rt_shift == 10.0
     assert report.run_models[1].status.value == "aligned"
+    assert report.run_models[1].alignment_model == "confidence_weighted_shift"
+    assert report.run_models[1].rt_shift == 10.0
     assert len(report.flagged_residuals) == 1
+    assert "shifted_run\tconfidence_weighted_shift\t10\t0\t0" in fit_rendered
     assert "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70" in rendered
 
 
