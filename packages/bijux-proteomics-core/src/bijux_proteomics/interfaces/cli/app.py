@@ -560,6 +560,8 @@ from bijux_proteomics.isotope_labeling import (
 from bijux_proteomics.targeted import (
     BiomarkerStabilityPolicy,
     DiscoveryTargetedPeptideSelectionEntry,
+    PanelRedundancyCandidateInput,
+    PanelRedundancyPolicy,
     DiscoveryTargetProteinEntry,
     TargetedAssayInterferenceReason,
     TargetedAssayInterferenceRiskTier,
@@ -585,6 +587,7 @@ from bijux_proteomics.targeted import (
     ValidationPlanningPilotVarianceInput,
     ValidationPlanningSelectedPeptideInput,
     build_biomarker_stability_report,
+    build_panel_redundancy_report,
     build_targeted_panel_design_report,
     build_targeted_assay_interference_report,
     build_discovery_targeted_peptide_selection_report,
@@ -611,6 +614,10 @@ from bijux_proteomics.targeted import (
     render_biomarker_stability_subgroup_tsv,
     render_biomarker_stability_summary_tsv,
     render_biomarker_stability_tsv,
+    render_panel_redundancy_candidate_tsv,
+    render_panel_redundancy_cluster_tsv,
+    render_panel_redundancy_dropped_tsv,
+    render_panel_redundancy_summary_tsv,
     render_targeted_result_validation_evidence_tsv,
     render_targeted_result_validation_summary_tsv,
     render_targeted_result_validation_tsv,
@@ -3185,6 +3192,65 @@ def _load_targeted_validation_discovery_claims(
                         assay_feasibility_score=float(
                             str(row.get("assay_feasibility_score", "")).strip()
                         ),
+                        rank_reason_codes=_split_semicolon_field(
+                            row.get("rank_reason_codes", "")
+                        ),
+                        ranking_note=str(row.get("ranking_note", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biomarker-candidate row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_panel_redundancy_candidates(
+    path: Path,
+) -> tuple[PanelRedundancyCandidateInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biomarker-candidate TSV must include a header row for panel redundancy analysis"
+            )
+        required_columns = {
+            "candidate_id",
+            "candidate_kind",
+            "display_label",
+            "target_protein_ref",
+            "site_key",
+            "priority_rank",
+            "final_score",
+            "penalty_total",
+            "rank_reason_codes",
+            "ranking_note",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biomarker-candidate TSV is missing required columns for panel redundancy analysis: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[PanelRedundancyCandidateInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    PanelRedundancyCandidateInput(
+                        candidate_id=str(row.get("candidate_id", "")).strip(),
+                        candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("candidate_kind", "")).strip()
+                        ),
+                        display_label=str(row.get("display_label", "")).strip(),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        site_key=(
+                            None
+                            if not str(row.get("site_key", "")).strip()
+                            else str(row.get("site_key", "")).strip()
+                        ),
+                        priority_rank=int(str(row.get("priority_rank", "")).strip()),
+                        final_score=float(str(row.get("final_score", "")).strip()),
+                        penalty_total=float(str(row.get("penalty_total", "")).strip()),
                         rank_reason_codes=_split_semicolon_field(
                             row.get("rank_reason_codes", "")
                         ),
@@ -7750,6 +7816,149 @@ def biomarker_stability_analysis_command(
                 None
                 if adjusted_candidate_tsv_out is None
                 else str(adjusted_candidate_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("biomarker-panel-redundancy-analysis")
+@click.argument(
+    "biomarker_candidate_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "panel_assay_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "targeted_result_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option(
+    "--minimum-shared-samples",
+    type=int,
+    default=4,
+    show_default=True,
+)
+@click.option(
+    "--correlation-threshold",
+    type=float,
+    default=0.95,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--cluster-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--reduced-candidate-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--dropped-candidate-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def biomarker_panel_redundancy_analysis_command(
+    biomarker_candidate_tsv: Path,
+    panel_assay_tsv: Path,
+    targeted_result_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    minimum_shared_samples: int,
+    correlation_threshold: float,
+    summary_tsv_out: Path | None,
+    cluster_tsv_out: Path | None,
+    reduced_candidate_tsv_out: Path | None,
+    dropped_candidate_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Detect redundant targeted biomarker candidates and keep explicit representatives."""
+
+    if minimum_shared_samples < 2:
+        raise click.ClickException("minimum-shared-samples must be at least 2")
+    if not 0.0 <= correlation_threshold <= 1.0:
+        raise click.ClickException("correlation-threshold must be between 0.0 and 1.0")
+
+    biomarker_candidates = _load_panel_redundancy_candidates(biomarker_candidate_tsv)
+    panel_assays = _load_targeted_validation_panel_assays(panel_assay_tsv)
+    design_report = parse_experimental_design_table(design_path)
+    source_kind_value = TargetedResultSourceKind(source_kind)
+    if source_kind_value is TargetedResultSourceKind.SKYLINE_EXPORT:
+        import_report = build_skyline_result_import_report(targeted_result_tsv)
+    else:
+        import_report = build_transition_table_result_import_report(targeted_result_tsv)
+
+    try:
+        report = build_panel_redundancy_report(
+            biomarker_candidates=biomarker_candidates,
+            panel_assays=panel_assays,
+            import_report=import_report,
+            design_entries=design_report.accepted_entries,
+            policy=PanelRedundancyPolicy(
+                minimum_shared_samples=minimum_shared_samples,
+                correlation_threshold=correlation_threshold,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_panel_redundancy_summary_tsv(report))
+    if cluster_tsv_out is not None:
+        _write_text_output(cluster_tsv_out, render_panel_redundancy_cluster_tsv(report))
+    if reduced_candidate_tsv_out is not None:
+        _write_text_output(
+            reduced_candidate_tsv_out,
+            render_panel_redundancy_candidate_tsv(report),
+        )
+    if dropped_candidate_tsv_out is not None:
+        _write_text_output(
+            dropped_candidate_tsv_out,
+            render_panel_redundancy_dropped_tsv(report),
+        )
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": report.source_name,
+        "biomarker_candidate_count": len(biomarker_candidates),
+        "panel_assay_count": len(panel_assays),
+        "import_summary": import_report.summary.to_dict(),
+        "design_summary": {
+            "accepted_entry_count": len(design_report.accepted_entries),
+            "rejected_row_count": len(design_report.rejected_rows),
+        },
+        "policy": report.policy.to_dict(),
+        "summary": report.summary.to_dict(),
+        "clusters": [entry.to_dict() for entry in report.clusters],
+        "candidates": [entry.to_dict() for entry in report.candidates],
+        "pairs": [entry.to_dict() for entry in report.pairs],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "cluster_tsv": None if cluster_tsv_out is None else str(cluster_tsv_out),
+            "reduced_candidate_tsv": (
+                None
+                if reduced_candidate_tsv_out is None
+                else str(reduced_candidate_tsv_out)
+            ),
+            "dropped_candidate_tsv": (
+                None
+                if dropped_candidate_tsv_out is None
+                else str(dropped_candidate_tsv_out)
             ),
         },
     }
