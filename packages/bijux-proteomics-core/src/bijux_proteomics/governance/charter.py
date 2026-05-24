@@ -217,6 +217,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/batch_effect.py",
             "quantification/design_matrix.py",
             "quantification/differential_abundance.py",
+            "quantification/differential_imputation_dependence.py",
             "quantification/differential_result_robustness.py",
             "quantification/heatmap_preparation.py",
             "quantification/imputation.py",
