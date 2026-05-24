@@ -30,6 +30,7 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
         "failure_count\toutput_dir\tnote"
     )
     assert "lfq_cohort_review_package" in summary_tsv
+    assert "lfq_sparse_contrast_benchmark_dataset" in summary_tsv
     assert "dia_diann_benchmark_dataset" in summary_tsv
     assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
     assert "maxquant_lfq_benchmark_dataset" in summary_tsv

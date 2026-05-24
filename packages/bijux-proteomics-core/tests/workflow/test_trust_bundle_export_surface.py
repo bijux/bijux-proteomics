@@ -26,6 +26,7 @@ def test_render_trust_bundle_run_summary_tsv_lists_generated_bundle_runs(
         "dataset_id\taccession\tstatus\tworkflow_output_dir\tfailure_count\tartifact_count\trejected_artifact_count\tqc_artifact_count\tcard_artifact_count\tcomparison_artifact_count"
     )
     assert "lfq_cohort_review_package" in summary_tsv
+    assert "lfq_sparse_contrast_benchmark_dataset" in summary_tsv
     assert "dia_diann_benchmark_dataset" in summary_tsv
     assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
     assert "maxquant_lfq_benchmark_dataset" in summary_tsv

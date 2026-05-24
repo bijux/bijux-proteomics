@@ -48,7 +48,7 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 7
+    assert suite.passed_count == 8
     assert suite.failed_count == 3
 
     diann_benchmark_run = runs["dia_diann_benchmark_dataset"]
@@ -77,6 +77,15 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert lfq_run.status == "passed"
     assert lfq_run.verified_counts["protein_card_count"] == 3
     assert Path(lfq_run.output_dir, "biological_report_manifest.json").exists()
+
+    sparse_lfq_run = runs["lfq_sparse_contrast_benchmark_dataset"]
+    assert sparse_lfq_run.status == "passed"
+    assert sparse_lfq_run.verified_counts["significant_protein_count"] == 0
+    assert sparse_lfq_run.verified_counts["cohort_blocked_stratum_count"] == 2
+    assert Path(sparse_lfq_run.output_dir, "biological_rejected_claims.tsv").exists()
+    assert Path(
+        sparse_lfq_run.output_dir, "biological_report_section_confidence.tsv"
+    ).exists()
 
     ptm_run = runs["ptm_localization_review_package"]
     assert ptm_run.status == "passed"

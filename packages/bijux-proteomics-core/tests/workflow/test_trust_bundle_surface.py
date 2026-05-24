@@ -20,7 +20,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     )
 
     output_dir = Path(report.output_dir)
-    assert report.suite_report.passed_count == 7
+    assert report.suite_report.passed_count == 8
     assert report.suite_report.failed_count == 3
     assert (output_dir / "benchmark_results" / "summary.tsv").exists()
     assert (output_dir / "benchmark_results" / "failures.tsv").exists()
@@ -46,6 +46,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     assert "multiplex_tmtpro_review_package" in benchmark_summary
     assert "ptm_localization_review_package" in benchmark_summary
     assert "lfq_cohort_review_package" in benchmark_summary
+    assert "lfq_sparse_contrast_benchmark_dataset" in benchmark_summary
     assert "targeted_transition_review_package" in benchmark_summary
 
     html_index = Path(report.html_index_path).read_text(encoding="utf-8")
