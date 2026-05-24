@@ -11,6 +11,7 @@ from io import StringIO
 from pathlib import Path
 
 from bijux_proteomics.interpretation import (
+    BiologicalContextKind,
     BiologicalContextImportReport,
     BiologicalContextMappingReport,
     BiologicalForegroundBackgroundModel,
@@ -79,6 +80,19 @@ from bijux_proteomics.interpretation import (
     render_protein_annotation_summary_tsv,
     render_unmapped_protein_annotation_tsv,
     require_valid_biological_foreground_background_model,
+)
+from bijux_proteomics.interpretation.compartment_biology import (
+    CompartmentBiologyPolicy,
+    CompartmentBiologyReport,
+    build_compartment_biology_report,
+    render_compartment_activity_condition_comparison_tsv,
+    render_compartment_activity_condition_score_tsv,
+    render_compartment_activity_matrix_tsv,
+    render_compartment_activity_sample_score_tsv,
+    render_compartment_activity_unresolved_member_tsv,
+    render_compartment_biology_summary_tsv,
+    render_compartment_enrichment_tsv,
+    render_unknown_compartment_localization_tsv,
 )
 from pydantic import ConfigDict, Field
 
@@ -251,6 +265,7 @@ class BiologicalResultReportBundle(JsonModel):
     foreground_background_model: BiologicalForegroundBackgroundModel
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    compartment_biology_report: CompartmentBiologyReport | None = None
     pathway_activity_report: PathwayActivityReport | None = None
     complex_activity_report: ComplexActivityReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
@@ -289,6 +304,14 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    compartment_biology_summary_tsv: str | None = None
+    compartment_enrichment_tsv: str | None = None
+    compartment_activity_matrix_tsv: str | None = None
+    compartment_activity_sample_score_tsv: str | None = None
+    compartment_activity_condition_score_tsv: str | None = None
+    compartment_activity_condition_comparison_tsv: str | None = None
+    compartment_activity_unresolved_member_tsv: str | None = None
+    compartment_unknown_localization_tsv: str | None = None
     pathway_activity_summary_tsv: str | None = None
     pathway_activity_matrix_tsv: str | None = None
     pathway_activity_sample_score_tsv: str | None = None
@@ -556,6 +579,26 @@ def build_biological_result_report_bundle_from_quant_table(
             differential_reference_entries,
             context_import_report.accepted_records,
         )
+    compartment_biology_report = None
+    if (
+        context_import_report is not None
+        and any(
+            record.context_kind is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
+            for record in context_import_report.accepted_records
+        )
+    ):
+        compartment_biology_report = build_compartment_biology_report(
+            normalized_table,
+            differential_report,
+            context_import_report.accepted_records,
+            design_entries=design_entries,
+            policy=CompartmentBiologyPolicy(
+                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
+                min_absolute_log2_fold_change=(
+                    active_selection_policy.min_absolute_log2_fold_change
+                ),
+            ),
+        )
     protein_region_context_records = None
     if protein_region_context_tsv_path is not None:
         protein_region_context_records = parse_protein_region_context_tsv(
@@ -778,6 +821,7 @@ def build_biological_result_report_bundle_from_quant_table(
         foreground_background_model=foreground_background_model,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        compartment_biology_report=compartment_biology_report,
         pathway_activity_report=pathway_activity_report,
         complex_activity_report=complex_activity_report,
         go_enrichment_report=go_enrichment_report,
@@ -1537,6 +1581,78 @@ def export_biological_result_report_bundle(
             render_rejected_biological_context_tsv(report.context_import_report),
             encoding="utf-8",
         )
+    else:
+        context_summary_name = None
+        context_mapping_name = None
+        context_term_name = None
+        context_unmapped_name = None
+        context_rejected_name = None
+    if report.compartment_biology_report is not None:
+        compartment_summary_name = "biological_compartment_biology_summary.tsv"
+        compartment_enrichment_name = "biological_compartment_enrichment.tsv"
+        compartment_activity_matrix_name = "biological_compartment_activity_matrix.tsv"
+        compartment_activity_sample_name = "biological_compartment_activity_samples.tsv"
+        compartment_activity_condition_name = (
+            "biological_compartment_activity_conditions.tsv"
+        )
+        compartment_activity_comparison_name = (
+            "biological_compartment_activity_condition_comparisons.tsv"
+        )
+        compartment_activity_unresolved_name = (
+            "biological_compartment_activity_unresolved.tsv"
+        )
+        compartment_unknown_name = "biological_compartment_unknown_localization.tsv"
+        (output_dir / compartment_summary_name).write_text(
+            render_compartment_biology_summary_tsv(report.compartment_biology_report),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_enrichment_name).write_text(
+            render_compartment_enrichment_tsv(report.compartment_biology_report),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_activity_matrix_name).write_text(
+            render_compartment_activity_matrix_tsv(report.compartment_biology_report),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_activity_sample_name).write_text(
+            render_compartment_activity_sample_score_tsv(
+                report.compartment_biology_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_activity_condition_name).write_text(
+            render_compartment_activity_condition_score_tsv(
+                report.compartment_biology_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_activity_comparison_name).write_text(
+            render_compartment_activity_condition_comparison_tsv(
+                report.compartment_biology_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_activity_unresolved_name).write_text(
+            render_compartment_activity_unresolved_member_tsv(
+                report.compartment_biology_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / compartment_unknown_name).write_text(
+            render_unknown_compartment_localization_tsv(
+                report.compartment_biology_report
+            ),
+            encoding="utf-8",
+        )
+    else:
+        compartment_summary_name = None
+        compartment_enrichment_name = None
+        compartment_activity_matrix_name = None
+        compartment_activity_sample_name = None
+        compartment_activity_condition_name = None
+        compartment_activity_comparison_name = None
+        compartment_activity_unresolved_name = None
+        compartment_unknown_name = None
     if report.pathway_activity_report is not None:
         pathway_activity_summary_name = "biological_pathway_activity_summary.tsv"
         pathway_activity_matrix_name = "biological_pathway_activity_matrix.tsv"
@@ -1749,6 +1865,18 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        compartment_biology_summary_tsv=compartment_summary_name,
+        compartment_enrichment_tsv=compartment_enrichment_name,
+        compartment_activity_matrix_tsv=compartment_activity_matrix_name,
+        compartment_activity_sample_score_tsv=compartment_activity_sample_name,
+        compartment_activity_condition_score_tsv=compartment_activity_condition_name,
+        compartment_activity_condition_comparison_tsv=(
+            compartment_activity_comparison_name
+        ),
+        compartment_activity_unresolved_member_tsv=(
+            compartment_activity_unresolved_name
+        ),
+        compartment_unknown_localization_tsv=compartment_unknown_name,
         pathway_activity_summary_tsv=pathway_activity_summary_name,
         pathway_activity_matrix_tsv=pathway_activity_matrix_name,
         pathway_activity_sample_score_tsv=pathway_activity_sample_name,
@@ -1866,6 +1994,38 @@ def _render_biological_result_report_html(
             artifacts.context_rejected_tsv,
         ),
         (
+            "Compartment biology summary",
+            artifacts.compartment_biology_summary_tsv,
+        ),
+        (
+            "Compartment enrichment",
+            artifacts.compartment_enrichment_tsv,
+        ),
+        (
+            "Compartment activity matrix",
+            artifacts.compartment_activity_matrix_tsv,
+        ),
+        (
+            "Compartment activity sample scores",
+            artifacts.compartment_activity_sample_score_tsv,
+        ),
+        (
+            "Compartment activity condition scores",
+            artifacts.compartment_activity_condition_score_tsv,
+        ),
+        (
+            "Compartment activity condition comparisons",
+            artifacts.compartment_activity_condition_comparison_tsv,
+        ),
+        (
+            "Compartment activity unresolved members",
+            artifacts.compartment_activity_unresolved_member_tsv,
+        ),
+        (
+            "Compartment unknown localization",
+            artifacts.compartment_unknown_localization_tsv,
+        ),
+        (
             "Pathway activity summary",
             artifacts.pathway_activity_summary_tsv,
         ),
@@ -1945,6 +2105,7 @@ def _render_biological_result_report_html(
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
+    compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
     complex_activity_html = _render_complex_activity_table_html(report)
     card_table_html = _render_protein_mechanism_card_table_html(report)
@@ -1965,6 +2126,8 @@ def _render_biological_result_report_html(
         f"{ranking_table_html}"
         "<h2>Enrichment foreground/background model</h2>"
         f"{foreground_background_html}"
+        "<h2>Compartment biology</h2>"
+        f"{compartment_biology_html}"
         "<h2>Pathway activity</h2>"
         f"{pathway_activity_html}"
         "<h2>Complex activity</h2>"
@@ -2110,6 +2273,53 @@ def _render_foreground_background_model_table_html(
         f"{str(model.summary.valid_for_enrichment).lower()} | "
         f"<strong>Issues</strong>: {model.summary.issue_count} | "
         f"<strong>Issue summary</strong>: {escape(issue_summary)}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_compartment_biology_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    compartment_biology_report = report.compartment_biology_report
+    if compartment_biology_report is None:
+        return "<p>No compartment biology report was generated.</p>"
+    headers = (
+        "Compartment",
+        "Condition A",
+        "Condition B",
+        "Delta",
+        "Comparison confidence",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.set_name or entry.set_id)}</td>"
+            f"<td>{escape(entry.condition_a)}</td>"
+            f"<td>{escape(entry.condition_b)}</td>"
+            f"<td>{_format_optional_float(entry.activity_score_delta)}</td>"
+            f"<td>{escape(entry.comparison_confidence_status.value)}</td>"
+            "</tr>"
+        )
+        for entry in compartment_biology_report.activity_report.condition_comparisons[:10]
+    )
+    return (
+        "<p>"
+        f"<strong>Compartments</strong>: {compartment_biology_report.summary.compartment_count} | "
+        f"<strong>Enriched compartments</strong>: "
+        f"{compartment_biology_report.summary.enriched_compartment_count} | "
+        f"<strong>Low-confidence sample scores</strong>: "
+        f"{compartment_biology_report.summary.low_confidence_sample_score_count} | "
+        f"<strong>Unresolved members</strong>: "
+        f"{compartment_biology_report.summary.unresolved_member_count} | "
+        f"<strong>Unknown foreground proteins</strong>: "
+        f"{compartment_biology_report.summary.unknown_foreground_protein_count} | "
+        f"<strong>Unknown background proteins</strong>: "
+        f"{compartment_biology_report.summary.unknown_background_protein_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
