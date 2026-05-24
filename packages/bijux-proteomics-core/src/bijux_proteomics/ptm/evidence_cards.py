@@ -35,6 +35,10 @@ from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationScoringReport,
 )
 from bijux_proteomics.ptm.motif_analysis import PtmPhosphositeMotifEnrichmentReport
+from bijux_proteomics.ptm.ortholog_site_conservation import (
+    PtmOrthologConservationReport,
+    PtmOrthologConservationStatus,
+)
 from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentEntry,
     PtmRegulatorEnrichmentReport,
@@ -236,6 +240,23 @@ class PtmEvidenceCardCrosstalkPartner(JsonModel):
     evidence_note: str = Field(..., min_length=1)
 
 
+class PtmEvidenceCardOrthologConservation(JsonModel):
+    """Ortholog-site conservation context preserved on one PTM evidence card."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: PtmOrthologConservationStatus
+    source_species: str = Field(..., min_length=1)
+    target_species: str = Field(..., min_length=1)
+    ortholog_target_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    ortholog_target_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    ortholog_target_positions: tuple[int, ...] = Field(default_factory=tuple)
+    evidence_labels: tuple[str, ...] = Field(default_factory=tuple)
+    source_names: tuple[str, ...] = Field(default_factory=tuple)
+    source_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class PtmEvidenceCard(JsonModel):
     """One structured PTM evidence card for one significant site."""
 
@@ -263,6 +284,7 @@ class PtmEvidenceCard(JsonModel):
     crosstalk_partners: tuple[PtmEvidenceCardCrosstalkPartner, ...] = Field(
         default_factory=tuple
     )
+    ortholog_conservation: PtmEvidenceCardOrthologConservation | None = None
     functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
         default_factory=tuple
     )
@@ -300,6 +322,7 @@ class PtmEvidenceCardSummary(JsonModel):
     regulator_supported_card_count: int = Field(..., ge=0)
     motif_annotated_card_count: int = Field(..., ge=0)
     crosstalk_supported_card_count: int = Field(..., ge=0)
+    ortholog_context_card_count: int = Field(..., ge=0)
     functional_context_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
 
@@ -328,6 +351,7 @@ def build_ptm_evidence_card_report(
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None,
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None,
     annotation_mapping_report: PtmSiteAnnotationMappingReport | None = None,
+    ortholog_conservation_report: PtmOrthologConservationReport | None = None,
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     protein_sequences: dict[str, str] | None = None,
     protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
@@ -380,6 +404,9 @@ def build_ptm_evidence_card_report(
         site_entries,
         differential_analysis.differential_report,
         annotation_mapping_report=annotation_mapping_report,
+    )
+    ortholog_conservation_by_site = _build_ortholog_conservation_by_site(
+        ortholog_conservation_report
     )
 
     cards: list[PtmEvidenceCard] = []
@@ -475,6 +502,9 @@ def build_ptm_evidence_card_report(
                     differential_entry.site_key,
                     (),
                 ),
+                ortholog_conservation=ortholog_conservation_by_site.get(
+                    differential_entry.site_key
+                ),
                 functional_regions=functional_context_by_site.get(
                     differential_entry.site_key,
                     (),
@@ -543,6 +573,9 @@ def build_ptm_evidence_card_report(
             crosstalk_supported_card_count=sum(
                 1 for entry in stable_cards if entry.crosstalk_partners
             ),
+            ortholog_context_card_count=sum(
+                1 for entry in stable_cards if entry.ortholog_conservation is not None
+            ),
             functional_context_card_count=sum(
                 1 for entry in stable_cards if entry.functional_regions
             ),
@@ -551,7 +584,8 @@ def build_ptm_evidence_card_report(
         note=(
             "ptm evidence cards preserve one structured object per significant site, "
             "carry peptide, localization, quantification, differential, motif, "
-            "crosstalk, functional-region, regulator, and protein-correction evidence together, "
+            "crosstalk, ortholog-site conservation, functional-region, regulator, and "
+            "protein-correction evidence together, "
             "and link every narrative claim back to a stable card id"
         ),
     )
@@ -572,6 +606,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             "regulator_supported_card_count",
             "motif_annotated_card_count",
             "crosstalk_supported_card_count",
+            "ortholog_context_card_count",
             "functional_context_card_count",
             "warning_card_count",
         )
@@ -586,6 +621,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             report.summary.regulator_supported_card_count,
             report.summary.motif_annotated_card_count,
             report.summary.crosstalk_supported_card_count,
+            report.summary.ortholog_context_card_count,
             report.summary.functional_context_card_count,
             report.summary.warning_card_count,
         )
@@ -618,6 +654,10 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "peptide_spectrum_count",
             "observed_sample_count",
             "centered_windows",
+            "ortholog_conservation_status",
+            "ortholog_conservation_species_pair",
+            "ortholog_target_site_keys",
+            "ortholog_target_protein_refs",
             "functional_regions",
             "regulators",
             "crosstalk_partner_site_keys",
@@ -649,6 +689,31 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 len(entry.peptide_evidence),
                 0 if entry.quantification is None else entry.quantification.observed_sample_count,
                 ";".join(entry.motif_evidence.centered_windows),
+                (
+                    ""
+                    if entry.ortholog_conservation is None
+                    else entry.ortholog_conservation.status.value
+                ),
+                (
+                    ""
+                    if entry.ortholog_conservation is None
+                    else (
+                        f"{entry.ortholog_conservation.source_species}->"
+                        f"{entry.ortholog_conservation.target_species}"
+                    )
+                ),
+                (
+                    ""
+                    if entry.ortholog_conservation is None
+                    else ";".join(entry.ortholog_conservation.ortholog_target_site_keys)
+                ),
+                (
+                    ""
+                    if entry.ortholog_conservation is None
+                    else ";".join(
+                        entry.ortholog_conservation.ortholog_target_protein_refs
+                    )
+                ),
                 ";".join(
                     f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
                     for region in entry.functional_regions
@@ -914,6 +979,28 @@ def _build_crosstalk_partners_by_site(
             sorted(partners, key=lambda partner: partner.partner_site_key)
         )
         for site_key, partners in partners_by_site.items()
+    }
+
+
+def _build_ortholog_conservation_by_site(
+    ortholog_conservation_report: PtmOrthologConservationReport | None,
+) -> dict[str, PtmEvidenceCardOrthologConservation]:
+    if ortholog_conservation_report is None:
+        return {}
+    return {
+        entry.site_key: PtmEvidenceCardOrthologConservation(
+            status=entry.status,
+            source_species=entry.source_species,
+            target_species=entry.target_species,
+            ortholog_target_site_keys=entry.ortholog_target_site_keys,
+            ortholog_target_protein_refs=entry.ortholog_target_protein_refs,
+            ortholog_target_positions=entry.ortholog_target_positions,
+            evidence_labels=entry.evidence_labels,
+            source_names=entry.source_names,
+            source_accessions=entry.source_accessions,
+            note=entry.note,
+        )
+        for entry in ortholog_conservation_report.entries
     }
 
 

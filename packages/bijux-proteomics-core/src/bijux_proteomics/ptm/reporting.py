@@ -50,6 +50,13 @@ from bijux_proteomics.ptm.motif_analysis import (
     render_ptm_phosphosite_motif_logo_tsv,
     render_ptm_phosphosite_motif_window_tsv,
 )
+from bijux_proteomics.ptm.ortholog_site_conservation import (
+    PtmOrthologConservationReport,
+    PtmOrthologSiteRecord,
+    build_ptm_ortholog_conservation_report,
+    render_ptm_ortholog_conservation_summary_tsv,
+    render_ptm_ortholog_conservation_tsv,
+)
 from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentPolicy,
     PtmRegulatorEnrichmentReport,
@@ -108,6 +115,7 @@ class PtmReportSummary(JsonModel):
     motif_term_count: int = Field(..., ge=0)
     evidence_card_count: int = Field(..., ge=0)
     narrative_claim_count: int = Field(..., ge=0)
+    ortholog_conservation_entry_count: int = Field(..., ge=0)
 
 
 class PtmReportBundle(JsonModel):
@@ -122,6 +130,7 @@ class PtmReportBundle(JsonModel):
     differential_analysis: PtmDifferentialAnalysisReport | None = None
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None
+    ortholog_conservation: PtmOrthologConservationReport | None = None
     evidence_cards: PtmEvidenceCardReport | None = None
     summary: PtmReportSummary
     note: str = Field(..., min_length=1)
@@ -144,6 +153,8 @@ class PtmReportArtifactPaths(JsonModel):
     motif_frequency_tsv: str | None = None
     motif_term_tsv: str | None = None
     motif_logo_tsv: str | None = None
+    ortholog_conservation_summary_tsv: str | None = None
+    ortholog_conservation_tsv: str | None = None
     evidence_card_summary_tsv: str | None = None
     evidence_card_tsv: str | None = None
     evidence_claim_tsv: str | None = None
@@ -182,6 +193,9 @@ def build_ptm_report_bundle(
     annotation_records: tuple[PtmSiteAnnotationRecord, ...] | None = None,
     annotation_target_species: str | None = None,
     regulator_enrichment_policy: PtmRegulatorEnrichmentPolicy | None = None,
+    ortholog_site_records: tuple[PtmOrthologSiteRecord, ...] | None = None,
+    ortholog_source_species: str | None = None,
+    ortholog_target_species: str | None = None,
     protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
     evidence_card_policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmReportBundle:
@@ -228,7 +242,19 @@ def build_ptm_report_bundle(
     differential_analysis = None
     motif_enrichment = None
     regulator_enrichment = None
+    ortholog_conservation = None
     evidence_cards = None
+    if ortholog_site_records is not None:
+        if ortholog_source_species is None or ortholog_target_species is None:
+            raise ValueError(
+                "ptm ortholog conservation requires explicit source and target species when ortholog_site_records are provided"
+            )
+        ortholog_conservation = build_ptm_ortholog_conservation_report(
+            site_table,
+            ortholog_site_records,
+            source_species=ortholog_source_species,
+            target_species=ortholog_target_species,
+        )
     if feature_records is not None:
         site_quantification = build_ptm_site_quantification_report(
             site_table,
@@ -279,6 +305,7 @@ def build_ptm_report_bundle(
             site_quantification=site_quantification,
             motif_enrichment=motif_enrichment,
             regulator_enrichment=regulator_enrichment,
+            ortholog_conservation_report=ortholog_conservation,
             protein_records=protein_records,
             protein_sequences=protein_sequences,
             protein_region_context_records=protein_region_context_records,
@@ -292,6 +319,7 @@ def build_ptm_report_bundle(
         differential_analysis=differential_analysis,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
+        ortholog_conservation=ortholog_conservation,
         evidence_cards=evidence_cards,
         summary=PtmReportSummary(
             accepted_evidence_count=len(records),
@@ -324,6 +352,11 @@ def build_ptm_report_bundle(
                 if evidence_cards is None
                 else len(evidence_cards.narrative_claims)
             ),
+            ortholog_conservation_entry_count=(
+                0
+                if ortholog_conservation is None
+                else len(ortholog_conservation.entries)
+            ),
         ),
         note=(
             "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, differential analysis, motif summaries, and evidence-card ledgers into one owned report bundle"
@@ -349,6 +382,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             "motif_term_count",
             "evidence_card_count",
             "narrative_claim_count",
+            "ortholog_conservation_entry_count",
         ]
     )
     writer.writerow(
@@ -364,6 +398,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             report.summary.motif_term_count,
             report.summary.evidence_card_count,
             report.summary.narrative_claim_count,
+            report.summary.ortholog_conservation_entry_count,
         ]
     )
     return buffer.getvalue()
@@ -527,6 +562,20 @@ def export_ptm_report_bundle(
             encoding="utf-8",
         )
 
+    ortholog_conservation_summary_name = None
+    ortholog_conservation_name = None
+    if report.ortholog_conservation is not None:
+        ortholog_conservation_summary_name = "ptm_ortholog_conservation_summary.tsv"
+        ortholog_conservation_name = "ptm_ortholog_conservation.tsv"
+        (output_dir / ortholog_conservation_summary_name).write_text(
+            render_ptm_ortholog_conservation_summary_tsv(report.ortholog_conservation),
+            encoding="utf-8",
+        )
+        (output_dir / ortholog_conservation_name).write_text(
+            render_ptm_ortholog_conservation_tsv(report.ortholog_conservation),
+            encoding="utf-8",
+        )
+
     evidence_card_summary_name = None
     evidence_card_name = None
     evidence_claim_name = None
@@ -562,6 +611,8 @@ def export_ptm_report_bundle(
             motif_frequency_tsv=motif_frequency_name,
             motif_term_tsv=motif_term_name,
             motif_logo_tsv=motif_logo_name,
+            ortholog_conservation_summary_tsv=ortholog_conservation_summary_name,
+            ortholog_conservation_tsv=ortholog_conservation_name,
             evidence_card_summary_tsv=evidence_card_summary_name,
             evidence_card_tsv=evidence_card_name,
             evidence_claim_tsv=evidence_claim_name,
