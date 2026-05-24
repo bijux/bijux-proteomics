@@ -155,6 +155,7 @@ def build_ptm_site_workflow_bundle(
     report = build_ptm_report_bundle(
         evidence_parse_report.accepted_records,
         protein_sequences=protein_sequences,
+        protein_records=fasta_report.accepted_records,
         fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
         feature_records=feature_report.accepted_records,
         design_entries=experiment_design.entries,

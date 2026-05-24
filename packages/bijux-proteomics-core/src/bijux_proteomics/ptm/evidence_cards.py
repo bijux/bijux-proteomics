@@ -40,9 +40,14 @@ from bijux_proteomics.ptm.site_quantification import (
 )
 from bijux_proteomics.quantification.contracts import MissingValueKind
 from bijux_proteomics.sequences import (
+    NormalizedProteinRecord,
     ProteinFunctionalRegionEvidence,
+    ProteinIdentityLevel,
+    ProteinIdentityReference,
+    ProteinIdentityResolutionEntry,
     ProteinRegionContextRecord,
     ProteinSiteRegionReference,
+    build_protein_identity_resolution_report,
     build_protein_site_region_context_report,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -216,6 +221,8 @@ class PtmEvidenceCard(JsonModel):
     position: int = Field(..., ge=1)
     modification_name: str = Field(..., min_length=1)
     target_decoy_label: TargetDecoyLabel
+    identity_level: ProteinIdentityLevel
+    identity_reason: str = Field(..., min_length=1)
     peptide_evidence: tuple[PtmEvidenceCardPeptideObservation, ...] = Field(
         default_factory=tuple
     )
@@ -289,6 +296,8 @@ def build_ptm_evidence_card_report(
     site_quantification: PtmSiteQuantificationReport | None = None,
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None,
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None,
+    protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
+    protein_sequences: dict[str, str] | None = None,
     protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
     policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmEvidenceCardReport:
@@ -329,6 +338,12 @@ def build_ptm_evidence_card_report(
             entry.site_key: entry.functional_regions
             for entry in functional_context_report.entries
         }
+    identity_entries_by_site = _build_identity_entries_by_site(
+        records,
+        site_entries=site_entries,
+        protein_records=protein_records,
+        protein_sequences=protein_sequences,
+    )
 
     cards: list[PtmEvidenceCard] = []
     narrative_claims: list[PtmEvidenceCardClaim] = []
@@ -341,6 +356,7 @@ def build_ptm_evidence_card_report(
     ):
         site_entry = site_entry_by_key[differential_entry.site_key]
         peptide_evidence = _build_peptide_evidence(records, site_entry)
+        identity_entry = identity_entries_by_site.get(differential_entry.site_key)
         localization = _build_localization_evidence(
             localization_scoring.entries,
             differential_entry=differential_entry,
@@ -387,6 +403,16 @@ def build_ptm_evidence_card_report(
                 position=differential_entry.position,
                 modification_name=differential_entry.modification_name,
                 target_decoy_label=site_entry.target_decoy_label,
+                identity_level=(
+                    ProteinIdentityLevel.AMBIGUOUS
+                    if identity_entry is None
+                    else identity_entry.identity_level
+                ),
+                identity_reason=(
+                    "no protein identity support was available for this PTM site"
+                    if identity_entry is None
+                    else identity_entry.identity_reason
+                ),
                 peptide_evidence=peptide_evidence,
                 localization=localization,
                 quantification=quantification,
@@ -535,6 +561,8 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "position",
             "modification_name",
             "target_decoy_label",
+            "identity_level",
+            "identity_reason",
             "condition_a",
             "condition_b",
             "adjusted_p_value",
@@ -560,6 +588,8 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 entry.position,
                 entry.modification_name,
                 entry.target_decoy_label.value,
+                entry.identity_level.value,
+                entry.identity_reason,
                 entry.differential_result.condition_a,
                 entry.differential_result.condition_b,
                 "" if entry.differential_result.adjusted_p_value is None else entry.differential_result.adjusted_p_value,
@@ -722,6 +752,53 @@ def _build_localization_evidence(
             for observation in stable_observations
         ),
     )
+
+
+def _build_identity_entries_by_site(
+    records: tuple[PtmEvidenceRecord, ...],
+    *,
+    site_entries: tuple[PtmSiteEntry, ...],
+    protein_records: tuple[NormalizedProteinRecord, ...] | None,
+    protein_sequences: dict[str, str] | None,
+) -> dict[str, ProteinIdentityResolutionEntry]:
+    if not protein_records and not protein_sequences:
+        return {}
+    references: list[ProteinIdentityReference] = []
+    for site_entry in site_entries:
+        peptide_evidence = _build_peptide_evidence(records, site_entry)
+        references.append(
+            ProteinIdentityReference(
+                evidence_key=site_entry.site_key,
+                target_protein_ref=site_entry.protein_ref,
+                candidate_protein_refs=tuple(
+                    dict.fromkeys(
+                        (
+                            site_entry.protein_ref,
+                            *(
+                                protein_ref
+                                for observation in peptide_evidence
+                                for protein_ref in observation.protein_refs
+                            ),
+                        )
+                    )
+                ),
+                peptide_sequences=tuple(
+                    dict.fromkeys(
+                        observation.canonical_peptide
+                        for observation in peptide_evidence
+                    )
+                ),
+            )
+        )
+    report = build_protein_identity_resolution_report(
+        tuple(references),
+        protein_records=() if protein_records is None else protein_records,
+        protein_sequences=protein_sequences,
+    )
+    return {
+        entry.evidence_key: entry
+        for entry in report.entries
+    }
 
 
 def _build_quantification_evidence(

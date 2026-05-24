@@ -68,7 +68,7 @@ from bijux_proteomics.ptm.site_quantification import (
     render_ptm_site_quant_missingness_tsv,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
-from bijux_proteomics.sequences import ProteinRegionContextRecord
+from bijux_proteomics.sequences import NormalizedProteinRecord, ProteinRegionContextRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -164,6 +164,7 @@ def build_ptm_report_bundle(
     records: tuple[PtmEvidenceRecord, ...],
     *,
     protein_sequences: dict[str, str],
+    protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     fragment_ion_support_by_spectrum: dict[str, tuple[str, ...]] | None = None,
     feature_records: tuple[Ms1FeatureRecord, ...] | None = None,
     design_entries: tuple[ExperimentalDesignEntry, ...] | None = None,
@@ -278,6 +279,8 @@ def build_ptm_report_bundle(
             site_quantification=site_quantification,
             motif_enrichment=motif_enrichment,
             regulator_enrichment=regulator_enrichment,
+            protein_records=protein_records,
+            protein_sequences=protein_sequences,
             protein_region_context_records=protein_region_context_records,
             policy=evidence_card_policy,
         )
