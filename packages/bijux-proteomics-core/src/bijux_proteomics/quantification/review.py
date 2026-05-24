@@ -63,6 +63,10 @@ from bijux_proteomics.quantification.readiness import (
     QuantDecisionReadinessReport,
     build_quant_decision_readiness_report,
 )
+from bijux_proteomics.quantification.multi_contrast_consistency import (
+    MultiContrastConsistencyReport,
+    build_multi_contrast_consistency_report,
+)
 from bijux_proteomics.quantification.replicate_qc import (
     build_replicate_and_batch_qc_report,
 )
@@ -1061,6 +1065,7 @@ class QuantReviewBundle(JsonModel):
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None
+    multi_contrast_consistency_report: MultiContrastConsistencyReport | None = None
     time_course_differential_report: TimeCourseDifferentialReport | None = None
     missingness_profile: MissingnessMechanismProfileReport
     missingness_entity_summary: MissingnessEntitySummaryReport
@@ -1146,6 +1151,13 @@ def build_quant_review_bundle(
         if len(conditions) >= 2
         else None
     )
+    design_matrix_report = build_quant_design_matrix_report(
+        design_entries,
+        batch_field="batch",
+        covariate_fields=covariate_fields,
+        pairing_field=pairing_field,
+        timepoint_field=timepoint_field,
+    )
     differential_report = (
         build_differential_abundance_report(
             imputed_table,
@@ -1184,8 +1196,18 @@ def build_quant_review_bundle(
         build_multi_condition_differential_abundance_report(
             imputed_table,
             design_entries,
+            test_type=DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST,
+            design_matrix=design_matrix_report,
         )
         if len(conditions) > 2
+        else None
+    )
+    multi_contrast_consistency_report = (
+        build_multi_contrast_consistency_report(
+            multi_condition_differential_report,
+            entity_protein_refs=imputed_table.entity_protein_refs,
+        )
+        if multi_condition_differential_report is not None
         else None
     )
     from bijux_proteomics.quantification.statistical_backend import (
@@ -1204,13 +1226,6 @@ def build_quant_review_bundle(
     msstats_input_report = build_msstats_compatible_input_report(
         records,
         design_entries,
-    )
-    design_matrix_report = build_quant_design_matrix_report(
-        design_entries,
-        batch_field="batch",
-        covariate_fields=covariate_fields,
-        pairing_field=pairing_field,
-        timepoint_field=timepoint_field,
     )
     design_model_fit_report = fit_quant_design_matrix_model(
         imputed_table,
@@ -1271,7 +1286,14 @@ def build_quant_review_bundle(
         )
     if multi_condition_differential_report is not None:
         caveats.append(
-            "multi-condition study emitted a pairwise differential contrast collection instead of one primary effect-size ranking"
+            "multi-condition study emitted pairwise differential contrasts plus a cross-contrast consistency review instead of one primary effect-size ranking"
+        )
+    if (
+        multi_contrast_consistency_report is not None
+        and multi_contrast_consistency_report.summary.direction_conflict_count > 0
+    ):
+        caveats.append(
+            "multi-condition contrast review found contradictory directionality across significant contrasts"
         )
     if qc_report.outlier_samples:
         caveats.append(
@@ -1294,6 +1316,7 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.differential_abundance_report",
         "quant_artifact_bundle.differential_abundance_multi_condition_report",
         "quant_artifact_bundle.time_course_differential_report",
+        "quant_review_bundle.multi_contrast_consistency_report.entities",
         "lfq_provenance.feature_entries",
         "quant_review_bundle.normalization_comparison",
         "quant_review_bundle.imputation_report",
@@ -1325,6 +1348,7 @@ def build_quant_review_bundle(
         differential_abundance_multi_condition_report=(
             multi_condition_differential_report
         ),
+        multi_contrast_consistency_report=multi_contrast_consistency_report,
         time_course_differential_report=time_course_differential_report,
         missingness_profile=missingness,
         missingness_entity_summary=missingness_entity_summary,

@@ -100,6 +100,11 @@ def build_differential_abundance_report(
         condition_a, condition_b = conditions
     assert condition_a is not None
     assert condition_b is not None
+    contrast_design_entries = tuple(
+        entry
+        for entry in analysis_design_entries
+        if entry.condition in {condition_a, condition_b}
+    )
 
     active_paired_policy: PairedDifferentialPolicy | None = None
     chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
@@ -109,7 +114,7 @@ def build_differential_abundance_report(
         chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL
         effective_pairing_field = active_paired_policy.pair_id_field
     require_feasible_experiment_design_for_analysis(
-        analysis_design_entries,
+        contrast_design_entries,
         chosen_analysis_family=chosen_analysis_family,
         condition_a=condition_a,
         condition_b=condition_b,
@@ -124,7 +129,7 @@ def build_differential_abundance_report(
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
     effective_units_by_condition = count_effective_statistical_units_by_condition(
-        design_entries
+        contrast_design_entries
     )
     if (
         effective_units_by_condition.get(condition_a, 0)
