@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,6 +14,22 @@ def _source_pythonpath() -> str:
     repo_root = Path(__file__).resolve().parents[4]
     src_roots = sorted(repo_root.glob("packages/*/src"))
     return ":".join(str(path) for path in src_roots)
+
+
+def _repository_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
+def _assert_clean_checkout_command_succeeds(statement: str) -> None:
+    result = subprocess.run(
+        [sys.executable, "-c", statement],
+        capture_output=True,
+        text=True,
+        cwd=_repository_root(),
+        env={key: value for key, value in os.environ.items() if key != "PYTHONPATH"},
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def _assert_import_statement_succeeds_without_modules(
@@ -60,6 +77,16 @@ def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 
     assert module.cli is not None
+
+
+def test_core_package_import_contract_succeeds_from_clean_checkout() -> None:
+    _assert_clean_checkout_command_succeeds("import bijux_proteomics")
+
+
+def test_core_cli_import_contract_succeeds_from_clean_checkout() -> None:
+    _assert_clean_checkout_command_succeeds(
+        "from bijux_proteomics.interfaces.cli import cli"
+    )
 
 
 def test_core_package_import_contract_avoids_pydantic_at_root_import_time() -> None:
