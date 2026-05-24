@@ -98,6 +98,7 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
     assert all(card.peptide_count == len(card.peptides) for card in report.cards)
     assert any(card.pathways for card in report.cards)
     assert any(card.context_terms for card in report.cards)
+    assert any(card.identity_level.value == "protein_level" for card in report.cards)
     assert any(card.functional_regions for card in report.cards)
     assert any(
         region.supporting_evidence_refs == ("PEPAAA",)

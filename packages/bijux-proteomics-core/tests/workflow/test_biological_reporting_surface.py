@@ -213,6 +213,74 @@ def test_biological_result_report_bundle_from_quant_table_preserves_functional_r
     )
 
 
+def test_biological_result_report_bundle_from_quant_table_does_not_call_exact_isoform_without_unique_peptide(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    values: list[QuantValue] = []
+    abundances = {
+        "PGISO": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+    }
+    for entity_id, entity_values in abundances.items():
+        for sample_id, abundance in entity_values.items():
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                    source_feature_count=1,
+                )
+            )
+    table = LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        normalization_method=NormalizationMethod.NONE,
+        sample_ids=("C1", "C2", "C3", "T1", "T2", "T3"),
+        entity_ids=("PGISO",),
+        values=tuple(values),
+        entity_protein_refs={
+            "PGISO": ("P11111-2", "P11111"),
+        },
+        entity_member_peptides={
+            "PGISO": ("PEPTIDEK",),
+        },
+    )
+    fasta_path = tmp_path / "shared_isoform.fasta"
+    fasta_path.write_text(
+        (
+            ">sp|P11111|GENE1_HUMAN Canonical GN=GENE1\nMPEPTIDEK\n"
+            ">sp|P11111-2|GENE1_HUMAN Isoform GN=GENE1\nMPEPTIDEK\n"
+        ),
+        encoding="utf-8",
+    )
+
+    report = build_biological_result_report_bundle_from_quant_table(
+        table,
+        design_entries,
+        proteins_fasta_path=fasta_path,
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    card = report.protein_cards.cards[0]
+
+    assert card.identity_level.value == "protein_level"
+    assert "do not isolate one exact isoform" in card.identity_reason
+
+
 def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
