@@ -29,6 +29,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantMeasureKind,
     QuantCellImputationProvenance,
     QuantValue,
+    QuantValueOrigin,
     build_differential_abundance_report,
 )
 
@@ -640,6 +641,13 @@ def _rebuild_imputed_table(
             value.model_copy(
                 update={
                     "abundance": max(fill_value, 0.0),
+                    "value_provenance": (
+                        None
+                        if value.value_provenance is None
+                        else value.value_provenance.model_copy(
+                            update={"value_origin": QuantValueOrigin.IMPUTED}
+                        )
+                    ),
                     "imputation_provenance": provenance_lookup[
                         (value.entity_id, value.sample_id)
                     ],

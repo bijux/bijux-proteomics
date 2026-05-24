@@ -330,6 +330,7 @@ class QuantValue(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     source_feature_count: int = Field(..., ge=0)
+    value_provenance: QuantValueProvenance | None = None
     imputation_provenance: QuantCellImputationProvenance | None = None
 
 
@@ -344,6 +345,63 @@ class QuantCellImputationProvenance(JsonModel):
     reference_group: str | None = None
     donor_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     donor_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class QuantValueOrigin(StrEnum):
+    """Whether a quantification cell is observed, still missing, or imputed."""
+
+    OBSERVED = "observed"
+    MISSING = "missing"
+    IMPUTED = "imputed"
+
+
+class QuantValueContributorKind(StrEnum):
+    """Stable contributor categories that can support one quantification value."""
+
+    FEATURE = "feature"
+    PRECURSOR = "precursor"
+
+
+class QuantValueSourceContributor(JsonModel):
+    """One selected raw contributor that directly supports a quant value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contributor_id: str = Field(..., min_length=1)
+    contributor_kind: QuantValueContributorKind
+    canonical_peptide: str | None = None
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    imported_provenance: ImportedEvidenceProvenance | None = None
+
+
+class QuantValueExcludedContributor(JsonModel):
+    """One raw contributor excluded from a quant value plus the exclusion reason."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contributor: QuantValueSourceContributor
+    reason_code: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+
+
+class QuantValueProvenance(JsonModel):
+    """Stable per-cell provenance that explains one matrix value back to raw support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    aggregation_method: QuantRollupMethod
+    value_origin: QuantValueOrigin
+    source_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    source_precursor_ids: tuple[str, ...] = Field(default_factory=tuple)
+    selected_contributors: tuple[QuantValueSourceContributor, ...] = Field(
+        default_factory=tuple
+    )
+    excluded_contributors: tuple[QuantValueExcludedContributor, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class LabelBasedChannelPolicyEntry(JsonModel):
@@ -778,6 +836,23 @@ class LabelFreeQuantTable(JsonModel):
 
     @model_validator(mode="after")
     def _bind_canonical_quant_matrix(self) -> LabelFreeQuantTable:
+        resolved_values: list[QuantValue] = []
+        values_changed = False
+        for value in self.values:
+            resolved_provenance = _resolve_quant_value_provenance(
+                value=value,
+                entity_level=self.entity_level,
+                aggregation_method=self.aggregation_method,
+                entity_member_peptides=self.entity_member_peptides,
+            )
+            if resolved_provenance != value.value_provenance:
+                value = value.model_copy(
+                    update={"value_provenance": resolved_provenance}
+                )
+                values_changed = True
+            resolved_values.append(value)
+        if values_changed:
+            self.values = tuple(resolved_values)
         quant_matrix = self.quant_matrix
         if quant_matrix is None:
             quant_matrix = self._build_canonical_quant_matrix()
@@ -954,6 +1029,7 @@ class QuantMatrixExportRow(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     source_feature_count: int = Field(..., ge=0)
+    value_provenance: QuantValueProvenance | None = None
     imputation_provenance: QuantCellImputationProvenance | None = None
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     member_peptides: tuple[str, ...] = Field(default_factory=tuple)
@@ -1941,6 +2017,151 @@ def _aggregate_abundance(
     return float(sum(sorted_values[:top_n]))
 
 
+def _quant_value_origin(
+    *,
+    abundance: float | None,
+    imputation_provenance: QuantCellImputationProvenance | None,
+) -> QuantValueOrigin:
+    if imputation_provenance is not None:
+        return QuantValueOrigin.IMPUTED
+    if abundance is None:
+        return QuantValueOrigin.MISSING
+    return QuantValueOrigin.OBSERVED
+
+
+def _quant_value_source_contributor(
+    record: Ms1FeatureRecord,
+) -> QuantValueSourceContributor:
+    return QuantValueSourceContributor(
+        contributor_id=record.feature_id,
+        contributor_kind=QuantValueContributorKind.FEATURE,
+        canonical_peptide=record.canonical_peptide,
+        protein_refs=record.protein_refs,
+        abundance=None if record.intensity is None else float(record.intensity),
+        missing_value_kind=record.missing_value_kind,
+        imported_provenance=record.provenance,
+    )
+
+
+def _quant_value_exclusion_reason(
+    *,
+    record: Ms1FeatureRecord,
+    reason_code: str,
+) -> str:
+    if reason_code == "excluded_by_top_n_rollup":
+        return "contributor falls outside the selected top-n rollup window"
+    if reason_code == "missing_value_filtered":
+        return "contributor was marked filtered before matrix aggregation"
+    if reason_code == "missing_value_not_observed":
+        return "contributor was not observed in this sample before matrix aggregation"
+    return f"contributor was excluded from the quant value: {record.feature_id}"
+
+
+def _build_quant_value_provenance(
+    *,
+    aggregation_method: QuantRollupMethod,
+    abundance: float | None,
+    selected_records: tuple[Ms1FeatureRecord, ...],
+    excluded_records: tuple[tuple[Ms1FeatureRecord, str], ...],
+    imputation_provenance: QuantCellImputationProvenance | None = None,
+) -> QuantValueProvenance:
+    selected_contributors = tuple(
+        _quant_value_source_contributor(record) for record in selected_records
+    )
+    excluded_contributors = tuple(
+        QuantValueExcludedContributor(
+            contributor=_quant_value_source_contributor(record),
+            reason_code=reason_code,
+            reason=_quant_value_exclusion_reason(
+                record=record,
+                reason_code=reason_code,
+            ),
+        )
+        for record, reason_code in excluded_records
+    )
+    return QuantValueProvenance(
+        aggregation_method=aggregation_method,
+        value_origin=_quant_value_origin(
+            abundance=abundance,
+            imputation_provenance=imputation_provenance,
+        ),
+        source_feature_ids=tuple(
+            contributor.contributor_id
+            for contributor in selected_contributors
+            if contributor.contributor_kind is QuantValueContributorKind.FEATURE
+        ),
+        source_peptides=tuple(
+            dict.fromkeys(
+                contributor.canonical_peptide
+                for contributor in selected_contributors
+                if contributor.canonical_peptide is not None
+            )
+        ),
+        source_precursor_ids=tuple(
+            contributor.contributor_id
+            for contributor in selected_contributors
+            if contributor.contributor_kind is QuantValueContributorKind.PRECURSOR
+        ),
+        selected_contributors=selected_contributors,
+        excluded_contributors=excluded_contributors,
+    )
+
+
+def _fallback_quant_value_provenance(
+    *,
+    value: QuantValue,
+    entity_level: QuantEntityLevel,
+    aggregation_method: QuantRollupMethod,
+    entity_member_peptides: dict[str, tuple[str, ...]],
+) -> QuantValueProvenance:
+    source_peptides = (
+        (value.entity_id,)
+        if entity_level is QuantEntityLevel.PEPTIDE
+        else entity_member_peptides.get(value.entity_id, ())
+    )
+    return QuantValueProvenance(
+        aggregation_method=aggregation_method,
+        value_origin=_quant_value_origin(
+            abundance=value.abundance,
+            imputation_provenance=value.imputation_provenance,
+        ),
+        source_peptides=source_peptides,
+    )
+
+
+def _resolve_quant_value_provenance(
+    *,
+    value: QuantValue,
+    entity_level: QuantEntityLevel,
+    aggregation_method: QuantRollupMethod,
+    entity_member_peptides: dict[str, tuple[str, ...]],
+) -> QuantValueProvenance:
+    provenance = value.value_provenance or _fallback_quant_value_provenance(
+        value=value,
+        entity_level=entity_level,
+        aggregation_method=aggregation_method,
+        entity_member_peptides=entity_member_peptides,
+    )
+    updates: dict[str, object] = {}
+    if provenance.aggregation_method is not aggregation_method:
+        updates["aggregation_method"] = aggregation_method
+    resolved_origin = _quant_value_origin(
+        abundance=value.abundance,
+        imputation_provenance=value.imputation_provenance,
+    )
+    if provenance.value_origin is not resolved_origin:
+        updates["value_origin"] = resolved_origin
+    if (
+        not provenance.source_peptides
+        and entity_level is QuantEntityLevel.PEPTIDE
+        and value.entity_id
+    ):
+        updates["source_peptides"] = (value.entity_id,)
+    if updates:
+        return provenance.model_copy(update=updates)
+    return provenance
+
+
 def _build_table(
     records: tuple[Ms1FeatureRecord, ...],
     *,
@@ -1951,6 +2172,7 @@ def _build_table(
 ) -> LabelFreeQuantTable:
     sample_ids = tuple(sorted({record.sample_id for record in records}))
     grouped: dict[tuple[str, str], list[float]] = {}
+    records_by_key: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
     feature_counts: dict[tuple[str, str], int] = {}
     missing_kinds: dict[tuple[str, str], list[MissingValueKind]] = {}
     protein_refs_by_entity: dict[str, tuple[str, ...]] = {}
@@ -1962,6 +2184,7 @@ def _build_table(
             continue
         for entity_id in entity_ids:
             key = (entity_id, record.sample_id)
+            records_by_key.setdefault(key, []).append(record)
             missing_kinds.setdefault(key, []).append(record.missing_value_kind)
             peptides_by_entity.setdefault(entity_id, set()).add(
                 record.canonical_peptide
@@ -1983,6 +2206,22 @@ def _build_table(
         for sample_id in sample_ids:
             key = (entity_id, sample_id)
             observed_values = tuple(grouped.get(key, ()))
+            bucket = tuple(
+                sorted(
+                    records_by_key.get(key, ()),
+                    key=lambda record: (
+                        -(record.intensity or 0.0),
+                        record.canonical_peptide,
+                        record.feature_id,
+                    ),
+                )
+            )
+            candidate_records = tuple(
+                record
+                for record in bucket
+                if record.missing_value_kind
+                in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+            )
             kinds = tuple(missing_kinds.get(key, (MissingValueKind.NOT_OBSERVED,)))
             missing_kind = _aggregate_missing_kind(kinds)
             abundance: float | None
@@ -1998,6 +2237,28 @@ def _build_table(
                     missing_kind = MissingValueKind.ZERO
             else:
                 abundance = None
+            selected_records = candidate_records
+            excluded_records: list[tuple[Ms1FeatureRecord, str]] = []
+            if (
+                measure_kind is QuantMeasureKind.INTENSITY
+                and aggregation_method is QuantRollupMethod.TOP_N
+                and len(candidate_records) > top_n
+            ):
+                selected_records = candidate_records[:top_n]
+                excluded_records.extend(
+                    (record, "excluded_by_top_n_rollup")
+                    for record in candidate_records[top_n:]
+                )
+            excluded_records.extend(
+                (record, "missing_value_filtered")
+                for record in bucket
+                if record.missing_value_kind is MissingValueKind.FILTERED
+            )
+            excluded_records.extend(
+                (record, "missing_value_not_observed")
+                for record in bucket
+                if record.missing_value_kind is MissingValueKind.NOT_OBSERVED
+            )
             values.append(
                 QuantValue(
                     sample_id=sample_id,
@@ -2005,6 +2266,12 @@ def _build_table(
                     abundance=abundance,
                     missing_value_kind=missing_kind,
                     source_feature_count=count,
+                    value_provenance=_build_quant_value_provenance(
+                        aggregation_method=aggregation_method,
+                        abundance=abundance,
+                        selected_records=selected_records,
+                        excluded_records=tuple(excluded_records),
+                    ),
                 )
             )
 
@@ -2094,6 +2361,7 @@ def build_quant_matrix_export(
                 abundance=value.abundance,
                 missing_value_kind=value.missing_value_kind,
                 source_feature_count=value.source_feature_count,
+                value_provenance=value.value_provenance,
                 imputation_provenance=value.imputation_provenance,
                 protein_refs=table.entity_protein_refs.get(value.entity_id, ()),
                 member_peptides=table.entity_member_peptides.get(value.entity_id, ()),
@@ -2533,52 +2801,28 @@ def build_protein_quant_rollup_evidence(
         aggregation_method=aggregation_method,
         top_n=top_n,
     )
-    grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
-    for record in records:
-        for protein_ref in record.protein_refs:
-            grouped_features.setdefault((protein_ref, record.sample_id), []).append(
-                record
-            )
-
     entries: list[ProteinQuantRollupEvidenceEntry] = []
     value_lookup = _matrix_value_index(table)
     for protein_ref in table.entity_ids:
         for sample_id in table.sample_ids:
-            bucket = sorted(
-                grouped_features.get((protein_ref, sample_id), ()),
-                key=lambda record: (
-                    -(record.intensity or 0.0),
-                    record.canonical_peptide,
-                    record.feature_id,
-                ),
-            )
+            value = value_lookup[(protein_ref, sample_id)]
             entries.append(
                 ProteinQuantRollupEvidenceEntry(
                     protein_ref=protein_ref,
                     sample_id=sample_id,
                     aggregation_method=aggregation_method,
-                    abundance=value_lookup[(protein_ref, sample_id)].abundance,
-                    contributing_feature_ids=tuple(
-                        record.feature_id
-                        for record in (
-                            bucket[:top_n]
-                            if aggregation_method is QuantRollupMethod.TOP_N
-                            else bucket
-                        )
+                    abundance=value.abundance,
+                    contributing_feature_ids=(
+                        ()
+                        if value.value_provenance is None
+                        else value.value_provenance.source_feature_ids
                     ),
-                    contributing_peptides=tuple(
-                        dict.fromkeys(
-                            record.canonical_peptide
-                            for record in (
-                                bucket[:top_n]
-                                if aggregation_method is QuantRollupMethod.TOP_N
-                                else bucket
-                            )
-                        )
+                    contributing_peptides=(
+                        ()
+                        if value.value_provenance is None
+                        else value.value_provenance.source_peptides
                     ),
-                    missing_value_kind=value_lookup[
-                        (protein_ref, sample_id)
-                    ].missing_value_kind,
+                    missing_value_kind=value.missing_value_kind,
                 )
             )
     return tuple(
@@ -2750,7 +2994,13 @@ def export_quant_matrix_tsv(
                 "aggregation_method",
                 "abundance",
                 "missing_value_kind",
+                "value_origin",
                 "source_feature_count",
+                "source_feature_ids",
+                "source_peptides",
+                "source_precursor_ids",
+                "excluded_contributor_ids",
+                "exclusion_reason_codes",
                 "imputation_method",
                 "imputation_strategy",
                 "imputation_reference_group",
@@ -2779,7 +3029,43 @@ def export_quant_matrix_tsv(
                     row.aggregation_method.value,
                     "" if row.abundance is None else row.abundance,
                     row.missing_value_kind.value,
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else row.value_provenance.value_origin.value
+                    ),
                     row.source_feature_count,
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else ";".join(row.value_provenance.source_feature_ids)
+                    ),
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else ";".join(row.value_provenance.source_peptides)
+                    ),
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else ";".join(row.value_provenance.source_precursor_ids)
+                    ),
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else ";".join(
+                            excluded.contributor.contributor_id
+                            for excluded in row.value_provenance.excluded_contributors
+                        )
+                    ),
+                    (
+                        ""
+                        if row.value_provenance is None
+                        else ";".join(
+                            excluded.reason_code
+                            for excluded in row.value_provenance.excluded_contributors
+                        )
+                    ),
                     (
                         ""
                         if row.imputation_provenance is None
@@ -2841,6 +3127,34 @@ def build_quant_reproducibility_manifest(
                 value.abundance,
                 value.missing_value_kind.value,
                 value.source_feature_count,
+                None
+                if value.value_provenance is None
+                else (
+                    value.value_provenance.aggregation_method.value,
+                    value.value_provenance.value_origin.value,
+                    tuple(value.value_provenance.source_feature_ids),
+                    tuple(value.value_provenance.source_peptides),
+                    tuple(value.value_provenance.source_precursor_ids),
+                    tuple(
+                        (
+                            contributor.contributor_id,
+                            contributor.contributor_kind.value,
+                            contributor.canonical_peptide,
+                            tuple(contributor.protein_refs),
+                            contributor.abundance,
+                            contributor.missing_value_kind.value,
+                        )
+                        for contributor in value.value_provenance.selected_contributors
+                    ),
+                    tuple(
+                        (
+                            excluded.contributor.contributor_id,
+                            excluded.contributor.contributor_kind.value,
+                            excluded.reason_code,
+                        )
+                        for excluded in value.value_provenance.excluded_contributors
+                    ),
+                ),
                 None
                 if value.imputation_provenance is None
                 else (
