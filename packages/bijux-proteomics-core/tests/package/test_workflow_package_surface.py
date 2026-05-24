@@ -36,11 +36,7 @@ def _write_public_descriptor_copy(
     accession: str,
 ) -> None:
     source_path = (
-        Path(__file__).resolve().parents[4]
-        / "benchmarks"
-        / "public"
-        / source_name
-        / "dataset.yml"
+        workflow.public_benchmark_root() / source_name / "dataset.yml"
     )
     payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
     payload["dataset_id"] = dataset_id
@@ -124,6 +120,7 @@ def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path)
 
 def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
+    assert hasattr(workflow, "export_targeted_assay_qc_workflow_artifacts")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
     assert workflow.TargetedWorkflowStage.ASSAY_QC.value == "assay_qc"
 
@@ -679,9 +676,7 @@ def test_workflow_package_exports_cohort_stratification_surface() -> None:
 
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     descriptor = workflow.load_public_benchmark_descriptor(
-        Path(__file__).resolve().parents[4]
-        / "benchmarks"
-        / "public"
+        workflow.public_benchmark_root()
         / "ptm_localization_review_package"
         / "dataset.yml"
     )
@@ -695,12 +690,12 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
 
 def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     report = workflow.build_public_benchmark_trust_bundle(
-        Path(__file__).resolve().parents[4] / "benchmarks" / "public",
+        workflow.public_benchmark_root(),
         output_dir=tmp_path / "trust_bundle",
     )
 
     assert hasattr(workflow, "build_public_benchmark_trust_bundle")
-    assert report.suite_report.passed_count == 6
+    assert report.suite_report.passed_count == 7
     assert Path(report.html_index_path).exists()
 
 
@@ -708,15 +703,15 @@ def test_workflow_package_exports_public_dataset_comparison_surface(
     tmp_path: Path,
 ) -> None:
     report = workflow.build_public_dataset_comparison_report(
-        Path(__file__).resolve().parents[4] / "benchmarks" / "public",
+        workflow.public_benchmark_root(),
         run_output_root=tmp_path / "public_dataset_runs",
     )
 
     assert hasattr(workflow, "build_public_dataset_comparison_report")
     assert workflow.PublicDatasetComparisonDatasetStatus.PASSED.value == "passed"
     assert report.summary.descriptor_count == 10
-    assert report.summary.passed_dataset_count == 6
-    assert report.summary.failed_dataset_count == 4
+    assert report.summary.passed_dataset_count == 7
+    assert report.summary.failed_dataset_count == 3
     assert report.summary.successful_study_count == 6
     assert report.summary.effect_support_study_count == 5
     assert report.summary.meta_analysis_entry_count == 6
