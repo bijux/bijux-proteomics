@@ -35,6 +35,62 @@ class RetentionTimeAlignmentModelStatus(StrEnum):
     FAILED = "failed"
 
 
+class RetentionTimeAlignmentAnchor(JsonModel):
+    """One anchor-peptide row for raw RT-alignment fitting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    peptide_id: str = Field(..., min_length=1)
+    observed_rt: float = Field(..., ge=0.0)
+    reference_rt: float = Field(..., ge=0.0)
+    anchor_confidence: float = Field(..., ge=0.0)
+
+
+class RetentionTimeAlignmentFitModel(JsonModel):
+    """One fitted run-level RT alignment model from an anchor table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    alignment_model: str = Field(..., min_length=1)
+    rt_shift: float | None = None
+    rt_residual_median: float | None = Field(default=None, ge=0.0)
+    failed_anchor_count: int = Field(..., ge=0)
+    anchor_count: int = Field(..., ge=0)
+    unaligned_rt_residual_median: float | None = Field(default=None, ge=0.0)
+    failure_reason: str | None = None
+
+
+class RetentionTimeAlignmentFitResidual(JsonModel):
+    """One anchor residual before and after applying a fitted RT shift."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    peptide_id: str = Field(..., min_length=1)
+    observed_rt: float = Field(..., ge=0.0)
+    reference_rt: float = Field(..., ge=0.0)
+    anchor_confidence: float = Field(..., ge=0.0)
+    aligned_rt: float = Field(..., ge=0.0)
+    unaligned_rt_residual: float
+    rt_residual: float
+    absolute_unaligned_rt_residual: float = Field(..., ge=0.0)
+    absolute_rt_residual: float = Field(..., ge=0.0)
+    excluded_from_fit: bool = False
+    exclusion_reason: str | None = None
+
+
+class RetentionTimeAlignmentFitReport(JsonModel):
+    """Stable raw RT-alignment fit report over one anchor table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_anchor_count: int = Field(..., ge=1)
+    models: tuple[RetentionTimeAlignmentFitModel, ...] = Field(default_factory=tuple)
+    residuals: tuple[RetentionTimeAlignmentFitResidual, ...] = Field(default_factory=tuple)
+
+
 class RetentionTimeAlignmentRunModel(JsonModel):
     """One per-run retention-time shift model."""
 
@@ -45,6 +101,10 @@ class RetentionTimeAlignmentRunModel(JsonModel):
     reference_run_id: str = Field(..., min_length=1)
     status: RetentionTimeAlignmentModelStatus
     anchor_count: int = Field(..., ge=0)
+    alignment_model: str = Field(..., min_length=1)
+    rt_shift: float | None = None
+    rt_residual_median: float | None = Field(default=None, ge=0.0)
+    failed_anchor_count: int = Field(default=0, ge=0)
     shift_seconds: float | None = None
     median_absolute_residual_seconds: float | None = Field(default=None, ge=0.0)
     max_absolute_residual_seconds: float | None = Field(default=None, ge=0.0)
@@ -102,6 +162,155 @@ class RetentionTimeAlignmentReport(JsonModel):
     )
 
 
+def fit_rt_alignment(
+    anchor_table: tuple[RetentionTimeAlignmentAnchor, ...],
+    *,
+    min_anchor_count: int = 2,
+) -> RetentionTimeAlignmentFitReport:
+    """Fit one RT-shift model per run from an anchor-peptide table."""
+
+    if not anchor_table:
+        raise ValueError("rt alignment fit requires at least one anchor row")
+    if min_anchor_count <= 0:
+        raise ValueError("min_anchor_count must be greater than zero")
+
+    grouped: dict[str, list[RetentionTimeAlignmentAnchor]] = {}
+    for anchor in anchor_table:
+        grouped.setdefault(anchor.run_id, []).append(anchor)
+
+    models: list[RetentionTimeAlignmentFitModel] = []
+    residuals: list[RetentionTimeAlignmentFitResidual] = []
+    for run_id in sorted(grouped):
+        run_anchors = sorted(grouped[run_id], key=lambda item: item.peptide_id)
+        usable_anchors = [
+            anchor for anchor in run_anchors if anchor.anchor_confidence > 0.0
+        ]
+        excluded_anchors = [
+            anchor for anchor in run_anchors if anchor.anchor_confidence <= 0.0
+        ]
+        for anchor in excluded_anchors:
+            residuals.append(
+                RetentionTimeAlignmentFitResidual(
+                    run_id=anchor.run_id,
+                    peptide_id=anchor.peptide_id,
+                    observed_rt=anchor.observed_rt,
+                    reference_rt=anchor.reference_rt,
+                    anchor_confidence=anchor.anchor_confidence,
+                    aligned_rt=anchor.observed_rt,
+                    unaligned_rt_residual=anchor.observed_rt - anchor.reference_rt,
+                    rt_residual=anchor.observed_rt - anchor.reference_rt,
+                    absolute_unaligned_rt_residual=abs(
+                        anchor.observed_rt - anchor.reference_rt
+                    ),
+                    absolute_rt_residual=abs(anchor.observed_rt - anchor.reference_rt),
+                    excluded_from_fit=True,
+                    exclusion_reason="nonpositive_anchor_confidence",
+                )
+            )
+
+        if len(usable_anchors) < min_anchor_count:
+            for anchor in usable_anchors:
+                residuals.append(
+                    RetentionTimeAlignmentFitResidual(
+                        run_id=anchor.run_id,
+                        peptide_id=anchor.peptide_id,
+                        observed_rt=anchor.observed_rt,
+                        reference_rt=anchor.reference_rt,
+                        anchor_confidence=anchor.anchor_confidence,
+                        aligned_rt=anchor.observed_rt,
+                        unaligned_rt_residual=anchor.observed_rt - anchor.reference_rt,
+                        rt_residual=anchor.observed_rt - anchor.reference_rt,
+                        absolute_unaligned_rt_residual=abs(
+                            anchor.observed_rt - anchor.reference_rt
+                        ),
+                        absolute_rt_residual=abs(
+                            anchor.observed_rt - anchor.reference_rt
+                        ),
+                        excluded_from_fit=True,
+                        exclusion_reason="insufficient_anchor_count",
+                    )
+                )
+            models.append(
+                RetentionTimeAlignmentFitModel(
+                    run_id=run_id,
+                    alignment_model="insufficient_anchor_count",
+                    rt_shift=None,
+                    rt_residual_median=None,
+                    failed_anchor_count=len(run_anchors),
+                    anchor_count=len(usable_anchors),
+                    unaligned_rt_residual_median=(
+                        None
+                        if not usable_anchors
+                        else median(
+                            abs(anchor.observed_rt - anchor.reference_rt)
+                            for anchor in usable_anchors
+                        )
+                    ),
+                    failure_reason="insufficient_anchor_count",
+                )
+            )
+            continue
+
+        shift = _weighted_median(
+            tuple(
+                anchor.observed_rt - anchor.reference_rt
+                for anchor in usable_anchors
+            ),
+            tuple(anchor.anchor_confidence for anchor in usable_anchors),
+        )
+        absolute_residuals: list[float] = []
+        absolute_unaligned_residuals: list[float] = []
+        for anchor in usable_anchors:
+            unaligned_residual = anchor.observed_rt - anchor.reference_rt
+            aligned_rt = anchor.observed_rt - shift
+            rt_residual = aligned_rt - anchor.reference_rt
+            absolute_residuals.append(abs(rt_residual))
+            absolute_unaligned_residuals.append(abs(unaligned_residual))
+            residuals.append(
+                RetentionTimeAlignmentFitResidual(
+                    run_id=anchor.run_id,
+                    peptide_id=anchor.peptide_id,
+                    observed_rt=anchor.observed_rt,
+                    reference_rt=anchor.reference_rt,
+                    anchor_confidence=anchor.anchor_confidence,
+                    aligned_rt=aligned_rt,
+                    unaligned_rt_residual=unaligned_residual,
+                    rt_residual=rt_residual,
+                    absolute_unaligned_rt_residual=abs(unaligned_residual),
+                    absolute_rt_residual=abs(rt_residual),
+                    excluded_from_fit=False,
+                    exclusion_reason=None,
+                )
+            )
+        models.append(
+            RetentionTimeAlignmentFitModel(
+                run_id=run_id,
+                alignment_model="confidence_weighted_shift",
+                rt_shift=shift,
+                rt_residual_median=median(absolute_residuals),
+                failed_anchor_count=len(excluded_anchors),
+                anchor_count=len(usable_anchors),
+                unaligned_rt_residual_median=median(absolute_unaligned_residuals),
+                failure_reason=None,
+            )
+        )
+
+    return RetentionTimeAlignmentFitReport(
+        min_anchor_count=min_anchor_count,
+        models=tuple(models),
+        residuals=tuple(
+            sorted(
+                residuals,
+                key=lambda item: (
+                    item.run_id,
+                    item.excluded_from_fit,
+                    item.peptide_id,
+                ),
+            )
+        ),
+    )
+
+
 def align_chromatographic_peak_retention_times(
     peak_reports: tuple[ChromatographicPeakPickingReport, ...],
     *,
@@ -136,6 +345,10 @@ def align_chromatographic_peak_retention_times(
             reference_run_id=reference_entry.run_id,
             status=RetentionTimeAlignmentModelStatus.REFERENCE,
             anchor_count=len(valid_reference_peaks),
+            alignment_model="reference_identity",
+            rt_shift=0.0,
+            rt_residual_median=0.0,
+            failed_anchor_count=0,
             shift_seconds=0.0,
             median_absolute_residual_seconds=0.0,
             max_absolute_residual_seconds=0.0,
@@ -148,12 +361,15 @@ def align_chromatographic_peak_retention_times(
     for run_entry in run_entries:
         if run_entry.run_id == reference_entry.run_id:
             continue
+        run_failed_anchor_count = 0
         run_peak_index = _peaks_by_target(run_entry.report)
         candidate_pairs: list[tuple[str, ChromatographicPeak, ChromatographicPeak]] = []
+        anchor_rows: list[RetentionTimeAlignmentAnchor] = []
         for target_id in reference_targets:
             reference_peak = valid_reference_peaks.get(target_id)
             run_peaks = run_peak_index.get(target_id, ())
             if reference_peak is None:
+                run_failed_anchor_count += 1
                 failed_anchors.append(
                     RetentionTimeAlignmentFailedAnchor(
                         run_id=run_entry.run_id,
@@ -168,6 +384,7 @@ def align_chromatographic_peak_retention_times(
                 )
                 continue
             if len(run_peaks) == 0:
+                run_failed_anchor_count += 1
                 failed_anchors.append(
                     RetentionTimeAlignmentFailedAnchor(
                         run_id=run_entry.run_id,
@@ -180,6 +397,7 @@ def align_chromatographic_peak_retention_times(
                 )
                 continue
             if len(run_peaks) > 1:
+                run_failed_anchor_count += 1
                 failed_anchors.append(
                     RetentionTimeAlignmentFailedAnchor(
                         run_id=run_entry.run_id,
@@ -191,9 +409,25 @@ def align_chromatographic_peak_retention_times(
                     )
                 )
                 continue
-            candidate_pairs.append((target_id, reference_peak, run_peaks[0]))
+            run_peak = run_peaks[0]
+            candidate_pairs.append((target_id, reference_peak, run_peak))
+            anchor_rows.append(
+                RetentionTimeAlignmentAnchor(
+                    run_id=run_entry.run_id,
+                    peptide_id=target_id,
+                    observed_rt=run_peak.apex_time_seconds,
+                    reference_rt=reference_peak.apex_time_seconds,
+                    anchor_confidence=_anchor_confidence(reference_peak, run_peak),
+                )
+            )
 
-        if len(candidate_pairs) < min_anchor_count:
+        fit_report = (
+            None
+            if not anchor_rows
+            else fit_rt_alignment(tuple(anchor_rows), min_anchor_count=min_anchor_count)
+        )
+        fit_model = None if fit_report is None else fit_report.models[0]
+        if fit_model is None or fit_model.rt_shift is None:
             run_models.append(
                 RetentionTimeAlignmentRunModel(
                     run_id=run_entry.run_id,
@@ -201,18 +435,31 @@ def align_chromatographic_peak_retention_times(
                     reference_run_id=reference_entry.run_id,
                     status=RetentionTimeAlignmentModelStatus.FAILED,
                     anchor_count=len(candidate_pairs),
+                    alignment_model=(
+                        "insufficient_anchor_count"
+                        if fit_model is None
+                        else fit_model.alignment_model
+                    ),
+                    rt_shift=None,
+                    rt_residual_median=None,
+                    failed_anchor_count=(
+                        run_failed_anchor_count
+                        if fit_model is None
+                        else run_failed_anchor_count + fit_model.failed_anchor_count
+                    ),
                     shift_seconds=None,
                     median_absolute_residual_seconds=None,
                     max_absolute_residual_seconds=None,
-                    failure_reason="insufficient_anchor_count",
+                    failure_reason=(
+                        "insufficient_anchor_count"
+                        if fit_model is None
+                        else fit_model.failure_reason
+                    ),
                 )
             )
             continue
 
-        shift_seconds = median(
-            run_peak.apex_time_seconds - reference_peak.apex_time_seconds
-            for _, reference_peak, run_peak in candidate_pairs
-        )
+        shift_seconds = fit_model.rt_shift
         run_residuals = tuple(
             _build_residual(
                 run_id=run_entry.run_id,
@@ -238,8 +485,16 @@ def align_chromatographic_peak_retention_times(
                 reference_run_id=reference_entry.run_id,
                 status=RetentionTimeAlignmentModelStatus.ALIGNED,
                 anchor_count=len(candidate_pairs),
+                alignment_model=fit_model.alignment_model,
+                rt_shift=fit_model.rt_shift,
+                rt_residual_median=fit_model.rt_residual_median,
+                failed_anchor_count=run_failed_anchor_count + fit_model.failed_anchor_count,
                 shift_seconds=shift_seconds,
-                median_absolute_residual_seconds=median(absolute_residuals),
+                median_absolute_residual_seconds=(
+                    fit_model.rt_residual_median
+                    if fit_model.rt_residual_median is not None
+                    else median(absolute_residuals)
+                ),
                 max_absolute_residual_seconds=max(absolute_residuals),
                 failure_reason=None,
             )
@@ -323,6 +578,10 @@ def render_retention_time_alignment_models_tsv(
             "reference_run_id",
             "status",
             "anchor_count",
+            "alignment_model",
+            "rt_shift",
+            "rt_residual_median",
+            "failed_anchor_count",
             "shift_seconds",
             "median_absolute_residual_seconds",
             "max_absolute_residual_seconds",
@@ -337,6 +596,12 @@ def render_retention_time_alignment_models_tsv(
                 model.reference_run_id,
                 model.status.value,
                 model.anchor_count,
+                model.alignment_model,
+                "" if model.rt_shift is None else f"{model.rt_shift:g}",
+                ""
+                if model.rt_residual_median is None
+                else f"{model.rt_residual_median:g}",
+                model.failed_anchor_count,
                 "" if model.shift_seconds is None else f"{model.shift_seconds:g}",
                 ""
                 if model.median_absolute_residual_seconds is None
@@ -345,6 +610,37 @@ def render_retention_time_alignment_models_tsv(
                 if model.max_absolute_residual_seconds is None
                 else f"{model.max_absolute_residual_seconds:g}",
                 "" if model.failure_reason is None else model.failure_reason,
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_rt_alignment_fit_models_tsv(
+    report: RetentionTimeAlignmentFitReport,
+) -> str:
+    """Render raw anchor-table RT fit models into deterministic TSV rows."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "run_id",
+            "alignment_model",
+            "rt_shift",
+            "rt_residual_median",
+            "failed_anchor_count",
+        )
+    )
+    for model in report.models:
+        writer.writerow(
+            (
+                model.run_id,
+                model.alignment_model,
+                "" if model.rt_shift is None else f"{model.rt_shift:g}",
+                ""
+                if model.rt_residual_median is None
+                else f"{model.rt_residual_median:g}",
+                model.failed_anchor_count,
             )
         )
     return buffer.getvalue()
@@ -519,3 +815,41 @@ def _build_residual(
             absolute_residual_seconds > aligned_rt_tolerance_seconds
         ),
     )
+
+
+def _anchor_confidence(
+    reference_peak: ChromatographicPeak,
+    run_peak: ChromatographicPeak,
+) -> float:
+    return min(
+        _peak_anchor_confidence(reference_peak),
+        _peak_anchor_confidence(run_peak),
+    )
+
+
+def _peak_anchor_confidence(peak: ChromatographicPeak) -> float:
+    confidence = 1.0
+    if peak.overlap_flag:
+        confidence *= 0.6
+    if peak.shoulder_flag:
+        confidence *= 0.75
+    return confidence
+
+
+def _weighted_median(
+    values: tuple[float, ...],
+    weights: tuple[float, ...],
+) -> float:
+    if not values or not weights or len(values) != len(weights):
+        raise ValueError("weighted median requires matched non-empty values and weights")
+    ordered = sorted(zip(values, weights, strict=True), key=lambda item: item[0])
+    total_weight = sum(weight for _, weight in ordered)
+    if total_weight <= 0.0:
+        raise ValueError("weighted median requires positive total weight")
+    threshold = total_weight / 2.0
+    cumulative = 0.0
+    for value, weight in ordered:
+        cumulative += weight
+        if cumulative >= threshold:
+            return value
+    return ordered[-1][0]
