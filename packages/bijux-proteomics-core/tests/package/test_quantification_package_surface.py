@@ -598,3 +598,116 @@ def test_quantification_package_exports_protein_value_contributor_surface() -> N
     assert excluded_entry.included_by_policy is False
     assert excluded_entry.abundance_rank == 3
     assert "included_abundance_fraction" in rendered
+
+
+def test_quantification_package_exports_peptide_profile_inconsistency_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi001",
+            sample_id="s1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi002",
+            sample_id="s2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=200.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi003",
+            sample_id="s3",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=400.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi004",
+            sample_id="s1",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=110.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi005",
+            sample_id="s2",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=220.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi006",
+            sample_id="s3",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=440.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi007",
+            sample_id="s1",
+            peptide="PEPD",
+            canonical_peptide="PEPD",
+            intensity=90.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi008",
+            sample_id="s2",
+            peptide="PEPD",
+            canonical_peptide="PEPD",
+            intensity=180.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi009",
+            sample_id="s3",
+            peptide="PEPD",
+            canonical_peptide="PEPD",
+            intensity=360.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi010",
+            sample_id="s1",
+            peptide="PEPVVK",
+            canonical_peptide="PEPVVK",
+            intensity=400.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi011",
+            sample_id="s2",
+            peptide="PEPVVK",
+            canonical_peptide="PEPVVK",
+            intensity=200.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="ppi012",
+            sample_id="s3",
+            peptide="PEPVVK",
+            canonical_peptide="PEPVVK",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+    )
+    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(records)
+    report = quantification.build_peptide_profile_inconsistency_report(peptide_matrix)
+    rendered = quantification.render_peptide_profile_inconsistency_tsv(report)
+    inverted_entry = next(
+        entry for entry in report.entries if entry.peptide_id == "PEPVVK"
+    )
+
+    assert hasattr(quantification, "build_peptide_profile_inconsistency_report")
+    assert hasattr(quantification, "render_peptide_profile_inconsistency_tsv")
+    assert inverted_entry.inconsistent_with_protein_profile is True
+    assert inverted_entry.outlier_reason.value == "directional_profile_inversion"
+    assert "directional_profile_inversion" in rendered
