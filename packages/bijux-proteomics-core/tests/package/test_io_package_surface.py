@@ -85,6 +85,26 @@ def test_io_package_exports_peak_list_deisotoping_owner_surface() -> None:
     assert "cluster_peak_indices" in rendered
 
 
+def test_io_package_exports_spectrum_entropy_owner_surface() -> None:
+    score = io.score_spectrum_entropy(
+        (
+            SpectrumPeak(mz=100.0, intensity=100.0),
+            SpectrumPeak(mz=101.0, intensity=100.0),
+            SpectrumPeak(mz=102.0, intensity=100.0),
+            SpectrumPeak(mz=103.0, intensity=100.0),
+            SpectrumPeak(mz=104.0, intensity=100.0),
+            SpectrumPeak(mz=105.0, intensity=100.0),
+        )
+    )
+    rendered = io.render_spectrum_entropy_tsv(score)
+
+    assert hasattr(io, "score_spectrum_entropy")
+    assert hasattr(io, "render_spectrum_entropy_tsv")
+    assert score.entropy_quality_tier.value == "rich_fragment"
+    assert score.normalized_entropy > 0.99
+    assert "entropy_quality_tier" in rendered
+
+
 def test_io_package_exports_transition_table_owner_surface() -> None:
     report = io.parse_transition_table(_format_fixture("transition_quant.tsv"))
     first_entry = report.accepted_entries[0]
