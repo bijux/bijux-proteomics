@@ -107,11 +107,53 @@ def test_protein_intensity_matrix_supports_unique_only_and_reports_peptide_count
     ]
     assert len(shared_entries) == 2
     assert all(entry.shared_peptide is True for entry in shared_entries)
+    assert all(
+        entry.eligible_under_shared_peptide_policy is False for entry in shared_entries
+    )
     assert all(entry.included_by_policy is False for entry in shared_entries)
     assert all(
         entry.shared_peptide_policy is ProteinSharedPeptidePolicy.UNIQUE_ONLY
         for entry in shared_entries
     )
+
+
+def test_protein_intensity_matrix_decomposes_per_value_peptide_contributors() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("protein_matrix_features.tsv"))
+    matrix = build_protein_intensity_matrix_from_features(
+        report.accepted_records,
+        target_kind=ProteinMatrixTargetKind.PROTEIN,
+        aggregation_method=QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+
+    entry_lookup = {
+        (entry.entity_id, entry.sample_id, entry.peptide_id): entry
+        for entry in matrix.peptide_contribution_entries
+    }
+    top_entry = entry_lookup[("P1", "S1", "PEPAAK")]
+    second_entry = entry_lookup[("P1", "S1", "PEPMTK")]
+    excluded_entry = entry_lookup[("P1", "S1", "SHAREDK")]
+    p1_s1 = next(
+        value
+        for row in matrix.rows
+        if row.entity_id == "P1"
+        for value in row.values
+        if value.sample_id == "S1"
+    )
+
+    assert p1_s1.abundance == 1600.0
+    assert p1_s1.contributing_peptide_count == 2
+    assert top_entry.protein_value_abundance == 1600.0
+    assert top_entry.abundance_rank == 1
+    assert top_entry.included_abundance_fraction == 0.625
+    assert top_entry.abundance_to_protein_value_ratio == 0.625
+    assert second_entry.abundance_rank == 2
+    assert second_entry.included_abundance_fraction == 0.375
+    assert excluded_entry.eligible_under_shared_peptide_policy is True
+    assert excluded_entry.included_by_policy is False
+    assert excluded_entry.abundance_rank == 3
+    assert excluded_entry.included_abundance_fraction is None
+    assert excluded_entry.abundance_to_protein_value_ratio == 0.1875
 
 
 def test_protein_intensity_matrix_can_target_exact_protein_groups() -> None:
@@ -172,11 +214,11 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
     )
     assert "R1\t1\t0\t0\t0" in missingness_tsv
     assert (
-        "entity_id\ttarget_kind\tsample_id\tpeptide_id\tpeptide_sequence\tprotein_refs\tabundance\tmissing_value_kind\tshared_peptide\tincluded_by_policy\tshared_peptide_policy"
+        "entity_id\ttarget_kind\tsample_id\tpeptide_id\tpeptide_sequence\tprotein_refs\tabundance\tmissing_value_kind\tshared_peptide\teligible_under_shared_peptide_policy\tincluded_by_policy\tprotein_value_abundance\tabundance_rank\tincluded_abundance_fraction\tabundance_to_protein_value_ratio\tshared_peptide_policy"
         in contribution_tsv
     )
     assert (
-        "P001\tprotein\tR1\tPEMTIDE\tPEMTIDE\tP001\t1900\tobserved\tfalse\ttrue\tall_peptides"
+        "P001\tprotein\tR1\tPEMTIDE\tPEMTIDE\tP001\t1900\tobserved\tfalse\ttrue\ttrue\t1900\t1\t1.000000\t1.000000\tall_peptides"
         in contribution_tsv
     )
 
