@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import bijux_proteomics.review as review
 
 
@@ -46,6 +48,48 @@ def test_review_package_exports_evidence_graph_query_engine_surface() -> None:
     assert "protein_id\tprotein_label\trelation" in review.render_protein_evidence_summary_tsv(
         report
     )
+
+
+def test_review_package_exports_result_query_surface(tmp_path: Path) -> None:
+    biological_dir = tmp_path / "biological_report"
+    biological_dir.mkdir()
+    (biological_dir / "biological_protein_cards.tsv").write_text(
+        "\n".join(
+            (
+                "card_id\tgraph_claim_node_id\tgraph_subject_node_id\tgraph_support_node_ids\tgraph_source_row_refs\tprotein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\tunique_peptide_count\tshared_peptide_count\tcondition_a\tcondition_b\tlog2_fold_change\tadjusted_p_value\tsignificant\twarning_codes",
+                "protein_card_1\tstatistical_result:protein_card_1\tprotein:P11111\tpeptide:PEPA\tdifferential:P11111\tprotein_group_1\tP11111\tP11111\tAKT1\tPEPA\t1\t0\tcontrol\ttreatment\t1.2\t0.01\ttrue\t",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (biological_dir / "biological_evidence_graph_nodes.tsv").write_text(
+        "\n".join(
+            (
+                "node_id\tentity_type\tentity_ref\tlabel\tclaim_state\ttrust_class\tcontradiction_ids\tcontext_refs",
+                "sample:S1\tsample\tS1\tS1\tobserved\thigh\t\trun:R1",
+                "run:R1\trun\tR1\tR1\tobserved\thigh\t\tsample:S1",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = review.build_result_query_report_from_artifacts(
+        (
+            review.ResultQueryRequest(
+                query_id="protein-significance",
+                query_kind=review.ResultQueryKind.PROTEIN_SIGNIFICANCE,
+                subject_id="P11111",
+            ),
+        ),
+        biological_report_dir=biological_dir,
+    )
+
+    assert hasattr(review, "build_result_query_report_from_artifacts")
+    assert review.ResultQueryKind.PROTEIN_SIGNIFICANCE.value == "protein_significance"
+    assert report.summary.answered_query_count == 1
+    assert "answer_text" in review.render_result_query_answer_tsv(report)
 
 
 def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
