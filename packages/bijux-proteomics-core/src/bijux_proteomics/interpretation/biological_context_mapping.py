@@ -29,6 +29,8 @@ class BiologicalContextKind(StrEnum):
     DISEASE_TERM = "disease_term"
     PHENOTYPE_TERM = "phenotype_term"
     SUBCELLULAR_COMPARTMENT = "subcellular_compartment"
+    TISSUE_MARKER = "tissue_marker"
+    CELL_TYPE_MARKER = "cell_type_marker"
 
 
 class BiologicalContextColumnMapping(JsonModel):
@@ -358,7 +360,8 @@ def parse_biological_context_table(
         ),
         note=(
             "biological context import preserves only user-supplied drug, disease, phenotype, "
-            "and subcellular annotations, and it rejects duplicate or underspecified claims"
+            "subcellular, tissue-marker, and cell-type-marker annotations, and it rejects "
+            "duplicate or underspecified claims"
         ),
     )
 

@@ -21,3 +21,4 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import *  # noqa
 from bijux_proteomics.interpretation.regulator_inference import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_set_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_set_scoring import *  # noqa: F401,F403
+from bijux_proteomics.interpretation.tissue_cell_type_context import *  # noqa: F401,F403
