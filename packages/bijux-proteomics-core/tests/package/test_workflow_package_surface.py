@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import workflow
-from bijux_proteomics.interpretation import PathwayMemberKind
+from bijux_proteomics.interpretation import OrthologRecord, PathwayMemberKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.study import build_experiment_design
@@ -279,6 +279,76 @@ def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> No
     assert report.comparisons[0].coverage_fraction_range == 0.4
     assert "comparison_status" in workflow.render_cross_study_pathway_comparison_tsv(report)
     assert "shared_signal" in workflow.render_cross_study_shared_pathway_signal_tsv(report)
+
+
+def test_workflow_package_exports_cross_species_effect_comparison_surface() -> None:
+    report = workflow.build_cross_species_effect_comparison_report_from_observations(
+        (
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="human:protein_1",
+                study_id="human",
+                study_label="human study",
+                study_kind=workflow.ProteomicsStudyKind.LABEL_FREE,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="P11111",
+                protein_refs=("P11111",),
+                accession_aliases=(),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=1.2,
+                direction=workflow.CrossStudyEffectDirection.UP,
+                p_value=0.001,
+                adjusted_p_value=0.01,
+                robustness_score=0.8,
+                significant=True,
+                note="human effect",
+            ),
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="mouse:protein_1",
+                study_id="mouse",
+                study_label="mouse study",
+                study_kind=workflow.ProteomicsStudyKind.DDA,
+                species="Mus musculus",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="Q9MOUSE1",
+                protein_refs=("Q9MOUSE1",),
+                accession_aliases=(),
+                gene_symbol="Stat1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=0.9,
+                direction=workflow.CrossStudyEffectDirection.UP,
+                p_value=0.002,
+                adjusted_p_value=0.02,
+                robustness_score=0.7,
+                significant=True,
+                note="mouse effect",
+            ),
+        ),
+        ortholog_records=(
+            OrthologRecord(
+                source_species="Homo sapiens",
+                source_protein_ref="P11111",
+                target_species="Mus musculus",
+                target_protein_ref="Q9MOUSE1",
+            ),
+        ),
+    )
+
+    assert hasattr(workflow, "build_cross_species_effect_comparison_report")
+    assert (
+        workflow.CrossSpeciesEffectEvidenceStatus.CONSERVED_EFFECT.value
+        == "conserved_effect"
+    )
+    assert report.summary.conserved_effect_count == 1
+    assert report.comparisons[0].target_protein_ref == "Q9MOUSE1"
+    assert "evidence_status" in workflow.render_cross_species_effect_comparison_tsv(report)
 
 
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
