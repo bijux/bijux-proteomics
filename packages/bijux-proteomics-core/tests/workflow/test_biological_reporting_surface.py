@@ -179,6 +179,40 @@ def test_build_biological_result_report_bundle_preserves_compartment_biology() -
     )
 
 
+def test_build_biological_result_report_bundle_preserves_tissue_context_warnings() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report_tissue_context.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_tissue_markers.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.tissue_cell_type_context_report is not None
+    assert report.summary.tissue_mismatch_warning_count == 1
+    by_sample = {
+        entry.sample_id: entry
+        for entry in report.tissue_cell_type_context_report.sample_consistency_entries
+    }
+    assert by_sample["T3"].qc_warning is True
+    assert by_sample["T3"].highest_unexpected_context_id == "neuron"
+    assert any(
+        entry.sample_id == "T3"
+        for entry in report.tissue_cell_type_context_report.unexpected_signal_entries
+    )
+    by_label = {
+        entry.tissue_or_cell_type: entry
+        for entry in report.tissue_cell_type_context_report.interpretation_entries
+    }
+    assert by_label["liver"].mismatch_warning_count == 1
+
+
 def test_build_biological_result_report_bundle_preserves_regulator_inference() -> None:
     design_entries = tuple(
         parse_experimental_design_table(

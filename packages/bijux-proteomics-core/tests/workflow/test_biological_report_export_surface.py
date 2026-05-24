@@ -254,6 +254,61 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
 
 
+def test_biological_report_export_writes_tissue_context_artifacts_and_html(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report_tissue_context.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_tissue_markers.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_biological_result_report_bundle(
+        report,
+        tmp_path / "biological_report_tissue_context",
+    )
+    output_dir = tmp_path / "biological_report_tissue_context"
+
+    assert manifest.tissue_context_summary_included is True
+    assert report.summary.tissue_mismatch_warning_count == 1
+    assert (output_dir / manifest.artifacts.tissue_context_summary_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.tissue_context_sample_consistency_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.tissue_context_unexpected_signal_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.tissue_context_interpretation_tsv
+    ).exists()
+    assert "mismatch_warning_count" in (
+        output_dir / manifest.artifacts.tissue_context_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "unexpected_marker_context_dominates" in (
+        output_dir / manifest.artifacts.tissue_context_sample_consistency_tsv
+    ).read_text(encoding="utf-8")
+    assert "context_kind" in (
+        output_dir / manifest.artifacts.tissue_context_unexpected_signal_tsv
+    ).read_text(encoding="utf-8")
+    assert "dominant_unexpected_context_id" in (
+        output_dir / manifest.artifacts.tissue_context_interpretation_tsv
+    ).read_text(encoding="utf-8")
+    assert "Tissue and cell-type context" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Tissue mismatch warnings" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+
+
 def test_biological_report_export_writes_compartment_biology_assets(
     tmp_path: Path,
 ) -> None:
