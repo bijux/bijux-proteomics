@@ -517,6 +517,7 @@ def build_biological_result_report_bundle_from_quant_table(
             record.canonical_accession: record.residues
             for record in fasta_report.accepted_records
         },
+        protein_records=fasta_report.accepted_records,
         selection_policy=ProteinEvidenceCardSelectionPolicy(
             max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
             min_absolute_log2_fold_change=(
@@ -1207,6 +1208,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
         "Representative protein",
         "Graph claim",
         "Gene",
+        "Identity",
         "Evidence tier",
         "Peptides",
         "Functional regions",
@@ -1225,6 +1227,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
             f"<td>{escape(card.representative_protein_ref)}</td>"
             f"<td><code>{escape(card.graph_claim_node_id)}</code></td>"
             f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
+            f"<td>{escape(card.identity_level.value)}</td>"
             f"<td>{escape(card.evidence_tier.value)}</td>"
             f"<td>{card.peptide_count}</td>"
             f"<td>{escape('; '.join(f'{region.region_kind.value}:{region.label}' for region in card.functional_regions))}</td>"

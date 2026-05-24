@@ -43,11 +43,16 @@ from bijux_proteomics.review import (
     query_protein_evidence_summary,
 )
 from bijux_proteomics.sequences import (
+    NormalizedProteinRecord,
     ProteinFunctionalRegionEvidence,
     ProteinFunctionalRegionKind,
+    ProteinIdentityLevel,
+    ProteinIdentityReference,
+    ProteinIdentityResolutionEntry,
     ProteinPeptideRegionContextReport,
     ProteinPeptideRegionReference,
     ProteinRegionContextRecord,
+    build_protein_identity_resolution_report,
     build_protein_peptide_region_context_report,
 )
 from bijux_proteomics.workflow.biological_result_graph import BiologicalResultGraphReport
@@ -210,6 +215,8 @@ class ProteinEvidenceCard(JsonModel):
     protein_group_id: str = Field(..., min_length=1)
     representative_protein_ref: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    identity_level: ProteinIdentityLevel
+    identity_reason: str = Field(..., min_length=1)
     annotation: ProteinEvidenceCardAnnotation
     peptides: tuple[str, ...] = Field(default_factory=tuple)
     peptide_count: int = Field(..., ge=0)
@@ -261,6 +268,7 @@ def build_protein_evidence_card_report(
     annotation_report: ProteinAnnotationMappingReport,
     *,
     protein_sequences: dict[str, str],
+    protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     selection_policy: ProteinEvidenceCardSelectionPolicy,
     sample_conditions: dict[str, str | None] | None = None,
     context_mapping_report: BiologicalContextMappingReport | None = None,
@@ -305,7 +313,7 @@ def build_protein_evidence_card_report(
         for entry in graph_report.final_results.entries
         if entry.subject_node_kind is ProteomicsEvidenceNodeKind.PROTEIN
     )
-    cards: list[ProteinEvidenceCard] = []
+    prepared_cards: list[dict[str, object]] = []
     for final_entry in sorted(final_entries, key=lambda entry: entry.subject_node_ref):
         differential_entry = differential_by_entity.get(final_entry.subject_node_ref)
         if differential_entry is None:
@@ -372,32 +380,75 @@ def build_protein_evidence_card_report(
             unique_peptide_count=unique_peptide_count,
             peptide_count=len(peptides),
         )
+        prepared_cards.append(
+            {
+                "final_entry": final_entry,
+                "differential_entry": differential_entry,
+                "graph_summary": graph_summary,
+                "representative_protein_ref": representative_protein_ref,
+                "protein_refs": protein_refs,
+                "annotation": annotation,
+                "peptides": peptides,
+                "unique_peptide_count": unique_peptide_count,
+                "shared_peptide_count": shared_peptide_count,
+                "coverage": coverage,
+                "quantification": quantification,
+                "contexts": contexts,
+                "pathways": pathways,
+                "functional_regions": functional_regions,
+                "significant": significant,
+                "warnings": warnings,
+            }
+        )
+
+    identity_by_entity = _build_identity_entries_by_entity(
+        prepared_cards,
+        protein_records=protein_records,
+        protein_sequences=protein_sequences,
+    )
+    cards: list[ProteinEvidenceCard] = []
+    for prepared_card in prepared_cards:
+        differential_entry = prepared_card["differential_entry"]
+        final_entry = prepared_card["final_entry"]
+        identity_entry = identity_by_entity.get(differential_entry.entity_id)
         cards.append(
             ProteinEvidenceCard(
                 card_id=_build_card_id(differential_entry.entity_id),
                 graph_claim_node_id=final_entry.claim_node_id,
                 graph_subject_node_id=final_entry.subject_node_id,
                 graph_subject_node_kind=final_entry.subject_node_kind,
-                graph_support_node_ids=_graph_support_node_ids(graph_summary),
+                graph_support_node_ids=_graph_support_node_ids(
+                    prepared_card["graph_summary"]
+                ),
                 graph_source_row_refs=final_entry.source_row_refs,
                 protein_group_id=differential_entry.entity_id,
-                representative_protein_ref=representative_protein_ref,
-                protein_refs=protein_refs,
-                annotation=annotation,
-                peptides=peptides,
-                peptide_count=len(peptides),
-                unique_peptide_count=unique_peptide_count,
-                shared_peptide_count=shared_peptide_count,
-                coverage=coverage,
-                quantification=quantification,
+                representative_protein_ref=prepared_card["representative_protein_ref"],
+                protein_refs=prepared_card["protein_refs"],
+                identity_level=(
+                    ProteinIdentityLevel.AMBIGUOUS
+                    if identity_entry is None
+                    else identity_entry.identity_level
+                ),
+                identity_reason=(
+                    "protein identity could not be resolved because no peptide-backed sequence context was available"
+                    if identity_entry is None
+                    else identity_entry.identity_reason
+                ),
+                annotation=prepared_card["annotation"],
+                peptides=prepared_card["peptides"],
+                peptide_count=len(prepared_card["peptides"]),
+                unique_peptide_count=prepared_card["unique_peptide_count"],
+                shared_peptide_count=prepared_card["shared_peptide_count"],
+                coverage=prepared_card["coverage"],
+                quantification=prepared_card["quantification"],
                 differential_result=_build_differential_payload(differential_entry),
-                context_terms=contexts,
-                pathways=pathways,
-                functional_regions=functional_regions,
+                context_terms=prepared_card["contexts"],
+                pathways=prepared_card["pathways"],
+                functional_regions=prepared_card["functional_regions"],
                 ptm_sites=(),
-                significant=significant,
+                significant=prepared_card["significant"],
                 evidence_tier=_graph_evidence_tier(final_entry.evidence_tier),
-                warnings=warnings,
+                warnings=prepared_card["warnings"],
             )
         )
 
@@ -475,6 +526,8 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
             "protein_group_id",
             "representative_protein_ref",
             "protein_refs",
+            "identity_level",
+            "identity_reason",
             "gene_symbol",
             "annotation_status",
             "peptides",
@@ -511,6 +564,8 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
                 card.protein_group_id,
                 card.representative_protein_ref,
                 ";".join(card.protein_refs),
+                card.identity_level.value,
+                card.identity_reason,
                 "" if card.annotation.gene_symbol is None else card.annotation.gene_symbol,
                 card.annotation.annotation_status.value,
                 ";".join(card.peptides),
@@ -773,6 +828,32 @@ def _build_peptide_region_context_report(
         protein_sequences=protein_sequences,
         context_records=protein_region_context_records,
     )
+
+
+def _build_identity_entries_by_entity(
+    prepared_cards: list[dict[str, object]],
+    *,
+    protein_records: tuple[NormalizedProteinRecord, ...] | None,
+    protein_sequences: dict[str, str],
+) -> dict[str, ProteinIdentityResolutionEntry]:
+    if not prepared_cards:
+        return {}
+    report = build_protein_identity_resolution_report(
+        tuple(
+            ProteinIdentityReference(
+                evidence_key=prepared_card["differential_entry"].entity_id,
+                target_protein_ref=prepared_card["representative_protein_ref"],
+                candidate_protein_refs=prepared_card["protein_refs"],
+                peptide_sequences=prepared_card["peptides"],
+            )
+            for prepared_card in prepared_cards
+        ),
+        protein_records=() if protein_records is None else protein_records,
+        protein_sequences=protein_sequences,
+    )
+    return {
+        entry.evidence_key: entry for entry in report.entries
+    }
 
 
 def _group_functional_regions_by_protein(
