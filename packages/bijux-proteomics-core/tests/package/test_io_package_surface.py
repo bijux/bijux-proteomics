@@ -50,6 +50,23 @@ def test_io_package_exports_spectrum_quality_owner_surface() -> None:
     assert "quality_tier" in rendered
 
 
+def test_io_package_exports_spectrum_noise_owner_surface() -> None:
+    rows = io.estimate_peak_noise(
+        (
+            SpectrumPeak(mz=100.0, intensity=5.0),
+            SpectrumPeak(mz=101.0, intensity=10.0),
+            SpectrumPeak(mz=102.0, intensity=40.0),
+        )
+    )
+    rendered = io.render_peak_noise_tsv(rows)
+
+    assert hasattr(io, "estimate_peak_noise")
+    assert hasattr(io, "render_peak_noise_tsv")
+    assert rows[0].peak_class.value == "noise"
+    assert rows[2].peak_class.value == "signal"
+    assert "peak_class" in rendered
+
+
 def test_io_package_exports_transition_table_owner_surface() -> None:
     report = io.parse_transition_table(_format_fixture("transition_quant.tsv"))
     first_entry = report.accepted_entries[0]
