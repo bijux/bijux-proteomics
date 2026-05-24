@@ -98,9 +98,15 @@ from bijux_proteomics.interpretation import (
     render_rejected_regulator_evidence_tsv,
     render_regulator_inference_summary_tsv,
     render_regulator_inference_tsv,
+    render_tissue_cell_type_context_summary_tsv,
+    render_tissue_cell_type_interpretation_tsv,
+    render_tissue_cell_type_sample_consistency_tsv,
+    render_tissue_cell_type_unexpected_signal_tsv,
     render_unresolved_regulator_target_tsv,
     render_unmapped_protein_annotation_tsv,
     require_valid_biological_foreground_background_model,
+    TissueCellTypeContextReport,
+    build_tissue_cell_type_context_report,
 )
 from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyPolicy,
@@ -275,6 +281,7 @@ class BiologicalResultReportSummary(JsonModel):
     annotation_unmapped_count: int = Field(..., ge=0)
     protein_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
+    tissue_mismatch_warning_count: int = Field(..., ge=0)
     experiment_confidence_score: float = Field(..., ge=0.0, le=1.0)
     experiment_confidence_tier: str = Field(..., min_length=1)
     low_confidence_component_count: int = Field(..., ge=0)
@@ -307,6 +314,7 @@ class BiologicalResultReportBundle(JsonModel):
     regulator_inference_report: RegulatorInferenceReport | None = None
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    tissue_cell_type_context_report: TissueCellTypeContextReport | None = None
     drug_target_report: DrugTargetInterpretationReport | None = None
     disease_phenotype_report: DiseasePhenotypeInterpretationReport | None = None
     compartment_biology_report: CompartmentBiologyReport | None = None
@@ -358,6 +366,10 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    tissue_context_summary_tsv: str | None = None
+    tissue_context_sample_consistency_tsv: str | None = None
+    tissue_context_unexpected_signal_tsv: str | None = None
+    tissue_context_interpretation_tsv: str | None = None
     drug_target_summary_tsv: str | None = None
     drug_target_tsv: str | None = None
     disease_phenotype_summary_tsv: str | None = None
@@ -420,6 +432,7 @@ class BiologicalResultReportExportManifest(JsonModel):
     claim_validation_included: bool
     hypothesis_summary_included: bool
     context_summary_included: bool
+    tissue_context_summary_included: bool
     drug_target_summary_included: bool
     disease_phenotype_summary_included: bool
     go_summary_included: bool
@@ -642,12 +655,26 @@ def build_biological_result_report_bundle_from_quant_table(
     )
     context_import_report = None
     context_mapping_report = None
+    tissue_cell_type_context_report = None
     if context_annotation_tsv_path is not None:
         context_import_report = parse_biological_context_table(context_annotation_tsv_path)
         context_mapping_report = build_biological_context_mapping_report(
             differential_reference_entries,
             context_import_report.accepted_records,
         )
+        if any(
+            record.context_kind
+            in {
+                BiologicalContextKind.TISSUE_MARKER,
+                BiologicalContextKind.CELL_TYPE_MARKER,
+            }
+            for record in context_import_report.accepted_records
+        ):
+            tissue_cell_type_context_report = build_tissue_cell_type_context_report(
+                normalized_table,
+                experiment_design,
+                context_import_report.accepted_records,
+            )
     drug_target_report = None
     if (
         context_import_report is not None
@@ -980,6 +1007,7 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_inference_report=regulator_inference_report,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        tissue_cell_type_context_report=tissue_cell_type_context_report,
         drug_target_report=drug_target_report,
         disease_phenotype_report=disease_phenotype_report,
         compartment_biology_report=compartment_biology_report,
@@ -1000,6 +1028,11 @@ def build_biological_result_report_bundle_from_quant_table(
             annotation_unmapped_count=len(annotation_report.unmapped_entries),
             protein_card_count=protein_cards.summary.protein_result_count,
             warning_card_count=protein_cards.summary.warning_card_count,
+            tissue_mismatch_warning_count=(
+                0
+                if tissue_cell_type_context_report is None
+                else tissue_cell_type_context_report.summary.mismatch_warning_count
+            ),
             experiment_confidence_score=experiment_confidence_report.summary.overall_score,
             experiment_confidence_tier=(
                 experiment_confidence_report.summary.overall_tier.value
@@ -1044,7 +1077,7 @@ def build_biological_result_report_bundle_from_quant_table(
         ),
         note=(
             "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
-            " with experiment-level confidence scoring, claim validation, biological hypotheses, and explicit component reasons"
+            " with experiment-level confidence scoring, tissue and cell-type context review, claim validation, biological hypotheses, and explicit component reasons"
         ),
     )
 
@@ -2130,6 +2163,9 @@ def render_biological_result_report_summary_tsv(
     writer.writerow(("protein_card_count", report.summary.protein_card_count))
     writer.writerow(("warning_card_count", report.summary.warning_card_count))
     writer.writerow(
+        ("tissue_mismatch_warning_count", report.summary.tissue_mismatch_warning_count)
+    )
+    writer.writerow(
         (
             "experiment_confidence_score",
             f"{report.summary.experiment_confidence_score:.4f}",
@@ -2405,6 +2441,42 @@ def export_biological_result_report_bundle(
         context_term_name = None
         context_unmapped_name = None
         context_rejected_name = None
+    if report.tissue_cell_type_context_report is not None:
+        tissue_context_summary_name = "biological_tissue_context_summary.tsv"
+        tissue_context_sample_name = "biological_tissue_context_sample_consistency.tsv"
+        tissue_context_unexpected_name = "biological_tissue_context_unexpected_signals.tsv"
+        tissue_context_interpretation_name = (
+            "biological_tissue_context_interpretation.tsv"
+        )
+        (output_dir / tissue_context_summary_name).write_text(
+            render_tissue_cell_type_context_summary_tsv(
+                report.tissue_cell_type_context_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / tissue_context_sample_name).write_text(
+            render_tissue_cell_type_sample_consistency_tsv(
+                report.tissue_cell_type_context_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / tissue_context_unexpected_name).write_text(
+            render_tissue_cell_type_unexpected_signal_tsv(
+                report.tissue_cell_type_context_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / tissue_context_interpretation_name).write_text(
+            render_tissue_cell_type_interpretation_tsv(
+                report.tissue_cell_type_context_report
+            ),
+            encoding="utf-8",
+        )
+    else:
+        tissue_context_summary_name = None
+        tissue_context_sample_name = None
+        tissue_context_unexpected_name = None
+        tissue_context_interpretation_name = None
     if report.drug_target_report is not None:
         drug_target_summary_name = "biological_drug_target_summary.tsv"
         drug_target_name = "biological_drug_target_interpretation.tsv"
@@ -2737,6 +2809,10 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        tissue_context_summary_tsv=tissue_context_summary_name,
+        tissue_context_sample_consistency_tsv=tissue_context_sample_name,
+        tissue_context_unexpected_signal_tsv=tissue_context_unexpected_name,
+        tissue_context_interpretation_tsv=tissue_context_interpretation_name,
         drug_target_summary_tsv=drug_target_summary_name,
         drug_target_tsv=drug_target_name,
         disease_phenotype_summary_tsv=disease_phenotype_summary_name,
@@ -2802,6 +2878,7 @@ def export_biological_result_report_bundle(
         claim_validation_included=report.claim_validation_report is not None,
         hypothesis_summary_included=report.biological_hypothesis_report is not None,
         context_summary_included=report.context_mapping_report is not None,
+        tissue_context_summary_included=report.tissue_cell_type_context_report is not None,
         drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
         go_summary_included=report.go_enrichment_report is not None,
@@ -2811,7 +2888,7 @@ def export_biological_result_report_bundle(
             "biological report export writes stable differential, explicit "
             "foreground/background enrichment inputs, protein-card, "
             "protein-mechanism-card, annotation, optional biological hypotheses, "
-            "optional biological context, "
+            "optional biological context, optional tissue and cell-type context, "
             "enrichment, volcano, heatmap, and sample exploration artifacts into "
             "one durable output directory"
         ),
@@ -2914,6 +2991,22 @@ def _render_biological_result_report_html(
         (
             "Biological context rejected rows",
             artifacts.context_rejected_tsv,
+        ),
+        (
+            "Tissue and cell-type context summary",
+            artifacts.tissue_context_summary_tsv,
+        ),
+        (
+            "Tissue and cell-type sample consistency",
+            artifacts.tissue_context_sample_consistency_tsv,
+        ),
+        (
+            "Tissue and cell-type unexpected signals",
+            artifacts.tissue_context_unexpected_signal_tsv,
+        ),
+        (
+            "Tissue and cell-type interpretations",
+            artifacts.tissue_context_interpretation_tsv,
         ),
         (
             "Compartment biology summary",
@@ -3041,6 +3134,7 @@ def _render_biological_result_report_html(
     regulator_inference_html = _render_regulator_inference_table_html(report)
     drug_target_html = _render_drug_target_table_html(report)
     disease_phenotype_html = _render_disease_phenotype_table_html(report)
+    tissue_context_html = _render_tissue_cell_type_context_table_html(report)
     compartment_biology_html = _render_compartment_biology_table_html(report)
     pathway_activity_html = _render_pathway_activity_table_html(report)
     complex_activity_html = _render_complex_activity_table_html(report)
@@ -3054,6 +3148,8 @@ def _render_biological_result_report_html(
         f"<strong>Protein cards</strong>: {report.summary.protein_card_count} | "
         f"<strong>Experiment confidence</strong>: {report.summary.experiment_confidence_score:.2f} "
         f"({escape(report.summary.experiment_confidence_tier)}) | "
+        f"<strong>Tissue mismatch warnings</strong>: "
+        f"{report.summary.tissue_mismatch_warning_count} | "
         f"<strong>Annotated</strong>: {report.summary.annotation_entry_count} | "
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
         "<h2>Experiment confidence</h2>"
@@ -3072,6 +3168,8 @@ def _render_biological_result_report_html(
         f"{drug_target_html}"
         "<h2>Disease and phenotype interpretation</h2>"
         f"{disease_phenotype_html}"
+        "<h2>Tissue and cell-type context</h2>"
+        f"{tissue_context_html}"
         "<h2>Compartment biology</h2>"
         f"{compartment_biology_html}"
         "<h2>Pathway activity</h2>"
@@ -3439,6 +3537,52 @@ def _render_disease_phenotype_table_html(report: BiologicalResultReportBundle) -
         f"{disease_phenotype_report.summary.unknown_foreground_protein_count} | "
         f"<strong>Unknown background proteins</strong>: "
         f"{disease_phenotype_report.summary.unknown_background_protein_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_tissue_cell_type_context_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    tissue_context_report = report.tissue_cell_type_context_report
+    if tissue_context_report is None:
+        return "<p>No tissue or cell-type context report was generated.</p>"
+    headers = (
+        "Sample",
+        "Label",
+        "Expected score",
+        "Unexpected context",
+        "Unexpected score",
+        "QC warning",
+        "Status",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.sample_id)}</td>"
+            f"<td>{escape(entry.tissue_or_cell_type or '-')}</td>"
+            f"<td>{_format_optional_float(entry.expected_marker_score)}</td>"
+            f"<td>{escape(entry.highest_unexpected_context_name or entry.highest_unexpected_context_id or '-')}</td>"
+            f"<td>{_format_optional_float(entry.highest_unexpected_marker_score)}</td>"
+            f"<td>{escape(str(entry.qc_warning).lower())}</td>"
+            f"<td>{escape(entry.status.value)}</td>"
+            "</tr>"
+        )
+        for entry in tissue_context_report.sample_consistency_entries[:10]
+    )
+    summary = tissue_context_report.summary
+    return (
+        "<p>"
+        f"<strong>Samples</strong>: {summary.sample_count} | "
+        f"<strong>Labeled</strong>: {summary.labeled_sample_count} | "
+        f"<strong>Marker contexts</strong>: {summary.marker_context_count} | "
+        f"<strong>QC warnings</strong>: {summary.mismatch_warning_count} | "
+        f"<strong>Unexpected signals</strong>: {summary.unexpected_signal_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
