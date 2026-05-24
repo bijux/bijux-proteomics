@@ -11,6 +11,7 @@ from bijux_proteomics.review.analysis_recommendations import *  # noqa: F401,F40
 from bijux_proteomics.review.biological_claim_validation import *  # noqa: F401,F403
 from bijux_proteomics.review.biological_hypotheses import *  # noqa: F401,F403
 from bijux_proteomics.review.collaboration import *  # noqa: F401,F403
+from bijux_proteomics.review.compact_result_summary import *  # noqa: F401,F403
 from bijux_proteomics.review.contracts import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_aware_ranking import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_chain_reconstruction import *  # noqa: F401,F403
