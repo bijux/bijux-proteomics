@@ -104,6 +104,56 @@ def test_study_package_exports_carryover_detection_surface() -> None:
     assert "affected_intensity" in rendered
 
 
+def test_study_package_exports_lc_drift_detection_surface() -> None:
+    rows = study.detect_lc_drift(
+        (
+            study.LcDriftRunQcEntry(
+                run_id="run-01",
+                run_order=1,
+                median_rt=900.0,
+                tic=1_000_000.0,
+                ms2_count=5000,
+                id_count=1200,
+                median_peak_width=12.0,
+            ),
+            study.LcDriftRunQcEntry(
+                run_id="run-02",
+                run_order=2,
+                median_rt=920.0,
+                tic=920_000.0,
+                ms2_count=4975,
+                id_count=1180,
+                median_peak_width=12.0,
+            ),
+            study.LcDriftRunQcEntry(
+                run_id="run-03",
+                run_order=3,
+                median_rt=940.0,
+                tic=840_000.0,
+                ms2_count=4950,
+                id_count=1160,
+                median_peak_width=12.0,
+            ),
+            study.LcDriftRunQcEntry(
+                run_id="run-04",
+                run_order=4,
+                median_rt=960.0,
+                tic=760_000.0,
+                ms2_count=4925,
+                id_count=1140,
+                median_peak_width=12.0,
+            ),
+        )
+    )
+    rendered = study.render_lc_drift_tsv(rows)
+
+    assert hasattr(study, "detect_lc_drift")
+    assert hasattr(study, "render_lc_drift_tsv")
+    assert rows[0].affected_qc_dimension.value == "median_rt"
+    assert rows[-1].affected_qc_dimension.value == "tic"
+    assert "affected_qc_dimension" in rendered
+
+
 def test_study_package_exports_experiment_design_surface() -> None:
     design = study.build_experiment_design(
         (
