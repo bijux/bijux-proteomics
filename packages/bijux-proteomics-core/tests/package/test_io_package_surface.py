@@ -7,7 +7,9 @@ from pathlib import Path
 
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics import io
+from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
+from bijux_proteomics.io.spectral_library import SpectralLibraryEntry, SpectralLibraryFormat
 import bijux_proteomics.targeted as targeted
 
 
@@ -103,6 +105,52 @@ def test_io_package_exports_spectrum_entropy_owner_surface() -> None:
     assert score.entropy_quality_tier.value == "rich_fragment"
     assert score.normalized_entropy > 0.99
     assert "entropy_quality_tier" in rendered
+
+
+def test_io_package_exports_spectral_library_intensity_agreement_owner_surface() -> None:
+    agreement = io.compare_observed_to_library(
+        SpectrumModel(
+            spectrum_id="observed-library-check",
+            precursor_mz=500.2,
+            precursor_charge=2,
+            peaks=(
+                SpectrumPeak(mz=100.001, intensity=220.0),
+                SpectrumPeak(mz=150.001, intensity=610.0),
+                SpectrumPeak(mz=200.001, intensity=1000.0),
+                SpectrumPeak(mz=250.001, intensity=790.0),
+            ),
+        ),
+        SpectralLibraryEntry(
+            library_entry_id="library:surface",
+            source_format=SpectralLibraryFormat.MSP,
+            spectrum_id="library:surface:spectrum",
+            precursor_mz=500.2,
+            precursor_charge=2,
+            peptide_sequence="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            modification_count=0,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            spectrum=SpectrumModel(
+                spectrum_id="library:surface:spectrum",
+                precursor_mz=500.2,
+                precursor_charge=2,
+                peaks=(
+                    SpectrumPeak(mz=100.0, intensity=1000.0),
+                    SpectrumPeak(mz=150.0, intensity=800.0),
+                    SpectrumPeak(mz=200.0, intensity=600.0),
+                    SpectrumPeak(mz=250.0, intensity=200.0),
+                ),
+            ),
+        ),
+    )
+    rendered = io.render_spectral_library_intensity_agreement_tsv((agreement,))
+
+    assert hasattr(io, "compare_observed_to_library")
+    assert hasattr(io, "render_spectral_library_intensity_agreement_tsv")
+    assert agreement.intensity_agreement_tier.value == "downgraded"
+    assert agreement.ranked_fragment_agreement < 0.6
+    assert "missing_dominant_fragments" in rendered
 
 
 def test_io_package_exports_transition_table_owner_surface() -> None:
