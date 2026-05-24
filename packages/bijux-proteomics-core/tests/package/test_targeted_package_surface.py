@@ -407,3 +407,91 @@ def test_targeted_package_exports_panel_design_surface() -> None:
     assert hasattr(targeted, "render_targeted_panel_design_omitted_candidate_tsv")
     assert report.summary.retained_assay_count == 1
     assert "transition_id" in rendered
+
+
+def test_targeted_package_exports_validation_planning_surface() -> None:
+    report = targeted.build_validation_experiment_planning_report(
+        biomarker_candidates=(
+            targeted.ValidationPlanningBiomarkerCandidateInput(
+                candidate_id="protein:P00001",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="KIN1",
+                target_protein_ref="P00001",
+                priority_rank=1,
+                final_score=0.9,
+                penalty_total=0.0,
+                uncertainty=0.1,
+                effect_size=1.0,
+                adjusted_p_value=0.01,
+                support_count=4,
+                robustness_score=0.85,
+                assay_feasibility_score=0.9,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="strong validation-ready candidate",
+            ),
+        ),
+        selected_peptides=(
+            targeted.ValidationPlanningSelectedPeptideInput(
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                rank=1,
+                observed_in_discovery=True,
+                observed_psm_count=5,
+                run_count=3,
+                detection_frequency=0.95,
+                replicate_consistency=0.9,
+                primary_evidence_class=PeptideEvidenceClass.STRONG,
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                uniqueness_score=1.0,
+                detectability_score=0.9,
+                detectability_tier=PeptideDetectabilityTier.HIGH,
+                suitability_score=0.9,
+                liability_tier=PeptideChemicalLiabilityTier.PREFERRED,
+                liability_codes=(),
+            ),
+        ),
+        panel_assays=(
+            targeted.ValidationPlanningPanelAssayInput(
+                assay_entry_id="assay:P00001:PEPTIDER",
+                biomarker_candidate_id="protein:P00001",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="KIN1",
+                biomarker_priority_rank=1,
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                uniqueness_score=1.0,
+                selected_transition_count=3,
+                exported_transition_count=3,
+                assay_interference_risk_tier=targeted.TargetedAssayInterferenceRiskTier.LOW,
+                warning_codes=(),
+                warning_note="assay retained for targeted panel review",
+            ),
+        ),
+        pilot_variance_entries=(
+            targeted.ValidationPlanningPilotVarianceInput(
+                entity_id="protein:P00001",
+                protein_refs=("P00001",),
+                observed_sample_count=8,
+                missing_fraction=0.1,
+                contributing_condition_count=2,
+                used_global_variance_fallback=False,
+                pooled_log2_stddev=0.25,
+            ),
+        ),
+        policy=targeted.ValidationExperimentPlanningPolicy(proposed_samples_per_group=6),
+    )
+    rendered = targeted.render_validation_experiment_planning_plan_tsv(report)
+
+    assert hasattr(targeted, "build_validation_experiment_planning_report")
+    assert hasattr(targeted, "render_validation_experiment_planning_summary_tsv")
+    assert hasattr(targeted, "render_validation_experiment_planning_plan_tsv")
+    assert hasattr(targeted, "render_validation_experiment_planning_warning_tsv")
+    assert report.summary.planned_assay_count == 1
+    assert "recommended_minimum_samples_per_group" in rendered
