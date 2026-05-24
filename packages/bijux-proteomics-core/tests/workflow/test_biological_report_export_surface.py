@@ -88,6 +88,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "card_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
+    assert "functional_regions" in (
+        output_dir / manifest.artifacts.protein_card_tsv
+    ).read_text(encoding="utf-8")
     assert "graph_claim_node_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")

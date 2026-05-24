@@ -1,0 +1,4 @@
+protein_ref	start	end	domain_name	signal_peptide	transmembrane_region	disorder_region	low_complexity_region	active_site_label	binding_region	motif_name	conservation_score	source_name	source_accession
+P04637	2	7	cell_cycle_core					catalytic_patch	cdk_docking		0.95	Curator	CUR:P04637-2-7
+Q9Y243	2	7		lumen_leader						0.88	Reference	REF:Q9Y243-2-7
+O14920	2	7				acidic_loop					0.79	InterPro	IPR:O14920-2-7

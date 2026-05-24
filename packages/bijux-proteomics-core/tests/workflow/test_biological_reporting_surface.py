@@ -122,7 +122,7 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
         },
         entity_member_peptides={
             "PG001": ("PEPAAA",),
-            "PG002": ("PEPBBB",),
+            "PG002": ("PEPDDD",),
             "PG003": ("PEPCCC",),
         },
     )
@@ -139,6 +139,78 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
     assert mapped_refs == {"P04637", "Q9Y243", "O14920"}
     assert report.summary.annotation_entry_count == 3
     assert report.experiment_confidence_report.summary.component_count == 7
+
+
+def test_biological_result_report_bundle_from_quant_table_preserves_functional_regions_on_cards(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    values: list[QuantValue] = []
+    abundances = {
+        "PG001": {"C1": 200.0, "C2": 220.0, "C3": 210.0, "T1": 1600.0, "T2": 1550.0, "T3": 1650.0},
+        "PG002": {"C1": 1800.0, "C2": 1750.0, "C3": 1850.0, "T1": 200.0, "T2": 220.0, "T3": 210.0},
+        "PG003": {"C1": 150.0, "C2": 160.0, "C3": 140.0, "T1": 1400.0, "T2": 1450.0, "T3": 1500.0},
+    }
+    for entity_id, entity_values in abundances.items():
+        for sample_id, abundance in entity_values.items():
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                    source_feature_count=1,
+                )
+            )
+    table = LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        normalization_method=NormalizationMethod.NONE,
+        sample_ids=("C1", "C2", "C3", "T1", "T2", "T3"),
+        entity_ids=("PG001", "PG002", "PG003"),
+        values=tuple(values),
+        entity_protein_refs={
+            "PG001": ("P04637",),
+            "PG002": ("Q9Y243",),
+            "PG003": ("O14920",),
+        },
+        entity_member_peptides={
+            "PG001": ("PEPAAA",),
+            "PG002": ("PEPDDD",),
+            "PG003": ("PEPCCC",),
+        },
+    )
+    fasta_path = tmp_path / "matching_regions.fasta"
+    fasta_path.write_text(
+        (
+            ">sp|P04637|SIGA_HUMAN Signaling protein A\nMPEPAAAK\n"
+            ">sp|Q9Y243|SIGB_HUMAN Signaling protein B\nMPEPDDDK\n"
+            ">sp|O14920|SIGC_HUMAN Signaling protein C\nMPEPCCCK\n"
+        ),
+        encoding="utf-8",
+    )
+
+    report = build_biological_result_report_bundle_from_quant_table(
+        table,
+        design_entries,
+        proteins_fasta_path=fasta_path,
+        protein_region_context_tsv_path=_fixture("biological_report_regions.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.protein_cards.summary.functional_region_annotated_card_count >= 1
+    assert any(card.functional_regions for card in report.protein_cards.cards)
+    assert any(
+        region.label == "cell_cycle_core"
+        for card in report.protein_cards.cards
+        for region in card.functional_regions
+    )
 
 
 def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> None:

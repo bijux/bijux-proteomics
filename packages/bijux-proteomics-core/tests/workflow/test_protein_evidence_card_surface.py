@@ -19,6 +19,7 @@ from bijux_proteomics.workflow import (
     build_biological_result_graph_report,
     build_protein_evidence_card_report,
 )
+from bijux_proteomics.sequences import parse_protein_region_context_tsv
 
 
 def _fixture(name: str) -> Path:
@@ -75,15 +76,18 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
         bundle.differential_report,
         bundle.annotation_report,
         protein_sequences={
-            "P04637": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGP",
-            "Q9Y243": "MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVLTANSMNPAQNANP",
-            "O14920": "MSRSGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVL",
+            "P04637": "MPEPAAAK",
+            "Q9Y243": "MPEPDDDK",
+            "O14920": "MPEPCCCK",
         },
         selection_policy=ProteinEvidenceCardSelectionPolicy(),
         sample_conditions={entry.sample_id: entry.condition for entry in design_entries},
         context_mapping_report=bundle.context_mapping_report,
         pathway_enrichment_report=bundle.pathway_enrichment_report,
         complex_enrichment_report=bundle.complex_enrichment_report,
+        protein_region_context_records=parse_protein_region_context_tsv(
+            _fixture("biological_report_regions.tsv")
+        ).accepted_records,
     )
 
     assert report.summary.protein_result_count == len(bundle.differential_report.entries)
@@ -94,4 +98,11 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
     assert all(card.peptide_count == len(card.peptides) for card in report.cards)
     assert any(card.pathways for card in report.cards)
     assert any(card.context_terms for card in report.cards)
+    assert any(card.functional_regions for card in report.cards)
+    assert any(
+        region.supporting_evidence_refs == ("PEPAAA",)
+        for card in report.cards
+        for region in card.functional_regions
+        if card.representative_protein_ref == "P04637"
+    )
     assert any(card.warnings for card in report.cards)
