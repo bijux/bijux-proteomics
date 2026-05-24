@@ -7462,6 +7462,133 @@ def test_targeted_result_validator_command_preserves_confirmed_contradicted_and_
         )
 
 
+def test_biomarker_stability_analysis_command_downgrades_unstable_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tweighted_evidence_total\tpenalty_total\tuncertainty\teffect_size\tadjusted_p_value\tsupport_count\teffect_score\trobustness_score\tdetectability_score\tspecificity_score\tannotation_score\tassay_feasibility_score\tsample_qc_score\tannotation_labels\trank_reason_codes\tsource_ids\tranking_note\n"
+            "protein:P11111\tprotein\tROBUST1\tP11111\t\t1\t0.92\t0.92\t0.00\t0.10\t1.00\t0.003\t4\t0.70\t0.88\t0.95\t0.94\t0.55\t0.90\t0.90\tpathway:stress\tassay_ready\tbio-card-1\tstrong candidate\n"
+            "protein:P22222\tprotein\tBATCHY2\tP22222\t\t2\t0.84\t0.84\t0.05\t0.20\t0.80\t0.010\t3\t0.55\t0.79\t0.70\t0.80\t0.40\t0.86\t0.90\tcontext:secreted\tassay_ready\tbio-card-2\tcandidate with technical sensitivity\n"
+            "protein:P33333\tprotein\tONECOND3\tP33333\t\t3\t0.80\t0.80\t0.02\t0.20\t0.70\t0.020\t2\t0.50\t0.72\t0.65\t0.75\t0.25\t0.84\t0.90\tcontext:restricted\tassay_ready\tbio-card-3\tcandidate visible only in one condition\n",
+            encoding="utf-8",
+        )
+        Path("panel.assays.tsv").write_text(
+            "assay_entry_id\tbiomarker_candidate_id\tbiomarker_candidate_kind\tbiomarker_display_label\tbiomarker_priority_rank\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tuniqueness_class\tuniqueness_score\tprecursor_charge\tprecursor_mz\texpected_retention_time_minutes\tretention_window_start_minutes\tretention_window_end_minutes\tselected_transition_count\texported_transition_count\tassay_interference_risk_tier\twarning_codes\twarning_note\tsource_library_entry_id\n"
+            "assay:P11111:PEPTIDER\tprotein:P11111\tprotein\tROBUST1\t1\tP11111\tprotein_group_1\tROBUST1\tPEPTIDER\tPEPTIDER\tunique\t1.000000\t2\t501.250000\t18.400000\t16.900000\t19.900000\t2\t2\tlow\t\tassay retained\tmgf:1:SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P11111\n"
+            "assay:P22222:AAAAK\tprotein:P22222\tprotein\tBATCHY2\t2\tP22222\tprotein_group_2\tBATCHY2\tAAAAK\tAAAAK\tunique\t1.000000\t2\t451.250000\t18.400000\t16.900000\t19.900000\t2\t2\tlow\t\tassay retained\tmgf:2:SEQ=AAAAK|PEPTIDE=AAAAK|PROTEINS=P22222\n"
+            "assay:P33333:BBBBK\tprotein:P33333\tprotein\tONECOND3\t3\tP33333\tprotein_group_3\tONECOND3\tBBBBK\tBBBBK\tunique\t1.000000\t2\t551.250000\t16.400000\t14.900000\t17.900000\t2\t2\tlow\t\tassay retained\tmgf:3:SEQ=BBBBK|PEPTIDE=BBBBK|PROTEINS=P33333\n",
+            encoding="utf-8",
+        )
+        Path("targeted_results.tsv").write_text(
+            "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_t0_plasma_b1_r1\t10000\t12.50\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_t0_plasma_b1_r1\t8200\t12.56\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_t0_plasma_b2_r2\t10200\t12.48\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_t0_plasma_b2_r2\t8300\t12.55\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_t1_serum_b1_r1\t9800\t12.51\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_t1_serum_b1_r1\t7900\t12.57\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_t1_serum_b2_r2\t10100\t12.52\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_t1_serum_b2_r2\t8100\t12.58\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_t0_plasma_b1_r1\t21000\t12.50\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_t0_plasma_b1_r1\t17000\t12.56\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_t0_plasma_b2_r2\t20800\t12.48\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_t0_plasma_b2_r2\t16800\t12.55\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_t1_serum_b1_r1\t21400\t12.51\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_t1_serum_b1_r1\t17100\t12.57\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_t1_serum_b2_r2\t21100\t12.52\tpass\n"
+            "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_t1_serum_b2_r2\t16950\t12.58\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_t0_plasma_b1_r1\t12000\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_t0_plasma_b1_r1\t10000\t18.47\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_t0_plasma_b2_r2\t36000\t18.41\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_t0_plasma_b2_r2\t30000\t18.48\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_t1_serum_b1_r1\t12200\t18.42\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_t1_serum_b1_r1\t10100\t18.46\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\tcontrol_t1_serum_b2_r2\t35500\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\tcontrol_t1_serum_b2_r2\t29500\t18.45\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_t0_plasma_b1_r1\t14000\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_t0_plasma_b1_r1\t11500\t18.47\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_t0_plasma_b2_r2\t37000\t18.41\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_t0_plasma_b2_r2\t30500\t18.48\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_t1_serum_b1_r1\t14100\t18.42\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_t1_serum_b1_r1\t11600\t18.46\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty3\t360.2\ttreat_t1_serum_b2_r2\t37200\t18.40\tpass\n"
+            "P22222\tAAAAK\t2\t451.25\ty4\t431.2\ttreat_t1_serum_b2_r2\t30700\t18.45\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_t0_plasma_b1_r1\t16000\t16.40\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_t0_plasma_b1_r1\t13500\t16.47\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_t0_plasma_b2_r2\t15800\t16.41\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_t0_plasma_b2_r2\t13300\t16.48\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_t1_serum_b1_r1\t16200\t16.42\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_t1_serum_b1_r1\t13650\t16.46\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty3\t460.2\ttreat_t1_serum_b2_r2\t16100\t16.40\tpass\n"
+            "P33333\tBBBBK\t2\t551.25\ty4\t531.2\ttreat_t1_serum_b2_r2\t13700\t16.45\tpass\n",
+            encoding="utf-8",
+        )
+        Path("targeted.design.tsv").write_text(
+            "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\ttimepoint\tsample_type\n"
+            "control_t0_plasma_b1_r1\tcontrol\t1\t1\tcontrol_t0_plasma_b1_r1.raw\tcontrol_t0_plasma_b1_r1.tsv\tb1\tt0\tplasma\n"
+            "control_t0_plasma_b2_r2\tcontrol\t2\t1\tcontrol_t0_plasma_b2_r2.raw\tcontrol_t0_plasma_b2_r2.tsv\tb2\tt0\tplasma\n"
+            "control_t1_serum_b1_r1\tcontrol\t3\t1\tcontrol_t1_serum_b1_r1.raw\tcontrol_t1_serum_b1_r1.tsv\tb1\tt1\tserum\n"
+            "control_t1_serum_b2_r2\tcontrol\t4\t1\tcontrol_t1_serum_b2_r2.raw\tcontrol_t1_serum_b2_r2.tsv\tb2\tt1\tserum\n"
+            "treat_t0_plasma_b1_r1\ttreatment\t1\t1\ttreat_t0_plasma_b1_r1.raw\ttreat_t0_plasma_b1_r1.tsv\tb1\tt0\tplasma\n"
+            "treat_t0_plasma_b2_r2\ttreatment\t2\t1\ttreat_t0_plasma_b2_r2.raw\ttreat_t0_plasma_b2_r2.tsv\tb2\tt0\tplasma\n"
+            "treat_t1_serum_b1_r1\ttreatment\t3\t1\ttreat_t1_serum_b1_r1.raw\ttreat_t1_serum_b1_r1.tsv\tb1\tt1\tserum\n"
+            "treat_t1_serum_b2_r2\ttreatment\t4\t1\ttreat_t1_serum_b2_r2.raw\ttreat_t1_serum_b2_r2.tsv\tb2\tt1\tserum\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biomarker-stability-analysis",
+                "biomarker.candidates.tsv",
+                "panel.assays.tsv",
+                "targeted_results.tsv",
+                "targeted.design.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--summary-tsv-out",
+                "stability.summary.tsv",
+                "--stability-tsv-out",
+                "stability.entries.tsv",
+                "--subgroup-tsv-out",
+                "stability.subgroups.tsv",
+                "--adjusted-candidate-tsv-out",
+                "stability.candidates.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["candidate_count"] == 3
+        assert payload["summary"]["downgraded_candidate_count"] == 2
+        entries_by_id = {entry["candidate_id"]: entry for entry in payload["entries"]}
+        assert entries_by_id["protein:P11111"]["downgraded"] is False
+        assert entries_by_id["protein:P22222"]["downgraded"] is True
+        assert "batch_sensitive_signal" in entries_by_id["protein:P22222"][
+            "instability_reasons"
+        ]
+        assert entries_by_id["protein:P33333"]["downgraded"] is True
+        assert "single_condition_signal_only" in entries_by_id["protein:P33333"][
+            "instability_reasons"
+        ]
+        assert Path("stability.summary.tsv").exists()
+        assert Path("stability.entries.tsv").exists()
+        assert Path("stability.subgroups.tsv").exists()
+        assert Path("stability.candidates.tsv").exists()
+        assert "downgraded_candidate_count\t2" in Path(
+            "stability.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "batch_sensitive_signal" in Path("stability.entries.tsv").read_text(
+            encoding="utf-8"
+        )
+        subgroup_tsv = Path("stability.subgroups.tsv").read_text(encoding="utf-8")
+        assert "candidate_id\tdimension\tsubgroup_value" in subgroup_tsv
+        assert "protein:P22222\tbatch\tb2" in subgroup_tsv
+        assert "protein:P11111" in Path("stability.candidates.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
