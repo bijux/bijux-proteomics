@@ -10,6 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics.sequences import build_peptide_chemical_liability_report
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -513,6 +514,8 @@ class TargetedAssayOptimizationEntry(JsonModel):
     candidate_id: str = Field(..., min_length=1)
     rank: int = Field(..., ge=1)
     optimization_score: float = Field(..., ge=0.0)
+    chemical_liability_penalty: float = Field(..., ge=0.0, le=1.0)
+    chemical_liability_codes: tuple[str, ...] = Field(default_factory=tuple)
     rationale: str = Field(..., min_length=1)
 
 
@@ -529,26 +532,41 @@ def optimize_targeted_assay_candidates(
 ) -> TargetedAssayOptimizationReport:
     """Rank targeted candidates by uniqueness, detectability, PTM ambiguity, and QC."""
 
-    scored: list[tuple[str, float]] = []
+    scored: list[tuple[str, float, float, tuple[str, ...]]] = []
     for candidate in candidates:
+        liability_report = build_peptide_chemical_liability_report(
+            candidate.peptide_sequence
+        )
         score = (
             (candidate.uniqueness_score * 0.35)
             + (candidate.detectability_score * 0.35)
             + (candidate.qc_score * 0.30)
             - (candidate.ptm_ambiguity_penalty * 0.40)
+            - (liability_report.liability_penalty * 0.45)
         )
-        scored.append((candidate.candidate_id, score))
+        scored.append(
+            (
+                candidate.candidate_id,
+                max(score, 0.0),
+                liability_report.liability_penalty,
+                tuple(code.value for code in liability_report.liability_codes),
+            )
+        )
 
     scored.sort(key=lambda item: (-item[1], item[0]))
     entries = []
-    for rank, (candidate_id, score) in enumerate(scored, start=1):
+    for rank, (candidate_id, score, liability_penalty, liability_codes) in enumerate(
+        scored, start=1
+    ):
         entries.append(
             TargetedAssayOptimizationEntry(
                 candidate_id=candidate_id,
                 rank=rank,
                 optimization_score=score,
+                chemical_liability_penalty=liability_penalty,
+                chemical_liability_codes=liability_codes,
                 rationale=(
-                    "ranking balances uniqueness/detectability/QC while penalizing PTM ambiguity"
+                    "ranking balances uniqueness/detectability/QC while penalizing PTM ambiguity and peptide chemical liabilities"
                 ),
             )
         )
