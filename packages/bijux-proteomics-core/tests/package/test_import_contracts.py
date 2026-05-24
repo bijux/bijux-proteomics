@@ -167,6 +167,8 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "render_peptide_bias_tsv")
     assert hasattr(module, "render_rollup_residuals_tsv")
     assert hasattr(module, "estimate_protein_uncertainty")
+    assert hasattr(module, "fit_mean_variance_trend")
+    assert hasattr(module, "render_mean_variance_trend_tsv")
     assert hasattr(module, "render_protein_uncertainty_tsv")
 
 
