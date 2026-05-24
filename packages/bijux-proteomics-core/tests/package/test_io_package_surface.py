@@ -193,7 +193,9 @@ def test_io_package_exports_chromatographic_peak_picking_owner_surface() -> None
     rendered = io.render_chromatographic_peaks_tsv(report)
 
     assert hasattr(io, "pick_chromatographic_peaks")
+    assert hasattr(io, "pick_peak")
     assert hasattr(io, "extract_mzml_chromatographic_peaks")
+    assert hasattr(io, "render_picked_chromatographic_peaks_tsv")
     assert hasattr(io, "render_chromatographic_peaks_tsv")
     assert len(report.peaks) == 3
     assert report.peaks[0].overlap_flag is True
