@@ -15,6 +15,7 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.mzml_reader",
     "bijux_proteomics.io.noise",
     "bijux_proteomics.io.run_qc",
+    "bijux_proteomics.io.spectrum_entropy",
     "bijux_proteomics.io.spectrum_peak_matching",
     "bijux_proteomics.io.spectra",
     "bijux_proteomics.io.target_panel",
