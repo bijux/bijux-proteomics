@@ -7,11 +7,20 @@ from math import isclose
 from pathlib import Path
 
 from bijux_proteomics.io.chromatographic_peak_picking import (
+    ChromatographicPeakQuality,
     extract_mzml_chromatographic_peaks,
+    pick_peak,
     pick_chromatographic_peaks,
     render_chromatographic_peaks_tsv,
+    render_picked_chromatographic_peaks_tsv,
 )
-from bijux_proteomics.io.xic_extraction import extract_mzml_xic_traces
+from bijux_proteomics.io.mzml_reader import stream_mzml_spectra
+from bijux_proteomics.io.xic_extraction import (
+    XicToleranceUnit,
+    extract_mzml_xic_traces,
+    extract_xic,
+    parse_xic_target_table,
+)
 
 
 def _format_fixture(name: str) -> Path:
@@ -48,6 +57,39 @@ def test_pick_chromatographic_peaks_detects_boundaries_apex_and_overlap_flags() 
     assert single_peak.apex_time_seconds == 30.0
     assert single_peak.overlap_flag is False
     assert single_peak.shoulder_flag is False
+
+
+def test_pick_peak_flags_overlapping_fixture_instead_of_one_clean_peak() -> None:
+    spectra = tuple(stream_mzml_spectra(_format_fixture("chromatographic_peak_profile.mzml")))
+    targets = parse_xic_target_table(
+        _format_fixture("chromatographic_peak_targets.tsv")
+    ).accepted_entries
+    raw_rows = tuple(
+        row
+        for row in extract_xic(
+            spectra,
+            targets,
+            tolerance=10.0,
+            tolerance_unit=XicToleranceUnit.PPM,
+        )
+        if row.target_id == "target_overlap"
+    )
+
+    peaks = pick_peak(raw_rows)
+    rendered = render_picked_chromatographic_peaks_tsv(peaks)
+
+    assert len(peaks) == 2
+    assert peaks[0].rt_start == 0.0
+    assert peaks[0].rt_apex == 20.0
+    assert peaks[0].rt_end == 30.0
+    assert peaks[0].overlap_flag is True
+    assert peaks[0].peak_quality is ChromatographicPeakQuality.SHOULDER
+    assert peaks[1].rt_start == 30.0
+    assert peaks[1].rt_apex == 40.0
+    assert peaks[1].rt_end == 60.0
+    assert peaks[1].overlap_flag is True
+    assert peaks[1].peak_quality is ChromatographicPeakQuality.OVERLAP
+    assert "peak_quality" in rendered
 
 
 def test_pick_chromatographic_peaks_uses_baseline_corrected_area_instead_of_window_sum() -> None:
