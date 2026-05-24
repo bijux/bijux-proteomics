@@ -322,6 +322,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/blueprint.py",
             "workflow/biological_reporting.py",
             "workflow/biological_result_graph.py",
+            "workflow/cohort_stratification.py",
             "workflow/cross_study_effect_comparison.py",
             "workflow/cross_study_pathway_comparison.py",
             "workflow/cross_study_protein_harmonization.py",
