@@ -60,6 +60,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).exists()
+    assert (output_dir / manifest.artifacts.section_confidence_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
     assert (output_dir / manifest.artifacts.claim_validation_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.supported_claim_tsv).exists()
@@ -179,6 +180,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "metadata_validity" in (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).read_text(encoding="utf-8")
+    assert "section_key\tsection_title\tconfidence_label\trationale" in (
+        output_dir / manifest.artifacts.section_confidence_tsv
+    ).read_text(encoding="utf-8")
     assert "card_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
@@ -245,6 +249,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "Experiment confidence" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
+    assert "Section confidence" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
     assert "Evidence-aware ranking" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
@@ -252,6 +259,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Biological hypotheses" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Biological hypotheses [exploratory]" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Enrichment foreground/background model" in (
