@@ -222,6 +222,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/missingness.py",
             "quantification/normalization.py",
             "quantification/peptide_intensity_matrix.py",
+            "quantification/peptide_profile_inconsistency.py",
             "quantification/power_estimation.py",
             "quantification/protein_intensity_matrix.py",
             "quantification/protein_lfq.py",
