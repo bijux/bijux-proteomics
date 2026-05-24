@@ -50,6 +50,8 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_mechanism_card_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_mechanism_card_tsv).exists()
     assert (output_dir / manifest.artifacts.experiment_confidence_summary_tsv).exists()
     assert (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
@@ -100,6 +102,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "graph_claim_node_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
+    assert "representative_protein_ref" in (
+        output_dir / manifest.artifacts.protein_mechanism_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "evidence_tier" in (
+        output_dir / manifest.artifacts.protein_mechanism_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "downgrade_reasons" in (
+        output_dir / manifest.artifacts.protein_mechanism_card_tsv
+    ).read_text(encoding="utf-8")
     assert "statistical_result:" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
@@ -130,7 +141,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "raw_p_value" in (
         output_dir / manifest.artifacts.volcano_tsv
     ).read_text(encoding="utf-8")
-    assert "Final protein cards" in (
+    assert "Protein mechanism cards" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Experiment confidence" in (
@@ -142,7 +153,10 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "Identity" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
-    assert "Proteogenomic support" in (
+    assert "Evidence tier" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Downgrade reasons" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "statistical_result:" in (

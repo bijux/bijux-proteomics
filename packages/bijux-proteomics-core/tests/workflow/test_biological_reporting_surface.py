@@ -67,9 +67,19 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.sample_exploration_report.summary.sample_count == 6
     assert report.heatmap_report.summary.output_entity_count >= 3
     assert report.protein_cards.summary.protein_result_count == 5
+    assert report.protein_mechanism_cards.summary.card_count == 5
+    assert report.protein_mechanism_cards.summary.card_count == report.summary.protein_count
     assert any(card.card_id.startswith("protein-card-") for card in report.protein_cards.cards)
+    assert any(
+        card.card_id.startswith("protein-mechanism-card-")
+        for card in report.protein_mechanism_cards.cards
+    )
     assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.protein_cards.cards)
     assert all(card.graph_subject_node_id.startswith("protein:") for card in report.protein_cards.cards)
+    assert all(
+        card.graph_claim_node_id.startswith("statistical_result:")
+        for card in report.protein_mechanism_cards.cards
+    )
     assert report.context_import_report is not None
     assert report.context_mapping_report is not None
     assert any(
@@ -139,6 +149,7 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
     assert mapped_refs == {"P04637", "Q9Y243", "O14920"}
     assert report.summary.annotation_entry_count == 3
     assert report.experiment_confidence_report.summary.component_count == 7
+    assert report.protein_mechanism_cards.summary.card_count == 3
 
 
 def test_biological_result_report_bundle_from_quant_table_preserves_functional_regions_on_cards(
@@ -211,6 +222,8 @@ def test_biological_result_report_bundle_from_quant_table_preserves_functional_r
         for card in report.protein_cards.cards
         for region in card.functional_regions
     )
+    assert report.protein_mechanism_cards.summary.domain_annotated_card_count >= 1
+    assert any(card.domains for card in report.protein_mechanism_cards.cards)
 
 
 def test_biological_result_report_bundle_from_quant_table_does_not_call_exact_isoform_without_unique_peptide(
