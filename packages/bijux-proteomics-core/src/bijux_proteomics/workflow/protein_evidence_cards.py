@@ -42,6 +42,14 @@ from bijux_proteomics.review import (
     ProteinEvidenceSummaryReport,
     query_protein_evidence_summary,
 )
+from bijux_proteomics.sequences import (
+    ProteinFunctionalRegionEvidence,
+    ProteinFunctionalRegionKind,
+    ProteinPeptideRegionContextReport,
+    ProteinPeptideRegionReference,
+    ProteinRegionContextRecord,
+    build_protein_peptide_region_context_report,
+)
 from bijux_proteomics.workflow.biological_result_graph import BiologicalResultGraphReport
 from bijux_proteomics_foundation import JsonModel
 
@@ -212,6 +220,9 @@ class ProteinEvidenceCard(JsonModel):
     differential_result: ProteinEvidenceCardDifferentialResult
     context_terms: tuple[ProteinEvidenceCardContextEntry, ...] = Field(default_factory=tuple)
     pathways: tuple[ProteinEvidenceCardPathwayEntry, ...] = Field(default_factory=tuple)
+    functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
+        default_factory=tuple
+    )
     ptm_sites: tuple[str, ...] = Field(default_factory=tuple)
     significant: bool
     evidence_tier: ProteinEvidenceCardTier
@@ -228,6 +239,7 @@ class ProteinEvidenceCardSummary(JsonModel):
     warning_card_count: int = Field(..., ge=0)
     pathway_annotated_card_count: int = Field(..., ge=0)
     context_annotated_card_count: int = Field(..., ge=0)
+    functional_region_annotated_card_count: int = Field(..., ge=0)
     ptm_annotated_card_count: int = Field(..., ge=0)
 
 
@@ -254,6 +266,7 @@ def build_protein_evidence_card_report(
     context_mapping_report: BiologicalContextMappingReport | None = None,
     pathway_enrichment_report: PathwayEnrichmentReport | None = None,
     complex_enrichment_report: ComplexEnrichmentReport | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
 ) -> ProteinEvidenceCardReport:
     """Build one structured card per final protein result."""
 
@@ -276,6 +289,13 @@ def build_protein_evidence_card_report(
     pathway_by_member = _group_pathway_entries_by_member(
         pathway_enrichment_report,
         complex_enrichment_report,
+    )
+    functional_regions_by_protein = _group_functional_regions_by_protein(
+        _build_peptide_region_context_report(
+            quant_table,
+            protein_sequences=protein_sequences,
+            protein_region_context_records=protein_region_context_records,
+        )
     )
     differential_by_entity = {
         entry.entity_id: entry for entry in differential_report.entries
@@ -336,6 +356,10 @@ def build_protein_evidence_card_report(
             annotation_entries=annotation_entries,
             by_member=pathway_by_member,
         )
+        functional_regions = _select_functional_regions(
+            protein_refs,
+            by_protein=functional_regions_by_protein,
+        )
         graph_summary = query_protein_evidence_summary(
             graph_report.graph,
             protein_id=final_entry.subject_node_ref,
@@ -369,6 +393,7 @@ def build_protein_evidence_card_report(
                 differential_result=_build_differential_payload(differential_entry),
                 context_terms=contexts,
                 pathways=pathways,
+                functional_regions=functional_regions,
                 ptm_sites=(),
                 significant=significant,
                 evidence_tier=_graph_evidence_tier(final_entry.evidence_tier),
@@ -384,6 +409,9 @@ def build_protein_evidence_card_report(
             warning_card_count=sum(1 for card in cards if card.warnings),
             pathway_annotated_card_count=sum(1 for card in cards if card.pathways),
             context_annotated_card_count=sum(1 for card in cards if card.context_terms),
+            functional_region_annotated_card_count=sum(
+                1 for card in cards if card.functional_regions
+            ),
             ptm_annotated_card_count=sum(1 for card in cards if card.ptm_sites),
         ),
         cards=tuple(cards),
@@ -391,8 +419,9 @@ def build_protein_evidence_card_report(
             "protein evidence cards preserve one structured object per final protein result, "
             "derive final claim identity and evidence tiers from the canonical review graph, "
             "carry annotation, peptide membership, coverage, quantification, differential, "
-            "context, pathway, and warning evidence together, and give biological reporting "
-            "one stable graph-backed table source instead of ad hoc final-protein summaries"
+            "context, pathway, functional-region, and warning evidence together, and give "
+            "biological reporting one stable graph-backed table source instead of ad hoc "
+            "final-protein summaries"
         ),
     )
 
@@ -411,6 +440,12 @@ def render_protein_evidence_card_summary_tsv(report: ProteinEvidenceCardReport) 
     )
     writer.writerow(
         ("context_annotated_card_count", report.summary.context_annotated_card_count)
+    )
+    writer.writerow(
+        (
+            "functional_region_annotated_card_count",
+            report.summary.functional_region_annotated_card_count,
+        )
     )
     writer.writerow(("ptm_annotated_card_count", report.summary.ptm_annotated_card_count))
     writer.writerow(("max_adjusted_p_value", report.selection_policy.max_adjusted_p_value))
@@ -460,6 +495,7 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
             "warning_codes",
             "pathway_ids",
             "context_ids",
+            "functional_regions",
             "ptm_sites",
         )
     )
@@ -499,6 +535,10 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
                 ";".join(
                     f"{entry.context_kind.value}:{entry.context_id}"
                     for entry in card.context_terms
+                ),
+                ";".join(
+                    f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
+                    for region in card.functional_regions
                 ),
                 ";".join(card.ptm_sites),
             )
@@ -708,6 +748,135 @@ def _group_pathway_entries_by_member(
         )
         for member_id, entries in grouped.items()
     }
+
+
+def _build_peptide_region_context_report(
+    quant_table: LabelFreeQuantTable,
+    *,
+    protein_sequences: dict[str, str],
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None,
+) -> ProteinPeptideRegionContextReport | None:
+    if not protein_region_context_records:
+        return None
+    references = tuple(
+        ProteinPeptideRegionReference(
+            peptide_key=f"{protein_ref}:{peptide}",
+            protein_ref=protein_ref,
+            peptide_sequence=peptide,
+        )
+        for entity_id, peptides in quant_table.entity_member_peptides.items()
+        for protein_ref in (quant_table.entity_protein_refs.get(entity_id, ()) or (entity_id,))
+        for peptide in sorted(set(peptides))
+    )
+    return build_protein_peptide_region_context_report(
+        references,
+        protein_sequences=protein_sequences,
+        context_records=protein_region_context_records,
+    )
+
+
+def _group_functional_regions_by_protein(
+    report: ProteinPeptideRegionContextReport | None,
+) -> dict[str, tuple[ProteinFunctionalRegionEvidence, ...]]:
+    if report is None:
+        return {}
+    grouped: dict[
+        str,
+        dict[tuple[str, str, int, int, str | None, str | None], set[str]],
+    ] = defaultdict(dict)
+    for entry in report.entries:
+        for region in entry.functional_regions:
+            key = (
+                region.region_kind.value,
+                region.label,
+                region.start,
+                region.end,
+                region.source_name,
+                region.source_accession,
+            )
+            grouped[entry.protein_ref].setdefault(key, set()).update(
+                region.supporting_evidence_refs
+            )
+    return {
+        protein_ref: tuple(
+            ProteinFunctionalRegionEvidence(
+                region_kind=ProteinFunctionalRegionKind(region_kind_value),
+                label=label,
+                start=start,
+                end=end,
+                source_name=source_name,
+                source_accession=source_accession,
+                supporting_evidence_refs=tuple(sorted(refs)),
+            )
+            for (
+                region_kind_value,
+                label,
+                start,
+                end,
+                source_name,
+                source_accession,
+            ), refs in sorted(
+                region_entries.items(),
+                key=lambda item: (
+                    item[0][0],
+                    item[0][2],
+                    item[0][3],
+                    item[0][1],
+                    item[0][4] or "",
+                    item[0][5] or "",
+                ),
+            )
+        )
+        for protein_ref, region_entries in grouped.items()
+    }
+
+
+def _select_functional_regions(
+    protein_refs: tuple[str, ...],
+    *,
+    by_protein: dict[str, tuple[ProteinFunctionalRegionEvidence, ...]],
+) -> tuple[ProteinFunctionalRegionEvidence, ...]:
+    merged: dict[tuple[str, str, int, int, str | None, str | None], set[str]] = {}
+    for protein_ref in protein_refs:
+        for region in by_protein.get(protein_ref, ()):
+            key = (
+                region.region_kind.value,
+                region.label,
+                region.start,
+                region.end,
+                region.source_name,
+                region.source_accession,
+            )
+            merged.setdefault(key, set()).update(region.supporting_evidence_refs)
+    return tuple(
+        ProteinFunctionalRegionEvidence(
+            region_kind=ProteinFunctionalRegionKind(region_kind_value),
+            label=label,
+            start=start,
+            end=end,
+            source_name=source_name,
+            source_accession=source_accession,
+            supporting_evidence_refs=tuple(sorted(refs)),
+        )
+        for (
+            region_kind_value,
+            label,
+            start,
+            end,
+            source_name,
+            source_accession,
+        ), refs in sorted(
+            merged.items(),
+            key=lambda item: (
+                item[0][0],
+                item[0][2],
+                item[0][3],
+                item[0][1],
+                item[0][4] or "",
+                item[0][5] or "",
+            ),
+        )
+    )
 
 
 def _pathway_card_entry(

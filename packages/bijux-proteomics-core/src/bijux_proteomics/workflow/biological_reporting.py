@@ -99,7 +99,11 @@ from bijux_proteomics.review import (
     export_volcano_review_svg,
     render_volcano_review_tsv,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.sequences import (
+    FastaParseMode,
+    parse_fasta_document,
+    parse_protein_region_context_tsv,
+)
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
     ExperimentDesign,
@@ -277,6 +281,7 @@ def build_biological_result_report_bundle(
     protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
+    protein_region_context_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -324,6 +329,7 @@ def build_biological_result_report_bundle(
         protocol_context_tsv_path=protocol_context_tsv_path,
         annotation_tsv_path=annotation_tsv_path,
         context_annotation_tsv_path=context_annotation_tsv_path,
+        protein_region_context_tsv_path=protein_region_context_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
@@ -345,6 +351,7 @@ def build_biological_result_report_bundle_from_quant_table(
     protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
+    protein_region_context_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -433,6 +440,11 @@ def build_biological_result_report_bundle_from_quant_table(
             differential_reference_entries,
             context_import_report.accepted_records,
         )
+    protein_region_context_records = None
+    if protein_region_context_tsv_path is not None:
+        protein_region_context_records = parse_protein_region_context_tsv(
+            protein_region_context_tsv_path
+        ).accepted_records
     background_entries = _build_background_reference_entries(normalized_table)
     foreground_entries = _build_foreground_reference_entries(
         differential_report,
@@ -518,6 +530,7 @@ def build_biological_result_report_bundle_from_quant_table(
         context_mapping_report=context_mapping_report,
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
+        protein_region_context_records=protein_region_context_records,
     )
     volcano_review = build_quantification_volcano_review(
         differential_report,
@@ -1196,6 +1209,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
         "Gene",
         "Evidence tier",
         "Peptides",
+        "Functional regions",
         "Coverage",
         "log2FC",
         "Adjusted p-value",
@@ -1213,6 +1227,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
             f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
             f"<td>{escape(card.evidence_tier.value)}</td>"
             f"<td>{card.peptide_count}</td>"
+            f"<td>{escape('; '.join(f'{region.region_kind.value}:{region.label}' for region in card.functional_regions))}</td>"
             f"<td>{card.coverage.coverage_fraction:.2%}</td>"
             f"<td>{card.differential_result.log2_fold_change:.3f}</td>"
             f"<td>{_format_optional_float(card.differential_result.adjusted_p_value)}</td>"
