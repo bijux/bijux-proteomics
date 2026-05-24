@@ -10,6 +10,7 @@ from importlib import import_module
 _TARGETED_EXPORT_MODULES = (
     "bijux_proteomics.targeted.assay_interference",
     "bijux_proteomics.targeted.assay_qc",
+    "bijux_proteomics.targeted.biomarker_stability",
     "bijux_proteomics.targeted.carryover",
     "bijux_proteomics.targeted.discovery_peptide_selection",
     "bijux_proteomics.targeted.panel_design",
