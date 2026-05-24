@@ -29,8 +29,9 @@ def test_render_targeted_transition_coelution_exports_keep_coelution_review_visi
     transition_tsv = render_targeted_transition_coelution_transition_tsv(report)
 
     assert "target_id\tsample_id\texpected_transition_count\tobserved_transition_count\tcoeluting_transition_count" in target_tsv
+    assert "\talignment_flagged\tcoelution_tier\treliable_transition_support\t" in target_tsv
     assert (
-        "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tfalse\tfewer than two coeluting transitions support the target"
+        "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tinsufficient\tfalse\tfewer than two coeluting transitions support the target"
         in target_tsv
     )
     assert "target_id\tsample_id\ttransition_id\tdetected\tretention_time_minutes\tanchor_transition_id" in transition_tsv

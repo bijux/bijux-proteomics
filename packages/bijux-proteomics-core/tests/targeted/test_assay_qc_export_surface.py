@@ -57,7 +57,7 @@ def test_render_targeted_assay_qc_exports_keep_review_evidence_visible() -> None
     )
     assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in transition_tsv
     assert (
-        "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tfalse\tfewer than two coeluting transitions support the target"
+        "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tinsufficient\tfalse\tfewer than two coeluting transitions support the target"
         in coelution_tsv
     )
     assert (

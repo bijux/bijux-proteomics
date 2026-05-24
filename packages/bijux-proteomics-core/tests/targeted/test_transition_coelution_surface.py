@@ -35,6 +35,7 @@ def test_build_targeted_transition_coelution_report_keeps_target_alignment_visib
     assert peptk_treat_r2.coeluting_transition_count == 1
     assert peptk_treat_r2.coeluting_transition_ids == ("y7",)
     assert peptk_treat_r2.noncoeluting_transition_ids == ("y8",)
+    assert peptk_treat_r2.coelution_tier.value == "insufficient"
     assert peptk_treat_r2.reliable_transition_support is False
     assert peptk_treat_r2.reliability_reasons == (
         "fewer than two coeluting transitions support the target",
@@ -45,6 +46,7 @@ def test_build_targeted_transition_coelution_report_keeps_target_alignment_visib
         if entry.target_id == "ACDMPEP/3" and entry.sample_id == "treat_r1"
     )
     assert acdmpep_treat_r1.coeluting_transition_count == 2
+    assert acdmpep_treat_r1.coelution_tier.value == "reliable"
     assert acdmpep_treat_r1.absolute_alignment_delta_minutes == 1.25
     assert acdmpep_treat_r1.alignment_flagged is True
 
