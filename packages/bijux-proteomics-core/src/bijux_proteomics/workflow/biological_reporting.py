@@ -158,12 +158,16 @@ from bijux_proteomics.review import (
     BiologicalClaimKind,
     BiologicalClaimValidationPolicy,
     BiologicalClaimValidationReport,
+    BiologicalHypothesisCandidate,
+    BiologicalHypothesisKind,
+    BiologicalHypothesisReport,
     EvidenceAwareRankingCandidate,
     EvidenceAwareRankingEntityKind,
     EvidenceAwareRankingReport,
     VolcanoReviewPolicy,
     VolcanoReviewReport,
     build_biological_claim_validation_report,
+    build_biological_hypothesis_report,
     build_evidence_aware_ranking_report,
     build_quantification_volcano_review,
     export_volcano_review_html,
@@ -171,6 +175,9 @@ from bijux_proteomics.review import (
     export_volcano_review_json,
     export_volcano_review_svg,
     render_biological_claim_validation_summary_tsv,
+    render_biological_hypothesis_summary_tsv,
+    render_biological_hypothesis_tsv,
+    render_rejected_biological_hypothesis_candidate_tsv,
     render_rejected_biological_claim_tsv,
     render_supported_biological_claim_tsv,
     render_volcano_review_tsv,
@@ -211,6 +218,7 @@ from bijux_proteomics.workflow.protein_evidence_cards import (
     render_protein_evidence_card_tsv,
 )
 from bijux_proteomics.workflow.protein_mechanism_cards import (
+    ProteinMechanismCard,
     ProteinMechanismCardReport,
     build_protein_mechanism_card_report,
     render_protein_mechanism_card_summary_tsv,
@@ -293,6 +301,7 @@ class BiologicalResultReportBundle(JsonModel):
     experiment_confidence_report: ExperimentConfidenceReport
     evidence_aware_ranking_report: EvidenceAwareRankingReport | None = None
     claim_validation_report: BiologicalClaimValidationReport | None = None
+    biological_hypothesis_report: BiologicalHypothesisReport | None = None
     foreground_background_model: BiologicalForegroundBackgroundModel
     regulator_evidence_import_report: RegulatorEvidenceImportReport | None = None
     regulator_inference_report: RegulatorInferenceReport | None = None
@@ -331,6 +340,9 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     claim_validation_summary_tsv: str | None = None
     supported_claim_tsv: str | None = None
     rejected_claim_tsv: str | None = None
+    biological_hypothesis_summary_tsv: str | None = None
+    biological_hypothesis_tsv: str | None = None
+    rejected_hypothesis_candidate_tsv: str | None = None
     foreground_background_summary_tsv: str = Field(..., min_length=1)
     foreground_background_entry_tsv: str = Field(..., min_length=1)
     foreground_background_issue_tsv: str = Field(..., min_length=1)
@@ -406,6 +418,7 @@ class BiologicalResultReportExportManifest(JsonModel):
     summary: BiologicalResultReportSummary
     artifacts: BiologicalResultReportArtifactPaths
     claim_validation_included: bool
+    hypothesis_summary_included: bool
     context_summary_included: bool
     drug_target_summary_included: bool
     disease_phenotype_summary_included: bool
@@ -943,6 +956,12 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_inference_report=regulator_inference_report,
         selection_policy=active_selection_policy,
     )
+    biological_hypothesis_report = _build_biological_hypothesis_report(
+        claim_validation_report,
+        protein_mechanism_cards=protein_mechanism_cards,
+        pathway_activity_report=pathway_activity_report,
+        regulator_inference_report=regulator_inference_report,
+    )
     significant_protein_count = len(
         _select_significant_entity_ids(differential_report, policy=active_selection_policy)
     )
@@ -955,6 +974,7 @@ def build_biological_result_report_bundle_from_quant_table(
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
         claim_validation_report=claim_validation_report,
+        biological_hypothesis_report=biological_hypothesis_report,
         foreground_background_model=foreground_background_model,
         regulator_evidence_import_report=regulator_evidence_import_report,
         regulator_inference_report=regulator_inference_report,
@@ -1024,7 +1044,7 @@ def build_biological_result_report_bundle_from_quant_table(
         ),
         note=(
             "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
-            " with experiment-level confidence scoring, claim validation, and explicit component reasons"
+            " with experiment-level confidence scoring, claim validation, biological hypotheses, and explicit component reasons"
         ),
     )
 
@@ -1237,6 +1257,236 @@ def _build_biological_claim_validation_report(
     )
 
 
+def _build_biological_hypothesis_report(
+    claim_validation_report: BiologicalClaimValidationReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    pathway_activity_report: PathwayActivityReport | None,
+    regulator_inference_report: RegulatorInferenceReport | None,
+) -> BiologicalHypothesisReport:
+    candidates = (
+        _build_biological_protein_hypothesis_candidates(
+            claim_validation_report,
+            protein_mechanism_cards=protein_mechanism_cards,
+        )
+        + _build_biological_pathway_hypothesis_candidates(
+            claim_validation_report,
+            protein_mechanism_cards=protein_mechanism_cards,
+            pathway_activity_report=pathway_activity_report,
+        )
+        + _build_biological_regulator_hypothesis_candidates(
+            claim_validation_report,
+            protein_mechanism_cards=protein_mechanism_cards,
+            regulator_inference_report=regulator_inference_report,
+        )
+    )
+    return build_biological_hypothesis_report(candidates)
+
+
+def _build_biological_protein_hypothesis_candidates(
+    claim_validation_report: BiologicalClaimValidationReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+) -> tuple[BiologicalHypothesisCandidate, ...]:
+    cards_by_group_id = {
+        card.protein_group_id: card for card in protein_mechanism_cards.cards
+    }
+    candidates: list[BiologicalHypothesisCandidate] = []
+    for claim in claim_validation_report.supported_claims:
+        if claim.claim_kind is not BiologicalClaimKind.PROTEIN_ABUNDANCE_CHANGE:
+            continue
+        card = cards_by_group_id.get(claim.subject_id)
+        supporting_site_keys = (
+            tuple(ptm.site_key for ptm in card.ptms) if card is not None else ()
+        )
+        supporting_pathway_ids = (
+            tuple(pathway.pathway_id for pathway in card.pathways)
+            if card is not None
+            else ()
+        )
+        candidates.append(
+            BiologicalHypothesisCandidate(
+                hypothesis_id=f"protein-hypothesis:{claim.subject_id}",
+                hypothesis_kind=BiologicalHypothesisKind.PROTEIN_MECHANISM,
+                subject_id=claim.subject_id,
+                subject_label=claim.subject_label,
+                claim=claim.claim_text,
+                supporting_protein_refs=(
+                    (card.representative_protein_ref,) if card is not None else ()
+                ),
+                supporting_site_keys=supporting_site_keys,
+                supporting_pathway_ids=supporting_pathway_ids,
+                opposing_evidence=(
+                    _protein_hypothesis_opposing_evidence(card) if card is not None else ()
+                ),
+                evidence_node_ids=_graph_node_ids_from_cards(
+                    () if card is None else (card,)
+                ),
+                base_confidence_score=_protein_hypothesis_base_confidence(claim, card=card),
+                source_ids=claim.source_ids
+                + (() if card is None else (card.card_id, card.protein_card_id)),
+                note=(
+                    "validated protein claims become biological hypotheses only when a "
+                    "graph-backed protein mechanism card preserves the supporting claim "
+                    "and subject node ids"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_biological_pathway_hypothesis_candidates(
+    claim_validation_report: BiologicalClaimValidationReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    pathway_activity_report: PathwayActivityReport | None,
+) -> tuple[BiologicalHypothesisCandidate, ...]:
+    if pathway_activity_report is None:
+        return ()
+    cards_by_ref = {
+        card.representative_protein_ref: card for card in protein_mechanism_cards.cards
+    }
+    comparisons = {
+        (entry.pathway_id, entry.condition_a, entry.condition_b): entry
+        for entry in pathway_activity_report.condition_comparisons
+    }
+    candidates: list[BiologicalHypothesisCandidate] = []
+    for claim in claim_validation_report.supported_claims:
+        if claim.claim_kind is not BiologicalClaimKind.PATHWAY_ACTIVITY_CHANGE:
+            continue
+        comparison = comparisons.get((claim.subject_id, claim.condition_a, claim.condition_b))
+        supporting_protein_refs = (
+            ()
+            if comparison is None
+            else _pathway_hypothesis_supporting_protein_refs(
+                pathway_activity_report,
+                pathway_id=comparison.pathway_id,
+                condition_a=comparison.condition_a,
+                condition_b=comparison.condition_b,
+                cards_by_ref=cards_by_ref,
+            )
+        )
+        supporting_cards = tuple(
+            cards_by_ref[protein_ref]
+            for protein_ref in supporting_protein_refs
+            if protein_ref in cards_by_ref
+        )
+        candidates.append(
+            BiologicalHypothesisCandidate(
+                hypothesis_id=(
+                    "pathway-hypothesis:"
+                    f"{claim.subject_id}:{claim.condition_a}:{claim.condition_b}"
+                ),
+                hypothesis_kind=BiologicalHypothesisKind.PATHWAY_ACTIVITY,
+                subject_id=claim.subject_id,
+                subject_label=claim.subject_label,
+                claim=claim.claim_text,
+                supporting_protein_refs=supporting_protein_refs,
+                supporting_pathway_ids=(claim.subject_id,),
+                opposing_evidence=(
+                    _pathway_hypothesis_opposing_evidence(
+                        pathway_activity_report,
+                        comparison=comparison,
+                    )
+                    if comparison is not None
+                    else ()
+                ),
+                evidence_node_ids=_graph_node_ids_from_cards(supporting_cards),
+                base_confidence_score=_pathway_hypothesis_base_confidence(
+                    claim,
+                    comparison=comparison,
+                ),
+                source_ids=claim.source_ids
+                + tuple(card.card_id for card in supporting_cards),
+                note=(
+                    "pathway hypotheses inherit directional activity support from the "
+                    "owned pathway activity report and anchor onto graph-backed member "
+                    "protein evidence nodes"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_biological_regulator_hypothesis_candidates(
+    claim_validation_report: BiologicalClaimValidationReport,
+    *,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    regulator_inference_report: RegulatorInferenceReport | None,
+) -> tuple[BiologicalHypothesisCandidate, ...]:
+    if regulator_inference_report is None:
+        return ()
+    cards_by_ref = {
+        card.representative_protein_ref: card for card in protein_mechanism_cards.cards
+    }
+    entries_by_claim_id = {
+        (
+            "regulator-claim:"
+            f"{entry.regulator}:{entry.evidence_type.value}:{entry.signal_surface.value}"
+        ): entry
+        for entry in regulator_inference_report.entries
+    }
+    candidates: list[BiologicalHypothesisCandidate] = []
+    for claim in claim_validation_report.supported_claims:
+        if claim.claim_kind is not BiologicalClaimKind.REGULATOR_ACTIVITY:
+            continue
+        regulator_entry = entries_by_claim_id.get(claim.claim_id)
+        supporting_protein_refs = (
+            ()
+            if regulator_entry is None
+            else tuple(
+                protein_ref
+                for protein_ref in regulator_entry.supporting_protein_refs
+                if protein_ref in cards_by_ref
+            )
+        )
+        supporting_cards = tuple(
+            cards_by_ref[protein_ref]
+            for protein_ref in supporting_protein_refs
+            if protein_ref in cards_by_ref
+        )
+        candidates.append(
+            BiologicalHypothesisCandidate(
+                hypothesis_id=f"regulator-hypothesis:{claim.subject_id}",
+                hypothesis_kind=BiologicalHypothesisKind.REGULATOR_ACTIVITY,
+                subject_id=claim.subject_id,
+                subject_label=claim.subject_label,
+                claim=claim.claim_text,
+                supporting_protein_refs=supporting_protein_refs,
+                supporting_site_keys=(
+                    () if regulator_entry is None else regulator_entry.supporting_site_keys
+                ),
+                supporting_pathway_ids=(
+                    ()
+                    if regulator_entry is None
+                    else regulator_entry.supporting_pathway_ids
+                ),
+                opposing_evidence=(
+                    _regulator_hypothesis_opposing_evidence(
+                        regulator_inference_report,
+                        regulator=claim.subject_id,
+                    )
+                    if regulator_entry is not None
+                    else ()
+                ),
+                evidence_node_ids=_graph_node_ids_from_cards(supporting_cards),
+                base_confidence_score=_regulator_hypothesis_base_confidence(
+                    claim,
+                    regulator_score=(
+                        None if regulator_entry is None else regulator_entry.score
+                    ),
+                ),
+                source_ids=claim.source_ids
+                + tuple(card.card_id for card in supporting_cards),
+                note=(
+                    "regulator hypotheses preserve the explicit downstream signal "
+                    "surface and anchor onto graph-backed supporting protein evidence"
+                ),
+            )
+        )
+    return tuple(candidates)
+
+
 def _build_biological_protein_claim_candidates(
     differential_report: DifferentialAbundanceReport,
     *,
@@ -1413,6 +1663,145 @@ def _build_biological_regulator_claim_candidates(
             )
         )
     return tuple(candidates)
+
+
+def _graph_node_ids_from_cards(cards: tuple[ProteinMechanismCard, ...]) -> tuple[str, ...]:
+    node_ids: list[str] = []
+    for card in cards:
+        node_ids.extend((card.graph_subject_node_id, card.graph_claim_node_id))
+    return tuple(sorted(set(node_ids)))
+
+
+def _protein_hypothesis_base_confidence(
+    claim,
+    *,
+    card: ProteinMechanismCard | None,
+) -> float:
+    component_scores = [
+        claim.robustness_score if claim.robustness_score is not None else 0.55,
+        _evidence_tier_score(None if card is None else card.evidence_tier),
+        _confidence_tier_score(None if card is None else card.confidence_tier.value),
+    ]
+    return round(sum(component_scores) / len(component_scores), 3)
+
+
+def _pathway_hypothesis_base_confidence(
+    claim,
+    *,
+    comparison,
+) -> float:
+    delta_score = min(1.0, abs(claim.pathway_delta or 0.0) / 1.0)
+    comparison_score = _pathway_confidence_score(
+        None if comparison is None else comparison.comparison_confidence_status.value
+    )
+    return round((delta_score + comparison_score) / 2.0, 3)
+
+
+def _regulator_hypothesis_base_confidence(
+    claim,
+    *,
+    regulator_score: float | None,
+) -> float:
+    score = regulator_score if regulator_score is not None else claim.regulator_score
+    if score is None:
+        return 0.55
+    return round(score, 3)
+
+
+def _evidence_tier_score(evidence_tier) -> float:
+    if evidence_tier is None:
+        return 0.55
+    if evidence_tier.value == "high_confidence":
+        return 0.9
+    if evidence_tier.value == "moderate_confidence":
+        return 0.7
+    return 0.55
+
+
+def _confidence_tier_score(confidence_tier: str | None) -> float:
+    if confidence_tier == "high":
+        return 0.9
+    if confidence_tier == "moderate":
+        return 0.7
+    return 0.55
+
+
+def _pathway_confidence_score(confidence_status: str | None) -> float:
+    if confidence_status == "high_confidence":
+        return 0.85
+    return 0.55
+
+
+def _protein_hypothesis_opposing_evidence(
+    card: ProteinMechanismCard,
+) -> tuple[str, ...]:
+    opposing = {
+        *(reason.value for reason in card.downgrade_reasons),
+        *(code.value for code in card.warning_codes),
+    }
+    return tuple(sorted(opposing))
+
+
+def _pathway_hypothesis_supporting_protein_refs(
+    pathway_activity_report: PathwayActivityReport,
+    *,
+    pathway_id: str,
+    condition_a: str,
+    condition_b: str,
+    cards_by_ref: dict[str, ProteinMechanismCard],
+) -> tuple[str, ...]:
+    supporting_refs = {
+        protein_ref
+        for contribution in pathway_activity_report.member_contributions
+        if contribution.pathway_id == pathway_id
+        and contribution.observed
+        and contribution.condition in {condition_a, condition_b}
+        for protein_ref in contribution.observed_protein_refs
+        if protein_ref in cards_by_ref
+    }
+    return tuple(sorted(supporting_refs))
+
+
+def _pathway_hypothesis_opposing_evidence(
+    pathway_activity_report: PathwayActivityReport,
+    *,
+    comparison,
+) -> tuple[str, ...]:
+    unresolved_member_ids = {
+        unresolved.member_id
+        for unresolved in pathway_activity_report.unresolved_members
+        if unresolved.pathway_id == comparison.pathway_id
+    }
+    opposing_evidence = {
+        (
+            "low_confidence_pathway_comparison"
+            if comparison.comparison_confidence_status.value != "high_confidence"
+            else ""
+        ),
+        *(
+            f"unresolved pathway member {member_id}"
+            for member_id in sorted(unresolved_member_ids)
+        ),
+    }
+    return tuple(sorted(item for item in opposing_evidence if item))
+
+
+def _regulator_hypothesis_opposing_evidence(
+    regulator_inference_report: RegulatorInferenceReport,
+    *,
+    regulator: str,
+) -> tuple[str, ...]:
+    unresolved_targets = {
+        entry.target_value
+        for entry in regulator_inference_report.unresolved_targets
+        if entry.regulator == regulator
+    }
+    return tuple(
+        sorted(
+            f"unresolved regulator target {target_value}"
+            for target_value in unresolved_targets
+        )
+    )
 
 
 def _build_biological_protein_ranking_candidates(
@@ -1841,6 +2230,13 @@ def export_biological_result_report_bundle(
     sample_distance_name = "biological_sample_distances.tsv"
     sample_cluster_name = "biological_sample_clusters.tsv"
     report_html_name = "biological_report.html"
+    evidence_aware_ranking_name = None
+    claim_validation_summary_name = None
+    supported_claim_name = None
+    rejected_claim_name = None
+    biological_hypothesis_summary_name = None
+    biological_hypothesis_name = None
+    rejected_hypothesis_candidate_name = None
 
     (output_dir / summary_name).write_text(
         render_biological_result_report_summary_tsv(report),
@@ -1896,6 +2292,26 @@ def export_biological_result_report_bundle(
         )
         (output_dir / rejected_claim_name).write_text(
             render_rejected_biological_claim_tsv(report.claim_validation_report),
+            encoding="utf-8",
+        )
+    if report.biological_hypothesis_report is not None:
+        biological_hypothesis_summary_name = "biological_hypothesis_summary.tsv"
+        biological_hypothesis_name = "biological_hypotheses.tsv"
+        rejected_hypothesis_candidate_name = (
+            "biological_rejected_hypothesis_candidates.tsv"
+        )
+        (output_dir / biological_hypothesis_summary_name).write_text(
+            render_biological_hypothesis_summary_tsv(report.biological_hypothesis_report),
+            encoding="utf-8",
+        )
+        (output_dir / biological_hypothesis_name).write_text(
+            render_biological_hypothesis_tsv(report.biological_hypothesis_report),
+            encoding="utf-8",
+        )
+        (output_dir / rejected_hypothesis_candidate_name).write_text(
+            render_rejected_biological_hypothesis_candidate_tsv(
+                report.biological_hypothesis_report
+            ),
             encoding="utf-8",
         )
     (output_dir / foreground_background_summary_name).write_text(
@@ -2303,6 +2719,9 @@ def export_biological_result_report_bundle(
         claim_validation_summary_tsv=claim_validation_summary_name,
         supported_claim_tsv=supported_claim_name,
         rejected_claim_tsv=rejected_claim_name,
+        biological_hypothesis_summary_tsv=biological_hypothesis_summary_name,
+        biological_hypothesis_tsv=biological_hypothesis_name,
+        rejected_hypothesis_candidate_tsv=rejected_hypothesis_candidate_name,
         foreground_background_summary_tsv=foreground_background_summary_name,
         foreground_background_entry_tsv=foreground_background_entry_name,
         foreground_background_issue_tsv=foreground_background_issue_name,
@@ -2381,6 +2800,7 @@ def export_biological_result_report_bundle(
         summary=report.summary,
         artifacts=artifacts,
         claim_validation_included=report.claim_validation_report is not None,
+        hypothesis_summary_included=report.biological_hypothesis_report is not None,
         context_summary_included=report.context_mapping_report is not None,
         drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
@@ -2390,7 +2810,8 @@ def export_biological_result_report_bundle(
         note=(
             "biological report export writes stable differential, explicit "
             "foreground/background enrichment inputs, protein-card, "
-            "protein-mechanism-card, annotation, optional biological context, "
+            "protein-mechanism-card, annotation, optional biological hypotheses, "
+            "optional biological context, "
             "enrichment, volcano, heatmap, and sample exploration artifacts into "
             "one durable output directory"
         ),
@@ -2430,6 +2851,18 @@ def _render_biological_result_report_html(
         (
             "Rejected biological claims",
             artifacts.rejected_claim_tsv,
+        ),
+        (
+            "Biological hypothesis summary",
+            artifacts.biological_hypothesis_summary_tsv,
+        ),
+        (
+            "Biological hypotheses",
+            artifacts.biological_hypothesis_tsv,
+        ),
+        (
+            "Rejected hypothesis candidates",
+            artifacts.rejected_hypothesis_candidate_tsv,
         ),
         (
             "Enrichment foreground/background summary",
@@ -2603,6 +3036,7 @@ def _render_biological_result_report_html(
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     claim_validation_html = _render_biological_claim_validation_table_html(report)
+    hypothesis_html = _render_biological_hypothesis_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
     regulator_inference_html = _render_regulator_inference_table_html(report)
     drug_target_html = _render_drug_target_table_html(report)
@@ -2628,6 +3062,8 @@ def _render_biological_result_report_html(
         f"{ranking_table_html}"
         "<h2>Validated biological claims</h2>"
         f"{claim_validation_html}"
+        "<h2>Biological hypotheses</h2>"
+        f"{hypothesis_html}"
         "<h2>Enrichment foreground/background model</h2>"
         f"{foreground_background_html}"
         "<h2>Regulator inference</h2>"
@@ -2770,6 +3206,51 @@ def _render_biological_claim_validation_table_html(
         "<p>"
         f"<strong>Supported claims</strong>: {summary.supported_claim_count} | "
         f"<strong>Rejected claims</strong>: {summary.rejected_claim_count}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_biological_hypothesis_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
+    if report.biological_hypothesis_report is None:
+        return "<p>No biological hypothesis report was generated.</p>"
+    headers = (
+        "Claim",
+        "Kind",
+        "Supporting proteins",
+        "Supporting sites",
+        "Opposing evidence",
+        "Evidence node IDs",
+        "Confidence",
+        "Next experiment",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.claim)}</td>"
+            f"<td>{escape(entry.hypothesis_kind.value)}</td>"
+            f"<td>{escape('; '.join(entry.supporting_protein_refs) or '-')}</td>"
+            f"<td>{escape('; '.join(entry.supporting_site_keys) or '-')}</td>"
+            f"<td>{escape('; '.join(entry.opposing_evidence) or '-')}</td>"
+            f"<td><code>{escape('; '.join(entry.evidence_node_ids))}</code></td>"
+            f"<td>{entry.confidence_score:.3f} ({escape(entry.confidence_tier.value)})</td>"
+            f"<td>{escape(entry.next_experiment_suggestion)}</td>"
+            "</tr>"
+        )
+        for entry in report.biological_hypothesis_report.hypotheses
+    )
+    summary = report.biological_hypothesis_report.summary
+    return (
+        "<p>"
+        f"<strong>Hypotheses</strong>: {summary.hypothesis_count} | "
+        f"<strong>Rejected candidates</strong>: {summary.rejected_candidate_count} | "
+        f"<strong>High confidence</strong>: {summary.high_confidence_hypothesis_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
