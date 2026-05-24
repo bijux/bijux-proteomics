@@ -502,3 +502,47 @@ def test_quantification_package_exports_power_estimation_owner_surface() -> None
     assert hasattr(quantification, "export_power_variance_tsv")
     assert report.effect_size_grid
     assert rendered.startswith("replicates_per_condition\tevaluable_entity_count")
+
+
+def test_quantification_package_exports_per_value_provenance_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="prov001",
+            sample_id="s1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="prov002",
+            sample_id="s1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=80.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="prov003",
+            sample_id="s1",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=60.0,
+            protein_refs=("P001",),
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+    value = table.values[0]
+
+    assert value.value_provenance is not None
+    assert value.value_provenance.source_feature_ids == ("prov001", "prov002")
+    assert value.value_provenance.source_peptides == ("PEPA", "PEPB")
+    assert tuple(
+        excluded.reason_code
+        for excluded in value.value_provenance.excluded_contributors
+    ) == ("excluded_by_top_n_rollup",)
