@@ -32,6 +32,9 @@ from bijux_proteomics.quantification.design_matrix import (
     _require_unique_sample_ids,
     _resolve_design_value,
 )
+from bijux_proteomics.quantification.differential_result_robustness import (
+    annotate_time_course_differential_report_robustness,
+)
 from bijux_proteomics.study import (
     ExperimentDesignAnalysisFamily,
     require_feasible_experiment_design_for_analysis,
@@ -260,7 +263,11 @@ def build_time_course_differential_report(
             + f"; {order_note}"
         ),
     )
-    return _apply_time_course_multiple_testing(report)
+    return annotate_time_course_differential_report_robustness(
+        _apply_time_course_multiple_testing(report),
+        table,
+        analysis_design_entries,
+    )
 
 
 def _required_consistency_fields(
@@ -321,6 +328,10 @@ def render_time_course_differential_tsv(
             "interaction_effect",
             "interaction_p_value",
             "interaction_adjusted_p_value",
+            "robustness_score",
+            "robustness_qc_status",
+            "robustness_reason_codes",
+            "robustness_note",
             "note",
         ]
     )
@@ -357,6 +368,18 @@ def render_time_course_differential_tsv(
                     if entry.interaction_adjusted_p_value is None
                     else entry.interaction_adjusted_p_value
                 ),
+                (
+                    ""
+                    if entry.robustness_score is None
+                    else entry.robustness_score
+                ),
+                (
+                    ""
+                    if entry.robustness_qc_status is None
+                    else entry.robustness_qc_status.value
+                ),
+                ";".join(reason.value for reason in entry.robustness_reason_codes),
+                entry.robustness_note or "",
                 entry.note or "",
             ]
         )

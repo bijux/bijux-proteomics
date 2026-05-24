@@ -39,6 +39,9 @@ from bijux_proteomics.quantification.contracts import (
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
 )
+from bijux_proteomics.quantification.differential_result_robustness import (
+    annotate_differential_abundance_report_robustness,
+)
 from bijux_proteomics.study.sample_run_identity import (
     SampleRunAnalysisPolicy,
     resolve_sample_run_analysis_entries,
@@ -300,7 +303,11 @@ def build_differential_abundance_report(
         entries=ordered_entries,
         broken_pairs=broken_pairs,
     )
-    return apply_benjamini_hochberg(report)
+    return annotate_differential_abundance_report_robustness(
+        apply_benjamini_hochberg(report),
+        table,
+        analysis_design_entries,
+    )
 
 
 def apply_benjamini_hochberg(
@@ -929,6 +936,10 @@ def _render_differential_rows(
             "confidence_interval_low",
             "confidence_interval_high",
             "effect_size_cohens_d",
+            "robustness_score",
+            "robustness_qc_status",
+            "robustness_reason_codes",
+            "robustness_note",
             "uncertainty_note",
         ]
     )
@@ -970,6 +981,18 @@ def _render_differential_rows(
                         if entry.effect_size_cohens_d is None
                         else entry.effect_size_cohens_d
                     ),
+                    (
+                        ""
+                        if entry.robustness_score is None
+                        else entry.robustness_score
+                    ),
+                    (
+                        ""
+                        if entry.robustness_qc_status is None
+                        else entry.robustness_qc_status.value
+                    ),
+                    ";".join(reason.value for reason in entry.robustness_reason_codes),
+                    entry.robustness_note or "",
                     entry.uncertainty_note or "",
                 ]
             )
