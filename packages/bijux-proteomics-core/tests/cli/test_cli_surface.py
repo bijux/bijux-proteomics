@@ -7698,6 +7698,126 @@ def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_c
         )
 
 
+def test_validation_evidence_cards_command_derives_candidate_status_from_evidence() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("biomarker.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tweighted_evidence_total\tpenalty_total\tuncertainty\teffect_size\tadjusted_p_value\tsupport_count\teffect_score\trobustness_score\tdetectability_score\tspecificity_score\tannotation_score\tassay_feasibility_score\tsample_qc_score\tannotation_labels\trank_reason_codes\tsource_ids\tranking_note\n"
+            "protein:P11111\tprotein\tKIN1\tP11111\t\t1\t0.920000\t0.920000\t0.020000\t0.040000\t1.7\t0.002\t4\t0.9\t0.9\t0.9\t0.9\t0.8\t0.9\t0.9\tpathway:stress_response;domain:kinase\tassay_ready\tprotein-card:KIN1\tstrong kinase biomarker candidate\n"
+            "protein:P22222\tprotein\tKIN2\tP22222\t\t2\t0.810000\t0.810000\t0.080000\t0.070000\t1.2\t0.01\t3\t0.8\t0.8\t0.8\t0.8\t0.7\t0.8\t0.8\tpathway:stress_response\tassay_ready\tprotein-card:KIN2\tcorrelated neighbor candidate\n"
+            "ptm_site:P33333:S21\tptm_site\tP33333 S21\tP33333\tP33333:S21:phosphorylation\t3\t0.790000\t0.790000\t0.030000\t0.050000\t1.1\t0.005\t5\t0.8\t0.8\t0.8\t0.8\t0.8\t0.8\t0.8\tmechanism:site_specific;ortholog:conserved\tassay_ready\tptm-card:P33333:S21\tsite-specific phosphosite candidate\n"
+            "protein:P44444\tprotein\tKIN4\tP44444\t\t4\t0.770000\t0.770000\t0.010000\t0.060000\t0.9\t0.02\t2\t0.7\t0.7\t0.7\t0.7\t0.6\t0.7\t0.7\tpathway:repair\tassay_ready\tprotein-card:KIN4\tcandidate requires stability review\n",
+            encoding="utf-8",
+        )
+        Path("panel.assays.tsv").write_text(
+            "assay_entry_id\tbiomarker_candidate_id\tbiomarker_candidate_kind\tbiomarker_display_label\tbiomarker_priority_rank\ttarget_protein_ref\ttarget_protein_group_id\tgene_symbol\tpeptide_sequence\tcanonical_peptide\tuniqueness_class\tuniqueness_score\tprecursor_charge\tprecursor_mz\texpected_retention_time_minutes\tretention_window_start_minutes\tretention_window_end_minutes\tselected_transition_count\texported_transition_count\tassay_interference_risk_tier\twarning_codes\twarning_note\tsource_library_entry_id\n"
+            "assay:P11111:PEPTIDER\tprotein:P11111\tprotein\tKIN1\t1\tP11111\tprotein_group_1\tKIN1\tPEPTIDER\tPEPTIDER\tunique\t1.000000\t2\t501.250000\t12.500000\t11.000000\t14.000000\t3\t3\tlow\t\tassay retained for panel export\t\n"
+            "assay:P22222:AAAAK\tprotein:P22222\tprotein\tKIN2\t2\tP22222\tprotein_group_2\tKIN2\tAAAAK\tAAAAK\tunique\t1.000000\t2\t451.250000\t18.400000\t17.000000\t20.000000\t3\t3\tlow\t\tassay retained for panel export\t\n"
+            "assay:P44444:LOWUNIQ\tprotein:P44444\tprotein\tKIN4\t4\tP44444\tprotein_group_4\tKIN4\tLOWUNIQ\tLOWUNIQ\tshared\t0.400000\t2\t601.250000\t22.100000\t20.500000\t23.500000\t2\t2\tmedium\tnon_unique_target\tshared assay retained with caveat\t\n",
+            encoding="utf-8",
+        )
+        Path("panel.omitted.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tomission_reason\n"
+            "ptm_site:P33333:S21\tptm_site\tP33333 S21\tP33333\tP33333:S21:phosphorylation\t3\tsite-specific candidate remains omitted because no governed site-resolved targeted assay is available\n",
+            encoding="utf-8",
+        )
+        Path("confirmed.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tdiscovery_effect_size\tdiscovery_direction\tvalidation_log2_effect\tvalidation_direction\tverdict\tassay_evidence_count\tconfirmed_assay_count\tcontradicted_assay_count\tinconclusive_assay_count\treason_codes\tnote\n"
+            "protein:P11111\tprotein\tKIN1\tP11111\t\t1\t1.7\tup\t1.5\tup\tconfirmed\t1\t1\t0\t0\tvalidation_effect_matches_discovery\ttargeted validation matches discovery direction and effect\n",
+            encoding="utf-8",
+        )
+        Path("inconclusive.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tdiscovery_effect_size\tdiscovery_direction\tvalidation_log2_effect\tvalidation_direction\tverdict\tassay_evidence_count\tconfirmed_assay_count\tcontradicted_assay_count\tinconclusive_assay_count\treason_codes\tnote\n"
+            "protein:P44444\tprotein\tKIN4\tP44444\t\t4\t0.9\tup\t0.1\tflat\tinconclusive\t1\t0\t0\t1\tnon_unique_validation_assay;weak_validation_effect\tshared assay and weak targeted effect leave the candidate unresolved\n",
+            encoding="utf-8",
+        )
+        Path("validation.evidence.tsv").write_text(
+            "candidate_id\tassay_entry_id\ttarget_protein_ref\tpeptide_sequence\tcanonical_peptide\tprecursor_charge\tuniqueness_class\tmatched_target_id\tmatched_target_count\tcase_condition\tcontrol_condition\tcase_reliable_sample_count\tcontrol_reliable_sample_count\tcase_mean_log2_intensity\tcontrol_mean_log2_intensity\tvalidation_log2_effect\tdiscovery_effect_size\tdiscovery_direction\tvalidation_direction\tverdict\treason_codes\tnote\n"
+            "protein:P11111\tassay:P11111:PEPTIDER\tP11111\tPEPTIDER\tPEPTIDER\t2\tunique\ttarget:1\t1\ttreatment\tcontrol\t2\t2\t16.0\t14.5\t1.5\t1.7\tup\tup\tconfirmed\tvalidation_effect_matches_discovery\tunique assay confirms the discovery signal\n"
+            "protein:P44444\tassay:P44444:LOWUNIQ\tP44444\tLOWUNIQ\tLOWUNIQ\t2\tshared\ttarget:2\t1\ttreatment\tcontrol\t2\t2\t13.2\t13.1\t0.1\t0.9\tup\tflat\tinconclusive\tnon_unique_validation_assay;weak_validation_effect\tshared assay does not resolve the discovery claim\n",
+            encoding="utf-8",
+        )
+        Path("stability.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tpenalty_total\trank_reason_codes\tranking_note\toriginal_priority_rank\toriginal_final_score\tstability_score\tstability_penalty\tdowngraded\tinstability_reasons\n"
+            "protein:P44444\tprotein\tKIN4\tP44444\t\t4\t0.580000\t0.200000\tsample_type_sensitive_signal\tsubgroup behavior suggests sample-type-sensitive instability\t4\t0.770000\t0.580000\t0.190000\ttrue\tsample_type_sensitive_signal\n",
+            encoding="utf-8",
+        )
+        Path("redundancy.candidates.tsv").write_text(
+            "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tpenalty_total\trank_reason_codes\tranking_note\tcluster_id\trepresentative_candidate_id\trepresentative\tdropped\tshared_sample_count\tmax_redundant_correlation\tredundancy_reason_codes\n"
+            "protein:P11111\tprotein\tKIN1\tP11111\t\t1\t0.920000\t0.020000\tassay_ready\trepresentative retained for correlated cluster\tcluster:001\tprotein:P11111\ttrue\tfalse\t4\t0.970000\thigh_signal_correlation\n"
+            "protein:P22222\tprotein\tKIN2\tP22222\t\t2\t0.810000\t0.080000\tassay_ready\tdropped in favor of the representative correlated marker\tcluster:001\tprotein:P11111\tfalse\ttrue\t4\t0.970000\thigh_signal_correlation;lower_scoring_cluster_member\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "validation-evidence-cards",
+                "biomarker.candidates.tsv",
+                "panel.assays.tsv",
+                "--panel-omitted-tsv",
+                "panel.omitted.tsv",
+                "--confirmed-tsv",
+                "confirmed.tsv",
+                "--inconclusive-tsv",
+                "inconclusive.tsv",
+                "--validation-evidence-tsv",
+                "validation.evidence.tsv",
+                "--stability-candidate-tsv",
+                "stability.candidates.tsv",
+                "--redundancy-candidate-tsv",
+                "redundancy.candidates.tsv",
+                "--summary-tsv-out",
+                "validation_cards.summary.tsv",
+                "--card-tsv-out",
+                "validation_cards.cards.tsv",
+                "--assay-tsv-out",
+                "validation_cards.assays.tsv",
+                "--warning-tsv-out",
+                "validation_cards.warnings.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["candidate_count"] == 4
+        assert payload["summary"]["confirmed_count"] == 1
+        assert payload["summary"]["inconclusive_count"] == 1
+        assert payload["summary"]["deprioritized_as_redundant_count"] == 1
+        assert payload["summary"]["blocked_by_assay_design_count"] == 1
+        cards_by_id = {entry["candidate_id"]: entry for entry in payload["cards"]}
+        assert cards_by_id["protein:P11111"]["final_status"] == "confirmed"
+        assert (
+            cards_by_id["protein:P22222"]["final_status"]
+            == "deprioritized_as_redundant"
+        )
+        assert (
+            cards_by_id["ptm_site:P33333:S21"]["final_status"]
+            == "blocked_by_assay_design"
+        )
+        assert cards_by_id["protein:P44444"]["final_status"] == "inconclusive"
+        assert "pathway:stress_response" in cards_by_id["protein:P11111"][
+            "biological_role_labels"
+        ]
+        assert payload["outputs"]["card_tsv"] == "validation_cards.cards.tsv"
+        assert Path("validation_cards.summary.tsv").exists()
+        assert Path("validation_cards.cards.tsv").exists()
+        assert Path("validation_cards.assays.tsv").exists()
+        assert Path("validation_cards.warnings.tsv").exists()
+        assert "confirmed_count\t1" in Path(
+            "validation_cards.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "deprioritized_as_redundant" in Path(
+            "validation_cards.cards.tsv"
+        ).read_text(encoding="utf-8")
+        assert "assay:P11111:PEPTIDER" in Path(
+            "validation_cards.assays.tsv"
+        ).read_text(encoding="utf-8")
+        assert "stability_downgraded" in Path(
+            "validation_cards.warnings.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
