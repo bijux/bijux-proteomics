@@ -239,6 +239,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         family=CoreScientificDomainFamily.PTM_AND_DIA,
         owned_surface="PTM localization, occupancy, motif-enrichment background semantics, protein-abundance-corrected site differential semantics, and DIA-native evidence surfaces that preserve uncertainty, library identity, and targeted follow-up meaning.",
         required_modules=(
+            "targeted/assay_interference.py",
             "targeted/assay_qc.py",
             "targeted/carryover.py",
             "targeted/discovery_peptide_selection.py",
