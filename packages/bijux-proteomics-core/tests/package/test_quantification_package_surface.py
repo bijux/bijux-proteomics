@@ -268,6 +268,121 @@ def test_quantification_package_exports_peptide_level_differential_owner_surface
     )
 
 
+def test_quantification_package_exports_replicate_reliability_weight_surface() -> (
+    None
+):
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="weight-001",
+                sample_id="control-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="weight-002",
+                sample_id="control-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=101.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="weight-003",
+                sample_id="case-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=202.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="weight-004",
+                sample_id="case-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=204.0,
+                protein_refs=("P001",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="weight-005",
+                sample_id="case-3",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=25.0,
+                protein_refs=("P001",),
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="control-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="control-1.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="control-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="control-2.mzml",
+            batch="batch-b",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+            batch="batch-b",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-3",
+            condition="case",
+            replicate=3,
+            fraction=1,
+            spectra_file="case-3.mzml",
+            batch="batch-a",
+        ),
+    )
+    report = quantification.estimate_sample_weights(
+        table,
+        design,
+        qc_table=(
+            quantification.SampleReliabilityQcEntry(
+                sample_id="case-3",
+                qc_status=quantification.SampleReliabilityQcStatus.FAIL,
+                blocked=True,
+                status_reason_codes=("manual_review_fail",),
+            ),
+        ),
+    )
+    rendered = quantification.render_sample_reliability_weights_tsv(report)
+
+    assert hasattr(quantification, "estimate_sample_weights")
+    assert hasattr(quantification, "render_sample_reliability_weights_tsv")
+    assert report.excluded_sample_count == 1
+    assert any(
+        entry.sample_id == "case-3" and entry.reliability_weight == 0.0
+        for entry in report.entries
+    )
+    assert "low_weight_reasons" in rendered
+
+
 def test_quantification_package_exports_variance_model_owner_surface() -> None:
     table = quantification.build_label_free_intensity_table(
         (

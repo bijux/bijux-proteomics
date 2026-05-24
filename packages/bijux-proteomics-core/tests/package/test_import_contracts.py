@@ -161,10 +161,12 @@ def test_quantification_package_import_contract() -> None:
 
     assert hasattr(module, "build_label_free_intensity_table")
     assert hasattr(module, "compare_imputation_policies")
+    assert hasattr(module, "estimate_sample_weights")
     assert hasattr(module, "fit_peptide_bias_model")
     assert hasattr(module, "test_protein_effect_from_peptides")
     assert hasattr(module, "render_protein_abundance_tsv")
     assert hasattr(module, "render_imputation_policy_comparison_tsv")
+    assert hasattr(module, "render_sample_reliability_weights_tsv")
     assert hasattr(module, "render_peptide_level_differential_tsv")
     assert hasattr(module, "render_peptide_bias_tsv")
     assert hasattr(module, "render_rollup_residuals_tsv")
