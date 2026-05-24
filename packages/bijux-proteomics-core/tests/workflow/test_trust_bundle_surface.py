@@ -26,6 +26,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     assert (output_dir / "benchmark_results" / "failures.tsv").exists()
     assert (output_dir / "benchmark_results" / "source_audits.tsv").exists()
     assert (output_dir / "benchmark_results" / "verified_counts.tsv").exists()
+    assert (output_dir / "evidence_graphs" / "index.tsv").exists()
     assert (output_dir / "rejected_evidence" / "index.tsv").exists()
     assert (output_dir / "qc_failures" / "index.tsv").exists()
     assert (output_dir / "cards" / "index.tsv").exists()
@@ -36,6 +37,12 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     cards_index = (output_dir / "cards" / "index.tsv").read_text(encoding="utf-8")
     assert "lfq_cohort_review_package" in cards_index
     assert "protein_cards.tsv" in cards_index or "protein_card" in cards_index
+
+    evidence_graph_index = (output_dir / "evidence_graphs" / "index.tsv").read_text(
+        encoding="utf-8"
+    )
+    assert "biological_evidence_graph_nodes.tsv" in evidence_graph_index
+    assert "biological_evidence_graph_edges.tsv" in evidence_graph_index
 
     benchmark_summary = (output_dir / "benchmark_results" / "summary.tsv").read_text(
         encoding="utf-8"
@@ -51,4 +58,5 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
 
     html_index = Path(report.html_index_path).read_text(encoding="utf-8")
     assert "Proteomics Trust Bundle" in html_index
+    assert "Evidence Graphs" in html_index
     assert "workflow outputs" in html_index

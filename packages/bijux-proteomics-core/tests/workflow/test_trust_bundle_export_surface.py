@@ -23,7 +23,7 @@ def test_render_trust_bundle_run_summary_tsv_lists_generated_bundle_runs(
     summary_tsv = render_trust_bundle_run_summary_tsv(report)
 
     assert summary_tsv.splitlines()[0] == (
-        "dataset_id\taccession\tstatus\tworkflow_output_dir\tfailure_count\tartifact_count\trejected_artifact_count\tqc_artifact_count\tcard_artifact_count\tcomparison_artifact_count"
+        "dataset_id\taccession\tstatus\tworkflow_output_dir\tfailure_count\tartifact_count\tgraph_artifact_count\trejected_artifact_count\tqc_artifact_count\tcard_artifact_count\tcomparison_artifact_count"
     )
     assert "lfq_cohort_review_package" in summary_tsv
     assert "lfq_sparse_contrast_benchmark_dataset" in summary_tsv
