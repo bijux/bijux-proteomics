@@ -31,6 +31,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantAssessmentDisposition,
     QuantDesignContrast,
     QuantDesignMatrixReport,
+    SampleReliabilityWeightReport,
     _condition_lookup,
     _effect_size_and_uncertainty,
     _matrix_value_index,
@@ -73,6 +74,7 @@ def build_differential_abundance_report(
     contrast_name: str | None = None,
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_weights_report: SampleReliabilityWeightReport | None = None,
     sample_run_policy: SampleRunAnalysisPolicy = (
         SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
     ),
@@ -105,6 +107,9 @@ def build_differential_abundance_report(
         for entry in analysis_design_entries
         if entry.condition in {condition_a, condition_b}
     )
+    biological_contrast_design_entries = tuple(
+        entry for entry in design_entries if entry.condition in {condition_a, condition_b}
+    )
 
     active_paired_policy: PairedDifferentialPolicy | None = None
     chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
@@ -129,7 +134,7 @@ def build_differential_abundance_report(
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
     effective_units_by_condition = count_effective_statistical_units_by_condition(
-        contrast_design_entries
+        biological_contrast_design_entries
     )
     if (
         effective_units_by_condition.get(condition_a, 0)
@@ -191,12 +196,23 @@ def build_differential_abundance_report(
             )
 
     lookup = _matrix_value_index(table)
+    sample_weights = _sample_weight_lookup(sample_weights_report)
     entries: list[DifferentialAbundanceEntry] = []
     for entity_id in table.entity_ids:
-        values_a, counts_a = _collect_condition_values(lookup, entity_id, samples_a)
-        values_b, counts_b = _collect_condition_values(lookup, entity_id, samples_b)
-        mean_a = float(np.mean(values_a)) if values_a.size else 0.0
-        mean_b = float(np.mean(values_b)) if values_b.size else 0.0
+        values_a, weights_a, counts_a = _collect_condition_values(
+            lookup,
+            entity_id,
+            samples_a,
+            sample_weights=sample_weights,
+        )
+        values_b, weights_b, counts_b = _collect_condition_values(
+            lookup,
+            entity_id,
+            samples_b,
+            sample_weights=sample_weights,
+        )
+        mean_a = _weighted_or_unweighted_mean(values_a, weights_a)
+        mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
 
         if test_type is DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST:
             assert active_design_matrix is not None
@@ -213,6 +229,12 @@ def build_differential_abundance_report(
                 entity_id,
                 design_matrix=active_design_matrix,
                 contrast=selected_contrast,
+                sample_weights=sample_weights,
+                exclusion_weight_threshold=(
+                    sample_weights_report.exclusion_weight_threshold
+                    if sample_weights_report is not None
+                    else 0.0
+                ),
             )
             (
                 _raw_standard_error,
@@ -220,8 +242,30 @@ def build_differential_abundance_report(
                 _raw_confidence_interval_high,
                 effect_size_cohens_d,
                 effect_note,
-            ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
-            uncertainty_note = _combine_notes(model_note, effect_note)
+            ) = (
+                _weighted_effect_size_and_uncertainty(
+                    values_a,
+                    weights_a,
+                    values_b,
+                    weights_b,
+                    log2_fold_change,
+                )
+                if sample_weights_report is not None
+                else _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
+            )
+            uncertainty_note = _combine_notes(
+                model_note,
+                effect_note,
+                _weighted_observation_note(
+                    weights_a,
+                    weights_b,
+                    exclusion_weight_threshold=(
+                        sample_weights_report.exclusion_weight_threshold
+                        if sample_weights_report is not None
+                        else 0.0
+                    ),
+                ),
+            )
             complete_pair_count = 0
         elif test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
             (
@@ -239,16 +283,41 @@ def build_differential_abundance_report(
                 lookup,
                 entity_id,
                 complete_design_pairs=complete_design_pairs,
+                sample_weights=sample_weights,
+                exclusion_weight_threshold=(
+                    sample_weights_report.exclusion_weight_threshold
+                    if sample_weights_report is not None
+                    else 0.0
+                ),
             )
         else:
-            log2_fold_change, p_value = _welch_t_test(values_a, values_b)
-            (
-                standard_error,
-                confidence_interval_low,
-                confidence_interval_high,
-                effect_size_cohens_d,
-                uncertainty_note,
-            ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
+            if sample_weights_report is not None:
+                (
+                    log2_fold_change,
+                    p_value,
+                    standard_error,
+                    confidence_interval_low,
+                    confidence_interval_high,
+                    effect_size_cohens_d,
+                    uncertainty_note,
+                ) = _weighted_welch_statistics(
+                    values_a,
+                    weights_a,
+                    values_b,
+                    weights_b,
+                    exclusion_weight_threshold=(
+                        sample_weights_report.exclusion_weight_threshold
+                    ),
+                )
+            else:
+                log2_fold_change, p_value = _welch_t_test(values_a, values_b)
+                (
+                    standard_error,
+                    confidence_interval_low,
+                    confidence_interval_high,
+                    effect_size_cohens_d,
+                    uncertainty_note,
+                ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
             complete_pair_count = 0
 
         entries.append(
@@ -307,6 +376,11 @@ def build_differential_abundance_report(
             ),
             multiple_testing_scope="uncorrected_report_wide_entities",
             replicate_policy=active_policy,
+            sample_weighting=(
+                "reliability_weighted"
+                if sample_weights_report is not None
+                else "unweighted"
+            ),
             contrast_name=active_contrast_name,
             paired_policy=active_paired_policy,
         ),
@@ -326,6 +400,7 @@ def build_differential_abundance_report(
             contrast_name=active_contrast_name,
             paired_policy=active_paired_policy,
             replicate_policy=active_policy,
+            sample_weights_report=sample_weights_report,
             sample_run_policy=sample_run_policy,
         )
         corrected_report = annotate_differential_abundance_report_imputation_dependence(
@@ -385,6 +460,7 @@ def build_multi_condition_differential_abundance_report(
     test_type: DifferentialAbundanceTestType = DifferentialAbundanceTestType.WELCH_T_TEST,
     design_matrix: QuantDesignMatrixReport | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_weights_report: SampleReliabilityWeightReport | None = None,
     sample_run_policy: SampleRunAnalysisPolicy = (
         SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
     ),
@@ -467,6 +543,7 @@ def build_multi_condition_differential_abundance_report(
                 design_matrix=active_design_matrix,
                 contrast_name=contrast_name,
                 replicate_policy=active_policy,
+                sample_weights_report=sample_weights_report,
                 sample_run_policy=sample_run_policy,
             )
         )
@@ -597,8 +674,11 @@ def _collect_condition_values(
     lookup: dict[tuple[str, str], object],
     entity_id: str,
     sample_ids: tuple[str, ...],
-) -> tuple[np.ndarray, dict[MissingValueKind, int]]:
+    *,
+    sample_weights: dict[str, float] | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[MissingValueKind, int]]:
     values: list[float] = []
+    weights: list[float] = []
     counts = {
         MissingValueKind.ZERO: 0,
         MissingValueKind.NOT_OBSERVED: 0,
@@ -617,7 +697,10 @@ def _collect_condition_values(
             counts[MissingValueKind.FILTERED] += 1
         if cell.abundance is not None:
             values.append(math.log2(cell.abundance + 1.0))
-    return np.array(values, dtype=float), counts
+            weights.append(
+                1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0))
+            )
+    return np.array(values, dtype=float), np.array(weights, dtype=float), counts
 
 
 def _resolve_design_contrast(
@@ -731,6 +814,8 @@ def _linear_model_contrast_statistics(
     *,
     design_matrix: QuantDesignMatrixReport,
     contrast: QuantDesignContrast,
+    sample_weights: dict[str, float] | None = None,
+    exclusion_weight_threshold: float = 0.0,
 ) -> tuple[float, float, float | None, float | None, float | None, str | None]:
     if not contrast.coefficient_vector:
         return (
@@ -749,12 +834,17 @@ def _linear_model_contrast_statistics(
     lookup = _matrix_value_index(table)
     observed_rows: list[np.ndarray] = []
     observed_values: list[float] = []
+    observed_weights: list[float] = []
     for row_index, row in enumerate(design_matrix.rows):
         cell = lookup.get((entity_id, row.sample_id))
         if cell is None or cell.abundance is None:
             continue
+        weight = 1.0 if sample_weights is None else float(sample_weights.get(row.sample_id, 1.0))
+        if weight <= exclusion_weight_threshold:
+            continue
         observed_rows.append(full_matrix[row_index])
         observed_values.append(math.log2(cell.abundance + 1.0))
+        observed_weights.append(weight)
     if len(observed_values) < 2:
         return (
             0.0,
@@ -766,7 +856,11 @@ def _linear_model_contrast_statistics(
         )
     x_matrix = np.vstack(observed_rows)
     y_vector = np.array(observed_values, dtype=float)
-    coefficients, _, _, _ = np.linalg.lstsq(x_matrix, y_vector, rcond=None)
+    weight_vector = np.array(observed_weights, dtype=float)
+    sqrt_weight_vector = np.sqrt(weight_vector)
+    weighted_x = x_matrix * sqrt_weight_vector[:, np.newaxis]
+    weighted_y = y_vector * sqrt_weight_vector
+    coefficients, _, _, _ = np.linalg.lstsq(weighted_x, weighted_y, rcond=None)
     fitted = x_matrix @ coefficients
     residuals = y_vector - fitted
     rank = int(np.linalg.matrix_rank(x_matrix))
@@ -781,9 +875,9 @@ def _linear_model_contrast_statistics(
             None,
             "linear-model contrast requires positive residual degrees of freedom",
         )
-    rss = float(np.dot(residuals, residuals))
+    rss = float(np.dot(weight_vector, residuals * residuals))
     sigma_squared = rss / float(residual_df)
-    xtx_inverse = np.linalg.pinv(x_matrix.T @ x_matrix)
+    xtx_inverse = np.linalg.pinv(x_matrix.T @ np.diag(weight_vector) @ x_matrix)
     contrast_variance = float(
         sigma_squared * (contrast_vector @ xtx_inverse @ contrast_vector)
     )
@@ -812,6 +906,15 @@ def _linear_model_contrast_statistics(
     note = None
     if standard_error > 1.0:
         note = "uncertainty remains wide relative to the modeled contrast estimate"
+    if sample_weights is not None:
+        note = _combine_notes(
+            note,
+            _weighted_observation_note(
+                weight_vector,
+                np.array((), dtype=float),
+                exclusion_weight_threshold=exclusion_weight_threshold,
+            ),
+        )
     return (
         estimate,
         p_value,
@@ -827,6 +930,8 @@ def _paired_t_test_statistics(
     entity_id: str,
     *,
     complete_design_pairs: tuple[tuple[str, str, str], ...],
+    sample_weights: dict[str, float] | None = None,
+    exclusion_weight_threshold: float = 0.0,
 ) -> tuple[
     float,
     float,
@@ -841,6 +946,7 @@ def _paired_t_test_statistics(
 ]:
     paired_a: list[float] = []
     paired_b: list[float] = []
+    pair_weights: list[float] = []
     for _, sample_id_a, sample_id_b in complete_design_pairs:
         cell_a = lookup.get((entity_id, sample_id_a))
         cell_b = lookup.get((entity_id, sample_id_b))
@@ -851,8 +957,15 @@ def _paired_t_test_statistics(
             or cell_b.abundance is None
         ):
             continue
+        pair_weight = min(
+            1.0 if sample_weights is None else float(sample_weights.get(sample_id_a, 1.0)),
+            1.0 if sample_weights is None else float(sample_weights.get(sample_id_b, 1.0)),
+        )
+        if pair_weight <= exclusion_weight_threshold:
+            continue
         paired_a.append(math.log2(cell_a.abundance + 1.0))
         paired_b.append(math.log2(cell_b.abundance + 1.0))
+        pair_weights.append(pair_weight)
     if not paired_a:
         return (
             0.0,
@@ -868,11 +981,13 @@ def _paired_t_test_statistics(
         )
     values_a = np.array(paired_a, dtype=float)
     values_b = np.array(paired_b, dtype=float)
+    weights = np.array(pair_weights, dtype=float)
     differences = values_b - values_a
     complete_pair_count = int(differences.size)
-    mean_a = float(np.mean(values_a))
-    mean_b = float(np.mean(values_b))
-    estimate = float(np.mean(differences))
+    mean_a = _weighted_or_unweighted_mean(values_a, weights)
+    mean_b = _weighted_or_unweighted_mean(values_b, weights)
+    estimate = _weighted_or_unweighted_mean(differences, weights)
+    effective_pairs = _effective_weighted_sample_size(weights)
     if complete_pair_count < 2:
         return (
             mean_a,
@@ -884,9 +999,22 @@ def _paired_t_test_statistics(
             None,
             None,
             complete_pair_count,
-            "paired test requires at least two complete observed pairs per entity",
+            "paired test requires at least two positive-weight complete observed pairs per entity",
         )
-    sample_std = float(np.std(differences, ddof=1))
+    sample_std = _weighted_sample_standard_deviation(differences, weights)
+    if sample_std is None:
+        return (
+            mean_a,
+            mean_b,
+            estimate,
+            1.0,
+            None,
+            None,
+            None,
+            None,
+            complete_pair_count,
+            "paired test could not estimate weighted within-pair variance robustly",
+        )
     if sample_std == 0.0 or not math.isfinite(sample_std):
         note = "within-pair differences collapsed to one value so paired uncertainty could not be estimated robustly"
         return (
@@ -901,11 +1029,11 @@ def _paired_t_test_statistics(
             complete_pair_count,
             note,
         )
-    standard_error = sample_std / math.sqrt(complete_pair_count)
+    standard_error = sample_std / math.sqrt(effective_pairs)
     t_statistic = estimate / standard_error
     p_value = _student_t_two_sided_p_value(
         abs(t_statistic),
-        float(complete_pair_count - 1),
+        float(max(effective_pairs - 1.0, 1.0)),
     )
     interval_radius = 1.96 * standard_error
     effect_size = estimate / sample_std
@@ -917,6 +1045,15 @@ def _paired_t_test_statistics(
         )
     elif standard_error > 1.0:
         note = "within-pair uncertainty remains wide relative to the estimated effect"
+    if sample_weights is not None:
+        note = _combine_notes(
+            note,
+            _weighted_observation_note(
+                weights,
+                np.array((), dtype=float),
+                exclusion_weight_threshold=exclusion_weight_threshold,
+            ),
+        )
     return (
         mean_a,
         mean_b,
@@ -929,6 +1066,222 @@ def _paired_t_test_statistics(
         complete_pair_count,
         note,
     )
+
+
+def _sample_weight_lookup(
+    report: SampleReliabilityWeightReport | None,
+) -> dict[str, float] | None:
+    if report is None:
+        return None
+    return {
+        entry.sample_id: float(entry.reliability_weight) for entry in report.entries
+    }
+
+
+def _weighted_or_unweighted_mean(values: np.ndarray, weights: np.ndarray) -> float:
+    if values.size == 0:
+        return 0.0
+    if weights.size != values.size or np.allclose(weights, 1.0):
+        return float(np.mean(values))
+    weight_sum = float(np.sum(weights))
+    if weight_sum <= 0.0:
+        return 0.0
+    return float(np.sum(values * weights) / weight_sum)
+
+
+def _effective_weighted_sample_size(weights: np.ndarray) -> float:
+    if weights.size == 0:
+        return 0.0
+    weight_sum = float(np.sum(weights))
+    weight_square_sum = float(np.sum(weights * weights))
+    if weight_sum <= 0.0 or weight_square_sum <= 0.0:
+        return 0.0
+    return (weight_sum * weight_sum) / weight_square_sum
+
+
+def _weighted_sample_variance(values: np.ndarray, weights: np.ndarray) -> float | None:
+    if values.size < 2 or weights.size != values.size:
+        return None
+    weight_sum = float(np.sum(weights))
+    weight_square_sum = float(np.sum(weights * weights))
+    denominator = weight_sum - (weight_square_sum / weight_sum) if weight_sum > 0 else 0.0
+    if denominator <= 0.0:
+        return None
+    mean_value = _weighted_or_unweighted_mean(values, weights)
+    centered = values - mean_value
+    return float(np.sum(weights * centered * centered) / denominator)
+
+
+def _weighted_sample_standard_deviation(
+    values: np.ndarray,
+    weights: np.ndarray,
+) -> float | None:
+    variance = _weighted_sample_variance(values, weights)
+    if variance is None or variance < 0.0 or not math.isfinite(variance):
+        return None
+    return math.sqrt(variance)
+
+
+def _weighted_effect_size_and_uncertainty(
+    values_a: np.ndarray,
+    weights_a: np.ndarray,
+    values_b: np.ndarray,
+    weights_b: np.ndarray,
+    log2_fold_change: float,
+) -> tuple[float | None, float | None, float | None, float | None, str | None]:
+    variance_a = _weighted_sample_variance(values_a, weights_a)
+    variance_b = _weighted_sample_variance(values_b, weights_b)
+    if (
+        values_a.size < 2
+        or values_b.size < 2
+        or variance_a is None
+        or variance_b is None
+    ):
+        return (
+            None,
+            None,
+            None,
+            None,
+            "confidence intervals and effect sizes require at least two positive-weight observations per condition after reliability weighting",
+        )
+    effective_a = _effective_weighted_sample_size(weights_a)
+    effective_b = _effective_weighted_sample_size(weights_b)
+    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
+    interval_radius = 1.96 * standard_error
+    pooled_variance_numerator = max(effective_a - 1.0, 0.0) * variance_a + max(
+        effective_b - 1.0, 0.0
+    ) * variance_b
+    pooled_variance_denominator = effective_a + effective_b - 2.0
+    pooled_sd = (
+        math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
+        if pooled_variance_denominator > 0.0
+        else None
+    )
+    cohens_d = (
+        log2_fold_change / pooled_sd
+        if pooled_sd is not None and pooled_sd > 0.0
+        else None
+    )
+    note = None
+    if standard_error > 1.0:
+        note = "uncertainty remains wide relative to the estimated fold change"
+    return (
+        standard_error,
+        log2_fold_change - interval_radius,
+        log2_fold_change + interval_radius,
+        cohens_d,
+        note,
+    )
+
+
+def _weighted_welch_statistics(
+    values_a: np.ndarray,
+    weights_a: np.ndarray,
+    values_b: np.ndarray,
+    weights_b: np.ndarray,
+    *,
+    exclusion_weight_threshold: float,
+) -> tuple[float, float, float | None, float | None, float | None, float | None, str | None]:
+    mean_a = _weighted_or_unweighted_mean(values_a, weights_a)
+    mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
+    estimate = mean_b - mean_a
+    variance_a = _weighted_sample_variance(values_a, weights_a)
+    variance_b = _weighted_sample_variance(values_b, weights_b)
+    if (
+        values_a.size < 2
+        or values_b.size < 2
+        or variance_a is None
+        or variance_b is None
+    ):
+        note = _combine_notes(
+            "weighted differential testing requires at least two positive-weight observations per condition after reliability weighting",
+            _weighted_observation_note(
+                weights_a,
+                weights_b,
+                exclusion_weight_threshold=exclusion_weight_threshold,
+            ),
+        )
+        return estimate, 1.0, None, None, None, None, note
+    effective_a = _effective_weighted_sample_size(weights_a)
+    effective_b = _effective_weighted_sample_size(weights_b)
+    if variance_a == 0.0 and variance_b == 0.0:
+        return estimate, 1.0, 0.0, estimate, estimate, None, _weighted_observation_note(
+            weights_a,
+            weights_b,
+            exclusion_weight_threshold=exclusion_weight_threshold,
+        )
+    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
+    if standard_error == 0.0 or not math.isfinite(standard_error):
+        return estimate, 1.0, None, None, None, None, _combine_notes(
+            "weighted differential uncertainty collapsed to zero",
+            _weighted_observation_note(
+                weights_a,
+                weights_b,
+                exclusion_weight_threshold=exclusion_weight_threshold,
+            ),
+        )
+    t_statistic = estimate / standard_error
+    numerator = (variance_a / effective_a + variance_b / effective_b) ** 2
+    denominator_df = ((variance_a / effective_a) ** 2) / max(effective_a - 1.0, 1.0) + (
+        (variance_b / effective_b) ** 2
+    ) / max(effective_b - 1.0, 1.0)
+    degrees_of_freedom = numerator / denominator_df if denominator_df > 0.0 else 0.0
+    p_value = _student_t_two_sided_p_value(abs(t_statistic), degrees_of_freedom)
+    (
+        _standard_error,
+        confidence_interval_low,
+        confidence_interval_high,
+        effect_size_cohens_d,
+        effect_note,
+    ) = _weighted_effect_size_and_uncertainty(
+        values_a,
+        weights_a,
+        values_b,
+        weights_b,
+        estimate,
+    )
+    note = _combine_notes(
+        effect_note,
+        _weighted_observation_note(
+            weights_a,
+            weights_b,
+            exclusion_weight_threshold=exclusion_weight_threshold,
+        ),
+    )
+    return (
+        estimate,
+        p_value,
+        standard_error,
+        confidence_interval_low,
+        confidence_interval_high,
+        effect_size_cohens_d,
+        note,
+    )
+
+
+def _weighted_observation_note(
+    weights_a: np.ndarray,
+    weights_b: np.ndarray,
+    *,
+    exclusion_weight_threshold: float,
+) -> str | None:
+    all_weights = np.concatenate((weights_a, weights_b))
+    if all_weights.size == 0:
+        return None
+    excluded_count = int(np.sum(all_weights <= exclusion_weight_threshold))
+    downweighted_count = int(
+        np.sum((all_weights > exclusion_weight_threshold) & (all_weights < 1.0))
+    )
+    if excluded_count == 0 and downweighted_count == 0:
+        return None
+    if excluded_count > 0 and downweighted_count > 0:
+        return (
+            "reliability weighting excluded "
+            f"{excluded_count} observed sample(s) and downweighted {downweighted_count} additional observed sample(s)"
+        )
+    if excluded_count > 0:
+        return f"reliability weighting excluded {excluded_count} observed sample(s)"
+    return f"reliability weighting downweighted {downweighted_count} observed sample(s)"
 
 
 def _combine_notes(*notes: str | None) -> str | None:

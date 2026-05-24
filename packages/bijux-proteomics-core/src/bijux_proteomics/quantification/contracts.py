@@ -4353,6 +4353,7 @@ def build_differential_abundance_report(
     contrast_name: str | None = None,
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_weights_report: SampleReliabilityWeightReport | None = None,
     sample_run_policy: "SampleRunAnalysisPolicy" = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
@@ -4375,6 +4376,7 @@ def build_differential_abundance_report(
         contrast_name=contrast_name,
         paired_policy=paired_policy,
         replicate_policy=replicate_policy,
+        sample_weights_report=sample_weights_report,
         sample_run_policy=resolved_sample_run_policy,
     )
 
