@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import identification
+from bijux_proteomics.chemistry import calculate_peptide_mz
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 
 
 def _identification_fixture(name: str) -> Path:
@@ -38,6 +40,44 @@ def test_identification_package_exports_psm_target_decoy_fdr_owner_surface() -> 
     assert report.summary.total_psm_count == len(cases[0].expected_entries)
     assert report.summary.q_values_monotonic is True
     assert "reproducibility_hash" in rendered
+
+
+def test_identification_package_exports_psm_feature_extraction_surface() -> None:
+    peptide = "PEPTIDEK"
+    charge = 2
+    psm = identification.PsmRecord(
+        spectrum_id="scan-1",
+        peptide=peptide,
+        canonical_peptide=peptide,
+        charge=charge,
+        score=90.0,
+        q_value=0.02,
+        protein_refs=("P11111",),
+        target_decoy_label=identification.TargetDecoyLabel.TARGET,
+    )
+    spectrum = SpectrumModel(
+        spectrum_id="scan-1",
+        precursor_mz=calculate_peptide_mz(peptide, charge=charge),
+        precursor_charge=charge,
+        peaks=(
+            SpectrumPeak(mz=98.0600, intensity=50.0),
+            SpectrumPeak(mz=227.1027, intensity=500.0),
+            SpectrumPeak(mz=324.1555, intensity=400.0),
+        ),
+    )
+
+    rows = identification.extract_psm_features(
+        (psm,),
+        (spectrum,),
+        {peptide: ("P11111",)},
+        {"P11111": "MPEPTIDEKAA"},
+    )
+    rendered = identification.render_psm_feature_tsv(rows)
+
+    assert hasattr(identification, "extract_psm_features")
+    assert hasattr(identification, "render_psm_feature_tsv")
+    assert rows[0].spectrum_id == "scan-1"
+    assert "precursor_ppm_error" in rendered
 
 
 def test_identification_package_exports_peptide_target_decoy_fdr_owner_surface() -> (
