@@ -15,6 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
+from bijux_proteomics.ptm import PtmProteinCorrectionMode
 from bijux_proteomics.targeted import TargetedResultSourceKind
 from bijux_proteomics.workflow.public_benchmark_descriptors import (
     PublicBenchmarkDescriptor,
@@ -499,6 +500,27 @@ def _build_workflow_config(
             condition_a=condition_a,
             condition_b=condition_b,
             batch_field=str(parameters.get("batch_field", "")),
+            protein_correction_mode=PtmProteinCorrectionMode(
+                str(
+                    parameters.get(
+                        "protein_correction_mode",
+                        PtmProteinCorrectionMode.NONE,
+                    )
+                )
+            ),
+            max_adjusted_p_value=float(parameters.get("max_adjusted_p_value", 0.1)),
+            min_absolute_log2_fold_change=float(
+                parameters.get("min_absolute_log2_fold_change", 1.0)
+            ),
+            annotation_tsv_path=source_map.get("annotation_tsv"),
+            annotation_target_species=(
+                None
+                if "annotation_target_species" not in parameters
+                else str(parameters["annotation_target_species"])
+            ),
+            card_max_adjusted_p_value=float(
+                parameters.get("card_max_adjusted_p_value", 0.1)
+            ),
             output_dir=output_dir,
         )
     if engine == PublicBenchmarkSearchEngine.TMT:

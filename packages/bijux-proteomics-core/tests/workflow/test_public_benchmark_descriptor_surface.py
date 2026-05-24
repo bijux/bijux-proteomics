@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Callable
 
@@ -39,6 +40,10 @@ def _write_descriptor_copy(
     target_path = target_dir / "dataset.yml"
     target_path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
     return target_path
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> None:
@@ -136,6 +141,73 @@ def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_
     assert {
         assessment.status for assessment in report.expected_signal_assessments
     } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+
+
+def test_public_benchmark_runner_routes_annotation_backed_ptm_policies(
+    tmp_path: Path,
+) -> None:
+    annotation_path = (
+        _repo_root()
+        / "packages"
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / "ptm"
+        / "ptm_site_annotations.tsv"
+    )
+    descriptor_path = _write_descriptor_copy(
+        tmp_path,
+        "ptm_localization_review_package",
+        mutate=lambda payload: (
+            payload["source_files"].append(
+                {
+                    "source_id": "ptm_site_annotations",
+                    "schema_id": "annotation_tsv",
+                    "repo_relative_path": str(
+                        annotation_path.relative_to(_repo_root())
+                    ),
+                    "sha256": _sha256(annotation_path),
+                    "note": "Annotation surface for PTM regulator and evidence-card review.",
+                }
+            ),
+            payload["expected_input_schemas"].append("annotation_tsv"),
+            payload["command"]["parameters"].update(
+                {
+                    "annotation_target_species": "Homo sapiens",
+                    "protein_correction_mode": "subtract_unmodified_protein",
+                    "max_adjusted_p_value": 1.0,
+                    "min_absolute_log2_fold_change": 0.0,
+                    "card_max_adjusted_p_value": 1.0,
+                }
+            ),
+            payload["expected_approximate_counts"].extend(
+                [
+                    {
+                        "metric_id": "evidence_card_count",
+                        "expected": 3,
+                        "tolerance": 0,
+                    },
+                    {
+                        "metric_id": "motif_term_count",
+                        "expected": 22,
+                        "tolerance": 0,
+                    },
+                ]
+            ),
+        ),
+    )
+
+    report = run_public_benchmark_descriptor(
+        descriptor_path,
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["evidence_card_count"] == 3
+    assert report.verified_counts["motif_term_count"] == 22
+    assert Path(report.output_dir, "ptm_regulator_enrichment_summary.tsv").exists()
+    assert Path(report.output_dir, "ptm_regulator_enrichment.tsv").exists()
+    assert Path(report.output_dir, "ptm_evidence_cards.tsv").exists()
 
 
 def test_public_benchmark_runner_executes_runnable_maxquant_descriptor(
