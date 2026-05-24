@@ -125,6 +125,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "sequences/protein_identity_resolution.py",
             "sequences/digestion.py",
             "sequences/protein_region_context.py",
+            "sequences/proteogenomic_peptide_support.py",
             "sequences/peptide_chemical_liability.py",
             "sequences/peptide_detectability.py",
             "sequences/peptide_uniqueness_index.py",
