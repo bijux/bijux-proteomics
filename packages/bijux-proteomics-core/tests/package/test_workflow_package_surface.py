@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import workflow
+from bijux_proteomics.interpretation import PathwayMemberKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.study import build_experiment_design
@@ -222,6 +223,62 @@ def test_workflow_package_exports_cross_study_effect_comparison_surface() -> Non
     assert report.comparisons[0].replicated_hit is True
     assert "comparison_status" in workflow.render_cross_study_effect_comparison_tsv(report)
     assert "replicated_hit" in workflow.render_cross_study_replicated_hit_tsv(report)
+
+
+def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> None:
+    report = workflow.build_cross_study_pathway_comparison_report_from_observations(
+        (
+            workflow.CrossStudyPathwayObservation(
+                observation_id="study_a:enrichment:stress_response",
+                study_id="study_a",
+                study_label="study a",
+                study_kind=workflow.ProteomicsStudyKind.LABEL_FREE,
+                signal_kind=workflow.CrossStudyPathwaySignalKind.ENRICHMENT,
+                pathway_id="reactome:stress_response",
+                pathway_name="Stress response",
+                source_name="reactome",
+                source_accession="R-HSA-123",
+                member_kind=PathwayMemberKind.PROTEIN,
+                p_value=0.001,
+                adjusted_p_value=0.01,
+                enrichment_ratio=2.0,
+                significant=True,
+                total_member_count=20,
+                foreground_overlap_count=9,
+                background_member_count=10,
+                coverage_fraction=0.9,
+                note="study a enrichment",
+            ),
+            workflow.CrossStudyPathwayObservation(
+                observation_id="study_b:enrichment:stress_response",
+                study_id="study_b",
+                study_label="study b",
+                study_kind=workflow.ProteomicsStudyKind.DIA,
+                signal_kind=workflow.CrossStudyPathwaySignalKind.ENRICHMENT,
+                pathway_id="reactome:stress_response",
+                pathway_name="Stress response",
+                source_name="reactome",
+                source_accession="R-HSA-123",
+                member_kind=PathwayMemberKind.PROTEIN,
+                p_value=0.003,
+                adjusted_p_value=0.02,
+                enrichment_ratio=1.7,
+                significant=True,
+                total_member_count=18,
+                foreground_overlap_count=5,
+                background_member_count=10,
+                coverage_fraction=0.5,
+                note="study b enrichment",
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "build_cross_study_pathway_comparison_report")
+    assert workflow.CrossStudyPathwayComparisonStatus.SHARED_SIGNAL.value == "shared_signal"
+    assert report.summary.shared_signal_count == 1
+    assert report.comparisons[0].coverage_fraction_range == 0.4
+    assert "comparison_status" in workflow.render_cross_study_pathway_comparison_tsv(report)
+    assert "shared_signal" in workflow.render_cross_study_shared_pathway_signal_tsv(report)
 
 
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
