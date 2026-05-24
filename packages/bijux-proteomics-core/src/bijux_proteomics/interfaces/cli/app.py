@@ -1026,6 +1026,10 @@ from bijux_proteomics.workflow import (
     build_public_dataset_comparison_report,
     build_interactive_result_bundle_from_artifacts,
     render_interactive_result_bundle_summary_tsv,
+    build_result_search_index_from_artifacts,
+    render_result_search_hit_tsv,
+    render_result_search_summary_tsv,
+    search_result_index,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -7940,6 +7944,74 @@ def biomarker_candidate_ranking_command(
             "candidate_tsv": (
                 None if candidate_tsv_out is None else str(candidate_tsv_out)
             ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("result-search")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--query", "query_text", required=True)
+@click.option("--limit", type=int, default=20, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--hit-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def result_search_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    query_text: str,
+    limit: int,
+    summary_tsv_out: Path | None,
+    hit_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Search governed protein, PTM-site, pathway, and peptide result objects."""
+
+    if biological_report_dir is None and ptm_report_dir is None:
+        raise click.ClickException(
+            "at least one governed biological report or PTM report input must be provided"
+        )
+
+    try:
+        index = build_result_search_index_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+        )
+        report = search_result_index(index, query_text, limit=limit)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_result_search_summary_tsv(report))
+    if hit_tsv_out is not None:
+        _write_text_output(hit_tsv_out, render_result_search_hit_tsv(report))
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "query_text": query_text,
+        "limit": limit,
+        "index": index.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "hit_tsv": None if hit_tsv_out is None else str(hit_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
