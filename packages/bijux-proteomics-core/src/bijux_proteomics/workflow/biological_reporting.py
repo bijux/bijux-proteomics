@@ -105,6 +105,7 @@ from bijux_proteomics.sequences import (
     parse_proteogenomic_variant_peptide_table,
     parse_protein_region_context_tsv,
 )
+from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
     ExperimentDesign,
@@ -288,6 +289,7 @@ def build_biological_result_report_bundle(
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
+    ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
     mapping: Ms1FeatureColumnMapping | None = None,
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
     top_n: int = 3,
@@ -338,6 +340,7 @@ def build_biological_result_report_bundle(
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
+        ptm_evidence_card_report=ptm_evidence_card_report,
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
@@ -362,6 +365,7 @@ def build_biological_result_report_bundle_from_quant_table(
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
+    ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
@@ -569,6 +573,7 @@ def build_biological_result_report_bundle_from_quant_table(
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
         protein_region_context_records=protein_region_context_records,
+        ptm_evidence_card_report=ptm_evidence_card_report,
     )
     volcano_review = build_quantification_volcano_review(
         differential_report,

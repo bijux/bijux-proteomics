@@ -29,6 +29,7 @@ from bijux_proteomics.interpretation import (
     ProteinAnnotationResultEntry,
     ProteinAnnotationStatus,
 )
+from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
@@ -283,6 +284,7 @@ def build_protein_evidence_card_report(
     pathway_enrichment_report: PathwayEnrichmentReport | None = None,
     complex_enrichment_report: ComplexEnrichmentReport | None = None,
     protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
+    ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
 ) -> ProteinEvidenceCardReport:
     """Build one structured card per final protein result."""
 
@@ -313,6 +315,7 @@ def build_protein_evidence_card_report(
             protein_region_context_records=protein_region_context_records,
         )
     )
+    ptm_sites_by_protein = _group_ptm_sites_by_protein(ptm_evidence_card_report)
     differential_by_entity = {
         entry.entity_id: entry for entry in differential_report.entries
     }
@@ -463,7 +466,10 @@ def build_protein_evidence_card_report(
                 proteogenomic_support=proteogenomic_support_by_entity.get(
                     differential_entry.entity_id
                 ),
-                ptm_sites=(),
+                ptm_sites=_select_ptm_sites(
+                    prepared_card["protein_refs"],
+                    by_protein=ptm_sites_by_protein,
+                ),
                 significant=prepared_card["significant"],
                 evidence_tier=_graph_evidence_tier(final_entry.evidence_tier),
                 warnings=prepared_card["warnings"],
@@ -1005,6 +1011,36 @@ def _group_functional_regions_by_protein(
         )
         for protein_ref, region_entries in grouped.items()
     }
+
+
+def _group_ptm_sites_by_protein(
+    report: PtmEvidenceCardReport | None,
+) -> dict[str, tuple[str, ...]]:
+    if report is None:
+        return {}
+    grouped: dict[str, set[str]] = defaultdict(set)
+    for card in report.cards:
+        grouped[card.protein_ref].add(card.site_key)
+    return {
+        protein_ref: tuple(sorted(site_keys))
+        for protein_ref, site_keys in grouped.items()
+    }
+
+
+def _select_ptm_sites(
+    protein_refs: tuple[str, ...],
+    *,
+    by_protein: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            {
+                site_key
+                for protein_ref in protein_refs
+                for site_key in by_protein.get(protein_ref, ())
+            }
+        )
+    )
 
 
 def _select_functional_regions(
