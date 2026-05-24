@@ -119,6 +119,7 @@ def _build_evidence_card_report():
         site_quantification=site_quantification,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
+        annotation_mapping_report=annotation_mapping,
         protein_records=_protein_report().accepted_records,
         protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
@@ -137,7 +138,9 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
     export_ptm_evidence_claim_tsv(report, claims_path)
 
     assert "functional_context_card_count" in summary_path.read_text()
+    assert "crosstalk_supported_card_count" in summary_path.read_text()
     assert "functional_regions" in cards_path.read_text()
+    assert "crosstalk_partner_site_keys" in cards_path.read_text()
     assert "identity_level" in cards_path.read_text()
     assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
         claims_path.read_text().splitlines()[0]

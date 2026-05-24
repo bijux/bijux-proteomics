@@ -129,6 +129,7 @@ def _build_evidence_card_report():
         site_quantification=site_quantification,
         motif_enrichment=motif_enrichment,
         regulator_enrichment=regulator_enrichment,
+        annotation_mapping_report=annotation_mapping,
         protein_records=_protein_report().accepted_records,
         protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
@@ -316,3 +317,250 @@ def test_ptm_evidence_cards_do_not_call_exact_isoform_without_unique_peptide() -
     card = report.cards[0]
     assert card.identity_level.value == "protein_level"
     assert "do not isolate one exact isoform" in card.identity_reason
+
+
+def test_ptm_evidence_cards_preserve_crosstalk_partners_and_summary_counts() -> None:
+    site_entries = (
+        PtmSiteEntry(
+            site_key="P11111:S5:Phospho",
+            protein_ref="P11111",
+            residue="S",
+            position=5,
+            modification_name="Phospho",
+            localization_score=18.0,
+            best_q_value=0.01,
+            spectrum_count=1,
+            peptide_count=1,
+            localized_peptides=("S[Phospho]PEP[Acetyl]TIDEK",),
+            sample_ids=("sample-a", "sample-b"),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            candidate_positions=(5,),
+            ambiguous=False,
+            shared_peptide=False,
+            provenance=ImportedEvidenceProvenance(
+                source_engine="ptm-localization",
+                source_files=("inline.tsv",),
+                source_row_numbers=(2,),
+                original_identifiers={"site_key": "P11111:S5:Phospho"},
+            ),
+        ),
+        PtmSiteEntry(
+            site_key="P11111:T9:Acetyl",
+            protein_ref="P11111",
+            residue="T",
+            position=9,
+            modification_name="Acetyl",
+            localization_score=16.0,
+            best_q_value=0.02,
+            spectrum_count=1,
+            peptide_count=1,
+            localized_peptides=("S[Phospho]PEP[Acetyl]TIDEK",),
+            sample_ids=("sample-a", "sample-b"),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            candidate_positions=(9,),
+            ambiguous=False,
+            shared_peptide=False,
+            provenance=ImportedEvidenceProvenance(
+                source_engine="ptm-localization",
+                source_files=("inline.tsv",),
+                source_row_numbers=(3,),
+                original_identifiers={"site_key": "P11111:T9:Acetyl"},
+            ),
+        ),
+    )
+    records = (
+        PtmEvidenceRecord(
+            spectrum_id="scan=1",
+            sample_id="sample-a",
+            localized_peptide="S[Phospho]PEP[Acetyl]TIDEK",
+            canonical_peptide="SPEPTIDEK",
+            sequence="SPEPTIDEK",
+            charge=2,
+            score=42.0,
+            q_value=0.01,
+            localization_probability=0.98,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            localization_score=18.0,
+            candidate_site_indices=(1, 5),
+            modification_names=("Phospho", "Acetyl"),
+            site_candidates=(),
+            provenance=ImportedEvidenceProvenance(
+                source_engine="ptm-localization",
+                source_files=("inline.tsv",),
+                source_row_numbers=(2,),
+                original_identifiers={"spectrum_id": "scan=1"},
+            ),
+        ),
+    )
+    localization = PtmLocalizationScoringReport(
+        entries=(
+            PtmLocalizationScoringEntry(
+                spectrum_id="scan=1",
+                sample_id="sample-a",
+                localized_peptide="S[Phospho]PEP[Acetyl]TIDEK",
+                canonical_peptide="SPEPTIDEK",
+                modification_name="Phospho",
+                peptide_site_index=1,
+                candidate_site_indices=(1,),
+                ambiguity_group="Phospho:1",
+                localization_score=18.0,
+                localization_probability=0.98,
+                probability_source=PtmLocalizationProbabilitySource.REPORTED_PROBABILITY,
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                site_determining_ions=(),
+                supported_site_determining_ions=(),
+                ambiguous=False,
+                multi_phosphorylated=False,
+                note="reported probability supports the localized site",
+            ),
+            PtmLocalizationScoringEntry(
+                spectrum_id="scan=2",
+                sample_id="sample-a",
+                localized_peptide="S[Phospho]PEP[Acetyl]TIDEK",
+                canonical_peptide="SPEPTIDEK",
+                modification_name="Acetyl",
+                peptide_site_index=5,
+                candidate_site_indices=(5,),
+                ambiguity_group="Acetyl:5",
+                localization_score=16.0,
+                localization_probability=0.96,
+                probability_source=PtmLocalizationProbabilitySource.REPORTED_PROBABILITY,
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                site_determining_ions=(),
+                supported_site_determining_ions=(),
+                ambiguous=False,
+                multi_phosphorylated=False,
+                note="reported probability supports the localized site",
+            ),
+        ),
+        ambiguous_entry_count=0,
+        confident_entry_count=2,
+        high_confidence_entry_count=2,
+        supported_entry_count=0,
+        refused_entry_count=0,
+        multi_phosphorylated_entry_count=0,
+        fragment_supported_entry_count=0,
+    )
+    differential_report = PtmSiteDifferentialReport(
+        normalization_method=NormalizationMethod.MEDIAN,
+        test_type="welch_t_test",
+        condition_a="control",
+        condition_b="treated",
+        entries=(
+            PtmSiteDifferentialEntry(
+                site_key="P11111:S5:Phospho",
+                protein_ref="P11111",
+                residue="S",
+                position=5,
+                modification_name="Phospho",
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                low_localization=False,
+                ambiguous=False,
+                shared_peptide=False,
+                localized_peptides=("S[Phospho]PEP[Acetyl]TIDEK",),
+                condition_a="control",
+                condition_b="treated",
+                observations_a=2,
+                observations_b=2,
+                complete_pair_count=0,
+                mean_log2_abundance_a=10.0,
+                mean_log2_abundance_b=11.0,
+                log2_fold_change=1.0,
+                p_value=0.01,
+                adjusted_p_value=0.02,
+                standard_error=0.1,
+                confidence_interval_low=0.8,
+                confidence_interval_high=1.2,
+                effect_size_cohens_d=1.0,
+                protein_log2_fold_change=None,
+                protein_adjusted_p_value=None,
+                corrected_log2_fold_change=None,
+                protein_correction_status="not_requested",
+                uncertainty_note=None,
+            ),
+            PtmSiteDifferentialEntry(
+                site_key="P11111:T9:Acetyl",
+                protein_ref="P11111",
+                residue="T",
+                position=9,
+                modification_name="Acetyl",
+                localization_tier=PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                low_localization=False,
+                ambiguous=False,
+                shared_peptide=False,
+                localized_peptides=("S[Phospho]PEP[Acetyl]TIDEK",),
+                condition_a="control",
+                condition_b="treated",
+                observations_a=2,
+                observations_b=2,
+                complete_pair_count=0,
+                mean_log2_abundance_a=10.0,
+                mean_log2_abundance_b=10.7,
+                log2_fold_change=0.7,
+                p_value=0.02,
+                adjusted_p_value=0.03,
+                standard_error=0.1,
+                confidence_interval_low=0.5,
+                confidence_interval_high=0.9,
+                effect_size_cohens_d=0.8,
+                protein_log2_fold_change=None,
+                protein_adjusted_p_value=None,
+                corrected_log2_fold_change=None,
+                protein_correction_status="not_requested",
+                uncertainty_note=None,
+            ),
+        ),
+        broken_pairs=(),
+        note="minimal direct PTM differential report for crosstalk proof",
+    )
+    differential = PtmDifferentialAnalysisReport.model_construct(
+        protein_correction_mode=PtmProteinCorrectionMode.NONE,
+        differential_report=differential_report,
+    )
+    annotation_mapping = build_ptm_site_annotation_mapping_report(
+        site_entries,
+        (
+            parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+            .accepted_records[0]
+            .model_copy(
+                update={
+                    "protein_ref": "P11111",
+                    "residue": "S",
+                    "position": 5,
+                    "modification_name": "Phospho",
+                    "pathways": ("MAPK signaling",),
+                }
+            ),
+            parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+            .accepted_records[0]
+            .model_copy(
+                update={
+                    "protein_ref": "P11111",
+                    "residue": "T",
+                    "position": 9,
+                    "modification_name": "Acetyl",
+                    "pathways": ("MAPK signaling",),
+                }
+            ),
+        ),
+        target_species=None,
+    )
+
+    report = build_ptm_evidence_card_report(
+        records,
+        site_entries,
+        localization,
+        differential,
+        annotation_mapping_report=annotation_mapping,
+        policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+    )
+
+    assert report.summary.crosstalk_supported_card_count == 2
+    first_card = report.cards[0]
+    assert first_card.crosstalk_partners
+    assert first_card.crosstalk_partners[0].partner_site_key in {
+        "P11111:S5:Phospho",
+        "P11111:T9:Acetyl",
+    }
+    assert "MAPK signaling" in first_card.crosstalk_partners[0].evidence_note

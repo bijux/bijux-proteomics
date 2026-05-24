@@ -236,6 +236,42 @@ def test_ptm_package_exports_context_annotation_owner_surface() -> None:
     assert "context_status" in ptm.render_ptm_site_context_tsv(report)
 
 
+def test_ptm_package_exports_crosstalk_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
+    differential = ptm.build_ptm_differential_analysis_report(
+        site_quantification,
+        tuple(entry.model_copy(update={"batch": None}) for entry in design.accepted_entries),
+        batch_field="",
+    )
+    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotation_mapping = ptm.build_ptm_site_annotation_mapping_report(
+        site_table,
+        annotations.accepted_records,
+        target_species="Homo sapiens",
+    )
+    report = ptm.build_ptm_crosstalk_report(
+        site_table,
+        differential.differential_report,
+        annotation_mapping_report=annotation_mapping,
+    )
+
+    assert hasattr(ptm, "build_ptm_crosstalk_report")
+    assert hasattr(ptm, "render_ptm_crosstalk_pair_tsv")
+    assert report.summary.differential_site_count == 3
+    assert "pair_key" in ptm.render_ptm_crosstalk_pair_tsv(report)
+
+
 def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
@@ -245,7 +281,9 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
         feature_records=features.accepted_records,
-        design_entries=design.accepted_entries,
+        design_entries=tuple(
+            entry.model_copy(update={"batch": None}) for entry in design.accepted_entries
+        ),
         batch_field="",
         motif_selection_policy=ptm.PtmPhosphositeSelectionPolicy(
             max_adjusted_p_value=1.0,
