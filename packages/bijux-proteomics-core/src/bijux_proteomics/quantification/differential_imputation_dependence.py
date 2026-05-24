@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.quantification.contracts import (
@@ -52,6 +54,32 @@ class DifferentialImputationDependenceReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class ImputationPolicyComparisonEntry(JsonModel):
+    """One entity-level significance summary across imputation policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    significant_without_imputation: bool
+    significant_after_imputation: bool
+    imputation_dependent: bool
+    policy_sensitive: bool
+
+
+class ImputationPolicyComparisonReport(JsonModel):
+    """Stable significance comparison across no-impute and imputed policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    baseline_method: ImputationMethod = ImputationMethod.NONE
+    compared_methods: tuple[ImputationMethod, ...] = Field(default_factory=tuple)
+    significance_threshold: float = Field(default=0.05, ge=0.0, le=1.0)
+    entries: tuple[ImputationPolicyComparisonEntry, ...] = Field(default_factory=tuple)
+    imputation_dependent_count: int = Field(..., ge=0)
+    policy_sensitive_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
 def build_differential_imputation_dependence_report(
     no_impute_report: DifferentialAbundanceReport,
     imputed_report: DifferentialAbundanceReport,
@@ -85,6 +113,99 @@ def build_differential_imputation_dependence_report(
             "differential imputation dependence preserves no-impute and imputed significance side by side"
         ),
     )
+
+
+def compare_imputation_policies(
+    results_by_policy: dict[ImputationMethod, DifferentialAbundanceReport],
+    *,
+    significance_threshold: float = 0.05,
+) -> ImputationPolicyComparisonReport:
+    """Compare significance stability across no-impute and imputed differential results."""
+
+    if ImputationMethod.NONE not in results_by_policy:
+        raise ValueError("imputation policy comparison requires a no-impute result table")
+    if len(results_by_policy) < 2:
+        raise ValueError("imputation policy comparison requires at least one imputed result table")
+
+    baseline = results_by_policy[ImputationMethod.NONE]
+    compared_methods = tuple(
+        sorted(
+            (
+                method
+                for method in results_by_policy
+                if method is not ImputationMethod.NONE
+            ),
+            key=lambda method: method.value,
+        )
+    )
+    if not compared_methods:
+        raise ValueError("imputation policy comparison requires at least one imputed result table")
+    for method in compared_methods:
+        _require_matching_differential_reports(baseline, results_by_policy[method])
+
+    entry_lookup_by_method = {
+        method: {entry.entity_id: entry for entry in report.entries}
+        for method, report in results_by_policy.items()
+    }
+    entity_ids = tuple(
+        sorted(
+            {
+                entity_id
+                for lookup in entry_lookup_by_method.values()
+                for entity_id in lookup
+            }
+        )
+    )
+    entries = tuple(
+        _build_policy_comparison_entry(
+            entity_id=entity_id,
+            results_by_policy=results_by_policy,
+            entry_lookup_by_method=entry_lookup_by_method,
+            compared_methods=compared_methods,
+            significance_threshold=significance_threshold,
+        )
+        for entity_id in entity_ids
+    )
+    return ImputationPolicyComparisonReport(
+        compared_methods=compared_methods,
+        significance_threshold=significance_threshold,
+        entries=entries,
+        imputation_dependent_count=sum(entry.imputation_dependent for entry in entries),
+        policy_sensitive_count=sum(entry.policy_sensitive for entry in entries),
+        note=(
+            "significance is compared across no-impute and imputed policies so "
+            "imputation-only hits can be downgraded and policy-sensitive hits remain explicit"
+        ),
+    )
+
+
+def render_imputation_policy_comparison_tsv(
+    report: ImputationPolicyComparisonReport,
+) -> str:
+    """Render multi-policy imputation dependence rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "significant_without_imputation",
+            "significant_after_imputation",
+            "imputation_dependent",
+            "policy_sensitive",
+        )
+    )
+    for entry in report.entries:
+        writer.writerow(
+            (
+                entry.entity_id,
+                str(entry.significant_without_imputation).lower(),
+                str(entry.significant_after_imputation).lower(),
+                str(entry.imputation_dependent).lower(),
+                str(entry.policy_sensitive).lower(),
+            )
+        )
+    return buffer.getvalue()
 
 
 def annotate_differential_abundance_report_imputation_dependence(
@@ -189,6 +310,57 @@ def build_no_impute_reference_table(
     )
 
 
+def _build_policy_comparison_entry(
+    *,
+    entity_id: str,
+    results_by_policy: dict[ImputationMethod, DifferentialAbundanceReport],
+    entry_lookup_by_method: dict[ImputationMethod, dict[str, DifferentialAbundanceEntry]],
+    compared_methods: tuple[ImputationMethod, ...],
+    significance_threshold: float,
+) -> ImputationPolicyComparisonEntry:
+    baseline_entry = entry_lookup_by_method[ImputationMethod.NONE].get(entity_id)
+    significant_without = _is_significant(
+        None if baseline_entry is None else baseline_entry.adjusted_p_value,
+        significance_threshold,
+    )
+    imputed_significance = {
+        method: _is_significant(
+            (
+                None
+                if entry_lookup_by_method[method].get(entity_id) is None
+                else entry_lookup_by_method[method][entity_id].adjusted_p_value
+            ),
+            significance_threshold,
+        )
+        for method in compared_methods
+    }
+    significant_after = any(imputed_significance.values())
+
+    significant_signs: set[int] = set()
+    for method in compared_methods:
+        entry = entry_lookup_by_method[method].get(entity_id)
+        if entry is None or not imputed_significance[method]:
+            continue
+        if entry.log2_fold_change > 0.0:
+            significant_signs.add(1)
+        elif entry.log2_fold_change < 0.0:
+            significant_signs.add(-1)
+        else:
+            significant_signs.add(0)
+
+    policy_sensitive = (
+        len(set(imputed_significance.values())) > 1
+        or len(significant_signs) > 1
+    )
+    return ImputationPolicyComparisonEntry(
+        entity_id=entity_id,
+        significant_without_imputation=significant_without,
+        significant_after_imputation=significant_after,
+        imputation_dependent=significant_after and not significant_without,
+        policy_sensitive=policy_sensitive,
+    )
+
+
 def _build_dependence_entry(
     *,
     entity_id: str,
@@ -287,7 +459,11 @@ def _require_matching_differential_reports(
 __all__ = [
     "DifferentialImputationDependenceEntry",
     "DifferentialImputationDependenceReport",
+    "ImputationPolicyComparisonEntry",
+    "ImputationPolicyComparisonReport",
     "annotate_differential_abundance_report_imputation_dependence",
     "build_differential_imputation_dependence_report",
     "build_no_impute_reference_table",
+    "compare_imputation_policies",
+    "render_imputation_policy_comparison_tsv",
 ]
