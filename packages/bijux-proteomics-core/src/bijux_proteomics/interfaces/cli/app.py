@@ -861,6 +861,7 @@ from bijux_proteomics.review import (
     ResultQueryRequest,
     VolcanoReviewPolicy,
     build_analysis_recommendation_report_from_artifacts,
+    build_belief_audit_report_from_artifacts,
     build_biomarker_candidate_ranking_report,
     build_compact_result_summary_report_from_artifacts,
     build_failure_explanation_report,
@@ -877,6 +878,9 @@ from bijux_proteomics.review import (
     render_biomarker_candidate_ranking_tsv,
     render_analysis_recommendation_summary_tsv,
     render_analysis_recommendation_tsv,
+    render_belief_audit_html,
+    render_belief_audit_summary_tsv,
+    render_belief_audit_tsv,
     render_compact_result_summary_entry_tsv,
     render_compact_result_summary_markdown,
     render_compact_result_summary_overview_tsv,
@@ -8793,6 +8797,115 @@ def compact_result_summary_command(
             "overview_tsv": None if overview_tsv_out is None else str(overview_tsv_out),
             "entry_tsv": None if entry_tsv_out is None else str(entry_tsv_out),
             "markdown": None if markdown_out is None else str(markdown_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("belief-audit")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--validation-evidence-card-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--validation-evidence-warning-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--belief-audit-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def belief_audit_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    validation_evidence_card_tsv: Path | None,
+    validation_evidence_warning_tsv: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    summary_tsv_out: Path | None,
+    belief_audit_tsv_out: Path | None,
+    html_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Audit why governed conclusions were retained, weakened, and falsifiable."""
+
+    if (
+        biological_report_dir is None
+        and ptm_report_dir is None
+        and validation_evidence_card_tsv is None
+        and not run_qc_assessment_tsv_paths
+    ):
+        raise click.ClickException(
+            "at least one governed biological report, PTM report, validation evidence card, or QC assessment input must be provided"
+        )
+
+    try:
+        report = build_belief_audit_report_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            validation_evidence_card_tsv=validation_evidence_card_tsv,
+            validation_evidence_warning_tsv=validation_evidence_warning_tsv,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+        )
+        html = render_belief_audit_html(report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_belief_audit_summary_tsv(report))
+    if belief_audit_tsv_out is not None:
+        _write_text_output(belief_audit_tsv_out, render_belief_audit_tsv(report))
+    if html_out is not None:
+        _write_text_output(html_out, html)
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "validation_evidence_card_tsv": (
+            None
+            if validation_evidence_card_tsv is None
+            else str(validation_evidence_card_tsv)
+        ),
+        "validation_evidence_warning_tsv": (
+            None
+            if validation_evidence_warning_tsv is None
+            else str(validation_evidence_warning_tsv)
+        ),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "report": report.to_dict(),
+        "html": html,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "belief_audit_tsv": (
+                None
+                if belief_audit_tsv_out is None
+                else str(belief_audit_tsv_out)
+            ),
+            "html": None if html_out is None else str(html_out),
         },
     }
     _emit_json(payload, out_path=out_path)
