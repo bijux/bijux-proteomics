@@ -122,6 +122,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Sequence parsing, digestion, amino-acid mass calculation, peptide chemistry, isotope labeling, and modification semantics for proteomics evidence preparation.",
         required_modules=(
             "sequences/core.py",
+            "sequences/protein_identity_resolution.py",
             "sequences/digestion.py",
             "sequences/protein_region_context.py",
             "sequences/peptide_chemical_liability.py",
