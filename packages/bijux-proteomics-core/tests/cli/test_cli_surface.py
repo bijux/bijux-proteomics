@@ -252,7 +252,7 @@ def test_program_template_writes_manifest() -> None:
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
 
 
-def test_public_benchmark_runner_command_emits_suite_summary_and_failures() -> None:
+def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal_checks() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
@@ -266,6 +266,8 @@ def test_public_benchmark_runner_command_emits_suite_summary_and_failures() -> N
                 "public_benchmark.summary.tsv",
                 "--failures-tsv-out",
                 "public_benchmark.failures.tsv",
+                "--signal-assessments-tsv-out",
+                "public_benchmark.signals.tsv",
             ],
         )
 
@@ -275,10 +277,12 @@ def test_public_benchmark_runner_command_emits_suite_summary_and_failures() -> N
         assert payload["failed_count"] == 5
         summary_tsv = Path("public_benchmark.summary.tsv").read_text()
         failures_tsv = Path("public_benchmark.failures.tsv").read_text()
+        signal_tsv = Path("public_benchmark.signals.tsv").read_text()
         assert "lfq_cohort_review_package" in summary_tsv
         assert "ptm_localization_review_package" in summary_tsv
         assert "dia_diann_review_snapshot" in summary_tsv
         assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
+        assert "ptm_site_p11111_s5_up" in signal_tsv
 
 
 def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
