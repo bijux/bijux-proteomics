@@ -235,6 +235,81 @@ def test_workflow_package_exports_cross_study_effect_comparison_surface() -> Non
     assert "replicated_hit" in workflow.render_cross_study_replicated_hit_tsv(report)
 
 
+def test_workflow_package_exports_cross_study_meta_analysis_surface() -> None:
+    report = workflow.build_cross_study_meta_analysis_report_from_observations(
+        (
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="study_a:protein_1",
+                study_id="study_a",
+                study_label="study a",
+                study_kind=workflow.ProteomicsStudyKind.LABEL_FREE,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="P11111",
+                protein_refs=("P11111",),
+                accession_aliases=(),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=1.2,
+                direction=workflow.CrossStudyEffectDirection.UP,
+                p_value=0.001,
+                adjusted_p_value=0.01,
+                standard_error=0.2,
+                confidence_interval_low=0.808,
+                confidence_interval_high=1.592,
+                robustness_score=0.8,
+                significant=True,
+                note="study a effect",
+            ),
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="study_b:protein_1",
+                study_id="study_b",
+                study_label="study b",
+                study_kind=workflow.ProteomicsStudyKind.DIA,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="A0A0HUMAN1",
+                protein_refs=("A0A0HUMAN1",),
+                accession_aliases=("P11111",),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=0.8,
+                direction=workflow.CrossStudyEffectDirection.UP,
+                p_value=0.002,
+                adjusted_p_value=0.02,
+                standard_error=0.4,
+                confidence_interval_low=0.016,
+                confidence_interval_high=1.584,
+                robustness_score=0.7,
+                significant=True,
+                note="study b effect",
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "build_cross_study_meta_analysis_report")
+    assert (
+        workflow.CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE.value
+        == "fixed_inverse_variance"
+    )
+    assert report.summary.combined_entry_count == 1
+    assert report.combined_entries[0].combined_log2_fold_change > 0.0
+    assert (
+        "combined_log2_fold_change"
+        in workflow.render_cross_study_meta_analysis_tsv(report)
+    )
+    assert (
+        "fixed_weight_fraction"
+        in workflow.render_cross_study_meta_analysis_study_weight_tsv(report)
+    )
+
+
 def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> None:
     report = workflow.build_cross_study_pathway_comparison_report_from_observations(
         (
