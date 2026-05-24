@@ -384,7 +384,10 @@ def build_proteomics_study_result_from_dda_workflow_bundle(
                 surface_name="parsimony_review",
                 kind=ProteomicsStudyQcKind.DDA_PARSIMONY,
                 issue_count=bundle.parsimony_review.summary.unresolved_ambiguity_count,
-                note=bundle.parsimony_review.note,
+                note=(
+                    "dda workflow preserves parsimony-selected proteins and unresolved "
+                    "protein ambiguities for study-level review"
+                ),
             ),
             ProteomicsStudyQcSurface(
                 surface_name="sample_exploration_report",

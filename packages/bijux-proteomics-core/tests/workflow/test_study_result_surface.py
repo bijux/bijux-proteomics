@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.identification import SearchAdapterKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.ptm import (
@@ -16,6 +17,7 @@ from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import (
     ProteomicsRunEngine,
     build_biological_result_report_bundle,
+    build_dda_biological_workflow_bundle,
     build_diann_biological_workflow_bundle,
     build_maxquant_biological_workflow_bundle,
     build_proteomics_run_bundle,
@@ -119,6 +121,47 @@ def test_build_proteomics_study_result_preserves_diann_workflow_surfaces() -> No
         surface.kind is ProteomicsStudyStatisticKind.DIFFERENTIAL_PROTEIN
         for surface in study_result.statistic_surfaces
     )
+
+
+def test_build_proteomics_study_result_preserves_fragpipe_workflow_surfaces() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _workflow_fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    workflow = build_dda_biological_workflow_bundle(
+        _workflow_fixture("fragpipe_biological_psms.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+        dialect_id="fragpipe-psm",
+        source_protein_tsv_path=_workflow_fixture("fragpipe_biological_proteins.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    study_result = build_proteomics_study_result(workflow)
+
+    assert study_result.study_kind is ProteomicsStudyKind.DDA
+    assert {
+        surface.kind for surface in study_result.matrix_surfaces
+    } == {
+        ProteomicsStudyMatrixKind.LABEL_FREE_PROTEIN,
+        ProteomicsStudyMatrixKind.HEATMAP_REVIEW,
+    }
+    assert {
+        surface.kind for surface in study_result.qc_surfaces
+    } == {
+        ProteomicsStudyQcKind.DDA_ACCEPTANCE,
+        ProteomicsStudyQcKind.DDA_PARSIMONY,
+        ProteomicsStudyQcKind.SAMPLE_EXPLORATION,
+        ProteomicsStudyQcKind.EXPERIMENT_CONFIDENCE,
+    }
+    assert any(
+        surface.kind is ProteomicsStudyStatisticKind.DIFFERENTIAL_PROTEIN
+        for surface in study_result.statistic_surfaces
+    )
+    assert study_result.biological_report is workflow.biological_report
 
 
 def test_build_proteomics_study_result_preserves_maxquant_workflow_surfaces() -> None:
