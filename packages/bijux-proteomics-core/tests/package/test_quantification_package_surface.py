@@ -907,6 +907,159 @@ def test_quantification_package_exports_differential_result_robustness_surface()
     )
 
 
+def test_quantification_package_exports_imputation_policy_comparison_surface() -> None:
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-001",
+                sample_id="case-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P1",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-002",
+                sample_id="case-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=120.0,
+                protein_refs=("P1",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-003",
+                sample_id="ctrl-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=None,
+                protein_refs=("P1",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-004",
+                sample_id="ctrl-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=None,
+                protein_refs=("P1",),
+                missing_value_kind=quantification.MissingValueKind.NOT_OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-005",
+                sample_id="case-1",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=101.0,
+                protein_refs=("P2",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-006",
+                sample_id="case-2",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=119.0,
+                protein_refs=("P2",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-007",
+                sample_id="ctrl-1",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=30.0,
+                protein_refs=("P2",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="pkg-imp-008",
+                sample_id="ctrl-2",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=31.0,
+                protein_refs=("P2",),
+                missing_value_kind=quantification.MissingValueKind.OBSERVED,
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PEPTIDE,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+    )
+
+    none_report = quantification.build_differential_abundance_report(
+        table,
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    low_intensity_report = quantification.build_differential_abundance_report(
+        quantification.impute_label_free_table(
+            table,
+            method=quantification.ImputationMethod.LOW_INTENSITY,
+        ),
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    knn_report = none_report.model_copy(
+        update={
+            "imputation_method": quantification.ImputationMethod.KNN,
+            "note": "controlled non-significant kNN comparison surface",
+        }
+    )
+
+    report = quantification.compare_imputation_policies(
+        {
+            quantification.ImputationMethod.NONE: none_report,
+            quantification.ImputationMethod.LOW_INTENSITY: low_intensity_report,
+            quantification.ImputationMethod.KNN: knn_report,
+        }
+    )
+    rendered = quantification.render_imputation_policy_comparison_tsv(report)
+    entry_lookup = {entry.entity_id: entry for entry in report.entries}
+
+    assert hasattr(quantification, "compare_imputation_policies")
+    assert hasattr(quantification, "render_imputation_policy_comparison_tsv")
+    assert entry_lookup["PEPA"].imputation_dependent is True
+    assert entry_lookup["PEPA"].policy_sensitive is True
+    assert (
+        "entity_id\tsignificant_without_imputation\tsignificant_after_imputation"
+        "\timputation_dependent\tpolicy_sensitive"
+        in rendered
+    )
+
+
 def test_quantification_package_exports_batch_effect_owner_surface() -> None:
     records = (
         quantification.Ms1FeatureRecord(
