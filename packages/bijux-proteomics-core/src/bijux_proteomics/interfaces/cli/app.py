@@ -641,6 +641,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_missingness_classifier_report,
     build_multi_condition_differential_abundance_report,
+    build_multi_contrast_consistency_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_peptide_intensity_matrix_from_features,
@@ -663,6 +664,7 @@ from bijux_proteomics.quantification import (
     export_heatmap_column_metadata_tsv,
     export_differential_abundance_tsv,
     export_differential_broken_pairs_tsv,
+    export_multi_contrast_consistency_tsv,
     export_batch_effect_batches_tsv,
     export_batch_effect_principal_components_tsv,
     export_batch_effect_summary_tsv,
@@ -8598,6 +8600,11 @@ def _parse_timepoint_order_file(path: Path) -> tuple[str, ...]:
     default=None,
 )
 @click.option(
+    "--multi-contrast-consistency-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--batch-effect-summary-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -8725,6 +8732,7 @@ def quantify_command(
     condition_b: str | None,
     differential_tsv_out: Path | None,
     broken_pairs_tsv_out: Path | None,
+    multi_contrast_consistency_tsv_out: Path | None,
     batch_effect_summary_tsv_out: Path | None,
     batch_effect_batches_tsv_out: Path | None,
     batch_effect_components_tsv_out: Path | None,
@@ -8826,6 +8834,7 @@ def quantify_command(
         selected_contrast: tuple[str, str] | None = None
         differential = None
         differential_multi_condition = None
+        multi_contrast_consistency = None
         if design_path is not None:
             effective_pairing_field = design_pairing_field
             if effective_pairing_field is None and all(
@@ -8967,6 +8976,10 @@ def quantify_command(
                             design_entries,
                         )
                     )
+                    multi_contrast_consistency = build_multi_contrast_consistency_report(
+                        differential_multi_condition,
+                        entity_protein_refs=table.entity_protein_refs,
+                    )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
@@ -8988,6 +9001,15 @@ def quantify_command(
                 "broken-pair export requires a resolvable two-condition differential contrast"
             )
         export_differential_broken_pairs_tsv(differential, broken_pairs_tsv_out)
+    if multi_contrast_consistency_tsv_out is not None:
+        if multi_contrast_consistency is None:
+            raise click.ClickException(
+                "multi-contrast consistency export requires intensity quantification with at least three conditions"
+            )
+        export_multi_contrast_consistency_tsv(
+            multi_contrast_consistency,
+            multi_contrast_consistency_tsv_out,
+        )
     if batch_effect_summary_tsv_out is not None:
         if batch_effect is None:
             raise click.ClickException("batch effect export requires --design")
@@ -9194,6 +9216,11 @@ def quantify_command(
             if differential_multi_condition is not None
             else None
         ),
+        "multi_contrast_consistency": (
+            multi_contrast_consistency.to_dict()
+            if multi_contrast_consistency is not None
+            else None
+        ),
         "time_course_differential": (
             time_course_differential.to_dict()
             if time_course_differential is not None
@@ -9211,6 +9238,11 @@ def quantify_command(
             "broken_pairs_tsv": (
                 str(broken_pairs_tsv_out)
                 if broken_pairs_tsv_out is not None
+                else None
+            ),
+            "multi_contrast_consistency_tsv": (
+                str(multi_contrast_consistency_tsv_out)
+                if multi_contrast_consistency_tsv_out is not None
                 else None
             ),
             "batch_effect_summary_tsv": (
