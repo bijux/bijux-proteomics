@@ -50,7 +50,7 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 3
+    assert suite.passed_count == 4
     assert suite.failed_count == 5
 
     diann_benchmark_run = runs["dia_diann_benchmark_dataset"]
@@ -58,6 +58,14 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert diann_benchmark_run.verified_counts["imported_precursor_count"] == 31
     assert diann_benchmark_run.verified_counts["significant_protein_count"] == 3
     assert Path(diann_benchmark_run.output_dir, "diann_biological_report_manifest.json").exists()
+
+    maxquant_benchmark_run = runs["maxquant_lfq_benchmark_dataset"]
+    assert maxquant_benchmark_run.status == "passed"
+    assert maxquant_benchmark_run.verified_counts["imported_evidence_count"] == 8
+    assert maxquant_benchmark_run.verified_counts["significant_protein_count"] == 3
+    assert Path(
+        maxquant_benchmark_run.output_dir, "maxquant_biological_report_manifest.json"
+    ).exists()
 
     lfq_run = runs["lfq_cohort_review_package"]
     assert lfq_run.status == "passed"
