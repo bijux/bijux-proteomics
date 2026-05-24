@@ -10,6 +10,7 @@ from importlib import import_module
 _QUANTIFICATION_EXPORT_MODULES = (
     "bijux_proteomics.quantification.batch_effect",
     "bijux_proteomics.quantification.censored_differential",
+    "bijux_proteomics.quantification.composition",
     "bijux_proteomics.quantification.core_matrix",
     "bijux_proteomics.quantification.contracts",
     "bijux_proteomics.quantification.design_matrix",
