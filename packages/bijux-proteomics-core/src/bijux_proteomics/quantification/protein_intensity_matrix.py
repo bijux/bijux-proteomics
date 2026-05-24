@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field, model_validator
@@ -80,7 +81,12 @@ class ProteinPeptideContributionEntry(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     shared_peptide: bool
+    eligible_under_shared_peptide_policy: bool
     included_by_policy: bool
+    protein_value_abundance: float | None = Field(default=None, ge=0.0)
+    abundance_rank: int | None = Field(default=None, ge=1)
+    included_abundance_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    abundance_to_protein_value_ratio: float | None = Field(default=None, ge=0.0)
     shared_peptide_policy: ProteinSharedPeptidePolicy
 
 
@@ -227,6 +233,15 @@ class ProteinIntensityMatrixReport(JsonModel):
         )
 
 
+@dataclass(frozen=True)
+class _ProteinContributionSource:
+    peptide_id: str
+    peptide_sequence: str
+    value: ProteinIntensityMatrixValue
+    is_unique: bool
+    eligible_under_shared_peptide_policy: bool
+
+
 def build_protein_intensity_matrix_from_peptides(
     peptide_matrix: PeptideIntensityMatrixReport | CanonicalQuantMatrix,
     *,
@@ -247,9 +262,7 @@ def build_protein_intensity_matrix_from_peptides(
         else ProteinSharedPeptidePolicy.ALL_PEPTIDES
     )
     target_peptides: dict[str, list[tuple[ProteinIntensityMatrixValue, str, bool]]] = {}
-    target_contributions: dict[
-        str, list[tuple[str, str, ProteinIntensityMatrixValue, bool, bool]]
-    ] = {}
+    target_contributions: dict[str, list[_ProteinContributionSource]] = {}
     target_refs: dict[str, tuple[str, ...]] = {}
 
     for peptide_row in peptide_matrix.rows:
@@ -264,7 +277,7 @@ def build_protein_intensity_matrix_from_peptides(
         for target_id in target_ids:
             target_contributions.setdefault(target_id, [])
             for value in peptide_row.values:
-                included_by_policy = is_unique or not unique_only
+                eligible_under_shared_peptide_policy = is_unique or not unique_only
                 target_refs.setdefault(
                     target_id,
                     peptide_row.protein_refs
@@ -272,21 +285,23 @@ def build_protein_intensity_matrix_from_peptides(
                     else (target_id,),
                 )
                 target_contributions[target_id].append(
-                    (
-                        peptide_row.entity_id,
-                        peptide_row.peptide_sequence,
-                        ProteinIntensityMatrixValue(
+                    _ProteinContributionSource(
+                        peptide_id=peptide_row.entity_id,
+                        peptide_sequence=peptide_row.peptide_sequence,
+                        value=ProteinIntensityMatrixValue(
                             sample_id=value.sample_id,
                             abundance=value.abundance,
                             missing_value_kind=value.missing_value_kind,
                             shared_peptide_policy=shared_peptide_policy,
                             contributing_peptide_count=1,
                         ),
-                        is_unique,
-                        included_by_policy,
+                        is_unique=is_unique,
+                        eligible_under_shared_peptide_policy=(
+                            eligible_under_shared_peptide_policy
+                        ),
                     )
                 )
-                if not included_by_policy:
+                if not eligible_under_shared_peptide_policy:
                     continue
                 target_peptides.setdefault(target_id, [])
                 target_peptides[target_id].append(
@@ -373,18 +388,37 @@ def build_protein_intensity_matrix_from_peptides(
             }
         )
         values: list[ProteinIntensityMatrixValue] = []
+        sample_contributions: dict[str, tuple[ProteinPeptideContributionEntry, ...]] = {}
         for sample_id in peptide_matrix.sample_ids:
             entries = target_rows.get((target_id, sample_id), [])
             missing_kind = _aggregate_missing_kind(
                 tuple(entry.missing_value_kind for entry, _, _ in entries)
                 or (MissingValueKind.NOT_OBSERVED,)
             )
+            all_sample_contributions = tuple(
+                contribution
+                for contribution in target_contributions.get(target_id, ())
+                if contribution.value.sample_id == sample_id
+            )
+            observed_entries = tuple(
+                contribution
+                for contribution in all_sample_contributions
+                if _is_observed_contribution(contribution.value)
+            )
+            eligible_observed_entries = tuple(
+                contribution
+                for contribution in observed_entries
+                if contribution.eligible_under_shared_peptide_policy
+            )
+            included_entries = _select_rollup_contributions(
+                eligible_observed_entries,
+                aggregation_method=aggregation_method,
+                top_n=top_n,
+            )
             observed_values = tuple(
-                entry.abundance
-                for entry, _, _ in entries
-                if entry.abundance is not None
-                and entry.missing_value_kind
-                in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+                contribution.value.abundance
+                for contribution in included_entries
+                if contribution.value.abundance is not None
             )
             abundance: float | None = None
             if observed_values:
@@ -409,10 +443,18 @@ def build_protein_intensity_matrix_from_peptides(
                     abundance=abundance,
                     missing_value_kind=missing_kind,
                     shared_peptide_policy=shared_peptide_policy,
-                    contributing_peptide_count=len(
-                        {peptide_id for _, peptide_id, _ in entries}
-                    ),
+                    contributing_peptide_count=len(included_entries),
                 )
+            )
+            sample_contributions[sample_id] = _build_sample_contribution_entries(
+                target_id=target_id,
+                target_kind=target_kind,
+                protein_refs=protein_refs,
+                sample_id=sample_id,
+                shared_peptide_policy=shared_peptide_policy,
+                protein_value_abundance=abundance,
+                sample_contributions=all_sample_contributions,
+                included_entries=included_entries,
             )
         rows.append(
             ProteinIntensityMatrixRow(
@@ -426,32 +468,12 @@ def build_protein_intensity_matrix_from_peptides(
                 values=tuple(values),
             )
         )
-        for (
-            peptide_id,
-            peptide_sequence,
-            value,
-            is_unique,
-            included_by_policy,
-        ) in target_contributions.get(target_id, ()):
-            contribution_entries.append(
-                ProteinPeptideContributionEntry(
-                    entity_id=target_id,
-                    target_kind=target_kind,
-                    sample_id=value.sample_id,
-                    peptide_id=peptide_id,
-                    peptide_sequence=peptide_sequence,
-                    protein_refs=protein_refs,
-                    abundance=value.abundance,
-                    missing_value_kind=value.missing_value_kind,
-                    shared_peptide=not is_unique,
-                    included_by_policy=included_by_policy,
-                    shared_peptide_policy=shared_peptide_policy,
-                )
-            )
+        for sample_id in peptide_matrix.sample_ids:
+            contribution_entries.extend(sample_contributions[sample_id])
 
     note = (
         "protein matrix rolls peptide intensities up through one explicit policy "
-        "while preserving peptide counts, unique-versus-shared burden, and per-sample missingness"
+        "while preserving peptide counts, unique-versus-shared burden, per-value contributor decomposition, and per-sample missingness"
     )
     return ProteinIntensityMatrixReport(
         source_kind=peptide_matrix.source_kind,
@@ -659,7 +681,12 @@ def render_protein_peptide_contribution_tsv(
         "abundance",
         "missing_value_kind",
         "shared_peptide",
+        "eligible_under_shared_peptide_policy",
         "included_by_policy",
+        "protein_value_abundance",
+        "abundance_rank",
+        "included_abundance_fraction",
+        "abundance_to_protein_value_ratio",
         "shared_peptide_policy",
     )
     rows = ["\t".join(header)]
@@ -681,7 +708,24 @@ def render_protein_peptide_contribution_tsv(
                     "" if entry.abundance is None else f"{entry.abundance:g}",
                     entry.missing_value_kind.value,
                     str(entry.shared_peptide).lower(),
+                    str(entry.eligible_under_shared_peptide_policy).lower(),
                     str(entry.included_by_policy).lower(),
+                    (
+                        ""
+                        if entry.protein_value_abundance is None
+                        else f"{entry.protein_value_abundance:g}"
+                    ),
+                    "" if entry.abundance_rank is None else str(entry.abundance_rank),
+                    (
+                        ""
+                        if entry.included_abundance_fraction is None
+                        else f"{entry.included_abundance_fraction:.6f}"
+                    ),
+                    (
+                        ""
+                        if entry.abundance_to_protein_value_ratio is None
+                        else f"{entry.abundance_to_protein_value_ratio:.6f}"
+                    ),
                     entry.shared_peptide_policy.value,
                 )
             )
@@ -719,3 +763,109 @@ def _aggregate_abundance(
         return float((ordered[midpoint - 1] + ordered[midpoint]) / 2.0)
     ordered = sorted(values, reverse=True)
     return float(sum(ordered[:top_n]))
+
+
+def _is_observed_contribution(value: ProteinIntensityMatrixValue) -> bool:
+    return (
+        value.abundance is not None
+        and value.missing_value_kind
+        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    )
+
+
+def _select_rollup_contributions(
+    contributions: tuple[_ProteinContributionSource, ...],
+    *,
+    aggregation_method: QuantRollupMethod,
+    top_n: int,
+) -> tuple[_ProteinContributionSource, ...]:
+    if aggregation_method is not QuantRollupMethod.TOP_N:
+        return contributions
+    ordered = sorted(
+        contributions,
+        key=lambda contribution: (
+            -(contribution.value.abundance or 0.0),
+            contribution.peptide_id,
+        ),
+    )
+    return tuple(ordered[:top_n])
+
+
+def _build_sample_contribution_entries(
+    *,
+    target_id: str,
+    target_kind: ProteinMatrixTargetKind,
+    protein_refs: tuple[str, ...],
+    sample_id: str,
+    shared_peptide_policy: ProteinSharedPeptidePolicy,
+    protein_value_abundance: float | None,
+    sample_contributions: tuple[_ProteinContributionSource, ...],
+    included_entries: tuple[_ProteinContributionSource, ...],
+) -> tuple[ProteinPeptideContributionEntry, ...]:
+    included_peptide_ids = {entry.peptide_id for entry in included_entries}
+    ranked_entries = sorted(
+        (
+            contribution
+            for contribution in sample_contributions
+            if _is_observed_contribution(contribution.value)
+        ),
+        key=lambda contribution: (
+            -(contribution.value.abundance or 0.0),
+            contribution.peptide_id,
+        ),
+    )
+    rank_lookup = {
+        contribution.peptide_id: index
+        for index, contribution in enumerate(ranked_entries, start=1)
+    }
+    included_total_abundance = sum(
+        contribution.value.abundance or 0.0 for contribution in included_entries
+    )
+    equal_zero_fraction = (
+        1.0 / len(included_entries)
+        if included_entries and included_total_abundance == 0.0
+        else None
+    )
+    rows: list[ProteinPeptideContributionEntry] = []
+    for contribution in sample_contributions:
+        included_by_policy = contribution.peptide_id in included_peptide_ids
+        included_abundance_fraction: float | None = None
+        if included_by_policy and contribution.value.abundance is not None:
+            if included_total_abundance > 0.0:
+                included_abundance_fraction = (
+                    contribution.value.abundance / included_total_abundance
+                )
+            else:
+                included_abundance_fraction = equal_zero_fraction
+        abundance_to_protein_value_ratio: float | None = None
+        if (
+            contribution.value.abundance is not None
+            and protein_value_abundance is not None
+            and protein_value_abundance > 0.0
+        ):
+            abundance_to_protein_value_ratio = (
+                contribution.value.abundance / protein_value_abundance
+            )
+        rows.append(
+            ProteinPeptideContributionEntry(
+                entity_id=target_id,
+                target_kind=target_kind,
+                sample_id=sample_id,
+                peptide_id=contribution.peptide_id,
+                peptide_sequence=contribution.peptide_sequence,
+                protein_refs=protein_refs,
+                abundance=contribution.value.abundance,
+                missing_value_kind=contribution.value.missing_value_kind,
+                shared_peptide=not contribution.is_unique,
+                eligible_under_shared_peptide_policy=(
+                    contribution.eligible_under_shared_peptide_policy
+                ),
+                included_by_policy=included_by_policy,
+                protein_value_abundance=protein_value_abundance,
+                abundance_rank=rank_lookup.get(contribution.peptide_id),
+                included_abundance_fraction=included_abundance_fraction,
+                abundance_to_protein_value_ratio=abundance_to_protein_value_ratio,
+                shared_peptide_policy=shared_peptide_policy,
+            )
+        )
+    return tuple(rows)
