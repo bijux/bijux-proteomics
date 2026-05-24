@@ -268,6 +268,91 @@ def test_quantification_package_exports_peptide_level_differential_owner_surface
     )
 
 
+def test_quantification_package_exports_variance_model_owner_surface() -> None:
+    table = quantification.build_label_free_intensity_table(
+        (
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-001",
+                sample_id="s1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=8.0,
+                protein_refs=("P_LOW",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-002",
+                sample_id="s2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=36.0,
+                protein_refs=("P_LOW",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-003",
+                sample_id="s3",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=7.0,
+                protein_refs=("P_LOW",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-004",
+                sample_id="s4",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=34.0,
+                protein_refs=("P_LOW",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-005",
+                sample_id="s1",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=980.0,
+                protein_refs=("P_HIGH",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-006",
+                sample_id="s2",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=1000.0,
+                protein_refs=("P_HIGH",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-007",
+                sample_id="s3",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=1020.0,
+                protein_refs=("P_HIGH",),
+            ),
+            quantification.Ms1FeatureRecord(
+                feature_id="variance-008",
+                sample_id="s4",
+                peptide="PEPB",
+                canonical_peptide="PEPB",
+                intensity=1040.0,
+                protein_refs=("P_HIGH",),
+            ),
+        ),
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+
+    report = quantification.fit_mean_variance_trend(table)
+    rendered = quantification.render_mean_variance_trend_tsv(report)
+    entry_lookup = {entry.entity_id: entry for entry in report.entries}
+
+    assert hasattr(quantification, "fit_mean_variance_trend")
+    assert hasattr(quantification, "render_mean_variance_trend_tsv")
+    assert entry_lookup["P_LOW"].quantitative_confidence < entry_lookup["P_HIGH"].quantitative_confidence
+    assert (
+        "entity_id\tmean_intensity\tobserved_variance\texpected_variance\tvariance_residual"
+        in rendered
+    )
+
+
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
     None
 ):
