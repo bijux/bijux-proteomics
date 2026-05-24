@@ -457,3 +457,30 @@ def test_review_package_exports_biological_claim_validation_surface() -> None:
     assert "claim_id\tclaim_kind\tstatus" in review.render_supported_biological_claim_tsv(
         report
     )
+
+
+def test_review_package_exports_biological_hypothesis_surface() -> None:
+    report = review.build_biological_hypothesis_report(
+        (
+            review.BiologicalHypothesisCandidate(
+                hypothesis_id="protein-hypothesis:P11111",
+                hypothesis_kind=review.BiologicalHypothesisKind.PROTEIN_MECHANISM,
+                subject_id="P11111",
+                subject_label="TP53",
+                claim="TP53 decreased in treatment vs control",
+                supporting_protein_refs=("P11111",),
+                evidence_node_ids=(
+                    "protein:P11111",
+                    "statistical_result:protein:control_vs_treatment:P11111",
+                ),
+                base_confidence_score=0.78,
+                source_ids=("protein-mechanism-card:P11111",),
+                note="graph-backed protein mechanism support",
+            ),
+        )
+    )
+
+    assert hasattr(review, "build_biological_hypothesis_report")
+    assert hasattr(review, "render_biological_hypothesis_tsv")
+    assert report.summary.hypothesis_count == 1
+    assert "evidence_node_ids" in review.render_biological_hypothesis_tsv(report)
