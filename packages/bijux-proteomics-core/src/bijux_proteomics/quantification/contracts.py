@@ -1233,6 +1233,16 @@ class ImputationSensitivityReport(JsonModel):
     primary_narrative_changed: bool
 
 
+class DifferentialImputationSignificanceChangeReason(StrEnum):
+    """How one differential result changes between no-impute and imputed analysis."""
+
+    NOT_IMPUTED = "not_imputed"
+    STABLE_SIGNIFICANT = "stable_significant"
+    STABLE_NON_SIGNIFICANT = "stable_non_significant"
+    SIGNIFICANT_ONLY_AFTER_IMPUTATION = "significant_only_after_imputation"
+    SIGNIFICANCE_LOST_AFTER_IMPUTATION = "significance_lost_after_imputation"
+
+
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
 
@@ -1492,6 +1502,7 @@ class DifferentialResultRobustnessReasonCode(StrEnum):
     ELEVATED_FDR = "elevated_fdr"
     HIGH_MISSINGNESS = "high_missingness"
     IMPUTATION_HEAVY = "imputation_heavy"
+    IMPUTATION_DEPENDENT_SIGNIFICANCE = "imputation_dependent_significance"
     LOW_PEPTIDE_SUPPORT = "low_peptide_support"
     REPLICATE_INCONSISTENCY = "replicate_inconsistency"
     CAUTION_QC = "caution_qc"
@@ -1524,6 +1535,14 @@ class DifferentialAbundanceEntry(JsonModel):
     confidence_interval_low: float | None = None
     confidence_interval_high: float | None = None
     effect_size_cohens_d: float | None = None
+    no_impute_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    no_impute_log2_fold_change: float | None = None
+    imputed_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    imputed_log2_fold_change: float | None = None
+    imputation_significance_change_reason: (
+        DifferentialImputationSignificanceChangeReason | None
+    ) = None
+    imputation_dependent_hit: bool = False
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
     robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
@@ -1614,6 +1633,14 @@ class TimeCourseDifferentialEntry(JsonModel):
         ge=0.0,
         le=1.0,
     )
+    no_impute_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    no_impute_log2_fold_change: float | None = None
+    imputed_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    imputed_log2_fold_change: float | None = None
+    imputation_significance_change_reason: (
+        DifferentialImputationSignificanceChangeReason | None
+    ) = None
+    imputation_dependent_hit: bool = False
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
     robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
