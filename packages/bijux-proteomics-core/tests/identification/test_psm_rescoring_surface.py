@@ -229,3 +229,38 @@ def test_explain_rescored_psm_reports_negative_precursor_error_and_intensity_ter
     assert by_feature["matched_ion_count"].signed_contribution < 0.0
     assert "signed_contribution" in rendered
     assert "feature_name" in rendered
+
+
+def test_explain_rescored_psm_rejects_unknown_model_feature_names() -> None:
+    feature_row = _feature_row(
+        "target-invalid-model",
+        score_native=91.0,
+        precursor_ppm_error=0.5,
+        matched_ion_count=8,
+        explained_intensity=0.9,
+        top_peak_unmatched_fraction=0.05,
+        target_decoy_label=TargetDecoyLabel.TARGET,
+    )
+    model = PsmRescoringModel(
+        intercept=0.0,
+        feature_parameters=(
+            PsmRescoringFeatureParameter(
+                feature_name="not_a_real_feature",
+                transform="identity",
+                mean=0.0,
+                scale=1.0,
+                weight=1.0,
+            ),
+        ),
+        regularization_strength=0.01,
+        iteration_count=1,
+        convergence_delta=0.0,
+        native_auc=0.5,
+        rescored_auc=0.5,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="rescoring model feature parameters must use supported PSM features",
+    ):
+        explain_rescored_psm(model, feature_row)
