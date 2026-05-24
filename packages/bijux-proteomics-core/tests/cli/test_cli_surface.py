@@ -422,6 +422,80 @@ def test_result_explanation_command_emits_structured_decision_outputs() -> None:
         assert "opposing" in evidence_tsv
 
 
+def test_analysis_recommendations_command_emits_condition_tied_actions() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_dir = Path("ptm_report")
+        ptm_dir.mkdir()
+        (ptm_dir / "ptm_evidence_cards.tsv").write_text(
+            "\n".join(
+                (
+                    "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
+                    "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("run_qc.tsv").write_text(
+            "\n".join(
+                (
+                    "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key\tmetric_label\tobserved_value\tunit\tseverity\tdisposition\tenforced_violation\tmessage",
+                    "run\tt2.mzml\tfail\televated_contaminant_fraction;identification_rate_low\tcontaminant_psm_fraction\tContaminant PSM fraction\t0.12\tfraction\tfailed\tblock\ttrue\tcontaminant evidence burden exceeds the expected background range",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("batch_effect_summary.tsv").write_text(
+            "\n".join(
+                (
+                    "batch_field\tdisposition\tglobal_median_log2_abundance\tbatch_count\tflagged_batch_count\tbatch_variance_proxy\tbatch_associated_component_count\tfully_confounded_with_condition\tbatch_correction_blocked\tbatch_warning\tnote",
+                    "batch\tblocked\t10.1\t2\t2\t0.8\t2\ttrue\ttrue\tbatch is fully confounded with condition; batch correction is blocked\tbatch estimation detected full confounding between batch and condition and therefore blocks batch correction",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "analysis-recommendations",
+                "--ptm-report-dir",
+                "ptm_report",
+                "--run-qc-assessment-tsv",
+                "run_qc.tsv",
+                "--batch-effect-summary-tsv",
+                "batch_effect_summary.tsv",
+                "--summary-tsv-out",
+                "analysis_recommendations.summary.tsv",
+                "--recommendation-tsv-out",
+                "analysis_recommendations.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["recommendation_count"] == 4
+        condition_codes = {
+            entry["detected_condition_code"]
+            for entry in payload["report"]["recommendations"]
+        }
+        assert condition_codes == {
+            "ptm_protein_correction_not_requested",
+            "elevated_contamination",
+            "failed_run_qc",
+            "batch_condition_confounding",
+        }
+        assert "triggered_condition_codes" in Path(
+            "analysis_recommendations.summary.tsv"
+        ).read_text()
+        recommendation_tsv = Path("analysis_recommendations.tsv").read_text()
+        assert "detected_condition_code" in recommendation_tsv
+        assert "avoid_batch_correction" in recommendation_tsv
+
+
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
