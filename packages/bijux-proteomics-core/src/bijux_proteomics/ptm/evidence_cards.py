@@ -16,11 +16,17 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord, PtmSiteEntry
+from bijux_proteomics.ptm.crosstalk import (
+    PtmCrosstalkEvidenceSource,
+    PtmCrosstalkRelationship,
+    build_ptm_crosstalk_report,
+)
 from bijux_proteomics.ptm.differential_analysis import (
     PtmDifferentialAnalysisReport,
     PtmProteinCorrectionMode,
     PtmProteinCorrectionStatus,
     PtmSiteDifferentialEntry,
+    PtmSiteDifferentialReport,
 )
 from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationConfidenceTier,
@@ -34,6 +40,7 @@ from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentReport,
     PtmRegulatorKind,
 )
+from bijux_proteomics.ptm.site_annotation_import import PtmSiteAnnotationMappingReport
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
     PtmSiteQuantificationReport,
@@ -209,6 +216,26 @@ class PtmEvidenceCardRegulatorEvidence(JsonModel):
     annotation_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
 
 
+class PtmEvidenceCardCrosstalkPartner(JsonModel):
+    """One PTM-site partner linked through owned crosstalk evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    partner_site_key: str = Field(..., min_length=1)
+    partner_protein_ref: str = Field(..., min_length=1)
+    partner_modification_name: str = Field(..., min_length=1)
+    partner_position: int = Field(..., ge=1)
+    partner_log2_fold_change: float
+    relationship: PtmCrosstalkRelationship
+    evidence_sources: tuple[PtmCrosstalkEvidenceSource, ...] = Field(
+        default_factory=tuple
+    )
+    shared_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    shared_pathways: tuple[str, ...] = Field(default_factory=tuple)
+    residue_distance: int | None = Field(default=None, ge=0)
+    evidence_note: str = Field(..., min_length=1)
+
+
 class PtmEvidenceCard(JsonModel):
     """One structured PTM evidence card for one significant site."""
 
@@ -231,6 +258,9 @@ class PtmEvidenceCard(JsonModel):
     differential_result: PtmEvidenceCardDifferentialResult
     motif_evidence: PtmEvidenceCardMotifEvidence
     regulator_evidence: tuple[PtmEvidenceCardRegulatorEvidence, ...] = Field(
+        default_factory=tuple
+    )
+    crosstalk_partners: tuple[PtmEvidenceCardCrosstalkPartner, ...] = Field(
         default_factory=tuple
     )
     functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
@@ -269,6 +299,7 @@ class PtmEvidenceCardSummary(JsonModel):
     narrative_claim_count: int = Field(..., ge=0)
     regulator_supported_card_count: int = Field(..., ge=0)
     motif_annotated_card_count: int = Field(..., ge=0)
+    crosstalk_supported_card_count: int = Field(..., ge=0)
     functional_context_card_count: int = Field(..., ge=0)
     warning_card_count: int = Field(..., ge=0)
 
@@ -296,6 +327,7 @@ def build_ptm_evidence_card_report(
     site_quantification: PtmSiteQuantificationReport | None = None,
     motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None,
     regulator_enrichment: PtmRegulatorEnrichmentReport | None = None,
+    annotation_mapping_report: PtmSiteAnnotationMappingReport | None = None,
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     protein_sequences: dict[str, str] | None = None,
     protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
@@ -343,6 +375,11 @@ def build_ptm_evidence_card_report(
         site_entries=site_entries,
         protein_records=protein_records,
         protein_sequences=protein_sequences,
+    )
+    crosstalk_partners_by_site = _build_crosstalk_partners_by_site(
+        site_entries,
+        differential_analysis.differential_report,
+        annotation_mapping_report=annotation_mapping_report,
     )
 
     cards: list[PtmEvidenceCard] = []
@@ -434,6 +471,10 @@ def build_ptm_evidence_card_report(
                 ),
                 motif_evidence=motif_evidence,
                 regulator_evidence=regulators,
+                crosstalk_partners=crosstalk_partners_by_site.get(
+                    differential_entry.site_key,
+                    (),
+                ),
                 functional_regions=functional_context_by_site.get(
                     differential_entry.site_key,
                     (),
@@ -499,6 +540,9 @@ def build_ptm_evidence_card_report(
             motif_annotated_card_count=sum(
                 1 for entry in stable_cards if entry.motif_evidence.centered_windows
             ),
+            crosstalk_supported_card_count=sum(
+                1 for entry in stable_cards if entry.crosstalk_partners
+            ),
             functional_context_card_count=sum(
                 1 for entry in stable_cards if entry.functional_regions
             ),
@@ -507,7 +551,7 @@ def build_ptm_evidence_card_report(
         note=(
             "ptm evidence cards preserve one structured object per significant site, "
             "carry peptide, localization, quantification, differential, motif, "
-            "functional-region, regulator, and protein-correction evidence together, "
+            "crosstalk, functional-region, regulator, and protein-correction evidence together, "
             "and link every narrative claim back to a stable card id"
         ),
     )
@@ -527,6 +571,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             "narrative_claim_count",
             "regulator_supported_card_count",
             "motif_annotated_card_count",
+            "crosstalk_supported_card_count",
             "functional_context_card_count",
             "warning_card_count",
         )
@@ -540,6 +585,7 @@ def render_ptm_evidence_card_summary_tsv(report: PtmEvidenceCardReport) -> str:
             report.summary.narrative_claim_count,
             report.summary.regulator_supported_card_count,
             report.summary.motif_annotated_card_count,
+            report.summary.crosstalk_supported_card_count,
             report.summary.functional_context_card_count,
             report.summary.warning_card_count,
         )
@@ -574,6 +620,10 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "centered_windows",
             "functional_regions",
             "regulators",
+            "crosstalk_partner_site_keys",
+            "crosstalk_relationships",
+            "crosstalk_evidence_sources",
+            "crosstalk_shared_pathways",
             "warning_codes",
             "claim_ids",
         )
@@ -606,6 +656,21 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 ";".join(
                     f"{regulator.regulator}:{regulator.direction}"
                     for regulator in entry.regulator_evidence
+                ),
+                ";".join(
+                    partner.partner_site_key for partner in entry.crosstalk_partners
+                ),
+                ";".join(
+                    partner.relationship.value for partner in entry.crosstalk_partners
+                ),
+                ";".join(
+                    ",".join(source.value for source in partner.evidence_sources)
+                    for partner in entry.crosstalk_partners
+                ),
+                ";".join(
+                    ",".join(partner.shared_pathways)
+                    for partner in entry.crosstalk_partners
+                    if partner.shared_pathways
                 ),
                 ";".join(warning.code.value for warning in entry.warnings),
                 ";".join(entry.claim_ids),
@@ -798,6 +863,57 @@ def _build_identity_entries_by_site(
     return {
         entry.evidence_key: entry
         for entry in report.entries
+    }
+
+
+def _build_crosstalk_partners_by_site(
+    site_entries: tuple[PtmSiteEntry, ...],
+    differential_report: PtmSiteDifferentialReport,
+    *,
+    annotation_mapping_report: PtmSiteAnnotationMappingReport | None = None,
+) -> dict[str, tuple[PtmEvidenceCardCrosstalkPartner, ...]]:
+    crosstalk_report = build_ptm_crosstalk_report(
+        site_entries,
+        differential_report,
+        annotation_mapping_report=annotation_mapping_report,
+    )
+    partners_by_site: dict[str, list[PtmEvidenceCardCrosstalkPartner]] = {}
+    for entry in crosstalk_report.entries:
+        partners_by_site.setdefault(entry.left_site_key, []).append(
+            PtmEvidenceCardCrosstalkPartner(
+                partner_site_key=entry.right_site_key,
+                partner_protein_ref=entry.right_protein_ref,
+                partner_modification_name=entry.right_modification_name,
+                partner_position=entry.right_position,
+                partner_log2_fold_change=entry.right_log2_fold_change,
+                relationship=entry.relationship,
+                evidence_sources=entry.evidence_sources,
+                shared_peptides=entry.shared_peptides,
+                shared_pathways=entry.shared_pathways,
+                residue_distance=entry.residue_distance,
+                evidence_note=entry.evidence_note,
+            )
+        )
+        partners_by_site.setdefault(entry.right_site_key, []).append(
+            PtmEvidenceCardCrosstalkPartner(
+                partner_site_key=entry.left_site_key,
+                partner_protein_ref=entry.left_protein_ref,
+                partner_modification_name=entry.left_modification_name,
+                partner_position=entry.left_position,
+                partner_log2_fold_change=entry.left_log2_fold_change,
+                relationship=entry.relationship,
+                evidence_sources=entry.evidence_sources,
+                shared_peptides=entry.shared_peptides,
+                shared_pathways=entry.shared_pathways,
+                residue_distance=entry.residue_distance,
+                evidence_note=entry.evidence_note,
+            )
+        )
+    return {
+        site_key: tuple(
+            sorted(partners, key=lambda partner: partner.partner_site_key)
+        )
+        for site_key, partners in partners_by_site.items()
     }
 
 
