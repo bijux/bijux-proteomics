@@ -156,6 +156,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/spectrum_peak_matching.py",
             "io/spectra.py",
             "io/spectral_library.py",
+            "io/spectral_library_intensity_agreement.py",
             "io/stable_outputs.py",
             "io/target_panel.py",
             "io/transition_table.py",
