@@ -20,6 +20,7 @@ _TARGETED_EXPORT_MODULES = (
     "bijux_proteomics.targeted.target_matrix",
     "bijux_proteomics.targeted.transition_coelution",
     "bijux_proteomics.targeted.transition_selection",
+    "bijux_proteomics.targeted.validation_evidence_cards",
     "bijux_proteomics.targeted.validation_planning",
 )
 
