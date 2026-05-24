@@ -58,6 +58,26 @@ def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limit
     )
 
 
+def test_public_benchmark_descriptor_loads_runnable_diann_contracts() -> None:
+    descriptor = load_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "dia_diann_benchmark_dataset"
+        / "dataset.yml"
+    )
+
+    assert descriptor.search_engine is PublicBenchmarkSearchEngine.DIANN
+    assert descriptor.expected_input_schemas == (
+        "result_tsv",
+        "config_json",
+        "design_tsv",
+        "proteins_fasta",
+    )
+    assert len(descriptor.sample_metadata) == 6
+    assert descriptor.expected_biological_signals[0].subject_id == "P04637"
+
+
 def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_ptm_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -75,6 +95,28 @@ def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_
     assert {
         assessment.status for assessment in report.expected_signal_assessments
     } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+
+
+def test_public_benchmark_runner_executes_runnable_diann_descriptor(
+    tmp_path: Path,
+) -> None:
+    report = run_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "dia_diann_benchmark_dataset"
+        / "dataset.yml",
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["imported_precursor_count"] == 31
+    assert report.verified_counts["protein_matrix_row_count"] == 5
+    assert {
+        assessment.status for assessment in report.expected_signal_assessments
+    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert Path(report.output_dir, "diann_precursor_quantity_matrix.tsv").exists()
+    assert Path(report.output_dir, "diann_import_rejected_evidence.tsv").exists()
 
 
 def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts_with_design(
@@ -141,3 +183,4 @@ def test_public_benchmark_runner_renders_signal_assessment_ledger(
         "observed_effect_size\tobserved_adjusted_p_value\tnote"
     )
     assert "ptm_site_p11111_s5_up" in signal_tsv
+    assert "dia_sig_a_up" in signal_tsv
