@@ -11,6 +11,11 @@ from io import StringIO
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.study.carryover import (
+    CarryoverIntensityEntry,
+    CarryoverRunOrderEntry,
+    detect_carryover,
+)
 from bijux_proteomics.study.experiment_design import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics_foundation import JsonModel
@@ -83,71 +88,40 @@ def build_targeted_carryover_report(
     experiment_design = coerce_experiment_design(design)
     ordered_runs = _ordered_design_runs_by_sample_id(experiment_design)
     totals_by_precursor_sample = _precursor_totals_by_sample(import_report)
+    carryover_rows = detect_carryover(
+        tuple(
+            CarryoverRunOrderEntry(run_id=run.run_id, run_order=run.run_order)
+            for run in ordered_runs.values()
+        ),
+        _carryover_matrix(ordered_runs=ordered_runs, totals_by_precursor_sample=totals_by_precursor_sample),
+        high_source_relative_fraction_threshold=high_source_relative_fraction_threshold,
+        low_level_repeated_signal_fraction_threshold=low_level_repeated_signal_fraction_threshold,
+    )
     candidates: list[TargetedCarryoverCandidateEntry] = []
-
-    for precursor_id, sample_totals in sorted(totals_by_precursor_sample.items()):
-        if not sample_totals:
-            continue
-        max_intensity = max(sample_totals.values())
-        if max_intensity <= 0.0:
-            continue
-        source_threshold = max_intensity * high_source_relative_fraction_threshold
-        source_candidates = {
-            sample_id
-            for sample_id, intensity in sample_totals.items()
-            if intensity >= source_threshold
-        }
-        if not source_candidates:
-            continue
-        peptide_sequence, protein_ref = _precursor_identity(import_report, precursor_id)
-        for affected_sample_id, affected_run in ordered_runs.items():
-            affected_total = sample_totals.get(affected_sample_id, 0.0)
-            if affected_total <= 0.0:
-                continue
-            source_sample_id, source_run, source_total = _latest_source_before_run(
-                ordered_runs=ordered_runs,
-                sample_totals=sample_totals,
-                source_candidates=source_candidates,
-                affected_sample_id=affected_sample_id,
+    sample_id_by_run_id = {
+        run.run_id: sample_id for sample_id, run in ordered_runs.items()
+    }
+    for row in carryover_rows:
+        peptide_sequence, protein_ref = _precursor_identity(import_report, row.entity_id)
+        candidates.append(
+            TargetedCarryoverCandidateEntry(
+                source_run_id=row.source_run,
+                source_sample_id=sample_id_by_run_id[row.source_run],
+                source_run_order=row.source_run_order,
+                affected_run_id=row.affected_run,
+                affected_sample_id=sample_id_by_run_id[row.affected_run],
+                affected_run_order=row.affected_run_order,
+                order_gap=row.order_gap,
+                precursor_id=row.entity_id,
+                peptide_sequence=peptide_sequence,
+                protein_ref=protein_ref,
+                source_total_intensity=row.source_intensity,
+                affected_total_intensity=row.affected_intensity,
+                repeated_signal_fraction=row.repeated_signal_fraction,
+                carryover_score=row.carryover_score,
+                concern_codes=row.concern_codes,
             )
-            if source_sample_id is None or source_run is None or source_total is None:
-                continue
-            repeated_signal_fraction = affected_total / source_total
-            if repeated_signal_fraction > low_level_repeated_signal_fraction_threshold:
-                continue
-            order_gap = affected_run.run_order - source_run.run_order
-            if order_gap < 1:
-                continue
-            candidates.append(
-                TargetedCarryoverCandidateEntry(
-                    source_run_id=source_run.run_id,
-                    source_sample_id=source_sample_id,
-                    source_run_order=source_run.run_order,
-                    affected_run_id=affected_run.run_id,
-                    affected_sample_id=affected_sample_id,
-                    affected_run_order=affected_run.run_order,
-                    order_gap=order_gap,
-                    precursor_id=precursor_id,
-                    peptide_sequence=peptide_sequence,
-                    protein_ref=protein_ref,
-                    source_total_intensity=round(source_total, 4),
-                    affected_total_intensity=round(affected_total, 4),
-                    repeated_signal_fraction=round(repeated_signal_fraction, 6),
-                    carryover_score=round(
-                        _carryover_score(
-                            source_total_intensity=source_total,
-                            max_precursor_intensity=max_intensity,
-                            repeated_signal_fraction=repeated_signal_fraction,
-                            low_level_repeated_signal_fraction_threshold=(
-                                low_level_repeated_signal_fraction_threshold
-                            ),
-                            order_gap=order_gap,
-                        ),
-                        4,
-                    ),
-                    concern_codes=_concern_codes(order_gap),
-                )
-            )
+        )
 
     sorted_candidates = tuple(
         sorted(
@@ -321,52 +295,25 @@ def _precursor_identity(
     return matching[0].peptide_sequence, protein_ref
 
 
-def _latest_source_before_run(
+def _carryover_matrix(
     *,
-    ordered_runs,
-    sample_totals: dict[str, float],
-    source_candidates: set[str],
-    affected_sample_id: str,
-):
-    affected_run = ordered_runs[affected_sample_id]
-    prior_sources = [
-        (sample_id, run, sample_totals[sample_id])
-        for sample_id, run in ordered_runs.items()
-        if sample_id in source_candidates and run.run_order < affected_run.run_order
-    ]
-    if not prior_sources:
-        return None, None, None
-    source_sample_id, source_run, source_total = max(
-        prior_sources,
-        key=lambda item: item[1].run_order,
-    )
-    return source_sample_id, source_run, source_total
-
-
-def _carryover_score(
-    *,
-    source_total_intensity: float,
-    max_precursor_intensity: float,
-    repeated_signal_fraction: float,
-    low_level_repeated_signal_fraction_threshold: float,
-    order_gap: int,
-) -> float:
-    source_strength = source_total_intensity / max_precursor_intensity
-    low_level_strength = max(
-        0.0,
-        1.0 - (
-            repeated_signal_fraction / low_level_repeated_signal_fraction_threshold
-        ),
-    )
-    order_proximity = 1.0 / order_gap
-    return (source_strength + low_level_strength + order_proximity) / 3.0
-
-
-def _concern_codes(order_gap: int) -> tuple[str, ...]:
-    codes = ["high_intensity_previous_run", "low_level_repeated_signal"]
-    if order_gap == 1:
-        codes.append("immediate_run_order_followup")
-    return tuple(codes)
+    ordered_runs: dict[str, object],
+    totals_by_precursor_sample: dict[str, dict[str, float]],
+) -> tuple[CarryoverIntensityEntry, ...]:
+    rows: list[CarryoverIntensityEntry] = []
+    for precursor_id, sample_totals in sorted(totals_by_precursor_sample.items()):
+        for sample_id, intensity in sorted(sample_totals.items()):
+            run = ordered_runs.get(sample_id)
+            if run is None:
+                continue
+            rows.append(
+                CarryoverIntensityEntry(
+                    run_id=run.run_id,
+                    entity_id=precursor_id,
+                    intensity=intensity,
+                )
+            )
+    return tuple(rows)
 
 
 __all__ = [
