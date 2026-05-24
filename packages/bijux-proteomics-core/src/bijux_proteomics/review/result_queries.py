@@ -106,13 +106,17 @@ class _ProteinCardArtifact:
     protein_refs: tuple[str, ...]
     gene_symbol: str | None
     peptides: tuple[str, ...]
+    peptide_count: int
     unique_peptide_count: int
     shared_peptide_count: int
+    observed_sample_count: int
+    missing_sample_count: int
     condition_a: str
     condition_b: str
     log2_fold_change: float
     adjusted_p_value: float | None
     significant: bool
+    evidence_tier: str
     warning_codes: tuple[str, ...]
 
 
@@ -129,9 +133,13 @@ class _PtmCardArtifact:
     card_id: str
     site_key: str
     protein_ref: str
+    condition_a: str
+    condition_b: str
     adjusted_p_value: float | None
     log2_fold_change: float
     corrected_log2_fold_change: float | None
+    localization_tier: str
+    observed_sample_count: int
     protein_correction_status: str
     mechanism_reason_codes: tuple[str, ...]
     warning_codes: tuple[str, ...]
@@ -811,14 +819,18 @@ def _load_biological_protein_cards(path: Path) -> tuple[_ProteinCardArtifact, ..
             protein_refs=_split_multi(row["protein_refs"]),
             gene_symbol=_empty_to_none(row["gene_symbol"]),
             peptides=_split_multi(row["peptides"]),
+            peptide_count=int(row.get("peptide_count", len(_split_multi(row["peptides"])))),
             unique_peptide_count=int(row["unique_peptide_count"]),
             shared_peptide_count=int(row["shared_peptide_count"]),
+            observed_sample_count=int(row.get("observed_sample_count", "0")),
+            missing_sample_count=int(row.get("missing_sample_count", "0")),
             condition_a=row["condition_a"],
             condition_b=row["condition_b"],
             log2_fold_change=float(row["log2_fold_change"]),
             adjusted_p_value=_parse_optional_float(row["adjusted_p_value"]),
             significant=_parse_bool(row["significant"]),
-            warning_codes=_split_multi(row["warning_codes"]),
+            evidence_tier=row.get("evidence_tier", "review"),
+            warning_codes=_split_multi(row.get("warning_codes", "")),
         )
         for row in rows
     )
@@ -844,11 +856,15 @@ def _load_ptm_cards(path: Path) -> tuple[_PtmCardArtifact, ...]:
             card_id=row["card_id"],
             site_key=row["site_key"],
             protein_ref=row["protein_ref"],
+            condition_a=row.get("condition_a", ""),
+            condition_b=row.get("condition_b", ""),
             adjusted_p_value=_parse_optional_float(row["adjusted_p_value"]),
             log2_fold_change=float(row["log2_fold_change"]),
             corrected_log2_fold_change=_parse_optional_float(
                 row["corrected_log2_fold_change"]
             ),
+            localization_tier=row.get("localization_tier", "unknown"),
+            observed_sample_count=int(row.get("observed_sample_count", "0")),
             protein_correction_status=row["protein_correction_status"],
             mechanism_reason_codes=_split_multi(row["mechanism_reason_codes"]),
             warning_codes=_split_multi(row["warning_codes"]),
