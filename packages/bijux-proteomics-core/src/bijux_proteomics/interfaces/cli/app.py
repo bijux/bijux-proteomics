@@ -1024,7 +1024,13 @@ from bijux_proteomics.workflow import (
     build_public_dataset_evidence_card_report,
     build_public_benchmark_trust_bundle,
     build_public_dataset_comparison_report,
+    build_interactive_result_comparison_from_artifacts,
     build_interactive_result_bundle_from_artifacts,
+    render_interactive_result_comparison_pathway_tsv,
+    render_interactive_result_comparison_protein_tsv,
+    render_interactive_result_comparison_ptm_site_tsv,
+    render_interactive_result_comparison_qc_tsv,
+    render_interactive_result_comparison_summary_tsv,
     render_interactive_result_bundle_summary_tsv,
     build_result_search_index_from_artifacts,
     render_result_search_hit_tsv,
@@ -8015,6 +8021,141 @@ def result_search_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("interactive-result-comparison")
+@click.option(
+    "--left-biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--left-ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--left-run-qc-assessment-tsv",
+    "left_run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--right-biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--right-ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--right-run-qc-assessment-tsv",
+    "right_run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--ptm-site-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--qc-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--pathway-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def interactive_result_comparison_command(
+    left_biological_report_dir: Path | None,
+    left_ptm_report_dir: Path | None,
+    left_run_qc_assessment_tsv_paths: tuple[Path, ...],
+    right_biological_report_dir: Path | None,
+    right_ptm_report_dir: Path | None,
+    right_run_qc_assessment_tsv_paths: tuple[Path, ...],
+    summary_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    ptm_site_tsv_out: Path | None,
+    qc_tsv_out: Path | None,
+    pathway_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare two governed result bundles for frontend-ready review clients."""
+
+    try:
+        payload = build_interactive_result_comparison_from_artifacts(
+            left_biological_report_dir=left_biological_report_dir,
+            left_ptm_report_dir=left_ptm_report_dir,
+            left_run_qc_assessment_tsv_paths=left_run_qc_assessment_tsv_paths,
+            right_biological_report_dir=right_biological_report_dir,
+            right_ptm_report_dir=right_ptm_report_dir,
+            right_run_qc_assessment_tsv_paths=right_run_qc_assessment_tsv_paths,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_interactive_result_comparison_summary_tsv(payload),
+        )
+    if protein_tsv_out is not None:
+        _write_text_output(
+            protein_tsv_out,
+            render_interactive_result_comparison_protein_tsv(payload),
+        )
+    if ptm_site_tsv_out is not None:
+        _write_text_output(
+            ptm_site_tsv_out,
+            render_interactive_result_comparison_ptm_site_tsv(payload),
+        )
+    if qc_tsv_out is not None:
+        _write_text_output(
+            qc_tsv_out,
+            render_interactive_result_comparison_qc_tsv(payload),
+        )
+    if pathway_tsv_out is not None:
+        _write_text_output(
+            pathway_tsv_out,
+            render_interactive_result_comparison_pathway_tsv(payload),
+        )
+
+    json_payload = {
+        "left_biological_report_dir": (
+            None
+            if left_biological_report_dir is None
+            else str(left_biological_report_dir)
+        ),
+        "left_ptm_report_dir": (
+            None if left_ptm_report_dir is None else str(left_ptm_report_dir)
+        ),
+        "left_run_qc_assessment_tsv_paths": [
+            str(path) for path in left_run_qc_assessment_tsv_paths
+        ],
+        "right_biological_report_dir": (
+            None
+            if right_biological_report_dir is None
+            else str(right_biological_report_dir)
+        ),
+        "right_ptm_report_dir": (
+            None if right_ptm_report_dir is None else str(right_ptm_report_dir)
+        ),
+        "right_run_qc_assessment_tsv_paths": [
+            str(path) for path in right_run_qc_assessment_tsv_paths
+        ],
+        "payload": payload.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+            "ptm_site_tsv": (
+                None if ptm_site_tsv_out is None else str(ptm_site_tsv_out)
+            ),
+            "qc_tsv": None if qc_tsv_out is None else str(qc_tsv_out),
+            "pathway_tsv": None if pathway_tsv_out is None else str(pathway_tsv_out),
+        },
+    }
+    _emit_json(json_payload, out_path=out_path)
 
 
 @cli.command("interactive-result-bundle")
