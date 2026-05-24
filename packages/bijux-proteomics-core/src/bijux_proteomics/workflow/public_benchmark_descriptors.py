@@ -268,6 +268,53 @@ def public_benchmark_root() -> Path:
     return Path(__file__).resolve().parents[3] / "benchmarks" / "public"
 
 
+def resolve_public_benchmark_path(benchmark_path: Path | str | None = None) -> Path:
+    """Resolve a reviewer-supplied benchmark path onto the package-owned tree."""
+
+    package_root = public_benchmark_root()
+    if benchmark_path is None:
+        return package_root
+    candidate = Path(benchmark_path)
+    if candidate.exists():
+        return candidate
+
+    repo_root = package_root.parents[3]
+    normalized = candidate.as_posix().rstrip("/")
+    if normalized in {"benchmarks/public", "./benchmarks/public"}:
+        return package_root
+    prefix = "benchmarks/public/"
+    if normalized.startswith(prefix):
+        return package_root / normalized.removeprefix(prefix)
+    if normalized.startswith(f"./{prefix}"):
+        return package_root / normalized.removeprefix(f"./{prefix}")
+    repo_relative_prefix = repo_root / "benchmarks" / "public"
+    if candidate.is_absolute() and candidate == repo_relative_prefix:
+        return package_root
+    if candidate.is_absolute() and repo_relative_prefix in candidate.parents:
+        return package_root / candidate.relative_to(repo_relative_prefix)
+    raise FileNotFoundError(
+        "public benchmark path does not exist: "
+        f"{candidate}. Use the package-owned benchmark root at {package_root}."
+    )
+
+
+def resolve_public_benchmark_root(benchmark_root: Path | str | None = None) -> Path:
+    """Resolve a reviewer-supplied benchmark root onto the package-owned tree."""
+
+    resolved = resolve_public_benchmark_path(benchmark_root)
+    if resolved.is_file():
+        raise ValueError(
+            "public benchmark root must be a directory, not a descriptor path: "
+            f"{resolved}"
+        )
+    if not resolved.exists():
+        raise FileNotFoundError(
+            "public benchmark root does not exist: "
+            f"{resolved}. Use the package-owned benchmark root at {public_benchmark_root()}."
+        )
+    return resolved
+
+
 def list_public_benchmark_descriptor_paths(benchmark_root: Path) -> tuple[Path, ...]:
     """List every descriptor rooted under the package-owned benchmark tree."""
 
@@ -290,6 +337,8 @@ __all__ = [
     "PublicBenchmarkSearchEngine",
     "PublicBenchmarkSourceFile",
     "public_benchmark_root",
+    "resolve_public_benchmark_path",
+    "resolve_public_benchmark_root",
     "list_public_benchmark_descriptor_paths",
     "load_public_benchmark_descriptor",
 ]

@@ -1047,6 +1047,8 @@ from bijux_proteomics.workflow import (
     render_result_search_hit_tsv,
     render_result_search_summary_tsv,
     search_result_index,
+    resolve_public_benchmark_path,
+    resolve_public_benchmark_root,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -5862,7 +5864,7 @@ def diann_benchmark_command(
 @cli.command("public-benchmark-runner")
 @click.argument(
     "benchmark_path",
-    type=click.Path(exists=True, path_type=Path),
+    type=click.Path(path_type=Path),
 )
 @click.option(
     "--run-output-root",
@@ -5893,6 +5895,7 @@ def public_benchmark_runner_command(
     """Run one public benchmark descriptor or a whole public benchmark root."""
 
     try:
+        benchmark_path = resolve_public_benchmark_path(benchmark_path)
         if benchmark_path.is_dir():
             suite = run_public_benchmark_descriptor_suite(
                 benchmark_path,
@@ -5945,7 +5948,7 @@ def public_benchmark_runner_command(
 @click.option(
     "--benchmarks",
     "benchmark_root",
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     required=True,
 )
 @click.option(
@@ -5969,6 +5972,7 @@ def build_trust_bundle_command(
     """Build a regenerable trust bundle from public benchmark descriptors."""
 
     try:
+        benchmark_root = resolve_public_benchmark_root(benchmark_root)
         report = build_public_benchmark_trust_bundle(
             benchmark_root,
             output_dir=output_dir,
@@ -5987,7 +5991,7 @@ def build_trust_bundle_command(
 @click.option(
     "--benchmarks",
     "benchmark_root",
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     required=True,
 )
 @click.option(
@@ -6040,6 +6044,7 @@ def public_dataset_comparison_command(
     """Run one biological question across multiple public dataset descriptors."""
 
     try:
+        benchmark_root = resolve_public_benchmark_root(benchmark_root)
         report = build_public_dataset_comparison_report(
             benchmark_root,
             run_output_root=run_output_root,
@@ -6084,7 +6089,7 @@ def public_dataset_comparison_command(
 @click.option(
     "--benchmarks",
     "benchmark_root",
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    type=click.Path(file_okay=False, path_type=Path),
     required=True,
 )
 @click.option(
@@ -6116,6 +6121,7 @@ def public_dataset_evidence_cards_command(
     """Build cross-study evidence cards over public dataset descriptors."""
 
     try:
+        benchmark_root = resolve_public_benchmark_root(benchmark_root)
         report = build_public_dataset_evidence_card_report(
             benchmark_root,
             run_output_root=run_output_root,
