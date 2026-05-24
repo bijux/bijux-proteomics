@@ -149,6 +149,7 @@ def test_review_package_import_contract() -> None:
 
     assert hasattr(module, "build_biological_claim_validation_report")
     assert hasattr(module, "build_biological_hypothesis_report")
+    assert hasattr(module, "build_biomarker_candidate_ranking_report")
 
 
 def test_targeted_package_import_contract() -> None:

@@ -484,3 +484,34 @@ def test_review_package_exports_biological_hypothesis_surface() -> None:
     assert hasattr(review, "render_biological_hypothesis_tsv")
     assert report.summary.hypothesis_count == 1
     assert "evidence_node_ids" in review.render_biological_hypothesis_tsv(report)
+
+
+def test_review_package_exports_biomarker_candidate_ranking_surface() -> None:
+    report = review.build_biomarker_candidate_ranking_report(
+        (
+            review.BiomarkerCandidateRankingInput(
+                candidate_id="protein:P11111",
+                candidate_kind=review.BiomarkerCandidateKind.PROTEIN,
+                display_label="TP53",
+                target_protein_ref="P11111",
+                effect_size=1.4,
+                adjusted_p_value=0.01,
+                support_count=4,
+                effect_score=0.7,
+                robustness_score=0.82,
+                detectability_score=0.9,
+                specificity_score=0.88,
+                annotation_score=0.65,
+                assay_feasibility_score=0.86,
+                sample_qc_score=0.9,
+                annotation_labels=("pathway:damage_response", "region:binding_site"),
+                source_ids=("biological-card:P11111",),
+                note="strong validation-ready protein candidate",
+            ),
+        )
+    )
+
+    assert hasattr(review, "build_biomarker_candidate_ranking_report")
+    assert hasattr(review, "render_biomarker_candidate_ranking_tsv")
+    assert report.summary.candidate_count == 1
+    assert "rank_reason_codes" in review.render_biomarker_candidate_ranking_tsv(report)
