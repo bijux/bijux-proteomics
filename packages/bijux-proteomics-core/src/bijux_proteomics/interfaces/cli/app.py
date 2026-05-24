@@ -1030,12 +1030,18 @@ from bijux_proteomics.workflow import (
     build_public_dataset_comparison_report,
     build_interactive_result_comparison_from_artifacts,
     build_interactive_result_bundle_from_artifacts,
+    build_result_manifest_from_artifacts,
     render_interactive_result_comparison_pathway_tsv,
     render_interactive_result_comparison_protein_tsv,
     render_interactive_result_comparison_ptm_site_tsv,
     render_interactive_result_comparison_qc_tsv,
     render_interactive_result_comparison_summary_tsv,
     render_interactive_result_bundle_summary_tsv,
+    render_result_manifest_command_tsv,
+    render_result_manifest_file_tsv,
+    render_result_manifest_input_tsv,
+    render_result_manifest_summary_tsv,
+    render_result_manifest_warning_tsv,
     build_result_search_index_from_artifacts,
     render_result_search_hit_tsv,
     render_result_search_summary_tsv,
@@ -8228,6 +8234,110 @@ def interactive_result_bundle_command(
         "bundle": bundle.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("result-manifest")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--input",
+    "input_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option(
+    "--command",
+    "commands",
+    multiple=True,
+    required=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--input-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--command-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--file-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--warning-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--manifest-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def result_manifest_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    input_paths: tuple[Path, ...],
+    commands: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    input_tsv_out: Path | None,
+    command_tsv_out: Path | None,
+    file_tsv_out: Path | None,
+    warning_tsv_out: Path | None,
+    manifest_json_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Emit a machine-readable completeness manifest over exported result directories."""
+
+    try:
+        report = build_result_manifest_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+            input_paths=input_paths,
+            commands=commands,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_result_manifest_summary_tsv(report))
+    if input_tsv_out is not None:
+        _write_text_output(input_tsv_out, render_result_manifest_input_tsv(report))
+    if command_tsv_out is not None:
+        _write_text_output(command_tsv_out, render_result_manifest_command_tsv(report))
+    if file_tsv_out is not None:
+        _write_text_output(file_tsv_out, render_result_manifest_file_tsv(report))
+    if warning_tsv_out is not None:
+        _write_text_output(warning_tsv_out, render_result_manifest_warning_tsv(report))
+    if manifest_json_out is not None:
+        _write_text_output(manifest_json_out, report.to_stable_json() + "\n")
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "input_paths": [str(path) for path in input_paths],
+        "commands": list(commands),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "input_tsv": None if input_tsv_out is None else str(input_tsv_out),
+            "command_tsv": None if command_tsv_out is None else str(command_tsv_out),
+            "file_tsv": None if file_tsv_out is None else str(file_tsv_out),
+            "warning_tsv": None if warning_tsv_out is None else str(warning_tsv_out),
+            "manifest_json": (
+                None if manifest_json_out is None else str(manifest_json_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
