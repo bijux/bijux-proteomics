@@ -23,6 +23,7 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
     DifferentialReplicatePolicy,
+    ImputationMethod,
     LabelFreeQuantTable,
     MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
@@ -38,6 +39,10 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
+)
+from bijux_proteomics.quantification.differential_imputation_dependence import (
+    annotate_differential_abundance_report_imputation_dependence,
+    build_no_impute_reference_table,
 )
 from bijux_proteomics.quantification.differential_result_robustness import (
     annotate_differential_abundance_report_robustness,
@@ -303,8 +308,31 @@ def build_differential_abundance_report(
         entries=ordered_entries,
         broken_pairs=broken_pairs,
     )
+    corrected_report = apply_benjamini_hochberg(report)
+    if table.imputation_method is not ImputationMethod.NONE:
+        baseline_table = build_no_impute_reference_table(table)
+        no_impute_report = build_differential_abundance_report(
+            baseline_table,
+            design_entries,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            test_type=test_type,
+            design_matrix=active_design_matrix,
+            contrast_name=active_contrast_name,
+            paired_policy=active_paired_policy,
+            replicate_policy=active_policy,
+            sample_run_policy=sample_run_policy,
+        )
+        corrected_report = annotate_differential_abundance_report_imputation_dependence(
+            corrected_report,
+            no_impute_report=no_impute_report,
+        )
+    else:
+        corrected_report = annotate_differential_abundance_report_imputation_dependence(
+            corrected_report,
+        )
     return annotate_differential_abundance_report_robustness(
-        apply_benjamini_hochberg(report),
+        corrected_report,
         table,
         analysis_design_entries,
     )
@@ -936,6 +964,12 @@ def _render_differential_rows(
             "confidence_interval_low",
             "confidence_interval_high",
             "effect_size_cohens_d",
+            "no_impute_adjusted_p_value",
+            "no_impute_log2_fold_change",
+            "imputed_adjusted_p_value",
+            "imputed_log2_fold_change",
+            "imputation_significance_change_reason",
+            "imputation_dependent_hit",
             "robustness_score",
             "robustness_qc_status",
             "robustness_reason_codes",
@@ -981,6 +1015,32 @@ def _render_differential_rows(
                         if entry.effect_size_cohens_d is None
                         else entry.effect_size_cohens_d
                     ),
+                    (
+                        ""
+                        if entry.no_impute_adjusted_p_value is None
+                        else entry.no_impute_adjusted_p_value
+                    ),
+                    (
+                        ""
+                        if entry.no_impute_log2_fold_change is None
+                        else entry.no_impute_log2_fold_change
+                    ),
+                    (
+                        ""
+                        if entry.imputed_adjusted_p_value is None
+                        else entry.imputed_adjusted_p_value
+                    ),
+                    (
+                        ""
+                        if entry.imputed_log2_fold_change is None
+                        else entry.imputed_log2_fold_change
+                    ),
+                    (
+                        ""
+                        if entry.imputation_significance_change_reason is None
+                        else entry.imputation_significance_change_reason.value
+                    ),
+                    str(entry.imputation_dependent_hit).lower(),
                     (
                         ""
                         if entry.robustness_score is None

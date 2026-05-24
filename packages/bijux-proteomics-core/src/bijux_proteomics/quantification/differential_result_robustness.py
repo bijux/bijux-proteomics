@@ -14,6 +14,7 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
+    DifferentialImputationSignificanceChangeReason,
     DifferentialResultRobustnessQcStatus,
     DifferentialResultRobustnessReasonCode,
     LabelFreeQuantTable,
@@ -282,6 +283,11 @@ def _build_pairwise_robustness_entry(
         entry.entity_id,
         sample_ids_a + sample_ids_b,
     )
+    if (
+        entry.imputation_significance_change_reason
+        is DifferentialImputationSignificanceChangeReason.SIGNIFICANT_ONLY_AFTER_IMPUTATION
+    ):
+        imputation_score = min(imputation_score, 0.2)
     peptide_support_score = _peptide_support_score(
         table,
         lookup,
@@ -311,6 +317,9 @@ def _build_pairwise_robustness_entry(
         fdr_score=fdr_score,
         missingness_score=missingness_score,
         imputation_score=imputation_score,
+        imputation_significance_change_reason=(
+            entry.imputation_significance_change_reason
+        ),
         peptide_support_score=peptide_support_score,
         replicate_consistency_score=replicate_consistency_score,
         qc_reasons=qc_reasons,
@@ -386,6 +395,9 @@ def _build_time_course_robustness_entry(
         fdr_score=fdr_score,
         missingness_score=missingness_score,
         imputation_score=imputation_score,
+        imputation_significance_change_reason=(
+            entry.imputation_significance_change_reason
+        ),
         peptide_support_score=peptide_support_score,
         replicate_consistency_score=replicate_consistency_score,
         qc_reasons=qc_reasons,
@@ -630,6 +642,8 @@ def _reason_codes(
     fdr_score: float,
     missingness_score: float,
     imputation_score: float,
+    imputation_significance_change_reason: DifferentialImputationSignificanceChangeReason
+    | None,
     peptide_support_score: float,
     replicate_consistency_score: float,
     qc_reasons: tuple[DifferentialResultRobustnessReasonCode, ...],
@@ -643,6 +657,13 @@ def _reason_codes(
         reasons.append(DifferentialResultRobustnessReasonCode.HIGH_MISSINGNESS)
     if imputation_score < 0.8:
         reasons.append(DifferentialResultRobustnessReasonCode.IMPUTATION_HEAVY)
+    if (
+        imputation_significance_change_reason
+        is DifferentialImputationSignificanceChangeReason.SIGNIFICANT_ONLY_AFTER_IMPUTATION
+    ):
+        reasons.append(
+            DifferentialResultRobustnessReasonCode.IMPUTATION_DEPENDENT_SIGNIFICANCE
+        )
     if peptide_support_score < 0.8:
         reasons.append(DifferentialResultRobustnessReasonCode.LOW_PEPTIDE_SUPPORT)
     if replicate_consistency_score < 0.75:
@@ -661,6 +682,7 @@ def _note_for_reason_codes(
         DifferentialResultRobustnessReasonCode.ELEVATED_FDR: "adjusted significance is near the reporting threshold",
         DifferentialResultRobustnessReasonCode.HIGH_MISSINGNESS: "missing or zero-heavy support reduces confidence",
         DifferentialResultRobustnessReasonCode.IMPUTATION_HEAVY: "quantitative support depends strongly on imputed cells",
+        DifferentialResultRobustnessReasonCode.IMPUTATION_DEPENDENT_SIGNIFICANCE: "result is significant only after imputation",
         DifferentialResultRobustnessReasonCode.LOW_PEPTIDE_SUPPORT: "protein-level support comes from few peptides",
         DifferentialResultRobustnessReasonCode.REPLICATE_INCONSISTENCY: "replicate spread is high relative to the signal",
         DifferentialResultRobustnessReasonCode.CAUTION_QC: "quant qc is cautionary for this result set",
