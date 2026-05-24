@@ -26,6 +26,7 @@ from bijux_proteomics.interpretation import (
     render_complex_unresolved_member_tsv,
     PathwayEnrichmentCorrectionPolicy,
     PathwayEnrichmentReport,
+    PathwayActivityReport,
     GoEnrichmentCorrectionPolicy,
     GoEnrichmentReport,
     ProteinAnnotationColumnMapping,
@@ -36,6 +37,7 @@ from bijux_proteomics.interpretation import (
     apply_pathway_enrichment_multiple_testing,
     build_complex_enrichment_report,
     build_go_enrichment_report,
+    build_pathway_activity_report,
     build_pathway_enrichment_report,
     build_protein_annotation_mapping_report,
     parse_biological_context_table,
@@ -54,8 +56,15 @@ from bijux_proteomics.interpretation import (
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
+    render_pathway_activity_condition_comparison_tsv,
+    render_pathway_activity_condition_score_tsv,
+    render_pathway_activity_matrix_tsv,
+    render_pathway_activity_sample_score_tsv,
+    render_pathway_activity_summary_tsv,
+    render_pathway_activity_unresolved_member_tsv,
     render_pathway_enrichment_entry_tsv,
     render_pathway_enrichment_summary_tsv,
+    render_pathway_member_contribution_tsv,
     render_pathway_unresolved_member_tsv,
     render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
@@ -233,6 +242,7 @@ class BiologicalResultReportBundle(JsonModel):
     foreground_background_model: BiologicalForegroundBackgroundModel
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
+    pathway_activity_report: PathwayActivityReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
     pathway_enrichment_report: PathwayEnrichmentReport | None = None
     complex_enrichment_report: ComplexEnrichmentReport | None = None
@@ -269,6 +279,13 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     context_term_tsv: str | None = None
     context_unmapped_tsv: str | None = None
     context_rejected_tsv: str | None = None
+    pathway_activity_summary_tsv: str | None = None
+    pathway_activity_matrix_tsv: str | None = None
+    pathway_activity_sample_score_tsv: str | None = None
+    pathway_activity_condition_score_tsv: str | None = None
+    pathway_activity_condition_comparison_tsv: str | None = None
+    pathway_activity_member_contribution_tsv: str | None = None
+    pathway_activity_unresolved_member_tsv: str | None = None
     volcano_tsv: str = Field(..., min_length=1)
     volcano_json: str = Field(..., min_length=1)
     volcano_svg: str = Field(..., min_length=1)
@@ -493,6 +510,11 @@ def build_biological_result_report_bundle_from_quant_table(
             ),
         )
     )
+    pathway_membership_report = (
+        None
+        if pathway_membership_tsv_path is None
+        else parse_pathway_membership_table(pathway_membership_tsv_path)
+    )
     differential_reference_entries = _build_differential_reference_entries(
         differential_report,
         protein_refs_by_entity=normalized_table.entity_protein_refs,
@@ -563,15 +585,24 @@ def build_biological_result_report_bundle_from_quant_table(
                 min_enrichment_ratio=1.0,
             ),
         )
+    pathway_activity_report = None
+    if pathway_membership_report is not None:
+        pathway_activity_report = build_pathway_activity_report(
+            normalized_table,
+            pathway_membership_report.accepted_records,
+            design_entries=design_entries,
+            fasta_records=fasta_report.accepted_records,
+            custom_annotations=()
+            if custom_annotation_report is None
+            else custom_annotation_report.accepted_records,
+        )
     pathway_enrichment_report = None
-    if pathway_membership_tsv_path is not None:
+    if pathway_membership_report is not None:
         pathway_enrichment_report = apply_pathway_enrichment_multiple_testing(
             build_pathway_enrichment_report(
                 enrichment_foreground_entries,
                 enrichment_background_entries,
-                parse_pathway_membership_table(
-                    pathway_membership_tsv_path
-                ).accepted_records,
+                pathway_membership_report.accepted_records,
                 fasta_records=fasta_report.accepted_records,
                 custom_annotations=()
                 if custom_annotation_report is None
@@ -716,6 +747,7 @@ def build_biological_result_report_bundle_from_quant_table(
         foreground_background_model=foreground_background_model,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
+        pathway_activity_report=pathway_activity_report,
         go_enrichment_report=go_enrichment_report,
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
@@ -1354,6 +1386,13 @@ def export_biological_result_report_bundle(
     context_term_name = None
     context_unmapped_name = None
     context_rejected_name = None
+    pathway_activity_summary_name = None
+    pathway_activity_matrix_name = None
+    pathway_activity_sample_name = None
+    pathway_activity_condition_name = None
+    pathway_activity_comparison_name = None
+    pathway_activity_member_name = None
+    pathway_activity_unresolved_name = None
     volcano_tsv_name = "biological_volcano.tsv"
     volcano_json_name = "biological_volcano.json"
     volcano_svg_name = "biological_volcano.svg"
@@ -1464,6 +1503,50 @@ def export_biological_result_report_bundle(
         )
         (output_dir / context_rejected_name).write_text(
             render_rejected_biological_context_tsv(report.context_import_report),
+            encoding="utf-8",
+        )
+    if report.pathway_activity_report is not None:
+        pathway_activity_summary_name = "biological_pathway_activity_summary.tsv"
+        pathway_activity_matrix_name = "biological_pathway_activity_matrix.tsv"
+        pathway_activity_sample_name = "biological_pathway_activity_samples.tsv"
+        pathway_activity_condition_name = "biological_pathway_activity_conditions.tsv"
+        pathway_activity_comparison_name = (
+            "biological_pathway_activity_condition_comparisons.tsv"
+        )
+        pathway_activity_member_name = "biological_pathway_activity_members.tsv"
+        pathway_activity_unresolved_name = (
+            "biological_pathway_activity_unresolved.tsv"
+        )
+        (output_dir / pathway_activity_summary_name).write_text(
+            render_pathway_activity_summary_tsv(report.pathway_activity_report),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_matrix_name).write_text(
+            render_pathway_activity_matrix_tsv(report.pathway_activity_report),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_sample_name).write_text(
+            render_pathway_activity_sample_score_tsv(report.pathway_activity_report),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_condition_name).write_text(
+            render_pathway_activity_condition_score_tsv(report.pathway_activity_report),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_comparison_name).write_text(
+            render_pathway_activity_condition_comparison_tsv(
+                report.pathway_activity_report
+            ),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_member_name).write_text(
+            render_pathway_member_contribution_tsv(report.pathway_activity_report),
+            encoding="utf-8",
+        )
+        (output_dir / pathway_activity_unresolved_name).write_text(
+            render_pathway_activity_unresolved_member_tsv(
+                report.pathway_activity_report
+            ),
             encoding="utf-8",
         )
     (output_dir / volcano_tsv_name).write_text(
@@ -1582,6 +1665,13 @@ def export_biological_result_report_bundle(
         context_term_tsv=context_term_name,
         context_unmapped_tsv=context_unmapped_name,
         context_rejected_tsv=context_rejected_name,
+        pathway_activity_summary_tsv=pathway_activity_summary_name,
+        pathway_activity_matrix_tsv=pathway_activity_matrix_name,
+        pathway_activity_sample_score_tsv=pathway_activity_sample_name,
+        pathway_activity_condition_score_tsv=pathway_activity_condition_name,
+        pathway_activity_condition_comparison_tsv=pathway_activity_comparison_name,
+        pathway_activity_member_contribution_tsv=pathway_activity_member_name,
+        pathway_activity_unresolved_member_tsv=pathway_activity_unresolved_name,
         volcano_tsv=volcano_tsv_name,
         volcano_json=volcano_json_name,
         volcano_svg=volcano_svg_name,
@@ -1684,6 +1774,34 @@ def _render_biological_result_report_html(
             "Biological context rejected rows",
             artifacts.context_rejected_tsv,
         ),
+        (
+            "Pathway activity summary",
+            artifacts.pathway_activity_summary_tsv,
+        ),
+        (
+            "Pathway activity matrix",
+            artifacts.pathway_activity_matrix_tsv,
+        ),
+        (
+            "Pathway activity sample scores",
+            artifacts.pathway_activity_sample_score_tsv,
+        ),
+        (
+            "Pathway activity condition scores",
+            artifacts.pathway_activity_condition_score_tsv,
+        ),
+        (
+            "Pathway activity condition comparisons",
+            artifacts.pathway_activity_condition_comparison_tsv,
+        ),
+        (
+            "Pathway activity member contributions",
+            artifacts.pathway_activity_member_contribution_tsv,
+        ),
+        (
+            "Pathway activity unresolved members",
+            artifacts.pathway_activity_unresolved_member_tsv,
+        ),
         ("Volcano TSV", artifacts.volcano_tsv),
         ("Volcano JSON", artifacts.volcano_json),
         ("Volcano SVG", artifacts.volcano_svg),
@@ -1708,6 +1826,7 @@ def _render_biological_result_report_html(
     confidence_table_html = _render_experiment_confidence_table_html(report)
     ranking_table_html = _render_evidence_aware_ranking_table_html(report)
     foreground_background_html = _render_foreground_background_model_table_html(report)
+    pathway_activity_html = _render_pathway_activity_table_html(report)
     card_table_html = _render_protein_mechanism_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
@@ -1726,6 +1845,8 @@ def _render_biological_result_report_html(
         f"{ranking_table_html}"
         "<h2>Enrichment foreground/background model</h2>"
         f"{foreground_background_html}"
+        "<h2>Pathway activity</h2>"
+        f"{pathway_activity_html}"
         "<h2>Protein mechanism cards</h2>"
         f"{card_table_html}"
         "<h2>Artifacts</h2>"
@@ -1867,6 +1988,45 @@ def _render_foreground_background_model_table_html(
         f"{str(model.summary.valid_for_enrichment).lower()} | "
         f"<strong>Issues</strong>: {model.summary.issue_count} | "
         f"<strong>Issue summary</strong>: {escape(issue_summary)}"
+        "</p>"
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _render_pathway_activity_table_html(report: BiologicalResultReportBundle) -> str:
+    pathway_activity_report = report.pathway_activity_report
+    if pathway_activity_report is None:
+        return "<p>No pathway activity report was generated.</p>"
+    headers = (
+        "Pathway",
+        "Condition A",
+        "Condition B",
+        "Delta",
+        "Comparison confidence",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(entry.pathway_name or entry.pathway_id)}</td>"
+            f"<td>{escape(entry.condition_a)}</td>"
+            f"<td>{escape(entry.condition_b)}</td>"
+            f"<td>{_format_optional_float(entry.activity_score_delta)}</td>"
+            f"<td>{escape(entry.comparison_confidence_status.value)}</td>"
+            "</tr>"
+        )
+        for entry in pathway_activity_report.condition_comparisons[:10]
+    )
+    return (
+        "<p>"
+        f"<strong>Pathways</strong>: {pathway_activity_report.summary.pathway_count} | "
+        f"<strong>Low-confidence sample scores</strong>: "
+        f"{pathway_activity_report.summary.low_confidence_sample_score_count} | "
+        f"<strong>Unresolved members</strong>: "
+        f"{pathway_activity_report.summary.unresolved_member_count}"
         "</p>"
         "<table>"
         f"<thead><tr>{header_html}</tr></thead>"
