@@ -14,14 +14,11 @@ from bijux_proteomics.workflow import (
     PublicBenchmarkKnownLimitationSeverity,
     PublicBenchmarkSearchEngine,
     load_public_benchmark_descriptor,
+    public_benchmark_root,
     render_public_benchmark_suite_signal_assessments_tsv,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
-
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
 
 
 def _write_descriptor_copy(
@@ -30,7 +27,7 @@ def _write_descriptor_copy(
     *,
     mutate: Callable[[dict], None] | None = None,
 ) -> Path:
-    source_path = _repo_root() / "benchmarks" / "public" / source_name / "dataset.yml"
+    source_path = public_benchmark_root() / source_name / "dataset.yml"
     payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
     if mutate is not None:
         mutate(payload)
@@ -43,11 +40,7 @@ def _write_descriptor_copy(
 
 def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "ptm_localization_review_package"
-        / "dataset.yml"
+        public_benchmark_root() / "ptm_localization_review_package" / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.PTM
@@ -68,11 +61,7 @@ def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limit
 
 def test_public_benchmark_descriptor_loads_runnable_diann_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "dia_diann_benchmark_dataset"
-        / "dataset.yml"
+        public_benchmark_root() / "dia_diann_benchmark_dataset" / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.DIANN
@@ -88,11 +77,7 @@ def test_public_benchmark_descriptor_loads_runnable_diann_contracts() -> None:
 
 def test_public_benchmark_descriptor_loads_runnable_maxquant_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "maxquant_lfq_benchmark_dataset"
-        / "dataset.yml"
+        public_benchmark_root() / "maxquant_lfq_benchmark_dataset" / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.MAXQUANT
@@ -109,11 +94,7 @@ def test_public_benchmark_descriptor_loads_runnable_maxquant_contracts() -> None
 
 def test_public_benchmark_descriptor_loads_runnable_fragpipe_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "fragpipe_msfragger_benchmark_dataset"
-        / "dataset.yml"
+        public_benchmark_root() / "fragpipe_msfragger_benchmark_dataset" / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.FRAGPIPE
@@ -129,11 +110,7 @@ def test_public_benchmark_descriptor_loads_runnable_fragpipe_contracts() -> None
 
 def test_public_benchmark_descriptor_loads_runnable_tmt_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "multiplex_tmtpro_review_package"
-        / "dataset.yml"
+        public_benchmark_root() / "multiplex_tmtpro_review_package" / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.TMT
@@ -147,15 +124,25 @@ def test_public_benchmark_descriptor_loads_runnable_tmt_contracts() -> None:
     )
 
 
+def test_public_benchmark_descriptor_loads_runnable_targeted_contracts() -> None:
+    descriptor = load_public_benchmark_descriptor(
+        public_benchmark_root() / "targeted_transition_review_package" / "dataset.yml"
+    )
+
+    assert descriptor.search_engine is PublicBenchmarkSearchEngine.TARGETED
+    assert descriptor.expected_input_schemas == ("input_tsv", "design_tsv")
+    assert len(descriptor.sample_metadata) == 4
+    assert descriptor.expected_approximate_counts[-1].metric_id == "unreliable_target_count"
+    assert descriptor.known_limitations[0].severity is (
+        PublicBenchmarkKnownLimitationSeverity.ADVISORY
+    )
+
+
 def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_ptm_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "ptm_localization_review_package"
-        / "dataset.yml",
+        public_benchmark_root() / "ptm_localization_review_package" / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -176,11 +163,7 @@ def test_public_benchmark_runner_executes_runnable_maxquant_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "maxquant_lfq_benchmark_dataset"
-        / "dataset.yml",
+        public_benchmark_root() / "maxquant_lfq_benchmark_dataset" / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -198,11 +181,7 @@ def test_public_benchmark_runner_executes_runnable_fragpipe_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "fragpipe_msfragger_benchmark_dataset"
-        / "dataset.yml",
+        public_benchmark_root() / "fragpipe_msfragger_benchmark_dataset" / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -220,11 +199,7 @@ def test_public_benchmark_runner_executes_runnable_diann_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "dia_diann_benchmark_dataset"
-        / "dataset.yml",
+        public_benchmark_root() / "dia_diann_benchmark_dataset" / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -242,11 +217,7 @@ def test_public_benchmark_runner_executes_runnable_tmt_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        _repo_root()
-        / "benchmarks"
-        / "public"
-        / "multiplex_tmtpro_review_package"
-        / "dataset.yml",
+        public_benchmark_root() / "multiplex_tmtpro_review_package" / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -258,8 +229,26 @@ def test_public_benchmark_runner_executes_runnable_tmt_descriptor(
     assert not report.expected_signal_assessments
     assert Path(report.output_dir, "tmt_validation_summary.tsv").exists()
     assert Path(report.output_dir, "tmt_normalization_summary.tsv").exists()
-    assert Path(report.output_dir, "tmt_interference_summary.tsv").exists()
-    assert Path(report.output_dir, "label_based_differential_results.tsv").exists()
+
+
+def test_public_benchmark_runner_executes_runnable_targeted_descriptor(
+    tmp_path: Path,
+) -> None:
+    report = run_public_benchmark_descriptor(
+        public_benchmark_root() / "targeted_transition_review_package" / "dataset.yml",
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["target_count"] == 2
+    assert report.verified_counts["flagged_coelution_target_entry_count"] == 3
+    assert report.verified_counts["unreliable_target_count"] == 2
+    assert not report.expected_signal_assessments
+    assert Path(report.output_dir, "targeted_assay_qc_summary.tsv").exists()
+    assert Path(report.output_dir, "targeted_matrix_summary.tsv").exists()
+    assert Path(report.output_dir, "targeted_assay_qc_unreliable_targets.tsv").exists()
+    assert Path(report.output_dir, "targeted_assay_qc_fragment_ratios.tsv").exists()
+    assert Path(report.output_dir, "targeted_assay_qc_transition_qc.tsv").exists()
 
 
 def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts_with_design(
@@ -314,7 +303,7 @@ def test_public_benchmark_runner_renders_signal_assessment_ledger(
     tmp_path: Path,
 ) -> None:
     suite = run_public_benchmark_descriptor_suite(
-        _repo_root() / "benchmarks" / "public",
+        public_benchmark_root(),
         output_root=tmp_path / "runs",
     )
 

@@ -7,16 +7,13 @@ from pathlib import Path
 
 from bijux_proteomics.workflow import (
     load_public_benchmark_descriptor,
+    public_benchmark_root,
     run_public_benchmark_descriptor_suite,
 )
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
-
-
 def _benchmark_root() -> Path:
-    return _repo_root() / "benchmarks" / "public"
+    return public_benchmark_root()
 
 
 def _descriptor(name: str) -> Path:
@@ -51,8 +48,8 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 6
-    assert suite.failed_count == 4
+    assert suite.passed_count == 7
+    assert suite.failed_count == 3
 
     diann_benchmark_run = runs["dia_diann_benchmark_dataset"]
     assert diann_benchmark_run.status == "passed"
@@ -115,6 +112,10 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert Path(tmt_run.output_dir, "tmt_interference_summary.tsv").exists()
 
     targeted_run = runs["targeted_transition_review_package"]
-    assert targeted_run.status == "failed"
-    assert targeted_run.failures[0].kind == "execution_failed"
-    assert targeted_run.failures[0].message
+    assert targeted_run.status == "passed"
+    assert targeted_run.verified_counts["target_count"] == 2
+    assert targeted_run.verified_counts["unreliable_target_count"] == 2
+    assert Path(
+        targeted_run.output_dir, "targeted_assay_qc_workflow_manifest.json"
+    ).exists()
+    assert Path(targeted_run.output_dir, "targeted_assay_qc_fragment_ratios.tsv").exists()

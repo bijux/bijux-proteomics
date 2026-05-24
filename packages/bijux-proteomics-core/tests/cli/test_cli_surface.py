@@ -33,10 +33,10 @@ from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.workflow import (
     build_biological_result_report_bundle,
     export_biological_result_report_bundle,
+    public_benchmark_root,
 )
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
-REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _write_public_descriptor_copy(
@@ -46,7 +46,7 @@ def _write_public_descriptor_copy(
     dataset_id: str,
     accession: str,
 ) -> None:
-    source_path = REPO_ROOT / "benchmarks" / "public" / source_name / "dataset.yml"
+    source_path = public_benchmark_root() / source_name / "dataset.yml"
     payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
     payload["dataset_id"] = dataset_id
     payload["accession"] = accession
@@ -259,7 +259,7 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
             cli,
             [
                 "public-benchmark-runner",
-                str(REPO_ROOT / "benchmarks" / "public"),
+                str(public_benchmark_root()),
                 "--run-output-root",
                 "public_benchmark_runs",
                 "--summary-tsv-out",
@@ -273,8 +273,8 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["passed_count"] == 6
-        assert payload["failed_count"] == 4
+        assert payload["passed_count"] == 7
+        assert payload["failed_count"] == 3
         summary_tsv = Path("public_benchmark.summary.tsv").read_text()
         failures_tsv = Path("public_benchmark.failures.tsv").read_text()
         signal_tsv = Path("public_benchmark.signals.tsv").read_text()
@@ -284,6 +284,7 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
         assert "maxquant_lfq_benchmark_dataset" in summary_tsv
         assert "multiplex_tmtpro_review_package" in summary_tsv
         assert "ptm_localization_review_package" in summary_tsv
+        assert "targeted_transition_review_package" in summary_tsv
         assert "dia_diann_review_snapshot" in summary_tsv
         assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
         assert "ptm_site_p11111_s5_up" in signal_tsv
@@ -300,7 +301,7 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
             [
                 "build-trust-bundle",
                 "--benchmarks",
-                str(REPO_ROOT / "benchmarks" / "public"),
+                str(public_benchmark_root()),
                 "--out",
                 "trust_bundle",
                 "--summary-tsv-out",
@@ -312,12 +313,15 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["suite_report"]["passed_count"] == 6
-        assert payload["suite_report"]["failed_count"] == 4
+        assert payload["suite_report"]["passed_count"] == 7
+        assert payload["suite_report"]["failed_count"] == 3
         assert Path("trust_bundle/index.html").exists()
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
         assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
         assert "multiplex_tmtpro_review_package" in Path(
+            "trust_bundle.summary.tsv"
+        ).read_text()
+        assert "targeted_transition_review_package" in Path(
             "trust_bundle.summary.tsv"
         ).read_text()
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()

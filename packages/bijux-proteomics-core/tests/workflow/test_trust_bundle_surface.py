@@ -5,24 +5,23 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.workflow import build_public_benchmark_trust_bundle
-
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+from bijux_proteomics.workflow import (
+    build_public_benchmark_trust_bundle,
+    public_benchmark_root,
+)
 
 
 def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     tmp_path: Path,
 ) -> None:
     report = build_public_benchmark_trust_bundle(
-        _repo_root() / "benchmarks" / "public",
+        public_benchmark_root(),
         output_dir=tmp_path / "trust_bundle",
     )
 
     output_dir = Path(report.output_dir)
-    assert report.suite_report.passed_count == 6
-    assert report.suite_report.failed_count == 4
+    assert report.suite_report.passed_count == 7
+    assert report.suite_report.failed_count == 3
     assert (output_dir / "benchmark_results" / "summary.tsv").exists()
     assert (output_dir / "benchmark_results" / "failures.tsv").exists()
     assert (output_dir / "benchmark_results" / "source_audits.tsv").exists()
@@ -47,6 +46,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     assert "multiplex_tmtpro_review_package" in benchmark_summary
     assert "ptm_localization_review_package" in benchmark_summary
     assert "lfq_cohort_review_package" in benchmark_summary
+    assert "targeted_transition_review_package" in benchmark_summary
 
     html_index = Path(report.html_index_path).read_text(encoding="utf-8")
     assert "Proteomics Trust Bundle" in html_index

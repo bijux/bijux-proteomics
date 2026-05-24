@@ -40,6 +40,7 @@ class FlagshipPublicEvidenceKind(StrEnum):
     SCIENTIFIC_INVARIANT_LEDGER = "scientific_invariant_ledger"
     EXPERIMENTAL_DESIGN = "experimental_design"
     EXPECTATION_MANIFEST = "expectation_manifest"
+    TARGETED_RESULT_TABLE = "targeted_result_table"
     TARGETED_QC_TABLE = "targeted_qc_table"
     WARNING_DEMONSTRATION_LEDGER = "warning_demonstration_ledger"
 
@@ -892,11 +893,27 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_result_table",
+            path=f"{package_root}/evidence/skyline_targeted_qc_results.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.TARGETED_RESULT_TABLE,
+            public_identity_note=(
+                "The Skyline-style targeted result table is the runnable benchmark input for matrix and assay-QC regeneration."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_design",
+            path=f"{package_root}/evidence/skyline_targeted_qc.design.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
+            public_identity_note=(
+                "The targeted design preserves the replicate and condition structure needed for replicate-CV and validation review."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="targeted_qc_table",
             path=f"{package_root}/evidence/targeted_benchmark_qc.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.TARGETED_QC_TABLE,
             public_identity_note=(
-                "Transition-level QC evidence is the tracked base layer for the targeted public package."
+                "Transition-level QC evidence remains a tracked supporting layer beside the runnable targeted benchmark input."
             ),
         ),
         FlagshipPublicBenchmarkAsset(
@@ -1170,7 +1187,7 @@ def build_flagship_targeted_public_benchmark_package() -> (
         rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:targeted_transition_control_bundle",
         public_dataset_identity=(
-            "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots"
+            "tracked Skyline-style targeted result and design snapshots plus supporting QC and approved, failed, and refused follow-up packet snapshots"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="bounded Skyline-class comparator confrontation is shipped",
@@ -1181,15 +1198,16 @@ def build_flagship_targeted_public_benchmark_package() -> (
         ),
         scientific_pressures=(
             "transition reproducibility",
-            "calibration absence",
             "interference risk",
+            "fragment-ratio drift",
+            "coelution instability",
             "premature protein certainty",
         ),
         claim_scope=(
-            "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture."
+            "Targeted credibility is now anchored in a public transition-control package with runnable Skyline-style results, explicit QC review, and approved, failed, and refused consequence packets instead of a buried QC fixture."
         ),
         note=(
-            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but calibration, interference, and vendor-parity limits remain explicit."
+            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but absolute calibration, interference, and vendor-parity limits remain explicit."
         ),
     )
 

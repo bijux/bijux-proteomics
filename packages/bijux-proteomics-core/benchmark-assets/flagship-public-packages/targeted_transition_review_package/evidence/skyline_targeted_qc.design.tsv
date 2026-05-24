@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file
+control_r1	control	1	1	control_r1.raw	control_r1.tsv
+control_r2	control	2	1	control_r2.raw	control_r2.tsv
+treat_r1	treatment	1	1	treat_r1.raw	treat_r1.tsv
+treat_r2	treatment	2	1	treat_r2.raw	treat_r2.tsv
