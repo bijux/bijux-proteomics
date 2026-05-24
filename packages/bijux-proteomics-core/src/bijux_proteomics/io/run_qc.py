@@ -8,12 +8,12 @@ from __future__ import annotations
 import csv
 import io
 from math import floor
-from math import log
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import MzmlChromatogramReport
+from bijux_proteomics.io.spectrum_entropy import score_spectrum_entropy
 from bijux_proteomics.io.spectra import SpectrumDistributionRow, SpectrumModel
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -244,12 +244,9 @@ def build_spectrum_run_qc_report(
         base_peak_intensity = max(
             (peak.intensity for peak in spectrum.peaks), default=0.0
         )
-        top_peak_dominance = _calculate_top_peak_dominance(
-            peak_count=len(spectrum.peaks),
-            total_ion_current=total_ion_current,
-            base_peak_intensity=base_peak_intensity,
-        )
-        spectral_entropy = _calculate_normalized_spectral_entropy(spectrum)
+        entropy_score = score_spectrum_entropy(spectrum.peaks)
+        top_peak_dominance = entropy_score.top_peak_fraction
+        spectral_entropy = entropy_score.normalized_entropy
         is_empty = len(spectrum.peaks) == 0
         is_noisy = len(spectrum.peaks) < noisy_peak_count_threshold or (
             total_ion_current < noisy_total_ion_current_threshold
@@ -662,36 +659,6 @@ def _resolve_qc_traces(
         return ordered_tic, ordered_bpc, "spectrum_derived"
 
     return (), (), "unavailable"
-
-
-def _calculate_top_peak_dominance(
-    *,
-    peak_count: int,
-    total_ion_current: float,
-    base_peak_intensity: float,
-) -> float:
-    if peak_count == 0:
-        return 0.0
-    if total_ion_current <= 0.0:
-        return 1.0
-    return base_peak_intensity / total_ion_current
-
-
-def _calculate_normalized_spectral_entropy(spectrum: SpectrumModel) -> float:
-    if len(spectrum.peaks) <= 1:
-        return 0.0
-    total_ion_current = sum(peak.intensity for peak in spectrum.peaks)
-    if total_ion_current <= 0.0:
-        return 0.0
-    entropy = 0.0
-    for peak in spectrum.peaks:
-        proportion = peak.intensity / total_ion_current
-        if proportion > 0.0:
-            entropy -= proportion * log(proportion)
-    maximum_entropy = log(len(spectrum.peaks))
-    if maximum_entropy <= 0.0:
-        return 0.0
-    return entropy / maximum_entropy
 
 
 def _classify_spectrum_quality(
