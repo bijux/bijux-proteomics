@@ -349,6 +349,8 @@ from bijux_proteomics.io.spectrum_peak_matching import (
     export_spectrum_unmatched_peak_tsv,
 )
 from bijux_proteomics.io.spectral_library import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
     build_spectral_library_index,
     build_spectral_library_summary,
     find_spectral_library_candidates,
@@ -556,11 +558,14 @@ from bijux_proteomics.isotope_labeling import (
     parse_silac_feature_table,
 )
 from bijux_proteomics.targeted import (
+    DiscoveryTargetedPeptideSelectionEntry,
     DiscoveryTargetProteinEntry,
+    TargetedPeptideCandidateSource,
     TargetedResultSourceKind,
     build_discovery_targeted_peptide_selection_report,
     build_skyline_result_import_report,
     build_targeted_carryover_report,
+    build_targeted_transition_selection_report,
     build_transition_table_result_import_report,
     render_discovery_targeted_peptide_selection_rejected_tsv,
     render_discovery_targeted_peptide_selection_selected_tsv,
@@ -585,6 +590,9 @@ from bijux_proteomics.targeted import (
     render_targeted_matrix_summary_tsv,
     render_targeted_matrix_target_tsv,
     render_targeted_result_observation_tsv,
+    render_targeted_transition_selection_rejected_tsv,
+    render_targeted_transition_selection_selected_tsv,
+    render_targeted_transition_selection_summary_tsv,
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
@@ -792,6 +800,8 @@ from bijux_proteomics.sequences import (
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
+    PeptideChemicalLiabilityTier,
+    PeptideDetectabilityTier,
     PeptideUniquenessClass,
     append_contaminant_database,
     build_decoy_generation_manifest,
@@ -1355,6 +1365,129 @@ def _load_peptide_evidence_entries(path: Path) -> tuple[PeptideEvidenceEntry, ..
             except Exception as exc:  # noqa: BLE001
                 raise click.ClickException(
                     f"invalid peptide-evidence row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(entries)
+
+
+def _load_selected_targeted_peptides(
+    path: Path,
+) -> tuple[DiscoveryTargetedPeptideSelectionEntry, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "selected-peptide TSV must include a header row for targeted transition selection"
+            )
+        required_columns = {
+            "target_protein_ref",
+            "target_protein_group_id",
+            "rank",
+            "candidate_source",
+            "peptide_sequence",
+            "canonical_peptide",
+            "observed_in_discovery",
+            "uniqueness_class",
+            "uniqueness_score",
+            "detectability_score",
+            "detectability_tier",
+            "suitability_score",
+            "liability_tier",
+            "selection_score",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "selected-peptide TSV is missing required columns for targeted transition selection: "
+                + ", ".join(sorted(missing_columns))
+            )
+        entries: list[DiscoveryTargetedPeptideSelectionEntry] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                primary_evidence_class_raw = str(
+                    row.get("primary_evidence_class", "")
+                ).strip()
+                entries.append(
+                    DiscoveryTargetedPeptideSelectionEntry(
+                        target_protein_ref=str(
+                            row.get("target_protein_ref", "")
+                        ).strip(),
+                        target_protein_group_id=str(
+                            row.get("target_protein_group_id", "")
+                        ).strip(),
+                        gene_symbol=(
+                            value
+                            if (value := str(row.get("gene_symbol", "")).strip())
+                            else None
+                        ),
+                        peptide_sequence=str(row.get("peptide_sequence", "")).strip(),
+                        canonical_peptide=str(
+                            row.get("canonical_peptide", "")
+                        ).strip(),
+                        candidate_source=TargetedPeptideCandidateSource(
+                            str(row.get("candidate_source", "")).strip()
+                        ),
+                        rank=int(str(row.get("rank", "")).strip()),
+                        observed_in_discovery=_parse_cli_bool(
+                            row.get("observed_in_discovery", ""),
+                            field_name="observed_in_discovery",
+                        ),
+                        observed_psm_count=(
+                            None
+                            if not str(row.get("observed_psm_count", "")).strip()
+                            else int(str(row.get("observed_psm_count", "")).strip())
+                        ),
+                        run_count=(
+                            None
+                            if not str(row.get("run_count", "")).strip()
+                            else int(str(row.get("run_count", "")).strip())
+                        ),
+                        detection_frequency=(
+                            None
+                            if not str(row.get("detection_frequency", "")).strip()
+                            else float(str(row.get("detection_frequency", "")).strip())
+                        ),
+                        replicate_consistency=(
+                            None
+                            if not str(row.get("replicate_consistency", "")).strip()
+                            else float(str(row.get("replicate_consistency", "")).strip())
+                        ),
+                        primary_evidence_class=(
+                            None
+                            if not primary_evidence_class_raw
+                            else PeptideEvidenceClass(primary_evidence_class_raw)
+                        ),
+                        uniqueness_class=PeptideUniquenessClass(
+                            str(row.get("uniqueness_class", "")).strip()
+                        ),
+                        uniqueness_score=float(
+                            str(row.get("uniqueness_score", "")).strip()
+                        ),
+                        detectability_score=float(
+                            str(row.get("detectability_score", "")).strip()
+                        ),
+                        detectability_tier=PeptideDetectabilityTier(
+                            str(row.get("detectability_tier", "")).strip()
+                        ),
+                        suitability_score=float(
+                            str(row.get("suitability_score", "")).strip()
+                        ),
+                        liability_tier=PeptideChemicalLiabilityTier(
+                            str(row.get("liability_tier", "")).strip()
+                        ),
+                        liability_codes=_split_semicolon_field(
+                            row.get("liability_codes", "")
+                        ),
+                        selection_score=float(
+                            str(row.get("selection_score", "")).strip()
+                        ),
+                        selection_reasons=_split_semicolon_field(
+                            row.get("selection_reasons", "")
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid selected-peptide row {row_number} in {path.name!r}: {exc}"
                 ) from exc
     return tuple(entries)
 
@@ -4691,6 +4824,189 @@ def targeted_peptide_selection_command(
         "selected_entries": [entry.to_dict() for entry in report.selected_entries],
         "rejected_candidates": [
             entry.to_dict() for entry in report.rejected_candidates
+        ],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "selected_tsv": (
+                None if selected_tsv_out is None else str(selected_tsv_out)
+            ),
+            "rejected_tsv": (
+                None if rejected_tsv_out is None else str(rejected_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-transition-selection")
+@click.argument(
+    "selected_peptide_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--spectral-library",
+    "spectral_library_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--spectral-library-format",
+    type=click.Choice([entry.value for entry in SpectralLibraryFormat]),
+    default=None,
+)
+@click.option("--default-precursor-charge", default=2, type=int, show_default=True)
+@click.option(
+    "--fragment-charge",
+    "fragment_charges",
+    type=int,
+    multiple=True,
+    default=(1, 2),
+    show_default=True,
+)
+@click.option(
+    "--min-transitions-per-peptide",
+    default=3,
+    type=int,
+    show_default=True,
+)
+@click.option(
+    "--max-transitions-per-peptide",
+    default=5,
+    type=int,
+    show_default=True,
+)
+@click.option("--min-fragment-mz", default=300.0, type=float, show_default=True)
+@click.option("--max-fragment-mz", default=1500.0, type=float, show_default=True)
+@click.option("--precursor-exclusion-da", default=8.0, type=float, show_default=True)
+@click.option(
+    "--library-match-tolerance-da",
+    default=0.02,
+    type=float,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--selected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_transition_selection_command(
+    selected_peptide_tsv: Path,
+    spectral_library_path: Path | None,
+    spectral_library_format: str | None,
+    default_precursor_charge: int,
+    fragment_charges: tuple[int, ...],
+    min_transitions_per_peptide: int,
+    max_transitions_per_peptide: int,
+    min_fragment_mz: float,
+    max_fragment_mz: float,
+    precursor_exclusion_da: float,
+    library_match_tolerance_da: float,
+    summary_tsv_out: Path | None,
+    selected_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Select chemistry-driven fragment transitions for targeted assay peptides."""
+
+    if default_precursor_charge < 1:
+        raise click.ClickException("default-precursor-charge must be at least 1")
+    if not fragment_charges:
+        raise click.ClickException("at least one fragment-charge must be provided")
+    if any(charge < 1 for charge in fragment_charges):
+        raise click.ClickException("fragment-charge values must all be at least 1")
+    if min_transitions_per_peptide < 1:
+        raise click.ClickException("min-transitions-per-peptide must be at least 1")
+    if max_transitions_per_peptide < min_transitions_per_peptide:
+        raise click.ClickException(
+            "max-transitions-per-peptide must be greater than or equal to min-transitions-per-peptide"
+        )
+    if min_fragment_mz <= 0.0:
+        raise click.ClickException("min-fragment-mz must be greater than zero")
+    if max_fragment_mz <= min_fragment_mz:
+        raise click.ClickException(
+            "max-fragment-mz must be greater than min-fragment-mz"
+        )
+    if precursor_exclusion_da <= 0.0:
+        raise click.ClickException("precursor-exclusion-da must be greater than zero")
+    if library_match_tolerance_da <= 0.0:
+        raise click.ClickException(
+            "library-match-tolerance-da must be greater than zero"
+        )
+
+    selected_peptides = _load_selected_targeted_peptides(selected_peptide_tsv)
+    spectral_library_entries: tuple[SpectralLibraryEntry, ...] = ()
+    spectral_library_summary: dict[str, object] | None = None
+    if spectral_library_path is not None:
+        import_report = import_spectral_library(
+            spectral_library_path,
+            library_format=(
+                None
+                if spectral_library_format is None
+                else SpectralLibraryFormat(spectral_library_format)
+            ),
+        )
+        spectral_library_entries = import_report.entries
+        summary = build_spectral_library_summary(import_report)
+        spectral_library_summary = {
+            "source_path": str(spectral_library_path),
+            "source_format": import_report.source_format.value,
+            "accepted_entry_count": import_report.accepted_entry_count,
+            "rejected_entry_count": import_report.rejected_entry_count,
+            "summary": summary.to_dict(),
+        }
+
+    try:
+        report = build_targeted_transition_selection_report(
+            selected_peptides,
+            spectral_library_entries=spectral_library_entries,
+            default_precursor_charge=default_precursor_charge,
+            fragment_charges=fragment_charges,
+            minimum_transition_count=min_transitions_per_peptide,
+            maximum_transition_count=max_transitions_per_peptide,
+            minimum_fragment_mz=min_fragment_mz,
+            maximum_fragment_mz=max_fragment_mz,
+            precursor_exclusion_da=precursor_exclusion_da,
+            library_match_tolerance_da=library_match_tolerance_da,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_targeted_transition_selection_summary_tsv(report),
+        )
+    if selected_tsv_out is not None:
+        _write_text_output(
+            selected_tsv_out,
+            render_targeted_transition_selection_selected_tsv(report),
+        )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_targeted_transition_selection_rejected_tsv(report),
+        )
+
+    payload = {
+        "selected_peptide_count": len(selected_peptides),
+        "spectral_library": spectral_library_summary,
+        "default_precursor_charge": default_precursor_charge,
+        "fragment_charges": list(fragment_charges),
+        "minimum_transition_count": report.minimum_transition_count,
+        "maximum_transition_count": report.maximum_transition_count,
+        "minimum_fragment_mz": report.minimum_fragment_mz,
+        "maximum_fragment_mz": report.maximum_fragment_mz,
+        "precursor_exclusion_da": report.precursor_exclusion_da,
+        "library_match_tolerance_da": report.library_match_tolerance_da,
+        "selection_summary": report.summary.to_dict(),
+        "peptide_entries": [entry.to_dict() for entry in report.peptide_entries],
+        "rejected_transitions": [
+            entry.to_dict() for entry in report.rejected_transitions
         ],
         "note": report.note,
         "outputs": {
