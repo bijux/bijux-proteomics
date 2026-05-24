@@ -794,13 +794,18 @@ from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
 from bijux_proteomics.review import (
+    BiomarkerCandidateKind,
+    BiomarkerCandidateRankingInput,
     VolcanoReviewPolicy,
+    build_biomarker_candidate_ranking_report,
     build_dia_volcano_review,
     build_label_based_volcano_review,
     build_ptm_volcano_review,
     export_volcano_review_html,
     export_volcano_review_json,
     export_volcano_review_svg,
+    render_biomarker_candidate_ranking_summary_tsv,
+    render_biomarker_candidate_ranking_tsv,
 )
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
@@ -1683,6 +1688,696 @@ def _load_selected_targeted_transitions(
             )
         )
     return tuple(entries)
+
+
+def _read_summary_field_map(
+    path: Path,
+    *,
+    description: str,
+) -> dict[str, str]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(f"{description} must include a header row")
+        required_columns = {"field", "value"}
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                f"{description} is missing required columns: "
+                + ", ".join(sorted(missing_columns))
+            )
+        return {
+            str(row.get("field", "")).strip(): str(row.get("value", "")).strip()
+            for row in reader
+        }
+
+
+def _require_report_artifact(
+    report_dir: Path,
+    artifact_name: str,
+    *,
+    description: str,
+) -> Path:
+    artifact_path = report_dir / artifact_name
+    if not artifact_path.exists():
+        raise click.ClickException(
+            f"{description} is missing required artifact {artifact_name!r}"
+        )
+    return artifact_path
+
+
+def _load_selected_peptide_support_by_protein(
+    path: Path,
+) -> dict[str, dict[str, float]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "selected-peptide TSV must include a header row for biomarker candidate ranking"
+            )
+        required_columns = {
+            "target_protein_ref",
+            "detectability_score",
+            "uniqueness_score",
+            "suitability_score",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "selected-peptide TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        support_by_protein: dict[str, dict[str, float]] = {}
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                protein_ref = str(row.get("target_protein_ref", "")).strip()
+                support = support_by_protein.setdefault(
+                    protein_ref,
+                    {
+                        "detectability_score": 0.0,
+                        "uniqueness_score": 0.0,
+                        "suitability_score": 0.0,
+                    },
+                )
+                support["detectability_score"] = max(
+                    support["detectability_score"],
+                    float(str(row.get("detectability_score", "")).strip()),
+                )
+                support["uniqueness_score"] = max(
+                    support["uniqueness_score"],
+                    float(str(row.get("uniqueness_score", "")).strip()),
+                )
+                support["suitability_score"] = max(
+                    support["suitability_score"],
+                    float(str(row.get("suitability_score", "")).strip()),
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid selected-peptide row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return support_by_protein
+
+
+def _load_assay_interference_support_by_protein(
+    path: Path,
+) -> dict[str, dict[str, float | bool]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "assay-interference TSV must include a header row for biomarker candidate ranking"
+            )
+        required_columns = {
+            "target_protein_ref",
+            "interference_risk_score",
+            "panel_export_allowed",
+            "exported_transition_count",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "assay-interference TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        support_by_protein: dict[str, dict[str, float | bool]] = {}
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                protein_ref = str(row.get("target_protein_ref", "")).strip()
+                panel_export_allowed = _parse_cli_bool(
+                    row.get("panel_export_allowed", ""),
+                    field_name="panel_export_allowed",
+                )
+                risk_score = float(str(row.get("interference_risk_score", "")).strip())
+                exported_transition_count = int(
+                    str(row.get("exported_transition_count", "")).strip()
+                )
+                assay_score = max(
+                    0.0,
+                    (
+                        (1.0 - risk_score)
+                        * (1.0 if panel_export_allowed else 0.35)
+                        * min(1.0, exported_transition_count / 3.0)
+                    ),
+                )
+                current = support_by_protein.get(protein_ref)
+                if current is None or assay_score > float(current["assay_score"]):
+                    support_by_protein[protein_ref] = {
+                        "assay_score": assay_score,
+                        "panel_export_allowed": panel_export_allowed,
+                        "risk_score": risk_score,
+                    }
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid assay-interference row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return support_by_protein
+
+
+def _build_biomarker_candidates_from_biological_report_dir(
+    report_dir: Path,
+    *,
+    selected_peptide_support: dict[str, dict[str, float]] | None,
+    assay_interference_support: dict[str, dict[str, float | bool]] | None,
+) -> tuple[tuple[BiomarkerCandidateRankingInput, ...], float]:
+    summary_path = _require_report_artifact(
+        report_dir,
+        "biological_report_summary.tsv",
+        description="biological report directory",
+    )
+    card_path = _require_report_artifact(
+        report_dir,
+        "biological_protein_cards.tsv",
+        description="biological report directory",
+    )
+    differential_path = _require_report_artifact(
+        report_dir,
+        "biological_differential.tsv",
+        description="biological report directory",
+    )
+    summary_fields = _read_summary_field_map(
+        summary_path,
+        description="biological report summary TSV",
+    )
+    sample_qc_score = float(summary_fields.get("experiment_confidence_score", "0.5"))
+    differential_by_entity = _load_biological_differential_rows(differential_path)
+    candidates: list[BiomarkerCandidateRankingInput] = []
+    with card_path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biological protein-card TSV must include a header row"
+            )
+        required_columns = {
+            "card_id",
+            "protein_group_id",
+            "representative_protein_ref",
+            "gene_symbol",
+            "identity_level",
+            "unique_peptide_count",
+            "shared_peptide_count",
+            "evidence_tier",
+            "pathway_ids",
+            "context_ids",
+            "functional_regions",
+            "proteogenomic_support_class",
+            "ptm_sites",
+            "warning_codes",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biological protein-card TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                protein_group_id = str(row.get("protein_group_id", "")).strip()
+                differential_row = differential_by_entity.get(protein_group_id)
+                if differential_row is None:
+                    raise ValueError(
+                        f"no differential row matched protein_group_id {protein_group_id!r}"
+                    )
+                protein_ref = str(row.get("representative_protein_ref", "")).strip()
+                selected_support = (
+                    {}
+                    if selected_peptide_support is None
+                    else selected_peptide_support.get(protein_ref, {})
+                )
+                assay_support = (
+                    {}
+                    if assay_interference_support is None
+                    else assay_interference_support.get(protein_ref, {})
+                )
+                unique_count = int(str(row.get("unique_peptide_count", "")).strip())
+                shared_count = int(str(row.get("shared_peptide_count", "")).strip())
+                annotation_labels = tuple(
+                    label
+                    for label in (
+                        _split_semicolon_field(row.get("pathway_ids", ""))
+                        + _split_semicolon_field(row.get("context_ids", ""))
+                        + _split_semicolon_field(row.get("functional_regions", ""))
+                        + _split_semicolon_field(row.get("ptm_sites", ""))
+                    )
+                    if label
+                )
+                proteogenomic_support_class = str(
+                    row.get("proteogenomic_support_class", "")
+                ).strip()
+                if proteogenomic_support_class:
+                    annotation_labels += (f"proteogenomic:{proteogenomic_support_class}",)
+                annotation_score = _score_annotation_labels(annotation_labels)
+                specificity_score = _score_protein_specificity(
+                    unique_count=unique_count,
+                    shared_count=shared_count,
+                    identity_level=str(row.get("identity_level", "")).strip(),
+                    selected_uniqueness_score=float(
+                        selected_support.get("uniqueness_score", 0.0)
+                    ),
+                )
+                detectability_score = _score_protein_detectability(
+                    selected_detectability_score=float(
+                        selected_support.get("detectability_score", 0.0)
+                    ),
+                    unique_count=unique_count,
+                    evidence_tier=str(row.get("evidence_tier", "")).strip(),
+                )
+                assay_feasibility_score = _score_protein_assay_feasibility(
+                    selected_suitability_score=float(
+                        selected_support.get("suitability_score", 0.0)
+                    ),
+                    detectability_score=detectability_score,
+                    assay_score=float(assay_support.get("assay_score", 0.0)),
+                )
+                support_count = max(unique_count, unique_count + shared_count)
+                display_label = (
+                    value
+                    if (value := str(row.get("gene_symbol", "")).strip())
+                    else protein_ref
+                )
+                candidates.append(
+                    BiomarkerCandidateRankingInput(
+                        candidate_id=f"protein:{protein_group_id}",
+                        candidate_kind=BiomarkerCandidateKind.PROTEIN,
+                        display_label=display_label,
+                        target_protein_ref=protein_ref,
+                        effect_size=differential_row["log2_fold_change"],
+                        adjusted_p_value=differential_row["adjusted_p_value"],
+                        support_count=support_count,
+                        effect_score=_score_effect_size(
+                            differential_row["log2_fold_change"]
+                        ),
+                        robustness_score=differential_row["robustness_score"],
+                        detectability_score=detectability_score,
+                        specificity_score=specificity_score,
+                        annotation_score=annotation_score,
+                        assay_feasibility_score=assay_feasibility_score,
+                        sample_qc_score=sample_qc_score,
+                        annotation_labels=annotation_labels,
+                        source_ids=(
+                            str(row.get("card_id", "")).strip(),
+                            protein_group_id,
+                        ),
+                        note=(
+                            "protein candidate ranking combines biological differential evidence "
+                            "with targeted detectability and interference readiness"
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biological protein-card row {row_number} in {card_path.name!r}: {exc}"
+                ) from exc
+    return tuple(candidates), sample_qc_score
+
+
+def _load_biological_differential_rows(
+    path: Path,
+) -> dict[str, dict[str, float | None]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biological differential TSV must include a header row"
+            )
+        required_columns = {
+            "entity_id",
+            "log2_fold_change",
+            "adjusted_p_value",
+            "robustness_score",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biological differential TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: dict[str, dict[str, float | None]] = {}
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows[str(row.get("entity_id", "")).strip()] = {
+                    "log2_fold_change": float(
+                        str(row.get("log2_fold_change", "")).strip()
+                    ),
+                    "adjusted_p_value": (
+                        None
+                        if not str(row.get("adjusted_p_value", "")).strip()
+                        else float(str(row.get("adjusted_p_value", "")).strip())
+                    ),
+                    "robustness_score": float(
+                        str(row.get("robustness_score", "")).strip()
+                    ),
+                }
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biological differential row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return rows
+
+
+def _build_biomarker_candidates_from_ptm_report_dir(
+    report_dir: Path,
+    *,
+    sample_qc_score: float | None,
+) -> tuple[BiomarkerCandidateRankingInput, ...]:
+    card_path = _require_report_artifact(
+        report_dir,
+        "ptm_evidence_cards.tsv",
+        description="ptm report directory",
+    )
+    differential_path = _require_report_artifact(
+        report_dir,
+        "ptm_differential.tsv",
+        description="ptm report directory",
+    )
+    differential_by_site = _load_ptm_differential_rows(differential_path)
+    active_sample_qc_score = 0.60 if sample_qc_score is None else sample_qc_score
+    candidates: list[BiomarkerCandidateRankingInput] = []
+    with card_path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException("ptm evidence-card TSV must include a header row")
+        required_columns = {
+            "card_id",
+            "site_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "identity_level",
+            "localization_tier",
+            "mechanism_class",
+            "peptide_spectrum_count",
+            "observed_sample_count",
+            "centered_windows",
+            "ortholog_conservation_status",
+            "functional_regions",
+            "regulators",
+            "warning_codes",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "ptm evidence-card TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                site_key = str(row.get("site_key", "")).strip()
+                differential_row = differential_by_site.get(site_key)
+                if differential_row is None:
+                    raise ValueError(f"no PTM differential row matched site_key {site_key!r}")
+                annotation_labels = tuple(
+                    label
+                    for label in (
+                        _split_semicolon_field(row.get("centered_windows", ""))
+                        + _split_semicolon_field(row.get("functional_regions", ""))
+                        + _split_semicolon_field(row.get("regulators", ""))
+                    )
+                    if label
+                )
+                ortholog_status = str(
+                    row.get("ortholog_conservation_status", "")
+                ).strip()
+                if ortholog_status:
+                    annotation_labels += (f"ortholog:{ortholog_status}",)
+                mechanism_class = str(row.get("mechanism_class", "")).strip()
+                if mechanism_class:
+                    annotation_labels += (f"mechanism:{mechanism_class}",)
+                peptide_spectrum_count = int(
+                    str(row.get("peptide_spectrum_count", "")).strip()
+                )
+                observed_sample_count = int(
+                    str(row.get("observed_sample_count", "")).strip()
+                )
+                specificity_score = _score_ptm_specificity(
+                    localization_tier=str(row.get("localization_tier", "")).strip(),
+                    identity_level=str(row.get("identity_level", "")).strip(),
+                    low_localization=bool(differential_row["low_localization"]),
+                    ambiguous=bool(differential_row["ambiguous"]),
+                    shared_peptide=bool(differential_row["shared_peptide"]),
+                )
+                detectability_score = _score_ptm_detectability(
+                    peptide_spectrum_count=peptide_spectrum_count,
+                    observed_sample_count=observed_sample_count,
+                )
+                assay_feasibility_score = _score_ptm_assay_feasibility(
+                    specificity_score=specificity_score,
+                    warning_count=len(
+                        _split_semicolon_field(row.get("warning_codes", ""))
+                    ),
+                    protein_correction_status=str(
+                        differential_row["protein_correction_status"]
+                    ),
+                )
+                display_label = (
+                    f"{row.get('protein_ref', '')} "
+                    f"{row.get('residue', '')}{row.get('position', '')} "
+                    f"{row.get('modification_name', '')}"
+                ).strip()
+                candidates.append(
+                    BiomarkerCandidateRankingInput(
+                        candidate_id=f"ptm_site:{site_key}",
+                        candidate_kind=BiomarkerCandidateKind.PTM_SITE,
+                        display_label=display_label,
+                        target_protein_ref=str(row.get("protein_ref", "")).strip(),
+                        site_key=site_key,
+                        effect_size=float(differential_row["log2_fold_change"]),
+                        adjusted_p_value=differential_row["adjusted_p_value"],
+                        support_count=peptide_spectrum_count,
+                        effect_score=_score_effect_size(
+                            float(differential_row["log2_fold_change"])
+                        ),
+                        robustness_score=_score_ptm_robustness(
+                            adjusted_p_value=differential_row["adjusted_p_value"],
+                            imputation_dependent=bool(
+                                differential_row["imputation_dependent_hit"]
+                            ),
+                            low_localization=bool(differential_row["low_localization"]),
+                            ambiguous=bool(differential_row["ambiguous"]),
+                        ),
+                        detectability_score=detectability_score,
+                        specificity_score=specificity_score,
+                        annotation_score=_score_annotation_labels(annotation_labels),
+                        assay_feasibility_score=assay_feasibility_score,
+                        sample_qc_score=active_sample_qc_score,
+                        annotation_labels=annotation_labels,
+                        source_ids=(str(row.get("card_id", "")).strip(), site_key),
+                        note=(
+                            "PTM candidate ranking combines site differential evidence, "
+                            "localization specificity, and validation practicality"
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid PTM evidence-card row {row_number} in {card_path.name!r}: {exc}"
+                ) from exc
+    return tuple(candidates)
+
+
+def _load_ptm_differential_rows(
+    path: Path,
+) -> dict[str, dict[str, float | str | bool | None]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException("ptm differential TSV must include a header row")
+        required_columns = {
+            "site_key",
+            "low_localization",
+            "ambiguous",
+            "shared_peptide",
+            "log2_fold_change",
+            "adjusted_p_value",
+            "imputation_dependent_hit",
+            "protein_correction_status",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "ptm differential TSV is missing required columns for biomarker candidate ranking: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: dict[str, dict[str, float | str | bool | None]] = {}
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows[str(row.get("site_key", "")).strip()] = {
+                    "low_localization": _parse_cli_bool(
+                        row.get("low_localization", ""),
+                        field_name="low_localization",
+                    ),
+                    "ambiguous": _parse_cli_bool(
+                        row.get("ambiguous", ""),
+                        field_name="ambiguous",
+                    ),
+                    "shared_peptide": _parse_cli_bool(
+                        row.get("shared_peptide", ""),
+                        field_name="shared_peptide",
+                    ),
+                    "log2_fold_change": float(
+                        str(row.get("log2_fold_change", "")).strip()
+                    ),
+                    "adjusted_p_value": (
+                        None
+                        if not str(row.get("adjusted_p_value", "")).strip()
+                        else float(str(row.get("adjusted_p_value", "")).strip())
+                    ),
+                    "imputation_dependent_hit": _parse_cli_bool(
+                        row.get("imputation_dependent_hit", ""),
+                        field_name="imputation_dependent_hit",
+                    ),
+                    "protein_correction_status": str(
+                        row.get("protein_correction_status", "")
+                    ).strip(),
+                }
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid PTM differential row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return rows
+
+
+def _score_effect_size(log2_fold_change: float | None) -> float:
+    if log2_fold_change is None:
+        return 0.0
+    return max(0.0, min(1.0, abs(log2_fold_change) / 2.0))
+
+
+def _score_annotation_labels(annotation_labels: tuple[str, ...]) -> float:
+    if not annotation_labels:
+        return 0.0
+    prefixes = {
+        label.split(":", 1)[0] if ":" in label else label
+        for label in annotation_labels
+    }
+    return max(0.0, min(1.0, len(prefixes) / 4.0))
+
+
+def _score_protein_specificity(
+    *,
+    unique_count: int,
+    shared_count: int,
+    identity_level: str,
+    selected_uniqueness_score: float,
+) -> float:
+    peptide_total = max(1, unique_count + shared_count)
+    unique_fraction = unique_count / peptide_total
+    base = max(unique_fraction, selected_uniqueness_score)
+    identity_adjustment = {
+        "isoform_level": 0.10,
+        "protein_level": 0.0,
+        "gene_level": -0.15,
+        "family_level": -0.25,
+        "ambiguous": -0.35,
+    }.get(identity_level, 0.0)
+    return max(0.0, min(1.0, base + identity_adjustment))
+
+
+def _score_protein_detectability(
+    *,
+    selected_detectability_score: float,
+    unique_count: int,
+    evidence_tier: str,
+) -> float:
+    tier_score = {
+        "high": 0.90,
+        "moderate": 0.65,
+        "low": 0.35,
+        "warning": 0.25,
+    }.get(evidence_tier, 0.40)
+    return max(
+        0.0,
+        min(
+            1.0,
+            max(selected_detectability_score, 0.50 * min(1.0, unique_count / 2.0))
+            + (0.25 * tier_score),
+        ),
+    )
+
+
+def _score_protein_assay_feasibility(
+    *,
+    selected_suitability_score: float,
+    detectability_score: float,
+    assay_score: float,
+) -> float:
+    baseline = max(selected_suitability_score, 0.60 * detectability_score)
+    if assay_score > 0.0:
+        baseline = (0.45 * baseline) + (0.55 * assay_score)
+    return max(0.0, min(1.0, baseline))
+
+
+def _score_ptm_specificity(
+    *,
+    localization_tier: str,
+    identity_level: str,
+    low_localization: bool,
+    ambiguous: bool,
+    shared_peptide: bool,
+) -> float:
+    base = {
+        "high": 0.90,
+        "moderate": 0.65,
+        "low": 0.30,
+        "unsupported": 0.10,
+    }.get(localization_tier, 0.40)
+    if low_localization:
+        base -= 0.20
+    if ambiguous:
+        base -= 0.15
+    if shared_peptide:
+        base -= 0.15
+    if identity_level in {"gene_level", "family_level", "ambiguous"}:
+        base -= 0.10
+    return max(0.0, min(1.0, base))
+
+
+def _score_ptm_detectability(
+    *,
+    peptide_spectrum_count: int,
+    observed_sample_count: int,
+) -> float:
+    return max(
+        0.0,
+        min(
+            1.0,
+            (0.60 * min(1.0, peptide_spectrum_count / 5.0))
+            + (0.40 * min(1.0, observed_sample_count / 4.0)),
+        ),
+    )
+
+
+def _score_ptm_assay_feasibility(
+    *,
+    specificity_score: float,
+    warning_count: int,
+    protein_correction_status: str,
+) -> float:
+    score = 0.70 * specificity_score
+    if protein_correction_status == "corrected":
+        score += 0.10
+    score -= min(0.20, 0.05 * warning_count)
+    return max(0.0, min(1.0, score))
+
+
+def _score_ptm_robustness(
+    *,
+    adjusted_p_value: float | None,
+    imputation_dependent: bool,
+    low_localization: bool,
+    ambiguous: bool,
+) -> float:
+    if adjusted_p_value is None:
+        score = 0.25
+    else:
+        score = max(0.0, min(1.0, 1.0 - (adjusted_p_value / 0.10)))
+    if imputation_dependent:
+        score -= 0.20
+    if low_localization:
+        score -= 0.15
+    if ambiguous:
+        score -= 0.10
+    return max(0.0, min(1.0, score))
 
 
 def _resolve_cli_protease_rule(
@@ -5394,6 +6089,125 @@ def targeted_assay_interference_command(
                 None if transition_tsv_out is None else str(transition_tsv_out)
             ),
             "panel_tsv": None if panel_tsv_out is None else str(panel_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("biomarker-candidate-ranking")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--selected-peptide-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--assay-interference-assay-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--candidate-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def biomarker_candidate_ranking_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    selected_peptide_tsv: Path | None,
+    assay_interference_assay_tsv: Path | None,
+    summary_tsv_out: Path | None,
+    candidate_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Rank protein and PTM validation candidates from governed report artifacts."""
+
+    if biological_report_dir is None and ptm_report_dir is None:
+        raise click.ClickException(
+            "at least one of --biological-report-dir or --ptm-report-dir must be provided"
+        )
+
+    selected_peptide_support = (
+        None
+        if selected_peptide_tsv is None
+        else _load_selected_peptide_support_by_protein(selected_peptide_tsv)
+    )
+    assay_interference_support = (
+        None
+        if assay_interference_assay_tsv is None
+        else _load_assay_interference_support_by_protein(
+            assay_interference_assay_tsv
+        )
+    )
+
+    candidates: list[BiomarkerCandidateRankingInput] = []
+    biological_sample_qc_score: float | None = None
+    if biological_report_dir is not None:
+        biological_candidates, biological_sample_qc_score = (
+            _build_biomarker_candidates_from_biological_report_dir(
+                biological_report_dir,
+                selected_peptide_support=selected_peptide_support,
+                assay_interference_support=assay_interference_support,
+            )
+        )
+        candidates.extend(biological_candidates)
+    if ptm_report_dir is not None:
+        candidates.extend(
+            _build_biomarker_candidates_from_ptm_report_dir(
+                ptm_report_dir,
+                sample_qc_score=biological_sample_qc_score,
+            )
+        )
+
+    try:
+        report = build_biomarker_candidate_ranking_report(tuple(candidates))
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_biomarker_candidate_ranking_summary_tsv(report),
+        )
+    if candidate_tsv_out is not None:
+        _write_text_output(
+            candidate_tsv_out,
+            render_biomarker_candidate_ranking_tsv(report),
+        )
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "selected_peptide_tsv": (
+            None if selected_peptide_tsv is None else str(selected_peptide_tsv)
+        ),
+        "assay_interference_assay_tsv": (
+            None
+            if assay_interference_assay_tsv is None
+            else str(assay_interference_assay_tsv)
+        ),
+        "summary": report.summary.to_dict(),
+        "entries": [entry.to_dict() for entry in report.entries],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "candidate_tsv": (
+                None if candidate_tsv_out is None else str(candidate_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
