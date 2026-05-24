@@ -1024,6 +1024,8 @@ from bijux_proteomics.workflow import (
     build_public_dataset_evidence_card_report,
     build_public_benchmark_trust_bundle,
     build_public_dataset_comparison_report,
+    build_interactive_result_bundle_from_artifacts,
+    render_interactive_result_bundle_summary_tsv,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -7938,6 +7940,77 @@ def biomarker_candidate_ranking_command(
             "candidate_tsv": (
                 None if candidate_tsv_out is None else str(candidate_tsv_out)
             ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("interactive-result-bundle")
+@click.option(
+    "--biological-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-report-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--run-qc-assessment-tsv",
+    "run_qc_assessment_tsv_paths",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def interactive_result_bundle_command(
+    biological_report_dir: Path | None,
+    ptm_report_dir: Path | None,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+    summary_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build one frontend-ready result bundle from governed report artifacts."""
+
+    if (
+        biological_report_dir is None
+        and ptm_report_dir is None
+        and not run_qc_assessment_tsv_paths
+    ):
+        raise click.ClickException(
+            "at least one governed biological report, PTM report, or QC assessment input must be provided"
+        )
+
+    try:
+        bundle = build_interactive_result_bundle_from_artifacts(
+            biological_report_dir=biological_report_dir,
+            ptm_report_dir=ptm_report_dir,
+            run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_interactive_result_bundle_summary_tsv(bundle),
+        )
+
+    payload = {
+        "biological_report_dir": (
+            None if biological_report_dir is None else str(biological_report_dir)
+        ),
+        "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
+        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "bundle": bundle.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
