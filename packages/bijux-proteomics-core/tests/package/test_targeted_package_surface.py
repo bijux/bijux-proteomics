@@ -571,3 +571,78 @@ def test_targeted_package_exports_result_validation_surface(tmp_path: Path) -> N
     assert hasattr(targeted, "render_targeted_result_validation_evidence_tsv")
     assert report.summary.confirmed_count == 1
     assert "protein:P11111" in confirmed_tsv
+
+
+def test_targeted_package_exports_biomarker_stability_surface(tmp_path: Path) -> None:
+    skyline_path = tmp_path / "targeted_stability.skyline.tsv"
+    skyline_path.write_text(
+        "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_b1_r1\t10000\t12.50\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_b1_r1\t8200\t12.56\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_b2_r2\t10200\t12.48\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_b2_r2\t8300\t12.55\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_b1_r1\t21000\t12.50\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_b1_r1\t17000\t12.56\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_b2_r2\t20800\t12.48\tpass\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_b2_r2\t16800\t12.55\tpass\n",
+        encoding="utf-8",
+    )
+    design_path = tmp_path / "targeted_stability.design.tsv"
+    design_path.write_text(
+        "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\ttimepoint\tsample_type\n"
+        "control_b1_r1\tcontrol\t1\t1\tcontrol_b1_r1.raw\tcontrol_b1_r1.tsv\tb1\tt0\tplasma\n"
+        "control_b2_r2\tcontrol\t2\t1\tcontrol_b2_r2.raw\tcontrol_b2_r2.tsv\tb2\tt0\tplasma\n"
+        "treat_b1_r1\ttreatment\t1\t1\ttreat_b1_r1.raw\ttreat_b1_r1.tsv\tb1\tt1\tserum\n"
+        "treat_b2_r2\ttreatment\t2\t1\ttreat_b2_r2.raw\ttreat_b2_r2.tsv\tb2\tt1\tserum\n",
+        encoding="utf-8",
+    )
+
+    report = targeted.build_biomarker_stability_report(
+        biomarker_candidates=(
+            targeted.TargetedValidationDiscoveryClaimInput(
+                candidate_id="protein:P11111",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="P11111 stable candidate",
+                target_protein_ref="P11111",
+                priority_rank=1,
+                final_score=0.91,
+                penalty_total=0.0,
+                discovery_effect_size=1.0,
+                support_count=4,
+                robustness_score=0.85,
+                assay_feasibility_score=0.92,
+                rank_reason_codes=("assay_ready",),
+                ranking_note="strong validation-ready candidate",
+            ),
+        ),
+        panel_assays=(
+            targeted.TargetedValidationPanelAssayInput(
+                assay_entry_id="assay:P11111:PEPTIDER",
+                biomarker_candidate_id="protein:P11111",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="P11111 stable candidate",
+                biomarker_priority_rank=1,
+                target_protein_ref="P11111",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="GENE1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                precursor_charge=2,
+                selected_transition_count=2,
+                exported_transition_count=2,
+                warning_note="assay retained",
+            ),
+        ),
+        import_report=targeted.build_skyline_result_import_report(skyline_path),
+        design_entries=parse_experimental_design_table(design_path).accepted_entries,
+    )
+    rendered = targeted.render_biomarker_stability_candidate_tsv(report)
+
+    assert hasattr(targeted, "build_biomarker_stability_report")
+    assert hasattr(targeted, "render_biomarker_stability_summary_tsv")
+    assert hasattr(targeted, "render_biomarker_stability_tsv")
+    assert hasattr(targeted, "render_biomarker_stability_subgroup_tsv")
+    assert hasattr(targeted, "render_biomarker_stability_candidate_tsv")
+    assert report.summary.candidate_count == 1
+    assert "protein:P11111" in rendered
