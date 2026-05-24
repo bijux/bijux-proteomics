@@ -16,5 +16,6 @@ from bijux_proteomics.interpretation.pathway_activity import *  # noqa: F401,F40
 from bijux_proteomics.interpretation.pathway_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.ppi_network_modules import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_annotation_mapping import *  # noqa: F401,F403
+from bijux_proteomics.interpretation.regulator_inference import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_set_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_set_scoring import *  # noqa: F401,F403
