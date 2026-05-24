@@ -230,6 +230,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/differential_result_robustness.py",
             "quantification/heatmap_preparation.py",
             "quantification/imputation.py",
+            "quantification/model_rollup.py",
             "quantification/missingness.py",
             "quantification/multi_contrast_consistency.py",
             "quantification/normalization.py",
