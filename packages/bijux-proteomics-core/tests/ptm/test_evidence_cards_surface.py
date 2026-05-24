@@ -12,12 +12,24 @@ from bijux_proteomics.ptm import (
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
-    build_ptm_report_bundle,
+    build_ptm_differential_analysis_report,
+    build_ptm_evidence_card_report,
+    build_ptm_localization_scoring_report,
+    build_ptm_phosphosite_motif_enrichment_report,
+    build_ptm_regulator_enrichment_report,
+    build_ptm_site_annotation_mapping_report,
+    build_ptm_site_quantification_report,
+    build_ptm_site_table,
+    map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
 )
-from bijux_proteomics.quantification import parse_ms1_feature_table
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.sequences import (
+    FastaParseMode,
+    parse_fasta_document,
+    parse_protein_region_context_tsv,
+)
 
 
 def _ptm_fixture(name: str) -> Path:
@@ -38,57 +50,102 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None:
+def _build_evidence_card_report():
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
-    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    design_entries = parse_experimental_design_table(
-        _ptm_fixture("ptm.design.tsv")
-    ).accepted_entries
-    annotations = parse_ptm_site_annotation_tsv(
-        _ptm_fixture("ptm_site_annotations.tsv")
-    )
-
-    report = build_ptm_report_bundle(
+    mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    localization = build_ptm_localization_scoring_report(evidence.accepted_records)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = build_ptm_site_quantification_report(
+        site_table,
         feature_records=features.accepted_records,
-        design_entries=design_entries,
-        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+    )
+    design_entries = tuple(
+        entry.model_copy(update={"batch": None})
+        for entry in parse_experimental_design_table(
+            _ptm_fixture("ptm.design.tsv")
+        ).accepted_entries
+    )
+    differential = build_ptm_differential_analysis_report(
+        site_quantification,
+        design_entries,
+        normalization_method=NormalizationMethod.MEDIAN,
         batch_field="",
-        motif_selection_policy=PtmPhosphositeSelectionPolicy(
+        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        feature_records=features.accepted_records,
+    )
+    motif_enrichment = build_ptm_phosphosite_motif_enrichment_report(
+        differential,
+        protein_sequences=_protein_sequences(),
+        selection_policy=PtmPhosphositeSelectionPolicy(
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
-        motif_comparison_policy=PtmMotifComparisonPolicy(),
-        annotation_records=annotations.accepted_records,
-        annotation_target_species="Homo sapiens",
-        regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+        comparison_policy=PtmMotifComparisonPolicy(),
+    )
+    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotation_mapping = build_ptm_site_annotation_mapping_report(
+        site_table,
+        annotations.accepted_records,
+        target_species="Homo sapiens",
+    )
+    regulator_enrichment = build_ptm_regulator_enrichment_report(
+        differential.differential_report,
+        annotation_mapping,
+        policy=PtmRegulatorEnrichmentPolicy(
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
-        evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+    )
+    protein_regions = parse_protein_region_context_tsv(
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "sequences"
+        / "protein_region_context.tsv"
+    )
+    return build_ptm_evidence_card_report(
+        evidence.accepted_records,
+        site_table,
+        localization,
+        differential,
+        site_quantification=site_quantification,
+        motif_enrichment=motif_enrichment,
+        regulator_enrichment=regulator_enrichment,
+        protein_region_context_records=protein_regions.accepted_records,
+        policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
-    assert report.evidence_cards is not None
-    assert report.summary.evidence_card_count == 3
+
+def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None:
+    report = _build_evidence_card_report()
+
+    assert report.summary.card_count == 3
     assert report.summary.narrative_claim_count == 3
-    assert all(card.card_id.startswith("ptm-card-") for card in report.evidence_cards.cards)
-    assert all(card.claim_ids for card in report.evidence_cards.cards)
-    claim_card_ids = {claim.card_id for claim in report.evidence_cards.narrative_claims}
-    assert claim_card_ids == {card.card_id for card in report.evidence_cards.cards}
+    assert all(card.card_id.startswith("ptm-card-") for card in report.cards)
+    assert all(card.claim_ids for card in report.cards)
+    claim_card_ids = {claim.card_id for claim in report.narrative_claims}
+    assert claim_card_ids == {card.card_id for card in report.cards}
 
     annotated = next(
         card
-        for card in report.evidence_cards.cards
+        for card in report.cards
         if card.site_key == "P11111:S5:Phospho"
     )
     low_localization = next(
         card
-        for card in report.evidence_cards.cards
+        for card in report.cards
         if card.site_key == "Q9DEC1:S5:Phospho"
     )
 
     assert annotated.motif_evidence.centered_windows
+    assert annotated.functional_regions
+    assert any(
+        region.region_kind.value == "signal_peptide"
+        for region in annotated.functional_regions
+    )
     assert any(
         regulator.regulator == "AKT1" for regulator in annotated.regulator_evidence
     )

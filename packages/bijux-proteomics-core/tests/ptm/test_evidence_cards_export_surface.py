@@ -11,13 +11,27 @@ from bijux_proteomics.ptm import (
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
-    build_ptm_report_bundle,
-    export_ptm_report_bundle,
+    build_ptm_differential_analysis_report,
+    build_ptm_evidence_card_report,
+    build_ptm_localization_scoring_report,
+    build_ptm_phosphosite_motif_enrichment_report,
+    build_ptm_regulator_enrichment_report,
+    build_ptm_site_annotation_mapping_report,
+    build_ptm_site_quantification_report,
+    build_ptm_site_table,
+    export_ptm_evidence_card_tsv,
+    export_ptm_evidence_card_summary_tsv,
+    export_ptm_evidence_claim_tsv,
+    map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
 )
-from bijux_proteomics.quantification import parse_ms1_feature_table
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.sequences import (
+    FastaParseMode,
+    parse_fasta_document,
+    parse_protein_region_context_tsv,
+)
 
 
 def _ptm_fixture(name: str) -> Path:
@@ -38,43 +52,86 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path) -> None:
+def _build_evidence_card_report():
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
-    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    design_entries = parse_experimental_design_table(
-        _ptm_fixture("ptm.design.tsv")
-    ).accepted_entries
-    annotations = parse_ptm_site_annotation_tsv(
-        _ptm_fixture("ptm_site_annotations.tsv")
-    )
-    report = build_ptm_report_bundle(
+    mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    localization = build_ptm_localization_scoring_report(evidence.accepted_records)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = build_ptm_site_quantification_report(
+        site_table,
         feature_records=features.accepted_records,
-        design_entries=design_entries,
-        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+    )
+    design_entries = tuple(
+        entry.model_copy(update={"batch": None})
+        for entry in parse_experimental_design_table(
+            _ptm_fixture("ptm.design.tsv")
+        ).accepted_entries
+    )
+    differential = build_ptm_differential_analysis_report(
+        site_quantification,
+        design_entries,
+        normalization_method=NormalizationMethod.MEDIAN,
         batch_field="",
-        motif_selection_policy=PtmPhosphositeSelectionPolicy(
+        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        feature_records=features.accepted_records,
+    )
+    motif_enrichment = build_ptm_phosphosite_motif_enrichment_report(
+        differential,
+        protein_sequences=_protein_sequences(),
+        selection_policy=PtmPhosphositeSelectionPolicy(
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
-        annotation_records=annotations.accepted_records,
-        annotation_target_species="Homo sapiens",
-        regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+    )
+    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotation_mapping = build_ptm_site_annotation_mapping_report(
+        site_table,
+        annotations.accepted_records,
+        target_species="Homo sapiens",
+    )
+    regulator_enrichment = build_ptm_regulator_enrichment_report(
+        differential.differential_report,
+        annotation_mapping,
+        policy=PtmRegulatorEnrichmentPolicy(
             max_adjusted_p_value=1.0,
             min_absolute_log2_fold_change=0.0,
         ),
-        evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+    )
+    protein_regions = parse_protein_region_context_tsv(
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "sequences"
+        / "protein_region_context.tsv"
+    )
+    return build_ptm_evidence_card_report(
+        evidence.accepted_records,
+        site_table,
+        localization,
+        differential,
+        site_quantification=site_quantification,
+        motif_enrichment=motif_enrichment,
+        regulator_enrichment=regulator_enrichment,
+        protein_region_context_records=protein_regions.accepted_records,
+        policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
-    manifest = export_ptm_report_bundle(report, tmp_path / "ptm_report")
 
-    assert manifest.artifacts.evidence_card_summary_tsv is not None
-    assert manifest.artifacts.evidence_card_tsv is not None
-    assert manifest.artifacts.evidence_claim_tsv is not None
-    assert "card_id" in (
-        tmp_path / "ptm_report" / manifest.artifacts.evidence_card_tsv
-    ).read_text()
+def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path) -> None:
+    report = _build_evidence_card_report()
+
+    summary_path = tmp_path / "ptm.evidence_cards.summary.tsv"
+    cards_path = tmp_path / "ptm.evidence_cards.tsv"
+    claims_path = tmp_path / "ptm.evidence_claims.tsv"
+    export_ptm_evidence_card_summary_tsv(report, summary_path)
+    export_ptm_evidence_card_tsv(report, cards_path)
+    export_ptm_evidence_claim_tsv(report, claims_path)
+
+    assert "functional_context_card_count" in summary_path.read_text()
+    assert "functional_regions" in cards_path.read_text()
     assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
-        tmp_path / "ptm_report" / manifest.artifacts.evidence_claim_tsv
-    ).read_text().splitlines()[0]
+        claims_path.read_text().splitlines()[0]
+    )
