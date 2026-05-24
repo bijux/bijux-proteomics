@@ -558,6 +558,7 @@ from bijux_proteomics.isotope_labeling import (
     parse_silac_feature_table,
 )
 from bijux_proteomics.targeted import (
+    BiomarkerStabilityPolicy,
     DiscoveryTargetedPeptideSelectionEntry,
     DiscoveryTargetProteinEntry,
     TargetedAssayInterferenceReason,
@@ -583,6 +584,7 @@ from bijux_proteomics.targeted import (
     ValidationPlanningPanelAssayInput,
     ValidationPlanningPilotVarianceInput,
     ValidationPlanningSelectedPeptideInput,
+    build_biomarker_stability_report,
     build_targeted_panel_design_report,
     build_targeted_assay_interference_report,
     build_discovery_targeted_peptide_selection_report,
@@ -605,6 +607,10 @@ from bijux_proteomics.targeted import (
     render_targeted_panel_design_omitted_candidate_tsv,
     render_targeted_panel_design_panel_tsv,
     render_targeted_panel_design_summary_tsv,
+    render_biomarker_stability_candidate_tsv,
+    render_biomarker_stability_subgroup_tsv,
+    render_biomarker_stability_summary_tsv,
+    render_biomarker_stability_tsv,
     render_targeted_result_validation_evidence_tsv,
     render_targeted_result_validation_summary_tsv,
     render_targeted_result_validation_tsv,
@@ -7547,6 +7553,203 @@ def targeted_result_validator_command(
             ),
             "evidence_tsv": (
                 None if evidence_tsv_out is None else str(evidence_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("biomarker-stability-analysis")
+@click.argument(
+    "biomarker_candidate_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "panel_assay_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "targeted_result_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option("--design-batch-field", default="batch", show_default=True)
+@click.option("--design-timepoint-field", default="timepoint", show_default=True)
+@click.option("--design-sample-type-field", default="sample_type", show_default=True)
+@click.option(
+    "--minimum-reliable-samples-per-group",
+    type=int,
+    default=2,
+    show_default=True,
+)
+@click.option(
+    "--minimum-reliable-sample-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--subgroup-median-delta-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--batch-residual-delta-threshold",
+    type=float,
+    default=0.75,
+    show_default=True,
+)
+@click.option(
+    "--assay-disagreement-delta-threshold",
+    type=float,
+    default=0.75,
+    show_default=True,
+)
+@click.option(
+    "--downgrade-below-score",
+    type=float,
+    default=0.75,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--stability-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--subgroup-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--adjusted-candidate-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def biomarker_stability_analysis_command(
+    biomarker_candidate_tsv: Path,
+    panel_assay_tsv: Path,
+    targeted_result_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    design_batch_field: str,
+    design_timepoint_field: str,
+    design_sample_type_field: str,
+    minimum_reliable_samples_per_group: int,
+    minimum_reliable_sample_fraction: float,
+    subgroup_median_delta_threshold: float,
+    batch_residual_delta_threshold: float,
+    assay_disagreement_delta_threshold: float,
+    downgrade_below_score: float,
+    summary_tsv_out: Path | None,
+    stability_tsv_out: Path | None,
+    subgroup_tsv_out: Path | None,
+    adjusted_candidate_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Assess biomarker stability across targeted-study subgroups."""
+
+    if minimum_reliable_samples_per_group < 1:
+        raise click.ClickException(
+            "minimum-reliable-samples-per-group must be at least 1"
+        )
+    if not 0.0 <= minimum_reliable_sample_fraction <= 1.0:
+        raise click.ClickException(
+            "minimum-reliable-sample-fraction must be between 0.0 and 1.0"
+        )
+    if subgroup_median_delta_threshold < 0.0:
+        raise click.ClickException(
+            "subgroup-median-delta-threshold must be non-negative"
+        )
+    if batch_residual_delta_threshold < 0.0:
+        raise click.ClickException(
+            "batch-residual-delta-threshold must be non-negative"
+        )
+    if assay_disagreement_delta_threshold < 0.0:
+        raise click.ClickException(
+            "assay-disagreement-delta-threshold must be non-negative"
+        )
+    if not 0.0 <= downgrade_below_score <= 1.0:
+        raise click.ClickException("downgrade-below-score must be between 0.0 and 1.0")
+
+    biomarker_candidates = _load_targeted_validation_discovery_claims(
+        biomarker_candidate_tsv
+    )
+    panel_assays = _load_targeted_validation_panel_assays(panel_assay_tsv)
+    design_report = parse_experimental_design_table(design_path)
+    source_kind_value = TargetedResultSourceKind(source_kind)
+    if source_kind_value is TargetedResultSourceKind.SKYLINE_EXPORT:
+        import_report = build_skyline_result_import_report(targeted_result_tsv)
+    else:
+        import_report = build_transition_table_result_import_report(targeted_result_tsv)
+
+    try:
+        report = build_biomarker_stability_report(
+            biomarker_candidates=biomarker_candidates,
+            panel_assays=panel_assays,
+            import_report=import_report,
+            design_entries=design_report.accepted_entries,
+            policy=BiomarkerStabilityPolicy(
+                batch_field=design_batch_field,
+                timepoint_field=design_timepoint_field,
+                sample_type_field=design_sample_type_field,
+                minimum_reliable_samples_per_group=minimum_reliable_samples_per_group,
+                minimum_reliable_sample_fraction=minimum_reliable_sample_fraction,
+                subgroup_median_delta_threshold=subgroup_median_delta_threshold,
+                batch_residual_delta_threshold=batch_residual_delta_threshold,
+                assay_disagreement_delta_threshold=assay_disagreement_delta_threshold,
+                downgrade_below_score=downgrade_below_score,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_biomarker_stability_summary_tsv(report))
+    if stability_tsv_out is not None:
+        _write_text_output(stability_tsv_out, render_biomarker_stability_tsv(report))
+    if subgroup_tsv_out is not None:
+        _write_text_output(subgroup_tsv_out, render_biomarker_stability_subgroup_tsv(report))
+    if adjusted_candidate_tsv_out is not None:
+        _write_text_output(
+            adjusted_candidate_tsv_out,
+            render_biomarker_stability_candidate_tsv(report),
+        )
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": report.source_name,
+        "biomarker_candidate_count": len(biomarker_candidates),
+        "panel_assay_count": len(panel_assays),
+        "import_summary": import_report.summary.to_dict(),
+        "design_summary": {
+            "accepted_entry_count": len(design_report.accepted_entries),
+            "rejected_row_count": len(design_report.rejected_rows),
+        },
+        "policy": report.policy.to_dict(),
+        "summary": report.summary.to_dict(),
+        "entries": [entry.to_dict() for entry in report.entries],
+        "subgroup_behavior": [entry.to_dict() for entry in report.subgroup_behavior],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "stability_tsv": (
+                None if stability_tsv_out is None else str(stability_tsv_out)
+            ),
+            "subgroup_tsv": (
+                None if subgroup_tsv_out is None else str(subgroup_tsv_out)
+            ),
+            "adjusted_candidate_tsv": (
+                None
+                if adjusted_candidate_tsv_out is None
+                else str(adjusted_candidate_tsv_out)
             ),
         },
     }
