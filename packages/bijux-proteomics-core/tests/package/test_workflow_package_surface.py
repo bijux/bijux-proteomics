@@ -20,10 +20,36 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
 )
 from bijux_proteomics.study import build_experiment_design
+import yaml
 
 
 def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
+
+
+def _write_public_descriptor_copy(
+    *,
+    source_name: str,
+    benchmark_root: Path,
+    dataset_id: str,
+    accession: str,
+) -> None:
+    source_path = (
+        Path(__file__).resolve().parents[4]
+        / "benchmarks"
+        / "public"
+        / source_name
+        / "dataset.yml"
+    )
+    payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    payload["dataset_id"] = dataset_id
+    payload["accession"] = accession
+    target_dir = benchmark_root / dataset_id
+    target_dir.mkdir(parents=True, exist_ok=True)
+    (target_dir / "dataset.yml").write_text(
+        yaml.safe_dump(payload, sort_keys=False),
+        encoding="utf-8",
+    )
 
 
 def test_workflow_package_exports_protein_evidence_card_surface() -> None:
@@ -610,3 +636,40 @@ def test_workflow_package_exports_public_dataset_comparison_surface(
     assert "failure_entry_count" in workflow.render_public_dataset_combined_summary_tsv(
         report
     )
+
+
+def test_workflow_package_exports_cross_study_evidence_card_surface(
+    tmp_path: Path,
+) -> None:
+    benchmark_root = tmp_path / "benchmarks"
+    _write_public_descriptor_copy(
+        source_name="lfq_cohort_review_package",
+        benchmark_root=benchmark_root,
+        dataset_id="lfq_question_a",
+        accession="flagship_public_package:lfq_question_a",
+    )
+    _write_public_descriptor_copy(
+        source_name="lfq_cohort_review_package",
+        benchmark_root=benchmark_root,
+        dataset_id="lfq_question_b",
+        accession="flagship_public_package:lfq_question_b",
+    )
+    _write_public_descriptor_copy(
+        source_name="dda_maxquant_review_snapshot",
+        benchmark_root=benchmark_root,
+        dataset_id="maxquant_missing_bundle",
+        accession="flagship_public_package:maxquant_missing_bundle",
+    )
+    report = workflow.build_public_dataset_evidence_card_report(
+        benchmark_root,
+        run_output_root=tmp_path / "public_dataset_evidence_card_runs",
+    )
+
+    assert hasattr(workflow, "build_cross_study_evidence_card_report")
+    assert (
+        workflow.CrossStudyEvidenceCardStatus.CONSISTENT_REPLICATION.value
+        == "consistent_replication"
+    )
+    assert report.summary.card_count > 0
+    assert "final_status" in workflow.render_cross_study_evidence_card_tsv(report)
+    assert "dataset_state" in workflow.render_cross_study_evidence_dataset_tsv(report)
