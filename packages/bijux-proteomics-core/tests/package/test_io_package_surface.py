@@ -67,6 +67,24 @@ def test_io_package_exports_spectrum_noise_owner_surface() -> None:
     assert "peak_class" in rendered
 
 
+def test_io_package_exports_peak_list_deisotoping_owner_surface() -> None:
+    clusters = io.deisotope_peaks(
+        (
+            SpectrumPeak(mz=500.00000, intensity=120.0),
+            SpectrumPeak(mz=501.00335, intensity=90.0),
+            SpectrumPeak(mz=502.00671, intensity=45.0),
+        )
+    )
+    rendered = io.render_deisotoped_peaks_tsv(clusters)
+
+    assert hasattr(io, "deisotope_peaks")
+    assert hasattr(io, "render_deisotoped_peaks_tsv")
+    assert len(clusters) == 1
+    assert clusters[0].charge == 1
+    assert clusters[0].cluster_peak_indices == (0, 1, 2)
+    assert "cluster_peak_indices" in rendered
+
+
 def test_io_package_exports_transition_table_owner_surface() -> None:
     report = io.parse_transition_table(_format_fixture("transition_quant.tsv"))
     first_entry = report.accepted_entries[0]
