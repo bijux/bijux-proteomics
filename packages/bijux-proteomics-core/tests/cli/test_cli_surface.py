@@ -330,6 +330,98 @@ def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
         assert "graph_node_ids" in Path("result_query.evidence.tsv").read_text()
 
 
+def test_result_explanation_command_emits_structured_decision_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        biological_dir = Path("biological_report")
+        biological_dir.mkdir()
+        (biological_dir / "biological_protein_cards.tsv").write_text(
+            "\n".join(
+                (
+                    "card_id\tgraph_claim_node_id\tgraph_subject_node_id\tgraph_support_node_ids\tgraph_source_row_refs\tprotein_group_id\trepresentative_protein_ref\tprotein_refs\tgene_symbol\tpeptides\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tobserved_sample_count\tmissing_sample_count\tcondition_a\tcondition_b\tlog2_fold_change\tadjusted_p_value\tsignificant\tevidence_tier\twarning_codes",
+                    "protein-card-p11111\tclaim:P11111\tprotein:P11111\tpeptide:PEPA\tdifferential:P11111\tpg-P11111\tP11111\tP11111\tAKT1\tPEPA\t1\t1\t0\t4\t0\tcontrol\ttreated\t1.4\t0.02\ttrue\thigh_support\t",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (biological_dir / "biological_evidence_graph_nodes.tsv").write_text(
+            "\n".join(
+                (
+                    "node_id\tentity_type\tentity_ref\tcontext_refs",
+                    "pathway:PWY-001\tpathway\tPWY-001\tprotein:P11111",
+                    "protein:P11111\tprotein\tP11111\t",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (biological_dir / "biological_pathway_activity_condition_comparisons.tsv").write_text(
+            "\n".join(
+                (
+                    "pathway_id\tpathway_name\tsource_name\tsource_accession\tcondition_a\tcondition_b\tcondition_a_confidence_status\tcondition_b_confidence_status\tcomparison_confidence_status\tmean_activity_score_a\tmean_activity_score_b\tactivity_score_delta",
+                    "PWY-001\tCell Cycle\tReactome\tR-HSA-1640170\tcontrol\ttreated\thigh_confidence\thigh_confidence\tlow_confidence\t0.1\t0.5\t0.4",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (biological_dir / "biological_pathway_activity_members.tsv").write_text(
+            "\n".join(
+                (
+                    "pathway_id\tpathway_name\tsource_name\tsource_accession\tsample_id\tcondition\tbatch\tmember_kind\tmember_id\tresolved_protein_refs\tobserved_protein_refs\tresolved_protein_count\tobserved_protein_count\tmissing_protein_count\tmember_activity_score\tobserved",
+                    "PWY-001\tCell Cycle\tReactome\tR-HSA-1640170\tT1\ttreated\t\tprotein\tCDK1\tP11111\tP11111\t1\t1\t0\t1.2\ttrue",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (biological_dir / "biological_pathway_activity_unresolved.tsv").write_text(
+            "\n".join(
+                (
+                    "pathway_id\tpathway_name\tsource_name\tsource_accession\tmember_kind\tmember_id\treason",
+                    "PWY-001\tCell Cycle\tReactome\tR-HSA-1640170\tprotein\tMCM2\tprotein was not observed in the study matrix",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "result-explanation",
+                "--biological-report-dir",
+                "biological_report",
+                "--explanation-kind",
+                "pathway_result",
+                "--subject-id",
+                "PWY-001",
+                "--summary-tsv-out",
+                "result_explanation.summary.tsv",
+                "--explanation-tsv-out",
+                "result_explanation.explanations.tsv",
+                "--evidence-tsv-out",
+                "result_explanation.evidence.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        explanation = payload["report"]["explanations"][0]
+        assert explanation["status"] == "answered"
+        assert explanation["confidence"] == "low"
+        assert explanation["claim"].startswith("Pathway Cell Cycle shows higher activity")
+        assert explanation["opposing_evidence"]
+        assert "answered_explanation_count" in Path(
+            "result_explanation.summary.tsv"
+        ).read_text()
+        assert "claim" in Path("result_explanation.explanations.tsv").read_text()
+        evidence_tsv = Path("result_explanation.evidence.tsv").read_text()
+        assert "evidence_role" in evidence_tsv
+        assert "opposing" in evidence_tsv
+
+
 def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
