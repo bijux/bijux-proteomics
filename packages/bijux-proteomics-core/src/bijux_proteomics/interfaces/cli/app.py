@@ -991,6 +991,9 @@ from bijux_proteomics.workflow import (
     render_dia_dda_shared_intensity_correlation_tsv,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_summary_tsv,
+    render_cross_study_evidence_card_summary_tsv,
+    render_cross_study_evidence_card_tsv,
+    render_cross_study_evidence_dataset_tsv,
     render_public_dataset_combined_summary_tsv,
     render_public_dataset_dataset_summary_tsv,
     render_public_dataset_effect_comparison_tsv,
@@ -998,6 +1001,7 @@ from bijux_proteomics.workflow import (
     render_public_dataset_meta_analysis_tsv,
     render_public_dataset_pathway_comparison_tsv,
     render_trust_bundle_run_summary_tsv,
+    build_public_dataset_evidence_card_report,
     build_public_benchmark_trust_bundle,
     build_public_dataset_comparison_report,
     run_public_benchmark_descriptor,
@@ -6007,6 +6011,67 @@ def public_dataset_comparison_command(
         _write_text_output(
             pathway_comparison_tsv_out,
             render_public_dataset_pathway_comparison_tsv(report),
+        )
+    _emit_json(report, out_path=out_path)
+
+
+@cli.command("public-dataset-evidence-cards")
+@click.option(
+    "--benchmarks",
+    "benchmark_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--run-output-root",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("artifacts/public-dataset-evidence-card-runs"),
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--cards-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--dataset-evidence-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def public_dataset_evidence_cards_command(
+    benchmark_root: Path,
+    run_output_root: Path,
+    summary_tsv_out: Path | None,
+    cards_tsv_out: Path | None,
+    dataset_evidence_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build cross-study evidence cards over public dataset descriptors."""
+
+    try:
+        report = build_public_dataset_evidence_card_report(
+            benchmark_root,
+            run_output_root=run_output_root,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_cross_study_evidence_card_summary_tsv(report),
+        )
+    if cards_tsv_out is not None:
+        _write_text_output(
+            cards_tsv_out,
+            render_cross_study_evidence_card_tsv(report),
+        )
+    if dataset_evidence_tsv_out is not None:
+        _write_text_output(
+            dataset_evidence_tsv_out,
+            render_cross_study_evidence_dataset_tsv(report),
         )
     _emit_json(report, out_path=out_path)
 
