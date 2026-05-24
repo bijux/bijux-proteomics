@@ -71,6 +71,7 @@ def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path)
     assert "evidence_tier" in workflow.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
+    assert report.evidence_aware_ranking_report is not None
     assert "graph_claim_node_id" in workflow.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
@@ -79,6 +80,7 @@ def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path)
         == report.summary.protein_count
     )
     assert report.protein_mechanism_cards.summary.domain_annotated_card_count >= 1
+    assert report.evidence_aware_ranking_report.summary.pathway_entry_count >= 1
 
 
 def test_workflow_package_exports_core_orchestrator_surface() -> None:

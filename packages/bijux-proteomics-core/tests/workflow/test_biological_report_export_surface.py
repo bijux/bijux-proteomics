@@ -56,6 +56,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).exists()
+    assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
     assert (output_dir / manifest.artifacts.annotation_tsv).exists()
     assert (output_dir / manifest.artifacts.context_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
@@ -83,6 +84,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "overall_score" in (
         output_dir / manifest.artifacts.experiment_confidence_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "priority_rank" in (
+        output_dir / manifest.artifacts.evidence_aware_ranking_tsv
+    ).read_text(encoding="utf-8")
+    assert "pathway" in (
+        output_dir / manifest.artifacts.evidence_aware_ranking_tsv
     ).read_text(encoding="utf-8")
     assert "metadata_validity" in (
         output_dir / manifest.artifacts.experiment_confidence_components_tsv
@@ -145,6 +152,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Experiment confidence" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Evidence-aware ranking" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Graph claim" in (

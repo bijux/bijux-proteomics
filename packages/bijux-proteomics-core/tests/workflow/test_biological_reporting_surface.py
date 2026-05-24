@@ -66,6 +66,11 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.volcano_review.significant_point_count >= 3
     assert report.sample_exploration_report.summary.sample_count == 6
     assert report.heatmap_report.summary.output_entity_count >= 3
+    assert report.evidence_aware_ranking_report is not None
+    assert (
+        report.evidence_aware_ranking_report.summary.protein_entry_count
+        == report.summary.protein_count
+    )
     assert report.protein_cards.summary.protein_result_count == 5
     assert report.protein_mechanism_cards.summary.card_count == 5
     assert report.protein_mechanism_cards.summary.card_count == report.summary.protein_count
@@ -150,6 +155,8 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
     assert report.summary.annotation_entry_count == 3
     assert report.experiment_confidence_report.summary.component_count == 7
     assert report.protein_mechanism_cards.summary.card_count == 3
+    assert report.evidence_aware_ranking_report is not None
+    assert report.evidence_aware_ranking_report.entries[0].entity_kind.value == "protein"
 
 
 def test_biological_result_report_bundle_from_quant_table_preserves_functional_regions_on_cards(
