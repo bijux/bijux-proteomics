@@ -7051,6 +7051,12 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             "low_confidence",
         }
         assert (
+            payload["report"]["claim_validation_report"]["summary"][
+                "supported_claim_count"
+            ]
+            >= 1
+        )
+        assert (
             payload["report"]["experiment_confidence_report"]["summary"][
                 "component_count"
             ]
@@ -7068,6 +7074,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert (report_dir / "biological_protein_cards.tsv").exists()
         assert (report_dir / "biological_experiment_confidence_summary.tsv").exists()
         assert (report_dir / "biological_experiment_confidence_components.tsv").exists()
+        assert (report_dir / "biological_claim_validation_summary.tsv").exists()
+        assert (report_dir / "biological_supported_claims.tsv").exists()
+        assert (report_dir / "biological_rejected_claims.tsv").exists()
         assert (report_dir / "biological_annotations.tsv").exists()
         assert (report_dir / "biological_context_summary.tsv").exists()
         assert (report_dir / "biological_context_mappings.tsv").exists()
@@ -7090,6 +7099,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         ).read_text(encoding="utf-8")
         assert "overall_score" in (
             report_dir / "biological_experiment_confidence_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "supported_claim_count" in (
+            report_dir / "biological_claim_validation_summary.tsv"
         ).read_text(encoding="utf-8")
         assert "card_id" in (
             report_dir / "biological_protein_cards.tsv"
@@ -7122,6 +7134,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
         assert "Experiment confidence" in (
+            report_dir / "biological_report.html"
+        ).read_text(encoding="utf-8")
+        assert "Validated biological claims" in (
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
         assert "Biological result report" in (
