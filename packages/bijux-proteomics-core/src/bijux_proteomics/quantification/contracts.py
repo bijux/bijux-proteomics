@@ -1477,6 +1477,27 @@ class DifferentialAbundanceAssumptionReport(JsonModel):
     paired_policy: PairedDifferentialPolicy | None = None
 
 
+class DifferentialResultRobustnessQcStatus(StrEnum):
+    """Stable QC severity carried onto differential-result rows."""
+
+    PASS = "pass"
+    CAUTION = "caution"
+    FAIL = "fail"
+
+
+class DifferentialResultRobustnessReasonCode(StrEnum):
+    """Stable downgrade reasons for one differential-result robustness score."""
+
+    LOW_EFFECT_SIZE = "low_effect_size"
+    ELEVATED_FDR = "elevated_fdr"
+    HIGH_MISSINGNESS = "high_missingness"
+    IMPUTATION_HEAVY = "imputation_heavy"
+    LOW_PEPTIDE_SUPPORT = "low_peptide_support"
+    REPLICATE_INCONSISTENCY = "replicate_inconsistency"
+    CAUTION_QC = "caution_qc"
+    FAILED_QC = "failed_qc"
+
+
 class DifferentialAbundanceEntry(JsonModel):
     """One entity-level two-condition differential abundance result."""
 
@@ -1503,6 +1524,12 @@ class DifferentialAbundanceEntry(JsonModel):
     confidence_interval_low: float | None = None
     confidence_interval_high: float | None = None
     effect_size_cohens_d: float | None = None
+    robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
+    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
+        Field(default_factory=tuple)
+    )
+    robustness_note: str | None = None
     uncertainty_note: str | None = None
 
 
@@ -1587,6 +1614,12 @@ class TimeCourseDifferentialEntry(JsonModel):
         ge=0.0,
         le=1.0,
     )
+    robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
+    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
+        Field(default_factory=tuple)
+    )
+    robustness_note: str | None = None
     note: str | None = None
 
 
