@@ -66,6 +66,17 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.context_term_tsv).exists()
     assert (output_dir / manifest.artifacts.context_unmapped_tsv).exists()
     assert (output_dir / manifest.artifacts.context_rejected_tsv).exists()
+    assert (output_dir / manifest.artifacts.pathway_activity_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.pathway_activity_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.pathway_activity_sample_score_tsv).exists()
+    assert (output_dir / manifest.artifacts.pathway_activity_condition_score_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.pathway_activity_condition_comparison_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
+    ).exists()
+    assert (output_dir / manifest.artifacts.pathway_activity_unresolved_member_tsv).exists()
     assert (output_dir / manifest.artifacts.go_term_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
@@ -93,6 +104,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "foreground_source_kind" in (
         output_dir / manifest.artifacts.foreground_background_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "pathway_count" in (
+        output_dir / manifest.artifacts.pathway_activity_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
+        output_dir / manifest.artifacts.pathway_activity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "member_kind\tmember_id\tresolved_protein_refs" in (
+        output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
     ).read_text(encoding="utf-8")
     assert "set_role" in (
         output_dir / manifest.artifacts.foreground_background_entry_tsv
@@ -170,6 +190,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Enrichment foreground/background model" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Pathway activity" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Low-confidence sample scores" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Valid for enrichment" in (

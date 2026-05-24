@@ -35,6 +35,9 @@ def test_build_biological_result_report_bundle_preserves_annotation_and_enrichme
     assert report.annotation_report.mapped_entries[0].gene_symbol is not None
     assert report.go_enrichment_report is not None
     assert report.go_enrichment_report.summary.enriched_term_count == 1
+    assert report.pathway_activity_report is not None
+    assert report.pathway_activity_report.summary.pathway_count == 1
+    assert report.pathway_activity_report.summary.condition_comparison_count == 1
     assert report.pathway_enrichment_report is not None
     assert report.pathway_enrichment_report.summary.enriched_entry_count == 1
     assert report.complex_enrichment_report is not None

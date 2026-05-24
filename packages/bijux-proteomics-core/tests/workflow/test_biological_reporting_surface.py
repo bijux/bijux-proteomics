@@ -109,9 +109,16 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     )
     assert report.context_import_report is not None
     assert report.context_mapping_report is not None
+    assert report.pathway_activity_report is not None
     assert any(
         entry.context_id == "DB0001"
         for entry in report.context_mapping_report.mapped_entries
+    )
+    assert report.pathway_activity_report.summary.pathway_count >= 1
+    assert report.pathway_activity_report.summary.condition_comparison_count >= 1
+    assert any(
+        entry.comparison_confidence_status.value in {"high_confidence", "low_confidence"}
+        for entry in report.pathway_activity_report.condition_comparisons
     )
     assert any(
         entry.protein_ref == "Q9Y243"
