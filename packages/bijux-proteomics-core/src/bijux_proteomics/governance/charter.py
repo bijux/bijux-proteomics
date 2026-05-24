@@ -241,6 +241,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "targeted/assay_qc.py",
             "targeted/carryover.py",
+            "targeted/discovery_peptide_selection.py",
             "targeted/transition_coelution.py",
             "ptm/contracts.py",
             "ptm/ambiguity_handling.py",
