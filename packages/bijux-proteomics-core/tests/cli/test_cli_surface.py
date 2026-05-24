@@ -1036,6 +1036,84 @@ def test_complex_activity_command_emits_matrix_contributions_and_limiting_member
         )
 
 
+def test_compartment_biology_command_emits_enrichment_activity_and_unknown_localization() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_compartments.tsv",
+            "biological_report_compartments.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "compartment-biology",
+                "biological_report_features.tsv",
+                "biological_report_compartments.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--summary-tsv-out",
+                "compartment_biology.summary.tsv",
+                "--enrichment-tsv-out",
+                "compartment_biology.enrichment.tsv",
+                "--matrix-tsv-out",
+                "compartment_biology.matrix.tsv",
+                "--sample-score-tsv-out",
+                "compartment_biology.samples.tsv",
+                "--condition-score-tsv-out",
+                "compartment_biology.conditions.tsv",
+                "--condition-comparison-tsv-out",
+                "compartment_biology.comparisons.tsv",
+                "--unresolved-member-tsv-out",
+                "compartment_biology.unresolved.tsv",
+                "--unknown-localization-tsv-out",
+                "compartment_biology.unknown.tsv",
+                "--rejected-context-tsv-out",
+                "compartment_biology.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["compartment_count"] == 2
+        assert payload["report"]["summary"]["unknown_foreground_protein_count"] == 1
+        assert payload["report"]["summary"]["unknown_background_protein_count"] == 2
+        assert Path("compartment_biology.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("compartment_count\tforeground_protein_count")
+        assert "compartment_id\tcompartment_name\tsource_name\tsource_accession" in Path(
+            "compartment_biology.enrichment.tsv"
+        ).read_text()
+        assert "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
+            "compartment_biology.matrix.tsv"
+        ).read_text()
+        assert "condition_a_confidence_status" in Path(
+            "compartment_biology.comparisons.tsv"
+        ).read_text()
+        assert Path("compartment_biology.unresolved.tsv").read_text().splitlines()[0].startswith(
+            "compartment_id\tcompartment_name\tsource_name"
+        )
+        assert "localization_scope\tprotein_ref\treason" == Path(
+            "compartment_biology.unknown.tsv"
+        ).read_text().splitlines()[0]
+        assert "rejected rows" not in result.output
+        assert Path("compartment_biology.rejected.tsv").read_text().splitlines()[
+            0
+        ].startswith("row_number")
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
