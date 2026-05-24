@@ -26,6 +26,7 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     propagate_evidence_graph_confidence,
 )
+from bijux_proteomics.sequences import build_peptide_chemical_liability_report
 
 
 def _format_fixture(name: str) -> Path:
@@ -658,3 +659,91 @@ def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_sco
     assert "peptide chromatographic evidence" in chromatographic_by_claim[
         "protein:treatment_vs_control:P30001"
     ].rationale
+
+
+def test_propagate_evidence_graph_confidence_uses_peptide_chemical_liability() -> None:
+    builder = ProteomicsEvidenceGraphBuilder()
+
+    safe_spectrum = builder.add_spectrum("scan=3001", label="scan=3001", trust_class="high")
+    risky_spectrum = builder.add_spectrum("scan=3002", label="scan=3002", trust_class="high")
+    safe_psm = builder.add_psm("psm:3001", label="psm:3001", trust_class="high")
+    risky_psm = builder.add_psm("psm:3002", label="psm:3002", trust_class="high")
+    safe_peptide = builder.add_peptide("ATIDEAR", label="ATIDEAR", trust_class="high")
+    risky_peptide = builder.add_peptide(
+        "MNNQVVVVVVILKKDG",
+        label="MNNQVVVVVVILKKDG",
+        trust_class="high",
+    )
+    safe_protein = builder.add_protein("P55555", label="P55555", trust_class="high")
+    risky_protein = builder.add_protein("P66666", label="P66666", trust_class="high")
+    safe_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P55555",
+        label="safe peptide-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P55555",
+            ),
+        ),
+    )
+    risky_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P66666",
+        label="risky peptide-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P66666",
+            ),
+        ),
+    )
+
+    for row_number, spectrum, psm, peptide, protein, result in (
+        (1, safe_spectrum, safe_psm, safe_peptide, safe_protein, safe_result),
+        (2, risky_spectrum, risky_psm, risky_peptide, risky_protein, risky_result),
+    ):
+        builder.add_spectrum_supports_psm(
+            spectrum.node_id,
+            psm.node_id,
+            source_row_ref=f"psm.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted spectrum supports PSM",
+        )
+        builder.add_psm_supports_peptide(
+            psm.node_id,
+            peptide.node_id,
+            source_row_ref=f"peptide.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted PSM supports peptide sequence",
+        )
+        builder.add_peptide_quantifies_protein(
+            peptide.node_id,
+            protein.node_id,
+            source_row_ref=f"protein_matrix.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted peptide quantifies target protein",
+        )
+        builder.add_protein_supports_statistical_result(
+            protein.node_id,
+            result.node_id,
+            source_row_ref=f"protein_stats.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted protein supports final differential result",
+        )
+
+    graph = builder.build()
+    report = propagate_evidence_graph_confidence(
+        graph,
+        peptide_liability_reports=(
+            build_peptide_chemical_liability_report("ATIDEAR"),
+            build_peptide_chemical_liability_report("MNNQVVVVVVILKKDG", charge=4),
+        ),
+    )
+
+    by_subject = {entry.subject_node_ref: entry for entry in report.entries}
+    strong_entry = by_subject["P55555"]
+    risky_entry = by_subject["P66666"]
+
+    assert strong_entry.propagated_score > risky_entry.propagated_score
+    assert "peptide chemical liability" in risky_entry.rationale
