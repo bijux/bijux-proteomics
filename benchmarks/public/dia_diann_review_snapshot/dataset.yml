@@ -35,6 +35,67 @@ sample_groups:
     sample_ids: [C1, C2, C3]
   - group_id: treatment
     sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_C1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_C2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_C3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_T1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_T2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_T3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
 contrast:
   condition_a: control
   condition_b: treatment
@@ -43,6 +104,13 @@ expected_approximate_counts:
   - metric_id: imported_precursor_count
     expected: 5
     tolerance: 5
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: comparator_export_not_full_diann_result
+    severity: blocking
+    affected_surface: result_tsv
+    blocks_workflow_execution: true
+    description: The shipped DIA-NN asset is a comparator review export rather than the full DIA-NN biological result contract required by the owned workflow.
 command:
   cli: bijux proteomics public-benchmark-runner benchmarks/public/dia_diann_review_snapshot/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship DIA-NN comparator export through the owned DIA biological workflow if the shipped public snapshot still satisfies the DIA-NN report contract.

@@ -20,9 +20,90 @@ expected_input_schemas:
   - design_tsv
 sample_groups:
   - group_id: control
-    sample_ids: [plex_a_126, plex_a_127n, plex_a_127c, plex_a_128n]
+    sample_ids: [plex_a_126, plex_b_126]
   - group_id: treatment
-    sample_ids: [plex_b_126, plex_b_127n, plex_b_127c, plex_b_128n]
+    sample_ids: [plex_a_127N, plex_b_127N]
+  - group_id: carrier
+    sample_ids: [plex_a_128N, plex_b_128N]
+sample_metadata:
+  - sample_id: plex_a_126
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a_126.mzml
+    identifications_file: plex_a_126.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+    multiplex_group: plex-a
+    multiplex_channel: "126"
+    sample_role: sample
+  - sample_id: plex_a_127N
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a_127N.mzml
+    identifications_file: plex_a_127N.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+    multiplex_group: plex-a
+    multiplex_channel: 127N
+    sample_role: sample
+  - sample_id: plex_a_128N
+    group_id: carrier
+    condition: carrier
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a_128N.mzml
+    identifications_file: plex_a_128N.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+    multiplex_group: plex-a
+    multiplex_channel: 128N
+    sample_role: pooled_reference
+  - sample_id: plex_b_126
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b_126.mzml
+    identifications_file: plex_b_126.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+    multiplex_group: plex-b
+    multiplex_channel: "126"
+    sample_role: sample
+  - sample_id: plex_b_127N
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b_127N.mzml
+    identifications_file: plex_b_127N.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+    multiplex_group: plex-b
+    multiplex_channel: 127N
+    sample_role: sample
+  - sample_id: plex_b_128N
+    group_id: carrier
+    condition: carrier
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b_128N.mzml
+    identifications_file: plex_b_128N.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+    multiplex_group: plex-b
+    multiplex_channel: 128N
+    sample_role: pooled_reference
 contrast:
   condition_a: control
   condition_b: treatment
@@ -31,6 +112,13 @@ expected_approximate_counts:
   - metric_id: protein_ratio_count
     expected: 12
     tolerance: 12
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: feature_table_not_reporter_level
+    severity: blocking
+    affected_surface: result_tsv
+    blocks_workflow_execution: true
+    description: The shipped multiplex feature table is reviewable but does not yet satisfy the reporter-table contract required by the owned TMT workflow.
 command:
   cli: bijux proteomics public-benchmark-runner benchmarks/public/multiplex_tmtpro_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship TMTpro feature table through the owned multiplex workflow when the shipped public package satisfies the TMT reporter input contract.

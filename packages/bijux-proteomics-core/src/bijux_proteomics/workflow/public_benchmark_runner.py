@@ -12,10 +12,20 @@ from pathlib import Path
 from typing import Any
 
 from pydantic import ConfigDict, Field
-import yaml
 
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.targeted import TargetedResultSourceKind
+from bijux_proteomics.workflow.public_benchmark_descriptors import (
+    PublicBenchmarkDescriptor,
+    PublicBenchmarkExpectedBiologicalSignal,
+    PublicBenchmarkExpectedSignalDirection,
+    PublicBenchmarkExpectedSignalSubjectKind,
+    PublicBenchmarkKnownLimitation,
+    PublicBenchmarkSearchEngine,
+    load_public_benchmark_descriptor,
+    list_public_benchmark_descriptor_paths,
+)
 from bijux_proteomics.workflow.orchestrator import (
     DdaWorkflowConfig,
     DiannWorkflowConfig,
@@ -30,18 +40,6 @@ from bijux_proteomics.workflow.orchestrator import (
     run_proteomics_workflow,
 )
 from bijux_proteomics_foundation import JsonModel
-
-
-class PublicBenchmarkSearchEngine(StrEnum):
-    """Stable workflow-family identifiers accepted by public descriptors."""
-
-    DIANN = "diann"
-    LFQ = "lfq"
-    MAXQUANT = "maxquant"
-    FRAGPIPE = "fragpipe"
-    PTM = "ptm"
-    TMT = "tmt"
-    TARGETED = "targeted"
 
 
 class PublicBenchmarkRunStatus(StrEnum):
@@ -60,90 +58,8 @@ class PublicBenchmarkFailureKind(StrEnum):
     EXECUTION_FAILED = "execution_failed"
     OUTPUT_CHECK_FAILED = "output_check_failed"
     APPROXIMATE_COUNT_MISMATCH = "approximate_count_mismatch"
-
-
-class PublicBenchmarkSourceFile(JsonModel):
-    """One governed input file declared by a public benchmark descriptor."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    source_id: str = Field(..., min_length=1)
-    schema_id: str = Field(..., min_length=1)
-    repo_relative_path: str = Field(..., min_length=1)
-    sha256: str = Field(..., min_length=64, max_length=64)
-    public_reference_url: str | None = None
-    note: str | None = None
-
-
-class PublicBenchmarkSampleGroup(JsonModel):
-    """One biological or technical group declared by a benchmark descriptor."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    group_id: str = Field(..., min_length=1)
-    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    note: str | None = None
-
-
-class PublicBenchmarkContrast(JsonModel):
-    """One named contrast over declared benchmark sample groups."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    condition_a: str = Field(..., min_length=1)
-    condition_b: str = Field(..., min_length=1)
-    note: str | None = None
-
-
-class PublicBenchmarkApproximateCount(JsonModel):
-    """One approximate count expectation checked against workflow summary output."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    metric_id: str = Field(..., min_length=1)
-    expected: int = Field(..., ge=0)
-    tolerance: int = Field(default=0, ge=0)
-
-
-class PublicBenchmarkCommand(JsonModel):
-    """One reviewer-facing command description for a benchmark descriptor."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    cli: str = Field(..., min_length=1)
-    note: str = Field(..., min_length=1)
-    parameters: dict[str, str | int | float | bool] = Field(default_factory=dict)
-
-
-class PublicBenchmarkOutputCheck(JsonModel):
-    """One output existence check evaluated after successful workflow execution."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    output_id: str = Field(..., min_length=1)
-    relative_path: str = Field(..., min_length=1)
-    note: str = Field(..., min_length=1)
-
-
-class PublicBenchmarkDescriptor(JsonModel):
-    """Descriptor loaded from ``benchmarks/public/<dataset>/dataset.yml``."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    dataset_id: str = Field(..., min_length=1)
-    accession: str = Field(..., min_length=1)
-    species: str = Field(..., min_length=1)
-    search_engine: str = Field(..., min_length=1)
-    source_files: tuple[PublicBenchmarkSourceFile, ...] = Field(default_factory=tuple)
-    expected_input_schemas: tuple[str, ...] = Field(default_factory=tuple)
-    sample_groups: tuple[PublicBenchmarkSampleGroup, ...] = Field(default_factory=tuple)
-    contrast: PublicBenchmarkContrast
-    expected_approximate_counts: tuple[PublicBenchmarkApproximateCount, ...] = Field(
-        default_factory=tuple
-    )
-    command: PublicBenchmarkCommand
-    output_checks: tuple[PublicBenchmarkOutputCheck, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
+    SAMPLE_METADATA_MISMATCH = "sample_metadata_mismatch"
+    EXPECTED_SIGNAL_MISMATCH = "expected_signal_mismatch"
 
 
 class PublicBenchmarkFailure(JsonModel):
@@ -169,6 +85,31 @@ class PublicBenchmarkSourceAudit(JsonModel):
     observed_sha256: str | None = None
 
 
+class PublicBenchmarkExpectedSignalAssessmentStatus(StrEnum):
+    """Stable benchmark signal-assessment outcomes."""
+
+    MATCHED = "matched"
+    MISMATCHED = "mismatched"
+    UNVERIFIED = "unverified"
+
+
+class PublicBenchmarkExpectedSignalAssessment(JsonModel):
+    """Assessment of one declared biological expectation against owned outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    signal_id: str = Field(..., min_length=1)
+    subject_kind: PublicBenchmarkExpectedSignalSubjectKind
+    subject_id: str = Field(..., min_length=1)
+    expected_direction: PublicBenchmarkExpectedSignalDirection
+    status: PublicBenchmarkExpectedSignalAssessmentStatus
+    source_surface: str = Field(..., min_length=1)
+    observed_direction: str | None = None
+    observed_effect_size: float | None = None
+    observed_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
 class PublicBenchmarkRunReport(JsonModel):
     """Execution report for one descriptor-driven public benchmark run."""
 
@@ -181,6 +122,12 @@ class PublicBenchmarkRunReport(JsonModel):
     status: str = Field(..., min_length=1)
     output_dir: str = Field(..., min_length=1)
     source_audits: tuple[PublicBenchmarkSourceAudit, ...] = Field(default_factory=tuple)
+    known_limitations: tuple[PublicBenchmarkKnownLimitation, ...] = Field(
+        default_factory=tuple
+    )
+    expected_signal_assessments: tuple[PublicBenchmarkExpectedSignalAssessment, ...] = (
+        Field(default_factory=tuple)
+    )
     failures: tuple[PublicBenchmarkFailure, ...] = Field(default_factory=tuple)
     verified_counts: dict[str, int] = Field(default_factory=dict)
     workflow_result: WorkflowResult | None = None
@@ -210,19 +157,6 @@ def _repo_root() -> Path:
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def load_public_benchmark_descriptor(descriptor_path: Path) -> PublicBenchmarkDescriptor:
-    """Load and validate one public benchmark descriptor."""
-
-    payload = yaml.safe_load(descriptor_path.read_text(encoding="utf-8"))
-    return PublicBenchmarkDescriptor.model_validate(payload)
-
-
-def list_public_benchmark_descriptor_paths(benchmark_root: Path) -> tuple[Path, ...]:
-    """List every descriptor rooted under ``benchmarks/public``."""
-
-    return tuple(sorted(benchmark_root.glob("*/dataset.yml")))
 
 
 def run_public_benchmark_descriptor(
@@ -298,6 +232,7 @@ def run_public_benchmark_descriptor(
         )
         for schema_id in missing_schemas
     )
+    failures.extend(_verify_sample_metadata(descriptor, source_map=source_map))
     if failures:
         return PublicBenchmarkRunReport(
             descriptor_path=str(descriptor_path),
@@ -307,10 +242,12 @@ def run_public_benchmark_descriptor(
             status=PublicBenchmarkRunStatus.FAILED,
             output_dir=str(output_dir),
             source_audits=tuple(source_audits),
+            known_limitations=descriptor.known_limitations,
             failures=tuple(failures),
             note=(
                 "public benchmark descriptor failed before workflow dispatch because "
-                "one or more governed source files or required schemas were absent"
+                "governed source files, required schemas, or declared sample metadata "
+                "did not match the runnable workflow inputs"
             ),
         )
 
@@ -331,6 +268,7 @@ def run_public_benchmark_descriptor(
             status=PublicBenchmarkRunStatus.FAILED,
             output_dir=str(output_dir),
             source_audits=tuple(source_audits),
+            known_limitations=descriptor.known_limitations,
             failures=(
                 PublicBenchmarkFailure(
                     kind=PublicBenchmarkFailureKind.EXECUTION_FAILED,
@@ -349,7 +287,11 @@ def run_public_benchmark_descriptor(
         workflow_result=workflow_result,
     )
     output_failures = _verify_output_checks(descriptor, output_dir=output_dir)
-    failures = [*count_failures, *output_failures]
+    signal_failures, signal_assessments = _verify_expected_biological_signals(
+        descriptor,
+        output_dir=output_dir,
+    )
+    failures = [*count_failures, *output_failures, *signal_failures]
 
     return PublicBenchmarkRunReport(
         descriptor_path=str(descriptor_path),
@@ -363,14 +305,18 @@ def run_public_benchmark_descriptor(
         ),
         output_dir=str(output_dir),
         source_audits=tuple(source_audits),
+        known_limitations=descriptor.known_limitations,
+        expected_signal_assessments=signal_assessments,
         failures=tuple(failures),
         verified_counts=verified_counts,
         workflow_result=workflow_result,
         note=(
             "public benchmark descriptor executed through the owned workflow "
-            "orchestrator and then checked counts and required outputs"
+            "orchestrator and then checked counts, required outputs, and declared "
+            "biological expectations"
             if not failures
-            else "public benchmark descriptor executed, but one or more governed validation checks failed"
+            else "public benchmark descriptor executed, but one or more governed "
+            "validation checks failed"
         ),
     )
 
@@ -411,6 +357,17 @@ def render_public_benchmark_suite_summary_tsv(
             "accession": run.accession,
             "search_engine": run.search_engine,
             "status": run.status,
+            "known_limitation_count": len(run.known_limitations),
+            "blocking_limitation_count": sum(
+                limitation.blocks_workflow_execution
+                for limitation in run.known_limitations
+            ),
+            "expected_signal_count": len(run.expected_signal_assessments),
+            "matched_signal_count": sum(
+                assessment.status
+                is PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+                for assessment in run.expected_signal_assessments
+            ),
             "failure_count": len(run.failures),
             "output_dir": run.output_dir,
             "note": run.note,
@@ -436,6 +393,33 @@ def render_public_benchmark_suite_failures_tsv(
         }
         for run in suite.runs
         for failure in run.failures
+    ]
+    return _dict_rows_to_tsv(rows)
+
+
+def render_public_benchmark_suite_signal_assessments_tsv(
+    suite: PublicBenchmarkSuiteReport,
+) -> str:
+    """Render declared biological-signal checks across one benchmark suite."""
+
+    rows = [
+        {
+            "dataset_id": run.dataset_id,
+            "accession": run.accession,
+            "status": run.status,
+            "signal_id": assessment.signal_id,
+            "subject_kind": assessment.subject_kind.value,
+            "subject_id": assessment.subject_id,
+            "expected_direction": assessment.expected_direction.value,
+            "assessment_status": assessment.status.value,
+            "source_surface": assessment.source_surface,
+            "observed_direction": assessment.observed_direction or "",
+            "observed_effect_size": assessment.observed_effect_size,
+            "observed_adjusted_p_value": assessment.observed_adjusted_p_value,
+            "note": assessment.note,
+        }
+        for run in suite.runs
+        for assessment in run.expected_signal_assessments
     ]
     return _dict_rows_to_tsv(rows)
 
@@ -597,3 +581,408 @@ def _verify_output_checks(
                 )
             )
     return failures
+
+
+def _verify_sample_metadata(
+    descriptor: PublicBenchmarkDescriptor,
+    *,
+    source_map: dict[str, Path],
+) -> list[PublicBenchmarkFailure]:
+    if "design_tsv" not in source_map or not descriptor.sample_metadata:
+        return []
+
+    design_report = parse_experimental_design_table(source_map["design_tsv"])
+    design_entries = {entry.sample_id: entry for entry in design_report.accepted_entries}
+    failures: list[PublicBenchmarkFailure] = []
+
+    for sample in descriptor.sample_metadata:
+        design_entry = design_entries.get(sample.sample_id)
+        if design_entry is None:
+            failures.append(
+                PublicBenchmarkFailure(
+                    kind=PublicBenchmarkFailureKind.SAMPLE_METADATA_MISMATCH,
+                    subject=sample.sample_id,
+                    message=(
+                        "descriptor sample metadata declared sample_id "
+                        f"'{sample.sample_id}' but the governed design table does not "
+                        "contain that sample"
+                    ),
+                )
+            )
+            continue
+        mismatches: list[str] = []
+        _compare_declared_value(
+            mismatches, "condition", sample.condition, design_entry.condition
+        )
+        _compare_declared_value(
+            mismatches, "replicate", sample.replicate, design_entry.replicate
+        )
+        _compare_declared_value(
+            mismatches, "fraction", sample.fraction, design_entry.fraction
+        )
+        _compare_declared_value(
+            mismatches, "spectra_file", sample.spectra_file, design_entry.spectra_file
+        )
+        _compare_declared_value(
+            mismatches,
+            "identifications_file",
+            sample.identifications_file,
+            design_entry.identifications_file,
+        )
+        _compare_declared_value(mismatches, "batch", sample.batch, design_entry.batch)
+        _compare_declared_value(
+            mismatches, "instrument", sample.instrument, design_entry.instrument
+        )
+        _compare_declared_value(
+            mismatches,
+            "search_engine",
+            sample.search_engine,
+            design_entry.search_engine,
+        )
+        _compare_declared_value(
+            mismatches,
+            "multiplex_group",
+            sample.multiplex_group,
+            design_entry.multiplex_group,
+        )
+        _compare_declared_value(
+            mismatches,
+            "multiplex_channel",
+            sample.multiplex_channel,
+            design_entry.multiplex_channel,
+        )
+        if sample.sample_role is not None:
+            _compare_declared_value(
+                mismatches,
+                "sample_role",
+                sample.sample_role.value,
+                design_entry.sample_role.value,
+            )
+        for key, expected_value in sorted(sample.metadata.items()):
+            _compare_declared_value(
+                mismatches,
+                f"metadata.{key}",
+                expected_value,
+                design_entry.metadata.get(key),
+            )
+        if mismatches:
+            failures.append(
+                PublicBenchmarkFailure(
+                    kind=PublicBenchmarkFailureKind.SAMPLE_METADATA_MISMATCH,
+                    subject=sample.sample_id,
+                    message=(
+                        f"descriptor sample metadata for '{sample.sample_id}' does not "
+                        f"match the governed design table: {'; '.join(mismatches)}"
+                    ),
+                )
+            )
+
+    declared_sample_ids = {sample.sample_id for sample in descriptor.sample_metadata}
+    for design_sample_id in sorted(design_entries):
+        if design_sample_id not in declared_sample_ids:
+            failures.append(
+                PublicBenchmarkFailure(
+                    kind=PublicBenchmarkFailureKind.SAMPLE_METADATA_MISMATCH,
+                    subject=design_sample_id,
+                    message=(
+                        f"governed design sample '{design_sample_id}' is missing from "
+                        "descriptor sample_metadata"
+                    ),
+                )
+            )
+    return failures
+
+
+def _compare_declared_value(
+    mismatches: list[str],
+    field_name: str,
+    expected_value: object | None,
+    observed_value: object | None,
+) -> None:
+    if expected_value is None:
+        return
+    if str(expected_value) != str(observed_value):
+        mismatches.append(
+            f"{field_name} expected {expected_value!r} observed {observed_value!r}"
+        )
+
+
+def _verify_expected_biological_signals(
+    descriptor: PublicBenchmarkDescriptor,
+    *,
+    output_dir: Path,
+) -> tuple[list[PublicBenchmarkFailure], tuple[PublicBenchmarkExpectedSignalAssessment, ...]]:
+    assessments: list[PublicBenchmarkExpectedSignalAssessment] = []
+    failures: list[PublicBenchmarkFailure] = []
+    for signal in descriptor.expected_biological_signals:
+        assessment = _assess_expected_signal(signal, output_dir=output_dir)
+        assessments.append(assessment)
+        if assessment.status is not PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED:
+            failures.append(
+                PublicBenchmarkFailure(
+                    kind=PublicBenchmarkFailureKind.EXPECTED_SIGNAL_MISMATCH,
+                    subject=signal.signal_id,
+                    message=assessment.note,
+                )
+            )
+    return failures, tuple(assessments)
+
+
+def _assess_expected_signal(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    output_dir: Path,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    if signal.subject_kind is PublicBenchmarkExpectedSignalSubjectKind.PROTEIN:
+        return _assess_protein_signal(signal, output_dir=output_dir)
+    if signal.subject_kind is PublicBenchmarkExpectedSignalSubjectKind.PATHWAY:
+        return _assess_pathway_signal(signal, output_dir=output_dir)
+    if signal.subject_kind is PublicBenchmarkExpectedSignalSubjectKind.PTM_SITE:
+        return _assess_ptm_site_signal(signal, output_dir=output_dir)
+    raise ValueError(f"unsupported expected signal kind '{signal.subject_kind.value}'")
+
+
+def _assess_protein_signal(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    output_dir: Path,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    rows = _load_tsv_rows(output_dir / "biological_protein_cards.tsv")
+    row = next(
+        (
+            item
+            for item in rows
+            if item.get("representative_protein_ref") == signal.subject_id
+            or item.get("protein_group_id") == signal.subject_id
+            or item.get("gene_symbol") == signal.subject_id
+        ),
+        None,
+    )
+    if row is None:
+        return _unverified_signal_assessment(
+            signal,
+            source_surface="biological_protein_cards.tsv",
+            note=(
+                f"expected protein signal '{signal.subject_id}' could not be checked "
+                "because no matching protein card row was exported"
+            ),
+        )
+    effect_size = _parse_float(row.get("log2_fold_change"))
+    adjusted_p_value = _parse_float(row.get("adjusted_p_value"))
+    significant = row.get("significant", "").strip().lower() == "true"
+    observed_direction = _direction_from_effect_size(effect_size)
+    return _finalize_directional_signal_assessment(
+        signal,
+        source_surface="biological_protein_cards.tsv",
+        observed_direction=observed_direction,
+        observed_effect_size=effect_size,
+        observed_adjusted_p_value=adjusted_p_value,
+        significant=significant,
+    )
+
+
+def _assess_pathway_signal(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    output_dir: Path,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    rows = _load_tsv_rows(
+        output_dir / "biological_pathway_activity_condition_comparisons.tsv"
+    )
+    row = next((item for item in rows if item.get("pathway_id") == signal.subject_id), None)
+    if row is None:
+        return _unverified_signal_assessment(
+            signal,
+            source_surface="biological_pathway_activity_condition_comparisons.tsv",
+            note=(
+                f"expected pathway signal '{signal.subject_id}' could not be checked "
+                "because no matching pathway activity comparison row was exported"
+            ),
+        )
+    effect_size = _parse_float(row.get("activity_score_delta"))
+    observed_direction = _direction_from_effect_size(effect_size)
+    comparison_confidence_status = row.get("comparison_confidence_status", "")
+    significant = comparison_confidence_status == "high_confidence"
+    return _finalize_directional_signal_assessment(
+        signal,
+        source_surface="biological_pathway_activity_condition_comparisons.tsv",
+        observed_direction=observed_direction,
+        observed_effect_size=effect_size,
+        observed_adjusted_p_value=None,
+        significant=significant,
+    )
+
+
+def _assess_ptm_site_signal(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    output_dir: Path,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    rows = _load_tsv_rows(output_dir / "ptm_differential.tsv")
+    row = next((item for item in rows if item.get("site_key") == signal.subject_id), None)
+    if row is None:
+        return _unverified_signal_assessment(
+            signal,
+            source_surface="ptm_differential.tsv",
+            note=(
+                f"expected PTM-site signal '{signal.subject_id}' could not be checked "
+                "because no matching PTM differential row was exported"
+            ),
+        )
+    effect_size = _parse_float(
+        row.get("corrected_log2_fold_change") or row.get("log2_fold_change")
+    )
+    adjusted_p_value = _parse_float(row.get("adjusted_p_value"))
+    observed_direction = _direction_from_effect_size(effect_size)
+    significant = (
+        adjusted_p_value is not None
+        and signal.max_adjusted_p_value is not None
+        and adjusted_p_value <= signal.max_adjusted_p_value
+    )
+    return _finalize_directional_signal_assessment(
+        signal,
+        source_surface="ptm_differential.tsv",
+        observed_direction=observed_direction,
+        observed_effect_size=effect_size,
+        observed_adjusted_p_value=adjusted_p_value,
+        significant=significant,
+    )
+
+
+def _finalize_directional_signal_assessment(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    source_surface: str,
+    observed_direction: str | None,
+    observed_effect_size: float | None,
+    observed_adjusted_p_value: float | None,
+    significant: bool,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    if signal.expected_direction is PublicBenchmarkExpectedSignalDirection.PRESENT:
+        return PublicBenchmarkExpectedSignalAssessment(
+            signal_id=signal.signal_id,
+            subject_kind=signal.subject_kind,
+            subject_id=signal.subject_id,
+            expected_direction=signal.expected_direction,
+            status=PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED,
+            source_surface=source_surface,
+            observed_direction=observed_direction,
+            observed_effect_size=observed_effect_size,
+            observed_adjusted_p_value=observed_adjusted_p_value,
+            note=(
+                f"expected signal '{signal.subject_id}' was present on exported "
+                f"{source_surface}"
+            ),
+        )
+
+    expected_direction = signal.expected_direction.value
+    if observed_direction != expected_direction:
+        return PublicBenchmarkExpectedSignalAssessment(
+            signal_id=signal.signal_id,
+            subject_kind=signal.subject_kind,
+            subject_id=signal.subject_id,
+            expected_direction=signal.expected_direction,
+            status=PublicBenchmarkExpectedSignalAssessmentStatus.MISMATCHED,
+            source_surface=source_surface,
+            observed_direction=observed_direction,
+            observed_effect_size=observed_effect_size,
+            observed_adjusted_p_value=observed_adjusted_p_value,
+            note=(
+                f"expected signal '{signal.subject_id}' to be {expected_direction}, "
+                f"but exported {source_surface} showed direction {observed_direction or 'unresolved'}"
+            ),
+        )
+    if signal.min_absolute_effect_size is not None and (
+        observed_effect_size is None
+        or abs(observed_effect_size) < signal.min_absolute_effect_size
+    ):
+        return PublicBenchmarkExpectedSignalAssessment(
+            signal_id=signal.signal_id,
+            subject_kind=signal.subject_kind,
+            subject_id=signal.subject_id,
+            expected_direction=signal.expected_direction,
+            status=PublicBenchmarkExpectedSignalAssessmentStatus.MISMATCHED,
+            source_surface=source_surface,
+            observed_direction=observed_direction,
+            observed_effect_size=observed_effect_size,
+            observed_adjusted_p_value=observed_adjusted_p_value,
+            note=(
+                f"expected signal '{signal.subject_id}' had the right direction but "
+                "did not reach the declared minimum absolute effect size"
+            ),
+        )
+    if signal.max_adjusted_p_value is not None and not significant:
+        return PublicBenchmarkExpectedSignalAssessment(
+            signal_id=signal.signal_id,
+            subject_kind=signal.subject_kind,
+            subject_id=signal.subject_id,
+            expected_direction=signal.expected_direction,
+            status=PublicBenchmarkExpectedSignalAssessmentStatus.MISMATCHED,
+            source_surface=source_surface,
+            observed_direction=observed_direction,
+            observed_effect_size=observed_effect_size,
+            observed_adjusted_p_value=observed_adjusted_p_value,
+            note=(
+                f"expected signal '{signal.subject_id}' had the right direction but "
+                "did not satisfy the declared adjusted-p-value or confidence threshold"
+            ),
+        )
+    return PublicBenchmarkExpectedSignalAssessment(
+        signal_id=signal.signal_id,
+        subject_kind=signal.subject_kind,
+        subject_id=signal.subject_id,
+        expected_direction=signal.expected_direction,
+        status=PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED,
+        source_surface=source_surface,
+        observed_direction=observed_direction,
+        observed_effect_size=observed_effect_size,
+        observed_adjusted_p_value=observed_adjusted_p_value,
+        note=(
+            f"expected signal '{signal.subject_id}' matched the declared benchmark "
+            "direction and threshold"
+        ),
+    )
+
+
+def _unverified_signal_assessment(
+    signal: PublicBenchmarkExpectedBiologicalSignal,
+    *,
+    source_surface: str,
+    note: str,
+) -> PublicBenchmarkExpectedSignalAssessment:
+    return PublicBenchmarkExpectedSignalAssessment(
+        signal_id=signal.signal_id,
+        subject_kind=signal.subject_kind,
+        subject_id=signal.subject_id,
+        expected_direction=signal.expected_direction,
+        status=PublicBenchmarkExpectedSignalAssessmentStatus.UNVERIFIED,
+        source_surface=source_surface,
+        note=note,
+    )
+
+
+def _load_tsv_rows(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8", newline="") as handle:
+        return [
+            {key: value for key, value in row.items() if key is not None}
+            for row in csv.DictReader(handle, delimiter="\t")
+        ]
+
+
+def _parse_float(value: str | None) -> float | None:
+    text = (value or "").strip()
+    if not text:
+        return None
+    return float(text)
+
+
+def _direction_from_effect_size(value: float | None) -> str | None:
+    if value is None:
+        return None
+    if value > 0:
+        return PublicBenchmarkExpectedSignalDirection.UP.value
+    if value < 0:
+        return PublicBenchmarkExpectedSignalDirection.DOWN.value
+    return "flat"

@@ -33,6 +33,35 @@ sample_groups:
     sample_ids: [C1, C2]
   - group_id: treated
     sample_ids: [T1, T2]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: C1.raw
+    batch: batch-a
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: C2.raw
+    batch: batch-a
+  - sample_id: T1
+    group_id: treated
+    condition: treated
+    replicate: 1
+    fraction: 1
+    spectra_file: T1.raw
+    batch: batch-b
+  - sample_id: T2
+    group_id: treated
+    condition: treated
+    replicate: 2
+    fraction: 1
+    spectra_file: T2.raw
+    batch: batch-b
 contrast:
   condition_a: control
   condition_b: treated
@@ -47,6 +76,27 @@ expected_approximate_counts:
   - metric_id: differential_site_count
     expected: 3
     tolerance: 0
+expected_biological_signals:
+  - signal_id: ptm_site_p11111_s5_up
+    subject_kind: ptm_site
+    subject_id: P11111:S5:Phospho
+    subject_label: P11111 S5 phosphosite
+    expected_direction: up
+    max_adjusted_p_value:
+    min_absolute_effect_size: 0.5
+    note: The flagship PTM package preserves an upward treated-versus-control trend for the high-localization P11111 S5 site.
+  - signal_id: ptm_site_p22222_y18_present
+    subject_kind: ptm_site
+    subject_id: P22222:Y18:Phospho
+    subject_label: P22222 Y18 phosphosite
+    expected_direction: present
+    note: The shipped PTM benchmark should retain the localized P22222 Y18 site in the exported site and differential surfaces.
+known_limitations:
+  - limitation_id: governed_support_design
+    severity: advisory
+    affected_surface: design_tsv
+    blocks_workflow_execution: false
+    description: The runnable benchmark path depends on a governed support design table because the public PTM package does not ship a full experimental design surface.
 command:
   cli: bijux proteomics public-benchmark-runner benchmarks/public/ptm_localization_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship PTM localization public package through the owned PTM site workflow.

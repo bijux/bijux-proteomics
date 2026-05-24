@@ -15,11 +15,27 @@ sample_groups:
     sample_ids: [run_benchmark_01]
   - group_id: benchmark_b
     sample_ids: [run_benchmark_02]
+sample_metadata:
+  - sample_id: run_benchmark_01
+    group_id: benchmark_a
+    condition: benchmark_a
+    sample_role: sample
+  - sample_id: run_benchmark_02
+    group_id: benchmark_b
+    condition: benchmark_b
+    sample_role: sample
 contrast:
   condition_a: benchmark_a
   condition_b: benchmark_b
   note: The flagship targeted package is pressure-tested as a matrix-stage import even though the current shipped asset is a QC review table rather than a transition result export.
 expected_approximate_counts: []
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: qc_review_table_not_transition_result
+    severity: blocking
+    affected_surface: input_tsv
+    blocks_workflow_execution: true
+    description: The shipped targeted benchmark asset is a QC review table rather than the Skyline-style transition result table required by the owned targeted workflow.
 command:
   cli: bijux proteomics public-benchmark-runner benchmarks/public/targeted_transition_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
   note: Run the flagship targeted public package through the owned targeted matrix surface when the shipped public table matches the targeted import contract.
