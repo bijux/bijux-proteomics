@@ -688,6 +688,9 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
 
     assert hasattr(workflow, "run_public_benchmark_descriptor_suite")
     assert descriptor.dataset_id == "ptm_localization_review_package"
+    assert descriptor.sample_metadata[0].sample_id == "C1"
+    assert descriptor.expected_biological_signals[0].subject_id == "P11111:S5:Phospho"
+    assert hasattr(workflow, "render_public_benchmark_suite_signal_assessments_tsv")
 
 
 def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
