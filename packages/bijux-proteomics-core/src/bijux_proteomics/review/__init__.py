@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.review.biological_claim_validation import *  # noqa: F401,F403
 from bijux_proteomics.review.collaboration import *  # noqa: F401,F403
 from bijux_proteomics.review.contracts import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_aware_ranking import *  # noqa: F401,F403
