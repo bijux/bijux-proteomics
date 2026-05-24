@@ -961,6 +961,81 @@ def test_complex_enrichment_command_emits_complex_and_unresolved_ledgers() -> No
         )
 
 
+def test_complex_activity_command_emits_matrix_contributions_and_limiting_members() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_fixture_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+        shutil.copy(
+            workflow_fixture_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "complex-activity",
+                "biological_report_features.tsv",
+                "biological_report_complexes.tsv",
+                "--design-path",
+                "biological_report.design.tsv",
+                "--fasta",
+                "biological_report_reference.fasta",
+                "--summary-tsv-out",
+                "complex_activity.summary.tsv",
+                "--matrix-tsv-out",
+                "complex_activity.matrix.tsv",
+                "--sample-score-tsv-out",
+                "complex_activity.samples.tsv",
+                "--condition-score-tsv-out",
+                "complex_activity.conditions.tsv",
+                "--condition-comparison-tsv-out",
+                "complex_activity.comparisons.tsv",
+                "--member-contribution-tsv-out",
+                "complex_activity.members.tsv",
+                "--unresolved-member-tsv-out",
+                "complex_activity.unresolved.tsv",
+                "--rejected-complex-tsv-out",
+                "complex_activity.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["complex_count"] == 1
+        assert payload["report"]["summary"]["condition_comparison_count"] == 1
+        assert Path("complex_activity.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("entity_level\tmeasure_kind")
+        assert "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
+            "complex_activity.matrix.tsv"
+        ).read_text()
+        assert "member_kind\tmember_id\tresolved_protein_refs" in Path(
+            "complex_activity.members.tsv"
+        ).read_text()
+        assert "limiting_member_ids" in Path(
+            "complex_activity.samples.tsv"
+        ).read_text()
+        assert "condition_a_confidence_status" in Path(
+            "complex_activity.comparisons.tsv"
+        ).read_text()
+        assert Path("complex_activity.unresolved.tsv").read_text().splitlines()[0].startswith(
+            "complex_id\tcomplex_name\tsource_name"
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
