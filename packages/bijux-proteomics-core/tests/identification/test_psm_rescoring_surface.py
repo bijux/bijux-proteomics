@@ -8,7 +8,11 @@ import pytest
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.psm_features import PsmFeatureRow
 from bijux_proteomics.identification.psm_rescoring import (
+    PsmRescoringFeatureParameter,
+    PsmRescoringModel,
+    explain_rescored_psm,
     fit_target_decoy_logistic_model,
+    render_psm_rescoring_explanation_tsv,
     render_psm_rescoring_tsv,
 )
 
@@ -167,3 +171,61 @@ def test_fit_target_decoy_logistic_model_rejects_nonseparable_fixture() -> None:
 
     with pytest.raises(ValueError, match="insufficient_target_decoy_separation"):
         fit_target_decoy_logistic_model(feature_table)
+
+
+def test_explain_rescored_psm_reports_negative_precursor_error_and_intensity_terms() -> (
+    None
+):
+    feature_row = _feature_row(
+        "target-explained",
+        score_native=97.0,
+        q_value_native=0.02,
+        precursor_ppm_error=18.0,
+        matched_ion_count=1,
+        explained_intensity=0.05,
+        top_peak_unmatched_fraction=0.94,
+        target_decoy_label=TargetDecoyLabel.TARGET,
+    )
+    model = PsmRescoringModel(
+        intercept=0.3,
+        feature_parameters=(
+            PsmRescoringFeatureParameter(
+                feature_name="precursor_ppm_error",
+                transform="absolute",
+                mean=2.0,
+                scale=4.0,
+                weight=-1.25,
+            ),
+            PsmRescoringFeatureParameter(
+                feature_name="explained_intensity",
+                transform="identity",
+                mean=0.75,
+                scale=0.2,
+                weight=0.9,
+            ),
+            PsmRescoringFeatureParameter(
+                feature_name="matched_ion_count",
+                transform="identity",
+                mean=7.0,
+                scale=2.0,
+                weight=0.6,
+            ),
+        ),
+        regularization_strength=0.01,
+        iteration_count=12,
+        convergence_delta=1e-7,
+        native_auc=0.61,
+        rescored_auc=0.88,
+    )
+
+    explanation = explain_rescored_psm(model, feature_row)
+    rendered = render_psm_rescoring_explanation_tsv(explanation)
+    by_feature = {entry.feature_name: entry for entry in explanation}
+
+    assert by_feature["precursor_ppm_error"].standardized_value > 0.0
+    assert by_feature["precursor_ppm_error"].signed_contribution < 0.0
+    assert by_feature["explained_intensity"].standardized_value < 0.0
+    assert by_feature["explained_intensity"].signed_contribution < 0.0
+    assert by_feature["matched_ion_count"].signed_contribution < 0.0
+    assert "signed_contribution" in rendered
+    assert "feature_name" in rendered
