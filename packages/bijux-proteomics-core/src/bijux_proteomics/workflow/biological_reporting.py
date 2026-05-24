@@ -413,6 +413,7 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     evidence_graph_edges_tsv: str = Field(..., min_length=1)
     experiment_confidence_summary_tsv: str = Field(..., min_length=1)
     experiment_confidence_components_tsv: str = Field(..., min_length=1)
+    section_confidence_tsv: str = Field(..., min_length=1)
     evidence_aware_ranking_tsv: str | None = None
     claim_validation_summary_tsv: str | None = None
     supported_claim_tsv: str | None = None
@@ -2860,6 +2861,26 @@ def render_biological_result_report_summary_tsv(
     return handle.getvalue()
 
 
+def render_biological_report_section_confidence_tsv(
+    report: BiologicalResultReportBundle,
+) -> str:
+    """Render derived biological report section confidence labels as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("section_key", "section_title", "confidence_label", "rationale"))
+    for entry in report.section_confidence_entries:
+        writer.writerow(
+            (
+                entry.section_key.value,
+                entry.section_title,
+                entry.confidence_label.value,
+                entry.rationale,
+            )
+        )
+    return handle.getvalue()
+
+
 def export_biological_result_report_bundle(
     report: BiologicalResultReportBundle,
     output_dir: Path,
@@ -2879,6 +2900,7 @@ def export_biological_result_report_bundle(
     experiment_confidence_components_name = (
         "biological_experiment_confidence_components.tsv"
     )
+    section_confidence_name = "biological_report_section_confidence.tsv"
     evidence_aware_ranking_name = None
     claim_validation_summary_name = None
     supported_claim_name = None
@@ -2977,6 +2999,10 @@ def export_biological_result_report_bundle(
     )
     (output_dir / experiment_confidence_components_name).write_text(
         render_experiment_confidence_component_tsv(report.experiment_confidence_report),
+        encoding="utf-8",
+    )
+    (output_dir / section_confidence_name).write_text(
+        render_biological_report_section_confidence_tsv(report),
         encoding="utf-8",
     )
     if report.evidence_aware_ranking_report is not None:
@@ -3492,6 +3518,7 @@ def export_biological_result_report_bundle(
         evidence_graph_edges_tsv=evidence_graph_edges_name,
         experiment_confidence_summary_tsv=experiment_confidence_summary_name,
         experiment_confidence_components_tsv=experiment_confidence_components_name,
+        section_confidence_tsv=section_confidence_name,
         evidence_aware_ranking_tsv=evidence_aware_ranking_name,
         claim_validation_summary_tsv=claim_validation_summary_name,
         supported_claim_tsv=supported_claim_name,
