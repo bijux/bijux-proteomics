@@ -34,6 +34,7 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     )
     assert "lfq_cohort_review_package" in summary_tsv
     assert "dia_diann_benchmark_dataset" in summary_tsv
+    assert "fragpipe_msfragger_benchmark_dataset" in summary_tsv
     assert "maxquant_lfq_benchmark_dataset" in summary_tsv
     assert "ptm_localization_review_package" in summary_tsv
     assert "dia_diann_review_snapshot" in summary_tsv

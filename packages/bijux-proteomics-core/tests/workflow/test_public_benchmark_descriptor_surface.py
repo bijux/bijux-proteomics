@@ -99,6 +99,26 @@ def test_public_benchmark_descriptor_loads_runnable_maxquant_contracts() -> None
     assert descriptor.expected_biological_signals[0].subject_id == "P04637"
 
 
+def test_public_benchmark_descriptor_loads_runnable_fragpipe_contracts() -> None:
+    descriptor = load_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "fragpipe_msfragger_benchmark_dataset"
+        / "dataset.yml"
+    )
+
+    assert descriptor.search_engine is PublicBenchmarkSearchEngine.FRAGPIPE
+    assert descriptor.expected_input_schemas == (
+        "search_result_tsv",
+        "source_protein_tsv",
+        "design_tsv",
+        "proteins_fasta",
+    )
+    assert len(descriptor.sample_metadata) == 6
+    assert descriptor.expected_biological_signals[0].subject_id == "P04637"
+
+
 def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_ptm_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -138,6 +158,28 @@ def test_public_benchmark_runner_executes_runnable_maxquant_descriptor(
     } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
     assert Path(report.output_dir, "maxquant_lfq_matrix.tsv").exists()
     assert Path(report.output_dir, "maxquant_filtered_protein_groups.tsv").exists()
+
+
+def test_public_benchmark_runner_executes_runnable_fragpipe_descriptor(
+    tmp_path: Path,
+) -> None:
+    report = run_public_benchmark_descriptor(
+        _repo_root()
+        / "benchmarks"
+        / "public"
+        / "fragpipe_msfragger_benchmark_dataset"
+        / "dataset.yml",
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "passed"
+    assert report.verified_counts["accepted_psm_count"] == 30
+    assert report.verified_counts["protein_group_discrepancy_count"] == 2
+    assert {
+        assessment.status for assessment in report.expected_signal_assessments
+    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert Path(report.output_dir, "dda_biological_psms.tsv").exists()
+    assert Path(report.output_dir, "dda_source_protein_discrepancies.tsv").exists()
 
 
 def test_public_benchmark_runner_executes_runnable_diann_descriptor(
@@ -228,3 +270,4 @@ def test_public_benchmark_runner_renders_signal_assessment_ledger(
     assert "ptm_site_p11111_s5_up" in signal_tsv
     assert "dia_sig_a_up" in signal_tsv
     assert "maxquant_sig_a_up" in signal_tsv
+    assert "fragpipe_sig_a_up" in signal_tsv

@@ -50,7 +50,7 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 4
+    assert suite.passed_count == 5
     assert suite.failed_count == 5
 
     diann_benchmark_run = runs["dia_diann_benchmark_dataset"]
@@ -65,6 +65,14 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert maxquant_benchmark_run.verified_counts["significant_protein_count"] == 3
     assert Path(
         maxquant_benchmark_run.output_dir, "maxquant_biological_report_manifest.json"
+    ).exists()
+
+    fragpipe_benchmark_run = runs["fragpipe_msfragger_benchmark_dataset"]
+    assert fragpipe_benchmark_run.status == "passed"
+    assert fragpipe_benchmark_run.verified_counts["accepted_psm_count"] == 30
+    assert fragpipe_benchmark_run.verified_counts["protein_group_discrepancy_count"] == 2
+    assert Path(
+        fragpipe_benchmark_run.output_dir, "fragpipe_biological_report_manifest.json"
     ).exists()
 
     lfq_run = runs["lfq_cohort_review_package"]
@@ -82,10 +90,10 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert diann_run.failures[0].kind == "execution_failed"
     assert "peptide_sequence" in diann_run.failures[0].message
 
-    fragpipe_run = runs["dda_fragpipe_review_snapshot"]
-    assert fragpipe_run.status == "failed"
-    assert fragpipe_run.failures[0].kind == "execution_failed"
-    assert "spectrum_id" in fragpipe_run.failures[0].message
+    fragpipe_snapshot_run = runs["dda_fragpipe_review_snapshot"]
+    assert fragpipe_snapshot_run.status == "failed"
+    assert fragpipe_snapshot_run.failures[0].kind == "execution_failed"
+    assert "spectrum_id" in fragpipe_snapshot_run.failures[0].message
 
     maxquant_run = runs["dda_maxquant_review_snapshot"]
     assert maxquant_run.status == "failed"
