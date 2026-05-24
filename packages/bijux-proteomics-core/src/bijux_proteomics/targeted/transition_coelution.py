@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
@@ -17,6 +18,40 @@ from bijux_proteomics.targeted.result_import import (
     build_transition_table_result_import_report,
 )
 from bijux_proteomics_foundation import JsonModel
+
+
+class TargetedTransitionCoelutionTier(StrEnum):
+    """Quality tier for one targeted precursor coelution group."""
+
+    RELIABLE = "reliable"
+    PARTIAL = "partial"
+    INSUFFICIENT = "insufficient"
+    MISSING = "missing"
+
+
+class TargetedTransitionTracePoint(JsonModel):
+    """One raw PRM/SRM transition trace point."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    transition_id: str = Field(..., min_length=1)
+    rt: float = Field(..., ge=0.0)
+    intensity: float = Field(..., ge=0.0)
+
+
+class TargetedTransitionCoelutionScore(JsonModel):
+    """One sample-resolved raw targeted transition coelution score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    transition_count: int = Field(..., ge=0)
+    passing_transition_count: int = Field(..., ge=0)
+    apex_rt_spread: float = Field(..., ge=0.0)
+    coelution_tier: TargetedTransitionCoelutionTier
 
 
 class TargetedTransitionCoelutionTransitionEntry(JsonModel):
@@ -87,6 +122,77 @@ class TargetedTransitionCoelutionReport(JsonModel):
     )
     summary: TargetedTransitionCoelutionSummary
     note: str = Field(..., min_length=1)
+
+
+def score_transition_coelution(
+    transition_xics: tuple[TargetedTransitionTracePoint, ...],
+    *,
+    coelution_rt_delta_threshold_minutes: float = 0.2,
+) -> tuple[TargetedTransitionCoelutionScore, ...]:
+    """Score targeted transition coelution directly from raw trace points."""
+
+    if not transition_xics:
+        raise ValueError("transition_xics must not be empty")
+    if coelution_rt_delta_threshold_minutes <= 0.0:
+        raise ValueError(
+            "coelution_rt_delta_threshold_minutes must be greater than zero"
+        )
+
+    traces_by_group: dict[tuple[str, str], dict[str, dict[float, float]]] = {}
+    for point in transition_xics:
+        traces_by_group.setdefault((point.target_id, point.sample_id), {}).setdefault(
+            point.transition_id,
+            {},
+        )[point.rt] = point.intensity
+
+    rows: list[TargetedTransitionCoelutionScore] = []
+    for (target_id, sample_id), traces_by_transition in sorted(traces_by_group.items()):
+        detected_traces = {
+            transition_id: trace
+            for transition_id, trace in traces_by_transition.items()
+            if max(trace.values(), default=0.0) > 0.0
+        }
+        apexes = {
+            transition_id: _trace_apex_minutes(trace)
+            for transition_id, trace in detected_traces.items()
+        }
+        apex_values = tuple(apexes.values())
+        apex_rt_spread = (
+            0.0 if not apex_values else max(apex_values) - min(apex_values)
+        )
+        passing_transition_count = 0
+        if detected_traces:
+            reference_transition_id, reference_trace = max(
+                detected_traces.items(),
+                key=lambda item: (
+                    sum(item[1].values()),
+                    max(item[1].values(), default=0.0),
+                    item[0],
+                ),
+            )
+            reference_apex = apexes[reference_transition_id]
+            for transition_id, trace in detected_traces.items():
+                if transition_id == reference_transition_id:
+                    passing_transition_count += 1
+                    continue
+                apex_shift = abs(apexes[transition_id] - reference_apex)
+                if apex_shift <= coelution_rt_delta_threshold_minutes:
+                    passing_transition_count += 1
+
+        rows.append(
+            TargetedTransitionCoelutionScore(
+                target_id=target_id,
+                sample_id=sample_id,
+                transition_count=len(traces_by_transition),
+                passing_transition_count=passing_transition_count,
+                apex_rt_spread=round(apex_rt_spread, 4),
+                coelution_tier=_coelution_tier(
+                    transition_count=len(traces_by_transition),
+                    passing_transition_count=passing_transition_count,
+                ),
+            )
+        )
+    return tuple(rows)
 
 
 def build_targeted_transition_coelution_report(
@@ -471,6 +577,37 @@ def render_targeted_transition_coelution_transition_tsv(
     return buffer.getvalue()
 
 
+def render_transition_coelution_tsv(
+    rows: tuple[TargetedTransitionCoelutionScore, ...],
+) -> str:
+    """Render raw targeted transition coelution scores as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "target_id",
+            "sample_id",
+            "transition_count",
+            "passing_transition_count",
+            "apex_rt_spread",
+            "coelution_tier",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                row.target_id,
+                row.sample_id,
+                row.transition_count,
+                row.passing_transition_count,
+                f"{row.apex_rt_spread:g}",
+                row.coelution_tier.value,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _anchor_observation(observations: list[object]) -> object | None:
     candidates = [
         observation
@@ -480,6 +617,40 @@ def _anchor_observation(observations: list[object]) -> object | None:
     if not candidates:
         return None
     return max(candidates, key=lambda observation: observation.intensity)
+
+
+def _transition_trace_points(
+    import_report: TargetedResultImportReport,
+) -> tuple[TargetedTransitionTracePoint, ...]:
+    return tuple(
+        TargetedTransitionTracePoint(
+            target_id=observation.precursor_id,
+            sample_id=observation.sample_id,
+            transition_id=observation.transition_id,
+            rt=observation.retention_time_minutes or 0.0,
+            intensity=observation.intensity,
+        )
+        for observation in import_report.observations
+    )
+
+
+def _trace_apex_minutes(trace: dict[float, float]) -> float:
+    apex_rt, _ = max(trace.items(), key=lambda item: (item[1], -item[0]))
+    return apex_rt
+
+
+def _coelution_tier(
+    *,
+    transition_count: int,
+    passing_transition_count: int,
+) -> TargetedTransitionCoelutionTier:
+    if passing_transition_count == 0:
+        return TargetedTransitionCoelutionTier.MISSING
+    if passing_transition_count >= 2:
+        return TargetedTransitionCoelutionTier.RELIABLE
+    if transition_count >= 2:
+        return TargetedTransitionCoelutionTier.INSUFFICIENT
+    return TargetedTransitionCoelutionTier.PARTIAL
 
 
 def _median(values: list[float]) -> float | None:
