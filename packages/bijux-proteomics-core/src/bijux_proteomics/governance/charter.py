@@ -205,6 +205,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "study/contrasts.py",
             "study/contracts.py",
+            "study/carryover.py",
             "study/design_classification.py",
             "study/design_validity.py",
             "study/experiment_confidence.py",
