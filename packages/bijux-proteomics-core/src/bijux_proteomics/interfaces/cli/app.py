@@ -567,17 +567,25 @@ from bijux_proteomics.targeted import (
     TargetedPanelCandidateKind,
     TargetedPanelSelectedPeptideInput,
     TargetedPanelTransitionInput,
+    TargetedPanelWarningCode,
     TargetedPeptideCandidateSource,
     TargetedResultSourceKind,
     TargetedTransitionInterferenceRisk,
     TargetedTransitionSelectionFragment,
     TargetedTransitionSelectionPeptideEntry,
+    ValidationExperimentPlanningPolicy,
+    ValidationPlanningBiomarkerCandidateInput,
+    ValidationPlanningOmittedCandidateInput,
+    ValidationPlanningPanelAssayInput,
+    ValidationPlanningPilotVarianceInput,
+    ValidationPlanningSelectedPeptideInput,
     build_targeted_panel_design_report,
     build_targeted_assay_interference_report,
     build_discovery_targeted_peptide_selection_report,
     build_skyline_result_import_report,
     build_targeted_carryover_report,
     build_targeted_transition_selection_report,
+    build_validation_experiment_planning_report,
     build_transition_table_result_import_report,
     render_discovery_targeted_peptide_selection_rejected_tsv,
     render_discovery_targeted_peptide_selection_selected_tsv,
@@ -592,6 +600,9 @@ from bijux_proteomics.targeted import (
     render_targeted_panel_design_omitted_candidate_tsv,
     render_targeted_panel_design_panel_tsv,
     render_targeted_panel_design_summary_tsv,
+    render_validation_experiment_planning_plan_tsv,
+    render_validation_experiment_planning_summary_tsv,
+    render_validation_experiment_planning_warning_tsv,
     render_targeted_assay_qc_coelution_tsv,
     render_targeted_assay_qc_fragment_ratio_tsv,
     render_targeted_assay_qc_replicate_cv_tsv,
@@ -2776,6 +2787,324 @@ def _load_targeted_panel_transition_inputs(
             except Exception as exc:  # noqa: BLE001
                 raise click.ClickException(
                     f"invalid assay-interference transition row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_validation_planning_biomarker_candidates(
+    path: Path,
+) -> tuple[ValidationPlanningBiomarkerCandidateInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biomarker-candidate TSV must include a header row for validation planning"
+            )
+        required_columns = {
+            "candidate_id",
+            "candidate_kind",
+            "display_label",
+            "target_protein_ref",
+            "site_key",
+            "priority_rank",
+            "final_score",
+            "penalty_total",
+            "uncertainty",
+            "effect_size",
+            "adjusted_p_value",
+            "support_count",
+            "robustness_score",
+            "assay_feasibility_score",
+            "rank_reason_codes",
+            "ranking_note",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biomarker-candidate TSV is missing required columns for validation planning: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[ValidationPlanningBiomarkerCandidateInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    ValidationPlanningBiomarkerCandidateInput(
+                        candidate_id=str(row.get("candidate_id", "")).strip(),
+                        candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("candidate_kind", "")).strip()
+                        ),
+                        display_label=str(row.get("display_label", "")).strip(),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        site_key=(
+                            None
+                            if not str(row.get("site_key", "")).strip()
+                            else str(row.get("site_key", "")).strip()
+                        ),
+                        priority_rank=int(str(row.get("priority_rank", "")).strip()),
+                        final_score=float(str(row.get("final_score", "")).strip()),
+                        penalty_total=float(str(row.get("penalty_total", "")).strip()),
+                        uncertainty=float(str(row.get("uncertainty", "")).strip()),
+                        effect_size=(
+                            None
+                            if not str(row.get("effect_size", "")).strip()
+                            else float(str(row.get("effect_size", "")).strip())
+                        ),
+                        adjusted_p_value=(
+                            None
+                            if not str(row.get("adjusted_p_value", "")).strip()
+                            else float(str(row.get("adjusted_p_value", "")).strip())
+                        ),
+                        support_count=int(str(row.get("support_count", "")).strip()),
+                        robustness_score=float(
+                            str(row.get("robustness_score", "")).strip()
+                        ),
+                        assay_feasibility_score=float(
+                            str(row.get("assay_feasibility_score", "")).strip()
+                        ),
+                        rank_reason_codes=_split_semicolon_field(
+                            row.get("rank_reason_codes", "")
+                        ),
+                        ranking_note=str(row.get("ranking_note", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biomarker-candidate row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_validation_planning_selected_peptides(
+    path: Path,
+) -> tuple[ValidationPlanningSelectedPeptideInput, ...]:
+    return tuple(
+        ValidationPlanningSelectedPeptideInput(
+            target_protein_ref=entry.target_protein_ref,
+            target_protein_group_id=entry.target_protein_group_id,
+            gene_symbol=entry.gene_symbol,
+            peptide_sequence=entry.peptide_sequence,
+            canonical_peptide=entry.canonical_peptide,
+            rank=entry.rank,
+            observed_in_discovery=entry.observed_in_discovery,
+            observed_psm_count=entry.observed_psm_count,
+            run_count=entry.run_count,
+            detection_frequency=entry.detection_frequency,
+            replicate_consistency=entry.replicate_consistency,
+            primary_evidence_class=entry.primary_evidence_class,
+            uniqueness_class=entry.uniqueness_class,
+            uniqueness_score=entry.uniqueness_score,
+            detectability_score=entry.detectability_score,
+            detectability_tier=entry.detectability_tier,
+            suitability_score=entry.suitability_score,
+            liability_tier=entry.liability_tier,
+            liability_codes=entry.liability_codes,
+        )
+        for entry in _load_targeted_panel_selected_peptides(path)
+    )
+
+
+def _load_validation_planning_panel_assays(
+    path: Path,
+) -> tuple[ValidationPlanningPanelAssayInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "panel assay TSV must include a header row for validation planning"
+            )
+        required_columns = {
+            "assay_entry_id",
+            "biomarker_candidate_id",
+            "biomarker_candidate_kind",
+            "biomarker_display_label",
+            "biomarker_priority_rank",
+            "target_protein_ref",
+            "target_protein_group_id",
+            "gene_symbol",
+            "peptide_sequence",
+            "canonical_peptide",
+            "uniqueness_class",
+            "uniqueness_score",
+            "selected_transition_count",
+            "exported_transition_count",
+            "assay_interference_risk_tier",
+            "warning_codes",
+            "warning_note",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "panel assay TSV is missing required columns for validation planning: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[ValidationPlanningPanelAssayInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                warning_codes = tuple(
+                    TargetedPanelWarningCode(code)
+                    for code in _split_semicolon_field(row.get("warning_codes", ""))
+                )
+                rows.append(
+                    ValidationPlanningPanelAssayInput(
+                        assay_entry_id=str(row.get("assay_entry_id", "")).strip(),
+                        biomarker_candidate_id=str(
+                            row.get("biomarker_candidate_id", "")
+                        ).strip(),
+                        biomarker_candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("biomarker_candidate_kind", "")).strip()
+                        ),
+                        biomarker_display_label=str(
+                            row.get("biomarker_display_label", "")
+                        ).strip(),
+                        biomarker_priority_rank=int(
+                            str(row.get("biomarker_priority_rank", "")).strip()
+                        ),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        target_protein_group_id=str(
+                            row.get("target_protein_group_id", "")
+                        ).strip(),
+                        gene_symbol=(
+                            None
+                            if not str(row.get("gene_symbol", "")).strip()
+                            else str(row.get("gene_symbol", "")).strip()
+                        ),
+                        peptide_sequence=str(row.get("peptide_sequence", "")).strip(),
+                        canonical_peptide=str(
+                            row.get("canonical_peptide", "")
+                        ).strip(),
+                        uniqueness_class=PeptideUniquenessClass(
+                            str(row.get("uniqueness_class", "")).strip()
+                        ),
+                        uniqueness_score=float(
+                            str(row.get("uniqueness_score", "")).strip()
+                        ),
+                        selected_transition_count=int(
+                            str(row.get("selected_transition_count", "")).strip()
+                        ),
+                        exported_transition_count=int(
+                            str(row.get("exported_transition_count", "")).strip()
+                        ),
+                        assay_interference_risk_tier=TargetedAssayInterferenceRiskTier(
+                            str(row.get("assay_interference_risk_tier", "")).strip()
+                        ),
+                        warning_codes=warning_codes,
+                        warning_note=str(row.get("warning_note", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid panel assay row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_validation_planning_omitted_candidates(
+    path: Path,
+) -> tuple[ValidationPlanningOmittedCandidateInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "panel omitted-candidate TSV must include a header row for validation planning"
+            )
+        required_columns = {
+            "candidate_id",
+            "candidate_kind",
+            "display_label",
+            "target_protein_ref",
+            "site_key",
+            "priority_rank",
+            "omission_reason",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "panel omitted-candidate TSV is missing required columns for validation planning: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[ValidationPlanningOmittedCandidateInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    ValidationPlanningOmittedCandidateInput(
+                        candidate_id=str(row.get("candidate_id", "")).strip(),
+                        candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("candidate_kind", "")).strip()
+                        ),
+                        display_label=str(row.get("display_label", "")).strip(),
+                        target_protein_ref=str(row.get("target_protein_ref", "")).strip(),
+                        site_key=(
+                            None
+                            if not str(row.get("site_key", "")).strip()
+                            else str(row.get("site_key", "")).strip()
+                        ),
+                        priority_rank=int(str(row.get("priority_rank", "")).strip()),
+                        omission_reason=str(row.get("omission_reason", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid omitted-candidate row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+def _load_validation_planning_pilot_variance(
+    path: Path,
+) -> tuple[ValidationPlanningPilotVarianceInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "power-variance TSV must include a header row for validation planning"
+            )
+        required_columns = {
+            "entity_id",
+            "protein_refs",
+            "observed_sample_count",
+            "missing_fraction",
+            "contributing_condition_count",
+            "used_global_variance_fallback",
+            "pooled_log2_stddev",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "power-variance TSV is missing required columns for validation planning: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[ValidationPlanningPilotVarianceInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    ValidationPlanningPilotVarianceInput(
+                        entity_id=str(row.get("entity_id", "")).strip(),
+                        protein_refs=tuple(
+                            value
+                            for value in _split_semicolon_field(row.get("protein_refs", ""))
+                            if value
+                        ),
+                        observed_sample_count=int(
+                            str(row.get("observed_sample_count", "")).strip()
+                        ),
+                        missing_fraction=float(
+                            str(row.get("missing_fraction", "")).strip()
+                        ),
+                        contributing_condition_count=int(
+                            str(row.get("contributing_condition_count", "")).strip()
+                        ),
+                        used_global_variance_fallback=_parse_cli_bool(
+                            row.get("used_global_variance_fallback", ""),
+                            field_name="used_global_variance_fallback",
+                        ),
+                        pooled_log2_stddev=float(
+                            str(row.get("pooled_log2_stddev", "")).strip()
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid power-variance row {row_number} in {path.name!r}: {exc}"
                 ) from exc
     return tuple(rows)
 
@@ -6714,6 +7043,130 @@ def targeted_panel_builder_command(
             "assay_tsv": None if assay_tsv_out is None else str(assay_tsv_out),
             "panel_tsv": None if panel_tsv_out is None else str(panel_tsv_out),
             "omitted_tsv": None if omitted_tsv_out is None else str(omitted_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("validation-experiment-planner")
+@click.argument(
+    "biomarker_candidate_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "selected_peptide_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "panel_assay_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--panel-omitted-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--power-variance-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--proposed-samples-per-group",
+    type=int,
+    default=6,
+    show_default=True,
+)
+@click.option("--fdr-target", type=float, default=0.05, show_default=True)
+@click.option("--target-power", type=float, default=0.8, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--plan-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--warning-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def validation_experiment_planner_command(
+    biomarker_candidate_tsv: Path,
+    selected_peptide_tsv: Path,
+    panel_assay_tsv: Path,
+    panel_omitted_tsv: Path | None,
+    power_variance_tsv: Path | None,
+    proposed_samples_per_group: int,
+    fdr_target: float,
+    target_power: float,
+    summary_tsv_out: Path | None,
+    plan_tsv_out: Path | None,
+    warning_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Plan targeted validation experiments from biomarker, peptide, and panel evidence."""
+
+    biomarker_candidates = _load_validation_planning_biomarker_candidates(
+        biomarker_candidate_tsv
+    )
+    selected_peptides = _load_validation_planning_selected_peptides(selected_peptide_tsv)
+    panel_assays = _load_validation_planning_panel_assays(panel_assay_tsv)
+    omitted_candidates = (
+        ()
+        if panel_omitted_tsv is None
+        else _load_validation_planning_omitted_candidates(panel_omitted_tsv)
+    )
+    pilot_variance_entries = (
+        ()
+        if power_variance_tsv is None
+        else _load_validation_planning_pilot_variance(power_variance_tsv)
+    )
+
+    try:
+        report = build_validation_experiment_planning_report(
+            biomarker_candidates=biomarker_candidates,
+            selected_peptides=selected_peptides,
+            panel_assays=panel_assays,
+            pilot_variance_entries=pilot_variance_entries,
+            omitted_candidates=omitted_candidates,
+            policy=ValidationExperimentPlanningPolicy(
+                proposed_samples_per_group=proposed_samples_per_group,
+                fdr_target=fdr_target,
+                target_power=target_power,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_validation_experiment_planning_summary_tsv(report),
+        )
+    if plan_tsv_out is not None:
+        _write_text_output(
+            plan_tsv_out,
+            render_validation_experiment_planning_plan_tsv(report),
+        )
+    if warning_tsv_out is not None:
+        _write_text_output(
+            warning_tsv_out,
+            render_validation_experiment_planning_warning_tsv(report),
+        )
+
+    payload = {
+        "biomarker_candidate_tsv": str(biomarker_candidate_tsv),
+        "selected_peptide_tsv": str(selected_peptide_tsv),
+        "panel_assay_tsv": str(panel_assay_tsv),
+        "panel_omitted_tsv": None if panel_omitted_tsv is None else str(panel_omitted_tsv),
+        "power_variance_tsv": None if power_variance_tsv is None else str(power_variance_tsv),
+        "policy": report.policy.to_dict(),
+        "summary": report.summary.to_dict(),
+        "plan_entries": [entry.to_dict() for entry in report.plan_entries],
+        "warnings": [entry.to_dict() for entry in report.warnings],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "plan_tsv": None if plan_tsv_out is None else str(plan_tsv_out),
+            "warning_tsv": None if warning_tsv_out is None else str(warning_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
