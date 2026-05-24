@@ -12,6 +12,7 @@ _TARGETED_EXPORT_MODULES = (
     "bijux_proteomics.targeted.assay_qc",
     "bijux_proteomics.targeted.carryover",
     "bijux_proteomics.targeted.discovery_peptide_selection",
+    "bijux_proteomics.targeted.panel_design",
     "bijux_proteomics.targeted.result_import",
     "bijux_proteomics.targeted.target_matrix",
     "bijux_proteomics.targeted.transition_coelution",
