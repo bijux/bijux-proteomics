@@ -32,6 +32,27 @@ class ChromatographicPeakQuality(StrEnum):
     WEAK = "weak"
 
 
+class PeakShapeQualityTier(StrEnum):
+    """Shape-quality classification for one chromatographic peak trace."""
+
+    GAUSSIAN_LIKE = "gaussian_like"
+    ACCEPTABLE = "acceptable"
+    JAGGED_NOISY = "jagged_noisy"
+    FLAT_BROAD = "flat_broad"
+
+
+class PeakShapeScore(JsonModel):
+    """One raw chromatographic peak-shape score over a peak trace."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    symmetry_score: float = Field(..., ge=0.0, le=1.0)
+    tailing_score: float = Field(..., ge=0.0, le=1.0)
+    smoothness_score: float = Field(..., ge=0.0, le=1.0)
+    apex_prominence: float = Field(..., ge=0.0, le=1.0)
+    shape_quality_tier: PeakShapeQualityTier
+
+
 class PickedChromatographicPeak(JsonModel):
     """One raw chromatographic peak with the engine output contract."""
 
@@ -76,6 +97,74 @@ class ChromatographicPeakPickingReport(JsonModel):
 
     trace_report: XicTraceReport
     peaks: tuple[ChromatographicPeak, ...] = Field(default_factory=tuple)
+
+
+def score_peak_shape(
+    peak_trace: tuple[XicExtractionPoint | XicTracePoint, ...],
+) -> PeakShapeScore:
+    """Score one chromatographic peak trace for symmetry, tailing, and smoothness."""
+
+    points = _normalize_trace_points(peak_trace)
+    if not points:
+        return PeakShapeScore(
+            symmetry_score=0.0,
+            tailing_score=0.0,
+            smoothness_score=0.0,
+            apex_prominence=0.0,
+            shape_quality_tier=PeakShapeQualityTier.FLAT_BROAD,
+        )
+    apex_index = max(
+        range(len(points)),
+        key=lambda index: (points[index].intensity, -index),
+    )
+    baseline_values = _trace_baseline(points)
+    corrected = [
+        max(0.0, point.intensity - baseline)
+        for point, baseline in zip(points, baseline_values, strict=True)
+    ]
+    corrected_apex = corrected[apex_index]
+    if corrected_apex <= 0.0:
+        return PeakShapeScore(
+            symmetry_score=0.0,
+            tailing_score=0.0,
+            smoothness_score=0.0,
+            apex_prominence=0.0,
+            shape_quality_tier=PeakShapeQualityTier.FLAT_BROAD,
+        )
+
+    left_area = _trapezoid_area(points, corrected, 0, apex_index)
+    right_area = _trapezoid_area(points, corrected, apex_index, len(points) - 1)
+    total_area = max(left_area + right_area, 1e-9)
+    symmetry_score = max(0.0, 1.0 - abs(left_area - right_area) / total_area)
+
+    left_half_rt = _half_height_crossing(points, corrected, apex_index, left=True)
+    right_half_rt = _half_height_crossing(points, corrected, apex_index, left=False)
+    left_half_width = max(points[apex_index].time_seconds - left_half_rt, 0.0)
+    right_half_width = max(right_half_rt - points[apex_index].time_seconds, 0.0)
+    tailing_score = _bounded_ratio(
+        min(left_half_width, right_half_width),
+        max(left_half_width, right_half_width),
+    )
+
+    smoothness_score = _smoothness_score(corrected, apex_index)
+    shoulder_max = max(
+        max(corrected[:apex_index], default=0.0),
+        max(corrected[apex_index + 1 :], default=0.0),
+    )
+    apex_prominence = max(0.0, min(1.0, (corrected_apex - shoulder_max) / corrected_apex))
+    tier = _classify_peak_shape_tier(
+        symmetry_score=symmetry_score,
+        tailing_score=tailing_score,
+        smoothness_score=smoothness_score,
+        apex_prominence=apex_prominence,
+    )
+    return PeakShapeScore(
+        symmetry_score=round(symmetry_score, 4),
+        tailing_score=round(tailing_score, 4),
+        smoothness_score=round(smoothness_score, 4),
+        apex_prominence=round(apex_prominence, 4),
+        shape_quality_tier=tier,
+    )
 
 
 def pick_peak(
@@ -265,6 +354,35 @@ def render_picked_chromatographic_peaks_tsv(
     return buffer.getvalue()
 
 
+def render_peak_shape_score_tsv(
+    rows: tuple[PeakShapeScore, ...],
+) -> str:
+    """Render raw peak-shape score rows with the engine contract."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "symmetry_score",
+            "tailing_score",
+            "smoothness_score",
+            "apex_prominence",
+            "shape_quality_tier",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                f"{row.symmetry_score:.4f}",
+                f"{row.tailing_score:.4f}",
+                f"{row.smoothness_score:.4f}",
+                f"{row.apex_prominence:.4f}",
+                row.shape_quality_tier.value,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _pick_target_peaks(
     target: XicTargetEntry,
     points: list[XicTracePoint],
@@ -339,6 +457,129 @@ def _normalize_trace_points(
         normalized,
         key=lambda point: (point.time_seconds, point.spectrum_id),
     )
+
+
+def _trace_baseline(points: list[XicTracePoint]) -> list[float]:
+    if len(points) == 1:
+        return [points[0].intensity]
+    left_point = points[0]
+    right_point = points[-1]
+    return [
+        _baseline_intensity_at_time(
+            left_point,
+            right_point,
+            point.time_seconds,
+        )
+        for point in points
+    ]
+
+
+def _trapezoid_area(
+    points: list[XicTracePoint],
+    corrected: list[float],
+    start_index: int,
+    end_index: int,
+) -> float:
+    if end_index <= start_index:
+        return 0.0
+    area = 0.0
+    for index in range(start_index, end_index):
+        area += (
+            (corrected[index] + corrected[index + 1])
+            * (points[index + 1].time_seconds - points[index].time_seconds)
+            / 2.0
+        )
+    return area
+
+
+def _half_height_crossing(
+    points: list[XicTracePoint],
+    corrected: list[float],
+    apex_index: int,
+    *,
+    left: bool,
+) -> float:
+    target_height = corrected[apex_index] / 2.0
+    if left:
+        for index in range(apex_index, 0, -1):
+            if corrected[index - 1] <= target_height <= corrected[index]:
+                return _interpolate_time(
+                    points[index - 1].time_seconds,
+                    corrected[index - 1],
+                    points[index].time_seconds,
+                    corrected[index],
+                    target_height,
+                )
+        return points[0].time_seconds
+    for index in range(apex_index, len(points) - 1):
+        if corrected[index + 1] <= target_height <= corrected[index]:
+            return _interpolate_time(
+                points[index].time_seconds,
+                corrected[index],
+                points[index + 1].time_seconds,
+                corrected[index + 1],
+                target_height,
+            )
+    return points[-1].time_seconds
+
+
+def _interpolate_time(
+    left_time: float,
+    left_value: float,
+    right_time: float,
+    right_value: float,
+    target_value: float,
+) -> float:
+    if right_value == left_value:
+        return right_time
+    fraction = (target_value - left_value) / (right_value - left_value)
+    return left_time + fraction * (right_time - left_time)
+
+
+def _smoothness_score(
+    corrected: list[float],
+    apex_index: int,
+) -> float:
+    if len(corrected) <= 2:
+        return 1.0
+    violations = 0
+    comparisons = 0
+    for index in range(1, apex_index + 1):
+        comparisons += 1
+        if corrected[index] < corrected[index - 1]:
+            violations += 1
+    for index in range(apex_index + 1, len(corrected)):
+        comparisons += 1
+        if corrected[index] > corrected[index - 1]:
+            violations += 1
+    if comparisons == 0:
+        return 1.0
+    return max(0.0, 1.0 - (violations / comparisons))
+
+
+def _classify_peak_shape_tier(
+    *,
+    symmetry_score: float,
+    tailing_score: float,
+    smoothness_score: float,
+    apex_prominence: float,
+) -> PeakShapeQualityTier:
+    if smoothness_score < 0.7:
+        return PeakShapeQualityTier.JAGGED_NOISY
+    if apex_prominence < 0.2:
+        return PeakShapeQualityTier.FLAT_BROAD
+    if symmetry_score >= 0.85 and tailing_score >= 0.8 and smoothness_score >= 0.9:
+        return PeakShapeQualityTier.GAUSSIAN_LIKE
+    return PeakShapeQualityTier.ACCEPTABLE
+
+
+def _bounded_ratio(
+    numerator: float,
+    denominator: float,
+) -> float:
+    if denominator <= 0.0:
+        return 1.0
+    return max(0.0, min(1.0, numerator / denominator))
 
 
 def _trace_target_id(
