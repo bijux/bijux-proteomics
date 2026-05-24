@@ -9,6 +9,11 @@ import shutil
 
 from click.testing import CliRunner
 
+from bijux_proteomics.chemistry import (
+    FragmentIonSeries,
+    calculate_fragment_ions,
+    calculate_peptide_mz,
+)
 from bijux_proteomics.interfaces.cli import cli
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 
@@ -6958,6 +6963,81 @@ def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_p
             encoding="utf-8"
         )
         assert "AAAMMMWNQK" in Path("selector.rejected.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
+def test_targeted_transition_selection_command_emits_ranked_fragments() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("selected_peptides.tsv").write_text(
+            "target_protein_ref\ttarget_protein_group_id\tgene_symbol\trank\tcandidate_source\tpeptide_sequence\tcanonical_peptide\tobserved_in_discovery\tobserved_psm_count\trun_count\tdetection_frequency\treplicate_consistency\tprimary_evidence_class\tuniqueness_class\tuniqueness_score\tdetectability_score\tdetectability_tier\tsuitability_score\tliability_tier\tliability_codes\tselection_score\tselection_reasons\n"
+            "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER\tPEPTIDER\ttrue\t6\t4\t1.0\t0.95\tstrong\tunique\t1.0\t0.9\thigh\t0.9\tpreferred\t\t0.9\tstrong observed peptide support\n",
+            encoding="utf-8",
+        )
+        precursor_mz = calculate_peptide_mz("PEPTIDER", charge=2)
+        fragments = calculate_fragment_ions(
+            "PEPTIDER",
+            charges=(1,),
+            series=(FragmentIonSeries.Y, FragmentIonSeries.B),
+        )
+        mz_by_label = {
+            f"{fragment.series.value}{fragment.ordinal}+{fragment.charge}": fragment.mz_monoisotopic
+            for fragment in fragments
+        }
+        Path("library.mgf").write_text(
+            render_mgf(
+                (
+                    SpectrumModel(
+                        spectrum_id="library:PEPTIDER",
+                        title="SEQ=PEPTIDER|PEPTIDE=PEPTIDER|PROTEINS=P00001",
+                        precursor_mz=precursor_mz,
+                        precursor_charge=2,
+                        peaks=(
+                            SpectrumPeak(mz=mz_by_label["y7+1"], intensity=1000.0),
+                            SpectrumPeak(mz=mz_by_label["y6+1"], intensity=850.0),
+                            SpectrumPeak(mz=mz_by_label["y5+1"], intensity=700.0),
+                            SpectrumPeak(mz=mz_by_label["b5+1"], intensity=250.0),
+                            SpectrumPeak(mz=175.0, intensity=500.0),
+                        ),
+                    ),
+                )
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-transition-selection",
+                "selected_peptides.tsv",
+                "--spectral-library",
+                "library.mgf",
+                "--summary-tsv-out",
+                "transition.summary.tsv",
+                "--selected-tsv-out",
+                "transition.selected.tsv",
+                "--rejected-tsv-out",
+                "transition.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["selected_peptide_count"] == 1
+        assert payload["spectral_library"]["accepted_entry_count"] == 1
+        assert payload["selection_summary"]["selected_transition_count"] >= 3
+        assert payload["peptide_entries"][0]["target_protein_ref"] == "P00001"
+        assert payload["peptide_entries"][0]["selected_transition_count"] >= 3
+        assert payload["peptide_entries"][0]["selected_transitions"][0]["fragment_label"] == "y7+1"
+        assert payload["outputs"]["summary_tsv"] == "transition.summary.tsv"
+        assert payload["outputs"]["selected_tsv"] == "transition.selected.tsv"
+        assert payload["outputs"]["rejected_tsv"] == "transition.rejected.tsv"
+        assert "selected_transition_count" in Path("transition.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "y7+1" in Path("transition.selected.tsv").read_text(encoding="utf-8")
+        assert "fragment_too_short" in Path("transition.rejected.tsv").read_text(
             encoding="utf-8"
         )
 
