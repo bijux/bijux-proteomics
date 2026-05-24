@@ -824,3 +824,130 @@ def test_targeted_package_exports_panel_redundancy_surface(tmp_path: Path) -> No
     assert report.summary.dropped_candidate_count == 1
     assert "protein:P22222" in rendered
     assert "high_signal_correlation" in rendered
+
+
+def test_targeted_package_exports_validation_evidence_card_surface() -> None:
+    report = targeted.build_validation_evidence_card_report(
+        (
+            targeted.ValidationEvidenceDiscoveryInput(
+                candidate_id="protein:P11111",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="KIN1",
+                target_protein_ref="P11111",
+                priority_rank=1,
+                final_score=0.92,
+                weighted_evidence_total=0.92,
+                penalty_total=0.02,
+                uncertainty=0.04,
+                effect_size=1.7,
+                adjusted_p_value=0.002,
+                support_count=4,
+                annotation_labels=("pathway:stress_response", "domain:kinase"),
+                rank_reason_codes=("assay_ready",),
+                source_ids=("protein-card:KIN1",),
+                ranking_note="strong kinase biomarker candidate",
+            ),
+            targeted.ValidationEvidenceDiscoveryInput(
+                candidate_id="protein:P22222",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="KIN2",
+                target_protein_ref="P22222",
+                priority_rank=2,
+                final_score=0.81,
+                weighted_evidence_total=0.81,
+                penalty_total=0.08,
+                uncertainty=0.07,
+                effect_size=1.2,
+                adjusted_p_value=0.01,
+                support_count=3,
+                annotation_labels=("pathway:stress_response",),
+                rank_reason_codes=("assay_ready",),
+                source_ids=("protein-card:KIN2",),
+                ranking_note="correlated neighbor candidate",
+            ),
+        ),
+        panel_assays=(
+            targeted.ValidationEvidencePanelAssayInput(
+                assay_entry_id="assay:P11111:PEPTIDER",
+                biomarker_candidate_id="protein:P11111",
+                biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                biomarker_display_label="KIN1",
+                biomarker_priority_rank=1,
+                target_protein_ref="P11111",
+                target_protein_group_id="protein_group_1",
+                gene_symbol="KIN1",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                uniqueness_score=1.0,
+                precursor_charge=2,
+                precursor_mz=501.25,
+                expected_retention_time_minutes=12.5,
+                retention_window_start_minutes=11.0,
+                retention_window_end_minutes=14.0,
+                selected_transition_count=3,
+                exported_transition_count=3,
+                assay_interference_risk_tier=targeted.TargetedAssayInterferenceRiskTier.LOW,
+                warning_note="assay retained for panel export",
+            ),
+        ),
+        targeted_validation_results=(
+            targeted.ValidationEvidenceResultInput(
+                candidate_id="protein:P11111",
+                verdict=targeted.TargetedValidationVerdict.CONFIRMED,
+                validation_log2_effect=1.5,
+                assay_evidence_count=1,
+                confirmed_assay_count=1,
+                contradicted_assay_count=0,
+                inconclusive_assay_count=0,
+                reason_codes=(
+                    targeted.TargetedValidationReasonCode.VALIDATION_EFFECT_MATCHES_DISCOVERY,
+                ),
+                note="targeted validation matches discovery direction and effect",
+            ),
+        ),
+        targeted_validation_assay_evidence=(
+            targeted.ValidationEvidenceResultAssayInput(
+                candidate_id="protein:P11111",
+                assay_entry_id="assay:P11111:PEPTIDER",
+                peptide_sequence="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                precursor_charge=2,
+                uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                validation_log2_effect=1.5,
+                verdict=targeted.TargetedValidationVerdict.CONFIRMED,
+                reason_codes=(
+                    targeted.TargetedValidationReasonCode.VALIDATION_EFFECT_MATCHES_DISCOVERY,
+                ),
+                note="unique assay confirms the discovery signal",
+            ),
+        ),
+        redundancy_entries=(
+            targeted.ValidationEvidenceRedundancyInput(
+                candidate_id="protein:P22222",
+                cluster_id="cluster:001",
+                representative_candidate_id="protein:P11111",
+                representative=False,
+                dropped=True,
+                shared_sample_count=4,
+                max_redundant_correlation=0.97,
+                redundancy_reason_codes=(
+                    "high_signal_correlation",
+                    "lower_scoring_cluster_member",
+                ),
+                ranking_note="dropped in favor of the representative correlated marker",
+            ),
+        ),
+    )
+    rendered = targeted.render_validation_evidence_card_tsv(report)
+
+    assert hasattr(targeted, "build_validation_evidence_card_report")
+    assert hasattr(targeted, "render_validation_evidence_card_summary_tsv")
+    assert hasattr(targeted, "render_validation_evidence_card_tsv")
+    assert hasattr(targeted, "render_validation_evidence_card_assay_tsv")
+    assert hasattr(targeted, "render_validation_evidence_card_warning_tsv")
+    assert report.summary.candidate_count == 2
+    assert report.summary.confirmed_count == 1
+    assert report.summary.deprioritized_as_redundant_count == 1
+    assert "protein:P11111" in rendered
+    assert "deprioritized_as_redundant" in rendered

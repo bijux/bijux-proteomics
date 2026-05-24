@@ -159,6 +159,7 @@ def test_targeted_package_import_contract() -> None:
     assert hasattr(module, "build_discovery_targeted_peptide_selection_report")
     assert hasattr(module, "build_targeted_assay_interference_report")
     assert hasattr(module, "build_biomarker_stability_report")
+    assert hasattr(module, "build_validation_evidence_card_report")
     assert hasattr(module, "build_targeted_panel_design_report")
     assert hasattr(module, "build_targeted_result_validation_report")
     assert hasattr(module, "build_targeted_transition_selection_report")
