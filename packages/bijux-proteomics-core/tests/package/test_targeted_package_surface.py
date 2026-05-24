@@ -6,11 +6,29 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.targeted as targeted
+from bijux_proteomics.identification.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
+)
+from bijux_proteomics.identification.contracts import (
+    TargetDecoyContaminantClass,
+    TargetDecoyLabel,
+)
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    CrossRunReproducibilityClass,
+)
 from bijux_proteomics.io import parse_experimental_design_table
+from bijux_proteomics.sequences import parse_fasta_document
 
 
 def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
+
+
+def _protein_records():
+    return parse_fasta_document(
+        ">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n"
+    ).accepted_records
 
 
 def test_targeted_package_exports_target_matrix_owner_surface() -> None:
@@ -79,3 +97,51 @@ def test_targeted_package_exports_carryover_owner_surface() -> None:
     assert report.summary.candidate_entry_count == 2
     assert "Skyline\t4\t2\t2\t2\t1" in summary_tsv
     assert "CARRYPEP/2" in candidate_tsv
+
+
+def test_targeted_package_exports_discovery_peptide_selection_surface() -> None:
+    report = targeted.build_discovery_targeted_peptide_selection_report(
+        (
+            targeted.DiscoveryTargetProteinEntry(
+                protein_group_id="protein_group_1",
+                representative_protein_ref="P00001",
+                protein_refs=("P00001",),
+                gene_symbol="KIN1",
+                discovery_peptides=("PEPTIDER",),
+            ),
+        ),
+        (
+            PeptideEvidenceEntry(
+                peptide="PEPTIDER",
+                canonical_peptide="PEPTIDER",
+                primary_class=PeptideEvidenceClass.STRONG,
+                peptide_q_value=0.001,
+                accepted=True,
+                psm_count=5,
+                spectrum_count=5,
+                run_count=3,
+                detection_frequency=1.0,
+                replicate_consistency=0.9,
+                condition_specificity=0.1,
+                detected_condition_count=2,
+                reproducibility_class=CrossRunReproducibilityClass.REPRODUCIBLE,
+                best_score=120.0,
+                charge_states=(2,),
+                run_ids=("run1", "run2", "run3"),
+                protein_refs=("P00001",),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+                target_decoy_contaminant_class=TargetDecoyContaminantClass.TARGET,
+                explanation="strong observed peptide support",
+            ),
+        ),
+        _protein_records(),
+        top_peptides_per_target=1,
+    )
+    rendered = targeted.render_discovery_targeted_peptide_selection_selected_tsv(report)
+
+    assert hasattr(targeted, "build_discovery_targeted_peptide_selection_report")
+    assert hasattr(targeted, "render_discovery_targeted_peptide_selection_summary_tsv")
+    assert hasattr(targeted, "render_discovery_targeted_peptide_selection_selected_tsv")
+    assert hasattr(targeted, "render_discovery_targeted_peptide_selection_rejected_tsv")
+    assert report.summary.selected_entry_count == 1
+    assert "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER" in rendered

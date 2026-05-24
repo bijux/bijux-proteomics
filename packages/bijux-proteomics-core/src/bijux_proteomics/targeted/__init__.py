@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Targeted proteomics result import, coelution, QC, and matrix surfaces."""
+"""Targeted proteomics selection, result import, coelution, QC, and matrix surfaces."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from importlib import import_module
 _TARGETED_EXPORT_MODULES = (
     "bijux_proteomics.targeted.assay_qc",
     "bijux_proteomics.targeted.carryover",
+    "bijux_proteomics.targeted.discovery_peptide_selection",
     "bijux_proteomics.targeted.result_import",
     "bijux_proteomics.targeted.target_matrix",
     "bijux_proteomics.targeted.transition_coelution",
