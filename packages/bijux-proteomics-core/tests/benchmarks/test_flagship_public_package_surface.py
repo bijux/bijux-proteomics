@@ -110,7 +110,7 @@ def test_multiplex_public_benchmark_package_promotes_tmtpro_review_surface() -> 
 
     assert package.workflow_family == "multiplex"
     assert any(
-        asset.path.endswith("evidence/multiplex_ms1_features.tsv")
+        asset.path.endswith("evidence/tmt_reporter_table.tsv")
         for asset in package.source_assets
     )
     assert any(
