@@ -164,6 +164,66 @@ def test_workflow_package_exports_cross_study_protein_harmonization_surface() ->
     assert "harmonized_id" in workflow.render_cross_study_protein_harmonization_tsv(report)
 
 
+def test_workflow_package_exports_cross_study_effect_comparison_surface() -> None:
+    report = workflow.build_cross_study_effect_comparison_report_from_observations(
+        (
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="study_a:protein_1",
+                study_id="study_a",
+                study_label="study a",
+                study_kind=workflow.ProteomicsStudyKind.LABEL_FREE,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="P11111",
+                protein_refs=("P11111",),
+                accession_aliases=(),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=1.2,
+                direction=workflow.CrossStudyEffectDirection.UP,
+                p_value=0.001,
+                adjusted_p_value=0.01,
+                robustness_score=0.8,
+                significant=True,
+                note="study a effect",
+            ),
+            workflow.CrossStudyProteinEffectObservation(
+                observation_id="study_b:protein_1",
+                study_id="study_b",
+                study_label="study b",
+                study_kind=workflow.ProteomicsStudyKind.DIA,
+                species="Homo sapiens",
+                source_kind=workflow.CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_1",
+                representative_protein_ref="A0A0HUMAN1",
+                protein_refs=("A0A0HUMAN1",),
+                accession_aliases=("P11111",),
+                gene_symbol="STAT1",
+                condition_a="control",
+                condition_b="treated",
+                log2_fold_change=-1.1,
+                direction=workflow.CrossStudyEffectDirection.DOWN,
+                p_value=0.002,
+                adjusted_p_value=0.02,
+                robustness_score=0.7,
+                significant=True,
+                note="study b reversed-order effect",
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "build_cross_study_effect_comparison_report")
+    assert workflow.CrossStudyEffectComparisonStatus.REPLICATED_HIT.value == "replicated_hit"
+    assert report.summary.replicated_hit_count == 1
+    assert report.comparisons[0].replicated_hit is True
+    assert "comparison_status" in workflow.render_cross_study_effect_comparison_tsv(report)
+    assert "replicated_hit" in workflow.render_cross_study_replicated_hit_tsv(report)
+
+
 def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     descriptor = workflow.load_public_benchmark_descriptor(
         Path(__file__).resolve().parents[4]
