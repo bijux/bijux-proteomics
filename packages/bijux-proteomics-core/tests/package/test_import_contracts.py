@@ -107,9 +107,11 @@ def test_core_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> 
 def test_io_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.io")
 
+    assert hasattr(module, "compare_observed_to_library")
     assert hasattr(module, "deisotope_peaks")
     assert hasattr(module, "parse_mzml")
     assert hasattr(module, "estimate_peak_noise")
+    assert hasattr(module, "render_spectral_library_intensity_agreement_tsv")
     assert hasattr(module, "score_spectrum_entropy")
     assert hasattr(module, "score_chromatographic_evidence")
     assert hasattr(module, "score_dia_fragment_trace_coelution")
