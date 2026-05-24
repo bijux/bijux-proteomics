@@ -7042,6 +7042,119 @@ def test_targeted_transition_selection_command_emits_ranked_fragments() -> None:
         )
 
 
+def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("selected_peptides.tsv").write_text(
+            "target_protein_ref\ttarget_protein_group_id\tgene_symbol\trank\tcandidate_source\tpeptide_sequence\tcanonical_peptide\tobserved_in_discovery\tobserved_psm_count\trun_count\tdetection_frequency\treplicate_consistency\tprimary_evidence_class\tuniqueness_class\tuniqueness_score\tdetectability_score\tdetectability_tier\tsuitability_score\tliability_tier\tliability_codes\tselection_score\tselection_reasons\n"
+            "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tAAALIGHTR\tAAALIGHTR\ttrue\t6\t4\t1.0\t0.95\tstrong\tunique\t1.0\t0.9\thigh\t0.9\tpreferred\t\t0.9\tstrong observed peptide support\n"
+            "P00002\tprotein_group_2\tKIN2\t1\tobserved_discovery\tAAAIIGHTR\tAAAIIGHTR\ttrue\t6\t4\t1.0\t0.95\tstrong\tunique\t1.0\t0.9\thigh\t0.9\tpreferred\t\t0.9\tstrong observed peptide support\n"
+            "P00003\tprotein_group_3\tKIN3\t1\tobserved_discovery\tPEPTIDER\tPEPTIDER\ttrue\t6\t4\t1.0\t0.95\tstrong\tunique\t1.0\t0.9\thigh\t0.9\tpreferred\t\t0.9\tstrong observed peptide support\n",
+            encoding="utf-8",
+        )
+        spectra: list[SpectrumModel] = []
+        for protein_ref, peptide, retention_time_minutes in (
+            ("P00001", "AAALIGHTR", 10.0),
+            ("P00002", "AAAIIGHTR", 10.2),
+            ("P00003", "PEPTIDER", 25.0),
+        ):
+            precursor_mz = calculate_peptide_mz(peptide, charge=2)
+            fragments = calculate_fragment_ions(
+                peptide,
+                charges=(1,),
+                series=(FragmentIonSeries.Y, FragmentIonSeries.B),
+            )
+            mz_by_label = {
+                f"{fragment.series.value}{fragment.ordinal}+{fragment.charge}": fragment.mz_monoisotopic
+                for fragment in fragments
+            }
+            spectra.append(
+                SpectrumModel(
+                    spectrum_id=f"library:{peptide}",
+                    title=f"SEQ={peptide}|PEPTIDE={peptide}|PROTEINS={protein_ref}",
+                    precursor_mz=precursor_mz,
+                    precursor_charge=2,
+                    retention_time_seconds=retention_time_minutes * 60.0,
+                    peaks=(
+                        SpectrumPeak(mz=mz_by_label["y7+1"], intensity=1000.0),
+                        SpectrumPeak(mz=mz_by_label["y6+1"], intensity=850.0),
+                        SpectrumPeak(mz=mz_by_label["y5+1"], intensity=700.0),
+                        SpectrumPeak(mz=mz_by_label["b5+1"], intensity=250.0),
+                        SpectrumPeak(mz=175.0, intensity=500.0),
+                    ),
+                )
+            )
+        Path("library.mgf").write_text(render_mgf(tuple(spectra)), encoding="utf-8")
+        Path("targets.fasta").write_text(
+            ">sp|P00001|KIN1 GN=KIN1\nAAALIGHTR\n"
+            ">sp|P00002|KIN2 GN=KIN2\nAAAIIGHTR\n"
+            ">sp|P00003|KIN3 GN=KIN3\nPEPTIDER\n",
+            encoding="utf-8",
+        )
+
+        transition_result = runner.invoke(
+            cli,
+            [
+                "targeted-transition-selection",
+                "selected_peptides.tsv",
+                "--spectral-library",
+                "library.mgf",
+                "--selected-tsv-out",
+                "transition.selected.tsv",
+            ],
+        )
+
+        assert transition_result.exit_code == 0
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-assay-interference",
+                "selected_peptides.tsv",
+                "transition.selected.tsv",
+                "targets.fasta",
+                "--spectral-library",
+                "library.mgf",
+                "--summary-tsv-out",
+                "assay_interference.summary.tsv",
+                "--assay-tsv-out",
+                "assay_interference.assays.tsv",
+                "--transition-tsv-out",
+                "assay_interference.transitions.tsv",
+                "--panel-tsv-out",
+                "assay_interference.panel.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["selected_peptide_count"] == 3
+        assert payload["selected_transition_assay_count"] == 3
+        assert payload["spectral_library"]["accepted_entry_count"] == 3
+        assert payload["fasta_summary"]["accepted_record_count"] == 3
+        assert payload["interference_summary"]["high_risk_assay_count"] >= 2
+        assert payload["interference_summary"]["panel_export_assay_count"] == 1
+        assert {entry["peptide_sequence"] for entry in payload["panel_entries"]} == {
+            "PEPTIDER"
+        }
+        assert payload["outputs"]["summary_tsv"] == "assay_interference.summary.tsv"
+        assert payload["outputs"]["assay_tsv"] == "assay_interference.assays.tsv"
+        assert payload["outputs"]["transition_tsv"] == "assay_interference.transitions.tsv"
+        assert payload["outputs"]["panel_tsv"] == "assay_interference.panel.tsv"
+        assert "high_risk_assay_count\t2" in Path(
+            "assay_interference.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "AAALIGHTR" in Path("assay_interference.assays.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "PEPTIDER" in Path("assay_interference.panel.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "AAALIGHTR" not in Path("assay_interference.panel.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
