@@ -20,6 +20,7 @@ from bijux_proteomics.workflow.cross_study_effect_comparison import (
     build_cross_study_effect_comparison_report_from_observations,
     extract_cross_study_protein_effect_observations,
     render_cross_study_conflicting_hit_tsv,
+    render_cross_study_effect_detail_tsv,
     render_cross_study_effect_comparison_tsv,
     render_cross_study_replicated_hit_tsv,
 )
@@ -81,11 +82,89 @@ def test_extract_cross_study_protein_effect_observations_preserves_biological_an
     assert extraction.summary.supported_study_count == 2
     assert extraction.summary.observation_count >= 2
     assert extraction.unsupported_studies == ()
-    assert any(entry.source_surface == "protein_cards" for entry in extraction.observations)
-    assert any(
-        entry.source_surface == "label_based_differential_report"
-        for entry in extraction.observations
+    protein_card_entry = next(
+        entry for entry in extraction.observations if entry.source_surface == "protein_cards"
     )
+    label_based_entry = next(
+        entry
+        for entry in extraction.observations
+        if entry.source_surface == "label_based_differential_report"
+    )
+    assert protein_card_entry.standard_error is not None
+    assert protein_card_entry.confidence_interval_low is not None
+    assert protein_card_entry.confidence_interval_high is not None
+    assert label_based_entry.standard_error is not None
+    assert label_based_entry.confidence_interval_low is not None
+    assert label_based_entry.confidence_interval_high is not None
+
+    comparison_report = build_cross_study_effect_comparison_report_from_observations(
+        (
+            CrossStudyProteinEffectObservation(
+                observation_id="study_a:protein_detail",
+                study_id="study_a",
+                study_label="study a",
+                study_kind=ProteomicsStudyKind.LABEL_FREE,
+                species="Homo sapiens",
+                source_kind=CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_detail",
+                representative_protein_ref="P99991",
+                protein_refs=("P99991",),
+                accession_aliases=(),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=1.1,
+                direction=CrossStudyEffectDirection.UP,
+                p_value=0.001,
+                adjusted_p_value=0.01,
+                standard_error=0.2,
+                confidence_interval_low=0.708,
+                confidence_interval_high=1.492,
+                robustness_score=0.82,
+                significant=True,
+                note="study a effect",
+            ),
+            CrossStudyProteinEffectObservation(
+                observation_id="study_b:protein_detail",
+                study_id="study_b",
+                study_label="study b",
+                study_kind=ProteomicsStudyKind.DIA,
+                species="Homo sapiens",
+                source_kind=CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD,
+                source_surface="protein_cards",
+                source_entity_id="protein_detail",
+                representative_protein_ref="A0A0HUMAN9",
+                protein_refs=("A0A0HUMAN9",),
+                accession_aliases=("P99991",),
+                gene_symbol="STAT1",
+                condition_a="treated",
+                condition_b="control",
+                log2_fold_change=0.9,
+                direction=CrossStudyEffectDirection.UP,
+                p_value=0.002,
+                adjusted_p_value=0.02,
+                standard_error=0.3,
+                confidence_interval_low=0.312,
+                confidence_interval_high=1.488,
+                robustness_score=0.76,
+                significant=True,
+                note="study b effect",
+            ),
+        )
+    )
+    detail_entry = next(
+        entry
+        for entry in comparison_report.study_entries
+        if entry.standard_error is not None
+    )
+    assert detail_entry.standard_error is not None
+    assert detail_entry.confidence_interval_low is not None
+    assert detail_entry.confidence_interval_high is not None
+    detail_tsv = render_cross_study_effect_detail_tsv(comparison_report)
+    assert "standard_error" in detail_tsv
+    assert "confidence_interval_low" in detail_tsv
+    assert "confidence_interval_high" in detail_tsv
 
 
 def test_cross_study_effect_comparison_marks_replicated_hits_after_reversed_contrast_normalization() -> (
