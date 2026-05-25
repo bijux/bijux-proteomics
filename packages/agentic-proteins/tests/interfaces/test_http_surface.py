@@ -5,6 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("httpx")
 from fastapi.testclient import TestClient
 
 from agentic_proteins.interfaces.http import AppConfig, create_app

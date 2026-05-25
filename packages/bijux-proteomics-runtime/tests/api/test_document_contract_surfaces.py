@@ -4,6 +4,9 @@ from collections.abc import Mapping
 import json
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("httpx")
 from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 

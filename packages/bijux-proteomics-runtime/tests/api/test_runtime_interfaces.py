@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from click.testing import CliRunner
+import pytest
+
+pytest.importorskip("httpx")
 from fastapi.testclient import TestClient
 
 from bijux_proteomics_runtime.api.app import app
