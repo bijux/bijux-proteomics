@@ -127,6 +127,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         owned_surface="Execution coordination that turns runtime requests into tool, provider, and agent work over proteomics workflows.",
         required_modules=(
             "parallel/execution.py",
+            "streaming/execution.py",
             "runs/manager.py",
             "execution/agents/coordination/coordinator.py",
             "execution/engine/executor.py",
@@ -222,6 +223,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Deterministic parallel execution belongs in runtime because it schedules workflow-safe concurrent work while preserving reviewable byte-stable outputs.",
+        )
+
+    if module_path.startswith("streaming/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Large-input streaming import belongs in runtime because it governs bounded-memory execution over accepted import records without changing eager subset outcomes.",
         )
 
     if module_path.startswith("resume/"):

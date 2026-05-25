@@ -21,6 +21,7 @@ DO_NOT_EXTEND_ZONES = (
     "bijux_proteomics_runtime.resume",
     "bijux_proteomics_runtime.runs",
     "bijux_proteomics_runtime.state",
+    "bijux_proteomics_runtime.streaming",
     "bijux_proteomics_runtime.support",
     "bijux_proteomics_runtime.workflows",
 )

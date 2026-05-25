@@ -57,6 +57,7 @@ STABILITY_EXPECTATIONS = {
     "bijux_proteomics_runtime.resume": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.runs": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.state": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.streaming": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.support": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.workflows": StabilityLevel.SEALED,
 }
