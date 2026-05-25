@@ -51,6 +51,7 @@ def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() 
 
 def test_intelligence_capability_map_keeps_stable_analytical_bands() -> None:
     assert list_intelligence_analytical_bands() == (
+        IntelligenceAnalyticalBand.BELIEF_AUDIT,
         IntelligenceAnalyticalBand.CANDIDATES,
         IntelligenceAnalyticalBand.CLAIMS,
         IntelligenceAnalyticalBand.CONTRADICTIONS,
@@ -82,5 +83,5 @@ def test_intelligence_module_audit_requires_substantial_analytical_surface() -> 
         if entry.classification is IntelligenceModuleClassification.THIN_ABSTRACTION
     ]
 
-    assert len(analytical_modules) >= 13
+    assert len(analytical_modules) >= 14
     assert len(thin_modules) <= 2
