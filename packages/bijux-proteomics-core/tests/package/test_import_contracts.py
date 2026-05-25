@@ -87,6 +87,13 @@ def test_core_cli_import_contract() -> None:
     assert module.cli is not None
 
 
+def test_core_python_api_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.interfaces.python_api")
+
+    assert hasattr(module, "run_psm_inspect_command")
+    assert hasattr(module, "run_quantify_command")
+
+
 def test_core_package_import_contract_succeeds_from_clean_checkout() -> None:
     _assert_clean_checkout_command_succeeds("import bijux_proteomics")
 
@@ -94,6 +101,12 @@ def test_core_package_import_contract_succeeds_from_clean_checkout() -> None:
 def test_core_cli_import_contract_succeeds_from_clean_checkout() -> None:
     _assert_clean_checkout_command_succeeds(
         "from bijux_proteomics.interfaces.cli import cli"
+    )
+
+
+def test_core_python_api_import_contract_succeeds_from_clean_checkout() -> None:
+    _assert_clean_checkout_command_succeeds(
+        "from bijux_proteomics.interfaces.python_api import run_quantify_command"
     )
 
 
