@@ -18,6 +18,9 @@ def test_surprising_demo_assets_stay_compact_and_self_contained() -> None:
         manifest.ptm_proteins_fasta,
         manifest.ptm_design_tsv,
         manifest.ptm_annotation_tsv,
+        manifest.biological_feature_tsv,
+        manifest.biological_design_tsv,
+        manifest.biological_pathway_tsv,
         manifest.targeted_result_tsv,
         manifest.targeted_design_tsv,
         manifest.targeted_discovery_claims_json,
@@ -34,4 +37,4 @@ def test_surprising_demo_assets_stay_compact_and_self_contained() -> None:
     assert manifest.expected_qc_issue_candidate_id == "protein:P001"
     assert manifest.expected_validation_candidate_id == "protein:P001"
     assert all(path.exists() for path in resolved)
-    assert sum(len(path.read_text(encoding="utf-8").splitlines()) for path in resolved) < 200
+    assert sum(len(path.read_text(encoding="utf-8").splitlines()) for path in resolved) < 250
