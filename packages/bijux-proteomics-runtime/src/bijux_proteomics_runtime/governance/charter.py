@@ -139,6 +139,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REPLAY_AND_RECOVERY,
         owned_surface="Replay-safe bundles, checkpoints, cache claims, rerun planning, cleanup, and recovery behavior that preserve trustworthy run reuse.",
         required_modules=(
+            "rehydrate/loading.py",
             "resume/execution.py",
             "runs/replay.py",
             "runs/reruns.py",
@@ -154,6 +155,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         required_modules=(
             "artifacts/steps.py",
             "api/catalog.py",
+            "rehydrate/loading.py",
             "runs/contracts.py",
             "runs/launch_bundles.py",
             "runs/failure_reports.py",
@@ -254,6 +256,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Artifact-valid workflow resume planning belongs in runtime because it decides which completed steps stay trustworthy under changed inputs and config.",
+        )
+
+    if module_path.startswith("rehydrate/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Completed-run rehydration belongs in runtime because it resolves one runtime run directory back onto the preserved scientific result surfaces without rerunning analysis.",
         )
 
     if module_path.startswith("providers/"):
