@@ -329,6 +329,24 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "build_result_search_index_from_artifacts")
 
 
+def test_workflow_pipeline_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.workflow.pipelines")
+    advanced_tmt = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.advanced_tmt"
+    )
+    orchestrator = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.orchestrator"
+    )
+    trust_bundle = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.trust_bundle"
+    )
+
+    assert module.__name__ == "bijux_proteomics.workflow.pipelines"
+    assert hasattr(advanced_tmt, "run_advanced_tmt_workflow")
+    assert hasattr(orchestrator, "run_proteomics_workflow")
+    assert hasattr(trust_bundle, "build_trust_bundle")
+
+
 def test_review_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.review")
 
