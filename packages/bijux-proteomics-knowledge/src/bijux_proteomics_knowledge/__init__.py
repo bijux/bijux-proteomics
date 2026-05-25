@@ -5,6 +5,13 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_knowledge.features import (
+    ProteinFeatureOverlapEntry,
+    ProteinFeatureQueryInterval,
+    ProteinFeatureType,
+    overlap_protein_features,
+    render_protein_feature_overlaps_tsv,
+)
 from bijux_proteomics_knowledge.identity.proteins import (
     ProteinIdResolutionEntry,
     ProteinIdentityResolutionStatus,
@@ -24,9 +31,14 @@ __all__ = [
     "EvidenceClaim",
     "EvidenceRecord",
     "KnowledgeDecisionBrief",
+    "ProteinFeatureOverlapEntry",
+    "ProteinFeatureQueryInterval",
+    "ProteinFeatureType",
     "ProteinIdResolutionEntry",
     "ProteinIdentityResolutionStatus",
     "evaluate_schema_compatibility",
+    "overlap_protein_features",
+    "render_protein_feature_overlaps_tsv",
     "render_protein_id_resolution_tsv",
     "resolve_protein_ids",
 ]
