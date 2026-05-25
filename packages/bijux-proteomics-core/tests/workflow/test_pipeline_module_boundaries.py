@@ -15,14 +15,23 @@ _PIPELINE_MODULES = (
     "advanced_ptm",
     "advanced_targeted",
     "advanced_tmt",
+    "dda_biological_workflow",
+    "dia_dda_comparison",
+    "dia_differential_analysis",
+    "diann_biological_workflow",
     "discovery_to_assay",
     "flagship_run",
     "integrated_scientific_report",
+    "label_based_differential_analysis",
+    "label_based_reporting",
+    "maxquant_biological_workflow",
     "multi_study",
     "orchestrator",
+    "ptm_site_workflow",
     "public_benchmark_runner",
     "surprising_demo",
     "surprising_demo_interrogation",
+    "tmt_experiment_workflow",
     "trust_bundle",
 )
 _FORBIDDEN_HELPER_TOKENS = (
@@ -33,6 +42,14 @@ _FORBIDDEN_HELPER_TOKENS = (
     "_normalize_",
     "_enrich_",
 )
+_APPROVED_ASSEMBLY_HELPERS = {
+    "dda_biological_workflow": {
+        "_normalize_search_results",
+        "_parse_source_protein_refs",
+    },
+    "dia_dda_comparison": {"_parse_optional_float"},
+    "label_based_differential_analysis": {"_normalize_input_report"},
+}
 
 
 def _workflow_source_root() -> Path:
@@ -97,6 +114,8 @@ def test_workflow_pipelines_avoid_low_level_algorithm_helpers() -> None:
             for name in defs
             if name.startswith("_")
             and any(token in name for token in _FORBIDDEN_HELPER_TOKENS)
+            and name
+            not in _APPROVED_ASSEMBLY_HELPERS.get(module_name, set())
         ]
         assert not offending, (
             f"{path} should orchestrate domain owners instead of defining low-level "
@@ -109,10 +128,21 @@ def test_workflow_pipelines_match_legacy_wrapper_exports() -> None:
     assert pipelines.__name__ == "bijux_proteomics.workflow.pipelines"
 
     wrapper_to_attr = {
+        "dda_biological_workflow": "build_dda_biological_workflow_bundle",
         "advanced_tmt": "run_advanced_tmt_workflow",
         "advanced_targeted": "run_targeted_validation_workflow",
+        "dia_dda_comparison": "build_diann_vs_dda_psm_comparison_report",
+        "dia_differential_analysis": "build_dia_differential_analysis_report",
+        "diann_biological_workflow": "build_diann_biological_workflow_bundle",
+        "label_based_differential_analysis": (
+            "build_label_based_differential_analysis_report"
+        ),
+        "label_based_reporting": "build_tmt_label_based_report_bundle",
+        "maxquant_biological_workflow": "build_maxquant_biological_workflow_bundle",
         "orchestrator": "run_proteomics_workflow",
+        "ptm_site_workflow": "build_ptm_site_workflow_bundle",
         "surprising_demo": "run_surprising_demo",
+        "tmt_experiment_workflow": "build_tmt_experiment_workflow_bundle",
         "trust_bundle": "build_trust_bundle",
     }
     for module_name, attr_name in wrapper_to_attr.items():
@@ -121,3 +151,25 @@ def test_workflow_pipelines_match_legacy_wrapper_exports() -> None:
             f"bijux_proteomics.workflow.pipelines.{module_name}"
         )
         assert getattr(wrapper, attr_name) is getattr(owner, attr_name)
+
+
+def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
+    root = _workflow_source_root() / "pipelines"
+    expected_targets = {
+        "surprising_demo.py": "bijux_proteomics.workflow.demo.surprising_demo",
+        "surprising_demo_interrogation.py": (
+            "bijux_proteomics.workflow.demo.surprising_demo_interrogation"
+        ),
+    }
+
+    for filename, expected_target in expected_targets.items():
+        nodes = _significant_nodes(root / filename)
+        assert nodes, f"{filename} should contain a demo re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its owned demo surface"

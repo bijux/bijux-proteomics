@@ -429,6 +429,35 @@ def test_workflow_pipeline_package_import_contract() -> None:
     assert hasattr(trust_bundle, "build_trust_bundle")
 
 
+def test_workflow_subpackage_import_contract() -> None:
+    reports = importlib.import_module("bijux_proteomics.workflow.reports")
+    cards = importlib.import_module("bijux_proteomics.workflow.cards")
+    exports = importlib.import_module("bijux_proteomics.workflow.exports")
+    demo = importlib.import_module("bijux_proteomics.workflow.demo")
+    dda = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
+    )
+    label_reporting = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.label_based_reporting"
+    )
+
+    assert reports.__name__ == "bijux_proteomics.workflow.reports"
+    assert cards.__name__ == "bijux_proteomics.workflow.cards"
+    assert exports.__name__ == "bijux_proteomics.workflow.exports"
+    assert demo.__name__ == "bijux_proteomics.workflow.demo"
+
+    assert hasattr(reports, "build_biological_result_report_bundle")
+    assert hasattr(reports, "build_biological_result_graph_report")
+    assert hasattr(cards, "build_protein_evidence_card_report")
+    assert hasattr(cards, "build_cross_study_evidence_card_report")
+    assert hasattr(exports, "build_result_manifest_from_artifacts")
+    assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
+    assert hasattr(demo, "run_surprising_demo")
+    assert hasattr(demo, "build_surprising_demo_interrogation_report")
+    assert hasattr(dda, "build_dda_biological_workflow_bundle")
+    assert hasattr(label_reporting, "build_tmt_label_based_report_bundle")
+
+
 def test_review_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.review")
 

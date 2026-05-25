@@ -13,7 +13,10 @@ WORKFLOW_ROOT = (
     / "bijux_proteomics"
     / "workflow"
 )
-BIOLOGICAL_REPORT_MODULES = tuple(sorted(WORKFLOW_ROOT.glob("biological_report*.py")))
+REPORTS_ROOT = WORKFLOW_ROOT / "reports"
+BIOLOGICAL_REPORT_MODULES = tuple(
+    sorted(REPORTS_ROOT.glob("biological_report*.py"))
+)
 BIOLOGICAL_REPORT_LINE_LIMIT = 1000
 MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_models.py": (
@@ -79,12 +82,19 @@ def test_biological_report_modules_stay_under_one_thousand_lines() -> None:
 def test_biological_report_submodules_expose_owned_surfaces() -> None:
     missing_symbols: list[str] = []
     for filename, symbols in MODULE_SURFACES.items():
-        module = ast.parse((WORKFLOW_ROOT / filename).read_text(encoding="utf-8"))
+        module = ast.parse((REPORTS_ROOT / filename).read_text(encoding="utf-8"))
         defined_symbols = {
             node.name
             for node in module.body
             if isinstance(node, (ast.FunctionDef, ast.ClassDef))
         }
+        defined_symbols.update(
+            target.id
+            for node in module.body
+            if isinstance(node, ast.Assign)
+            for target in node.targets
+            if isinstance(target, ast.Name)
+        )
         for symbol in symbols:
             if symbol not in defined_symbols:
                 missing_symbols.append(f"{filename} missing {symbol}")
@@ -93,7 +103,7 @@ def test_biological_report_submodules_expose_owned_surfaces() -> None:
 
 def test_biological_reporting_facade_delegates_to_split_owners() -> None:
     module = ast.parse(
-        (WORKFLOW_ROOT / "biological_reporting.py").read_text(encoding="utf-8")
+        (REPORTS_ROOT / "biological_reporting.py").read_text(encoding="utf-8")
     )
     import_map = {
         node.module: {alias.name for alias in node.names}
@@ -117,13 +127,13 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
             )
 
     assert import_map[
-        "bijux_proteomics.workflow.biological_report_assembly"
+        "bijux_proteomics.workflow.reports.biological_report_assembly"
     ] >= {
         "build_biological_result_report_bundle",
         "build_biological_result_report_bundle_from_quant_table",
     }
     assert import_map[
-        "bijux_proteomics.workflow.biological_report_models"
+        "bijux_proteomics.workflow.reports.biological_report_models"
     ] >= {
         "BiologicalReportSectionConfidenceEntry",
         "BiologicalReportSectionConfidenceLabel",
@@ -135,7 +145,7 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
         "BiologicalResultSelectionPolicy",
     }
     assert import_map[
-        "bijux_proteomics.workflow.biological_report_rendering"
+        "bijux_proteomics.workflow.reports.biological_report_rendering"
     ] >= {
         "export_biological_result_report_bundle",
         "render_biological_report_section_confidence_tsv",
