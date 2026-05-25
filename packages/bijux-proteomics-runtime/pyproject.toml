@@ -83,6 +83,13 @@ packages = ["src/bijux_proteomics_runtime"]
 api = [
   "openprotein-python>=0.8.8",
 ]
+test = [
+  "pytest>=8.4.1,<10.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-benchmark>=4.0.0,<6.0",
+  "pytest-timeout>=2.4.0,<3.0",
+  "httpx>=0.27.0,<1.0",
+]
 local-esmfold = [
   "transformers>=5.0.0rc3",
   "tokenizers>=0.14",
