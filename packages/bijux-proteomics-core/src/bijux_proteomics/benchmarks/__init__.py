@@ -16,3 +16,4 @@ from bijux_proteomics.benchmarks.ptm_pressure import *  # noqa: F401,F403
 from bijux_proteomics.benchmarks.public_case_studies import *  # noqa: F401,F403
 from bijux_proteomics.benchmarks.quantification_pressure import *  # noqa: F401,F403
 from bijux_proteomics.benchmarks.scientific_fixture_corpus import *  # noqa: F401,F403
+from bijux_proteomics.benchmarks.weak_evidence import *  # noqa: F401,F403
