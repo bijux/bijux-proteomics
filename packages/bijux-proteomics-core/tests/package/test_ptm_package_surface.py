@@ -316,6 +316,41 @@ def test_ptm_package_exports_occupancy_contrast_surface() -> None:
     assert "confidence_tier" in rendered.splitlines()[0]
 
 
+def test_ptm_package_exports_hotspot_owner_surface() -> None:
+    entries = ptm.detect_ptm_hotspots(
+        (
+            ptm.PtmHotspotSiteResult(
+                site_id="P11111:S5:Phospho",
+                protein_id="P11111",
+                position=5,
+                signed_effect=1.8,
+            ),
+            ptm.PtmHotspotSiteResult(
+                site_id="P11111:T8:Phospho",
+                protein_id="P11111",
+                position=8,
+                signed_effect=1.4,
+            ),
+            ptm.PtmHotspotSiteResult(
+                site_id="P11111:Y30:Phospho",
+                protein_id="P11111",
+                position=30,
+                signed_effect=1.6,
+            ),
+        ),
+        protein_length=120,
+        max_distance=3,
+    )
+    rendered = ptm.render_ptm_hotspots_tsv(entries)
+
+    assert hasattr(ptm, "detect_ptm_hotspots")
+    assert hasattr(ptm, "render_ptm_hotspots_tsv")
+    assert len(entries) == 1
+    assert entries[0].cluster_start == 5
+    assert entries[0].cluster_end == 8
+    assert "direction_consistency" in rendered.splitlines()[0]
+
+
 def test_ptm_package_exports_motif_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = ptm.map_ptm_evidence_to_protein_sites(
