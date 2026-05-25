@@ -19,6 +19,7 @@ def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
         "interpretation",
         "judgment",
         "learning",
+        "next_steps",
         "posture",
         "query",
         "refusal",
@@ -35,6 +36,7 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.interpretation, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.judgment, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.learning, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.next_steps, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.posture, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.query, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.refusal, ModuleType)
@@ -54,6 +56,9 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     )
     assert bijux_proteomics_intelligence.governance.__name__ == (
         "bijux_proteomics_intelligence.governance"
+    )
+    assert bijux_proteomics_intelligence.next_steps.__name__ == (
+        "bijux_proteomics_intelligence.next_steps"
     )
     assert bijux_proteomics_intelligence.query.__name__ == (
         "bijux_proteomics_intelligence.query"
@@ -87,6 +92,12 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
             "bijux_proteomics_intelligence.falsifiers"
         ).generate_falsifiers.__name__
         == "generate_falsifiers"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.next_steps"
+        ).recommend_next_experiments.__name__
+        == "recommend_next_experiments"
     )
     assert (
         import_module(
