@@ -142,9 +142,10 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
     ),
     FoundationCharterEntry(
         capability=FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,
-        owned_surface="Version compatibility and migration primitives that keep persisted contracts evolvable without package-local hacks.",
+        owned_surface="Version compatibility, import-alias forwarding, and migration primitives that keep persisted contracts evolvable without package-local hacks.",
         required_modules=(
             "compatibility/__init__.py",
+            "package_aliases.py",
             "compatibility/schema_assessments.py",
             "compatibility/schema_migrations.py",
             "compatibility/schema_versions.py",
@@ -245,6 +246,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
+        "package_aliases.py",
         "compatibility/schema_versions.py",
         "compatibility/__init__.py",
         "compatibility/schema_assessments.py",
@@ -253,7 +255,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,),
-            "Compatibility and migration primitives belong in foundation because persisted contracts must evolve consistently across the suite.",
+            "Compatibility, import-alias forwarding, and migration primitives belong in foundation because persisted contracts and package bridges must evolve consistently across the suite.",
         )
 
     raise ValueError(f"unclassified foundation module: {module_path}")
