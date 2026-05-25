@@ -243,7 +243,7 @@ def render_biological_report_section_confidence_tsv(
     return handle.getvalue()
 
 
-def export_biological_result_report_bundle(
+def write_biological_result_report_bundle(
     report: BiologicalResultReportBundle,
     output_dir: Path,
 ) -> BiologicalResultReportExportManifest:
@@ -994,4 +994,18 @@ def export_biological_result_report_bundle(
             "and sample exploration artifacts into one durable output directory"
         ),
     )
-__all__ = ["export_biological_result_report_bundle", "render_biological_report_section_confidence_tsv", "render_biological_result_report_summary_tsv"]
+def export_biological_result_report_bundle(
+    report: BiologicalResultReportBundle,
+    output_dir: Path,
+) -> BiologicalResultReportExportManifest:
+    """Compatibility wrapper for the legacy biological report bundle export name."""
+
+    return write_biological_result_report_bundle(report, output_dir)
+
+
+__all__ = [
+    "export_biological_result_report_bundle",
+    "write_biological_result_report_bundle",
+    "render_biological_report_section_confidence_tsv",
+    "render_biological_result_report_summary_tsv",
+]

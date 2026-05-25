@@ -22,6 +22,7 @@ from bijux_proteomics.workflow.biological_report_models import (
 )
 from bijux_proteomics.workflow.biological_report_rendering import (
     export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
     render_biological_report_section_confidence_tsv,
     render_biological_result_report_summary_tsv,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "build_biological_result_report_bundle",
     "build_biological_result_report_bundle_from_quant_table",
     "export_biological_result_report_bundle",
+    "write_biological_result_report_bundle",
     "render_biological_report_section_confidence_tsv",
     "render_biological_result_report_summary_tsv",
 ]

@@ -27,7 +27,7 @@ from bijux_proteomics.workflow.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,
-    export_tmt_experiment_workflow_bundle,
+    write_tmt_experiment_workflow_bundle,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -236,7 +236,7 @@ def run_advanced_tmt_workflow(
         covariate_fields=tuple(dict.fromkeys(config.covariate_fields)),
         pairing_field=config.pairing_field,
     )
-    workflow_manifest = export_tmt_experiment_workflow_bundle(base_report, output_dir)
+    workflow_manifest = write_tmt_experiment_workflow_bundle(base_report, output_dir)
     workflow_manifest_path = output_dir / "tmt_experiment_workflow_manifest.json"
     workflow_manifest_path.write_text(
         workflow_manifest.to_stable_json() + "\n",

@@ -689,7 +689,7 @@ def render_ptm_report_evidence_aware_ranking_tsv(report: PtmReportBundle) -> str
     return render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report)
 
 
-def export_ptm_report_bundle(
+def write_ptm_report_bundle(
     report: PtmReportBundle,
     output_dir: Path,
 ) -> PtmReportExportManifest:
@@ -903,3 +903,12 @@ def export_ptm_report_bundle(
             "ptm report export writes stable peptide, site, localization, quantification, differential, motif, regulator, and evidence-card files into one durable output directory"
         ),
     )
+
+
+def export_ptm_report_bundle(
+    report: PtmReportBundle,
+    output_dir: Path,
+) -> PtmReportExportManifest:
+    """Compatibility wrapper for the legacy PTM report bundle export name."""
+
+    return write_ptm_report_bundle(report, output_dir)

@@ -24,7 +24,7 @@ from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantFilteredProteinGroupEntry,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
-    export_maxquant_biological_workflow_bundle,
+    write_maxquant_biological_workflow_bundle,
     render_filtered_maxquant_protein_groups_tsv,
 )
 from bijux_proteomics.workflow.result_types import (
@@ -166,7 +166,7 @@ def run_advanced_maxquant_workflow(
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
     )
-    maxquant_manifest = export_maxquant_biological_workflow_bundle(base_report, output_dir)
+    maxquant_manifest = write_maxquant_biological_workflow_bundle(base_report, output_dir)
     maxquant_manifest_path = output_dir / "maxquant_biological_report_manifest.json"
     maxquant_manifest_path.write_text(
         maxquant_manifest.to_stable_json() + "\n",

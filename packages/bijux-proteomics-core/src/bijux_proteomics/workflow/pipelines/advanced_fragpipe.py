@@ -25,7 +25,7 @@ from bijux_proteomics.workflow.dda_biological_workflow import (
     DdaPsmAcceptancePolicy,
     DdaProteinGroupDiscrepancyEntry,
     DdaProteinGroupDiscrepancyStatus,
-    export_dda_biological_workflow_bundle,
+    write_dda_biological_workflow_bundle,
     build_dda_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.result_types import (
@@ -195,7 +195,7 @@ def run_advanced_fragpipe_workflow(
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
     )
-    fragpipe_manifest = export_dda_biological_workflow_bundle(base_report, output_dir)
+    fragpipe_manifest = write_dda_biological_workflow_bundle(base_report, output_dir)
     fragpipe_manifest_path = output_dir / "fragpipe_biological_report_manifest.json"
     fragpipe_manifest_path.write_text(
         fragpipe_manifest.to_stable_json() + "\n",

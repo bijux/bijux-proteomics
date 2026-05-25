@@ -57,7 +57,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultSelectionPolicy,
     VolcanoReviewPolicy,
     build_biological_result_report_bundle_from_quant_table,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialAnalysisReport,
@@ -309,7 +309,7 @@ def render_diann_biological_workflow_summary_tsv(
     return handle.getvalue()
 
 
-def export_diann_biological_workflow_bundle(
+def write_diann_biological_workflow_bundle(
     report: DiannBiologicalWorkflowBundle,
     output_dir: Path,
 ) -> DiannBiologicalWorkflowExportManifest:
@@ -434,7 +434,7 @@ def export_diann_biological_workflow_bundle(
         ),
         encoding="utf-8",
     )
-    biological_manifest = export_biological_result_report_bundle(
+    biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
     )
@@ -483,3 +483,12 @@ def export_diann_biological_workflow_bundle(
             "DIA-NN biology export preserves import, matrix, QC, differential, and final biological report surfaces in one directory"
         ),
     )
+
+
+def export_diann_biological_workflow_bundle(
+    report: DiannBiologicalWorkflowBundle,
+    output_dir: Path,
+) -> DiannBiologicalWorkflowExportManifest:
+    """Compatibility wrapper for the legacy DIA-NN workflow bundle export name."""
+
+    return write_diann_biological_workflow_bundle(report, output_dir)

@@ -93,7 +93,7 @@ def run_proteomics_run_command(
                 top_label_count=volcano_top_label_count,
             ),
         )
-        manifest = export_proteomics_run_bundle(report, output_dir)
+        manifest = write_proteomics_run_bundle(report, output_dir)
     except click.ClickException:
         raise
     except Exception as exc:  # noqa: BLE001

@@ -24,7 +24,7 @@ from bijux_proteomics.ptm import (
     PtmReportExportManifest,
     PtmRegulatorEnrichmentPolicy,
     PtmSiteQuantAmbiguityPolicy,
-    export_ptm_report_bundle,
+    write_ptm_report_bundle,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
 )
@@ -303,7 +303,7 @@ def render_ptm_site_workflow_rejected_evidence_tsv(
     return handle.getvalue()
 
 
-def export_ptm_site_workflow_bundle(
+def write_ptm_site_workflow_bundle(
     report: PtmSiteWorkflowBundle,
     output_dir: Path,
 ) -> PtmSiteWorkflowExportManifest:
@@ -327,7 +327,7 @@ def export_ptm_site_workflow_bundle(
         render_ptm_site_workflow_rejected_evidence_tsv(report),
         encoding="utf-8",
     )
-    ptm_report_manifest = export_ptm_report_bundle(report.report, output_dir)
+    ptm_report_manifest = write_ptm_report_bundle(report.report, output_dir)
     (output_dir / ptm_report_manifest_name).write_text(
         ptm_report_manifest.to_stable_json() + "\n",
         encoding="utf-8",
@@ -345,6 +345,15 @@ def export_ptm_site_workflow_bundle(
             "PTM-site workflow export preserves accepted and rejected evidence review plus the downstream PTM report bundle in one durable directory"
         ),
     )
+
+
+def export_ptm_site_workflow_bundle(
+    report: PtmSiteWorkflowBundle,
+    output_dir: Path,
+) -> PtmSiteWorkflowExportManifest:
+    """Compatibility wrapper for the legacy PTM-site workflow bundle export name."""
+
+    return write_ptm_site_workflow_bundle(report, output_dir)
 
 
 def _load_fragment_support_by_spectrum(

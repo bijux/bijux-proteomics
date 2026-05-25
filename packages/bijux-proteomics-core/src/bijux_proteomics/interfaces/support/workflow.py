@@ -29,7 +29,6 @@ from bijux_proteomics.workflow import (
     export_label_based_differential_results_tsv,
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
-    export_proteomics_run_bundle,
     render_diann_benchmark_count_comparisons_tsv,
     render_diann_benchmark_protein_quantities_tsv,
     render_diann_benchmark_summary_tsv,
@@ -98,6 +97,7 @@ from bijux_proteomics.workflow import (
     run_surprising_demo,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
+    write_proteomics_run_bundle,
 )
 from bijux_proteomics.workflow.pipelines.orchestrator import (
     DdaWorkflowConfig,

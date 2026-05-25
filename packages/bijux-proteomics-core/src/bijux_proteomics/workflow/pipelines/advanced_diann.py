@@ -47,7 +47,7 @@ from bijux_proteomics.workflow.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
-    export_diann_biological_workflow_bundle,
+    write_diann_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -213,7 +213,7 @@ def run_advanced_diann_workflow(
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
     )
-    diann_manifest = export_diann_biological_workflow_bundle(base_report, output_dir)
+    diann_manifest = write_diann_biological_workflow_bundle(base_report, output_dir)
     diann_manifest_path = output_dir / "diann_biological_report_manifest.json"
     diann_manifest_path.write_text(diann_manifest.to_stable_json() + "\n", encoding="utf-8")
 

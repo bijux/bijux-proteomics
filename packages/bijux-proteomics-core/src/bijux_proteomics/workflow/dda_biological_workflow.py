@@ -51,7 +51,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultSelectionPolicy,
     VolcanoReviewPolicy,
     build_biological_result_report_bundle_from_quant_table,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -491,7 +491,7 @@ def render_protein_group_discrepancies_tsv(
     return handle.getvalue()
 
 
-def export_dda_biological_workflow_bundle(
+def write_dda_biological_workflow_bundle(
     report: DdaBiologicalWorkflowBundle,
     output_dir: Path,
 ) -> DdaBiologicalWorkflowExportManifest:
@@ -558,7 +558,7 @@ def export_dda_biological_workflow_bundle(
             render_protein_group_discrepancies_tsv(report.protein_group_discrepancies),
             encoding="utf-8",
         )
-    biological_manifest = export_biological_result_report_bundle(
+    biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
     )
@@ -593,6 +593,15 @@ def export_dda_biological_workflow_bundle(
             "DDA biology export preserves accepted and filtered search evidence, optional source-protein discrepancy review, parsimony review, protein LFQ, and the downstream biological report bundle in one directory"
         ),
     )
+
+
+def export_dda_biological_workflow_bundle(
+    report: DdaBiologicalWorkflowBundle,
+    output_dir: Path,
+) -> DdaBiologicalWorkflowExportManifest:
+    """Compatibility wrapper for the legacy DDA workflow bundle export name."""
+
+    return write_dda_biological_workflow_bundle(report, output_dir)
 
 
 def _normalize_search_results(

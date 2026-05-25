@@ -39,7 +39,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
     build_biological_result_report_bundle_from_quant_table,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyResult,
@@ -321,7 +321,7 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
     study_result = build_proteomics_study_result_from_biological_report_bundle(
         biological_report
     )
-    biological_manifest = export_biological_result_report_bundle(
+    biological_manifest = write_biological_result_report_bundle(
         biological_report,
         biological_output_dir,
     )

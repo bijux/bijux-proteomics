@@ -70,46 +70,46 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
     build_biological_result_report_bundle,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaPsmAcceptancePolicy,
     build_dda_biological_workflow_bundle,
-    export_dda_biological_workflow_bundle,
+    write_dda_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
-    export_diann_biological_workflow_bundle,
+    write_diann_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.label_based_reporting import (
     LabelBasedReportBundle,
     LabelBasedReportExportManifest,
     TmtNormalizationMethod,
     build_silac_label_based_report_bundle,
-    export_label_based_report_bundle,
+    write_label_based_report_bundle,
 )
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
-    export_maxquant_biological_workflow_bundle,
+    write_maxquant_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,
-    export_ptm_site_workflow_bundle,
+    write_ptm_site_workflow_bundle,
 )
 from bijux_proteomics.workflow.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,
-    export_tmt_experiment_workflow_bundle,
+    write_tmt_experiment_workflow_bundle,
 )
 from bijux_proteomics.workflow.targeted_review_workflow import (
     TargetedAssayQcWorkflowExportManifest,
@@ -494,7 +494,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_biological_result_report_bundle(report, config.output_dir)
+        manifest = write_biological_result_report_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "biological_report_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {
@@ -551,7 +551,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_dda_biological_workflow_bundle(report, config.output_dir)
+        manifest = write_dda_biological_workflow_bundle(report, config.output_dir)
         manifest_name = (
             "fragpipe_biological_report_manifest.json"
             if config.mode is WorkflowMode.FRAGPIPE
@@ -606,7 +606,7 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_diann_biological_workflow_bundle(report, config.output_dir)
+        manifest = write_diann_biological_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "diann_biological_report_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {
@@ -656,7 +656,7 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_maxquant_biological_workflow_bundle(report, config.output_dir)
+        manifest = write_maxquant_biological_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "maxquant_biological_report_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {
@@ -697,7 +697,7 @@ def _run_tmt_workflow(config: TmtWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_tmt_experiment_workflow_bundle(report, config.output_dir)
+        manifest = write_tmt_experiment_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "tmt_workflow_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {
@@ -742,7 +742,7 @@ def _run_silac_workflow(config: SilacWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_label_based_report_bundle(report, config.output_dir)
+        manifest = write_label_based_report_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "label_based_report_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {
@@ -806,7 +806,7 @@ def _run_ptm_workflow(config: PtmWorkflowConfig) -> WorkflowResult:
     manifest = None
     outputs: dict[str, str] = {}
     if config.output_dir is not None:
-        manifest = export_ptm_site_workflow_bundle(report, config.output_dir)
+        manifest = write_ptm_site_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "ptm_site_workflow_manifest.json"
         manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
         outputs = {

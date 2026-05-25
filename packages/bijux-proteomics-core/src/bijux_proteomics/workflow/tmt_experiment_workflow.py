@@ -42,7 +42,7 @@ from bijux_proteomics.workflow.label_based_reporting import (
     LabelBasedReportExportManifest,
     TmtNormalizationMethod,
     build_tmt_label_based_report_bundle,
-    export_label_based_report_bundle,
+    write_label_based_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -314,7 +314,7 @@ def render_tmt_workflow_rejected_reporter_rows_tsv(
     return handle.getvalue()
 
 
-def export_tmt_experiment_workflow_bundle(
+def write_tmt_experiment_workflow_bundle(
     report: TmtExperimentWorkflowBundle,
     output_dir: Path,
 ) -> TmtExperimentWorkflowExportManifest:
@@ -383,7 +383,7 @@ def export_tmt_experiment_workflow_bundle(
         report.interference_report,
         output_dir / interference_channel_summary_name,
     )
-    label_based_report_manifest = export_label_based_report_bundle(
+    label_based_report_manifest = write_label_based_report_bundle(
         report.report,
         output_dir,
     )
@@ -414,6 +414,15 @@ def export_tmt_experiment_workflow_bundle(
             "TMT workflow export preserves reporter-ion import review, multiplex metadata review, interference review, and the downstream labeled report bundle in one durable directory"
         ),
     )
+
+
+def export_tmt_experiment_workflow_bundle(
+    report: TmtExperimentWorkflowBundle,
+    output_dir: Path,
+) -> TmtExperimentWorkflowExportManifest:
+    """Compatibility wrapper for the legacy TMT workflow bundle export name."""
+
+    return write_tmt_experiment_workflow_bundle(report, output_dir)
 
 
 def _source_report(report: TmtExperimentWorkflowBundle):

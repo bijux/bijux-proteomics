@@ -35,7 +35,7 @@ from bijux_proteomics.workflow.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,
-    export_ptm_site_workflow_bundle,
+    write_ptm_site_workflow_bundle,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -178,7 +178,7 @@ def run_advanced_ptm_workflow(
         regulator_enrichment_policy=config.regulator_enrichment_policy,
         evidence_card_policy=config.evidence_card_policy,
     )
-    workflow_manifest = export_ptm_site_workflow_bundle(base_report, output_dir)
+    workflow_manifest = write_ptm_site_workflow_bundle(base_report, output_dir)
     workflow_manifest_path = output_dir / "ptm_site_workflow_manifest.json"
     workflow_manifest_path.write_text(
         workflow_manifest.to_stable_json() + "\n",

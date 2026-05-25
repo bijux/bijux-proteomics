@@ -554,7 +554,7 @@ def render_label_based_sample_qc_tsv(report: LabelBasedReportBundle) -> str:
     return buffer.getvalue()
 
 
-def export_label_based_report_bundle(
+def write_label_based_report_bundle(
     report: LabelBasedReportBundle,
     output_dir: Path,
 ) -> LabelBasedReportExportManifest:
@@ -721,3 +721,12 @@ def export_label_based_report_bundle(
             "labeled report export preserves source-specific quality and ratio ledgers alongside sample qc and differential analysis outputs"
         ),
     )
+
+
+def export_label_based_report_bundle(
+    report: LabelBasedReportBundle,
+    output_dir: Path,
+) -> LabelBasedReportExportManifest:
+    """Compatibility wrapper for the legacy label-based report bundle export name."""
+
+    return write_label_based_report_bundle(report, output_dir)

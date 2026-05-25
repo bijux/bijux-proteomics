@@ -32,13 +32,13 @@ from bijux_proteomics.workflow.dda_biological_workflow import (
     DdaPsmAcceptancePolicy,
     build_dda_biological_workflow_bundle,
     build_label_free_quant_table_from_protein_lfq_report,
-    export_dda_biological_workflow_bundle,
+    write_dda_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
-    export_diann_biological_workflow_bundle,
+    write_diann_biological_workflow_bundle,
     render_dia_differential_matrix_tsv,
     render_dia_run_qc_summary_tsv,
 )
@@ -47,7 +47,7 @@ from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
-    export_maxquant_biological_workflow_bundle,
+    write_maxquant_biological_workflow_bundle,
     render_maxquant_lfq_matrix_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -437,14 +437,14 @@ def render_proteomics_run_enrichment_tsv(report: ProteomicsRunBundle) -> str:
     return handle.getvalue()
 
 
-def export_proteomics_run_bundle(
+def write_proteomics_run_bundle(
     report: ProteomicsRunBundle,
     output_dir: Path,
 ) -> ProteomicsRunExportManifest:
     """Write one flagship proteomics run bundle into a stable output directory."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    workflow_manifest = _export_workflow_bundle(report, output_dir)
+    workflow_manifest = _write_workflow_bundle(report, output_dir)
     biological_manifest = workflow_manifest.biological_report_manifest
     summary_name = "proteomics_run_summary.tsv"
     qc_summary_name = "proteomics_qc_summary.tsv"
@@ -504,6 +504,15 @@ def export_proteomics_run_bundle(
             "flagship run export preserves engine-native workflow review, standardized QC, normalized matrix, differential, enrichment, and final HTML reporting in one directory"
         ),
     )
+
+
+def export_proteomics_run_bundle(
+    report: ProteomicsRunBundle,
+    output_dir: Path,
+) -> ProteomicsRunExportManifest:
+    """Compatibility wrapper for the legacy flagship run bundle export name."""
+
+    return write_proteomics_run_bundle(report, output_dir)
 
 
 def _resolve_contrast(
@@ -572,7 +581,7 @@ def _biological_report(report: ProteomicsRunBundle) -> BiologicalResultReportBun
     raise ValueError("flagship run bundle is missing an engine workflow")
 
 
-def _export_workflow_bundle(
+def _write_workflow_bundle(
     report: ProteomicsRunBundle,
     output_dir: Path,
 ) -> (
@@ -581,14 +590,14 @@ def _export_workflow_bundle(
     | DdaBiologicalWorkflowExportManifest
 ):
     if report.diann_workflow is not None:
-        return export_diann_biological_workflow_bundle(report.diann_workflow, output_dir)
+        return write_diann_biological_workflow_bundle(report.diann_workflow, output_dir)
     if report.maxquant_workflow is not None:
-        return export_maxquant_biological_workflow_bundle(
+        return write_maxquant_biological_workflow_bundle(
             report.maxquant_workflow,
             output_dir,
         )
     if report.fragpipe_workflow is not None:
-        return export_dda_biological_workflow_bundle(report.fragpipe_workflow, output_dir)
+        return write_dda_biological_workflow_bundle(report.fragpipe_workflow, output_dir)
     raise ValueError("flagship run bundle is missing an engine workflow")
 
 
@@ -632,6 +641,7 @@ __all__ = [
     "ProteomicsRunSummary",
     "build_proteomics_run_bundle",
     "export_proteomics_run_bundle",
+    "write_proteomics_run_bundle",
     "render_proteomics_run_enrichment_tsv",
     "render_proteomics_run_qc_summary_tsv",
     "render_proteomics_run_summary_tsv",

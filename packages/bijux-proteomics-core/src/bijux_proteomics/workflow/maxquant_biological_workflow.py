@@ -41,7 +41,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultSelectionPolicy,
     VolcanoReviewPolicy,
     build_biological_result_report_bundle_from_quant_table,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -507,7 +507,7 @@ def render_maxquant_lfq_matrix_tsv(table: LabelFreeQuantTable) -> str:
     return handle.getvalue()
 
 
-def export_maxquant_biological_workflow_bundle(
+def write_maxquant_biological_workflow_bundle(
     report: MaxquantBiologicalWorkflowBundle,
     output_dir: Path,
 ) -> MaxquantBiologicalWorkflowExportManifest:
@@ -566,7 +566,7 @@ def export_maxquant_biological_workflow_bundle(
         render_maxquant_lfq_matrix_tsv(report.lfq_table),
         encoding="utf-8",
     )
-    biological_manifest = export_biological_result_report_bundle(
+    biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
     )
@@ -603,6 +603,15 @@ def export_maxquant_biological_workflow_bundle(
             "MaxQuant biology export preserves imported tables, explicit protein-group acceptance review, final biological foreground review, raw LFQ matrix review, and the downstream biological report bundle in one directory"
         ),
     )
+
+
+def export_maxquant_biological_workflow_bundle(
+    report: MaxquantBiologicalWorkflowBundle,
+    output_dir: Path,
+) -> MaxquantBiologicalWorkflowExportManifest:
+    """Compatibility wrapper for the legacy MaxQuant workflow bundle export name."""
+
+    return write_maxquant_biological_workflow_bundle(report, output_dir)
 
 
 def _validate_biological_acceptance_policy(
