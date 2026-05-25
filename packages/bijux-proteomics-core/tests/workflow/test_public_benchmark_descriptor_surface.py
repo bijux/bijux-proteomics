@@ -6,8 +6,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+import pytest
 import yaml
 
+from bijux_proteomics.domain.errors import DesignError, InvalidWorkflowError, SchemaError
 from bijux_proteomics.workflow import (
     PublicBenchmarkExpectedSignalAssessmentStatus,
     PublicBenchmarkFailureKind,
@@ -120,6 +122,53 @@ def test_public_benchmark_descriptor_resolves_package_owned_root_aliases() -> No
     assert resolve_public_benchmark_path(
         Path("benchmarks/public/ptm_localization_review_package/dataset.yml")
     ) == (package_root / "ptm_localization_review_package" / "dataset.yml")
+
+
+def test_public_benchmark_descriptor_rejects_duplicate_source_ids_with_schema_error(
+    tmp_path: Path,
+) -> None:
+    descriptor_path = _write_descriptor_copy(
+        tmp_path,
+        "ptm_localization_review_package",
+        mutate=lambda payload: payload["source_files"].append(
+            dict(payload["source_files"][0])
+        ),
+    )
+
+    with pytest.raises(SchemaError, match="descriptor source_ids must be unique"):
+        load_public_benchmark_descriptor(descriptor_path)
+
+
+def test_public_benchmark_descriptor_rejects_misaligned_sample_group_design(
+    tmp_path: Path,
+) -> None:
+    descriptor_path = _write_descriptor_copy(
+        tmp_path,
+        "ptm_localization_review_package",
+        mutate=lambda payload: payload["sample_groups"][0].update(
+            sample_ids=["sample-a", "sample-b", "sample-extra"]
+        ),
+    )
+
+    with pytest.raises(
+        DesignError,
+        match="descriptor sample_groups and sample_metadata must declare the same sample_ids",
+    ):
+        load_public_benchmark_descriptor(descriptor_path)
+
+
+def test_public_benchmark_root_rejects_descriptor_paths_as_invalid_workflow_input() -> (
+    None
+):
+    descriptor_path = (
+        public_benchmark_root() / "ptm_localization_review_package" / "dataset.yml"
+    )
+
+    with pytest.raises(
+        InvalidWorkflowError,
+        match="public benchmark root must be a directory",
+    ):
+        resolve_public_benchmark_root(descriptor_path)
 
 
 def test_public_benchmark_descriptor_loads_runnable_diann_contracts() -> None:

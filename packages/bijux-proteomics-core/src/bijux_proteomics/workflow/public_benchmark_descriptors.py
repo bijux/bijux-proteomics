@@ -9,8 +9,10 @@ from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
+from pydantic import ValidationError
 import yaml
 
+from bijux_proteomics.domain.errors import DesignError, InvalidWorkflowError, SchemaError
 from bijux_proteomics.io.formats import ExperimentalDesignSampleRole
 from bijux_proteomics_foundation import JsonModel
 
@@ -196,19 +198,23 @@ class PublicBenchmarkDescriptor(JsonModel):
     def _validate_internal_consistency(self) -> PublicBenchmarkDescriptor:
         source_ids = [source.source_id for source in self.source_files]
         if len(source_ids) != len(set(source_ids)):
-            raise ValueError("descriptor source_ids must be unique")
+            raise SchemaError("descriptor source_ids must be unique")
 
         schema_ids = [source.schema_id for source in self.source_files]
         if len(schema_ids) != len(set(schema_ids)):
-            raise ValueError("descriptor source schema_ids must be unique")
+            raise SchemaError("descriptor source schema_ids must be unique")
 
         group_ids = [group.group_id for group in self.sample_groups]
         if len(group_ids) != len(set(group_ids)):
-            raise ValueError("descriptor sample_groups must use unique group_ids")
+            raise DesignError("descriptor sample_groups must use unique group_ids")
         if self.contrast.condition_a not in set(group_ids):
-            raise ValueError("contrast condition_a must reference a declared sample_group")
+            raise DesignError(
+                "contrast condition_a must reference a declared sample_group"
+            )
         if self.contrast.condition_b not in set(group_ids):
-            raise ValueError("contrast condition_b must reference a declared sample_group")
+            raise DesignError(
+                "contrast condition_b must reference a declared sample_group"
+            )
 
         declared_group_sample_ids: dict[str, tuple[str, ...]] = {
             group.group_id: group.sample_ids for group in self.sample_groups
@@ -219,14 +225,18 @@ class PublicBenchmarkDescriptor(JsonModel):
             for sample_id in sample_ids
         ]
         if len(flat_group_sample_ids) != len(set(flat_group_sample_ids)):
-            raise ValueError("descriptor sample_groups cannot reuse one sample_id twice")
+            raise DesignError(
+                "descriptor sample_groups cannot reuse one sample_id twice"
+            )
 
         metadata_sample_ids = [sample.sample_id for sample in self.sample_metadata]
         if len(metadata_sample_ids) != len(set(metadata_sample_ids)):
-            raise ValueError("descriptor sample_metadata must use unique sample_ids")
+            raise DesignError(
+                "descriptor sample_metadata must use unique sample_ids"
+            )
         for sample in self.sample_metadata:
             if sample.group_id not in declared_group_sample_ids:
-                raise ValueError(
+                raise DesignError(
                     "descriptor sample_metadata group_id must reference a declared sample_group"
                 )
 
@@ -239,18 +249,20 @@ class PublicBenchmarkDescriptor(JsonModel):
                     sorted(metadata_by_group.get(group_id, ()))
                 )
                 if tuple(sorted(sample_ids)) != metadata_sample_ids_for_group:
-                    raise ValueError(
+                    raise DesignError(
                         "descriptor sample_groups and sample_metadata must declare the "
                         "same sample_ids for each group"
                     )
 
         signal_ids = [signal.signal_id for signal in self.expected_biological_signals]
         if len(signal_ids) != len(set(signal_ids)):
-            raise ValueError("descriptor expected_biological_signals must use unique ids")
+            raise SchemaError(
+                "descriptor expected_biological_signals must use unique ids"
+            )
 
         limitation_ids = [item.limitation_id for item in self.known_limitations]
         if len(limitation_ids) != len(set(limitation_ids)):
-            raise ValueError("descriptor known_limitations must use unique ids")
+            raise SchemaError("descriptor known_limitations must use unique ids")
 
         return self
 
@@ -258,8 +270,18 @@ class PublicBenchmarkDescriptor(JsonModel):
 def load_public_benchmark_descriptor(descriptor_path: Path) -> PublicBenchmarkDescriptor:
     """Load and validate one public benchmark descriptor."""
 
-    payload = yaml.safe_load(descriptor_path.read_text(encoding="utf-8"))
-    return PublicBenchmarkDescriptor.model_validate(payload)
+    try:
+        payload = yaml.safe_load(descriptor_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise SchemaError(
+            f"public benchmark descriptor YAML is invalid: {descriptor_path}"
+        ) from exc
+    try:
+        return PublicBenchmarkDescriptor.model_validate(payload)
+    except ValidationError as exc:
+        raise SchemaError(
+            f"public benchmark descriptor payload is invalid: {descriptor_path}"
+        ) from exc
 
 
 def public_benchmark_root() -> Path:
@@ -303,7 +325,7 @@ def resolve_public_benchmark_root(benchmark_root: Path | str | None = None) -> P
 
     resolved = resolve_public_benchmark_path(benchmark_root)
     if resolved.is_file():
-        raise ValueError(
+        raise InvalidWorkflowError(
             "public benchmark root must be a directory, not a descriptor path: "
             f"{resolved}"
         )
