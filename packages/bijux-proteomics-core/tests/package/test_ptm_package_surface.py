@@ -216,6 +216,37 @@ def test_ptm_package_exports_kinase_inference_owner_surface() -> None:
     assert "confidence_tier" in rendered
 
 
+def test_ptm_package_exports_phosphatase_inference_owner_surface() -> None:
+    rows = ptm.infer_phosphatases(
+        (
+            ptm.PtmPhosphataseSiteResult(
+                site_id="P11111:S5:Phospho",
+                protein_id="P11111",
+                signed_effect=-1.4,
+            ),
+        ),
+        (
+            ptm.PtmPhosphataseSubstrateAnnotation(
+                phosphatase="PPP2CA",
+                site_id="P11111:S5:Phospho",
+                substrate_protein_id="P11111",
+            ),
+            ptm.PtmPhosphataseSubstrateAnnotation(
+                phosphatase="PTPN11",
+                substrate_protein_id="P11111",
+            ),
+        ),
+    )
+    rendered = ptm.render_ptm_phosphatase_inference_tsv(rows)
+
+    assert hasattr(ptm, "infer_phosphatases")
+    assert hasattr(ptm, "render_ptm_phosphatase_inference_tsv")
+    assert len(rows) == 1
+    assert rows[0].phosphatase == "PPP2CA"
+    assert rows[0].site_directions[0].value == "downregulated"
+    assert "annotation_coverage" in rendered
+
+
 def test_ptm_package_exports_localization_risk_owner_surface() -> None:
     localization_candidates = (
         PtmEvidenceRecord(
