@@ -79,15 +79,15 @@ _VALIDATING_TESTS_BY_WORKFLOW: dict[KnowledgeWorkflowFamily, tuple[str, ...]] = 
     ),
     KnowledgeWorkflowFamily.PTM: (
         "packages/bijux-proteomics-knowledge/tests/references/test_replay_proof_surface.py",
-        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
     ),
     KnowledgeWorkflowFamily.LFQ: (
         "packages/bijux-proteomics-knowledge/tests/references/test_replay_proof_surface.py",
-        "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
     ),
     KnowledgeWorkflowFamily.MULTIPLEX: (
         "packages/bijux-proteomics-knowledge/tests/references/test_replay_proof_surface.py",
-        "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
     ),
     KnowledgeWorkflowFamily.TARGETED: (
         "packages/bijux-proteomics-knowledge/tests/references/test_replay_proof_surface.py",

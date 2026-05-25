@@ -187,7 +187,7 @@
       "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
       "criterion_id": "lfq_differential_reproducibility",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
@@ -302,7 +302,7 @@
       "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
       "criterion_id": "ptm_localization_quality",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
@@ -317,7 +317,7 @@
       "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
       "criterion_id": "ptm_ambiguity_burden",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
@@ -433,7 +433,7 @@
       "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
       "criterion_id": "targeted_follow_up_promotion",
       "evidence_paths": [
-        "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+        "packages/bijux-proteomics-lab/tests/benchmarks/test_benchmark_flagship_follow_up_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
       ],

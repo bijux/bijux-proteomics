@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 990
+min_owner_logic_module_count = 995
 max_compatibility_surface_count = 0
-max_import_glue_module_count = 282
-max_dead_weight_module_count = 22
+max_import_glue_module_count = 279
+max_dead_weight_module_count = 24
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -945,19 +945,11 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/__init__.py"
-module_import_path = "tests.agentic_proteins.__init__"
+module_path = "packages/agentic-proteins/tests/agents/test_agent_catalog_surface.py"
+module_import_path = "tests.agentic_proteins.agents.test_agent_catalog_surface"
 module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/agents/__init__.py"
-module_import_path = "tests.agentic_proteins.agents.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
+public_definition_count = 1
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -966,14 +958,6 @@ module_import_path = "tests.agentic_proteins.agents.test_analysis_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/agents/test_catalog_surface.py"
-module_import_path = "tests.agentic_proteins.agents.test_catalog_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -997,14 +981,6 @@ module_path = "packages/agentic-proteins/tests/conftest.py"
 module_import_path = "tests.agentic_proteins.conftest"
 module_kind = "test_only_helper"
 public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/e2e/__init__.py"
-module_import_path = "tests.agentic_proteins.e2e.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
 workspace_import_root_count = 0
 
 [[module]]
@@ -1049,14 +1025,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/execution/__init__.py"
-module_import_path = "tests.agentic_proteins.execution.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/execution/test_execution_alias_surface.py"
 module_import_path = "tests.agentic_proteins.execution.test_execution_alias_surface"
 module_kind = "test_only_helper"
@@ -1070,14 +1038,6 @@ module_import_path = "tests.agentic_proteins.execution.test_run_config_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/integration/__init__.py"
-module_import_path = "tests.agentic_proteins.integration.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -1145,14 +1105,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/interfaces/__init__.py"
-module_import_path = "tests.agentic_proteins.interfaces.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/interfaces/test_cli_surface.py"
 module_import_path = "tests.agentic_proteins.interfaces.test_cli_surface"
 module_kind = "test_only_helper"
@@ -1174,14 +1126,6 @@ module_import_path = "tests.agentic_proteins.interfaces.test_structure_reports_s
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/orchestration/__init__.py"
-module_import_path = "tests.agentic_proteins.orchestration.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -1246,14 +1190,6 @@ module_import_path = "tests.agentic_proteins.orchestration.test_telemetry_client
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/package/__init__.py"
-module_import_path = "tests.agentic_proteins.package.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -1337,22 +1273,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/providers/__init__.py"
-module_import_path = "tests.agentic_proteins.providers.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/providers/local_models/__init__.py"
-module_import_path = "tests.agentic_proteins.providers.local_models.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/providers/local_models/conftest.py"
 module_import_path = "tests.agentic_proteins.providers.local_models.conftest"
 module_kind = "test_only_helper"
@@ -1409,56 +1329,8 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/state/__init__.py"
-module_import_path = "tests.agentic_proteins.state.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/state/test_state_surface.py"
 module_import_path = "tests.agentic_proteins.state.test_state_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/support/__init__.py"
-module_import_path = "tests.agentic_proteins.support.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/support/artifacts.py"
-module_import_path = "tests.agentic_proteins.support.artifacts"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/support/paths.py"
-module_import_path = "tests.agentic_proteins.support.paths"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/tools/__init__.py"
-module_import_path = "tests.agentic_proteins.tools.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/tools/test_catalog_surface.py"
-module_import_path = "tests.agentic_proteins.tools.test_catalog_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 2
@@ -1470,6 +1342,14 @@ module_import_path = "tests.agentic_proteins.tools.test_heuristic_structure_regr
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/tools/test_tool_catalog_surface.py"
+module_import_path = "tests.agentic_proteins.tools.test_tool_catalog_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics"
@@ -1508,7 +1388,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/_tabular.py"
 module_import_path = "bijux_proteomics._tabular"
 module_kind = "owner_logic"
-public_definition_count = 9
+public_definition_count = 10
 workspace_import_root_count = 1
 
 [[module]]
@@ -1636,7 +1516,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/public_case_studies.py"
 module_import_path = "bijux_proteomics.benchmarks.public_case_studies"
 module_kind = "owner_logic"
-public_definition_count = 12
+public_definition_count = 13
 workspace_import_root_count = 2
 
 [[module]]
@@ -1956,7 +1836,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/errors.py"
 module_import_path = "bijux_proteomics.domain.errors"
 module_kind = "owner_logic"
-public_definition_count = 6
+public_definition_count = 11
 workspace_import_root_count = 0
 
 [[module]]
@@ -1997,6 +1877,14 @@ module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/progra
 module_import_path = "bijux_proteomics.domain.programs"
 module_kind = "import_glue"
 public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/reason_codes.py"
+module_import_path = "bijux_proteomics.domain.reason_codes"
+module_kind = "owner_logic"
+public_definition_count = 7
 workspace_import_root_count = 1
 
 [[module]]
@@ -2060,7 +1948,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/structure/structure.py"
 module_import_path = "bijux_proteomics.domain.structure.structure"
 module_kind = "owner_logic"
-public_definition_count = 12
+public_definition_count = 13
 workspace_import_root_count = 1
 
 [[module]]
@@ -2140,7 +2028,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/confidence.py"
 module_import_path = "bijux_proteomics.identification.confidence"
 module_kind = "owner_logic"
-public_definition_count = 39
+public_definition_count = 40
 workspace_import_root_count = 2
 
 [[module]]
@@ -2236,7 +2124,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contracts/review.py"
 module_import_path = "bijux_proteomics.identification.contracts.review"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 11
 workspace_import_root_count = 2
 
 [[module]]
@@ -3819,9 +3707,9 @@ workspace_import_root_count = 0
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/support/timecourse_support.py"
 module_import_path = "bijux_proteomics.interfaces.support.timecourse_support"
-module_kind = "dead_weight"
+module_kind = "owner_logic"
 public_definition_count = 0
-workspace_import_root_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -3843,9 +3731,9 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interpretation/__init__.py"
 module_import_path = "bijux_proteomics.interpretation"
-module_kind = "import_glue"
+module_kind = "dead_weight"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -4148,7 +4036,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py"
 module_import_path = "bijux_proteomics.io.spectra"
 module_kind = "owner_logic"
-public_definition_count = 68
+public_definition_count = 69
 workspace_import_root_count = 2
 
 [[module]]
@@ -4427,9 +4315,9 @@ workspace_import_root_count = 2
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/__init__.py"
 module_import_path = "bijux_proteomics.ptm"
-module_kind = "import_glue"
+module_kind = "dead_weight"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -4628,7 +4516,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/reporting.py"
 module_import_path = "bijux_proteomics.ptm.reporting"
 module_kind = "owner_logic"
-public_definition_count = 13
+public_definition_count = 14
 workspace_import_root_count = 2
 
 [[module]]
@@ -4724,7 +4612,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/contracts/artifact_bundle.py"
 module_import_path = "bijux_proteomics.quantification.contracts.artifact_bundle"
 module_kind = "owner_logic"
-public_definition_count = 6
+public_definition_count = 7
 workspace_import_root_count = 2
 
 [[module]]
@@ -4804,7 +4692,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/contracts/protein_rollup.py"
 module_import_path = "bijux_proteomics.quantification.contracts.protein_rollup"
 module_kind = "owner_logic"
-public_definition_count = 13
+public_definition_count = 14
 workspace_import_root_count = 1
 
 [[module]]
@@ -4972,7 +4860,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/readiness.py"
 module_import_path = "bijux_proteomics.quantification.readiness"
 module_kind = "owner_logic"
-public_definition_count = 7
+public_definition_count = 9
 workspace_import_root_count = 2
 
 [[module]]
@@ -5253,7 +5141,7 @@ module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/scient
 module_import_path = "bijux_proteomics.review.scientific_story"
 module_kind = "owner_logic"
 public_definition_count = 6
-workspace_import_root_count = 1
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -5316,7 +5204,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/contaminant_database.py"
 module_import_path = "bijux_proteomics.sequences.contaminant_database"
 module_kind = "owner_logic"
-public_definition_count = 4
+public_definition_count = 5
 workspace_import_root_count = 2
 
 [[module]]
@@ -5324,7 +5212,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py"
 module_import_path = "bijux_proteomics.sequences.core"
 module_kind = "owner_logic"
-public_definition_count = 43
+public_definition_count = 44
 workspace_import_root_count = 1
 
 [[module]]
@@ -5436,7 +5324,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/theoretical_digest.py"
 module_import_path = "bijux_proteomics.sequences.theoretical_digest"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 11
 workspace_import_root_count = 2
 
 [[module]]
@@ -5540,7 +5428,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/laboratory_plans.py"
 module_import_path = "bijux_proteomics.study.laboratory_plans"
 module_kind = "owner_logic"
-public_definition_count = 40
+public_definition_count = 41
 workspace_import_root_count = 1
 
 [[module]]
@@ -5573,7 +5461,7 @@ module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc_benc
 module_import_path = "bijux_proteomics.study.qc_benchmarks"
 module_kind = "owner_logic"
 public_definition_count = 28
-workspace_import_root_count = 1
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -5747,9 +5635,9 @@ workspace_import_root_count = 2
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/__init__.py"
 module_import_path = "bijux_proteomics.workflow"
-module_kind = "import_glue"
+module_kind = "dead_weight"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -5798,6 +5686,14 @@ module_import_path = "bijux_proteomics.workflow.advanced_tmt"
 module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/artifact_layout.py"
+module_import_path = "bijux_proteomics.workflow.artifact_layout"
+module_kind = "owner_logic"
+public_definition_count = 8
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -5852,7 +5748,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_rendering.py"
 module_import_path = "bijux_proteomics.workflow.biological_report_rendering"
 module_kind = "owner_logic"
-public_definition_count = 3
+public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -5956,7 +5852,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/dda_biological_workflow.py"
 module_import_path = "bijux_proteomics.workflow.dda_biological_workflow"
 module_kind = "owner_logic"
-public_definition_count = 16
+public_definition_count = 17
 workspace_import_root_count = 2
 
 [[module]]
@@ -5988,7 +5884,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/diann_biological_workflow.py"
 module_import_path = "bijux_proteomics.workflow.diann_biological_workflow"
 module_kind = "owner_logic"
-public_definition_count = 7
+public_definition_count = 8
 workspace_import_root_count = 2
 
 [[module]]
@@ -6044,7 +5940,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/label_based_reporting.py"
 module_import_path = "bijux_proteomics.workflow.label_based_reporting"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 11
 workspace_import_root_count = 2
 
 [[module]]
@@ -6060,7 +5956,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/maxquant_biological_workflow.py"
 module_import_path = "bijux_proteomics.workflow.maxquant_biological_workflow"
 module_kind = "owner_logic"
-public_definition_count = 17
+public_definition_count = 18
 workspace_import_root_count = 2
 
 [[module]]
@@ -6148,7 +6044,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/discovery_to_assay.py"
 module_import_path = "bijux_proteomics.workflow.pipelines.discovery_to_assay"
 module_kind = "owner_logic"
-public_definition_count = 16
+public_definition_count = 18
 workspace_import_root_count = 2
 
 [[module]]
@@ -6156,7 +6052,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/flagship_run.py"
 module_import_path = "bijux_proteomics.workflow.pipelines.flagship_run"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 11
 workspace_import_root_count = 2
 
 [[module]]
@@ -6172,7 +6068,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/multi_study.py"
 module_import_path = "bijux_proteomics.workflow.pipelines.multi_study"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 12
 workspace_import_root_count = 2
 
 [[module]]
@@ -6236,7 +6132,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/ptm_site_workflow.py"
 module_import_path = "bijux_proteomics.workflow.ptm_site_workflow"
 module_kind = "owner_logic"
-public_definition_count = 9
+public_definition_count = 10
 workspace_import_root_count = 2
 
 [[module]]
@@ -6297,6 +6193,14 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/result_types.py"
+module_import_path = "bijux_proteomics.workflow.result_types"
+module_kind = "owner_logic"
+public_definition_count = 14
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/study_result.py"
 module_import_path = "bijux_proteomics.workflow.study_result"
 module_kind = "owner_logic"
@@ -6340,7 +6244,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/tmt_experiment_workflow.py"
 module_import_path = "bijux_proteomics.workflow.tmt_experiment_workflow"
 module_kind = "owner_logic"
-public_definition_count = 10
+public_definition_count = 11
 workspace_import_root_count = 2
 
 [[module]]
@@ -6350,14 +6254,6 @@ module_import_path = "bijux_proteomics.workflow.trust_bundle"
 module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/__init__.py"
-module_import_path = "tests.bijux_proteomics_core.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -6953,8 +6849,8 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/dia/test_diann_import_surface.py"
-module_import_path = "tests.bijux_proteomics_core.dia.test_diann_import_surface"
+module_path = "packages/bijux-proteomics-core/tests/dia/test_dia_diann_import_surface.py"
+module_import_path = "tests.bijux_proteomics_core.dia.test_dia_diann_import_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 1
@@ -7145,6 +7041,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/domain/test_error_surface.py"
+module_import_path = "tests.bijux_proteomics_core.domain.test_error_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/domain/test_program_models.py"
 module_import_path = "tests.bijux_proteomics_core.domain.test_program_models"
 module_kind = "test_only_helper"
@@ -7153,10 +7057,26 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/domain/test_reason_code_surface.py"
+module_import_path = "tests.bijux_proteomics_core.domain.test_reason_code_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/domain/test_record_surface.py"
 module_import_path = "tests.bijux_proteomics_core.domain.test_record_surface"
 module_kind = "test_only_helper"
 public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/domain/test_structure_surface.py"
+module_import_path = "tests.bijux_proteomics_core.domain.test_structure_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -7241,14 +7161,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/identification/test_contract_module_boundaries.py"
-module_import_path = "tests.bijux_proteomics_core.identification.test_contract_module_boundaries"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/identification/test_cross_run_reproducibility_reference_surface.py"
 module_import_path = "tests.bijux_proteomics_core.identification.test_cross_run_reproducibility_reference_surface"
 module_kind = "test_only_helper"
@@ -7269,22 +7181,6 @@ module_path = "packages/bijux-proteomics-core/tests/identification/test_database
 module_import_path = "tests.bijux_proteomics_core.identification.test_database_peptide_uniqueness_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/identification/test_deterministic_export_surface.py"
-module_import_path = "tests.bijux_proteomics_core.identification.test_deterministic_export_surface"
-module_kind = "test_only_helper"
-public_definition_count = 8
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/identification/test_diann_import_surface.py"
-module_import_path = "tests.bijux_proteomics_core.identification.test_diann_import_surface"
-module_kind = "test_only_helper"
-public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -7373,6 +7269,30 @@ module_path = "packages/bijux-proteomics-core/tests/identification/test_grouped_
 module_import_path = "tests.bijux_proteomics_core.identification.test_grouped_confidence_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/identification/test_identification_contract_module_boundaries.py"
+module_import_path = "tests.bijux_proteomics_core.identification.test_identification_contract_module_boundaries"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/identification/test_identification_deterministic_export_surface.py"
+module_import_path = "tests.bijux_proteomics_core.identification.test_identification_deterministic_export_surface"
+module_kind = "test_only_helper"
+public_definition_count = 8
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/identification/test_identification_diann_import_surface.py"
+module_import_path = "tests.bijux_proteomics_core.identification.test_identification_diann_import_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -7953,6 +7873,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/interfaces/test_timecourse_support_surface.py"
+module_import_path = "tests.bijux_proteomics_core.interfaces.test_timecourse_support_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/interpretation/test_annotation_pack_surface.py"
 module_import_path = "tests.bijux_proteomics_core.interpretation.test_annotation_pack_surface"
 module_kind = "test_only_helper"
@@ -8286,14 +8214,6 @@ module_import_path = "tests.bijux_proteomics_core.interpretation.test_tissue_cel
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/io/__init__.py"
-module_import_path = "tests.bijux_proteomics_core.io.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -9057,6 +8977,14 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/package/test_error_class_surface.py"
+module_import_path = "tests.bijux_proteomics_core.package.test_error_class_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/package/test_foundation_hashing_surface.py"
 module_import_path = "tests.bijux_proteomics_core.package.test_foundation_hashing_surface"
 module_kind = "test_only_helper"
@@ -9084,8 +9012,16 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/package/test_import_contracts.py"
 module_import_path = "tests.bijux_proteomics_core.package.test_import_contracts"
 module_kind = "test_only_helper"
-public_definition_count = 23
+public_definition_count = 24
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/package/test_input_naming_surface.py"
+module_import_path = "tests.bijux_proteomics_core.package.test_input_naming_surface"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -9109,6 +9045,14 @@ module_path = "packages/bijux-proteomics-core/tests/package/test_lab_package_sur
 module_import_path = "tests.bijux_proteomics_core.package.test_lab_package_surface"
 module_kind = "test_only_helper"
 public_definition_count = 8
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/package/test_output_naming_surface.py"
+module_import_path = "tests.bijux_proteomics_core.package.test_output_naming_surface"
+module_kind = "test_only_helper"
+public_definition_count = 5
 workspace_import_root_count = 1
 
 [[module]]
@@ -9169,6 +9113,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/package/test_reason_code_registry_surface.py"
+module_import_path = "tests.bijux_proteomics_core.package.test_reason_code_registry_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/package/test_review_package_surface.py"
 module_import_path = "tests.bijux_proteomics_core.package.test_review_package_surface"
 module_kind = "test_only_helper"
@@ -9188,7 +9140,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/package/test_sequences_package_surface.py"
 module_import_path = "tests.bijux_proteomics_core.package.test_sequences_package_surface"
 module_kind = "test_only_helper"
-public_definition_count = 11
+public_definition_count = 12
 workspace_import_root_count = 1
 
 [[module]]
@@ -9228,7 +9180,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/package/test_workflow_package_surface.py"
 module_import_path = "tests.bijux_proteomics_core.package.test_workflow_package_surface"
 module_kind = "test_only_helper"
-public_definition_count = 33
+public_definition_count = 35
 workspace_import_root_count = 2
 
 [[module]]
@@ -9353,8 +9305,8 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/proteoforms/test_quantification_surface.py"
-module_import_path = "tests.bijux_proteomics_core.proteoforms.test_quantification_surface"
+module_path = "packages/bijux-proteomics-core/tests/proteoforms/test_proteoforms_quantification_surface.py"
+module_import_path = "tests.bijux_proteomics_core.proteoforms.test_proteoforms_quantification_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
@@ -9445,14 +9397,6 @@ module_path = "packages/bijux-proteomics-core/tests/ptm/test_crosstalk_surface.p
 module_import_path = "tests.bijux_proteomics_core.ptm.test_crosstalk_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/ptm/test_deterministic_export_surface.py"
-module_import_path = "tests.bijux_proteomics_core.ptm.test_deterministic_export_surface"
-module_kind = "test_only_helper"
-public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -9737,6 +9681,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/ptm/test_ptm_deterministic_export_surface.py"
+module_import_path = "tests.bijux_proteomics_core.ptm.test_ptm_deterministic_export_surface"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py"
+module_import_path = "tests.bijux_proteomics_core.ptm.test_ptm_scientific_benchmark_surface"
+module_kind = "test_only_helper"
+public_definition_count = 9
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/ptm/test_ptm_surface.py"
 module_import_path = "tests.bijux_proteomics_core.ptm.test_ptm_surface"
 module_kind = "test_only_helper"
@@ -9773,14 +9733,6 @@ module_path = "packages/bijux-proteomics-core/tests/ptm/test_reporting_surface.p
 module_import_path = "tests.bijux_proteomics_core.ptm.test_reporting_surface"
 module_kind = "test_only_helper"
 public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py"
-module_import_path = "tests.bijux_proteomics_core.ptm.test_scientific_benchmark_surface"
-module_kind = "test_only_helper"
-public_definition_count = 9
 workspace_import_root_count = 1
 
 [[module]]
@@ -9921,14 +9873,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/quantification/test_contract_module_boundaries.py"
-module_import_path = "tests.bijux_proteomics_core.quantification.test_contract_module_boundaries"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/quantification/test_core_matrix_surface.py"
 module_import_path = "tests.bijux_proteomics_core.quantification.test_core_matrix_surface"
 module_kind = "test_only_helper"
@@ -9957,14 +9901,6 @@ module_path = "packages/bijux-proteomics-core/tests/quantification/test_design_m
 module_import_path = "tests.bijux_proteomics_core.quantification.test_design_model_fit_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/quantification/test_design_validation_surface.py"
-module_import_path = "tests.bijux_proteomics_core.quantification.test_design_validation_surface"
-module_kind = "test_only_helper"
-public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -10225,10 +10161,34 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/quantification/test_quantification_surface.py"
-module_import_path = "tests.bijux_proteomics_core.quantification.test_quantification_surface"
+module_path = "packages/bijux-proteomics-core/tests/quantification/test_quantification_contract_module_boundaries.py"
+module_import_path = "tests.bijux_proteomics_core.quantification.test_quantification_contract_module_boundaries"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/quantification/test_quantification_design_validation_surface.py"
+module_import_path = "tests.bijux_proteomics_core.quantification.test_quantification_design_validation_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/quantification/test_quantification_pipeline_surface.py"
+module_import_path = "tests.bijux_proteomics_core.quantification.test_quantification_pipeline_surface"
 module_kind = "test_only_helper"
 public_definition_count = 30
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py"
+module_import_path = "tests.bijux_proteomics_core.quantification.test_quantification_scientific_benchmark_surface"
+module_kind = "test_only_helper"
+public_definition_count = 6
 workspace_import_root_count = 1
 
 [[module]]
@@ -10275,14 +10235,6 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/quantification/test_sample_exploration_surface.py"
 module_import_path = "tests.bijux_proteomics_core.quantification.test_sample_exploration_surface"
-module_kind = "test_only_helper"
-public_definition_count = 6
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py"
-module_import_path = "tests.bijux_proteomics_core.quantification.test_scientific_benchmark_surface"
 module_kind = "test_only_helper"
 public_definition_count = 6
 workspace_import_root_count = 1
@@ -11025,14 +10977,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/study/test_carryover_surface.py"
-module_import_path = "tests.bijux_proteomics_core.study.test_carryover_surface"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/study/test_contrast_semantics_surface.py"
 module_import_path = "tests.bijux_proteomics_core.study.test_contrast_semantics_surface"
 module_kind = "test_only_helper"
@@ -11059,14 +11003,6 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/study/test_design_table_surface.py"
 module_import_path = "tests.bijux_proteomics_core.study.test_design_table_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/study/test_design_validation_surface.py"
-module_import_path = "tests.bijux_proteomics_core.study.test_design_validation_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 1
@@ -11313,6 +11249,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/study/test_study_carryover_surface.py"
+module_import_path = "tests.bijux_proteomics_core.study.test_study_carryover_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/study/test_study_design_validation_surface.py"
+module_import_path = "tests.bijux_proteomics_core.study.test_study_design_validation_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/study/test_targeted_platform_support_surface.py"
 module_import_path = "tests.bijux_proteomics_core.study.test_targeted_platform_support_surface"
 module_kind = "test_only_helper"
@@ -11393,14 +11345,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/tests/targeted/test_carryover_surface.py"
-module_import_path = "tests.bijux_proteomics_core.targeted.test_carryover_surface"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/targeted/test_discovery_peptide_selection_surface.py"
 module_import_path = "tests.bijux_proteomics_core.targeted.test_discovery_peptide_selection_surface"
 module_kind = "test_only_helper"
@@ -11452,7 +11396,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/targeted/test_result_validation_surface.py"
 module_import_path = "tests.bijux_proteomics_core.targeted.test_result_validation_surface"
 module_kind = "test_only_helper"
-public_definition_count = 2
+public_definition_count = 3
 workspace_import_root_count = 1
 
 [[module]]
@@ -11469,6 +11413,14 @@ module_path = "packages/bijux-proteomics-core/tests/targeted/test_target_matrix_
 module_import_path = "tests.bijux_proteomics_core.targeted.test_target_matrix_surface"
 module_kind = "test_only_helper"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/targeted/test_targeted_carryover_surface.py"
+module_import_path = "tests.bijux_proteomics_core.targeted.test_targeted_carryover_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -11573,6 +11525,14 @@ module_path = "packages/bijux-proteomics-core/tests/workflow/test_advanced_tmt_w
 module_import_path = "tests.bijux_proteomics_core.workflow.test_advanced_tmt_workflow_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/workflow/test_artifact_layout_surface.py"
+module_import_path = "tests.bijux_proteomics_core.workflow.test_artifact_layout_surface"
+module_kind = "test_only_helper"
+public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -12012,7 +11972,7 @@ distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/workflow/test_public_benchmark_descriptor_surface.py"
 module_import_path = "tests.bijux_proteomics_core.workflow.test_public_benchmark_descriptor_surface"
 module_kind = "test_only_helper"
-public_definition_count = 20
+public_definition_count = 23
 workspace_import_root_count = 1
 
 [[module]]
@@ -12061,6 +12021,14 @@ module_path = "packages/bijux-proteomics-core/tests/workflow/test_result_manifes
 module_import_path = "tests.bijux_proteomics_core.workflow.test_result_manifest_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/workflow/test_result_object_surface.py"
+module_import_path = "tests.bijux_proteomics_core.workflow.test_result_object_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -12889,6 +12857,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/package_shape/test_module_basenames.py"
+module_import_path = "bijux_proteomics_dev.governance.package_shape.test_module_basenames"
+module_kind = "owner_logic"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/package_shape/top_level_module_visibility.py"
 module_import_path = "bijux_proteomics_dev.governance.package_shape.top_level_module_visibility"
 module_kind = "owner_logic"
@@ -13569,14 +13545,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/__init__.py"
-module_import_path = "tests.bijux_proteomics_dev.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/conftest.py"
 module_import_path = "tests.bijux_proteomics_dev.conftest"
 module_kind = "test_only_helper"
@@ -13709,6 +13677,14 @@ module_path = "packages/bijux-proteomics-dev/tests/docs/test_docs_publication_co
 module_import_path = "tests.bijux_proteomics_dev.docs.test_docs_publication_contract"
 module_kind = "test_only_helper"
 public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/docs/test_docs_workflow_authority_surface.py"
+module_import_path = "tests.bijux_proteomics_dev.docs.test_docs_workflow_authority_surface"
+module_kind = "test_only_helper"
+public_definition_count = 3
 workspace_import_root_count = 0
 
 [[module]]
@@ -14017,14 +13993,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/docs/test_workflow_authority_docs.py"
-module_import_path = "tests.bijux_proteomics_dev.docs.test_workflow_authority_docs"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/docs/test_workflow_consequence_docs.py"
 module_import_path = "tests.bijux_proteomics_dev.docs.test_workflow_consequence_docs"
 module_kind = "test_only_helper"
@@ -14097,6 +14065,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/core/test_core_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.core.test_core_root_api_policy"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/core/test_cross_package_imports.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.core.test_cross_package_imports"
 module_kind = "test_only_helper"
@@ -14110,14 +14086,6 @@ module_import_path = "tests.bijux_proteomics_dev.governance.core.test_readme_sur
 module_kind = "test_only_helper"
 public_definition_count = 3
 workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/core/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.core.test_root_api_policy"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -14217,6 +14185,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_foundation_publishability.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_foundation_publishability"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_foundation_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_foundation_root_api_policy"
+module_kind = "test_only_helper"
+public_definition_count = 5
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_kernel_boundaries.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_kernel_boundaries"
 module_kind = "test_only_helper"
@@ -14233,14 +14217,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_publishability.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_publishability"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_readme_routing.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_readme_routing"
 module_kind = "test_only_helper"
@@ -14254,14 +14230,6 @@ module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_repo
 module_kind = "test_only_helper"
 public_definition_count = 3
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/foundation/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.foundation.test_root_api_policy"
-module_kind = "test_only_helper"
-public_definition_count = 5
-workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -14329,11 +14297,19 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/intelligence/test_docs_surface.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.intelligence.test_docs_surface"
+module_path = "packages/bijux-proteomics-dev/tests/governance/intelligence/test_intelligence_docs_surface.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.intelligence.test_intelligence_docs_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/intelligence/test_intelligence_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.intelligence.test_intelligence_root_api_policy"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -14341,14 +14317,6 @@ module_path = "packages/bijux-proteomics-dev/tests/governance/intelligence/test_
 module_import_path = "tests.bijux_proteomics_dev.governance.intelligence.test_owner_import_boundaries"
 module_kind = "test_only_helper"
 public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/intelligence/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.intelligence.test_root_api_policy"
-module_kind = "test_only_helper"
-public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -14361,14 +14329,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_analytical_logic.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_analytical_logic"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_boundary_drift.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_boundary_drift"
 module_kind = "test_only_helper"
@@ -14377,26 +14337,42 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_breadth.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_breadth"
+module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_analytical_logic.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_knowledge_analytical_logic"
 module_kind = "test_only_helper"
 public_definition_count = 3
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_docs_surface.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_docs_surface"
+module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_breadth.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_knowledge_breadth"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_docs_surface.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_knowledge_docs_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_publishability.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_publishability"
+module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_publishability.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_knowledge_publishability"
 module_kind = "test_only_helper"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_knowledge_root_api_policy"
+module_kind = "test_only_helper"
+public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -14411,14 +14387,6 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_references_root_api_policy.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_references_root_api_policy"
-module_kind = "test_only_helper"
-public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/knowledge/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.knowledge.test_root_api_policy"
 module_kind = "test_only_helper"
 public_definition_count = 4
 workspace_import_root_count = 1
@@ -14441,14 +14409,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_analytical_logic.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_analytical_logic"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_core_scientific_semantics.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_core_scientific_semantics"
 module_kind = "test_only_helper"
@@ -14465,11 +14425,35 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_docs_surface.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_docs_surface"
+module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_lab_analytical_logic.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_lab_analytical_logic"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_lab_docs_surface.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_lab_docs_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_lab_publishability.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_lab_publishability"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_lab_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_lab_root_api_policy"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -14485,22 +14469,6 @@ module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_packet_on
 module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_packet_only_modules"
 module_kind = "test_only_helper"
 public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_publishability.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_publishability"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/lab/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.lab.test_root_api_policy"
-module_kind = "test_only_helper"
-public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
@@ -14526,6 +14494,14 @@ module_import_path = "tests.bijux_proteomics_dev.governance.package_shape.__init
 module_kind = "test_only_helper"
 public_definition_count = 0
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/package_shape/test_duplicate_test_module_basenames.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.package_shape.test_duplicate_test_module_basenames"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -14777,14 +14753,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_breadth.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_breadth"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_compat_interface_docs.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_compat_interface_docs"
 module_kind = "test_only_helper"
@@ -14797,14 +14765,6 @@ module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_dev_t
 module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_dev_tool_surfaces"
 module_kind = "test_only_helper"
 public_definition_count = 6
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_docs_surface.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_docs_surface"
-module_kind = "test_only_helper"
-public_definition_count = 4
 workspace_import_root_count = 0
 
 [[module]]
@@ -14841,8 +14801,24 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_root_api_policy.py"
-module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_root_api_policy"
+module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_runtime_breadth.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_runtime_breadth"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_runtime_docs_surface.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_runtime_docs_surface"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/runtime/test_runtime_root_api_policy.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.runtime.test_runtime_root_api_policy"
 module_kind = "test_only_helper"
 public_definition_count = 4
 workspace_import_root_count = 1
@@ -14908,7 +14884,7 @@ distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/package/test_root_config_baselines.py"
 module_import_path = "tests.bijux_proteomics_dev.package.test_root_config_baselines"
 module_kind = "test_only_helper"
-public_definition_count = 3
+public_definition_count = 4
 workspace_import_root_count = 0
 
 [[module]]
@@ -15377,6 +15353,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/release/governance/test_release_workflow_authority_docs.py"
+module_import_path = "tests.bijux_proteomics_dev.release.governance.test_release_workflow_authority_docs"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/release/governance/test_release_workflows.py"
 module_import_path = "tests.bijux_proteomics_dev.release.governance.test_release_workflows"
 module_kind = "test_only_helper"
@@ -15428,16 +15412,8 @@ distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/release/governance/test_test_collection_gate.py"
 module_import_path = "tests.bijux_proteomics_dev.release.governance.test_test_collection_gate"
 module_kind = "test_only_helper"
-public_definition_count = 4
+public_definition_count = 5
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-dev"
-module_path = "packages/bijux-proteomics-dev/tests/release/governance/test_workflow_authority_docs.py"
-module_import_path = "tests.bijux_proteomics_dev.release.governance.test_workflow_authority_docs"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -17673,8 +17649,8 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/tests/complexes/test_members_surface.py"
-module_import_path = "tests.bijux_proteomics_knowledge.complexes.test_members_surface"
+module_path = "packages/bijux-proteomics-knowledge/tests/complexes/test_complex_members_surface.py"
+module_import_path = "tests.bijux_proteomics_knowledge.complexes.test_complex_members_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 2
@@ -17849,8 +17825,8 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/tests/pathways/test_members_surface.py"
-module_import_path = "tests.bijux_proteomics_knowledge.pathways.test_members_surface"
+module_path = "packages/bijux-proteomics-knowledge/tests/pathways/test_pathway_members_surface.py"
+module_import_path = "tests.bijux_proteomics_knowledge.pathways.test_pathway_members_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 2
@@ -18513,19 +18489,19 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/tests/benchmarks/test_benchmark_flagship_follow_up_surface.py"
+module_import_path = "tests.bijux_proteomics_lab.benchmarks.test_benchmark_flagship_follow_up_surface"
+module_kind = "test_only_helper"
+public_definition_count = 10
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/tests/benchmarks/test_claims_surface.py"
 module_import_path = "tests.bijux_proteomics_lab.benchmarks.test_claims_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 4
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py"
-module_import_path = "tests.bijux_proteomics_lab.benchmarks.test_flagship_follow_up_surface"
-module_kind = "test_only_helper"
-public_definition_count = 10
-workspace_import_root_count = 3
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
@@ -18793,14 +18769,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py"
-module_import_path = "tests.bijux_proteomics_lab.reconciliation.test_flagship_follow_up_surface"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 4
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/tests/reconciliation/test_follow_up_lineage_surface.py"
 module_import_path = "tests.bijux_proteomics_lab.reconciliation.test_follow_up_lineage_surface"
 module_kind = "test_only_helper"
@@ -18822,6 +18790,14 @@ module_import_path = "tests.bijux_proteomics_lab.reconciliation.test_operational
 module_kind = "test_only_helper"
 public_definition_count = 4
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/tests/reconciliation/test_reconciliation_flagship_follow_up_surface.py"
+module_import_path = "tests.bijux_proteomics_lab.reconciliation.test_reconciliation_flagship_follow_up_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 4
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"

@@ -41,7 +41,7 @@
       "criterion_id": "lfq_differential_reproducibility",
       "dimension": "differential reproducibility",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
       ],
       "note": "The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the decision brief names.",

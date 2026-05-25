@@ -491,7 +491,7 @@ def build_flagship_outsider_review_packet(
                 *runtime_validating_tests,
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_recommendation_packet_surface.py",
-                "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+                "packages/bijux-proteomics-lab/tests/benchmarks/test_benchmark_flagship_follow_up_surface.py",
                 "packages/bijux-proteomics-lab/tests/benchmarks/test_outcome_dossiers_surface.py",
             )
         )

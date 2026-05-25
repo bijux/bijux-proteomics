@@ -196,7 +196,7 @@ def _stage_artifact_claims(
         FlagshipWorkflowStage.EVIDENCE_REVIEW: "packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py::test_build_flagship_evidence_decision_brief_preserves_claim_tier_and_artifact_path",
         FlagshipWorkflowStage.DECISION_REVIEW: "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean",
         FlagshipWorkflowStage.LAB_HANDOFF: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
-        FlagshipWorkflowStage.FOLLOW_UP: "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
+        FlagshipWorkflowStage.FOLLOW_UP: "packages/bijux-proteomics-lab/tests/reconciliation/test_reconciliation_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
     }
     claims: list[WorkflowArtifactClaim] = []
     for stage in stages:
