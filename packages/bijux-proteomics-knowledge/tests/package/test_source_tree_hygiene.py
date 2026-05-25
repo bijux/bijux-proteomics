@@ -30,6 +30,7 @@ def test_knowledge_source_tree_excludes_bytecode_artifacts() -> None:
 
 def test_knowledge_tests_follow_owned_boundary_families() -> None:
     allowed_top_level_paths = {
+        "coverage",
         "conftest.py",
         "complexes",
         "contracts",

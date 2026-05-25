@@ -7,6 +7,9 @@ from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_knowledge import (
     ComplexMembershipConfidence,
     DiseaseTermResolutionEntry,
+    KnowledgeCoverageEntitySet,
+    KnowledgeCoverageEntityType,
+    KnowledgeCoverageEntry,
     DrugTargetRelationshipType,
     EvidenceBundle,
     EvidenceClaim,
@@ -22,9 +25,11 @@ from bijux_proteomics_knowledge import (
     render_disease_term_resolution_tsv,
     render_drug_target_resolution_tsv,
     render_kinase_substrate_resolution_tsv,
+    render_knowledge_coverage_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
+    compute_knowledge_coverage,
     resolve_complex_members,
     resolve_disease_terms,
     resolve_drug_targets,
@@ -351,4 +356,67 @@ def test_knowledge_public_root_exposes_disease_term_resolution_surface() -> None
     )
     assert render_disease_term_resolution_tsv(report.entries).splitlines()[0] == (
         "protein_id\tterm_id\tterm_name\tsource\tevidence_type"
+    )
+
+
+def test_knowledge_public_root_exposes_knowledge_coverage_surface() -> None:
+    report = compute_knowledge_coverage(
+        (
+            KnowledgeCoverageEntitySet(
+                entity_type=KnowledgeCoverageEntityType.PROTEIN,
+                entity_ids=("P04637", "UNMAPPED1"),
+            ),
+            KnowledgeCoverageEntitySet(
+                entity_type=KnowledgeCoverageEntityType.PATHWAY,
+                entity_ids=("pathway:guardian_response", "pathway:stress_network"),
+            ),
+        ),
+        AnnotationPack(
+            source_path="public-root-coverage-pack.json",
+            pack_name="public-root-coverage-pack",
+            protein_features=(
+                ProteinAnnotationRecord(
+                    protein_ref="P04637",
+                    gene_symbol="TP53",
+                    description="tumor protein p53",
+                ),
+            ),
+            pathways=(
+                PathwayMembershipRecord(
+                    pathway_id="pathway:guardian_response",
+                    member_kind=PathwayMemberKind.PROTEIN,
+                    member_id="P04637",
+                ),
+            ),
+            summary=AnnotationPackSummary(
+                protein_feature_count=1,
+                pathway_count=1,
+                complex_count=0,
+                compartment_count=0,
+                drug_target_count=0,
+                disease_term_count=0,
+                kinase_substrate_count=0,
+                ortholog_count=0,
+            ),
+        ),
+    )
+
+    assert report.entries == (
+        KnowledgeCoverageEntry(
+            entity_type=KnowledgeCoverageEntityType.PATHWAY,
+            total_count=2,
+            annotated_count=1,
+            coverage_fraction=0.5,
+            low_coverage_warning=None,
+        ),
+        KnowledgeCoverageEntry(
+            entity_type=KnowledgeCoverageEntityType.PROTEIN,
+            total_count=2,
+            annotated_count=1,
+            coverage_fraction=0.5,
+            low_coverage_warning=None,
+        ),
+    )
+    assert render_knowledge_coverage_tsv(report.entries).splitlines()[0] == (
+        "entity_type\ttotal_count\tannotated_count\tcoverage_fraction\tlow_coverage_warning"
     )
