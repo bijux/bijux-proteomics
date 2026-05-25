@@ -542,6 +542,8 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/pipelines/integrated_scientific_report.py",
             "workflow/synthetic_quant_truth.py",
             "workflow/pipelines/trust_bundle.py",
+            "workflow/weak_evidence.py",
+            "workflow/pipelines/weak_evidence.py",
             "interfaces/execution/backend.py",
             "interfaces/execution/runner.py",
             "interfaces/execution/runtime_adapter.py",
