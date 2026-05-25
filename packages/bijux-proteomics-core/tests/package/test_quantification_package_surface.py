@@ -2113,3 +2113,79 @@ def test_quantification_package_exports_multi_contrast_consistency_surface() -> 
     assert report.summary.entity_count == 1
     assert report.entities[0].shared_hit is True
     assert "shared_hit" in rendered
+
+
+def test_quantification_package_exports_method_agreement_surface() -> None:
+    def differential_report(
+        *,
+        normalization_method: quantification.NormalizationMethod,
+        entries: tuple[quantification.DifferentialAbundanceEntry, ...],
+    ) -> quantification.DifferentialAbundanceReport:
+        return quantification.DifferentialAbundanceReport(
+            entity_level=quantification.QuantEntityLevel.PROTEIN,
+            normalization_method=normalization_method,
+            imputation_method=quantification.ImputationMethod.NONE,
+            condition_a="case",
+            condition_b="ctrl",
+            contrast_name="case_vs_ctrl",
+            assumption_report=quantification.DifferentialAbundanceAssumptionReport(
+                test_type=quantification.DifferentialAbundanceTestType.WELCH_T_TEST,
+                variance_assumption="unequal_variance",
+                multiple_testing_scope="contrast",
+                replicate_policy=quantification.DifferentialReplicatePolicy(),
+            ),
+            entries=entries,
+        )
+
+    def entry(
+        entity_id: str,
+        *,
+        log2_fold_change: float,
+        adjusted_p_value: float,
+    ) -> quantification.DifferentialAbundanceEntry:
+        return quantification.DifferentialAbundanceEntry(
+            entity_id=entity_id,
+            condition_a="case",
+            condition_b="ctrl",
+            observations_a=3,
+            observations_b=3,
+            mean_log2_abundance_a=10.0,
+            mean_log2_abundance_b=8.0,
+            log2_fold_change=log2_fold_change,
+            p_value=adjusted_p_value,
+            adjusted_p_value=adjusted_p_value,
+        )
+
+    report = quantification.compare_quant_methods(
+        (
+            quantification.QuantMethodDifferentialResult(
+                method_id="sum_median",
+                rollup_method=quantification.QuantRollupMethod.SUM,
+                differential_report=differential_report(
+                    normalization_method=quantification.NormalizationMethod.MEDIAN,
+                    entries=(
+                        entry("P001", log2_fold_change=1.0, adjusted_p_value=0.01),
+                    ),
+                ),
+            ),
+            quantification.QuantMethodDifferentialResult(
+                method_id="top_n_quantile",
+                rollup_method=quantification.QuantRollupMethod.TOP_N,
+                differential_report=differential_report(
+                    normalization_method=quantification.NormalizationMethod.QUANTILE,
+                    entries=(
+                        entry("P001", log2_fold_change=0.4, adjusted_p_value=0.20),
+                    ),
+                ),
+            ),
+        )
+    )
+    rendered = quantification.render_quant_method_agreement_tsv(report)
+
+    assert hasattr(quantification, "QuantMethodDifferentialResult")
+    assert hasattr(quantification, "compare_quant_methods")
+    assert hasattr(quantification, "render_quant_method_agreement_tsv")
+    assert report.method_sensitive_count == 1
+    assert report.entries[0].methods_significant_count == 1
+    assert report.entries[0].method_sensitive is True
+    assert "method_sensitive" in rendered
