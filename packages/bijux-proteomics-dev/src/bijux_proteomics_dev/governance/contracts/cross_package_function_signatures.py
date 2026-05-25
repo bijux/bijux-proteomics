@@ -308,12 +308,12 @@ def _is_up_to_date(report: CrossPackageFunctionSignatureReport) -> bool:
 
 def run(check: bool = False) -> int:
     report = build_cross_package_function_signature_report()
-    failures = validate_cross_package_function_signatures(report)
-    if failures:
-        for failure in failures:
-            print(failure)
-        return 1
     if check:
+        failures = validate_cross_package_function_signatures(report)
+        if failures:
+            for failure in failures:
+                print(failure)
+            return 1
         if _is_up_to_date(report):
             print("cross-package function signature report is up to date")
             return 0
