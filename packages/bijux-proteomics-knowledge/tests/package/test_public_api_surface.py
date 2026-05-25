@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_knowledge import (
+    ComplexMembershipConfidence,
     EvidenceBundle,
     EvidenceClaim,
     EvidenceRecord,
@@ -14,15 +15,21 @@ from bijux_proteomics_knowledge import (
     ProteinIdentityResolutionStatus,
     evaluate_schema_compatibility,
     overlap_protein_features,
+    render_complex_membership_resolution_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
+    resolve_complex_members,
     resolve_pathway_members,
     resolve_protein_ids,
 )
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
+)
+from bijux_proteomics.interpretation.complex_enrichment import (
+    ComplexMemberKind,
+    ComplexMembershipRecord,
 )
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
@@ -137,4 +144,56 @@ def test_knowledge_public_root_exposes_pathway_membership_surface() -> None:
     )
     assert render_pathway_membership_resolution_tsv(report.entries).splitlines()[0] == (
         "pathway_id\tmatched_members\tmissing_members\tcoverage_fraction\tunresolved_inputs"
+    )
+
+
+def test_knowledge_public_root_exposes_complex_membership_surface() -> None:
+    report = resolve_complex_members(
+        ("P04637",),
+        AnnotationPack(
+            source_path="public-root-complex-pack.json",
+            pack_name="public-root-complex-pack",
+            protein_features=(
+                ProteinAnnotationRecord(
+                    protein_ref="P04637",
+                    gene_symbol="TP53",
+                    description="tumor protein p53",
+                ),
+                ProteinAnnotationRecord(
+                    protein_ref="Q9Y243",
+                    gene_symbol="SIGB",
+                    description="stress adaptor beta",
+                ),
+            ),
+            complexes=(
+                ComplexMembershipRecord(
+                    complex_id="complex:guardian",
+                    member_kind=ComplexMemberKind.PROTEIN,
+                    member_id="P04637",
+                ),
+                ComplexMembershipRecord(
+                    complex_id="complex:guardian",
+                    member_kind=ComplexMemberKind.GENE,
+                    member_id="SIGB",
+                ),
+            ),
+            summary=AnnotationPackSummary(
+                protein_feature_count=2,
+                pathway_count=0,
+                complex_count=2,
+                compartment_count=0,
+                drug_target_count=0,
+                disease_term_count=0,
+                kinase_substrate_count=0,
+                ortholog_count=0,
+            ),
+        ),
+    )
+
+    assert (
+        report.entries[0].complex_confidence
+        is ComplexMembershipConfidence.LOW_CONFIDENCE
+    )
+    assert render_complex_membership_resolution_tsv(report.entries).splitlines()[0] == (
+        "complex_id\tobserved_members\tmissing_members\tmember_coverage\tcomplex_confidence"
     )
