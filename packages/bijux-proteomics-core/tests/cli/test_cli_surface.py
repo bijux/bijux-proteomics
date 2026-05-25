@@ -386,6 +386,38 @@ def test_demo_command_runs_from_shipped_inputs_only() -> None:
         assert "claim_id" in Path("proteomics_demo.belief_audit.tsv").read_text()
 
 
+def test_demo_query_command_answers_shipped_interrogation_examples() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "demo-query",
+                "--out-dir",
+                "proteomics_demo_query",
+                "--summary-tsv-out",
+                "proteomics_demo_query.summary.tsv",
+                "--answers-tsv-out",
+                "proteomics_demo_query.answers.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["query_count"] == 4
+        assert payload["summary"]["answered_query_count"] == 4
+        assert Path("proteomics_demo_query/surprising_demo_report.json").exists()
+        assert "answered_query_count" in Path(
+            "proteomics_demo_query.summary.tsv"
+        ).read_text()
+        answer_tsv = Path("proteomics_demo_query.answers.tsv").read_text()
+        assert "evidence_ids" in answer_tsv
+        assert "source_row_refs" in answer_tsv
+        assert "confidence_reasons" in answer_tsv
+        assert "why_protein_changed" in answer_tsv
+        assert "what_validates_target" in answer_tsv
+
+
 def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
