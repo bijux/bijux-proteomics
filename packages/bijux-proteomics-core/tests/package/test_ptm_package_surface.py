@@ -173,6 +173,49 @@ def test_ptm_package_exports_fragment_scoring_owner_surface() -> None:
     assert "site_determining" in rendered
 
 
+def test_ptm_package_exports_kinase_inference_owner_surface() -> None:
+    rows = ptm.infer_kinases(
+        (
+            ptm.PtmKinaseSiteResult(
+                site_id="P11111:S5:Phospho",
+                protein_id="P11111",
+                signed_effect=1.6,
+            ),
+            ptm.PtmKinaseSiteResult(
+                site_id="P11111:T8:Phospho",
+                protein_id="P11111",
+                signed_effect=1.1,
+            ),
+        ),
+        (
+            ptm.PtmKinaseMotifMatch(
+                kinase="MAPK1",
+                site_id="P11111:S5:Phospho",
+                motif_score=0.93,
+            ),
+            ptm.PtmKinaseMotifMatch(
+                kinase="PKA",
+                site_id="P11111:T8:Phospho",
+                motif_score=0.95,
+            ),
+        ),
+        (
+            ptm.PtmKinaseSubstrateMatch(
+                kinase="MAPK1",
+                site_id="P11111:S5:Phospho",
+            ),
+        ),
+    )
+    rendered = ptm.render_ptm_kinase_inference_tsv(rows)
+
+    assert hasattr(ptm, "infer_kinases")
+    assert hasattr(ptm, "render_ptm_kinase_inference_tsv")
+    assert rows[0].kinase == "MAPK1"
+    assert rows[0].combined_score > rows[1].combined_score
+    assert rows[0].confidence_tier.value == "motif_plus_substrate"
+    assert "confidence_tier" in rendered
+
+
 def test_ptm_package_exports_localization_risk_owner_surface() -> None:
     localization_candidates = (
         PtmEvidenceRecord(
