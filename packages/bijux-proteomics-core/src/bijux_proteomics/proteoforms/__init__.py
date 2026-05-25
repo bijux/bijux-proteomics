@@ -6,3 +6,4 @@
 from __future__ import annotations
 
 from bijux_proteomics.proteoforms.assembly import *  # noqa: F401,F403
+from bijux_proteomics.proteoforms.quantification import *  # noqa: F401,F403
