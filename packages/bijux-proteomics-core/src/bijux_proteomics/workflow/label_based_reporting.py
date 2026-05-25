@@ -693,7 +693,10 @@ def write_label_based_report_bundle(
             encoding="utf-8",
         )
 
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="export_label_based_report_bundle",
+    )
     return LabelBasedReportExportManifest(
         source_kind=report.source_kind,
         summary=report.summary,

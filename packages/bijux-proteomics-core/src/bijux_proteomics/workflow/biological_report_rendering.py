@@ -971,7 +971,10 @@ def write_biological_result_report_bundle(
         _render_biological_result_report_html(report, artifacts),
         encoding="utf-8",
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="export_biological_result_report_bundle",
+    )
     return BiologicalResultReportExportManifest(
         summary=report.summary,
         artifacts=artifacts,

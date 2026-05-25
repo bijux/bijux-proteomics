@@ -870,7 +870,10 @@ def write_ptm_report_bundle(
             encoding="utf-8",
         )
 
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="export_ptm_report_bundle",
+    )
     return PtmReportExportManifest(
         summary=report.summary,
         artifacts=PtmReportArtifactPaths(
