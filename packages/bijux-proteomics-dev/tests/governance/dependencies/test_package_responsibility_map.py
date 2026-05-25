@@ -11,6 +11,9 @@ def test_package_responsibility_map_covers_workspace_packages_and_roles() -> Non
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert len(report.entries) == 16
+    assert report.guard.max_foundation_higher_package_edges == 0
+    assert report.guard.max_knowledge_runtime_edges == 0
+    assert report.guard.max_core_cli_edges == 0
     assert by_package["bijux-proteomics-foundation"].responsibility_kind == (
         "foundation"
     )

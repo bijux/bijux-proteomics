@@ -1,0 +1,135 @@
+# Generated package responsibility map.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_responsibility_map
+
+[guard]
+max_foundation_higher_package_edges = 0
+max_knowledge_runtime_edges = 0
+max_core_cli_edges = 0
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+responsibility_kind = "compatibility_bridge"
+reason_to_exist = "forward legacy import and packaging expectations into the canonical core and runtime owners without reviving a second scientific source of truth"
+must_not_absorb = "independent scientific logic, new review behavior, or original workflow engines"
+canonical_surface_targets = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_root = "bijux_proteomics_dev"
+responsibility_kind = "governance"
+reason_to_exist = "own maintainer governance, release checks, architecture audits, and package-shape validation across the repository"
+must_not_absorb = "scientific product behavior, runtime execution, or compatibility alias logic"
+canonical_surface_targets = ["bijux-proteomics-dev"]
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+responsibility_kind = "foundation"
+reason_to_exist = "centralize shared document primitives, deterministic serialization, identifiers, compatibility, and stable outcome contracts for every higher package"
+must_not_absorb = "scientific policy, evidence memory, workflow orchestration, lab execution, runtime transport, or CLI behavior"
+canonical_surface_targets = ["bijux-proteomics-foundation"]
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+responsibility_kind = "core"
+reason_to_exist = "own canonical scientific semantics, review artifacts, benchmark evidence, workflow seams, and the flagship Python and CLI product surface"
+must_not_absorb = "wrapper-only install behavior, runtime transport ownership, or judgment-only policy that belongs in intelligence"
+canonical_surface_targets = ["bijux-proteomics-core"]
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+responsibility_kind = "runtime"
+reason_to_exist = "own execution, persistence, replay, resumability, handoff, and artifact-valid scientific workflow runtime behavior"
+must_not_absorb = "canonical scientific law, evidence memory ownership, or wrapper distribution behavior"
+canonical_surface_targets = ["bijux-proteomics-runtime"]
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+responsibility_kind = "intelligence"
+reason_to_exist = "own analytical judgment, skepticism, questioning, falsification, and recommendation surfaces over governed scientific outputs"
+must_not_absorb = "raw evidence storage, low-level execution orchestration, or the canonical scientific contracts that belong in core and foundation"
+canonical_surface_targets = ["bijux-proteomics-intelligence"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+responsibility_kind = "knowledge"
+reason_to_exist = "own structured evidence memory, grounding rules, references, and graph-oriented knowledge surfaces cited by higher packages"
+must_not_absorb = "runtime orchestration, recommendation logic, or laboratory execution ownership"
+canonical_surface_targets = ["bijux-proteomics-knowledge"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+responsibility_kind = "lab"
+reason_to_exist = "own laboratory feasibility, assay planning, operator handoff, and real-world follow-up surfaces around the scientific engine"
+must_not_absorb = "runtime transport ownership, canonical evidence memory, or duplicate scientific source-of-truth logic"
+canonical_surface_targets = ["bijux-proteomics-lab"]
+
+[[package]]
+distribution_name = "bijux-proteomics"
+import_root = "bijux_proteomics_alias"
+responsibility_kind = "app_wrapper"
+reason_to_exist = "reserve the flagship install name and route users to the canonical core command and import surface"
+must_not_absorb = "scientific ownership, recommendation policy, runtime orchestration, or laboratory follow-up logic"
+canonical_surface_targets = ["bijux-proteomics-core"]
+
+[[package]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short install and import alias for the canonical core surface without creating a second owner"
+must_not_absorb = "independent scientific logic, execution policy, or package-local workflow behavior"
+canonical_surface_targets = ["bijux-proteomics-core"]
+
+[[package]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical core package"
+must_not_absorb = "independent scientific logic, execution policy, or package-local workflow behavior"
+canonical_surface_targets = ["bijux-proteomics-core"]
+
+[[package]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical foundation package"
+must_not_absorb = "independent scientific logic, higher-package policy, or wrapper runtime behavior"
+canonical_surface_targets = ["bijux-proteomics-foundation"]
+
+[[package]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical runtime package"
+must_not_absorb = "independent workflow runtime logic, scientific semantics, or alias-local product behavior"
+canonical_surface_targets = ["bijux-proteomics-runtime"]
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical intelligence package"
+must_not_absorb = "independent recommendation logic, evidence ownership, or alias-local analytical behavior"
+canonical_surface_targets = ["bijux-proteomics-intelligence"]
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical knowledge package"
+must_not_absorb = "independent evidence memory logic, runtime behavior, or alias-local scientific ownership"
+canonical_surface_targets = ["bijux-proteomics-knowledge"]
+
+[[package]]
+distribution_name = "proteomics-lab"
+import_root = "proteomics_lab"
+responsibility_kind = "short_alias"
+reason_to_exist = "provide the short distribution alias for the canonical lab package"
+must_not_absorb = "independent laboratory logic, runtime behavior, or alias-local scientific ownership"
+canonical_surface_targets = ["bijux-proteomics-lab"]

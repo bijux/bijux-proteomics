@@ -322,22 +322,12 @@ def _entry(package_name: str) -> PackageResponsibilityMapEntry:
 def build_package_responsibility_map_report() -> PackageResponsibilityMapReport:
     """Build the checked workspace package responsibility map."""
 
-    violations = collect_package_responsibility_boundary_violations()
     return PackageResponsibilityMapReport(
         entries=tuple(_entry(package_name) for package_name in workspace_package_names()),
         guard=PackageResponsibilityBoundaryGuard(
-            max_foundation_higher_package_edges=sum(
-                violation.boundary_name == "foundation_higher_package_import"
-                for violation in violations
-            ),
-            max_knowledge_runtime_edges=sum(
-                violation.boundary_name == "knowledge_runtime_import"
-                for violation in violations
-            ),
-            max_core_cli_edges=sum(
-                violation.boundary_name == "core_cli_import"
-                for violation in violations
-            ),
+            max_foundation_higher_package_edges=0,
+            max_knowledge_runtime_edges=0,
+            max_core_cli_edges=0,
         ),
     )
 
