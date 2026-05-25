@@ -25,6 +25,13 @@ from bijux_proteomics.domain.criteria import (
     build_assay_grounded_criteria,
     criterion_passes,
 )
+from bijux_proteomics.domain.errors import (
+    DesignError,
+    InvalidWorkflowError,
+    ScientificEvidenceError,
+    SchemaError,
+    UnsupportedFormatError,
+)
 from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.domain.lifecycle import (
     LifecycleTransition,
@@ -138,6 +145,7 @@ __all__ = [
     "ConstraintRiskReport",
     "DecisionOwnerRole",
     "DecisionQuery",
+    "DesignError",
     "DuplicateReviewDecisionError",
     "EvidenceNeed",
     "ImportedEvidenceProvenance",
@@ -184,9 +192,11 @@ __all__ = [
     "ReviewGateState",
     "ReviewOutcome",
     "ScientificConstraint",
+    "ScientificEvidenceError",
     "SecondarySummary",
     "SampleMetadata",
     "SpectrumRecord",
+    "SchemaError",
     "StageEligibility",
     "SuccessCriterion",
     "TargetAnnotation",
@@ -197,8 +207,10 @@ __all__ = [
     "TractabilityFlag",
     "Contrast",
     "ContrastKind",
+    "InvalidWorkflowError",
     "MissingValueState",
     "ModifiedPeptide",
+    "UnsupportedFormatError",
     "_res3_to1",
     "advance_stage",
     "allowed_next_stages",
