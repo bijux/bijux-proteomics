@@ -28,8 +28,8 @@ from bijux_proteomics.review import (
     build_biomarker_candidate_ranking_report,
 )
 from bijux_proteomics.review.evidence_graph_confidence import EvidenceGraphConfidenceTier
-from bijux_proteomics.workflow.biological_reporting import BiologicalResultReportBundle
-from bijux_proteomics.workflow.protein_mechanism_cards import ProteinMechanismCard
+from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
+from bijux_proteomics.workflow.cards.protein_mechanism_cards import ProteinMechanismCard
 from bijux_proteomics.workflow.study_result import ProteomicsStudyResult
 from bijux_proteomics_foundation import JsonModel
 
