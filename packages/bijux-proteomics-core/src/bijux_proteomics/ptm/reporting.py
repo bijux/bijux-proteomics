@@ -75,6 +75,11 @@ from bijux_proteomics.ptm.site_annotation_import import (
     PtmSiteAnnotationRecord,
     build_ptm_site_annotation_mapping_report,
 )
+from bijux_proteomics.ptm.ambiguity_handling import (
+    render_ptm_site_group_quant_matrix_tsv,
+    render_ptm_site_group_quant_missingness_tsv,
+    render_ptm_site_group_quant_summary_tsv,
+)
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,
@@ -127,6 +132,7 @@ class PtmReportSummary(JsonModel):
     peptide_entry_count: int = Field(..., ge=0)
     site_row_count: int = Field(..., ge=0)
     ambiguous_site_count: int = Field(..., ge=0)
+    ambiguous_group_row_count: int = Field(..., ge=0)
     modified_peptide_count: int = Field(..., ge=0)
     localization_entry_count: int = Field(..., ge=0)
     quantified_site_row_count: int = Field(..., ge=0)
@@ -169,6 +175,9 @@ class PtmReportArtifactPaths(JsonModel):
     localization_tsv: str = Field(..., min_length=1)
     site_quant_matrix_tsv: str | None = None
     site_quant_missingness_tsv: str | None = None
+    site_group_summary_tsv: str | None = None
+    site_group_matrix_tsv: str | None = None
+    site_group_missingness_tsv: str | None = None
     differential_tsv: str | None = None
     differential_volcano_tsv: str | None = None
     motif_window_tsv: str | None = None
@@ -364,6 +373,12 @@ def build_ptm_report_bundle(
             peptide_entry_count=len(peptide_entries),
             site_row_count=len(site_table),
             ambiguous_site_count=sum(1 for entry in site_table if entry.ambiguous),
+            ambiguous_group_row_count=(
+                0
+                if site_quantification is None
+                or site_quantification.ambiguous_group_quantification is None
+                else len(site_quantification.ambiguous_group_quantification.rows)
+            ),
             modified_peptide_count=len(
                 {
                     entry.localized_peptide
@@ -559,6 +574,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             "peptide_entry_count",
             "site_row_count",
             "ambiguous_site_count",
+            "ambiguous_group_row_count",
             "modified_peptide_count",
             "localization_entry_count",
             "quantified_site_row_count",
@@ -576,6 +592,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             report.summary.peptide_entry_count,
             report.summary.site_row_count,
             report.summary.ambiguous_site_count,
+            report.summary.ambiguous_group_row_count,
             report.summary.modified_peptide_count,
             report.summary.localization_entry_count,
             report.summary.quantified_site_row_count,
@@ -702,6 +719,9 @@ def export_ptm_report_bundle(
 
     site_quant_matrix_name = None
     site_quant_missingness_name = None
+    site_group_summary_name = None
+    site_group_matrix_name = None
+    site_group_missingness_name = None
     if report.site_quantification is not None:
         site_quant_matrix_name = "ptm_site_quant_matrix.tsv"
         site_quant_missingness_name = "ptm_site_quant_missingness.tsv"
@@ -713,6 +733,28 @@ def export_ptm_report_bundle(
             render_ptm_site_quant_missingness_tsv(report.site_quantification),
             encoding="utf-8",
         )
+        if report.site_quantification.ambiguous_group_quantification is not None:
+            site_group_summary_name = "ptm_site_group_summary.tsv"
+            site_group_matrix_name = "ptm_site_group_matrix.tsv"
+            site_group_missingness_name = "ptm_site_group_missingness.tsv"
+            (output_dir / site_group_summary_name).write_text(
+                render_ptm_site_group_quant_summary_tsv(
+                    report.site_quantification.ambiguous_group_quantification
+                ),
+                encoding="utf-8",
+            )
+            (output_dir / site_group_matrix_name).write_text(
+                render_ptm_site_group_quant_matrix_tsv(
+                    report.site_quantification.ambiguous_group_quantification
+                ),
+                encoding="utf-8",
+            )
+            (output_dir / site_group_missingness_name).write_text(
+                render_ptm_site_group_quant_missingness_tsv(
+                    report.site_quantification.ambiguous_group_quantification
+                ),
+                encoding="utf-8",
+            )
 
     differential_name = None
     volcano_name = None
@@ -836,6 +878,9 @@ def export_ptm_report_bundle(
             localization_tsv=localization_name,
             site_quant_matrix_tsv=site_quant_matrix_name,
             site_quant_missingness_tsv=site_quant_missingness_name,
+            site_group_summary_tsv=site_group_summary_name,
+            site_group_matrix_tsv=site_group_matrix_name,
+            site_group_missingness_tsv=site_group_missingness_name,
             differential_tsv=differential_name,
             differential_volcano_tsv=volcano_name,
             motif_window_tsv=motif_window_name,
