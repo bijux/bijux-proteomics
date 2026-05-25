@@ -9,16 +9,21 @@ from bijux_proteomics_knowledge import (
     EvidenceClaim,
     EvidenceRecord,
     KnowledgeDecisionBrief,
+    ProteinFeatureType,
     ProteinIdentityResolutionStatus,
     evaluate_schema_compatibility,
+    overlap_protein_features,
+    render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
     resolve_protein_ids,
 )
+from bijux_proteomics.sequences.protein_region_context import ProteinRegionContextRecord
 from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceKind,
     EvidenceStrength,
 )
+from bijux_proteomics_knowledge.features import ProteinFeatureQueryInterval
 
 
 def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
@@ -55,3 +60,25 @@ def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
     assert resolve_protein_ids.__name__ == "resolve_protein_ids"
     assert render_protein_id_resolution_tsv.__name__ == "render_protein_id_resolution_tsv"
     assert report.compatible is True
+
+
+def test_knowledge_public_root_exposes_protein_feature_overlap_surface() -> None:
+    overlaps = overlap_protein_features(
+        "P11111",
+        (ProteinFeatureQueryInterval(start=1, end=1),),
+        (
+            ProteinRegionContextRecord(
+                protein_ref="P11111",
+                start=1,
+                end=2,
+                signal_peptide="leader",
+                source_name="UniProt",
+                source_accession="UP:P11111-1-2",
+            ),
+        ),
+    )
+
+    assert overlaps[0].feature_type is ProteinFeatureType.SIGNAL_PEPTIDE
+    assert render_protein_feature_overlaps_tsv(overlaps).splitlines()[0] == (
+        "protein_id\tquery_start\tquery_end\tfeature_id\tfeature_type\toverlap_start\toverlap_end"
+    )

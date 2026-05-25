@@ -32,6 +32,7 @@ def test_knowledge_tests_follow_owned_boundary_families() -> None:
     allowed_top_level_paths = {
         "conftest.py",
         "contracts",
+        "features",
         "governance",
         "identity",
         "memory",
