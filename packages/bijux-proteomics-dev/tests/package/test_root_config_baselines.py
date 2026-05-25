@@ -23,6 +23,11 @@ def _ruff_config() -> dict[str, Any]:
         return tomllib.load(handle)
 
 
+def _root_pyproject() -> dict[str, Any]:
+    with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
+        return tomllib.load(handle)
+
+
 def _table(payload: object) -> dict[str, Any]:
     assert isinstance(payload, dict)
     return cast(dict[str, Any], payload)
@@ -38,6 +43,13 @@ def _package_roots(kind: str) -> set[str]:
         path.relative_to(REPO_ROOT).as_posix()
         for path in (REPO_ROOT / "packages").glob(f"*/{kind}")
     }
+
+
+def _package_source_roots() -> list[str]:
+    return sorted(
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in (REPO_ROOT / "packages").glob("*/src")
+    )
 
 
 def _package_import_roots() -> set[str]:
@@ -126,12 +138,39 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
 
 
 def test_repo_root_pytest_entrypoint_matches_shared_python_baseline() -> None:
-    shared_config = _config_parser(REPO_ROOT / "configs" / "pytest.ini")
-    root_config = _config_parser(REPO_ROOT / "pytest.ini")
+    shared_config = _config_parser(REPO_ROOT / "configs" / "pytest.ini")["pytest"]
+    root_pytest = _root_pyproject()["tool"]["pytest"]["ini_options"]
 
-    assert shared_config.sections() == root_config.sections()
-    for section in shared_config.sections():
-        assert dict(shared_config[section]) == dict(root_config[section])
+    assert root_pytest["minversion"] == shared_config["minversion"]
+    assert root_pytest["testpaths"] == [
+        line.strip() for line in shared_config["testpaths"].splitlines() if line.strip()
+    ]
+    assert sorted(root_pytest["pythonpath"]) == _package_source_roots()
+    assert root_pytest["python_files"] == [shared_config["python_files"]]
+    assert root_pytest["python_classes"] == [shared_config["python_classes"]]
+    assert root_pytest["python_functions"] == [shared_config["python_functions"]]
+    assert root_pytest["asyncio_mode"] == shared_config["asyncio_mode"]
+    assert root_pytest["cache_dir"] == shared_config["cache_dir"]
+    assert root_pytest["timeout"] == int(shared_config["timeout"])
+    assert root_pytest["timeout_method"] == shared_config["timeout_method"]
+    assert root_pytest["timeout_func_only"] is True
+    assert root_pytest["xfail_strict"] is True
+    assert root_pytest["norecursedirs"] == [
+        line.strip()
+        for line in shared_config["norecursedirs"].splitlines()
+        if line.strip()
+    ]
+    assert root_pytest["addopts"] == [
+        line.strip() for line in shared_config["addopts"].splitlines() if line.strip()
+    ]
+    assert root_pytest["markers"] == [
+        line.strip() for line in shared_config["markers"].splitlines() if line.strip()
+    ]
+    assert root_pytest["filterwarnings"] == [
+        line.strip()
+        for line in shared_config["filterwarnings"].splitlines()
+        if line.strip()
+    ]
 
 
 def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
