@@ -282,6 +282,7 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_public_benchmark_subset")
+    assert hasattr(module, "generate_quant_truth_dataset")
     assert hasattr(module, "build_interactive_result_bundle_from_artifacts")
     assert hasattr(module, "build_interactive_result_comparison_from_artifacts")
     assert hasattr(module, "build_result_manifest_from_artifacts")
