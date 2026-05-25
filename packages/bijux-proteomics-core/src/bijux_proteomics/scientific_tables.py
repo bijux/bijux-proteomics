@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.domain.records import ContrastKind
-from bijux_proteomics.tabular import (
+from bijux_proteomics._tabular import (
     AcceptedDelimitedRow,
     DelimitedColumnSpec,
     DelimitedColumnValueType,

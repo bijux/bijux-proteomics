@@ -48,7 +48,7 @@ from bijux_proteomics.scientific_tables import (
     validate_scientific_table,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics.tabular import DelimitedTableIssue
+from bijux_proteomics._tabular import DelimitedTableIssue
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 if TYPE_CHECKING:

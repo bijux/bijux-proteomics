@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from bijux_proteomics.tabular import (
+from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
     DelimitedTableIssue,
     parse_delimited_table,

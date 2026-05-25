@@ -31,7 +31,7 @@ from bijux_proteomics.scientific_tables import (
     build_diann_report_schema,
     validate_scientific_table,
 )
-from bijux_proteomics.tabular import AcceptedDelimitedRow
+from bijux_proteomics._tabular import AcceptedDelimitedRow
 from bijux_proteomics_foundation import JsonModel
 
 

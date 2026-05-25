@@ -22,7 +22,7 @@ from bijux_proteomics.sequences.digestion import (
     digest_protein_records,
     get_protease_rule,
 )
-from bijux_proteomics.tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_tsv_rows
 from bijux_proteomics_foundation import JsonModel
 
 

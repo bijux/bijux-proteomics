@@ -14,7 +14,7 @@ from bijux_proteomics.domain.records import (
     QuantMatrix,
     SampleMetadata,
 )
-from bijux_proteomics.tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_tsv_rows
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 

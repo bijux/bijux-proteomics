@@ -15,7 +15,7 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator, model_
 
 from bijux_proteomics.io.mzml_reader import stream_mzml_spectra
 from bijux_proteomics.io.spectra import SpectrumModel
-from bijux_proteomics.tabular import (
+from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
     DelimitedTableIssue,
     parse_delimited_table,

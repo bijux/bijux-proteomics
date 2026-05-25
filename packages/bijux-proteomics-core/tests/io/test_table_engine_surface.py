@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.tabular import (
+from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
     DelimitedColumnValueType,
     infer_delimited_table_delimiter,
