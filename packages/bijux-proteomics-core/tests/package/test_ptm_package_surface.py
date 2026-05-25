@@ -55,6 +55,28 @@ def test_ptm_package_exports_protein_site_mapping_owner_surface() -> None:
     )
 
 
+def test_ptm_package_exports_site_group_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    entries = ptm.build_site_groups(mappings)
+    rendered = ptm.render_ptm_site_group_tsv(entries)
+
+    assert hasattr(ptm, "build_site_groups")
+    assert hasattr(ptm, "render_ptm_site_group_tsv")
+    ambiguous = next(
+        entry
+        for entry in entries
+        if entry.site_group_id == "P11111:Phospho:17|18|19"
+    )
+    assert ambiguous.localized_site is None
+    assert ambiguous.candidate_sites == (17, 18, 19)
+    assert ambiguous.ambiguity_class.value == "ambiguous_site_group"
+    assert "ambiguity_class" in rendered.splitlines()[0]
+
+
 def test_ptm_package_exports_localization_scoring_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(
         _ptm_fixture("localization_probability_results.tsv")
