@@ -98,9 +98,10 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries, exact protein feature overlap queries, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, pathway coverage-aware membership resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
             "features/overlaps.py",
+            "pathways/members.py",
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
             "reviews/decision_briefs.py",
@@ -163,6 +164,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.ONTOLOGIES,),
         reason="Protein identity resolution keeps curated accession, alias, and species normalization explicit instead of forcing ambiguous aliases into one winner.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="pathways/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The pathways package root groups exact pathway membership owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="pathways/members.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Pathway membership resolution keeps matched, missing, and unresolved pathway coverage explicit and lets confidence degrade with sparse member support.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/__init__.py",
