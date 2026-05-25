@@ -306,6 +306,48 @@ def test_workflow_package_exports_advanced_fragpipe_surface(tmp_path: Path) -> N
     )
 
 
+def test_workflow_package_exports_advanced_ptm_surface(tmp_path: Path) -> None:
+    report = workflow.run_advanced_ptm_workflow(
+        workflow.AdvancedPtmWorkflowConfig(
+            evidence_tsv_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "ptm"
+                / "localization_results.tsv"
+            ),
+            proteins_fasta_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "fasta"
+                / "ptm_sites.fasta"
+            ),
+            feature_tsv_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "ptm"
+                / "ptm_features.tsv"
+            ),
+            design_tsv_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "ptm"
+                / "ptm.design.tsv"
+            ),
+            output_dir=tmp_path / "advanced_ptm_package_surface",
+            batch_field="",
+            condition_a="control",
+            condition_b="treated",
+        )
+    )
+
+    assert hasattr(workflow, "run_advanced_ptm_workflow")
+    assert hasattr(workflow, "render_advanced_ptm_excluded_ambiguity_tsv")
+    assert report.summary.ambiguous_group_row_count == 2
+    assert "group_key" in workflow.render_advanced_ptm_excluded_ambiguity_tsv(
+        report.exact_site_exclusion_audit
+    )
+
+
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
     report = workflow.build_cross_study_protein_harmonization_report_from_observations(
         (
