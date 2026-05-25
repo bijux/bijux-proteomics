@@ -107,6 +107,7 @@ class WeakEvidenceBenchmarkReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     benchmark_id: str = Field(..., min_length=1)
+    output_root: Path
     criteria: tuple[WeakEvidenceBenchmarkCriterion, ...] = Field(default_factory=tuple)
     summary: WeakEvidenceBenchmarkSummary
     lfq_sparse_report: PublicBenchmarkRunReport | None = None
@@ -313,6 +314,7 @@ def run_weak_evidence_benchmark(
 
     return WeakEvidenceBenchmarkReport(
         benchmark_id=descriptor.benchmark_id,
+        output_root=descriptor.output_root,
         criteria=criteria,
         summary=summary,
         lfq_sparse_report=lfq_sparse_report,

@@ -46,6 +46,7 @@ def test_run_weak_evidence_benchmark_demonstrates_required_negative_surfaces(
     summary_tsv = render_weak_evidence_benchmark_summary_tsv(report)
 
     assert report.summary.status is WeakEvidenceBenchmarkStatus.PASSED
+    assert report.output_root == tmp_path / "weak_evidence"
     assert report.summary.failed_qc_block_count >= 1
     assert report.summary.refused_claim_count >= 1
     assert report.summary.downgraded_protein_count >= 1
@@ -94,6 +95,7 @@ def test_run_weak_evidence_benchmark_fails_when_all_evaluated_outputs_are_positi
     )
 
     assert report.summary.status is WeakEvidenceBenchmarkStatus.FAILED
+    assert report.output_root == tmp_path / "positive_only_run"
     assert report.summary.all_outputs_positive_or_accepted
     assert report.summary.observed_negative_surface_count == 0
     assert report.summary.downgraded_protein_count == 0
