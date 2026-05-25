@@ -156,6 +156,30 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
                 " identification rejection stays explicit"
             ),
         ),
+        ImporterMutationFixture(
+            fixture_id="importer_mutation:ptm_invalid_q_and_malformed_modification",
+            owner_surface="ptm.parse_ptm_localization_tsv",
+            source_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/ptm/"
+                "localization_results.tsv"
+            ),
+            mutated_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"
+                "ptm/ptm_invalid_q_and_malformed_modification.tsv"
+            ),
+            mutation_kinds=(
+                ImporterMutationKind.INVALID_Q_VALUE,
+                ImporterMutationKind.MALFORMED_MODIFICATION,
+            ),
+            expected_accepted_count=1,
+            expected_rejected_count=2,
+            expected_issue_codes=("invalid_q_value", "invalid_modified_peptide"),
+            note=(
+                "copies one valid PTM localization row, mutates one q-value outside"
+                " range, and corrupts one localized modification token so site-level"
+                " evidence parsing refuses both rows with explicit issues"
+            ),
+        ),
     )
 
 
