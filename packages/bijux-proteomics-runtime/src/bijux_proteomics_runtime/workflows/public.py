@@ -6,6 +6,10 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.artifacts": [
+        "StepArtifact",
+        "build_step_artifact",
+    ],
     "bijux_proteomics_runtime.workflows.flagship_workflow_chain": [
         "FlagshipWorkflowBreakageFinding",
         "FlagshipWorkflowBreakageReport",
@@ -213,7 +217,6 @@ _WORKFLOW_EXPORT_GROUPS = {
         "PtmRuntimeWorkflowRunReport",
         "QuantRuntimeWorkflowRunReport",
         "RuntimeWorkflowStatus",
-        "RuntimeWorkflowStepRecord",
         "SequenceToDigestWorkflowRunReport",
         "TargetedRuntimeWorkflowRunReport",
         "run_multiplex_workflow_end_to_end",
