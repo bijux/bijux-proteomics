@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from dataclasses import dataclass
 from enum import StrEnum
 import csv
@@ -809,20 +811,20 @@ def render_target_panel_matrix_tsv(report: TargetPanelReport) -> str:
 
 
 def export_target_panel_summary_tsv(report: TargetPanelReport, path: Path) -> None:
-    path.write_text(render_target_panel_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_target_panel_summary_tsv(report))
 
 
 def export_target_panel_target_tsv(report: TargetPanelReport, path: Path) -> None:
-    path.write_text(render_target_panel_target_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_target_panel_target_tsv(report))
 
 
 def export_target_panel_missing_tsv(report: TargetPanelReport, path: Path) -> None:
-    path.write_text(render_target_panel_missing_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_target_panel_missing_tsv(report))
 
 
 def export_target_panel_intensity_tsv(report: TargetPanelReport, path: Path) -> None:
-    path.write_text(render_target_panel_intensity_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_target_panel_intensity_tsv(report))
 
 
 def export_target_panel_matrix_tsv(report: TargetPanelReport, path: Path) -> None:
-    path.write_text(render_target_panel_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_target_panel_matrix_tsv(report))

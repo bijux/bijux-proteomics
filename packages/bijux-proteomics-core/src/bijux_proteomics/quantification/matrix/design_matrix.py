@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from itertools import combinations
@@ -504,7 +506,7 @@ def export_quant_design_matrix_tsv(
     path: Path,
 ) -> None:
     """Write one design matrix to a stable TSV artifact."""
-    path.write_text(render_quant_design_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_quant_design_matrix_tsv(report))
 
 
 def render_quant_design_model_coefficients_tsv(
@@ -542,7 +544,7 @@ def export_quant_design_model_coefficients_tsv(
     path: Path,
 ) -> None:
     """Write design-model coefficients to a stable TSV artifact."""
-    path.write_text(render_quant_design_model_coefficients_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_quant_design_model_coefficients_tsv(report))
 
 
 def render_quant_design_contrast_estimates_tsv(
@@ -578,4 +580,4 @@ def export_quant_design_contrast_estimates_tsv(
     path: Path,
 ) -> None:
     """Write condition-contrast estimates to a stable TSV artifact."""
-    path.write_text(render_quant_design_contrast_estimates_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_quant_design_contrast_estimates_tsv(report))

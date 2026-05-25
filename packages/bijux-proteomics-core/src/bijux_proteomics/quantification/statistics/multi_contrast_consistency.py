@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -240,7 +242,7 @@ def export_multi_contrast_consistency_tsv(
 ) -> None:
     """Write one cross-contrast consistency report to a stable TSV artifact."""
 
-    path.write_text(render_multi_contrast_consistency_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_multi_contrast_consistency_tsv(report))
 
 
 def _build_comparison_entry(

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -506,19 +508,19 @@ def export_tmt_plex_integration_summary_tsv(
 ) -> None:
     """Write the compact TMT plex-integration summary."""
 
-    path.write_text(render_tmt_plex_integration_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_plex_integration_summary_tsv(report))
 
 
 def export_tmt_plex_alignment_tsv(report: TmtPlexIntegrationReport, path: Path) -> None:
     """Write the sample-alignment ledger for TMT plex integration."""
 
-    path.write_text(render_tmt_plex_alignment_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_plex_alignment_tsv(report))
 
 
 def export_tmt_plex_effect_tsv(report: TmtPlexIntegrationReport, path: Path) -> None:
     """Write the plex-effect review ledger for TMT plex integration."""
 
-    path.write_text(render_tmt_plex_effect_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_plex_effect_tsv(report))
 
 
 def export_tmt_integrated_protein_matrix_tsv(
@@ -526,4 +528,4 @@ def export_tmt_integrated_protein_matrix_tsv(
 ) -> None:
     """Write the combined bridge-normalized protein matrix."""
 
-    path.write_text(render_tmt_integrated_protein_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_integrated_protein_matrix_tsv(report))

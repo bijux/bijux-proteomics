@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 import math
@@ -330,13 +332,13 @@ def render_power_effect_size_grid_tsv(report: PowerEstimationReport) -> str:
 def export_power_estimation_summary_tsv(report: PowerEstimationReport, path: Path) -> None:
     """Write one power-estimation summary TSV artifact."""
 
-    path.write_text(render_power_estimation_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_power_estimation_summary_tsv(report))
 
 
 def export_power_variance_tsv(report: PowerEstimationReport, path: Path) -> None:
     """Write one variance-table TSV artifact."""
 
-    path.write_text(render_power_variance_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_power_variance_tsv(report))
 
 
 def export_power_effect_size_grid_tsv(
@@ -345,7 +347,7 @@ def export_power_effect_size_grid_tsv(
 ) -> None:
     """Write one detectable-effect grid TSV artifact."""
 
-    path.write_text(render_power_effect_size_grid_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_power_effect_size_grid_tsv(report))
 
 
 def _pooled_variance(

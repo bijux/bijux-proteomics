@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -702,7 +704,7 @@ def export_tmt_normalization_summary_tsv(
 ) -> None:
     """Write the compact TMT normalization summary ledger."""
 
-    path.write_text(render_tmt_normalization_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_normalization_summary_tsv(report))
 
 
 def export_tmt_normalization_transform_tsv(
@@ -711,7 +713,7 @@ def export_tmt_normalization_transform_tsv(
 ) -> None:
     """Write the TMT normalization transform ledger."""
 
-    path.write_text(render_tmt_normalization_transform_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_normalization_transform_tsv(report))
 
 
 def export_tmt_channel_distribution_tsv(
@@ -720,7 +722,7 @@ def export_tmt_channel_distribution_tsv(
 ) -> None:
     """Write the before/after TMT channel distribution ledger."""
 
-    path.write_text(render_tmt_channel_distribution_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_channel_distribution_tsv(report))
 
 
 def export_tmt_normalized_peptide_matrix_tsv(
@@ -729,7 +731,7 @@ def export_tmt_normalized_peptide_matrix_tsv(
 ) -> None:
     """Write the normalized TMT peptide matrix."""
 
-    path.write_text(render_tmt_normalized_peptide_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_normalized_peptide_matrix_tsv(report))
 
 
 def export_tmt_normalized_protein_matrix_tsv(
@@ -738,4 +740,4 @@ def export_tmt_normalized_protein_matrix_tsv(
 ) -> None:
     """Write the normalized TMT protein matrix."""
 
-    path.write_text(render_tmt_normalized_protein_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_normalized_protein_matrix_tsv(report))

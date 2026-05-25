@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -787,49 +789,49 @@ def export_dia_peptide_matrix_summary_tsv(
     report: DiaPeptideMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_peptide_matrix_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_peptide_matrix_summary_tsv(report))
 
 
 def export_dia_peptide_quantity_matrix_tsv(
     report: DiaPeptideMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_peptide_quantity_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_peptide_quantity_matrix_tsv(report))
 
 
 def export_dia_peptide_q_value_matrix_tsv(
     report: DiaPeptideMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_peptide_q_value_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_peptide_q_value_matrix_tsv(report))
 
 
 def export_dia_protein_matrix_summary_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_protein_matrix_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_protein_matrix_summary_tsv(report))
 
 
 def export_dia_protein_quantity_matrix_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_protein_quantity_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_protein_quantity_matrix_tsv(report))
 
 
 def export_dia_protein_q_value_matrix_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_protein_q_value_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_protein_q_value_matrix_tsv(report))
 
 
 def export_dia_protein_rollup_evidence_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_protein_rollup_evidence_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_protein_rollup_evidence_tsv(report))
 
 
 def _build_peptide_key(row: DiaPrecursorMatrixRow) -> str:

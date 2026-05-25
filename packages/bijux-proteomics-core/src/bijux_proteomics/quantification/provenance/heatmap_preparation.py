@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -402,13 +404,13 @@ def render_heatmap_column_metadata_tsv(report: HeatmapPreparationReport) -> str:
 def export_heatmap_matrix_tsv(report: HeatmapPreparationReport, path: Path) -> None:
     """Write one prepared heatmap matrix to a stable TSV artifact."""
 
-    path.write_text(render_heatmap_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_heatmap_matrix_tsv(report))
 
 
 def export_heatmap_summary_tsv(report: HeatmapPreparationReport, path: Path) -> None:
     """Write one compact heatmap summary to a stable TSV artifact."""
 
-    path.write_text(render_heatmap_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_heatmap_summary_tsv(report))
 
 
 def export_heatmap_row_metadata_tsv(
@@ -416,7 +418,7 @@ def export_heatmap_row_metadata_tsv(
 ) -> None:
     """Write row-level heatmap metadata to a stable TSV artifact."""
 
-    path.write_text(render_heatmap_row_metadata_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_heatmap_row_metadata_tsv(report))
 
 
 def export_heatmap_column_metadata_tsv(
@@ -424,7 +426,7 @@ def export_heatmap_column_metadata_tsv(
 ) -> None:
     """Write column-level heatmap metadata to a stable TSV artifact."""
 
-    path.write_text(render_heatmap_column_metadata_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_heatmap_column_metadata_tsv(report))
 
 
 def _log2_abundance(value: float | None) -> float:

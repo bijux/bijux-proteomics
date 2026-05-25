@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -347,7 +349,7 @@ def export_multiplex_metadata_summary_tsv(
 ) -> None:
     """Write the compact multiplex metadata-validation summary ledger."""
 
-    path.write_text(render_multiplex_metadata_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_multiplex_metadata_summary_tsv(report))
 
 
 def export_multiplex_channel_assignment_tsv(
@@ -356,7 +358,7 @@ def export_multiplex_channel_assignment_tsv(
 ) -> None:
     """Write the multiplex channel-assignment ledger."""
 
-    path.write_text(render_multiplex_channel_assignment_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_multiplex_channel_assignment_tsv(report))
 
 
 def export_multiplex_duplicate_assignment_tsv(
@@ -365,10 +367,7 @@ def export_multiplex_duplicate_assignment_tsv(
 ) -> None:
     """Write the duplicate-assignment findings ledger."""
 
-    path.write_text(
-        render_multiplex_duplicate_assignment_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_multiplex_duplicate_assignment_tsv(report))
 
 
 def export_multiplex_missing_condition_tsv(
@@ -377,4 +376,4 @@ def export_multiplex_missing_condition_tsv(
 ) -> None:
     """Write the missing-condition findings ledger."""
 
-    path.write_text(render_multiplex_missing_condition_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_multiplex_missing_condition_tsv(report))

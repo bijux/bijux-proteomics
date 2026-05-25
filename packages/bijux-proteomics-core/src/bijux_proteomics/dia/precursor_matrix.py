@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -614,28 +616,28 @@ def export_dia_precursor_matrix_summary_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_precursor_matrix_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_precursor_matrix_summary_tsv(report))
 
 
 def export_dia_precursor_quantity_matrix_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_precursor_quantity_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_precursor_quantity_matrix_tsv(report))
 
 
 def export_dia_precursor_q_value_matrix_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_precursor_q_value_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_precursor_q_value_matrix_tsv(report))
 
 
 def export_dia_precursor_metadata_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_precursor_metadata_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_precursor_metadata_tsv(report))
 
 
 def _build_precursor_key(row: DiaNativePrecursorMatrixEntry) -> str:

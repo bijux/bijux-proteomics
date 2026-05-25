@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from itertools import combinations
@@ -630,7 +632,7 @@ def export_differential_broken_pairs_tsv(
     path: Path,
 ) -> None:
     """Write one paired-design broken-pair ledger to a stable TSV artifact."""
-    path.write_text(render_differential_broken_pairs_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_differential_broken_pairs_tsv(report))
 
 
 def export_differential_abundance_tsv(
@@ -638,7 +640,7 @@ def export_differential_abundance_tsv(
     path: Path,
 ) -> None:
     """Write one differential-abundance report to a stable TSV artifact."""
-    path.write_text(render_differential_abundance_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_differential_abundance_tsv(report))
 
 
 def render_multi_condition_differential_abundance_tsv(
@@ -653,10 +655,7 @@ def export_multi_condition_differential_abundance_tsv(
     path: Path,
 ) -> None:
     """Write a multi-condition DA collection to one flattened TSV artifact."""
-    path.write_text(
-        render_multi_condition_differential_abundance_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_multi_condition_differential_abundance_tsv(report))
 
 
 def _sample_ids_for_condition(

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 import math
@@ -274,25 +276,25 @@ def render_limma_contrast_matrix_tsv(package: LimmaCompatibleQuantPackage) -> st
 def export_limma_assay_matrix_tsv(
     package: LimmaCompatibleQuantPackage, path: Path
 ) -> None:
-    path.write_text(render_limma_assay_matrix_tsv(package), encoding="utf-8")
+    write_output_table_tsv(path, render_limma_assay_matrix_tsv(package))
 
 
 def export_limma_sample_annotations_tsv(
     package: LimmaCompatibleQuantPackage, path: Path
 ) -> None:
-    path.write_text(render_limma_sample_annotations_tsv(package), encoding="utf-8")
+    write_output_table_tsv(path, render_limma_sample_annotations_tsv(package))
 
 
 def export_limma_design_matrix_tsv(
     package: LimmaCompatibleQuantPackage, path: Path
 ) -> None:
-    path.write_text(render_limma_design_matrix_tsv(package), encoding="utf-8")
+    write_output_table_tsv(path, render_limma_design_matrix_tsv(package))
 
 
 def export_limma_contrast_matrix_tsv(
     package: LimmaCompatibleQuantPackage, path: Path
 ) -> None:
-    path.write_text(render_limma_contrast_matrix_tsv(package), encoding="utf-8")
+    write_output_table_tsv(path, render_limma_contrast_matrix_tsv(package))
 
 
 def build_msstats_compatible_input_report(
@@ -374,7 +376,7 @@ def render_msstats_compatible_input_tsv(report: MsstatsCompatibleInputReport) ->
 def export_msstats_compatible_input_tsv(
     report: MsstatsCompatibleInputReport, path: Path
 ) -> None:
-    path.write_text(render_msstats_compatible_input_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_msstats_compatible_input_tsv(report))
 
 
 def _read_delimited_rows(path: Path) -> list[dict[str, str]]:

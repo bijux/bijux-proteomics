@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 import math
 from enum import StrEnum
@@ -581,29 +583,26 @@ def render_dia_run_qc_outlier_tsv(report: DiaRunQcReport) -> str:
 
 
 def export_dia_run_qc_summary_tsv(report: DiaRunQcReport, path: Path) -> None:
-    path.write_text(render_dia_run_qc_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_run_qc_summary_tsv(report))
 
 
 def export_dia_run_qc_run_table_tsv(report: DiaRunQcReport, path: Path) -> None:
-    path.write_text(render_dia_run_qc_run_table_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_run_qc_run_table_tsv(report))
 
 
 def export_dia_run_qc_intensity_distribution_tsv(
     report: DiaRunQcReport,
     path: Path,
 ) -> None:
-    path.write_text(
-        render_dia_run_qc_intensity_distribution_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_dia_run_qc_intensity_distribution_tsv(report))
 
 
 def export_dia_run_qc_correlation_tsv(report: DiaRunQcReport, path: Path) -> None:
-    path.write_text(render_dia_run_qc_correlation_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_run_qc_correlation_tsv(report))
 
 
 def export_dia_run_qc_outlier_tsv(report: DiaRunQcReport, path: Path) -> None:
-    path.write_text(render_dia_run_qc_outlier_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_run_qc_outlier_tsv(report))
 
 
 def _filtered_precursor_rows(

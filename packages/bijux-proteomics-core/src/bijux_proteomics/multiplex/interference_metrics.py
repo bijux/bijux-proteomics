@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -382,7 +384,7 @@ def export_tmt_interference_summary_tsv(
 ) -> None:
     """Write the compact TMT interference-review summary ledger."""
 
-    path.write_text(render_tmt_interference_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_interference_summary_tsv(report))
 
 
 def export_tmt_interference_observation_tsv(
@@ -391,7 +393,7 @@ def export_tmt_interference_observation_tsv(
 ) -> None:
     """Write the full TMT interference observation ledger."""
 
-    path.write_text(render_tmt_interference_observation_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_interference_observation_tsv(report))
 
 
 def export_tmt_filtered_interference_tsv(
@@ -400,7 +402,7 @@ def export_tmt_filtered_interference_tsv(
 ) -> None:
     """Write the threshold-exceeded TMT interference ledger."""
 
-    path.write_text(render_tmt_filtered_interference_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_filtered_interference_tsv(report))
 
 
 def export_tmt_interference_channel_summary_tsv(
@@ -409,10 +411,7 @@ def export_tmt_interference_channel_summary_tsv(
 ) -> None:
     """Write the per-sample-channel TMT interference summary ledger."""
 
-    path.write_text(
-        render_tmt_interference_channel_summary_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_tmt_interference_channel_summary_tsv(report))
 
 
 def _channel_role_for_sample(

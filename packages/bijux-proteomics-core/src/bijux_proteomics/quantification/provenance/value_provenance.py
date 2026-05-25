@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -228,7 +230,7 @@ def export_quant_value_provenance_tsv(
 ) -> None:
     """Write one stable TSV over per-cell quantitative provenance."""
 
-    path.write_text(render_quant_value_provenance_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_quant_value_provenance_tsv(report))
 
 
 __all__ = [

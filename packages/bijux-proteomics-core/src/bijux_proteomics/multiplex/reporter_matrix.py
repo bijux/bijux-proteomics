@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -467,31 +469,31 @@ def render_tmt_protein_matrix_tsv(report: TmtReporterMatrixReport) -> str:
 def export_tmt_report_summary_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
     """Write the compact TMT report summary ledger."""
 
-    path.write_text(render_tmt_report_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_report_summary_tsv(report))
 
 
 def export_tmt_channel_mapping_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
     """Write the TMT channel mapping ledger."""
 
-    path.write_text(render_tmt_channel_mapping_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_channel_mapping_tsv(report))
 
 
 def export_tmt_channel_totals_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
     """Write the TMT channel totals ledger."""
 
-    path.write_text(render_tmt_channel_totals_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_channel_totals_tsv(report))
 
 
 def export_tmt_peptide_matrix_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
     """Write the TMT peptide matrix."""
 
-    path.write_text(render_tmt_peptide_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_peptide_matrix_tsv(report))
 
 
 def export_tmt_protein_matrix_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
     """Write the TMT protein matrix."""
 
-    path.write_text(render_tmt_protein_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_protein_matrix_tsv(report))
 
 
 def _default_channel_role(

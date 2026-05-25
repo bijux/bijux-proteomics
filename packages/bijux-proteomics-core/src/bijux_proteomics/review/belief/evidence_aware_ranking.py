@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -274,7 +276,7 @@ def export_evidence_aware_ranking_tsv(
 ) -> None:
     """Write one evidence-aware ranking report to a stable TSV artifact."""
 
-    path.write_text(render_evidence_aware_ranking_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_evidence_aware_ranking_tsv(report))
 
 
 def normalize_linear_range(values: dict[str, float | None]) -> dict[str, float]:

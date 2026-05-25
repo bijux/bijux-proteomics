@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -492,55 +494,49 @@ def export_dia_library_coverage_summary_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_library_coverage_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_library_coverage_summary_tsv(report))
 
 
 def export_dia_library_coverage_sample_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_library_coverage_sample_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_library_coverage_sample_tsv(report))
 
 
 def export_dia_library_coverage_condition_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_library_coverage_condition_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_library_coverage_condition_tsv(report))
 
 
 def export_dia_library_coverage_peptide_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_library_coverage_peptide_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_library_coverage_peptide_tsv(report))
 
 
 def export_dia_library_coverage_protein_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(render_dia_library_coverage_protein_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_library_coverage_protein_tsv(report))
 
 
 def export_dia_library_coverage_observed_outside_peptide_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(
-        render_dia_library_coverage_observed_outside_peptide_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_dia_library_coverage_observed_outside_peptide_tsv(report))
 
 
 def export_dia_library_coverage_observed_outside_protein_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    path.write_text(
-        render_dia_library_coverage_observed_outside_protein_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_dia_library_coverage_observed_outside_protein_tsv(report))
 
 
 def _build_sample_entries(

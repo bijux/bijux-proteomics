@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -643,13 +645,13 @@ def render_silac_validation_weak_tsv(report: SilacValidationReport) -> str:
 def export_silac_validation_summary_tsv(report: SilacValidationReport, path: Path) -> None:
     """Write the compact SILAC validation summary ledger."""
 
-    path.write_text(render_silac_validation_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_validation_summary_tsv(report))
 
 
 def export_silac_validation_label_tsv(report: SilacValidationReport, path: Path) -> None:
     """Write the SILAC expected-label coverage ledger."""
 
-    path.write_text(render_silac_validation_label_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_validation_label_tsv(report))
 
 
 def export_silac_validation_distribution_tsv(
@@ -658,13 +660,13 @@ def export_silac_validation_distribution_tsv(
 ) -> None:
     """Write the SILAC label-distribution ledger."""
 
-    path.write_text(render_silac_validation_distribution_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_validation_distribution_tsv(report))
 
 
 def export_silac_validation_weak_tsv(report: SilacValidationReport, path: Path) -> None:
     """Write the SILAC weak-label-evidence ledger."""
 
-    path.write_text(render_silac_validation_weak_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_validation_weak_tsv(report))
 
 
 def render_tmt_validation_summary_tsv(report: TmtValidationReport) -> str:
@@ -805,22 +807,22 @@ def render_tmt_validation_weak_tsv(report: TmtValidationReport) -> str:
 def export_tmt_validation_summary_tsv(report: TmtValidationReport, path: Path) -> None:
     """Write the compact TMT validation summary ledger."""
 
-    path.write_text(render_tmt_validation_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_validation_summary_tsv(report))
 
 
 def export_tmt_validation_channel_tsv(report: TmtValidationReport, path: Path) -> None:
     """Write the TMT expected-channel coverage ledger."""
 
-    path.write_text(render_tmt_validation_channel_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_validation_channel_tsv(report))
 
 
 def export_tmt_validation_distribution_tsv(report: TmtValidationReport, path: Path) -> None:
     """Write the TMT channel-distribution ledger."""
 
-    path.write_text(render_tmt_validation_distribution_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_validation_distribution_tsv(report))
 
 
 def export_tmt_validation_weak_tsv(report: TmtValidationReport, path: Path) -> None:
     """Write the TMT weak-channel-evidence ledger."""
 
-    path.write_text(render_tmt_validation_weak_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_tmt_validation_weak_tsv(report))

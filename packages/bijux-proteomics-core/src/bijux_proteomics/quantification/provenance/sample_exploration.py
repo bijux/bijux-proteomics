@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from collections.abc import Sequence
 import csv
 from dataclasses import dataclass
@@ -1007,19 +1009,19 @@ def export_sample_exploration_summary_tsv(
 ) -> None:
     """Write one compact sample-exploration summary to a stable TSV artifact."""
 
-    path.write_text(render_sample_exploration_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_exploration_summary_tsv(report))
 
 
 def export_sample_pca_scores_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write one sample-level PCA score table to a stable TSV artifact."""
 
-    path.write_text(render_sample_pca_scores_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_pca_scores_tsv(report))
 
 
 def export_sample_correlation_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write pairwise sample correlations to a stable TSV artifact."""
 
-    path.write_text(render_sample_correlation_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_correlation_tsv(report))
 
 
 def export_sample_pca_variance_tsv(
@@ -1027,25 +1029,25 @@ def export_sample_pca_variance_tsv(
 ) -> None:
     """Write PCA explained-variance rows to a stable TSV artifact."""
 
-    path.write_text(render_sample_pca_variance_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_pca_variance_tsv(report))
 
 
 def export_sample_distance_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write pairwise sample distances to a stable TSV artifact."""
 
-    path.write_text(render_sample_distance_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_distance_tsv(report))
 
 
 def export_sample_outlier_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write metric-labeled sample outliers to a stable TSV artifact."""
 
-    path.write_text(render_sample_outlier_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_outlier_tsv(report))
 
 
 def export_sample_cluster_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write the deterministic cluster table to a stable TSV artifact."""
 
-    path.write_text(render_sample_cluster_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_sample_cluster_tsv(report))
 
 
 def build_sample_feature_matrix(table: LabelFreeQuantTable) -> np.ndarray:

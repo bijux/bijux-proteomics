@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 import math
@@ -391,7 +393,7 @@ def export_time_course_differential_tsv(
     path: Path,
 ) -> None:
     """Write one time-course differential report to a stable TSV artifact."""
-    path.write_text(render_time_course_differential_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_time_course_differential_tsv(report))
 
 
 def _build_time_course_design(

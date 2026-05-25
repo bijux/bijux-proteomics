@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -510,7 +512,7 @@ def render_transition_qc_weak_tsv(report: DiaTransitionQcReport) -> str:
 def export_transition_qc_summary_tsv(report: DiaTransitionQcReport, path: Path) -> None:
     """Export the transition QC summary TSV."""
 
-    path.write_text(render_transition_qc_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_transition_qc_summary_tsv(report))
 
 
 def export_transition_qc_transition_tsv(
@@ -519,16 +521,16 @@ def export_transition_qc_transition_tsv(
 ) -> None:
     """Export the transition-level QC TSV."""
 
-    path.write_text(render_transition_qc_transition_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_transition_qc_transition_tsv(report))
 
 
 def export_transition_qc_sample_tsv(report: DiaTransitionQcReport, path: Path) -> None:
     """Export the sample-resolved transition QC TSV."""
 
-    path.write_text(render_transition_qc_sample_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_transition_qc_sample_tsv(report))
 
 
 def export_transition_qc_weak_tsv(report: DiaTransitionQcReport, path: Path) -> None:
     """Export the weak-transition QC TSV."""
 
-    path.write_text(render_transition_qc_weak_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_transition_qc_weak_tsv(report))

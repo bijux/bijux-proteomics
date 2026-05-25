@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 import math
@@ -264,7 +266,7 @@ def export_batch_effect_summary_tsv(
     path: Path,
 ) -> None:
     """Write a stable batch-effect summary table."""
-    path.write_text(render_batch_effect_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_batch_effect_summary_tsv(report))
 
 
 def export_batch_effect_batches_tsv(
@@ -272,7 +274,7 @@ def export_batch_effect_batches_tsv(
     path: Path,
 ) -> None:
     """Write stable batch-level shift rows."""
-    path.write_text(render_batch_effect_batches_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_batch_effect_batches_tsv(report))
 
 
 def export_batch_effect_principal_components_tsv(
@@ -280,10 +282,7 @@ def export_batch_effect_principal_components_tsv(
     path: Path,
 ) -> None:
     """Write stable principal-component batch-association rows."""
-    path.write_text(
-        render_batch_effect_principal_components_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_batch_effect_principal_components_tsv(report))
 
 
 def _batch_by_sample_id(

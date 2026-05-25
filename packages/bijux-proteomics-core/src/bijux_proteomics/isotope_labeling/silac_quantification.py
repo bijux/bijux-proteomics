@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 import math
 from enum import StrEnum
@@ -528,16 +530,16 @@ def render_silac_protein_ratio_tsv(report: SilacRatioReport) -> str:
 def export_silac_ratio_summary_tsv(report: SilacRatioReport, path: Path) -> None:
     """Write the compact SILAC ratio summary ledger."""
 
-    path.write_text(render_silac_ratio_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_ratio_summary_tsv(report))
 
 
 def export_silac_peptide_ratio_tsv(report: SilacRatioReport, path: Path) -> None:
     """Write the SILAC peptide ratio ledger."""
 
-    path.write_text(render_silac_peptide_ratio_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_peptide_ratio_tsv(report))
 
 
 def export_silac_protein_ratio_tsv(report: SilacRatioReport, path: Path) -> None:
     """Write the SILAC protein ratio ledger."""
 
-    path.write_text(render_silac_protein_ratio_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_silac_protein_ratio_tsv(report))
