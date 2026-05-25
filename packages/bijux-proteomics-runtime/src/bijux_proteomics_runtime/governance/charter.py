@@ -148,6 +148,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
         owned_surface="Typed run contracts, decision briefs, artifact inventories, histories, and failure reports that downstream packages can consume without private file coupling.",
         required_modules=(
+            "artifacts/steps.py",
             "api/catalog.py",
             "runs/contracts.py",
             "runs/launch_bundles.py",
@@ -199,6 +200,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Operator-facing entrypoints and envelopes belong in runtime because they define the supported execution and review surface.",
+        )
+
+    if module_path.startswith("artifacts/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Typed workflow-step artifact contracts keep replay-safe checksums and reviewable step outputs under one explicit runtime owner.",
         )
 
     if module_path.startswith("providers/"):

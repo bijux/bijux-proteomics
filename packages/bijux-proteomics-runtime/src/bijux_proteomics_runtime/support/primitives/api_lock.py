@@ -16,6 +16,7 @@ CORE_API_FROZEN = (
 DEPRECATED_EXTENSIONS = ("bijux_proteomics_runtime.providers.remote",)
 
 DO_NOT_EXTEND_ZONES = (
+    "bijux_proteomics_runtime.artifacts",
     "bijux_proteomics_runtime.runs",
     "bijux_proteomics_runtime.state",
     "bijux_proteomics_runtime.support",
