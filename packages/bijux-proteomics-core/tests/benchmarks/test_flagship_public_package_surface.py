@@ -152,6 +152,14 @@ def test_targeted_public_benchmark_package_exposes_follow_up_consequences() -> N
         for asset in package.source_assets
     )
     assert any(
+        asset.path.endswith("evidence/targeted_validation_discovery_claims.json")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("evidence/targeted_validation_panel_assays.json")
+        for asset in package.source_assets
+    )
+    assert any(
         asset.path.endswith("evidence/targeted_benchmark_qc.tsv")
         for asset in package.source_assets
     )
