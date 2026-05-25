@@ -4,6 +4,12 @@
 from __future__ import annotations
 
 import bijux_proteomics.lab as lab
+from bijux_proteomics.domain.records import (
+    MissingValueState,
+    QuantEntityKind,
+    QuantMatrix,
+    QuantMeasureKind,
+)
 
 
 def test_lab_package_exports_run_diagnosis_surface() -> None:
@@ -130,3 +136,33 @@ def test_lab_package_exports_contamination_classification_surface() -> None:
     assert any(row.contaminant_class is lab.ContaminantClass.STANDARD for row in rows)
     assert any(row.contaminant_class is lab.ContaminantClass.UNKNOWN for row in rows)
     assert "action_hint" in rendered
+
+
+def test_lab_package_exports_background_comparison_surface() -> None:
+    matrix = QuantMatrix(
+        matrix_id="background_surface_matrix",
+        entity_kind=QuantEntityKind.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        entity_ids=("P_blank_heavy", "P_biological"),
+        sample_ids=("blank_a", "sample_1"),
+        values=((1200.0, 1500.0), (20.0, 2200.0)),
+        missing_value_states=(
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+        ),
+        support_counts=((1, 1), (1, 1)),
+    )
+
+    rows = lab.compare_samples_to_blanks(matrix, blank_runs=("blank_a",))
+    rendered = lab.render_background_comparison_tsv(rows)
+
+    assert hasattr(lab, "compare_samples_to_blanks")
+    assert hasattr(lab, "render_background_comparison_tsv")
+    assert any(row.background_flag is True for row in rows)
+    assert "background_flag" in rendered
