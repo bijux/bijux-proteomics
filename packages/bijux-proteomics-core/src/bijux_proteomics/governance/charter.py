@@ -277,6 +277,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/evidence_cards.py",
             "ptm/fragment_scoring.py",
             "ptm/hotspots.py",
+            "ptm/kinase_inference.py",
             "ptm/localization_risk.py",
             "ptm/localization_scoring.py",
             "ptm/mechanism_classification.py",
