@@ -1,4 +1,4 @@
-"""Repository API freeze checks for schema, pinned JSON, and hash digests."""
+"""Repository API freeze checks for schemas and shared callable surfaces."""
 
 from __future__ import annotations
 
@@ -12,6 +12,10 @@ import sys
 from typing import Any
 
 import yaml
+
+from bijux_proteomics_dev.governance.contracts.cross_package_function_signatures import (
+    validate_cross_package_function_signatures,
+)
 
 
 def _load_artifact(path: Path) -> Any:
@@ -78,6 +82,8 @@ def run(repo_root: Path) -> int:
         schema_digest = _extract_hash_value(hash_path)
         if schema_digest != digest:
             failures.append(f"{package_dir}: schema.hash does not match schema.yaml")
+
+    failures.extend(validate_cross_package_function_signatures())
 
     if failures:
         print("API freeze contract violations detected:", file=sys.stderr)
