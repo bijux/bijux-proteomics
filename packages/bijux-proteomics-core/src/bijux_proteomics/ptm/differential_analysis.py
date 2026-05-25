@@ -15,6 +15,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.abundance_correction import (
+    PtmProteinCorrectionReference as PtmProteinAbundanceCorrectionReference,
+    PtmSiteCorrectionCandidate,
+    correct_site_by_protein,
+)
 from bijux_proteomics.ptm.localization_scoring import PtmLocalizationConfidenceTier
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
@@ -211,6 +216,13 @@ def build_ptm_differential_analysis_report(
         entry.pair_id not in (None, "") for entry in analysis_design_entries
     ):
         effective_pairing_field = "pair_id"
+    if effective_pairing_field is not None:
+        _require_complete_ptm_pairs(
+            analysis_design_entries,
+            condition_a=resolved_condition_a,
+            condition_b=resolved_condition_b,
+            pairing_field=effective_pairing_field,
+        )
     require_feasible_experiment_design_for_analysis(
         analysis_design_entries,
         chosen_analysis_family=(
@@ -458,6 +470,15 @@ def _build_ptm_site_differential_report(
     protein_correction_mode: PtmProteinCorrectionMode,
 ) -> PtmSiteDifferentialReport:
     row_by_site = {row.site_key: row for row in site_rows}
+    site_correction_entries = _build_site_correction_entries(
+        differential,
+        row_by_site=row_by_site,
+        protein_differential_lookup=protein_differential_lookup,
+        protein_correction_mode=protein_correction_mode,
+    )
+    correction_by_site = {
+        entry.site_id: entry for entry in site_correction_entries
+    }
     entries: list[PtmSiteDifferentialEntry] = []
     for entry in differential.entries:
         row = row_by_site[entry.entity_id]
@@ -466,24 +487,10 @@ def _build_ptm_site_differential_report(
             PtmLocalizationConfidenceTier.REFUSED,
         }
         correction_reference = protein_differential_lookup.get(row.protein_ref)
-        protein_log2_fold_change = None
-        protein_adjusted_p_value = None
-        corrected_log2_fold_change = None
-        correction_status = PtmProteinCorrectionStatus.NOT_REQUESTED
-        if protein_correction_mode is PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN:
-            if correction_reference is None:
-                correction_status = PtmProteinCorrectionStatus.MISSING_PROTEIN_BASELINE
-            else:
-                protein_log2_fold_change = correction_reference.log2_fold_change
-                protein_adjusted_p_value = correction_reference.adjusted_p_value
-                corrected_log2_fold_change = (
-                    entry.log2_fold_change - correction_reference.log2_fold_change
-                )
-                correction_status = (
-                    PtmProteinCorrectionStatus.CORRECTED_LOW_LOCALIZATION
-                    if low_localization
-                    else PtmProteinCorrectionStatus.HIGH_CONFIDENCE_CORRECTED
-                )
+        protein_adjusted_p_value = (
+            None if correction_reference is None else correction_reference.adjusted_p_value
+        )
+        correction_entry = correction_by_site[entry.entity_id]
         entries.append(
             PtmSiteDifferentialEntry(
                 site_key=row.site_key,
@@ -518,10 +525,14 @@ def _build_ptm_site_differential_report(
                     entry.imputation_significance_change_reason
                 ),
                 imputation_dependent_hit=entry.imputation_dependent_hit,
-                protein_log2_fold_change=protein_log2_fold_change,
+                protein_log2_fold_change=correction_entry.protein_log2fc,
                 protein_adjusted_p_value=protein_adjusted_p_value,
-                corrected_log2_fold_change=corrected_log2_fold_change,
-                protein_correction_status=correction_status.value,
+                corrected_log2_fold_change=correction_entry.corrected_site_log2fc,
+                protein_correction_status=(
+                    PtmProteinCorrectionStatus.NOT_REQUESTED.value
+                    if protein_correction_mode is PtmProteinCorrectionMode.NONE
+                    else correction_entry.correction_status.value
+                ),
                 uncertainty_note=_merge_uncertainty_notes(
                     entry.uncertainty_note,
                     "low-localization site should be reviewed cautiously before biological interpretation"
@@ -539,6 +550,40 @@ def _build_ptm_site_differential_report(
         broken_pairs=differential.broken_pairs,
         note=(
             "ptm site differential report preserves protein-mapped site identity alongside one benjamini-hochberg-corrected contrast"
+        ),
+    )
+
+
+def _build_site_correction_entries(
+    differential: DifferentialAbundanceReport,
+    *,
+    row_by_site: dict[str, PtmSiteQuantRow],
+    protein_differential_lookup: dict[str, PtmProteinDifferentialReference],
+    protein_correction_mode: PtmProteinCorrectionMode,
+):
+    site_candidates = tuple(
+        PtmSiteCorrectionCandidate(
+            site_id=entry.entity_id,
+            protein_id=row_by_site[entry.entity_id].protein_ref,
+            raw_site_log2fc=entry.log2_fold_change,
+            low_localization=row_by_site[entry.entity_id].localization_tier
+            in {
+                PtmLocalizationConfidenceTier.AMBIGUOUS,
+                PtmLocalizationConfidenceTier.REFUSED,
+            },
+        )
+        for entry in differential.entries
+    )
+    if protein_correction_mode is PtmProteinCorrectionMode.NONE:
+        return correct_site_by_protein(site_candidates, ())
+    return correct_site_by_protein(
+        site_candidates,
+        tuple(
+            PtmProteinAbundanceCorrectionReference(
+                protein_id=reference.protein_ref,
+                protein_log2fc=reference.log2_fold_change,
+            )
+            for reference in protein_differential_lookup.values()
         ),
     )
 
@@ -838,28 +883,187 @@ def _build_protein_differential_lookup(
             method=normalization_method,
         )
     )
-    paired_policy = (
-        PairedDifferentialPolicy(pair_id_field=pairing_field)
-        if pairing_field is not None
-        else None
-    )
-    protein_differential = build_differential_abundance_report(
+    if pairing_field is not None:
+        complete_pairs = _resolve_complete_protein_design_pairs(
+            design_entries,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            pairing_field=pairing_field,
+        )
+        return _build_paired_protein_differential_lookup(
+            normalized_protein_table,
+            complete_pairs=complete_pairs,
+        )
+    sample_ids_a, sample_ids_b = _resolve_protein_condition_sample_ids(
         normalized_protein_table,
         design_entries,
         condition_a=condition_a,
         condition_b=condition_b,
-        test_type=(
-            DifferentialAbundanceTestType.PAIRED_T_TEST
-            if paired_policy is not None
-            else DifferentialAbundanceTestType.WELCH_T_TEST
-        ),
-        paired_policy=paired_policy,
     )
-    return {
-        entry.entity_id: PtmProteinDifferentialReference(
-            protein_ref=entry.entity_id,
-            log2_fold_change=entry.log2_fold_change,
-            adjusted_p_value=entry.adjusted_p_value,
+    return _build_unpaired_protein_differential_lookup(
+        normalized_protein_table,
+        sample_ids_a=sample_ids_a,
+        sample_ids_b=sample_ids_b,
+    )
+
+
+def _build_unpaired_protein_differential_lookup(
+    protein_table: LabelFreeQuantTable,
+    *,
+    sample_ids_a: tuple[str, ...],
+    sample_ids_b: tuple[str, ...],
+) -> dict[str, PtmProteinDifferentialReference]:
+    lookup = _protein_log2_abundance_lookup(protein_table)
+    references: dict[str, PtmProteinDifferentialReference] = {}
+    for protein_id in protein_table.entity_ids:
+        values_a = tuple(
+            value
+            for sample_id in sample_ids_a
+            if (value := lookup.get((protein_id, sample_id))) is not None
         )
-        for entry in protein_differential.entries
+        values_b = tuple(
+            value
+            for sample_id in sample_ids_b
+            if (value := lookup.get((protein_id, sample_id))) is not None
+        )
+        if not values_a or not values_b:
+            continue
+        references[protein_id] = PtmProteinDifferentialReference(
+            protein_ref=protein_id,
+            log2_fold_change=_mean(values_b) - _mean(values_a),
+            adjusted_p_value=None,
+        )
+    return references
+
+
+def _build_paired_protein_differential_lookup(
+    protein_table: LabelFreeQuantTable,
+    *,
+    complete_pairs: tuple[tuple[str, str], ...],
+) -> dict[str, PtmProteinDifferentialReference]:
+    lookup = _protein_log2_abundance_lookup(protein_table)
+    references: dict[str, PtmProteinDifferentialReference] = {}
+    for protein_id in protein_table.entity_ids:
+        differences = tuple(
+            value_b - value_a
+            for sample_id_a, sample_id_b in complete_pairs
+            if (value_a := lookup.get((protein_id, sample_id_a))) is not None
+            and (value_b := lookup.get((protein_id, sample_id_b))) is not None
+        )
+        if not differences:
+            continue
+        references[protein_id] = PtmProteinDifferentialReference(
+            protein_ref=protein_id,
+            log2_fold_change=_mean(differences),
+            adjusted_p_value=None,
+        )
+    return references
+
+
+def _resolve_protein_condition_sample_ids(
+    protein_table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    condition_a: str,
+    condition_b: str,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    condition_by_sample = {
+        entry.sample_id: entry.condition
+        for entry in design_entries
+        if entry.condition in {condition_a, condition_b}
     }
+    sample_ids_a = tuple(
+        sample_id
+        for sample_id in protein_table.sample_ids
+        if condition_by_sample.get(sample_id) == condition_a
+    )
+    sample_ids_b = tuple(
+        sample_id
+        for sample_id in protein_table.sample_ids
+        if condition_by_sample.get(sample_id) == condition_b
+    )
+    return sample_ids_a, sample_ids_b
+
+
+def _resolve_complete_protein_design_pairs(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    condition_a: str,
+    condition_b: str,
+    pairing_field: str,
+) -> tuple[tuple[str, str], ...]:
+    rows_by_pair_id: dict[str, dict[str, list[str]]] = {}
+    for entry in design_entries:
+        if entry.condition not in {condition_a, condition_b}:
+            continue
+        pair_id = getattr(entry, pairing_field, None)
+        if pair_id in (None, ""):
+            continue
+        grouped = rows_by_pair_id.setdefault(
+            str(pair_id),
+            {condition_a: [], condition_b: []},
+        )
+        grouped[entry.condition].append(entry.sample_id)
+    complete_pairs: list[tuple[str, str]] = []
+    for pair_id in sorted(rows_by_pair_id):
+        grouped = rows_by_pair_id[pair_id]
+        sample_ids_a = tuple(sorted(grouped[condition_a]))
+        sample_ids_b = tuple(sorted(grouped[condition_b]))
+        if len(sample_ids_a) == 1 and len(sample_ids_b) == 1:
+            complete_pairs.append((sample_ids_a[0], sample_ids_b[0]))
+    return tuple(complete_pairs)
+
+
+def _require_complete_ptm_pairs(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    condition_a: str,
+    condition_b: str,
+    pairing_field: str,
+) -> None:
+    rows_by_pair_id: dict[str, dict[str, list[str]]] = {}
+    broken_reasons: list[str] = []
+    for entry in design_entries:
+        if entry.condition not in {condition_a, condition_b}:
+            continue
+        pair_id = getattr(entry, pairing_field, None)
+        if pair_id in (None, ""):
+            broken_reasons.append(
+                f"sample {entry.sample_id} in condition {entry.condition} is missing {pairing_field}"
+            )
+            continue
+        grouped = rows_by_pair_id.setdefault(
+            str(pair_id),
+            {condition_a: [], condition_b: []},
+        )
+        grouped[entry.condition].append(entry.sample_id)
+    for pair_id in sorted(rows_by_pair_id):
+        grouped = rows_by_pair_id[pair_id]
+        sample_ids_a = tuple(sorted(grouped[condition_a]))
+        sample_ids_b = tuple(sorted(grouped[condition_b]))
+        if len(sample_ids_a) != 1 or len(sample_ids_b) != 1:
+            broken_reasons.append(
+                "pair "
+                f"{pair_id} does not contain exactly one sample in each of "
+                f"{condition_a} and {condition_b}"
+            )
+    if broken_reasons:
+        raise ValueError(
+            "broken_pair: paired PTM differential analysis requires exactly one "
+            "sample per contrast condition for each pair identifier; "
+            + "; ".join(broken_reasons)
+        )
+
+
+def _protein_log2_abundance_lookup(
+    protein_table: LabelFreeQuantTable,
+) -> dict[tuple[str, str], float]:
+    return {
+        (value.entity_id, value.sample_id): math.log2(value.abundance + 1.0)
+        for value in protein_table.values
+        if value.abundance is not None
+    }
+
+
+def _mean(values: tuple[float, ...]) -> float:
+    return float(sum(values) / len(values))
