@@ -11,8 +11,12 @@ import hashlib
 from pathlib import Path
 from statistics import median
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_code,
+)
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification.contaminant_evidence import (
     build_contaminant_evidence_report,
@@ -208,6 +212,14 @@ class QcStatusReasonEntry(JsonModel):
     status: QcStatus
     source: QcStatusReasonSource
     message: str = Field(..., min_length=1)
+
+    @field_validator("code")
+    @classmethod
+    def _validate_code(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.QC_REASON,
+        )
 
 
 class QcRunAnomalyCategory(StrEnum):

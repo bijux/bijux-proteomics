@@ -12,8 +12,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
 )
@@ -127,6 +131,14 @@ class SampleReliabilityQcEntry(JsonModel):
     qc_status: SampleReliabilityQcStatus
     blocked: bool = False
     status_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
+
+    @field_validator("status_reason_codes")
+    @classmethod
+    def _validate_status_reason_codes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.QC_REASON,
+        )
 
 class SampleReliabilityWeightEntry(JsonModel):
     """One sample-level reliability weight carried into downstream statistics."""

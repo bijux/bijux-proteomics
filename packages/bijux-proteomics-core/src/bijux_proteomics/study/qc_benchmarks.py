@@ -5,8 +5,12 @@
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_code,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -82,6 +86,15 @@ class QcPromotionBlockObservation(JsonModel):
     attempted_decision_promotion: bool
     promotion_prevented: bool
     blocking_reason: str = Field(..., min_length=1)
+
+    @field_validator("blocking_reason")
+    @classmethod
+    def _validate_blocking_reason(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.QC_REASON,
+            ReasonCodeCategory.WORKFLOW_BLOCK,
+        )
 
 
 class QcPromotionBlockReport(JsonModel):

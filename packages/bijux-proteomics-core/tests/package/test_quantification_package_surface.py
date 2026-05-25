@@ -374,7 +374,7 @@ def test_quantification_package_exports_replicate_reliability_weight_surface() -
                 sample_id="case-3",
                 qc_status=quantification.SampleReliabilityQcStatus.FAIL,
                 blocked=True,
-                status_reason_codes=("manual_review_fail",),
+                status_reason_codes=("internal_standard_drift",),
             ),
         ),
     )
