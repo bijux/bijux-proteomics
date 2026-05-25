@@ -20,8 +20,8 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     SampleMetadata as CanonicalSampleMetadata,
 )
-from bijux_proteomics.io.format_validation import FormatValidationIssue
-from bijux_proteomics.io.mzml_reader import (
+from bijux_proteomics.io.formats.format_validation import FormatValidationIssue
+from bijux_proteomics.io.raw.mzml_reader import (
     MzmlChromatogramPoint as _MzmlChromatogramPoint,
     MzmlChromatogramReport as _MzmlChromatogramReport,
     MzmlChromatogramTrace as _MzmlChromatogramTrace,
