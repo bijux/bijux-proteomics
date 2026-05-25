@@ -271,6 +271,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "targeted/transition_selection.py",
             "ptm/contracts.py",
             "ptm/ambiguity_handling.py",
+            "ptm/abundance_correction.py",
             "ptm/context_annotation.py",
             "ptm/crosstalk.py",
             "ptm/evidence_cards.py",
