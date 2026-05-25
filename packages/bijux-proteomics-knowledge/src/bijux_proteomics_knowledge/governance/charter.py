@@ -98,10 +98,11 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries, exact protein feature overlap queries, pathway coverage-aware membership resolution, sparse-complex confidence resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
             "complexes/members.py",
             "features/overlaps.py",
+            "kinases/substrates.py",
             "pathways/members.py",
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
@@ -176,6 +177,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.ONTOLOGIES,),
         reason="Protein identity resolution keeps curated accession, alias, and species normalization explicit instead of forcing ambiguous aliases into one winner.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="kinases/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The kinases package root groups exact kinase-substrate resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="kinases/substrates.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Kinase-substrate resolution keeps exact residue-position matches separate from weaker gene-equivalent aliases instead of collapsing all substrate evidence into one confidence tier.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="pathways/__init__.py",
