@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import string
+from tempfile import TemporaryDirectory
 
 from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
@@ -12,6 +14,43 @@ from bijux_proteomics._tabular import (
     parse_delimited_table,
     render_rows_tsv,
     render_tsv_rows,
+)
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
+
+hypothesis = import_or_skip(
+    "hypothesis",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="hypothesis is required for the delimited table property-based surface",
+)
+given = hypothesis.given
+settings = hypothesis.settings
+st = hypothesis.strategies
+
+_SAFE_TEXT = st.text(
+    alphabet=string.ascii_letters + string.digits + "-_./",
+    min_size=1,
+    max_size=12,
+).filter(
+    lambda value: value.strip().lower()
+    not in {"", "na", "n/a", "null", "none", "nan"}
+)
+_OPTIONAL_TEXT = st.one_of(st.none(), _SAFE_TEXT)
+_SMALL_FLOAT = st.one_of(
+    st.none(),
+    st.integers(min_value=-10_000, max_value=10_000).map(lambda value: value / 10.0),
+)
+_TABLE_ROW = st.fixed_dictionaries(
+    {
+        "sample_id": _SAFE_TEXT,
+        "replicate": st.integers(min_value=1, max_value=12),
+        "intensity": _SMALL_FLOAT,
+        "contaminant": st.one_of(st.none(), st.booleans()),
+        "note": _OPTIONAL_TEXT,
+        "extra_info": _OPTIONAL_TEXT,
+    }
 )
 
 
@@ -139,3 +178,68 @@ def test_table_engine_infers_delimiter_and_renders_stable_tsv() -> None:
             },
         ),
     ) == rendered
+
+
+@given(rows=st.lists(_TABLE_ROW, min_size=1, max_size=5))
+@settings(deadline=None, max_examples=30)
+def test_parse_delimited_table_round_trips_generated_valid_rows(
+    rows: list[dict[str, str | int | float | bool | None]],
+) -> None:
+    with TemporaryDirectory() as temp_dir:
+        table_path = Path(temp_dir) / "generated_quant.tsv"
+        table_path.write_text(
+            render_rows_tsv(
+                fieldnames=(
+                    "sample_id",
+                    "replicate",
+                    "intensity",
+                    "contaminant",
+                    "note",
+                    "extra_info",
+                ),
+                rows=tuple(rows),
+            ),
+            encoding="utf-8",
+        )
+
+        report = parse_delimited_table(
+            table_path,
+            column_specs=(
+                DelimitedColumnSpec(name="sample_id", required=True),
+                DelimitedColumnSpec(
+                    name="replicate",
+                    required=True,
+                    value_type=DelimitedColumnValueType.INTEGER,
+                ),
+                DelimitedColumnSpec(
+                    name="intensity",
+                    value_type=DelimitedColumnValueType.FLOAT,
+                ),
+                DelimitedColumnSpec(
+                    name="contaminant",
+                    value_type=DelimitedColumnValueType.BOOLEAN,
+                ),
+                DelimitedColumnSpec(name="note"),
+            ),
+        )
+
+        assert report.delimiter == "\t"
+        assert report.rejected_rows == ()
+        assert len(report.accepted_rows) == len(rows)
+        assert tuple(row.row_number for row in report.accepted_rows) == tuple(
+            range(2, len(rows) + 2)
+        )
+        assert tuple(row.values for row in report.accepted_rows) == tuple(
+            {
+                "sample_id": row["sample_id"],
+                "replicate": row["replicate"],
+                "intensity": row["intensity"],
+                "contaminant": row["contaminant"],
+                "note": row["note"],
+            }
+            for row in rows
+        )
+        assert tuple(row.extra_values for row in report.accepted_rows) == tuple(
+            {} if row["extra_info"] is None else {"extra_info": row["extra_info"]}
+            for row in rows
+        )
