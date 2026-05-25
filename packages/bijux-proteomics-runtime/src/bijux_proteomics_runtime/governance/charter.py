@@ -126,6 +126,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.WORKFLOW_EXECUTION,
         owned_surface="Execution coordination that turns runtime requests into tool, provider, and agent work over proteomics workflows.",
         required_modules=(
+            "checkpoints/scientific.py",
             "parallel/execution.py",
             "streaming/execution.py",
             "runs/manager.py",
@@ -213,6 +214,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Typed workflow-step artifact contracts keep replay-safe checksums and reviewable step outputs under one explicit runtime owner.",
+        )
+
+    if module_path.startswith("checkpoints/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Scientific checkpoints belong in runtime because they decide whether workflow stages continue or block while preserving reviewable counts, QC posture, and confidence posture.",
         )
 
     if module_path.startswith("parallel/"):

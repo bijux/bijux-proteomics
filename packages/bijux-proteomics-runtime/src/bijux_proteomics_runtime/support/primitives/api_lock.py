@@ -17,6 +17,7 @@ DEPRECATED_EXTENSIONS = ("bijux_proteomics_runtime.providers.remote",)
 
 DO_NOT_EXTEND_ZONES = (
     "bijux_proteomics_runtime.artifacts",
+    "bijux_proteomics_runtime.checkpoints",
     "bijux_proteomics_runtime.parallel",
     "bijux_proteomics_runtime.resume",
     "bijux_proteomics_runtime.runs",
