@@ -191,6 +191,24 @@ def test_identification_subpackage_import_contract() -> None:
     assert hasattr(adapters, "build_diann_import_report")
 
 
+def test_quantification_subpackage_import_contract() -> None:
+    matrix = importlib.import_module("bijux_proteomics.quantification.matrix")
+    rollup = importlib.import_module("bijux_proteomics.quantification.rollup")
+    normalization = importlib.import_module(
+        "bijux_proteomics.quantification.normalization"
+    )
+    missingness = importlib.import_module("bijux_proteomics.quantification.missingness")
+    statistics = importlib.import_module("bijux_proteomics.quantification.statistics")
+    provenance = importlib.import_module("bijux_proteomics.quantification.provenance")
+
+    assert hasattr(matrix, "build_numeric_quant_matrix")
+    assert hasattr(rollup, "fit_peptide_bias_model")
+    assert hasattr(normalization, "normalize_label_free_table")
+    assert hasattr(missingness, "build_missingness_classifier_report")
+    assert hasattr(statistics, "build_differential_abundance_report")
+    assert hasattr(provenance, "build_quant_review_bundle")
+
+
 def test_lab_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.lab")
 
