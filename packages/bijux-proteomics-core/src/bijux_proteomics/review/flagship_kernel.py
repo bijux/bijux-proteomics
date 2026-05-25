@@ -7,8 +7,12 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.review.scientific_conflicts import (
     ScientificConflictReport,
     ScientificUntrustworthyChecklist,
@@ -61,6 +65,14 @@ class FlagshipScientificKernelReport(JsonModel):
     kernel_ready: bool
     blocked_reasons: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
+    @field_validator("blocked_reasons")
+    @classmethod
+    def _validate_blocked_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.WORKFLOW_BLOCK,
+        )
 
 
 def build_flagship_scientific_kernel_report(

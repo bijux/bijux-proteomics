@@ -8,8 +8,12 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -48,6 +52,23 @@ class WorkflowScientificSnapshot(JsonModel):
     target_decoy_collision_count: int = Field(..., ge=0)
     external_engine_disagreement_count: int = Field(..., ge=0)
     decision_grade_requested: bool = False
+
+    @field_validator("quant_blocking_reasons")
+    @classmethod
+    def _validate_quant_blocking_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.WORKFLOW_BLOCK,
+        )
+
+    @field_validator("qc_blocking_issue_codes")
+    @classmethod
+    def _validate_qc_blocking_issue_codes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.QC_REASON,
+            ReasonCodeCategory.WORKFLOW_BLOCK,
+        )
 
 
 class ScientificConsistencyIssue(JsonModel):

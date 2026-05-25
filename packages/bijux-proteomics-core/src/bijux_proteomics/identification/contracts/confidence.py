@@ -22,6 +22,10 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
     ModifiedPeptide as CanonicalModifiedPeptide,
@@ -155,6 +159,14 @@ class GroupedConfidenceEntry(JsonModel):
     downgrade_reasons: tuple[str, ...] = Field(default_factory=tuple)
     confidence_label: ConfidenceLabel
     explanation: str = Field(..., min_length=1)
+
+    @field_validator("downgrade_reasons")
+    @classmethod
+    def _validate_downgrade_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.CLAIM_DOWNGRADE,
+        )
 
 
 class GroupedConfidenceReport(JsonModel):

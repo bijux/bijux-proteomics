@@ -9,8 +9,12 @@ import csv
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.dia import (
     DiaPeptideRollupMethod,
     DiaProteinMatrixTargetKind,
@@ -155,6 +159,14 @@ class AdvancedDiannProteinDecisionEntry(JsonModel):
     confidence_tier: EvidenceGraphConfidenceTier
     downgrade_reasons: tuple[str, ...] = Field(default_factory=tuple)
     source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+    @field_validator("downgrade_reasons")
+    @classmethod
+    def _validate_downgrade_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        return require_registered_reason_codes(
+            value,
+            ReasonCodeCategory.CLAIM_DOWNGRADE,
+        )
 
 
 class AdvancedDiannWorkflowReport(BiologyResult):
