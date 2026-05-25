@@ -30,6 +30,7 @@ class IntelligenceAnalyticalBand(StrEnum):
     CONTRADICTIONS = "contradictions"
     FALSIFIERS = "falsifiers"
     REFUSAL = "refusal"
+    NEXT_STEPS = "next_steps"
     QUERY = "query"
     JUDGMENT = "judgment"
     POSTURE = "posture"
@@ -212,6 +213,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.NEXT_STEPS,
+        owned_surface=(
+            "next-experiment selection that converts explicit result weaknesses "
+            "and opportunities into concrete follow-up experiment proposals"
+        ),
+        required_modules=("next_steps.py",),
+        decision_scope=(
+            "recommend concrete follow-up experiments only when a governed result preserves a specific weakness or opportunity",
+            "keep sample qc reruns, ptm relocalization, targeted validation, pathway member resolution, and rejected-claim resolution separate instead of collapsing them into generic next steps",
+        ),
+        refusal_scope=(
+            "refuse generic follow-up advice that does not point to a triggering result row",
+            "do not take over lab scheduling, assay execution, or workflow-owned result generation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.QUERY,
         owned_surface=(
             "deterministic result-question answering that returns governed IDs for "
@@ -359,6 +376,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
             "falsifiers.py",
+            "next_steps.py",
             "query.py",
             "reviews/decision_briefs.py",
             "judgment/recommendations.py",
@@ -437,6 +455,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
             IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
         ),
         reason="Claim refusal keeps strong analytical statements blocked when design validity, QC posture, peptide support, or PTM localization do not satisfy the minimum governed evidence boundary.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="next_steps.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="Next-experiment selection turns explicit study-result weaknesses and opportunities into concrete follow-up experiments with preserved triggering evidence instead of generic prose advice.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="query.py",
