@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.interpretation.biological_context_mapping import *  # noqa: F401,F403
+from bijux_proteomics.interpretation.annotation_packs import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.compartment_biology import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.complex_activity import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.complex_enrichment import *  # noqa: F401,F403
