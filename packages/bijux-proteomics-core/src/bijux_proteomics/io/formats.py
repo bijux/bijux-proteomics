@@ -42,7 +42,7 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
     render_mgf,
 )
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
     build_experimental_design_schema,
     validate_scientific_table,

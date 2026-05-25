@@ -32,7 +32,7 @@ from bijux_proteomics.identification.search_adapters import (
     parse_search_parameter_file,
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     build_maxquant_peptides_schema,
     build_maxquant_protein_groups_schema,
     require_valid_scientific_table,

@@ -10,7 +10,7 @@ import pytest
 from bijux_proteomics.identification.contracts import SearchResultColumnMapping
 from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
 from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableValidationContext,
     ScientificTableValidationError,
     build_contrast_table_schema,

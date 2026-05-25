@@ -12,7 +12,7 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     build_rejected_evidence_rows_from_scientific_rows,
     render_rejected_evidence_tsv,
 )
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableRejectedRow,
     ScientificTableValidationIssue,
 )

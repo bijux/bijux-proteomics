@@ -30,7 +30,7 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
 from bijux_proteomics.quantification import Ms1FeatureRecord
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
     build_ptm_evidence_schema,
     validate_scientific_table,

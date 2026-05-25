@@ -32,7 +32,7 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableRejectedRow,
     ScientificTableValidationIssue,
     build_psm_table_schema,

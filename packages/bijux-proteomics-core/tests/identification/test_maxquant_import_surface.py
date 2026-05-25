@@ -15,7 +15,7 @@ from bijux_proteomics.identification.maxquant_import import (
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
 )
-from bijux_proteomics.scientific_tables import ScientificTableValidationError
+from bijux_proteomics._scientific_tables import ScientificTableValidationError
 
 
 def _bundle_root() -> Path:

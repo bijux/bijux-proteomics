@@ -10,7 +10,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import RejectedEvidence, SampleMetadata
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
     build_samples_table_schema,
     validate_scientific_table,

@@ -14,7 +14,7 @@ from typing import Iterable
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.scientific_tables import (
+from bijux_proteomics._scientific_tables import (
     build_silac_feature_table_schema,
     validate_scientific_table,
 )

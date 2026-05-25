@@ -12,7 +12,7 @@ from typing import Protocol
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import RejectedPsmRow
-from bijux_proteomics.scientific_tables import ScientificTableRejectedRow
+from bijux_proteomics._scientific_tables import ScientificTableRejectedRow
 from bijux_proteomics_foundation import JsonModel
 
 
