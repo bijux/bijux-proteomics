@@ -54,12 +54,49 @@ def test_build_collection_gate_report_runs_import_and_collection_per_package(
         "bijux-proteomics-foundation",
     ]
     assert [check.package_name for check in report.collection_checks] == [
+        "workspace",
         "bijux-proteomics-core",
         "bijux-proteomics-foundation",
     ]
     assert report.failed_checks == ()
-    assert report.collection_checks[0].target == "packages/bijux-proteomics-core/tests"
+    assert report.collection_checks[0].target == "packages"
+    assert report.collection_checks[1].target == "packages/bijux-proteomics-core/tests"
     assert report.import_checks[0].target == "bijux_proteomics"
+
+
+def test_workspace_collection_check_uses_repo_root_pytest_entrypoint(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run_subprocess(
+        command: tuple[str, ...],
+        *,
+        cwd: Path,
+    ) -> tuple[bool, str]:
+        captured["command"] = command
+        captured["cwd"] = cwd
+        return True, "collected tests"
+
+    monkeypatch.setattr(test_collection_gate, "_run_subprocess", fake_run_subprocess)
+
+    check = test_collection_gate._workspace_collection_check(
+        python_executable="/python",
+        repo_root=tmp_path,
+    )
+
+    assert check.package_name == "workspace"
+    assert check.target == "packages"
+    assert captured["cwd"] == tmp_path
+    assert captured["command"] == (
+        "/python",
+        "-m",
+        "pytest",
+        "--collect-only",
+        "packages",
+        "-q",
+    )
 
 
 def test_run_reports_failed_import_or_collection_checks(

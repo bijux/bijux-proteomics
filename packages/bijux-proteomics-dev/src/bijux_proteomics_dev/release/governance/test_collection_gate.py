@@ -141,6 +141,30 @@ def _collection_check(
     )
 
 
+def _workspace_collection_check(
+    *,
+    python_executable: str,
+    repo_root: Path,
+) -> CollectionGateCheck:
+    command = (
+        python_executable,
+        "-m",
+        "pytest",
+        "--collect-only",
+        "packages",
+        "-q",
+    )
+    ok, detail = _run_subprocess(command, cwd=repo_root)
+    return CollectionGateCheck(
+        check_kind="collection",
+        package_name="workspace",
+        target="packages",
+        command=command,
+        ok=ok,
+        detail=detail,
+    )
+
+
 def build_test_collection_gate_report(
     repo_root: Path = REPO_ROOT,
     *,
@@ -161,12 +185,20 @@ def build_test_collection_gate_report(
         for package_name in package_names
     )
     collection_checks = tuple(
-        _collection_check(
-            package_name=package_name,
-            python_executable=executable,
-            repo_root=repo_root,
-        )
-        for package_name in package_names
+        [
+            _workspace_collection_check(
+                python_executable=executable,
+                repo_root=repo_root,
+            ),
+            *(
+                _collection_check(
+                    package_name=package_name,
+                    python_executable=executable,
+                    repo_root=repo_root,
+                )
+                for package_name in package_names
+            ),
+        ]
     )
     return CollectionGateReport(
         import_checks=import_checks,

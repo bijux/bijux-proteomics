@@ -125,6 +125,15 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
     ]
 
 
+def test_repo_root_pytest_entrypoint_matches_shared_python_baseline() -> None:
+    shared_config = _config_parser(REPO_ROOT / "configs" / "pytest.ini")
+    root_config = _config_parser(REPO_ROOT / "pytest.ini")
+
+    assert shared_config.sections() == root_config.sections()
+    for section in shared_config.sections():
+        assert dict(shared_config[section]) == dict(root_config[section])
+
+
 def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
     ruff_config = _ruff_config()
 
