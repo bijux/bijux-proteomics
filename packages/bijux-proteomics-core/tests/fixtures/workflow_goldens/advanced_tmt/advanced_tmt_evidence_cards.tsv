@@ -1,0 +1,3 @@
+protein_id	representative_protein_ref	confidence_status	supporting_clean_peptide_count	flagged_peptide_count	excluded_peptide_count	compression_status	differential_log2_fold_change	adjusted_p_value	note
+P001	P001	supported	2	0	0	not_detected	0.000310068	0.963667	sample peptide support remains below the interference threshold for this protein
+P002	P002	excluded_due_to_interference	0	2	2	not_assessable_all_support_flagged	-0.000304689	0.963667	all observed sample peptide support crosses the interference threshold, so the protein result is excluded from confident interpretation

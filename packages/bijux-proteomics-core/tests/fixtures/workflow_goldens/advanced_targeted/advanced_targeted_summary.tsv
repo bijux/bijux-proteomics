@@ -1,0 +1,12 @@
+field	value
+observation_count	16
+matrix_target_count	2
+reliable_target_entry_count	8
+unreliable_target_entry_count	0
+flagged_coelution_target_entry_count	0
+drift_flagged_fragment_ratio_observation_count	0
+discovery_claim_count	3
+confirmed_count	1
+contradicted_count	1
+inconclusive_count	1
+evidence_card_count	3
