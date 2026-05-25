@@ -310,3 +310,31 @@ def test_lab_package_exports_cohort_balance_surface() -> None:
     assert hasattr(lab, "render_cohort_balance_tsv")
     assert any(row.confounded_with_condition is True for row in rows)
     assert "analysis_warning" in rendered
+
+
+def test_lab_package_exports_lab_action_packet_surface() -> None:
+    packets = lab.build_lab_action_packets(
+        (
+            lab.RunDiagnosisEntry(
+                run_id="run-01",
+                status=lab.LabQcStatus.FAIL,
+                failure_class=lab.RunFailureClass.IDENTIFICATION_FAILURE,
+                primary_reason="low_identification_yield",
+                secondary_reasons=("weak_ms2_fragmentation",),
+            ),
+            lab.CohortBalanceEntry(
+                covariate="sex",
+                group_counts="female[case=0,control=2];male[case=2,control=0]",
+                imbalance_score=1.0,
+                confounded_with_condition=True,
+                analysis_warning="covariate sex is fully confounded with condition and blocks naive subgroup interpretation",
+            ),
+        )
+    )
+    rendered = lab.render_lab_action_packets_tsv(packets)
+
+    assert hasattr(lab, "build_lab_action_packets")
+    assert hasattr(lab, "render_lab_action_packets_tsv")
+    assert any(packet.problem == "low_identification_yield" for packet in packets)
+    assert any(packet.problem == "condition_confounded_covariate" for packet in packets)
+    assert "recommended_action" in rendered
