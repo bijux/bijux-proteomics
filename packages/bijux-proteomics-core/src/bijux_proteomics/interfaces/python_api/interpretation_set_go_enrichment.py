@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_protein_set_enrichment_command(
@@ -82,25 +84,13 @@ def run_protein_set_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_protein_set_enrichment_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_protein_set_enrichment_summary_tsv(report))
     if result_tsv_out is not None:
-        result_tsv_out.write_text(
-            render_protein_set_enrichment_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(result_tsv_out, render_protein_set_enrichment_tsv(report))
     if universe_gap_tsv_out is not None:
-        universe_gap_tsv_out.write_text(
-            render_protein_set_universe_gap_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(universe_gap_tsv_out, render_protein_set_universe_gap_tsv(report))
     if rejected_set_tsv_out is not None:
-        rejected_set_tsv_out.write_text(
-            render_rejected_protein_set_membership_tsv(protein_sets),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_set_tsv_out, render_rejected_protein_set_membership_tsv(protein_sets))
 
     payload = {
         "foreground": foreground.to_dict(),
@@ -188,25 +178,13 @@ def run_go_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_go_enrichment_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_go_enrichment_summary_tsv(report))
     if term_tsv_out is not None:
-        term_tsv_out.write_text(
-            render_go_enrichment_term_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(term_tsv_out, render_go_enrichment_term_tsv(report))
     if unannotated_tsv_out is not None:
-        unannotated_tsv_out.write_text(
-            render_go_enrichment_unannotated_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unannotated_tsv_out, render_go_enrichment_unannotated_tsv(report))
     if rejected_annotation_tsv_out is not None:
-        rejected_annotation_tsv_out.write_text(
-            render_rejected_go_annotation_tsv(annotations),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_annotation_tsv_out, render_rejected_go_annotation_tsv(annotations))
 
     payload = {
         "foreground": foreground.to_dict(),

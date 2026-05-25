@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_spectrum_parse_command(
@@ -116,34 +118,22 @@ def run_spectrum_summary_command(
         raise click.ClickException("spectrum-summary supports only mgf and mzml")
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_spectrum_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_spectrum_summary_tsv(report))
     if charge_tsv_out is not None:
-        charge_tsv_out.write_text(
-            render_spectrum_distribution_tsv(
+        write_output_table_tsv(charge_tsv_out, render_spectrum_distribution_tsv(
                 report.charge_distribution,
                 distribution_name="charge",
-            ),
-            encoding="utf-8",
-        )
+            ))
     if precursor_tsv_out is not None:
-        precursor_tsv_out.write_text(
-            render_spectrum_distribution_tsv(
+        write_output_table_tsv(precursor_tsv_out, render_spectrum_distribution_tsv(
                 report.precursor_mz_distribution,
                 distribution_name="precursor_mz",
-            ),
-            encoding="utf-8",
-        )
+            ))
     if peak_count_tsv_out is not None:
-        peak_count_tsv_out.write_text(
-            render_spectrum_distribution_tsv(
+        write_output_table_tsv(peak_count_tsv_out, render_spectrum_distribution_tsv(
                 report.peak_count_distribution,
                 distribution_name="peak_count",
-            ),
-            encoding="utf-8",
-        )
+            ))
 
     payload = report.to_dict()
     payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None

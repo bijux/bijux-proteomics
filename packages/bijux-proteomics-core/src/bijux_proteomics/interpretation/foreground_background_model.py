@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -306,10 +308,7 @@ def export_biological_foreground_background_summary_tsv(
 ) -> None:
     """Write one biological foreground/background summary TSV artifact."""
 
-    path.write_text(
-        render_biological_foreground_background_summary_tsv(model),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_biological_foreground_background_summary_tsv(model))
 
 
 def export_biological_foreground_background_entry_tsv(
@@ -318,10 +317,7 @@ def export_biological_foreground_background_entry_tsv(
 ) -> None:
     """Write one biological foreground/background entry TSV artifact."""
 
-    path.write_text(
-        render_biological_foreground_background_entry_tsv(model),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_biological_foreground_background_entry_tsv(model))
 
 
 def export_biological_foreground_background_issue_tsv(
@@ -330,10 +326,7 @@ def export_biological_foreground_background_issue_tsv(
 ) -> None:
     """Write one biological foreground/background issue TSV artifact."""
 
-    path.write_text(
-        render_biological_foreground_background_issue_tsv(model),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_biological_foreground_background_issue_tsv(model))
 
 
 def _stable_entries(

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_pathway_activity_command(
@@ -122,45 +124,21 @@ def run_pathway_activity_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_pathway_activity_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_pathway_activity_summary_tsv(report))
     if matrix_tsv_out is not None:
-        matrix_tsv_out.write_text(
-            render_pathway_activity_matrix_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(matrix_tsv_out, render_pathway_activity_matrix_tsv(report))
     if sample_score_tsv_out is not None:
-        sample_score_tsv_out.write_text(
-            render_pathway_activity_sample_score_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(sample_score_tsv_out, render_pathway_activity_sample_score_tsv(report))
     if condition_score_tsv_out is not None:
-        condition_score_tsv_out.write_text(
-            render_pathway_activity_condition_score_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(condition_score_tsv_out, render_pathway_activity_condition_score_tsv(report))
     if condition_comparison_tsv_out is not None:
-        condition_comparison_tsv_out.write_text(
-            render_pathway_activity_condition_comparison_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(condition_comparison_tsv_out, render_pathway_activity_condition_comparison_tsv(report))
     if member_contribution_tsv_out is not None:
-        member_contribution_tsv_out.write_text(
-            render_pathway_member_contribution_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(member_contribution_tsv_out, render_pathway_member_contribution_tsv(report))
     if unresolved_member_tsv_out is not None:
-        unresolved_member_tsv_out.write_text(
-            render_pathway_activity_unresolved_member_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unresolved_member_tsv_out, render_pathway_activity_unresolved_member_tsv(report))
     if rejected_pathway_tsv_out is not None:
-        rejected_pathway_tsv_out.write_text(
-            render_rejected_pathway_membership_tsv(pathway_memberships),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_pathway_tsv_out, render_rejected_pathway_membership_tsv(pathway_memberships))
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -316,45 +294,21 @@ def run_complex_activity_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_complex_activity_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_complex_activity_summary_tsv(report))
     if matrix_tsv_out is not None:
-        matrix_tsv_out.write_text(
-            render_complex_activity_matrix_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(matrix_tsv_out, render_complex_activity_matrix_tsv(report))
     if sample_score_tsv_out is not None:
-        sample_score_tsv_out.write_text(
-            render_complex_activity_sample_score_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(sample_score_tsv_out, render_complex_activity_sample_score_tsv(report))
     if condition_score_tsv_out is not None:
-        condition_score_tsv_out.write_text(
-            render_complex_activity_condition_score_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(condition_score_tsv_out, render_complex_activity_condition_score_tsv(report))
     if condition_comparison_tsv_out is not None:
-        condition_comparison_tsv_out.write_text(
-            render_complex_activity_condition_comparison_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(condition_comparison_tsv_out, render_complex_activity_condition_comparison_tsv(report))
     if member_contribution_tsv_out is not None:
-        member_contribution_tsv_out.write_text(
-            render_complex_member_contribution_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(member_contribution_tsv_out, render_complex_member_contribution_tsv(report))
     if unresolved_member_tsv_out is not None:
-        unresolved_member_tsv_out.write_text(
-            render_complex_activity_unresolved_member_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unresolved_member_tsv_out, render_complex_activity_unresolved_member_tsv(report))
     if rejected_complex_tsv_out is not None:
-        rejected_complex_tsv_out.write_text(
-            render_rejected_complex_membership_tsv(complex_memberships),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_complex_tsv_out, render_rejected_complex_membership_tsv(complex_memberships))
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),

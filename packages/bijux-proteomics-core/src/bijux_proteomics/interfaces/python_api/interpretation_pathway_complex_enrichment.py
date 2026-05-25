@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_pathway_enrichment_command(
@@ -116,25 +118,13 @@ def run_pathway_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_pathway_enrichment_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_pathway_enrichment_summary_tsv(report))
     if pathway_tsv_out is not None:
-        pathway_tsv_out.write_text(
-            render_pathway_enrichment_entry_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(pathway_tsv_out, render_pathway_enrichment_entry_tsv(report))
     if unresolved_tsv_out is not None:
-        unresolved_tsv_out.write_text(
-            render_pathway_unresolved_member_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unresolved_tsv_out, render_pathway_unresolved_member_tsv(report))
     if rejected_pathway_tsv_out is not None:
-        rejected_pathway_tsv_out.write_text(
-            render_rejected_pathway_membership_tsv(pathway_memberships),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_pathway_tsv_out, render_rejected_pathway_membership_tsv(pathway_memberships))
 
     payload = {
         "foreground": foreground.to_dict(),
@@ -268,25 +258,13 @@ def run_complex_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_complex_enrichment_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_complex_enrichment_summary_tsv(report))
     if complex_tsv_out is not None:
-        complex_tsv_out.write_text(
-            render_complex_enrichment_entry_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(complex_tsv_out, render_complex_enrichment_entry_tsv(report))
     if unresolved_tsv_out is not None:
-        unresolved_tsv_out.write_text(
-            render_complex_unresolved_member_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unresolved_tsv_out, render_complex_unresolved_member_tsv(report))
     if rejected_complex_tsv_out is not None:
-        rejected_complex_tsv_out.write_text(
-            render_rejected_complex_membership_tsv(complex_memberships),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_complex_tsv_out, render_rejected_complex_membership_tsv(complex_memberships))
 
     payload = {
         "foreground": foreground.to_dict(),

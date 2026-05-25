@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_annotate_proteins_command(
@@ -74,30 +76,15 @@ def run_annotate_proteins_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_protein_annotation_summary_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_protein_annotation_summary_tsv(mapping_report))
     if annotated_tsv_out is not None:
-        annotated_tsv_out.write_text(
-            render_protein_annotation_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(annotated_tsv_out, render_protein_annotation_tsv(mapping_report))
     if unmapped_tsv_out is not None:
-        unmapped_tsv_out.write_text(
-            render_unmapped_protein_annotation_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unmapped_tsv_out, render_unmapped_protein_annotation_tsv(mapping_report))
     if rejected_input_tsv_out is not None:
-        rejected_input_tsv_out.write_text(
-            render_rejected_protein_reference_tsv(protein_table),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_input_tsv_out, render_rejected_protein_reference_tsv(protein_table))
     if rejected_annotation_tsv_out is not None and annotation_report is not None:
-        rejected_annotation_tsv_out.write_text(
-            render_rejected_protein_annotation_tsv(annotation_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_annotation_tsv_out, render_rejected_protein_annotation_tsv(annotation_report))
 
     payload = {
         "protein_table": protein_table.to_dict(),
@@ -183,35 +170,17 @@ def run_map_context_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_biological_context_mapping_summary_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_biological_context_mapping_summary_tsv(mapping_report))
     if mapped_tsv_out is not None:
-        mapped_tsv_out.write_text(
-            render_biological_context_mapping_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(mapped_tsv_out, render_biological_context_mapping_tsv(mapping_report))
     if term_tsv_out is not None:
-        term_tsv_out.write_text(
-            render_biological_context_term_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(term_tsv_out, render_biological_context_term_tsv(mapping_report))
     if unmapped_tsv_out is not None:
-        unmapped_tsv_out.write_text(
-            render_unmapped_biological_context_tsv(mapping_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unmapped_tsv_out, render_unmapped_biological_context_tsv(mapping_report))
     if rejected_input_tsv_out is not None:
-        rejected_input_tsv_out.write_text(
-            render_rejected_protein_reference_tsv(protein_table),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_input_tsv_out, render_rejected_protein_reference_tsv(protein_table))
     if rejected_context_tsv_out is not None:
-        rejected_context_tsv_out.write_text(
-            render_rejected_biological_context_tsv(context_table),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_context_tsv_out, render_rejected_biological_context_tsv(context_table))
 
     payload = {
         "protein_table": protein_table.to_dict(),

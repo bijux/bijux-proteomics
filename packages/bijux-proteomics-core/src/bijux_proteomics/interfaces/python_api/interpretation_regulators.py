@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_regulator_inference_command(
@@ -199,25 +201,13 @@ def run_regulator_inference_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_regulator_inference_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_regulator_inference_summary_tsv(report))
     if inference_tsv_out is not None:
-        inference_tsv_out.write_text(
-            render_regulator_inference_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(inference_tsv_out, render_regulator_inference_tsv(report))
     if unresolved_target_tsv_out is not None:
-        unresolved_target_tsv_out.write_text(
-            render_unresolved_regulator_target_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unresolved_target_tsv_out, render_unresolved_regulator_target_tsv(report))
     if rejected_evidence_tsv_out is not None:
-        rejected_evidence_tsv_out.write_text(
-            render_rejected_regulator_evidence_tsv(regulator_evidence_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_evidence_tsv_out, render_rejected_regulator_evidence_tsv(regulator_evidence_report))
     if rejected_site_signal_tsv_out is not None:
         rejected_site_signal_tsv_out.write_text(
             ""
@@ -336,35 +326,17 @@ def run_ppi_modules_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_ppi_network_module_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_ppi_network_module_summary_tsv(report))
     if edge_tsv_out is not None:
-        edge_tsv_out.write_text(
-            render_ppi_network_edge_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(edge_tsv_out, render_ppi_network_edge_tsv(report))
     if module_tsv_out is not None:
-        module_tsv_out.write_text(
-            render_ppi_module_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(module_tsv_out, render_ppi_module_tsv(report))
     if isolated_tsv_out is not None:
-        isolated_tsv_out.write_text(
-            render_ppi_isolated_protein_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(isolated_tsv_out, render_ppi_isolated_protein_tsv(report))
     if module_enrichment_tsv_out is not None:
-        module_enrichment_tsv_out.write_text(
-            render_ppi_module_enrichment_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(module_enrichment_tsv_out, render_ppi_module_enrichment_tsv(report))
     if rejected_edge_tsv_out is not None:
-        rejected_edge_tsv_out.write_text(
-            render_rejected_ppi_edge_tsv(edge_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_edge_tsv_out, render_rejected_ppi_edge_tsv(edge_report))
 
     payload = {
         "significant": significant.to_dict(),
