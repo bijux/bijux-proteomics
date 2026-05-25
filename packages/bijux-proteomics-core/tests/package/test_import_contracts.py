@@ -150,6 +150,7 @@ def test_identification_package_import_contract() -> None:
 def test_lab_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.lab")
 
+    assert hasattr(module, "build_lab_action_packets")
     assert hasattr(module, "build_internal_standard_sample_qc")
     assert hasattr(module, "check_cohort_balance")
     assert hasattr(module, "compare_samples_to_blanks")
@@ -157,6 +158,7 @@ def test_lab_package_import_contract() -> None:
     assert hasattr(module, "classify_digestion")
     assert hasattr(module, "classify_run_failure")
     assert hasattr(module, "detect_sample_swaps")
+    assert hasattr(module, "render_lab_action_packets_tsv")
     assert hasattr(module, "render_cohort_balance_tsv")
     assert hasattr(module, "render_internal_standard_tracking_tsv")
     assert hasattr(module, "render_sample_swap_suspicion_tsv")
