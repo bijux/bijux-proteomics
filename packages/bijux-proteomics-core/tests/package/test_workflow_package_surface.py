@@ -714,6 +714,50 @@ def test_workflow_package_exports_public_benchmark_subset_surface() -> None:
     assert report.expected_count_ranges
 
 
+def test_workflow_package_exports_synthetic_quant_truth_surface() -> None:
+    report = workflow.generate_quant_truth_dataset(
+        workflow.SyntheticQuantTruthConfig(
+            dataset_id="workflow_synthetic_quant_truth_fixture",
+            reference_condition="control",
+            effect_condition="treatment",
+            samples=(
+                workflow.SyntheticQuantSample(
+                    sample_id="C1",
+                    condition="control",
+                    replicate=1,
+                    batch_id="batch_a",
+                ),
+                workflow.SyntheticQuantSample(
+                    sample_id="T1",
+                    condition="treatment",
+                    replicate=1,
+                    batch_id="batch_b",
+                ),
+            ),
+            changed_proteins=(
+                workflow.SyntheticQuantChangedProteinSpec(
+                    protein_id="P_UP",
+                    peptide_ids=("P_UP_P1", "P_UP_P2"),
+                    baseline_log2_intensity=10.0,
+                    effect_log2_fold_change=1.25,
+                ),
+            ),
+            unchanged_proteins=(
+                workflow.SyntheticQuantProteinSpec(
+                    protein_id="P_STABLE",
+                    peptide_ids=("P_STABLE_P1",),
+                    baseline_log2_intensity=9.0,
+                ),
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "generate_quant_truth_dataset")
+    assert hasattr(workflow, "render_synthetic_quant_truth_tsv")
+    assert report.truth_records[0].truth_kind == "changed_protein"
+    assert "truth_kind" in workflow.render_synthetic_quant_truth_tsv(report)
+
+
 def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     report = workflow.build_public_benchmark_trust_bundle(
         workflow.public_benchmark_root(),
