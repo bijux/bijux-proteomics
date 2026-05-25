@@ -125,18 +125,13 @@ def build_public_benchmark_subset(
             "public benchmark subset max_entities is too small to preserve one known "
             "signal together with mandatory decoy and contaminant integrity anchors"
         )
-    selected_entity_ids = tuple(
-        dict.fromkeys(
-            (
-                *required_entity_ids,
-                *(
-                    entity_id
-                    for entity_id in detected_anchor_state["biological_entity_ids"]
-                    if entity_id not in required_entity_ids
-                ),
-            )
-        )
-    )[:max_entities]
+    selected_entity_ids = _select_entity_ids(
+        selected_sample_ids=selected_sample_ids,
+        max_entities=max_entities,
+        required_entity_ids=required_entity_ids,
+        biological_entity_ids=detected_anchor_state["biological_entity_ids"],
+        sample_coverage=detected_anchor_state["sample_coverage"],
+    )
     if signal_anchors and not any(
         (anchor.site_key or anchor.protein_ref) in set(selected_entity_ids)
         for anchor in signal_anchors
@@ -335,6 +330,38 @@ def _subset_sample_groups(
     return tuple(groups)
 
 
+def _select_entity_ids(
+    *,
+    selected_sample_ids: tuple[str, ...],
+    max_entities: int,
+    required_entity_ids: tuple[str, ...],
+    biological_entity_ids: tuple[str, ...],
+    sample_coverage: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    selected = list(required_entity_ids)
+    selected_set = set(selected)
+    uncovered_samples = set(selected_sample_ids)
+    for entity_id in selected:
+        uncovered_samples.difference_update(sample_coverage.get(entity_id, ()))
+    candidates = [
+        entity_id for entity_id in biological_entity_ids if entity_id not in selected_set
+    ]
+    while len(selected) < max_entities and candidates:
+        best_entity = max(
+            candidates,
+            key=lambda entity_id: (
+                len(uncovered_samples.intersection(sample_coverage.get(entity_id, ()))),
+                len(sample_coverage.get(entity_id, ())),
+                -biological_entity_ids.index(entity_id),
+            ),
+        )
+        selected.append(best_entity)
+        selected_set.add(best_entity)
+        uncovered_samples.difference_update(sample_coverage.get(best_entity, ()))
+        candidates.remove(best_entity)
+    return tuple(selected)
+
+
 def _signal_anchors(
     descriptor: PublicBenchmarkDescriptor,
 ) -> tuple[_SignalAnchor, ...]:
@@ -373,17 +400,22 @@ def _signal_anchors(
 
 def _detect_required_entity_anchors(
     descriptor: PublicBenchmarkDescriptor,
-) -> dict[str, tuple[str, ...]]:
+) -> dict[str, object]:
     repo_root = _repo_root()
     biological_entity_ids: list[str] = []
     decoy_entity_ids: list[str] = []
     contaminant_entity_ids: list[str] = []
+    sample_coverage: dict[str, set[str]] = {}
     for source in descriptor.source_files:
         if source.schema_id not in _TABULAR_SCHEMA_IDS:
             continue
         rows = _read_tabular_rows(repo_root / source.repo_relative_path, source.schema_id)
         for row in rows:
             entity_ids = _row_entity_ids(row, schema_id=source.schema_id)
+            row_samples = _row_sample_ids(row, schema_id=source.schema_id)
+            for entity_id in entity_ids:
+                if entity_id:
+                    sample_coverage.setdefault(entity_id, set()).update(row_samples)
             if _row_is_decoy(row):
                 decoy_entity_ids.extend(entity_ids)
                 continue
@@ -397,6 +429,10 @@ def _detect_required_entity_anchors(
         "contaminant_entity_ids": tuple(
             dict.fromkeys(entity_id for entity_id in contaminant_entity_ids if entity_id)
         ),
+        "sample_coverage": {
+            entity_id: tuple(sorted(sample_ids))
+            for entity_id, sample_ids in sorted(sample_coverage.items())
+        },
     }
 
 
