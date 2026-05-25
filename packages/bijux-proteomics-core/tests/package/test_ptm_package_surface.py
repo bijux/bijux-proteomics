@@ -88,6 +88,51 @@ def test_ptm_package_exports_site_group_owner_surface() -> None:
     assert "ambiguity_class" in rendered.splitlines()[0]
 
 
+def test_ptm_package_exports_acetylation_owner_surface() -> None:
+    rows = ptm.analyze_acetylation_sites(
+        (
+            ptm.PtmAcetylSiteCandidate(
+                site_id="P1:A1:Acetyl",
+                protein_id="P1",
+                residue="A",
+                position=1,
+                raw_site_log2fc=1.2,
+                protein_log2fc=0.5,
+            ),
+            ptm.PtmAcetylSiteCandidate(
+                site_id="P1:K8:Acetyl",
+                protein_id="P1",
+                residue="K",
+                position=8,
+                raw_site_log2fc=0.9,
+                protein_log2fc=0.4,
+            ),
+        ),
+        (
+            ptm.PtmAcetylProteinContext(
+                protein_id="P1",
+                start=1,
+                end=3,
+                domain_context="n_term_tail",
+            ),
+            ptm.PtmAcetylProteinContext(
+                protein_id="P1",
+                start=5,
+                end=12,
+                domain_context="acetyl_binding_repeat",
+            ),
+        ),
+    )
+    rendered = ptm.render_acetylation_site_analysis_tsv(rows)
+
+    assert hasattr(ptm, "analyze_acetylation_sites")
+    assert hasattr(ptm, "render_acetylation_site_analysis_tsv")
+    assert rows[0].site_id == "P1:A1:Acetyl"
+    assert rows[0].acetylation_type.value == "n_terminal_acetylation"
+    assert rows[1].acetylation_type.value == "lysine_acetylation"
+    assert "abundance_corrected_effect" in rendered
+
+
 def test_ptm_package_exports_abundance_correction_owner_surface() -> None:
     rows = ptm.correct_site_by_protein(
         (
