@@ -77,7 +77,20 @@ def test_build_tmt_experiment_workflow_bundle_rejects_invalid_metadata() -> None
     ):
         build_tmt_experiment_workflow_bundle(
             _multiplex_fixture("maxquant_tmt_evidence.tsv"),
-            _multiplex_fixture("tmt_metadata_issues.design.tsv"),
+            _multiplex_fixture("tmt_duplicate_channel.design.tsv"),
+            control_channel="126",
+            source_kind=TmtSearchResultSourceKind.MAXQUANT,
+        )
+
+
+def test_build_tmt_experiment_workflow_bundle_rejects_missing_channel_coverage() -> None:
+    with pytest.raises(
+        ValueError,
+        match="complete multiplex channel coverage",
+    ):
+        build_tmt_experiment_workflow_bundle(
+            _multiplex_fixture("maxquant_tmt_evidence.tsv"),
+            _multiplex_fixture("tmt_missing_channel.design.tsv"),
             control_channel="126",
             source_kind=TmtSearchResultSourceKind.MAXQUANT,
         )
