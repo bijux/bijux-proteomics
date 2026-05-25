@@ -10,17 +10,34 @@ from enum import StrEnum
 from html import escape
 from io import StringIO
 from pathlib import Path
+from typing import TypeAlias
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.benchmarks.weak_evidence import (
+    WeakEvidenceBenchmarkDescriptor,
+    WeakEvidenceBenchmarkReport,
+    build_flagship_weak_evidence_benchmark_descriptor,
+    render_weak_evidence_benchmark_criteria_tsv,
+    render_weak_evidence_benchmark_summary_tsv,
+    run_weak_evidence_benchmark,
+)
+from bijux_proteomics.workflow.public_benchmark_descriptors import (
+    list_public_benchmark_descriptor_paths,
+    load_public_benchmark_descriptor,
+    public_benchmark_root,
+)
 from bijux_proteomics.workflow.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     PublicBenchmarkSuiteReport,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_summary_tsv,
-    run_public_benchmark_descriptor_suite,
+    run_public_benchmark_descriptor,
 )
 from bijux_proteomics_foundation import JsonModel
+
+
+TrustBundleDescriptorInput: TypeAlias = Path | WeakEvidenceBenchmarkDescriptor
 
 
 class TrustBundleArtifactCategory(StrEnum):
@@ -72,6 +89,11 @@ class TrustBundleReport(JsonModel):
     benchmark_root: str = Field(..., min_length=1)
     output_dir: str = Field(..., min_length=1)
     suite_report: PublicBenchmarkSuiteReport
+    weak_evidence_reports: tuple[WeakEvidenceBenchmarkReport, ...] = Field(
+        default_factory=tuple
+    )
+    descriptor_count: int = Field(..., ge=0)
+    handwritten_result_table_count: int = Field(..., ge=0)
     runs: tuple[TrustBundleRunSummary, ...] = Field(default_factory=tuple)
     benchmark_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
         default_factory=tuple
@@ -91,21 +113,32 @@ class TrustBundleReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def build_public_benchmark_trust_bundle(
-    benchmark_root: Path,
-    *,
+def build_flagship_trust_bundle_descriptors(
     output_dir: Path,
-) -> TrustBundleReport:
-    """Build a regenerable trust bundle from public benchmark descriptors."""
+) -> tuple[TrustBundleDescriptorInput, ...]:
+    """Build the shipped trust-bundle descriptor set."""
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-    workflow_output_root = output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS
-    benchmark_result_root = output_dir / TrustBundleArtifactCategory.BENCHMARK_RESULTS
-    graph_root = output_dir / TrustBundleArtifactCategory.EVIDENCE_GRAPHS
-    rejected_root = output_dir / TrustBundleArtifactCategory.REJECTED_EVIDENCE
-    qc_root = output_dir / TrustBundleArtifactCategory.QC_FAILURES
-    card_root = output_dir / TrustBundleArtifactCategory.CARDS
-    comparison_root = output_dir / TrustBundleArtifactCategory.COMPARISON_TABLES
+    public_descriptor_paths = list_public_benchmark_descriptor_paths(public_benchmark_root())
+    weak_evidence_descriptor = build_flagship_weak_evidence_benchmark_descriptor(
+        output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS / "flagship_weak_evidence_benchmark"
+    )
+    return (*public_descriptor_paths, weak_evidence_descriptor)
+
+
+def build_trust_bundle(
+    descriptors: tuple[TrustBundleDescriptorInput, ...],
+    out_dir: Path,
+) -> TrustBundleReport:
+    """Build a regenerable trust bundle from explicit benchmark descriptors."""
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    workflow_output_root = out_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS
+    benchmark_result_root = out_dir / TrustBundleArtifactCategory.BENCHMARK_RESULTS
+    graph_root = out_dir / TrustBundleArtifactCategory.EVIDENCE_GRAPHS
+    rejected_root = out_dir / TrustBundleArtifactCategory.REJECTED_EVIDENCE
+    qc_root = out_dir / TrustBundleArtifactCategory.QC_FAILURES
+    card_root = out_dir / TrustBundleArtifactCategory.CARDS
+    comparison_root = out_dir / TrustBundleArtifactCategory.COMPARISON_TABLES
     for path in (
         workflow_output_root,
         benchmark_result_root,
@@ -117,18 +150,36 @@ def build_public_benchmark_trust_bundle(
     ):
         path.mkdir(parents=True, exist_ok=True)
 
-    suite = run_public_benchmark_descriptor_suite(
-        benchmark_root,
-        output_root=workflow_output_root,
+    public_descriptor_paths, weak_evidence_descriptors = _split_trust_bundle_descriptors(
+        descriptors,
+    )
+    suite = _run_public_descriptor_suite(
+        public_descriptor_paths,
+        output_root=workflow_output_root / "public_benchmark_runs",
+    )
+    weak_evidence_reports = tuple(
+        run_weak_evidence_benchmark(
+            descriptor.model_copy(
+                update={
+                    "output_root": workflow_output_root / descriptor.benchmark_id,
+                }
+            )
+        )
+        for descriptor in weak_evidence_descriptors
     )
     benchmark_artifacts = _write_benchmark_result_artifacts(
         suite,
         benchmark_result_root=benchmark_result_root,
-        output_dir=output_dir,
+        output_dir=out_dir,
+    ) + _write_weak_evidence_result_artifacts(
+        weak_evidence_reports,
+        benchmark_result_root=benchmark_result_root,
+        output_dir=out_dir,
     )
     workflow_artifacts = _collect_workflow_artifacts(
         suite.runs,
-        output_dir=output_dir,
+        weak_evidence_reports=weak_evidence_reports,
+        output_dir=out_dir,
     )
     evidence_graph_artifacts = tuple(
         artifact
@@ -155,47 +206,71 @@ def build_public_benchmark_trust_bundle(
         benchmark_artifacts=benchmark_artifacts,
         workflow_artifacts=workflow_artifacts,
         comparison_root=comparison_root,
-        output_dir=output_dir,
+        output_dir=out_dir,
     )
     evidence_graph_artifacts = _write_indexed_category_artifacts(
         graph_root / "index.tsv",
         category=TrustBundleArtifactCategory.EVIDENCE_GRAPHS,
         index_note="indexed evidence graph artifacts across the trust bundle",
         references=evidence_graph_artifacts,
-        output_dir=output_dir,
+        output_dir=out_dir,
     )
     rejected_artifacts = _write_indexed_category_artifacts(
         rejected_root / "index.tsv",
         category=TrustBundleArtifactCategory.REJECTED_EVIDENCE,
         index_note="indexed rejected evidence artifacts across the trust bundle",
         references=rejected_artifacts,
-        output_dir=output_dir,
+        output_dir=out_dir,
     )
     qc_artifacts = _write_indexed_category_artifacts(
         qc_root / "index.tsv",
         category=TrustBundleArtifactCategory.QC_FAILURES,
         index_note="indexed QC and quality-warning artifacts across the trust bundle",
         references=qc_artifacts,
-        output_dir=output_dir,
+        output_dir=out_dir,
     )
     card_artifacts = _write_indexed_category_artifacts(
         card_root / "index.tsv",
         category=TrustBundleArtifactCategory.CARDS,
         index_note="indexed protein and PTM evidence cards across the trust bundle",
         references=card_artifacts,
-        output_dir=output_dir,
+        output_dir=out_dir,
     )
-    html_index_path = output_dir / "index.html"
+    handwritten_result_table_count = _count_handwritten_result_table_copies(
+        descriptors,
+        output_dir=out_dir,
+    )
+    if handwritten_result_table_count > 0:
+        raise ValueError(
+            "trust bundle copied one or more shipped source result tables instead of "
+            "regenerating outputs from descriptors"
+        )
+
+    html_index_path = out_dir / "index.html"
     report = TrustBundleReport(
-        benchmark_root=str(benchmark_root),
-        output_dir=str(output_dir),
+        benchmark_root=str(public_benchmark_root()),
+        output_dir=str(out_dir),
         suite_report=suite,
+        weak_evidence_reports=weak_evidence_reports,
+        descriptor_count=len(descriptors),
+        handwritten_result_table_count=handwritten_result_table_count,
         runs=tuple(
-            _summarize_run(
-                run,
-                workflow_artifacts=workflow_artifacts,
-            )
-            for run in suite.runs
+            [
+                *(
+                    _summarize_public_run(
+                        run,
+                        workflow_artifacts=workflow_artifacts,
+                    )
+                    for run in suite.runs
+                ),
+                *(
+                    _summarize_weak_evidence_run(
+                        report,
+                        workflow_artifacts=workflow_artifacts,
+                    )
+                    for report in weak_evidence_reports
+                ),
+            ]
         ),
         benchmark_artifacts=benchmark_artifacts,
         evidence_graph_artifacts=evidence_graph_artifacts,
@@ -205,16 +280,34 @@ def build_public_benchmark_trust_bundle(
         comparison_artifacts=comparison_artifacts,
         html_index_path=str(html_index_path),
         note=(
-            "trust bundle is regenerated directly from public benchmark descriptors "
-            "and owned workflow outputs rather than from handwritten review reports"
+            "trust bundle is regenerated directly from explicit benchmark descriptors, "
+            "including the weak-evidence benchmark, and excludes copied handwritten "
+            "source result tables"
         ),
     )
-    html_index_path.write_text(_render_html_index(report, output_dir=output_dir), encoding="utf-8")
-    (output_dir / "trust_bundle_manifest.json").write_text(
+    html_index_path.write_text(_render_html_index(report, output_dir=out_dir), encoding="utf-8")
+    (out_dir / "trust_bundle_manifest.json").write_text(
         report.to_stable_json() + "\n",
         encoding="utf-8",
     )
     return report
+
+
+def build_public_benchmark_trust_bundle(
+    benchmark_root: Path,
+    *,
+    output_dir: Path,
+) -> TrustBundleReport:
+    """Build a regenerable trust bundle from the shipped public benchmark root."""
+
+    public_descriptor_paths = list_public_benchmark_descriptor_paths(benchmark_root)
+    weak_evidence_descriptor = build_flagship_weak_evidence_benchmark_descriptor(
+        output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS / "flagship_weak_evidence_benchmark"
+    )
+    return build_trust_bundle(
+        (*public_descriptor_paths, weak_evidence_descriptor),
+        output_dir,
+    )
 
 
 def render_trust_bundle_run_summary_tsv(report: TrustBundleReport) -> str:
@@ -308,6 +401,55 @@ def _write_benchmark_result_artifacts(
                 relative_path=str(run_json_path.relative_to(output_dir)),
                 note="machine-readable benchmark run report",
             )
+    )
+    return tuple(references)
+
+
+def _write_weak_evidence_result_artifacts(
+    reports: tuple[WeakEvidenceBenchmarkReport, ...],
+    *,
+    benchmark_result_root: Path,
+    output_dir: Path,
+) -> tuple[TrustBundleArtifactReference, ...]:
+    weak_root = benchmark_result_root / "weak_evidence"
+    weak_root.mkdir(parents=True, exist_ok=True)
+    references: list[TrustBundleArtifactReference] = []
+    for report in reports:
+        benchmark_dir = weak_root / report.benchmark_id
+        benchmark_dir.mkdir(parents=True, exist_ok=True)
+        summary_path = benchmark_dir / "summary.tsv"
+        criteria_path = benchmark_dir / "criteria.tsv"
+        report_path = benchmark_dir / "report.json"
+        summary_path.write_text(
+            render_weak_evidence_benchmark_summary_tsv(report),
+            encoding="utf-8",
+        )
+        criteria_path.write_text(
+            render_weak_evidence_benchmark_criteria_tsv(report),
+            encoding="utf-8",
+        )
+        report_path.write_text(report.to_stable_json() + "\n", encoding="utf-8")
+        references.extend(
+            (
+                TrustBundleArtifactReference(
+                    dataset_id=report.benchmark_id,
+                    category=TrustBundleArtifactCategory.BENCHMARK_RESULTS,
+                    relative_path=str(summary_path.relative_to(output_dir)),
+                    note="generated weak-evidence benchmark summary",
+                ),
+                TrustBundleArtifactReference(
+                    dataset_id=report.benchmark_id,
+                    category=TrustBundleArtifactCategory.BENCHMARK_RESULTS,
+                    relative_path=str(criteria_path.relative_to(output_dir)),
+                    note="generated weak-evidence benchmark criteria ledger",
+                ),
+                TrustBundleArtifactReference(
+                    dataset_id=report.benchmark_id,
+                    category=TrustBundleArtifactCategory.BENCHMARK_RESULTS,
+                    relative_path=str(report_path.relative_to(output_dir)),
+                    note="machine-readable weak-evidence benchmark report",
+                ),
+            )
         )
     return tuple(references)
 
@@ -315,27 +457,53 @@ def _write_benchmark_result_artifacts(
 def _collect_workflow_artifacts(
     runs: tuple[PublicBenchmarkRunReport, ...],
     *,
+    weak_evidence_reports: tuple[WeakEvidenceBenchmarkReport, ...],
     output_dir: Path,
 ) -> tuple[TrustBundleArtifactReference, ...]:
     references: list[TrustBundleArtifactReference] = []
     for run in runs:
-        run_output_dir = Path(run.output_dir)
-        if not run_output_dir.exists():
-            continue
-        for path in sorted(run_output_dir.rglob("*")):
-            if not path.is_file():
-                continue
-            category = _classify_workflow_artifact(path.name)
-            if category is None:
-                continue
-            references.append(
-                TrustBundleArtifactReference(
-                    dataset_id=run.dataset_id,
-                    category=category,
-                    relative_path=str(path.relative_to(output_dir)),
-                    note=f"generated {category.value.replace('_', ' ')} artifact",
-                )
+        references.extend(
+            _collect_directory_artifacts(
+                dataset_id=run.dataset_id,
+                root_dir=Path(run.output_dir),
+                output_dir=output_dir,
             )
+        )
+    for report in weak_evidence_reports:
+        benchmark_root = _weak_evidence_output_root(report)
+        references.extend(
+            _collect_directory_artifacts(
+                dataset_id=report.benchmark_id,
+                root_dir=benchmark_root,
+                output_dir=output_dir,
+            )
+        )
+    return tuple(references)
+
+
+def _collect_directory_artifacts(
+    *,
+    dataset_id: str,
+    root_dir: Path,
+    output_dir: Path,
+) -> tuple[TrustBundleArtifactReference, ...]:
+    if not root_dir.exists():
+        return ()
+    references: list[TrustBundleArtifactReference] = []
+    for path in sorted(root_dir.rglob("*")):
+        if not path.is_file():
+            continue
+        category = _classify_workflow_artifact(path.name)
+        if category is None:
+            continue
+        references.append(
+            TrustBundleArtifactReference(
+                dataset_id=dataset_id,
+                category=category,
+                relative_path=str(path.relative_to(output_dir)),
+                note=f"generated {category.value.replace('_', ' ')} artifact",
+            )
+        )
     return tuple(references)
 
 
@@ -425,7 +593,7 @@ def _classify_workflow_artifact(filename: str) -> TrustBundleArtifactCategory | 
     return None
 
 
-def _summarize_run(
+def _summarize_public_run(
     run: PublicBenchmarkRunReport,
     *,
     workflow_artifacts: tuple[TrustBundleArtifactReference, ...],
@@ -461,6 +629,120 @@ def _summarize_run(
             for artifact in run_artifacts
         ),
     )
+
+
+def _summarize_weak_evidence_run(
+    report: WeakEvidenceBenchmarkReport,
+    *,
+    workflow_artifacts: tuple[TrustBundleArtifactReference, ...],
+) -> TrustBundleRunSummary:
+    run_artifacts = tuple(
+        artifact
+        for artifact in workflow_artifacts
+        if artifact.dataset_id == report.benchmark_id
+    )
+    return TrustBundleRunSummary(
+        dataset_id=report.benchmark_id,
+        accession=f"benchmark:{report.benchmark_id}",
+        status=report.summary.status.value,
+        workflow_output_dir=str(_weak_evidence_output_root(report)),
+        failure_count=report.summary.missing_required_criterion_count,
+        artifact_count=len(run_artifacts),
+        graph_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.EVIDENCE_GRAPHS
+            for artifact in run_artifacts
+        ),
+        rejected_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.REJECTED_EVIDENCE
+            for artifact in run_artifacts
+        ),
+        qc_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.QC_FAILURES
+            for artifact in run_artifacts
+        ),
+        card_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.CARDS
+            for artifact in run_artifacts
+        ),
+        comparison_artifact_count=sum(
+            artifact.category is TrustBundleArtifactCategory.COMPARISON_TABLES
+            for artifact in run_artifacts
+        ),
+    )
+
+
+def _run_public_descriptor_suite(
+    descriptor_paths: tuple[Path, ...],
+    *,
+    output_root: Path,
+) -> PublicBenchmarkSuiteReport:
+    runs = tuple(
+        run_public_benchmark_descriptor(descriptor_path, output_root=output_root)
+        for descriptor_path in descriptor_paths
+    )
+    return PublicBenchmarkSuiteReport(
+        benchmark_root=str(public_benchmark_root()),
+        output_root=str(output_root),
+        runs=runs,
+        passed_count=sum(run.status == "passed" for run in runs),
+        failed_count=sum(run.status == "failed" for run in runs),
+        note=(
+            "descriptor suite records which explicit public benchmark descriptors are "
+            "currently runnable and which still fail under owned workflow execution"
+        ),
+    )
+
+
+def _split_trust_bundle_descriptors(
+    descriptors: tuple[TrustBundleDescriptorInput, ...],
+) -> tuple[tuple[Path, ...], tuple[WeakEvidenceBenchmarkDescriptor, ...]]:
+    public_descriptor_paths: list[Path] = []
+    weak_evidence_descriptors: list[WeakEvidenceBenchmarkDescriptor] = []
+    for descriptor in descriptors:
+        if isinstance(descriptor, Path):
+            public_descriptor_paths.append(descriptor)
+            continue
+        weak_evidence_descriptors.append(descriptor)
+    return tuple(public_descriptor_paths), tuple(weak_evidence_descriptors)
+
+
+def _weak_evidence_output_root(report: WeakEvidenceBenchmarkReport) -> Path:
+    return report.output_root
+
+
+def _count_handwritten_result_table_copies(
+    descriptors: tuple[TrustBundleDescriptorInput, ...],
+    *,
+    output_dir: Path,
+) -> int:
+    source_basenames = _descriptor_source_basenames(descriptors)
+    return sum(
+        1
+        for path in output_dir.rglob("*")
+        if path.is_file() and path.name in source_basenames
+    )
+
+
+def _descriptor_source_basenames(
+    descriptors: tuple[TrustBundleDescriptorInput, ...],
+) -> set[str]:
+    basenames: set[str] = set()
+    for descriptor in descriptors:
+        if isinstance(descriptor, Path):
+            public_descriptor = load_public_benchmark_descriptor(descriptor)
+            basenames.update(
+                Path(source.repo_relative_path).name for source in public_descriptor.source_files
+            )
+            continue
+        for path in (
+            descriptor.lfq_sparse_descriptor_path,
+            descriptor.ptm_descriptor_path,
+            descriptor.tmt_result_tsv_path,
+            descriptor.tmt_design_tsv_path,
+        ):
+            if path is not None:
+                basenames.add(Path(path).name)
+    return basenames
 
 
 def _render_source_audits_tsv(suite: PublicBenchmarkSuiteReport) -> str:
