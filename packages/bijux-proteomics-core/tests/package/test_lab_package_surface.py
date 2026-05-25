@@ -10,6 +10,7 @@ from bijux_proteomics.domain.records import (
     QuantMatrix,
     QuantMeasureKind,
 )
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 
 
 def test_lab_package_exports_run_diagnosis_surface() -> None:
@@ -201,3 +202,66 @@ def test_lab_package_exports_internal_standard_tracking_surface() -> None:
     assert any(row.drift_flag is True for row in rows)
     assert any(row.qc_status.value == "caution" for row in qc_rows)
     assert "drift_flag" in rendered
+
+
+def test_lab_package_exports_sample_swap_suspicion_surface() -> None:
+    matrix = QuantMatrix(
+        matrix_id="sample_identity_surface_matrix",
+        entity_kind=QuantEntityKind.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        entity_ids=("P001", "P002", "P003"),
+        sample_ids=("control_1", "control_2", "case_1"),
+        values=((100.0, 101.0, 99.0), (120.0, 121.0, 118.0), (140.0, 141.0, 139.0)),
+        missing_value_states=(
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+        ),
+        support_counts=((1, 1, 1), (1, 1, 1), (1, 1, 1)),
+    )
+    metadata = (
+        ExperimentalDesignEntry(
+            sample_id="control_1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="control_1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="control_2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="control_2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case_1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case_1.mzml",
+        ),
+    )
+
+    rows = lab.detect_sample_swaps(matrix, metadata)
+    rendered = lab.render_sample_swap_suspicion_tsv(rows)
+
+    assert hasattr(lab, "detect_sample_swaps")
+    assert hasattr(lab, "render_sample_swap_suspicion_tsv")
+    assert any(
+        row.sample_id == "case_1" and row.nearest_neighbor_group == "control"
+        for row in rows
+    )
+    assert "swap_suspicion_score" in rendered
