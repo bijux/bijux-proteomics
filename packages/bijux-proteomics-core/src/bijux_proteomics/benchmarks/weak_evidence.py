@@ -16,7 +16,7 @@ from bijux_proteomics.study.qc_benchmarks import (
     QcPromotionBlockReport,
     build_qc_promotion_block_report,
 )
-from bijux_proteomics.workflow.advanced_tmt import (
+from bijux_proteomics.workflow.pipelines.advanced_tmt import (
     AdvancedTmtWorkflowConfig,
     AdvancedTmtWorkflowReport,
     run_advanced_tmt_workflow,
@@ -26,7 +26,7 @@ from bijux_proteomics.workflow.public_benchmark_descriptors import (
     load_public_benchmark_descriptor,
     public_benchmark_root,
 )
-from bijux_proteomics.workflow.public_benchmark_runner import (
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     run_public_benchmark_descriptor,
 )
@@ -237,7 +237,7 @@ def run_weak_evidence_benchmark(
             criterion_id=WeakEvidenceCriterionId.REFUSED_CLAIM,
             executed=lfq_sparse_report is not None,
             evidence_count=refused_claim_count,
-            source_surface="workflow.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
+            source_surface="workflow.pipelines.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
             message=(
                 "sparse LFQ benchmark preserved explicit rejected biological claims"
                 if refused_claim_count > 0
@@ -248,7 +248,7 @@ def run_weak_evidence_benchmark(
             criterion_id=WeakEvidenceCriterionId.DOWNGRADED_PROTEIN,
             executed=tmt_report is not None,
             evidence_count=downgraded_protein_count,
-            source_surface="workflow.advanced_tmt.run_advanced_tmt_workflow",
+            source_surface="workflow.pipelines.advanced_tmt.run_advanced_tmt_workflow",
             message=(
                 "advanced TMT review preserved interference-driven protein downgrades"
                 if downgraded_protein_count > 0
@@ -259,7 +259,7 @@ def run_weak_evidence_benchmark(
             criterion_id=WeakEvidenceCriterionId.AMBIGUOUS_PTM,
             executed=ptm_report is not None,
             evidence_count=ambiguous_ptm_count,
-            source_surface="workflow.public_benchmark_runner:ptm_localization_review_package",
+            source_surface="workflow.pipelines.public_benchmark_runner:ptm_localization_review_package",
             message=(
                 "PTM benchmark preserved ambiguous localization rows"
                 if ambiguous_ptm_count > 0
@@ -270,7 +270,7 @@ def run_weak_evidence_benchmark(
             criterion_id=WeakEvidenceCriterionId.INVALID_OR_BLOCKED_CONTRAST,
             executed=lfq_sparse_report is not None,
             evidence_count=blocked_contrast_count,
-            source_surface="workflow.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
+            source_surface="workflow.pipelines.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
             message=(
                 "sparse LFQ benchmark preserved blocked or invalid contrast interpretation"
                 if blocked_contrast_count > 0

@@ -99,7 +99,7 @@ from bijux_proteomics.workflow import (
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
-from bijux_proteomics.workflow.orchestrator import (
+from bijux_proteomics.workflow.pipelines.orchestrator import (
     DdaWorkflowConfig,
     DiannWorkflowConfig,
     LabelFreeWorkflowConfig,

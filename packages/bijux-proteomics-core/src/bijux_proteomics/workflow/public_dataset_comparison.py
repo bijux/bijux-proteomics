@@ -28,7 +28,7 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     build_cross_study_pathway_comparison_report,
     render_cross_study_pathway_comparison_tsv,
 )
-from bijux_proteomics.workflow.public_benchmark_runner import (
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     PublicBenchmarkRunStatus,
     PublicBenchmarkSuiteReport,

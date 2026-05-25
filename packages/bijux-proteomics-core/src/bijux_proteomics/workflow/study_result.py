@@ -17,7 +17,7 @@ from bijux_proteomics.workflow.dda_biological_workflow import DdaBiologicalWorkf
 from bijux_proteomics.workflow.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
 )
-from bijux_proteomics.workflow.flagship_run import ProteomicsRunBundle
+from bijux_proteomics.workflow.pipelines.flagship_run import ProteomicsRunBundle
 from bijux_proteomics.workflow.interactive_result_bundle import (
     InteractiveResultBundle,
     InteractiveResultPathway,

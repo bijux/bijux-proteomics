@@ -35,7 +35,7 @@ def run_public_benchmark_runner_command(
                 benchmark_path,
                 output_root=run_output_root,
             )
-            from bijux_proteomics.workflow.public_benchmark_runner import (
+            from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
                 PublicBenchmarkSuiteReport,
             )
 
