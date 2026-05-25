@@ -1,0 +1,5 @@
+transition_id	precursor_id	precursor_charge	sample_id	run_id	peptide_sequence	protein_ref	fragment_label	retention_time_minutes	precursor_mz	fragment_mz	intensity	q_value	platform
+tr_y8_a	prec_a	2	s2	run_b	PEPTIDEK	P001	y8	12.7	445.2	902.5	9000	0.007	prm
+tr_bad_q	prec_bad	2	s9	run_bad	PEPTIDEK	P009	y9	13.1	455.2	912.5	50000	1.5	prm
+tr_dup	prec_dup	2	s1	run_a	PEPTIDEK	P001	y7	12.5	445.2	789.4	120000	0.002	prm
+tr_dup	prec_dup	2	s1	run_a	PEPTIDEK	P001	y8	12.6	445.2	902.5	40000	0.004	prm

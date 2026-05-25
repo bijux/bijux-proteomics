@@ -88,6 +88,30 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
                 " carryover design so scientific-table duplicate protection stays active"
             ),
         ),
+        ImporterMutationFixture(
+            fixture_id="importer_mutation:transition_duplicate_and_invalid_q",
+            owner_surface="io.transition_table.parse_transition_table",
+            source_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/formats/"
+                "transition_quant.tsv"
+            ),
+            mutated_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"
+                "formats/transition_duplicate_and_invalid_q.tsv"
+            ),
+            mutation_kinds=(
+                ImporterMutationKind.DUPLICATE_IDENTIFIER,
+                ImporterMutationKind.INVALID_Q_VALUE,
+            ),
+            expected_accepted_count=1,
+            expected_rejected_count=3,
+            expected_reason_fragments=("duplicate", "invalid q-value"),
+            note=(
+                "reuses one valid transition row, then mutates one q-value and one"
+                " sample-precursor-transition identity pair so row-level refusal stays"
+                " explicit"
+            ),
+        ),
     )
 
 
