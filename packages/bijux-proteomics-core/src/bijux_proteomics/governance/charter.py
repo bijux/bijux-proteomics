@@ -452,6 +452,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/result_archive.py",
             "workflow/result_manifest.py",
             "workflow/result_search_index.py",
+            "workflow/result_types.py",
             "workflow/study_result.py",
             "workflow/pipelines/surprising_demo.py",
             "workflow/pipelines/surprising_demo_interrogation.py",
@@ -524,7 +525,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         ("workflow/", "interfaces/execution/")
     ) or module_path in {"interfaces/runtime_plans.py"}:
         return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
-    if module_path == "programs.py":
+    if module_path in {"programs.py", "public_api.py"}:
         return CoreScientificDomainFamily.PACKAGE_SURFACE
     if module_path == "__init__.py" or module_path.startswith(
         ("governance/", "interfaces/", "benchmarks/")
