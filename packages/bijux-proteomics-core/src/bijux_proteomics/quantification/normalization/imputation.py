@@ -13,7 +13,7 @@ from bijux_proteomics.quantification.matrix.core_matrix import (
     quant_matrix_to_dense_array,
     rebuild_quant_matrix_from_dense_array,
 )
-from bijux_proteomics.quantification.differential_imputation_dependence import (
+from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
     compare_imputation_policies,
 )
 from bijux_proteomics.quantification.contracts import (

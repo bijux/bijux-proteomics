@@ -21,8 +21,8 @@ from bijux_proteomics.quantification.contracts import (
     QuantAssessmentDisposition,
     _log2_values,
 )
-from bijux_proteomics.quantification.design_matrix import _resolve_design_value
-from bijux_proteomics.quantification.sample_exploration import (
+from bijux_proteomics.quantification.matrix.design_matrix import _resolve_design_value
+from bijux_proteomics.quantification.provenance.sample_exploration import (
     build_sample_pca_report,
     build_sample_pca_variance_report,
 )
