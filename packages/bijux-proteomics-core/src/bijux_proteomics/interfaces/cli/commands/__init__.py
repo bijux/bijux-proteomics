@@ -1,0 +1,135 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+# ruff: noqa: F401,F403,F405
+
+"""Registered CLI command collections."""
+
+from __future__ import annotations
+
+from .groups import GROUPS, interpretation_group, isotope_labeling_group, multiplex_group, ptm_group, qc_group, search_adapter_group
+from .program_fasta import COMMANDS as PROGRAM_FASTA_COMMANDS
+from .search_import_fragpipe import COMMANDS as SEARCH_IMPORT_FRAGPIPE_COMMANDS
+from .search_import_quant import COMMANDS as SEARCH_IMPORT_QUANT_COMMANDS
+from .benchmark_demo import COMMANDS as BENCHMARK_DEMO_COMMANDS
+from .dia_precursor_matrices import COMMANDS as DIA_PRECURSOR_MATRICES_COMMANDS
+from .dia_protein_qc import COMMANDS as DIA_PROTEIN_QC_COMMANDS
+from .targeted_matrix_qc import COMMANDS as TARGETED_MATRIX_QC_COMMANDS
+from .targeted_selection import COMMANDS as TARGETED_SELECTION_COMMANDS
+from .results_query import COMMANDS as RESULTS_QUERY_COMMANDS
+from .result_explanation import COMMANDS as RESULT_EXPLANATION_COMMANDS
+from .review_planning import COMMANDS as REVIEW_PLANNING_COMMANDS
+from .targeted_validation import COMMANDS as TARGETED_VALIDATION_COMMANDS
+from .differential_analysis import COMMANDS as DIFFERENTIAL_ANALYSIS_COMMANDS
+from .vendor_imports import COMMANDS as VENDOR_IMPORTS_COMMANDS
+from .sequence_database import COMMANDS as SEQUENCE_DATABASE_COMMANDS
+from .peptide_chemistry import COMMANDS as PEPTIDE_CHEMISTRY_COMMANDS
+from .peptide_review import COMMANDS as PEPTIDE_REVIEW_COMMANDS
+from .identification_evidence import COMMANDS as IDENTIFICATION_EVIDENCE_COMMANDS
+from .fdr_review import COMMANDS as FDR_REVIEW_COMMANDS
+from .protein_grouping import COMMANDS as PROTEIN_GROUPING_COMMANDS
+from .protein_coverage_and_parsimony import COMMANDS as PROTEIN_COVERAGE_AND_PARSIMONY_COMMANDS
+from .quantification_primary import COMMANDS as QUANTIFICATION_PRIMARY_COMMANDS
+from .quantification_reports import COMMANDS as QUANTIFICATION_REPORTS_COMMANDS
+from .biological_reports import COMMANDS as BIOLOGICAL_REPORTS_COMMANDS
+from .workflow_biological_reports import COMMANDS as WORKFLOW_BIOLOGICAL_REPORTS_COMMANDS
+from .peptide_matrix_building import COMMANDS as PEPTIDE_MATRIX_BUILDING_COMMANDS
+from .protein_matrix_lfq import COMMANDS as PROTEIN_MATRIX_LFQ_COMMANDS
+from .spectrum_basic import COMMANDS as SPECTRUM_BASIC_COMMANDS
+from .chromatogram_commands import COMMANDS as CHROMATOGRAM_COMMANDS_COMMANDS
+from .spectrum_annotation import COMMANDS as SPECTRUM_ANNOTATION_COMMANDS
+from .spectral_library_commands import COMMANDS as SPECTRAL_LIBRARY_COMMANDS_COMMANDS
+from .workflow_inputs import COMMANDS as WORKFLOW_INPUTS_COMMANDS
+from .workflow_runtime import COMMANDS as WORKFLOW_RUNTIME_COMMANDS
+from .interpretation_annotations import COMMANDS as INTERPRETATION_ANNOTATIONS_COMMANDS
+from .interpretation_mapping import COMMANDS as INTERPRETATION_MAPPING_COMMANDS
+from .interpretation_activity import COMMANDS as INTERPRETATION_ACTIVITY_COMMANDS
+from .interpretation_contexts import COMMANDS as INTERPRETATION_CONTEXTS_COMMANDS
+from .interpretation_disease import COMMANDS as INTERPRETATION_DISEASE_COMMANDS
+from .interpretation_regulators import COMMANDS as INTERPRETATION_REGULATORS_COMMANDS
+from .interpretation_set_go_enrichment import COMMANDS as INTERPRETATION_SET_GO_ENRICHMENT_COMMANDS
+from .interpretation_pathway_complex_enrichment import COMMANDS as INTERPRETATION_PATHWAY_COMPLEX_ENRICHMENT_COMMANDS
+from .isotope_labeling import COMMANDS as ISOTOPE_LABELING_COMMANDS
+from .multiplex_matrix import COMMANDS as MULTIPLEX_MATRIX_COMMANDS
+from .multiplex_analysis import COMMANDS as MULTIPLEX_ANALYSIS_COMMANDS
+from .qc_commands import COMMANDS as QC_COMMANDS_COMMANDS
+from .ptm_parsing import COMMANDS as PTM_PARSING_COMMANDS
+from .ptm_quantification import COMMANDS as PTM_QUANTIFICATION_COMMANDS
+from .ptm_differential import COMMANDS as PTM_DIFFERENTIAL_COMMANDS
+from .ptm_motif_annotation import COMMANDS as PTM_MOTIF_ANNOTATION_COMMANDS
+from .ptm_context_annotation import COMMANDS as PTM_CONTEXT_ANNOTATION_COMMANDS
+from .ptm_regulator import COMMANDS as PTM_REGULATOR_COMMANDS
+from .ptm_reporting import COMMANDS as PTM_REPORTING_COMMANDS
+from .search_adapter import COMMANDS as SEARCH_ADAPTER_COMMANDS
+
+ROOT_COMMANDS = (
+    *PROGRAM_FASTA_COMMANDS,
+    *SEARCH_IMPORT_FRAGPIPE_COMMANDS,
+    *SEARCH_IMPORT_QUANT_COMMANDS,
+    *BENCHMARK_DEMO_COMMANDS,
+    *DIA_PRECURSOR_MATRICES_COMMANDS,
+    *DIA_PROTEIN_QC_COMMANDS,
+    *TARGETED_MATRIX_QC_COMMANDS,
+    *TARGETED_SELECTION_COMMANDS,
+    *RESULTS_QUERY_COMMANDS,
+    *RESULT_EXPLANATION_COMMANDS,
+    *REVIEW_PLANNING_COMMANDS,
+    *TARGETED_VALIDATION_COMMANDS,
+    *DIFFERENTIAL_ANALYSIS_COMMANDS,
+    *VENDOR_IMPORTS_COMMANDS,
+    *SEQUENCE_DATABASE_COMMANDS,
+    *PEPTIDE_CHEMISTRY_COMMANDS,
+    *PEPTIDE_REVIEW_COMMANDS,
+    *IDENTIFICATION_EVIDENCE_COMMANDS,
+    *FDR_REVIEW_COMMANDS,
+    *PROTEIN_GROUPING_COMMANDS,
+    *PROTEIN_COVERAGE_AND_PARSIMONY_COMMANDS,
+    *QUANTIFICATION_PRIMARY_COMMANDS,
+    *QUANTIFICATION_REPORTS_COMMANDS,
+    *BIOLOGICAL_REPORTS_COMMANDS,
+    *WORKFLOW_BIOLOGICAL_REPORTS_COMMANDS,
+    *PEPTIDE_MATRIX_BUILDING_COMMANDS,
+    *PROTEIN_MATRIX_LFQ_COMMANDS,
+    *SPECTRUM_BASIC_COMMANDS,
+    *CHROMATOGRAM_COMMANDS_COMMANDS,
+    *SPECTRUM_ANNOTATION_COMMANDS,
+    *SPECTRAL_LIBRARY_COMMANDS_COMMANDS,
+    *WORKFLOW_INPUTS_COMMANDS,
+    *WORKFLOW_RUNTIME_COMMANDS,
+)
+
+GROUP_COMMANDS = {
+    interpretation_group: (
+        *INTERPRETATION_ANNOTATIONS_COMMANDS,
+        *INTERPRETATION_MAPPING_COMMANDS,
+        *INTERPRETATION_ACTIVITY_COMMANDS,
+        *INTERPRETATION_CONTEXTS_COMMANDS,
+        *INTERPRETATION_DISEASE_COMMANDS,
+        *INTERPRETATION_REGULATORS_COMMANDS,
+        *INTERPRETATION_SET_GO_ENRICHMENT_COMMANDS,
+        *INTERPRETATION_PATHWAY_COMPLEX_ENRICHMENT_COMMANDS,
+    ),
+    isotope_labeling_group: (
+        *ISOTOPE_LABELING_COMMANDS,
+    ),
+    multiplex_group: (
+        *MULTIPLEX_MATRIX_COMMANDS,
+        *MULTIPLEX_ANALYSIS_COMMANDS,
+    ),
+    qc_group: (
+        *QC_COMMANDS_COMMANDS,
+    ),
+    ptm_group: (
+        *PTM_PARSING_COMMANDS,
+        *PTM_QUANTIFICATION_COMMANDS,
+        *PTM_DIFFERENTIAL_COMMANDS,
+        *PTM_MOTIF_ANNOTATION_COMMANDS,
+        *PTM_CONTEXT_ANNOTATION_COMMANDS,
+        *PTM_REGULATOR_COMMANDS,
+        *PTM_REPORTING_COMMANDS,
+    ),
+    search_adapter_group: (
+        *SEARCH_ADAPTER_COMMANDS,
+    ),
+}
+
+__all__ = ["GROUPS", "GROUP_COMMANDS", "ROOT_COMMANDS"]
