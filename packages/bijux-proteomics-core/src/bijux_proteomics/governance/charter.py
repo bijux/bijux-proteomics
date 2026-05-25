@@ -368,6 +368,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Runtime-agnostic workflow blueprints, execution requests, and replayable scientific workflow contracts.",
         required_modules=(
             "workflow/blueprint.py",
+            "workflow/advanced_diann.py",
             "workflow/biological_reporting.py",
             "workflow/biological_result_graph.py",
             "workflow/cohort_stratification.py",
