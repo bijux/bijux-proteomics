@@ -279,6 +279,7 @@ def test_workflow_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow")
 
     assert hasattr(module, "run_proteomics_workflow")
+    assert hasattr(module, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_interactive_result_bundle_from_artifacts")
     assert hasattr(module, "build_interactive_result_comparison_from_artifacts")
