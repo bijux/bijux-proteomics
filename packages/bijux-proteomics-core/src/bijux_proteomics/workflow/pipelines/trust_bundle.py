@@ -14,7 +14,7 @@ from typing import TypeAlias
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.benchmarks.weak_evidence import (
+from bijux_proteomics.workflow.pipelines.weak_evidence import (
     WeakEvidenceBenchmarkDescriptor,
     WeakEvidenceBenchmarkReport,
     build_flagship_weak_evidence_benchmark_descriptor,
