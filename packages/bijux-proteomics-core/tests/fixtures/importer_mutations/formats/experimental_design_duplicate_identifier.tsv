@@ -1,0 +1,4 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	run_order
+source_high	control	1	1	source_high.raw	source_high.tsv	1
+source_high	blank	1	1	source_high.raw	source_high.tsv	2
+target_sample	treatment	1	1	target_sample.raw	target_sample.tsv	3
