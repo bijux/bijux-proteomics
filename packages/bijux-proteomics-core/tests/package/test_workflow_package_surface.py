@@ -235,6 +235,12 @@ def test_workflow_package_exports_result_manifest_surface() -> None:
     assert "schema_version" in workflow.render_result_manifest_summary_tsv(report)
 
 
+def test_workflow_package_exports_result_archive_surface() -> None:
+    assert hasattr(workflow, "load_result_archive")
+    assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
+    assert workflow.ProteomicsStudyQcKind.ARCHIVED_RESULT.value == "archived_result"
+
+
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
     report = workflow.build_cross_study_protein_harmonization_report_from_observations(
         (
