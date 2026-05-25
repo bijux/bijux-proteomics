@@ -52,3 +52,49 @@ def test_lab_package_exports_run_diagnosis_surface() -> None:
         row.failure_class is lab.RunFailureClass.IDENTIFICATION_FAILURE for row in rows
     )
     assert "secondary_reasons" in rendered
+
+
+def test_lab_package_exports_digestion_diagnosis_surface() -> None:
+    rows = lab.classify_digestion(
+        (
+            lab.DigestionPeptideObservation(
+                sample_id="sample_tryptic",
+                peptide_sequence="PEPTIDER",
+                left_flank=None,
+                right_flank="A",
+            ),
+            lab.DigestionPeptideObservation(
+                sample_id="sample_tryptic",
+                peptide_sequence="AAAQK",
+                left_flank=None,
+                right_flank="L",
+            ),
+            lab.DigestionPeptideObservation(
+                sample_id="sample_mismatch",
+                peptide_sequence="ARAAK",
+                left_flank=None,
+                right_flank="L",
+            ),
+            lab.DigestionPeptideObservation(
+                sample_id="sample_mismatch",
+                peptide_sequence="QQRAK",
+                left_flank=None,
+                right_flank="A",
+            ),
+            lab.DigestionPeptideObservation(
+                sample_id="sample_mismatch",
+                peptide_sequence="LMRAK",
+                left_flank=None,
+                right_flank="Q",
+            ),
+        ),
+        declared_enzyme="trypsin",
+    )
+    rendered = lab.render_digestion_diagnosis_tsv(rows)
+
+    assert hasattr(lab, "classify_digestion")
+    assert hasattr(lab, "render_digestion_diagnosis_tsv")
+    assert any(
+        row.digestion_status is lab.DigestionStatus.ENZYME_MISMATCH for row in rows
+    )
+    assert "digestion_status" in rendered
