@@ -13,8 +13,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.workflow.pipelines.surprising_demo import SurprisingDemoReport
-from bijux_proteomics.workflow.pipelines.surprising_demo_interrogation import (
+from bijux_proteomics.workflow.demo.surprising_demo import SurprisingDemoReport
+from bijux_proteomics.workflow.demo.surprising_demo_interrogation import (
     ensure_surprising_demo_outputs,
 )
 from bijux_proteomics_foundation import JsonModel
