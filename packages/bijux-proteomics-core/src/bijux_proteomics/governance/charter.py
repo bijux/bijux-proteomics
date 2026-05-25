@@ -295,6 +295,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/site_annotation_import.py",
             "ptm/site_groups.py",
             "ptm/site_quantification.py",
+            "proteoforms/assembly.py",
             "dia/contracts.py",
             "dia/library_coverage.py",
             "dia/precursor_matrix.py",
@@ -458,7 +459,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         ("quantification/", "study/", "multiplex/", "isotope_labeling/", "targeted/")
     ):
         return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
-    if module_path.startswith(("ptm/", "dia/")):
+    if module_path.startswith(("ptm/", "dia/", "proteoforms/")):
         return CoreScientificDomainFamily.PTM_AND_DIA
     if module_path.startswith(
         (
