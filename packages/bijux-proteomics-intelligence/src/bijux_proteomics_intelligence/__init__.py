@@ -9,6 +9,7 @@ from importlib import import_module
 from types import ModuleType
 
 __all__ = [
+    "belief_audit",
     "candidates",
     "claims",
     "contradictions",
