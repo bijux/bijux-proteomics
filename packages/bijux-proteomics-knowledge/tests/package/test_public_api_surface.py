@@ -6,6 +6,8 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_knowledge import (
     ComplexMembershipConfidence,
+    CrossSpeciesOrthologAmbiguity,
+    CrossSpeciesOrthologEvidenceStatus,
     DiseaseTermResolutionEntry,
     KnowledgeCoverageEntitySet,
     KnowledgeCoverageEntityType,
@@ -25,11 +27,13 @@ from bijux_proteomics_knowledge import (
     render_disease_term_resolution_tsv,
     render_drug_target_resolution_tsv,
     render_kinase_substrate_resolution_tsv,
+    render_cross_species_ortholog_tsv,
     render_knowledge_coverage_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
     compute_knowledge_coverage,
+    map_cross_species_orthologs,
     resolve_complex_members,
     resolve_disease_terms,
     resolve_drug_targets,
@@ -53,6 +57,7 @@ from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
     PathwayMembershipRecord,
 )
+from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
 )
@@ -419,4 +424,50 @@ def test_knowledge_public_root_exposes_knowledge_coverage_surface() -> None:
     )
     assert render_knowledge_coverage_tsv(report.entries).splitlines()[0] == (
         "entity_type\ttotal_count\tannotated_count\tcoverage_fraction\tlow_coverage_warning"
+    )
+
+
+def test_knowledge_public_root_exposes_cross_species_ortholog_surface() -> None:
+    report = map_cross_species_orthologs(
+        ("TP53",),
+        AnnotationPack(
+            source_path="public-root-ortholog-pack.json",
+            pack_name="public-root-ortholog-pack",
+            protein_features=(
+                ProteinAnnotationRecord(
+                    protein_ref="P04637",
+                    gene_symbol="TP53",
+                    organism="Homo sapiens",
+                ),
+            ),
+            orthologs=(
+                OrthologRecord(
+                    source_species="Homo sapiens",
+                    source_protein_ref="P04637",
+                    target_species="Mus musculus",
+                    target_protein_ref="P02340",
+                    source_gene_symbol="TP53",
+                    target_gene_symbol="Trp53",
+                    evidence="curated",
+                ),
+            ),
+            summary=AnnotationPackSummary(
+                protein_feature_count=1,
+                pathway_count=0,
+                complex_count=0,
+                compartment_count=0,
+                drug_target_count=0,
+                disease_term_count=0,
+                kinase_substrate_count=0,
+                ortholog_count=1,
+            ),
+        ),
+        source_species="Homo sapiens",
+        target_species="Mus musculus",
+    )
+
+    assert report.entries[0].evidence_status is CrossSpeciesOrthologEvidenceStatus.CURATED_ALIAS
+    assert report.entries[0].ambiguity is CrossSpeciesOrthologAmbiguity.ONE_TO_ONE
+    assert render_cross_species_ortholog_tsv(report.entries).splitlines()[0] == (
+        "source_protein\ttarget_ortholog\tevidence_status\tambiguity"
     )
