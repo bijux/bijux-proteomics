@@ -161,7 +161,10 @@ def export_targeted_matrix_workflow_artifacts(
         output_dir / artifacts.matrix_missingness_tsv,
         render_targeted_matrix_missingness_tsv(matrix_report),
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="export_targeted_matrix_workflow_artifacts",
+    )
     return TargetedMatrixWorkflowExportManifest(
         source_kind=import_report.source_kind,
         import_summary=_int_summary(import_report.summary.to_dict()),
@@ -280,7 +283,10 @@ def export_targeted_assay_qc_workflow_artifacts(
         output_dir / artifacts.assay_qc_unreliable_targets_tsv,
         render_targeted_assay_qc_unreliable_tsv(assay_qc_report),
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="export_targeted_assay_qc_workflow_artifacts",
+    )
     return TargetedAssayQcWorkflowExportManifest(
         source_kind=import_report.source_kind,
         import_summary=_int_summary(import_report.summary.to_dict()),

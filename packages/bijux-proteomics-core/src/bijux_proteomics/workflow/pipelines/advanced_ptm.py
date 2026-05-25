@@ -300,7 +300,10 @@ def run_advanced_ptm_workflow(
     )
     manifest_path = output_dir / "advanced_ptm_workflow_manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="run_advanced_ptm_workflow",
+    )
 
     return AdvancedPtmWorkflowReport(
         ptm_workflow=base_report,
