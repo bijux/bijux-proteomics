@@ -42,6 +42,11 @@ Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-
 Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.optional-dependencies]
+test = [
+  "pytest>=9.0.3,<10.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-timeout>=2.4.0,<3.0",
+]
 dev = [
   "pytest>=9.0.3,<10.0",
   "pytest-asyncio>=1.0.0,<2.0",

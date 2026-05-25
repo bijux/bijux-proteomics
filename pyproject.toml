@@ -16,6 +16,24 @@ Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 
 [dependency-groups]
+test = [
+  "agentic-proteins[test]",
+  "bijux-proteomics",
+  "bijux-proteomics-dev[test]",
+  "bijux-proteomics-foundation[test]",
+  "bijux-proteomics-core[test]",
+  "bijux-proteomics-runtime[test]",
+  "bijux-proteomics-intelligence",
+  "bijux-proteomics-knowledge[test]",
+  "bijux-proteomics-lab",
+  "proteomics",
+  "proteomics-core",
+  "proteomics-foundation",
+  "proteomics-runtime",
+  "proteomics-intelligence",
+  "proteomics-knowledge",
+  "proteomics-lab",
+]
 dev = [
   "agentic-proteins",
   "bijux-proteomics",

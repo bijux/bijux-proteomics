@@ -68,6 +68,7 @@ def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None
     dependency_groups = _root_pyproject()["dependency-groups"]
     assert isinstance(dependency_groups, dict)
     assert set(dependency_groups) == {
+        "test",
         "dev",
         "api",
         "local-esmfold",
