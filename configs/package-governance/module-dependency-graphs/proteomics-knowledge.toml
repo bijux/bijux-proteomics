@@ -6,4 +6,4 @@ distribution_name = "proteomics-knowledge"
 [[module]]
 module_name = "proteomics_knowledge"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.package_aliases"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation._package_aliases"]

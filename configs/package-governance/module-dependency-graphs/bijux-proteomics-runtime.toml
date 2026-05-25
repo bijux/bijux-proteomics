@@ -514,6 +514,11 @@ outgoing_internal_modules = ["bijux_proteomics_runtime.providers.builtin.heurist
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_runtime.public_api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_runtime.rehydrate"
 outgoing_internal_modules = ["bijux_proteomics_runtime.rehydrate.loading", "bijux_proteomics_runtime.support.primitives.stability"]
 outgoing_workspace_modules = []

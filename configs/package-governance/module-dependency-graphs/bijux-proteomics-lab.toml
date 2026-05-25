@@ -159,6 +159,11 @@ outgoing_internal_modules = ["bijux_proteomics_lab.planning.assays"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers"]
 
 [[module]]
+module_name = "bijux_proteomics_lab.public_api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_lab.readiness"
 outgoing_internal_modules = ["bijux_proteomics_lab.readiness.operations", "bijux_proteomics_lab.readiness.stages"]
 outgoing_workspace_modules = []

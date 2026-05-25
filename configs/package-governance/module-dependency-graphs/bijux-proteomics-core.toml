@@ -9,6 +9,16 @@ outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomic
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics._scientific_tables"
+outgoing_internal_modules = ["bijux_proteomics._tabular", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.isotope_labeling.silac_quantification", "bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics._tabular"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.benchmarks"
 outgoing_internal_modules = ["bijux_proteomics.benchmarks.adoption", "bijux_proteomics.benchmarks.corpora", "bijux_proteomics.benchmarks.dia_targeted_pressure", "bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_public_packages", "bijux_proteomics.benchmarks.identification_pressure", "bijux_proteomics.benchmarks.performance", "bijux_proteomics.benchmarks.ptm_pressure", "bijux_proteomics.benchmarks.public_case_studies", "bijux_proteomics.benchmarks.quantification_pressure", "bijux_proteomics.benchmarks.scientific_fixture_corpus", "bijux_proteomics.benchmarks.weak_evidence"]
 outgoing_workspace_modules = []
@@ -420,52 +430,52 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.confidence"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_evidence", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_evidence", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.evidence"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.fdr_levels"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_target_decoy_fdr", "bijux_proteomics.identification.protein_target_decoy_fdr", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_target_decoy_fdr", "bijux_proteomics.identification.protein_target_decoy_fdr", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.grouping"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_grouping", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_grouping", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.protein_inference"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_parsimony", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_parsimony", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.protein_review"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.protein_inference", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.picked_protein_fdr", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.protein_inference", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.picked_protein_fdr", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.psm"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.psm_io"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.review"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.confidence", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.confidence", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts.score_fdr"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.psm_target_decoy_fdr", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.psm_target_decoy_fdr", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -475,7 +485,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.diann_import"
-outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.scientific_tables", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.dia", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -505,7 +515,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.maxquant_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -620,7 +630,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.rejected_evidence_table"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -1595,7 +1605,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.formats"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.io.format_validation", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences", "bijux_proteomics.study.contrasts", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics._tabular", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.io.format_validation", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.sequences", "bijux_proteomics.study.contrasts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -1685,17 +1695,17 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.io.target_panel"
-outgoing_internal_modules = ["bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._tabular"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.transition_table"
-outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.domain.records"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.xic_extraction"
-outgoing_internal_modules = ["bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._tabular", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -1705,7 +1715,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.isotope_labeling.silac_quantification"
-outgoing_internal_modules = ["bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -1860,7 +1870,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.ptm.contracts"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.occupancy_estimation", "bijux_proteomics.ptm.peptide_parser", "bijux_proteomics.ptm.protein_site_mapping", "bijux_proteomics.quantification", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.occupancy_estimation", "bijux_proteomics.ptm.peptide_parser", "bijux_proteomics.ptm.protein_site_mapping", "bijux_proteomics.quantification"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -1977,6 +1987,11 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 module_name = "bijux_proteomics.ptm.site_quantification"
 outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.quantification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.public_api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.quantification"
@@ -2105,7 +2120,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.quantification.matrix_archive"
-outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._tabular", "bijux_proteomics.domain.records"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -2369,11 +2384,6 @@ outgoing_internal_modules = ["bijux_proteomics.ptm.differential_analysis", "biju
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.scientific_tables"
-outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.isotope_labeling.silac_quantification", "bijux_proteomics.ptm.contracts", "bijux_proteomics.tabular"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
-
-[[module]]
 module_name = "bijux_proteomics.sequences"
 outgoing_internal_modules = ["bijux_proteomics.sequences.contaminant_database", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.fasta_profile", "bijux_proteomics.sequences.peptide_chemical_liability", "bijux_proteomics.sequences.peptide_detectability", "bijux_proteomics.sequences.peptide_properties", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.sequences.protein_identity_resolution", "bijux_proteomics.sequences.protein_index", "bijux_proteomics.sequences.protein_region_context", "bijux_proteomics.sequences.proteogenomic_peptide_support", "bijux_proteomics.sequences.theoretical_digest"]
 outgoing_workspace_modules = []
@@ -2425,7 +2435,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.sequences.peptide_uniqueness_index"
-outgoing_internal_modules = ["bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.tabular"]
+outgoing_internal_modules = ["bijux_proteomics._tabular", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -2475,7 +2485,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.study.contrasts"
-outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.domain.records"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -2510,7 +2520,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.study.lab_protocol_context"
-outgoing_internal_modules = ["bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -2550,7 +2560,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.study.sample_metadata"
-outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_internal_modules = ["bijux_proteomics._scientific_tables", "bijux_proteomics.domain.records"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -2561,11 +2571,6 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.study.sample_sheet_repairs"
 outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
-
-[[module]]
-module_name = "bijux_proteomics.tabular"
-outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]

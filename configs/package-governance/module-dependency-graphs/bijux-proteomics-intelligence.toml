@@ -284,6 +284,11 @@ outgoing_internal_modules = ["bijux_proteomics_intelligence.judgment.paths", "bi
 outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.outcomes.results"]
 
 [[module]]
+module_name = "bijux_proteomics_intelligence.public_api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_intelligence.query"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics.workflow.study_result", "bijux_proteomics_foundation"]

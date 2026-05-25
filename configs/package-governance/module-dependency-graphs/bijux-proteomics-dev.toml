@@ -181,7 +181,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.root_api_policy"
 outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.support.public_api"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.public_api"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.root_consumers"
@@ -419,6 +419,11 @@ outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.pack
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.public_api_snapshots"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_surfaces"
 outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
 outgoing_workspace_modules = []
@@ -441,6 +446,11 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.repository_tree_quality"
 outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.top_level_module_visibility"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_api_snapshots", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
 outgoing_workspace_modules = []
 
 [[module]]
