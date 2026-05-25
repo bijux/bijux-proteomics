@@ -372,6 +372,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/advanced_fragpipe.py",
             "workflow/advanced_maxquant.py",
             "workflow/advanced_ptm.py",
+            "workflow/advanced_tmt.py",
             "workflow/biological_reporting.py",
             "workflow/biological_result_graph.py",
             "workflow/cohort_stratification.py",
