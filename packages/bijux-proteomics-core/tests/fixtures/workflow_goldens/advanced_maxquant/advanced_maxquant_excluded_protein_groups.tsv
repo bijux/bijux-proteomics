@@ -1,0 +1,3 @@
+entity_id	protein_ids	majority_protein_ids	contaminant_flag	reverse_flag	only_identified_by_site	observed_lfq_experiment_count	filter_reasons
+CON__KRT1	CON__KRT1	CON__KRT1	true	false	false	6	contaminant
+REV__P77777	REV__P77777	REV__P77777	false	true	false	6	reverse
