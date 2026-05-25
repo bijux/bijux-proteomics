@@ -32,6 +32,15 @@ from bijux_proteomics.domain.errors import (
     SchemaError,
     UnsupportedFormatError,
 )
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    ReasonCodeEntry,
+    is_registered_reason_code,
+    reason_code_categories,
+    reason_code_registry,
+    require_registered_reason_code,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.domain.lifecycle import (
     LifecycleTransition,
@@ -184,6 +193,8 @@ __all__ = [
     "QuantMatrix",
     "QuantMeasureKind",
     "RejectedEvidence",
+    "ReasonCodeCategory",
+    "ReasonCodeEntry",
     "ReviewCadence",
     "ReviewDecision",
     "ReviewDecisionRepository",
@@ -228,6 +239,7 @@ __all__ = [
     "gdt_ha",
     "gdt_ts",
     "get_protein_chain",
+    "is_registered_reason_code",
     "kabsch_and_pairs",
     "latest_gate_decision",
     "load_structure_from_pdb_text",
@@ -236,7 +248,11 @@ __all__ = [
     "per_residue_plddt_ss",
     "primary_summary_from_sequence",
     "program_summary",
+    "reason_code_categories",
+    "reason_code_registry",
     "require_program",
+    "require_registered_reason_code",
+    "require_registered_reason_codes",
     "residue_count",
     "revise_program",
     "secondary_summary_from_structure",
