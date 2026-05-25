@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import cast
 
-from bijux_proteomics.interfaces.cli import cli as runtime_cli
+from bijux_proteomics_foundation.package_aliases import run_cli_alias
 
 __all__ = ["main"]
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the canonical core CLI with the alias package name."""
-    return cast(
-        int,
-        runtime_cli.main(
-            args=list(argv) if argv is not None else None,
-            prog_name="proteomics-core",
-            standalone_mode=False,
-        ),
+    return run_cli_alias(
+        canonical_module="bijux_proteomics.interfaces.cli",
+        attribute_name="cli",
+        prog_name="proteomics-core",
+        argv=argv,
     )
