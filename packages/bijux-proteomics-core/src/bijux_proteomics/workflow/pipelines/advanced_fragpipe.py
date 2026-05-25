@@ -28,6 +28,13 @@ from bijux_proteomics.workflow.dda_biological_workflow import (
     export_dda_biological_workflow_bundle,
     build_dda_biological_workflow_bundle,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entries_from_issue_rows,
+    build_rejected_evidence_entries_from_reason_rows,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -138,7 +145,7 @@ class AdvancedFragpipeDiscrepancyEntry(JsonModel):
     significant_in_workflow: bool
 
 
-class AdvancedFragpipeWorkflowReport(JsonModel):
+class AdvancedFragpipeWorkflowReport(BiologyResult):
     """Advanced FragPipe workflow report with exported review outputs."""
 
     model_config = ConfigDict(extra="forbid")
@@ -259,6 +266,13 @@ def run_advanced_fragpipe_workflow(
         discrepancy_reasons=discrepancy_reasons,
         summary=summary,
         manifest=manifest,
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_advanced_fragpipe_warnings(summary=summary, manifest=manifest),
+        rejected_evidence=_build_advanced_fragpipe_rejected_evidence(
+            report=base_report,
+            discrepancy_reasons=discrepancy_reasons,
+            manifest=manifest,
+        ),
         note=(
             "advanced fragpipe workflow composes governed fragpipe psm import, "
             "protein grouping, protein quantification, downstream biology, and "
@@ -353,6 +367,64 @@ def render_advanced_fragpipe_discrepancy_tsv(
             )
         )
     return handle.getvalue()
+
+
+def _build_advanced_fragpipe_warnings(
+    *,
+    summary: AdvancedFragpipeWorkflowSummary,
+    manifest: AdvancedFragpipeWorkflowManifest,
+) -> tuple:
+    warnings = []
+    if summary.filtered_psm_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_fragpipe:filtered_psms",
+                warning_code="filtered_psm_present",
+                source_surface="advanced_fragpipe_workflow",
+                message=(
+                    f"advanced FragPipe filtered {summary.filtered_psm_count} accepted PSMs "
+                    "during downstream review"
+                ),
+            )
+        )
+    if summary.protein_group_discrepancy_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_fragpipe:protein_group_discrepancies",
+                warning_code="protein_group_discrepancy_present",
+                source_surface="advanced_fragpipe_workflow",
+                message=(
+                    "advanced FragPipe detected "
+                    f"{summary.protein_group_discrepancy_count} source-summary discrepancies"
+                ),
+                related_artifact=manifest.artifacts.discrepancy_reason_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_advanced_fragpipe_rejected_evidence(
+    *,
+    report: DdaBiologicalWorkflowBundle,
+    discrepancy_reasons: tuple[AdvancedFragpipeDiscrepancyEntry, ...],
+    manifest: AdvancedFragpipeWorkflowManifest,
+) -> tuple:
+    return (
+        build_rejected_evidence_entries_from_issue_rows(
+            report.parse_rejected_rows,
+            source_surface="advanced_fragpipe_workflow",
+            related_artifact=manifest.fragpipe_workflow_manifest.artifacts.parse_rejected_tsv,
+            entity_prefix="psm_row",
+        )
+        + build_rejected_evidence_entries_from_reason_rows(
+            discrepancy_reasons,
+            source_surface="advanced_fragpipe_workflow",
+            reason_field="discrepancy_reason",
+            message_field="status",
+            entity_field="protein_ref",
+            related_artifact=manifest.artifacts.discrepancy_reason_tsv,
+        )
+    )
 
 
 def _build_peptide_evidence(

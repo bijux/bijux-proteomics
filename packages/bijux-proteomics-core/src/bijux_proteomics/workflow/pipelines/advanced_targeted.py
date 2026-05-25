@@ -40,6 +40,12 @@ from bijux_proteomics.workflow.targeted_review_workflow import (
     TargetedAssayQcWorkflowExportManifest,
     export_targeted_assay_qc_workflow_artifacts,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -158,7 +164,7 @@ class AdvancedTargetedEvidenceCardEntry(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class TargetedValidationWorkflowReport(JsonModel):
+class TargetedValidationWorkflowReport(BiologyResult):
     """Advanced targeted-validation workflow report with explicit claim-status cards."""
 
     model_config = ConfigDict(extra="forbid")
@@ -344,6 +350,13 @@ def run_targeted_validation_workflow(
         evidence_cards=evidence_cards,
         summary=summary,
         manifest=manifest,
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_advanced_targeted_warnings(summary=summary, manifest=manifest),
+        rejected_evidence=_build_advanced_targeted_rejected_evidence(
+            import_report=import_report,
+            evidence_cards=evidence_cards,
+            manifest=manifest,
+        ),
         note=(
             "advanced targeted validation composes transition import, target matrix, "
             "assay reliability, coelution, ratio drift, and discovery-claim validation "
@@ -436,6 +449,77 @@ def render_advanced_targeted_evidence_cards_tsv(
             )
         )
     return handle.getvalue()
+
+
+def _build_advanced_targeted_warnings(
+    *,
+    summary: AdvancedTargetedWorkflowSummary,
+    manifest: AdvancedTargetedWorkflowManifest,
+) -> tuple:
+    warnings = []
+    if summary.unreliable_target_entry_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_targeted:unreliable_targets",
+                warning_code="unreliable_target_present",
+                source_surface="advanced_targeted_workflow",
+                message=(
+                    "advanced targeted validation marked "
+                    f"{summary.unreliable_target_entry_count} targets as unreliable"
+                ),
+                related_artifact=manifest.artifacts.assay_qc_unreliable_targets_tsv,
+            )
+        )
+    if summary.contradicted_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_targeted:contradicted_claims",
+                warning_code="contradicted_validation_present",
+                source_surface="advanced_targeted_workflow",
+                message=(
+                    "advanced targeted validation contradicted "
+                    f"{summary.contradicted_count} discovery claims"
+                ),
+                related_artifact=manifest.artifacts.contradicted_validation_tsv,
+            )
+        )
+    if summary.inconclusive_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_targeted:inconclusive_claims",
+                warning_code="inconclusive_validation_present",
+                source_surface="advanced_targeted_workflow",
+                message=(
+                    "advanced targeted validation left "
+                    f"{summary.inconclusive_count} discovery claims inconclusive"
+                ),
+                related_artifact=manifest.artifacts.inconclusive_validation_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_advanced_targeted_rejected_evidence(
+    *,
+    import_report: TargetedResultImportReport,
+    evidence_cards: tuple[AdvancedTargetedEvidenceCardEntry, ...],
+    manifest: AdvancedTargetedWorkflowManifest,
+) -> tuple:
+    del import_report
+    return tuple(
+        build_rejected_evidence_entry(
+            evidence_id=f"advanced_targeted:{card.candidate_id}",
+            source_surface="advanced_targeted_workflow",
+            reason_code=card.validation_verdict.value,
+            message=card.note,
+            related_artifact=manifest.artifacts.evidence_cards_tsv,
+            entity_id=card.candidate_id,
+        )
+        for card in evidence_cards
+        if card.assay_reliability_status
+        is AdvancedTargetedAssayReliabilityStatus.UNRELIABLE
+        or card.validation_verdict is TargetedValidationVerdict.CONTRADICTED
+    )
 
 
 def _build_import_report(

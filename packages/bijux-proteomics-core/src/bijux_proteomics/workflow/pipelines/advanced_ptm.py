@@ -37,6 +37,12 @@ from bijux_proteomics.workflow.ptm_site_workflow import (
     build_ptm_site_workflow_bundle,
     export_ptm_site_workflow_bundle,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entries_from_issue_rows,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -126,7 +132,7 @@ class AdvancedPtmWorkflowManifest(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class AdvancedPtmWorkflowReport(JsonModel):
+class AdvancedPtmWorkflowReport(BiologyResult):
     """Advanced PTM workflow report with explicit ambiguity and occupancy review."""
 
     model_config = ConfigDict(extra="forbid")
@@ -302,6 +308,12 @@ def run_advanced_ptm_workflow(
         occupancy_counterpart_report=occupancy_counterpart_report,
         summary=summary,
         manifest=manifest,
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_advanced_ptm_warnings(summary=summary, manifest=manifest),
+        rejected_evidence=_build_advanced_ptm_rejected_evidence(
+            report=base_report,
+            manifest=manifest,
+        ),
         note=(
             "advanced ptm workflow composes governed site mapping, localization, "
             "site quantification, protein correction, occupancy review, motif and "
@@ -340,6 +352,67 @@ def render_advanced_ptm_workflow_summary_tsv(
     ):
         writer.writerow((field_name, value))
     return handle.getvalue()
+
+
+def _build_advanced_ptm_warnings(
+    *,
+    summary: AdvancedPtmWorkflowSummary,
+    manifest: AdvancedPtmWorkflowManifest,
+) -> tuple:
+    warnings = []
+    if summary.rejected_evidence_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_ptm:rejected_evidence",
+                warning_code="rejected_evidence_present",
+                source_surface="advanced_ptm_workflow",
+                message=(
+                    f"advanced PTM rejected {summary.rejected_evidence_count} evidence rows "
+                    "during localization parsing"
+                ),
+                related_artifact=manifest.ptm_workflow_manifest.artifacts.rejected_evidence_tsv,
+            )
+        )
+    if summary.excluded_ambiguous_row_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_ptm:excluded_ambiguous_sites",
+                warning_code="excluded_ambiguous_site_present",
+                source_surface="advanced_ptm_workflow",
+                message=(
+                    f"advanced PTM excluded {summary.excluded_ambiguous_row_count} ambiguous rows "
+                    "from the exact-site matrix"
+                ),
+                related_artifact=manifest.artifacts.excluded_ambiguous_sites_tsv,
+            )
+        )
+    if summary.occupancy_missing_counterpart_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_ptm:missing_occupancy_counterpart",
+                warning_code="missing_occupancy_counterpart",
+                source_surface="advanced_ptm_workflow",
+                message=(
+                    "advanced PTM found "
+                    f"{summary.occupancy_missing_counterpart_count} occupancy rows without counterparts"
+                ),
+                related_artifact=manifest.artifacts.occupancy_counterpart_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_advanced_ptm_rejected_evidence(
+    *,
+    report: PtmSiteWorkflowBundle,
+    manifest: AdvancedPtmWorkflowManifest,
+) -> tuple:
+    return build_rejected_evidence_entries_from_issue_rows(
+        report.evidence_parse_report.rejected_rows,
+        source_surface="advanced_ptm_workflow",
+        related_artifact=manifest.ptm_workflow_manifest.artifacts.rejected_evidence_tsv,
+        entity_prefix="ptm_evidence_row",
+    )
 
 
 def render_advanced_ptm_excluded_ambiguity_tsv(

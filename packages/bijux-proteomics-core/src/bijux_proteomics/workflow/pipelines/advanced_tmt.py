@@ -29,6 +29,13 @@ from bijux_proteomics.workflow.tmt_experiment_workflow import (
     build_tmt_experiment_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entries_from_issue_rows,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -187,7 +194,7 @@ class AdvancedTmtEvidenceCard(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class AdvancedTmtWorkflowReport(JsonModel):
+class AdvancedTmtWorkflowReport(BiologyResult):
     """Advanced TMT workflow report with interference-aware confidence review."""
 
     model_config = ConfigDict(extra="forbid")
@@ -384,6 +391,13 @@ def run_advanced_tmt_workflow(
         evidence_cards=evidence_cards,
         summary=summary,
         manifest=manifest,
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_advanced_tmt_warnings(summary=summary, manifest=manifest),
+        rejected_evidence=_build_advanced_tmt_rejected_evidence(
+            report=base_report,
+            evidence_cards=evidence_cards,
+            manifest=manifest,
+        ),
         note=(
             "advanced tmt workflow composes governed reporter import, channel validation, "
             "normalization, interference review, ratio analysis, protein differential, "
@@ -560,6 +574,86 @@ def render_advanced_tmt_evidence_cards_tsv(
             )
         )
     return handle.getvalue()
+
+
+def _build_advanced_tmt_warnings(
+    *,
+    summary: AdvancedTmtWorkflowSummary,
+    manifest: AdvancedTmtWorkflowManifest,
+) -> tuple:
+    warnings = []
+    if summary.rejected_input_row_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_tmt:rejected_input_rows",
+                warning_code="rejected_input_row_present",
+                source_surface="advanced_tmt_workflow",
+                message=(
+                    f"advanced TMT rejected {summary.rejected_input_row_count} reporter rows "
+                    "during import"
+                ),
+                related_artifact=manifest.artifacts.reporter_import_summary_tsv,
+            )
+        )
+    if summary.high_interference_peptide_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_tmt:high_interference",
+                warning_code="high_interference_peptide_present",
+                source_surface="advanced_tmt_workflow",
+                message=(
+                    f"advanced TMT flagged {summary.high_interference_peptide_count} peptide ratios "
+                    "for high interference"
+                ),
+                related_artifact=manifest.artifacts.filtered_interference_tsv,
+            )
+        )
+    if summary.excluded_protein_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_tmt:excluded_proteins",
+                warning_code="excluded_protein_due_to_interference",
+                source_surface="advanced_tmt_workflow",
+                message=(
+                    f"advanced TMT excluded {summary.excluded_protein_count} proteins because "
+                    "their support was interference-only"
+                ),
+                related_artifact=manifest.artifacts.evidence_card_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_advanced_tmt_rejected_evidence(
+    *,
+    report: TmtExperimentWorkflowBundle,
+    evidence_cards: tuple[AdvancedTmtEvidenceCard, ...],
+    manifest: AdvancedTmtWorkflowManifest,
+) -> tuple:
+    matrix_report = report.report.tmt_matrix_report
+    if matrix_report is None:
+        raise ValueError("advanced tmt workflow requires a TMT matrix report")
+    return (
+        build_rejected_evidence_entries_from_issue_rows(
+            matrix_report.source_report.rejected_rows,
+            source_surface="advanced_tmt_workflow",
+            related_artifact=manifest.tmt_workflow_manifest.artifacts.rejected_reporter_rows_tsv,
+            entity_prefix="reporter_row",
+        )
+        + tuple(
+            build_rejected_evidence_entry(
+                evidence_id=f"advanced_tmt:{card.protein_id}",
+                source_surface="advanced_tmt_workflow",
+                reason_code=card.confidence_status.value,
+                message=card.note,
+                related_artifact=manifest.artifacts.evidence_card_tsv,
+                entity_id=card.protein_id,
+            )
+            for card in evidence_cards
+            if card.confidence_status
+            is AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
+        )
+    )
 
 
 def _require_tmt_ratio_report(base_report: TmtExperimentWorkflowBundle):

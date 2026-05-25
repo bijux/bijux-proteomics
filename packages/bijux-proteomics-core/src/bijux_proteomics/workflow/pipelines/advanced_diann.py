@@ -49,6 +49,12 @@ from bijux_proteomics.workflow.diann_biological_workflow import (
     build_diann_biological_workflow_bundle,
     export_diann_biological_workflow_bundle,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -151,7 +157,7 @@ class AdvancedDiannProteinDecisionEntry(JsonModel):
     source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
 
 
-class AdvancedDiannWorkflowReport(JsonModel):
+class AdvancedDiannWorkflowReport(BiologyResult):
     """Advanced DIA-NN workflow report with exported scientific review outputs."""
 
     model_config = ConfigDict(extra="forbid")
@@ -353,6 +359,16 @@ def run_advanced_diann_workflow(
         fragment_coelution_report=fragment_coelution_report,
         summary=summary,
         manifest=manifest,
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_advanced_diann_warnings(
+            report=base_report,
+            summary=summary,
+            manifest=manifest,
+        ),
+        rejected_evidence=_build_advanced_diann_rejected_evidence(
+            report=base_report,
+            manifest=manifest,
+        ),
         note=(
             "advanced dia-nn workflow composes the governed dia import, protein-level "
             "biology, graph-backed downgrade review, optional fragment coelution, "
@@ -382,6 +398,73 @@ def render_advanced_diann_workflow_summary_tsv(
     ):
         writer.writerow((field_name, value))
     return handle.getvalue()
+
+
+def _build_advanced_diann_warnings(
+    *,
+    report: DiannBiologicalWorkflowBundle,
+    summary: AdvancedDiannWorkflowSummary,
+    manifest: AdvancedDiannWorkflowManifest,
+) -> tuple:
+    warnings = []
+    if summary.rejected_evidence_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_diann:rejected_evidence",
+                warning_code="rejected_evidence_present",
+                source_surface="advanced_diann_workflow",
+                message=(
+                    f"DIA-NN import rejected {summary.rejected_evidence_count} evidence rows "
+                    "before downstream review"
+                ),
+                related_artifact=manifest.artifacts.rejected_evidence_tsv,
+            )
+        )
+    if report.summary.flagged_run_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_diann:flagged_runs",
+                warning_code="flagged_run_qc",
+                source_surface="advanced_diann_workflow",
+                message=(
+                    f"DIA-NN workflow flagged {report.summary.flagged_run_count} runs during run QC"
+                ),
+            )
+        )
+    if summary.downgraded_protein_count > 0:
+        warnings.append(
+            build_result_warning(
+                warning_id="advanced_diann:downgraded_proteins",
+                warning_code="downgraded_protein_present",
+                source_surface="advanced_diann_workflow",
+                message=(
+                    f"advanced DIA-NN downgraded {summary.downgraded_protein_count} proteins "
+                    "after evidence-graph review"
+                ),
+                related_artifact=manifest.artifacts.downgraded_proteins_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_advanced_diann_rejected_evidence(
+    *,
+    report: DiannBiologicalWorkflowBundle,
+    manifest: AdvancedDiannWorkflowManifest,
+) -> tuple:
+    return tuple(
+        build_rejected_evidence_entry(
+            evidence_id=(
+                f"advanced_diann:{row.entity_type}:{row.entity_id}:{row.row_number}:{row.reason_code}"
+            ),
+            source_surface="advanced_diann_workflow",
+            reason_code=row.reason_code,
+            message=row.detail,
+            related_artifact=manifest.artifacts.rejected_evidence_tsv,
+            entity_id=row.entity_id,
+        )
+        for row in report.import_report.rejected_evidence_rows
+    )
 
 
 def render_advanced_diann_protein_decisions_tsv(
