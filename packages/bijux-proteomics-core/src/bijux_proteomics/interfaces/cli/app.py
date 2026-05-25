@@ -1029,13 +1029,19 @@ from bijux_proteomics.workflow import (
     render_public_dataset_failure_tsv,
     render_public_dataset_meta_analysis_tsv,
     render_public_dataset_pathway_comparison_tsv,
+    render_surprising_demo_interrogation_answers_tsv,
+    render_surprising_demo_interrogation_summary_tsv,
     render_surprising_demo_findings_tsv,
     render_surprising_demo_summary_tsv,
     render_trust_bundle_run_summary_tsv,
     SurprisingDemoConfig,
+    SurprisingDemoQueryKind,
+    SurprisingDemoQueryRequest,
     build_public_dataset_evidence_card_report,
     build_public_benchmark_trust_bundle,
     build_public_dataset_comparison_report,
+    build_surprising_demo_example_requests,
+    build_surprising_demo_interrogation_report,
     build_interactive_result_comparison_from_artifacts,
     build_interactive_result_bundle_from_artifacts,
     build_result_manifest_from_artifacts,
@@ -1054,6 +1060,7 @@ from bijux_proteomics.workflow import (
     render_result_search_hit_tsv,
     render_result_search_summary_tsv,
     search_result_index,
+    ensure_surprising_demo_outputs,
     resolve_public_benchmark_path,
     resolve_public_benchmark_root,
     run_surprising_demo,
@@ -6058,6 +6065,73 @@ def surprising_demo_command(
                 encoding="utf-8"
             ),
             encoding="utf-8",
+        )
+    _emit_json(report, out_path=out_path)
+
+
+@cli.command("demo-query")
+@click.option(
+    "--out-dir",
+    "output_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path("artifacts/proteomics-demo"),
+    show_default=True,
+)
+@click.option(
+    "--query-kind",
+    type=click.Choice([entry.value for entry in SurprisingDemoQueryKind]),
+    default=None,
+)
+@click.option("--subject-id", default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--answers-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def surprising_demo_query_command(
+    output_dir: Path,
+    query_kind: str | None,
+    subject_id: str | None,
+    summary_tsv_out: Path | None,
+    answers_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Answer deterministic shipped-demo questions from owned local outputs."""
+
+    if (query_kind is None) != (subject_id is None):
+        raise click.ClickException(
+            "--query-kind and --subject-id must be provided together for one-off queries"
+        )
+
+    try:
+        ensure_surprising_demo_outputs(output_dir)
+        requests = (
+            build_surprising_demo_example_requests(output_dir)
+            if query_kind is None
+            else (
+                SurprisingDemoQueryRequest(
+                    query_id="demo-query",
+                    query_kind=SurprisingDemoQueryKind(query_kind),
+                    subject_id=subject_id,
+                ),
+            )
+        )
+        report = build_surprising_demo_interrogation_report(output_dir, requests)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_surprising_demo_interrogation_summary_tsv(report),
+        )
+    if answers_tsv_out is not None:
+        _write_text_output(
+            answers_tsv_out,
+            render_surprising_demo_interrogation_answers_tsv(report),
         )
     _emit_json(report, out_path=out_path)
 
