@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.ptm.contracts import *  # noqa: F401,F403
+from bijux_proteomics.ptm.abundance_correction import *  # noqa: F401,F403
 from bijux_proteomics.ptm.crosstalk import *  # noqa: F401,F403
 from bijux_proteomics.ptm.differential_analysis import *  # noqa: F401,F403
 from bijux_proteomics.ptm.localization_scoring import *  # noqa: F401,F403

@@ -77,6 +77,40 @@ def test_ptm_package_exports_site_group_owner_surface() -> None:
     assert "ambiguity_class" in rendered.splitlines()[0]
 
 
+def test_ptm_package_exports_abundance_correction_owner_surface() -> None:
+    rows = ptm.correct_site_by_protein(
+        (
+            ptm.PtmSiteCorrectionCandidate(
+                site_id="P11111:S5:Phospho",
+                protein_id="P11111",
+                raw_site_log2fc=1.8,
+            ),
+            ptm.PtmSiteCorrectionCandidate(
+                site_id="P22222:Y18:Phospho",
+                protein_id="P22222",
+                raw_site_log2fc=0.9,
+            ),
+        ),
+        (
+            ptm.PtmProteinCorrectionReference(
+                protein_id="P11111",
+                protein_log2fc=0.5,
+            ),
+        ),
+    )
+    rendered = ptm.render_site_protein_correction_tsv(rows)
+
+    assert hasattr(ptm, "correct_site_by_protein")
+    assert hasattr(ptm, "render_site_protein_correction_tsv")
+    corrected = next(row for row in rows if row.site_id == "P11111:S5:Phospho")
+    missing = next(row for row in rows if row.site_id == "P22222:Y18:Phospho")
+    assert corrected.corrected_site_log2fc == 1.3
+    assert corrected.correction_status.value == "high_confidence_corrected"
+    assert missing.corrected_site_log2fc is None
+    assert missing.correction_status.value == "missing_protein_baseline"
+    assert "correction_status" in rendered.splitlines()[0]
+
+
 def test_ptm_package_exports_localization_scoring_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(
         _ptm_fixture("localization_probability_results.tsv")
