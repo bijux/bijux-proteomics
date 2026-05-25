@@ -22,7 +22,7 @@ from bijux_proteomics.review.result_explanations import (
     build_result_explanation_report_from_artifacts,
     _load_result_explanation_artifact_context,
 )
-from bijux_proteomics.review.result_queries import (
+from bijux_proteomics.review.claims.result_queries import (
     _empty_to_none,
     _node_ids_for_entity,
     _parse_bool,

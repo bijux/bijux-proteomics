@@ -24,7 +24,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.review.biological_claim_validation import (
+from bijux_proteomics.review.claims.biological_claim_validation import (
     BiologicalClaimDirection,
     BiologicalClaimStatus,
     BiologicalClaimValidationEntry,
