@@ -13,16 +13,16 @@ from bijux_proteomics.review.evidence_graph import (
 from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNode as EvidenceGraphNode,
 )
-from bijux_proteomics.review.inference_packets import (
+from bijux_proteomics.review.cards.inference_packets import (
     InferenceDisagreementReviewEntry as InferenceDisagreementReviewEntry,
 )
-from bijux_proteomics.review.inference_packets import (
+from bijux_proteomics.review.cards.inference_packets import (
     InferenceDisagreementReviewPacket as InferenceDisagreementReviewPacket,
 )
-from bijux_proteomics.review.inference_packets import (
+from bijux_proteomics.review.cards.inference_packets import (
     InferenceDisagreementSeverity as InferenceDisagreementSeverity,
 )
-from bijux_proteomics.review.inference_packets import (
+from bijux_proteomics.review.cards.inference_packets import (
     build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
 )
 from bijux_proteomics_foundation import JsonModel
