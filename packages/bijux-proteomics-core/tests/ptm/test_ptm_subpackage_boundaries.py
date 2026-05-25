@@ -51,6 +51,7 @@ def test_ptm_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(localization, "score_ptm_fragments")
     assert hasattr(localization, "detect_false_localization")
     assert hasattr(sites, "build_ptm_ambiguity_review_report")
+    assert hasattr(sites, "build_ptm_site_group_evidence")
     assert hasattr(sites, "map_ptm_evidence_to_protein_sites")
     assert hasattr(quant, "build_ptm_site_quantification_report")
     assert hasattr(quant, "build_ptm_differential_analysis_report")
@@ -81,6 +82,28 @@ def test_ptm_root_and_subpackage_surfaces_share_owner_functions() -> None:
     assert ptm.parse_ptm_peptide is parsing.parse_ptm_peptide
     assert ptm.score_ptm_fragments is localization.score_ptm_fragments
     assert ptm.build_ptm_ambiguity_review_report is sites.build_ptm_ambiguity_review_report
+    assert ptm.build_ptm_site_group_evidence is sites.build_ptm_site_group_evidence
     assert ptm.build_ptm_site_quantification_report is quant.build_ptm_site_quantification_report
     assert ptm.build_ptm_crosstalk_report is regulation.build_ptm_crosstalk_report
     assert ptm.build_ptm_evidence_card_report is cards.build_ptm_evidence_card_report
+
+
+def test_ptm_site_group_builder_has_one_canonical_definition() -> None:
+    root = _core_src_root()
+    defining_modules: list[str] = []
+    for relative_path in (
+        "ptm/sites/site_groups.py",
+        "ptm/sites/ambiguity_handling.py",
+        "ptm/sites/protein_site_mapping.py",
+        "ptm/contracts.py",
+    ):
+        path = root / relative_path
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        if any(
+            isinstance(node, ast.FunctionDef)
+            and node.name == "build_ptm_site_group_evidence"
+            for node in tree.body
+        ):
+            defining_modules.append(relative_path)
+
+    assert defining_modules == ["ptm/sites/site_groups.py"]
