@@ -18,6 +18,14 @@ from bijux_proteomics_knowledge.identity.proteins import (
     render_protein_id_resolution_tsv,
     resolve_protein_ids,
 )
+from bijux_proteomics_knowledge.kinases import (
+    KinaseSubstrateMatchType,
+    KinaseSubstrateResolutionEntry,
+    KinaseSubstrateResolutionReport,
+    KinaseSubstrateResolutionSummary,
+    render_kinase_substrate_resolution_tsv,
+    resolve_kinase_substrates,
+)
 from bijux_proteomics_knowledge.pathways import (
     PathwayCoverageConfidenceEntry,
     PathwayCoverageConfidenceStatus,
@@ -55,6 +63,10 @@ __all__ = [
     "ComplexMembershipResolutionReport",
     "ComplexMembershipResolutionSummary",
     "KnowledgeDecisionBrief",
+    "KinaseSubstrateMatchType",
+    "KinaseSubstrateResolutionEntry",
+    "KinaseSubstrateResolutionReport",
+    "KinaseSubstrateResolutionSummary",
     "PathwayCoverageConfidenceEntry",
     "PathwayCoverageConfidenceStatus",
     "PathwayCoveragePolicy",
@@ -69,10 +81,12 @@ __all__ = [
     "evaluate_schema_compatibility",
     "overlap_protein_features",
     "render_complex_membership_resolution_tsv",
+    "render_kinase_substrate_resolution_tsv",
     "render_pathway_membership_resolution_tsv",
     "render_protein_feature_overlaps_tsv",
     "render_protein_id_resolution_tsv",
     "resolve_complex_members",
+    "resolve_kinase_substrates",
     "resolve_pathway_members",
     "resolve_protein_ids",
 ]
