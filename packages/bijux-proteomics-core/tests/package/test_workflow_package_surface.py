@@ -820,6 +820,46 @@ def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> No
     assert "shared_signal" in workflow.render_cross_study_shared_pathway_signal_tsv(report)
 
 
+def test_workflow_package_exports_multi_study_comparison_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    biological_report = workflow.build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    report = workflow.compare_studies(
+        (
+            workflow.CrossStudyProteinStudyInput(
+                study_id="study_a",
+                study_result=workflow.build_proteomics_study_result(biological_report),
+                species="Homo sapiens",
+            ),
+            workflow.CrossStudyProteinStudyInput(
+                study_id="study_b",
+                study_result=workflow.build_proteomics_study_result(biological_report),
+                species="Homo sapiens",
+            ),
+        )
+    )
+
+    assert hasattr(workflow, "compare_studies")
+    assert hasattr(workflow, "render_multi_study_comparison_summary_tsv")
+    assert report.summary.harmonized_protein_group_count >= 1
+    assert report.summary.shared_effect_count >= 1
+    assert "harmonized_protein_group_count" in workflow.render_multi_study_comparison_summary_tsv(
+        report
+    )
+    assert "harmonized_id" in workflow.render_multi_study_harmonized_proteins_tsv(report)
+
+
 def test_workflow_package_exports_cross_species_effect_comparison_surface() -> None:
     report = workflow.build_cross_species_effect_comparison_report_from_observations(
         (
