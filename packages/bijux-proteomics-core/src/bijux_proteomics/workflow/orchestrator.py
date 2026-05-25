@@ -52,10 +52,18 @@ from bijux_proteomics.targeted import (
     TargetedMatrixReport,
     TargetedResultImportReport,
     TargetedResultSourceKind,
+    TargetedValidationDiscoveryClaimInput,
+    TargetedValidationPanelAssayInput,
     build_skyline_result_import_report,
     build_targeted_assay_qc_report,
     build_targeted_matrix_report,
     build_transition_table_result_import_report,
+)
+from bijux_proteomics.workflow.advanced_targeted import (
+    AdvancedTargetedWorkflowManifest,
+    TargetedValidationWorkflowConfig,
+    TargetedValidationWorkflowReport,
+    run_targeted_validation_workflow,
 )
 from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
@@ -131,6 +139,7 @@ class TargetedWorkflowStage(StrEnum):
 
     MATRIX = "matrix"
     ASSAY_QC = "assay_qc"
+    VALIDATION = "validation"
 
 
 class WorkflowBaseConfig(JsonModel):
@@ -360,6 +369,17 @@ class TargetedWorkflowConfig(WorkflowBaseConfig):
     source_kind: TargetedResultSourceKind
     stage: TargetedWorkflowStage = TargetedWorkflowStage.MATRIX
     design_tsv_path: Path | None = None
+    discovery_claims: tuple[TargetedValidationDiscoveryClaimInput, ...] = Field(
+        default_factory=tuple
+    )
+    panel_assays: tuple[TargetedValidationPanelAssayInput, ...] = Field(
+        default_factory=tuple
+    )
+    case_condition: str | None = None
+    control_condition: str | None = None
+    minimum_reliable_replicates_per_condition: int = Field(default=2, ge=1)
+    minimum_absolute_validation_log2_effect: float = Field(default=0.4, ge=0.0)
+    flat_validation_log2_threshold: float = Field(default=0.2, ge=0.0)
 
 
 WorkflowConfig = (
@@ -383,6 +403,7 @@ WorkflowReport = (
     | PtmSiteWorkflowBundle
     | TargetedMatrixReport
     | TargetedAssayQcReport
+    | TargetedValidationWorkflowReport
 )
 
 WorkflowSourceReport = TargetedResultImportReport
@@ -397,6 +418,7 @@ WorkflowExportManifest = (
     | PtmSiteWorkflowExportManifest
     | TargetedMatrixWorkflowExportManifest
     | TargetedAssayQcWorkflowExportManifest
+    | AdvancedTargetedWorkflowManifest
 )
 
 
@@ -811,6 +833,54 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             export_manifest=manifest,
             outputs=outputs,
             note=note,
+        )
+    if config.stage is TargetedWorkflowStage.VALIDATION:
+        if config.output_dir is None:
+            raise ValueError("targeted validation workflow requires an output directory")
+        if config.design_tsv_path is None:
+            raise ValueError("targeted validation workflow requires a design table")
+        if config.case_condition is None or config.control_condition is None:
+            raise ValueError(
+                "targeted validation workflow requires case and control conditions"
+            )
+        experiment_design = _parse_design(config.design_tsv_path)
+        report = run_targeted_validation_workflow(
+            TargetedValidationWorkflowConfig(
+                result_tsv_path=config.input_tsv_path,
+                design_tsv_path=config.design_tsv_path,
+                output_dir=config.output_dir,
+                discovery_claims=config.discovery_claims,
+                panel_assays=config.panel_assays,
+                source_kind=config.source_kind,
+                case_condition=config.case_condition,
+                control_condition=config.control_condition,
+                minimum_reliable_replicates_per_condition=(
+                    config.minimum_reliable_replicates_per_condition
+                ),
+                minimum_absolute_validation_log2_effect=(
+                    config.minimum_absolute_validation_log2_effect
+                ),
+                flat_validation_log2_threshold=config.flat_validation_log2_threshold,
+            )
+        )
+        outputs: dict[str, str] = {}
+        if config.output_dir is not None:
+            manifest_path = config.output_dir / "advanced_targeted_workflow_manifest.json"
+            outputs = {
+                "output_dir": str(config.output_dir),
+                "workflow_manifest_json": str(manifest_path),
+                "manifest_json": str(manifest_path),
+            }
+        return WorkflowResult(
+            mode=config.mode,
+            report=report,
+            source_report=report.import_report,
+            export_manifest=report.manifest,
+            design_row_count=len(experiment_design.entries),
+            outputs=outputs,
+            note=(
+                "workflow orchestrator routed targeted observations through the governed targeted validation owner"
+            ),
         )
     design_entries: tuple[ExperimentalDesignEntry, ...] = ()
     design_row_count = None
