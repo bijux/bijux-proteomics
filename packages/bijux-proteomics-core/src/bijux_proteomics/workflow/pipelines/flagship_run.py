@@ -21,12 +21,12 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.review import VolcanoReviewPolicy
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
-from bijux_proteomics.workflow.biological_reporting import (
+from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.dda_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaPsmAcceptancePolicy,
@@ -34,7 +34,7 @@ from bijux_proteomics.workflow.dda_biological_workflow import (
     build_label_free_quant_table_from_protein_lfq_report,
     write_dda_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.diann_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
@@ -42,7 +42,7 @@ from bijux_proteomics.workflow.diann_biological_workflow import (
     render_dia_differential_matrix_tsv,
     render_dia_run_qc_summary_tsv,
 )
-from bijux_proteomics.workflow.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,

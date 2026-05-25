@@ -46,7 +46,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
 )
-from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 

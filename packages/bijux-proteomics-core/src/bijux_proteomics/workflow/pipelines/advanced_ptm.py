@@ -31,7 +31,7 @@ from bijux_proteomics.ptm import (
     render_ptm_site_quant_excluded_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
-from bijux_proteomics.workflow.ptm_site_workflow import (
+from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,
@@ -43,7 +43,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_issue_rows,
     build_result_warning,
 )
-from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 

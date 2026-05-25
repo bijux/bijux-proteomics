@@ -13,7 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow import build_biological_result_report_bundle
-from bijux_proteomics.workflow.biological_reporting import (
+from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,

@@ -80,7 +80,7 @@ from bijux_proteomics.ptm.ambiguity_handling import (
     render_ptm_site_group_quant_missingness_tsv,
     render_ptm_site_group_quant_summary_tsv,
 )
-from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,

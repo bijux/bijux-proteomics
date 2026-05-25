@@ -23,7 +23,7 @@ from bijux_proteomics.multiplex import (
     render_tmt_peptide_ratio_tsv,
 )
 from bijux_proteomics.quantification import LabelBasedChannelRole, NormalizationMethod
-from bijux_proteomics.workflow.tmt_experiment_workflow import (
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,
@@ -36,7 +36,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
 )
-from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 

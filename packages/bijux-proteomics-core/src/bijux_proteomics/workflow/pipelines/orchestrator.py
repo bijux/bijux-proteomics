@@ -65,47 +65,47 @@ from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowReport,
     run_targeted_validation_workflow,
 )
-from bijux_proteomics.workflow.biological_reporting import (
+from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
     build_biological_result_report_bundle,
     write_biological_result_report_bundle,
 )
-from bijux_proteomics.workflow.dda_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaPsmAcceptancePolicy,
     build_dda_biological_workflow_bundle,
     write_dda_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.diann_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
     write_diann_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.label_based_reporting import (
+from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     LabelBasedReportBundle,
     LabelBasedReportExportManifest,
     TmtNormalizationMethod,
     build_silac_label_based_report_bundle,
     write_label_based_report_bundle,
 )
-from bijux_proteomics.workflow.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
     write_maxquant_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.ptm_site_workflow import (
+from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,
     write_ptm_site_workflow_bundle,
 )
-from bijux_proteomics.workflow.tmt_experiment_workflow import (
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,

@@ -16,26 +16,26 @@ from bijux_proteomics.domain.errors import (
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmReportBundle
 from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
-from bijux_proteomics.workflow.biological_reporting import BiologicalResultReportBundle
-from bijux_proteomics.workflow.dda_biological_workflow import DdaBiologicalWorkflowBundle
-from bijux_proteomics.workflow.diann_biological_workflow import (
+from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import DdaBiologicalWorkflowBundle
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.pipelines.flagship_run import ProteomicsRunBundle
-from bijux_proteomics.workflow.interactive_result_bundle import (
+from bijux_proteomics.workflow.exports.interactive_result_bundle import (
     InteractiveResultBundle,
     InteractiveResultPathway,
     InteractiveResultPeptide,
     InteractiveResultProtein,
     InteractiveResultPtmSite,
 )
-from bijux_proteomics.workflow.label_based_reporting import LabelBasedReportBundle
-from bijux_proteomics.workflow.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.label_based_reporting import LabelBasedReportBundle
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
 )
-from bijux_proteomics.workflow.ptm_site_workflow import PtmSiteWorkflowBundle
-from bijux_proteomics.workflow.result_manifest import ResultManifestReport
-from bijux_proteomics.workflow.tmt_experiment_workflow import TmtExperimentWorkflowBundle
+from bijux_proteomics.workflow.pipelines.ptm_site_workflow import PtmSiteWorkflowBundle
+from bijux_proteomics.workflow.exports.result_manifest import ResultManifestReport
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import TmtExperimentWorkflowBundle
 from bijux_proteomics_foundation import JsonModel
 
 

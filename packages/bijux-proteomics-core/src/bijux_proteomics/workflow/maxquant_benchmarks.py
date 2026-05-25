@@ -41,7 +41,7 @@ from bijux_proteomics.study import (
     coerce_experiment_design,
     require_feasible_experiment_design_for_analysis,
 )
-from bijux_proteomics.workflow.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
     MaxquantProteinGroupAcceptanceReason,
     build_label_free_quant_table_from_maxquant_protein_groups,

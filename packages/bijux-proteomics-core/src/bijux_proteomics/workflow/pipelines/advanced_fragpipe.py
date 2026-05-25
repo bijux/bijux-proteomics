@@ -15,11 +15,11 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification import PsmRecord, SearchAdapterKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import NormalizationMethod, QuantRollupMethod
-from bijux_proteomics.workflow.biological_reporting import (
+from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultSelectionPolicy,
     VolcanoReviewPolicy,
 )
-from bijux_proteomics.workflow.dda_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaPsmAcceptancePolicy,
@@ -35,7 +35,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_reason_rows,
     build_result_warning,
 )
-from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
