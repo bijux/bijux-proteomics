@@ -38,6 +38,7 @@ Use root `make` and `tox` commands that call this package under the hood:
 ```bash
 make lint
 make test
+make test-slow
 make quality
 make security
 ```

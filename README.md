@@ -152,7 +152,8 @@ package owners rather than duplicating the same runtime under multiple names.
 - `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
-- `make test` to execute the configured test matrix
+- `make test` to execute the fast unit-focused test matrix
+- `make test-slow` to run slow, benchmark, and external-data suites
 - `make ensure-venv` to sync the shared root check environment
 - `make nlenv` to print the root environment activation command
 - `make manage_examples` to refresh governed repository example assets
