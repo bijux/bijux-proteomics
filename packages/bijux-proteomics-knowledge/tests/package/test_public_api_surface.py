@@ -6,22 +6,25 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_knowledge import (
     ComplexMembershipConfidence,
+    DrugTargetRelationshipType,
     EvidenceBundle,
     EvidenceClaim,
     EvidenceRecord,
-    KinaseSubstrateMatchType,
     KnowledgeDecisionBrief,
+    KinaseSubstrateMatchType,
     PathwayCoverageConfidenceStatus,
     ProteinFeatureType,
     ProteinIdentityResolutionStatus,
     evaluate_schema_compatibility,
     overlap_protein_features,
     render_complex_membership_resolution_tsv,
+    render_drug_target_resolution_tsv,
     render_kinase_substrate_resolution_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
     resolve_complex_members,
+    resolve_drug_targets,
     resolve_kinase_substrates,
     resolve_pathway_members,
     resolve_protein_ids,
@@ -33,6 +36,10 @@ from bijux_proteomics.interpretation.annotation_packs import (
 from bijux_proteomics.interpretation.complex_enrichment import (
     ComplexMemberKind,
     ComplexMembershipRecord,
+)
+from bijux_proteomics.interpretation.biological_context_mapping import (
+    BiologicalContextKind,
+    BiologicalContextRecord,
 )
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
@@ -244,4 +251,59 @@ def test_knowledge_public_root_exposes_kinase_substrate_resolution_surface() -> 
     assert report.entries[1].match_type is KinaseSubstrateMatchType.GENE_SYMBOL_SITE_EQUIVALENT
     assert render_kinase_substrate_resolution_tsv(report.entries).splitlines()[0] == (
         "site_id\tkinase\tmatch_type\tannotation_source"
+    )
+
+
+def test_knowledge_public_root_exposes_drug_target_resolution_surface() -> None:
+    report = resolve_drug_targets(
+        ("EGFR", "ERBB2"),
+        AnnotationPack(
+            source_path="public-root-drug-pack.json",
+            pack_name="public-root-drug-pack",
+            protein_features=(
+                ProteinAnnotationRecord(
+                    protein_ref="P00533",
+                    gene_symbol="EGFR",
+                    description="epidermal growth factor receptor",
+                ),
+                ProteinAnnotationRecord(
+                    protein_ref="Q15303",
+                    gene_symbol="ERBB2",
+                    description="erb-b2 receptor tyrosine kinase 2",
+                ),
+            ),
+            drug_targets=(
+                BiologicalContextRecord(
+                    protein_ref="P00533",
+                    context_kind=BiologicalContextKind.DRUG_TARGET,
+                    context_id="drug:erlotinib",
+                    context_name="Erlotinib",
+                    source_accession="DrugBank:DB00530",
+                ),
+                BiologicalContextRecord(
+                    protein_ref="Q15303",
+                    context_kind=BiologicalContextKind.DRUG_TARGET,
+                    context_id="drug:erlotinib",
+                    context_name="Erlotinib",
+                    source_accession="DrugBank:DB00530",
+                    metadata={"relationship_type": "pathway_neighbor"},
+                ),
+            ),
+            summary=AnnotationPackSummary(
+                protein_feature_count=2,
+                pathway_count=0,
+                complex_count=0,
+                compartment_count=0,
+                drug_target_count=2,
+                disease_term_count=0,
+                kinase_substrate_count=0,
+                ortholog_count=0,
+            ),
+        ),
+    )
+
+    assert report.entries[0].relationship_type is DrugTargetRelationshipType.DIRECT_TARGET
+    assert report.entries[1].relationship_type is DrugTargetRelationshipType.INDIRECT_PATHWAY_NEIGHBOR
+    assert render_drug_target_resolution_tsv(report.entries).splitlines()[0] == (
+        "protein_id\tdrug\trelationship_type\tdirect_target\tannotation_source"
     )

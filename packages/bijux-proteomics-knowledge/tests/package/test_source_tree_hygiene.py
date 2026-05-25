@@ -33,6 +33,7 @@ def test_knowledge_tests_follow_owned_boundary_families() -> None:
         "conftest.py",
         "complexes",
         "contracts",
+        "drugs",
         "features",
         "governance",
         "identity",
