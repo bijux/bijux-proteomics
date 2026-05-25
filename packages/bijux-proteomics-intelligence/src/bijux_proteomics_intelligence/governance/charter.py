@@ -29,6 +29,7 @@ class IntelligenceAnalyticalBand(StrEnum):
     CLAIMS = "claims"
     CONTRADICTIONS = "contradictions"
     FALSIFIERS = "falsifiers"
+    REFUSAL = "refusal"
     QUERY = "query"
     JUDGMENT = "judgment"
     POSTURE = "posture"
@@ -195,6 +196,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.REFUSAL,
+        owned_surface=(
+            "claim refusal boundaries that block strong analytical claims when "
+            "design validity, qc posture, peptide depth, or PTM localization is too weak"
+        ),
+        required_modules=("refusal.py",),
+        decision_scope=(
+            "block strong claims when experimental design validity is absent or QC has failed",
+            "refuse strong protein and PTM claims when peptide support or site localization does not meet governed evidence thresholds",
+        ),
+        refusal_scope=(
+            "refuse to let weak peptide support or low PTM localization pass as strong evidence",
+            "do not take over core-owned QC generation, localization scoring, or design normalization",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.QUERY,
         owned_surface=(
             "deterministic result-question answering that returns governed IDs for "
@@ -330,6 +347,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         required_modules=(
             "contradictions.py",
             "claims/support.py",
+            "refusal.py",
             "posture/evidence.py",
             "judgment/scenarios.py",
             "judgment/paths.py",
@@ -410,6 +428,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
             IntelligenceCharterCapability.RECOMMENDATION,
         ),
         reason="Falsifier generation keeps claim challenge paths explicit by emitting distinct evidence requirements for protein, PTM, pathway, regulator, and biomarker claims.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="refusal.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+        ),
+        reason="Claim refusal keeps strong analytical statements blocked when design validity, QC posture, peptide support, or PTM localization do not satisfy the minimum governed evidence boundary.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="query.py",
