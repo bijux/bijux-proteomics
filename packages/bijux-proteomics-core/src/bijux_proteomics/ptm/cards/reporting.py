@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -701,22 +703,10 @@ def write_ptm_report_bundle(
     peptide_name = "ptm_peptides.tsv"
     site_name = "ptm_sites.tsv"
     localization_name = "ptm_localization.tsv"
-    (output_dir / summary_name).write_text(
-        render_ptm_report_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / peptide_name).write_text(
-        render_ptm_report_peptide_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / site_name).write_text(
-        render_ptm_site_table_tsv(report.site_table),
-        encoding="utf-8",
-    )
-    (output_dir / localization_name).write_text(
-        render_ptm_report_localization_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_ptm_report_summary_tsv(report))
+    write_output_table_tsv((output_dir / peptide_name), render_ptm_report_peptide_tsv(report))
+    write_output_table_tsv((output_dir / site_name), render_ptm_site_table_tsv(report.site_table))
+    write_output_table_tsv((output_dir / localization_name), render_ptm_report_localization_tsv(report))
 
     site_quant_matrix_name = None
     site_quant_missingness_name = None
@@ -726,52 +716,31 @@ def write_ptm_report_bundle(
     if report.site_quantification is not None:
         site_quant_matrix_name = "ptm_site_quant_matrix.tsv"
         site_quant_missingness_name = "ptm_site_quant_missingness.tsv"
-        (output_dir / site_quant_matrix_name).write_text(
-            render_ptm_report_site_quant_matrix_tsv(report),
-            encoding="utf-8",
-        )
-        (output_dir / site_quant_missingness_name).write_text(
-            render_ptm_site_quant_missingness_tsv(report.site_quantification),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / site_quant_matrix_name), render_ptm_report_site_quant_matrix_tsv(report))
+        write_output_table_tsv((output_dir / site_quant_missingness_name), render_ptm_site_quant_missingness_tsv(report.site_quantification))
         if report.site_quantification.ambiguous_group_quantification is not None:
             site_group_summary_name = "ptm_site_group_summary.tsv"
             site_group_matrix_name = "ptm_site_group_matrix.tsv"
             site_group_missingness_name = "ptm_site_group_missingness.tsv"
-            (output_dir / site_group_summary_name).write_text(
-                render_ptm_site_group_quant_summary_tsv(
+            write_output_table_tsv((output_dir / site_group_summary_name), render_ptm_site_group_quant_summary_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ),
-                encoding="utf-8",
-            )
-            (output_dir / site_group_matrix_name).write_text(
-                render_ptm_site_group_quant_matrix_tsv(
+                ))
+            write_output_table_tsv((output_dir / site_group_matrix_name), render_ptm_site_group_quant_matrix_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ),
-                encoding="utf-8",
-            )
-            (output_dir / site_group_missingness_name).write_text(
-                render_ptm_site_group_quant_missingness_tsv(
+                ))
+            write_output_table_tsv((output_dir / site_group_missingness_name), render_ptm_site_group_quant_missingness_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ),
-                encoding="utf-8",
-            )
+                ))
 
     differential_name = None
     volcano_name = None
     if report.differential_analysis is not None:
         differential_name = "ptm_differential.tsv"
         volcano_name = "ptm_differential_volcano.tsv"
-        (output_dir / differential_name).write_text(
-            render_ptm_report_differential_tsv(report),
-            encoding="utf-8",
-        )
-        (output_dir / volcano_name).write_text(
-            render_ptm_differential_volcano_tsv(
+        write_output_table_tsv((output_dir / differential_name), render_ptm_report_differential_tsv(report))
+        write_output_table_tsv((output_dir / volcano_name), render_ptm_differential_volcano_tsv(
                 report.differential_analysis.volcano_plot
-            ),
-            encoding="utf-8",
-        )
+            ))
 
     motif_window_name = None
     motif_frequency_name = None
@@ -782,66 +751,36 @@ def write_ptm_report_bundle(
         motif_frequency_name = "ptm_motif_frequency.tsv"
         motif_term_name = "ptm_motif_terms.tsv"
         motif_logo_name = "ptm_motif_logo.tsv"
-        (output_dir / motif_window_name).write_text(
-            render_ptm_phosphosite_motif_window_tsv(report.motif_enrichment),
-            encoding="utf-8",
-        )
-        (output_dir / motif_frequency_name).write_text(
-            render_ptm_phosphosite_motif_frequency_tsv(report.motif_enrichment),
-            encoding="utf-8",
-        )
-        (output_dir / motif_term_name).write_text(
-            render_ptm_phosphosite_motif_enriched_term_tsv(report.motif_enrichment),
-            encoding="utf-8",
-        )
-        (output_dir / motif_logo_name).write_text(
-            render_ptm_phosphosite_motif_logo_tsv(report.motif_enrichment),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / motif_window_name), render_ptm_phosphosite_motif_window_tsv(report.motif_enrichment))
+        write_output_table_tsv((output_dir / motif_frequency_name), render_ptm_phosphosite_motif_frequency_tsv(report.motif_enrichment))
+        write_output_table_tsv((output_dir / motif_term_name), render_ptm_phosphosite_motif_enriched_term_tsv(report.motif_enrichment))
+        write_output_table_tsv((output_dir / motif_logo_name), render_ptm_phosphosite_motif_logo_tsv(report.motif_enrichment))
 
     regulator_enrichment_summary_name = None
     regulator_enrichment_name = None
     if report.regulator_enrichment is not None:
         regulator_enrichment_summary_name = "ptm_regulator_enrichment_summary.tsv"
         regulator_enrichment_name = "ptm_regulator_enrichment.tsv"
-        (output_dir / regulator_enrichment_summary_name).write_text(
-            render_ptm_regulator_enrichment_summary_tsv(report.regulator_enrichment),
-            encoding="utf-8",
-        )
-        (output_dir / regulator_enrichment_name).write_text(
-            render_ptm_regulator_enrichment_tsv(report.regulator_enrichment),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / regulator_enrichment_summary_name), render_ptm_regulator_enrichment_summary_tsv(report.regulator_enrichment))
+        write_output_table_tsv((output_dir / regulator_enrichment_name), render_ptm_regulator_enrichment_tsv(report.regulator_enrichment))
 
     mechanism_classification_summary_name = None
     mechanism_classification_name = None
     if report.mechanism_classification is not None:
         mechanism_classification_summary_name = "ptm_mechanism_classification_summary.tsv"
         mechanism_classification_name = "ptm_mechanism_classification.tsv"
-        (output_dir / mechanism_classification_summary_name).write_text(
-            render_ptm_mechanism_classification_summary_tsv(
+        write_output_table_tsv((output_dir / mechanism_classification_summary_name), render_ptm_mechanism_classification_summary_tsv(
                 report.mechanism_classification
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / mechanism_classification_name).write_text(
-            render_ptm_mechanism_classification_tsv(report.mechanism_classification),
-            encoding="utf-8",
-        )
+            ))
+        write_output_table_tsv((output_dir / mechanism_classification_name), render_ptm_mechanism_classification_tsv(report.mechanism_classification))
 
     ortholog_conservation_summary_name = None
     ortholog_conservation_name = None
     if report.ortholog_conservation is not None:
         ortholog_conservation_summary_name = "ptm_ortholog_conservation_summary.tsv"
         ortholog_conservation_name = "ptm_ortholog_conservation.tsv"
-        (output_dir / ortholog_conservation_summary_name).write_text(
-            render_ptm_ortholog_conservation_summary_tsv(report.ortholog_conservation),
-            encoding="utf-8",
-        )
-        (output_dir / ortholog_conservation_name).write_text(
-            render_ptm_ortholog_conservation_tsv(report.ortholog_conservation),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / ortholog_conservation_summary_name), render_ptm_ortholog_conservation_summary_tsv(report.ortholog_conservation))
+        write_output_table_tsv((output_dir / ortholog_conservation_name), render_ptm_ortholog_conservation_tsv(report.ortholog_conservation))
 
     evidence_card_summary_name = None
     evidence_card_name = None
@@ -851,24 +790,12 @@ def write_ptm_report_bundle(
         evidence_card_summary_name = "ptm_evidence_card_summary.tsv"
         evidence_card_name = "ptm_evidence_cards.tsv"
         evidence_claim_name = "ptm_evidence_claims.tsv"
-        (output_dir / evidence_card_summary_name).write_text(
-            render_ptm_evidence_card_summary_tsv(report.evidence_cards),
-            encoding="utf-8",
-        )
-        (output_dir / evidence_card_name).write_text(
-            render_ptm_evidence_card_tsv(report.evidence_cards),
-            encoding="utf-8",
-        )
-        (output_dir / evidence_claim_name).write_text(
-            render_ptm_evidence_claim_tsv(report.evidence_cards),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / evidence_card_summary_name), render_ptm_evidence_card_summary_tsv(report.evidence_cards))
+        write_output_table_tsv((output_dir / evidence_card_name), render_ptm_evidence_card_tsv(report.evidence_cards))
+        write_output_table_tsv((output_dir / evidence_claim_name), render_ptm_evidence_claim_tsv(report.evidence_cards))
     if report.evidence_aware_ranking_report is not None:
         evidence_aware_ranking_name = "ptm_evidence_aware_ranking.tsv"
-        (output_dir / evidence_aware_ranking_name).write_text(
-            render_ptm_report_evidence_aware_ranking_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / evidence_aware_ranking_name), render_ptm_report_evidence_aware_ranking_tsv(report))
 
     synchronize_workflow_artifact_layout(
         output_dir,

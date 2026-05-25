@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -436,7 +438,7 @@ def export_ptm_site_context_summary_tsv(
 ) -> None:
     """Write PTM site-context summary to a stable TSV artifact."""
 
-    path.write_text(render_ptm_site_context_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_site_context_summary_tsv(report))
 
 
 def export_ptm_site_context_tsv(
@@ -445,4 +447,4 @@ def export_ptm_site_context_tsv(
 ) -> None:
     """Write PTM site-context rows to a stable TSV artifact."""
 
-    path.write_text(render_ptm_site_context_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_site_context_tsv(report))

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
@@ -237,23 +239,14 @@ def run_ptm_summarize_command(
         raise click.ClickException(str(exc)) from exc
 
     if occupancy_summary_tsv_out is not None and occupancy_report is not None:
-        occupancy_summary_tsv_out.write_text(
-            render_ptm_site_occupancy_summary_tsv(occupancy_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(occupancy_summary_tsv_out, render_ptm_site_occupancy_summary_tsv(occupancy_report))
     if occupancy_tsv_out is not None and occupancy_report is not None:
-        occupancy_tsv_out.write_text(
-            render_ptm_site_occupancy_entry_tsv(occupancy_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report))
     if (
         occupancy_counterpart_tsv_out is not None
         and occupancy_counterpart_report is not None
     ):
-        occupancy_counterpart_tsv_out.write_text(
-            render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(occupancy_counterpart_tsv_out, render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report))
 
     payload = {
         "accepted_rows": len(evidence.accepted_records),

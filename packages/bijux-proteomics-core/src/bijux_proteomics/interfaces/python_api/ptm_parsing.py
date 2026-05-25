@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_ptm_parse_peptide_command(
@@ -57,25 +59,13 @@ def run_ptm_parse_peptides_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_ptm_peptide_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_ptm_peptide_summary_tsv(report))
     if record_tsv_out is not None:
-        record_tsv_out.write_text(
-            render_ptm_peptide_record_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(record_tsv_out, render_ptm_peptide_record_tsv(report))
     if site_tsv_out is not None:
-        site_tsv_out.write_text(
-            render_ptm_peptide_site_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(site_tsv_out, render_ptm_peptide_site_tsv(report))
     if rejected_tsv_out is not None:
-        rejected_tsv_out.write_text(
-            render_ptm_peptide_rejected_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(rejected_tsv_out, render_ptm_peptide_rejected_tsv(report))
 
     _emit_json(report.to_dict(), out_path=out_path)
 
@@ -161,50 +151,23 @@ def run_ptm_map_sites_command(
         raise click.ClickException(str(exc)) from exc
 
     if mapping_tsv_out is not None:
-        mapping_tsv_out.write_text(
-            render_ptm_protein_site_mapping_tsv(mappings),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mappings))
     if exact_mapping_tsv_out is not None:
-        exact_mapping_tsv_out.write_text(
-            render_ptm_protein_site_mapping_tsv(mapping_report.exact_mappings),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(exact_mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mapping_report.exact_mappings))
     if ambiguous_mapping_tsv_out is not None:
-        ambiguous_mapping_tsv_out.write_text(
-            render_ptm_protein_site_mapping_tsv(mapping_report.ambiguous_mappings),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(ambiguous_mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mapping_report.ambiguous_mappings))
     if unmapped_tsv_out is not None:
-        unmapped_tsv_out.write_text(
-            render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(unmapped_tsv_out, render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides))
     if candidate_tsv_out is not None:
-        candidate_tsv_out.write_text(
-            render_ptm_evidence_site_candidate_tsv(evidence),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(candidate_tsv_out, render_ptm_evidence_site_candidate_tsv(evidence))
     if site_table_tsv_out is not None:
-        site_table_tsv_out.write_text(
-            render_ptm_site_table_tsv(site_table),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(site_table_tsv_out, render_ptm_site_table_tsv(site_table))
     if ambiguity_tsv_out is not None:
-        ambiguity_tsv_out.write_text(
-            render_ptm_unlocalized_group_review_tsv(ambiguity_review),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(ambiguity_tsv_out, render_ptm_unlocalized_group_review_tsv(ambiguity_review))
     if coverage_tsv_out is not None:
-        coverage_tsv_out.write_text(
-            render_ptm_site_coverage_tsv(coverage),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(coverage_tsv_out, render_ptm_site_coverage_tsv(coverage))
     if validation_tsv_out is not None:
-        validation_tsv_out.write_text(
-            render_ptm_coordinate_validation_tsv(validation),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(validation_tsv_out, render_ptm_coordinate_validation_tsv(validation))
 
     _emit_json(
         {
@@ -283,15 +246,9 @@ def run_ptm_score_localization_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_ptm_localization_scoring_summary_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_ptm_localization_scoring_summary_tsv(report))
     if entry_tsv_out is not None:
-        entry_tsv_out.write_text(
-            render_ptm_localization_scoring_entry_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(entry_tsv_out, render_ptm_localization_scoring_entry_tsv(report))
 
     _emit_json(
         {

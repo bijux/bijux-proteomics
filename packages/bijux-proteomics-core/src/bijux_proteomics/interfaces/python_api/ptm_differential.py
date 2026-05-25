@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 def run_ptm_estimate_occupancy_command(
@@ -82,20 +84,11 @@ def run_ptm_estimate_occupancy_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        summary_tsv_out.write_text(
-            render_ptm_site_occupancy_summary_tsv(occupancy_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_tsv_out, render_ptm_site_occupancy_summary_tsv(occupancy_report))
     if occupancy_tsv_out is not None:
-        occupancy_tsv_out.write_text(
-            render_ptm_site_occupancy_entry_tsv(occupancy_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report))
     if counterpart_tsv_out is not None:
-        counterpart_tsv_out.write_text(
-            render_ptm_occupancy_counterpart_tsv(counterpart_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(counterpart_tsv_out, render_ptm_occupancy_counterpart_tsv(counterpart_report))
 
     _emit_json(
         {

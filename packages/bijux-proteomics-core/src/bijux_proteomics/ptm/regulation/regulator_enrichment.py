@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 import math
 from enum import StrEnum
@@ -285,7 +287,7 @@ def export_ptm_regulator_enrichment_summary_tsv(
 ) -> None:
     """Write PTM regulator enrichment summary to a stable TSV artifact."""
 
-    path.write_text(render_ptm_regulator_enrichment_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_regulator_enrichment_summary_tsv(report))
 
 
 def export_ptm_regulator_enrichment_tsv(
@@ -294,7 +296,7 @@ def export_ptm_regulator_enrichment_tsv(
 ) -> None:
     """Write PTM regulator enrichment rows to a stable TSV artifact."""
 
-    path.write_text(render_ptm_regulator_enrichment_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_regulator_enrichment_tsv(report))
 
 
 def _evaluate_regulator_entries(

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -730,7 +732,7 @@ def export_ptm_site_differential_tsv(
 ) -> None:
     """Write one PTM site differential report to a stable TSV artifact."""
 
-    path.write_text(render_ptm_site_differential_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_site_differential_tsv(report))
 
 
 def _merge_uncertainty_notes(
@@ -788,10 +790,7 @@ def export_ptm_site_differential_broken_pairs_tsv(
 ) -> None:
     """Write one PTM paired-design broken-pair ledger to a stable TSV artifact."""
 
-    path.write_text(
-        render_ptm_site_differential_broken_pairs_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_ptm_site_differential_broken_pairs_tsv(report))
 
 
 def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str:
@@ -845,7 +844,7 @@ def export_ptm_differential_volcano_tsv(
 ) -> None:
     """Write one PTM differential volcano payload to a stable TSV artifact."""
 
-    path.write_text(render_ptm_differential_volcano_tsv(plot), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_differential_volcano_tsv(plot))
 
 
 def _build_protein_differential_lookup(

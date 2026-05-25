@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 import re
 from enum import StrEnum
@@ -835,7 +837,7 @@ def export_ptm_evidence_card_summary_tsv(
 ) -> None:
     """Write PTM evidence-card summary to a stable TSV artifact."""
 
-    path.write_text(render_ptm_evidence_card_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_evidence_card_summary_tsv(report))
 
 
 def export_ptm_evidence_card_tsv(
@@ -844,7 +846,7 @@ def export_ptm_evidence_card_tsv(
 ) -> None:
     """Write PTM evidence cards to a stable TSV artifact."""
 
-    path.write_text(render_ptm_evidence_card_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_evidence_card_tsv(report))
 
 
 def export_ptm_evidence_claim_tsv(
@@ -853,7 +855,7 @@ def export_ptm_evidence_claim_tsv(
 ) -> None:
     """Write PTM evidence-card narrative claims to a stable TSV artifact."""
 
-    path.write_text(render_ptm_evidence_claim_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_evidence_claim_tsv(report))
 
 
 def _build_peptide_evidence(

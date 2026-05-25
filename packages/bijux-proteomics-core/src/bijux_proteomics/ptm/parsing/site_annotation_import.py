@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -648,7 +650,7 @@ def export_ptm_site_annotation_mapping_summary_tsv(
 ) -> None:
     """Write PTM site-annotation mapping summary to a stable TSV artifact."""
 
-    path.write_text(render_ptm_site_annotation_mapping_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_site_annotation_mapping_summary_tsv(report))
 
 
 def export_ptm_mapped_site_annotation_tsv(
@@ -657,7 +659,7 @@ def export_ptm_mapped_site_annotation_tsv(
 ) -> None:
     """Write mapped PTM site annotations to a stable TSV artifact."""
 
-    path.write_text(render_ptm_mapped_site_annotation_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_mapped_site_annotation_tsv(report))
 
 
 def export_ptm_unmapped_site_annotation_tsv(
@@ -666,7 +668,7 @@ def export_ptm_unmapped_site_annotation_tsv(
 ) -> None:
     """Write unmapped PTM site annotations to a stable TSV artifact."""
 
-    path.write_text(render_ptm_unmapped_site_annotation_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_unmapped_site_annotation_tsv(report))
 
 
 def export_ptm_site_annotation_biology_tsv(
@@ -677,10 +679,7 @@ def export_ptm_site_annotation_biology_tsv(
 ) -> None:
     """Write one PTM site-annotation biology category to a stable TSV artifact."""
 
-    path.write_text(
-        render_ptm_site_annotation_biology_tsv(summary, category=category),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_ptm_site_annotation_biology_tsv(summary, category=category))
 
 
 def _validate_required_columns(

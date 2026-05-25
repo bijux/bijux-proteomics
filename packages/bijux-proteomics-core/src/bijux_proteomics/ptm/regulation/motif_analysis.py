@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -621,7 +623,7 @@ def export_ptm_phosphosite_motif_window_tsv(
 ) -> None:
     """Write phosphosite motif windows to a stable TSV artifact."""
 
-    path.write_text(render_ptm_phosphosite_motif_window_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_phosphosite_motif_window_tsv(report))
 
 
 def render_ptm_phosphosite_motif_frequency_tsv(
@@ -663,10 +665,7 @@ def export_ptm_phosphosite_motif_frequency_tsv(
 ) -> None:
     """Write position-specific phosphosite motif frequencies to a stable TSV artifact."""
 
-    path.write_text(
-        render_ptm_phosphosite_motif_frequency_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_ptm_phosphosite_motif_frequency_tsv(report))
 
 
 def render_ptm_phosphosite_motif_enriched_term_tsv(
@@ -714,10 +713,7 @@ def export_ptm_phosphosite_motif_enriched_term_tsv(
 ) -> None:
     """Write enriched phosphosite motif terms to a stable TSV artifact."""
 
-    path.write_text(
-        render_ptm_phosphosite_motif_enriched_term_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_ptm_phosphosite_motif_enriched_term_tsv(report))
 
 
 def render_ptm_phosphosite_motif_logo_tsv(
@@ -759,7 +755,7 @@ def export_ptm_phosphosite_motif_logo_tsv(
 ) -> None:
     """Write logo-ready phosphosite motif residue frequencies to a stable TSV artifact."""
 
-    path.write_text(render_ptm_phosphosite_motif_logo_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_phosphosite_motif_logo_tsv(report))
 
 
 def _count_background_residues(

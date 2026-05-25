@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -283,10 +285,7 @@ def export_ptm_mechanism_classification_summary_tsv(
 ) -> None:
     """Write PTM mechanism-classification summary TSV."""
 
-    path.write_text(
-        render_ptm_mechanism_classification_summary_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_ptm_mechanism_classification_summary_tsv(report))
 
 
 def export_ptm_mechanism_classification_tsv(
@@ -295,7 +294,7 @@ def export_ptm_mechanism_classification_tsv(
 ) -> None:
     """Write PTM mechanism-classification TSV."""
 
-    path.write_text(render_ptm_mechanism_classification_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_mechanism_classification_tsv(report))
 
 
 def _classify_mechanism_entry(

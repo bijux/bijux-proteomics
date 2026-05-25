@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -356,13 +358,13 @@ def render_ptm_crosstalk_protein_map_tsv(report: PtmCrosstalkReport) -> str:
 def export_ptm_crosstalk_summary_tsv(report: PtmCrosstalkReport, path: Path) -> None:
     """Write the PTM crosstalk summary TSV."""
 
-    path.write_text(render_ptm_crosstalk_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_crosstalk_summary_tsv(report))
 
 
 def export_ptm_crosstalk_pair_tsv(report: PtmCrosstalkReport, path: Path) -> None:
     """Write the PTM crosstalk pair TSV."""
 
-    path.write_text(render_ptm_crosstalk_pair_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_crosstalk_pair_tsv(report))
 
 
 def export_ptm_crosstalk_protein_map_tsv(
@@ -371,7 +373,7 @@ def export_ptm_crosstalk_protein_map_tsv(
 ) -> None:
     """Write the PTM crosstalk protein-map TSV."""
 
-    path.write_text(render_ptm_crosstalk_protein_map_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_ptm_crosstalk_protein_map_tsv(report))
 
 
 def _pathways_by_site(
