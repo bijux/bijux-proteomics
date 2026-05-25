@@ -384,6 +384,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/protein_evidence_cards.py",
             "workflow/protein_mechanism_cards.py",
             "workflow/public_benchmark_descriptors.py",
+            "workflow/public_benchmark_subset.py",
             "workflow/public_benchmark_runner.py",
             "workflow/public_dataset_comparison.py",
             "workflow/result_archive.py",
