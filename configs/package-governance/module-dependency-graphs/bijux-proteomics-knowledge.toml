@@ -5,8 +5,18 @@ distribution_name = "bijux-proteomics-knowledge"
 
 [[module]]
 module_name = "bijux_proteomics_knowledge"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.models.claims", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.reviews.decision_briefs"]
+outgoing_internal_modules = ["bijux_proteomics_knowledge.complexes", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.coverage", "bijux_proteomics_knowledge.disease", "bijux_proteomics_knowledge.drugs", "bijux_proteomics_knowledge.features", "bijux_proteomics_knowledge.identity.proteins", "bijux_proteomics_knowledge.kinases", "bijux_proteomics_knowledge.memory.models.claims", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.orthologs", "bijux_proteomics_knowledge.pathways", "bijux_proteomics_knowledge.reviews.decision_briefs"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.complexes"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.complexes.members"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.complexes.members"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.complex_enrichment", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.contracts"
@@ -19,6 +29,46 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics_knowledge.coverage"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.coverage.report"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.coverage.report"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins", "bijux_proteomics_knowledge.kinases.substrates"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.disease"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.disease.terms"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.disease.terms"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.drugs"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.drugs.targets"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.drugs.targets"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.features"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.features.overlaps"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.features.overlaps"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.sequences", "bijux_proteomics.sequences.protein_region_context", "bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics_knowledge.governance"
 outgoing_internal_modules = []
 outgoing_workspace_modules = []
@@ -27,6 +77,26 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_knowledge.governance.charter"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.identity"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.identity.proteins"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.kinases"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.kinases.substrates"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.kinases.substrates"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.regulator_inference", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.memory"
@@ -77,6 +147,26 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_knowledge.memory.reconciliation.resolution"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.models.claims", "bijux_proteomics_knowledge.memory.models.evidence"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.orthologs"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.orthologs.mapping"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.orthologs.mapping"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.ortholog_mapping", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.pathways"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.pathways.members"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.pathways.members"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.identity.proteins"]
+outgoing_workspace_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references"

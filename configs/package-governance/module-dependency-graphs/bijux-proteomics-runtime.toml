@@ -10,7 +10,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_runtime.api"
-outgoing_internal_modules = ["bijux_proteomics_runtime.api.public", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_internal_modules = ["bijux_proteomics_runtime.api.public"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -25,7 +25,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_runtime.api.cli"
-outgoing_internal_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.api.catalog", "bijux_proteomics_runtime.api.v1.schema", "bijux_proteomics_runtime.runs.correlation", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.request", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.support.identity", "bijux_proteomics_runtime.support.workspace"]
+outgoing_internal_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config"]
 outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.candidates.schema"]
 
 [[module]]
@@ -147,6 +147,36 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_runtime.api.workflow_story"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.artifacts"
+outgoing_internal_modules = ["bijux_proteomics_runtime.artifacts.steps", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.artifacts.steps"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.checkpoints"
+outgoing_internal_modules = ["bijux_proteomics_runtime.checkpoints.scientific", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.checkpoints.scientific"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.review.evidence_graph_confidence", "bijux_proteomics.study.design_validity", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.diff"
+outgoing_internal_modules = ["bijux_proteomics_runtime.diff.completed_runs", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.diff.completed_runs"
+outgoing_internal_modules = ["bijux_proteomics_runtime.rehydrate"]
+outgoing_workspace_modules = ["bijux_proteomics.workflow", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.execution"
@@ -384,6 +414,26 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_runtime.handoff"
+outgoing_internal_modules = ["bijux_proteomics_runtime.handoff.archive", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.handoff.archive"
+outgoing_internal_modules = ["bijux_proteomics_runtime.rehydrate"]
+outgoing_workspace_modules = ["bijux_proteomics.review", "bijux_proteomics.workflow", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.parallel"
+outgoing_internal_modules = ["bijux_proteomics_runtime.parallel.execution", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.parallel.execution"
+outgoing_internal_modules = ["bijux_proteomics_runtime.support.workspace"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics_runtime.providers"
 outgoing_internal_modules = ["bijux_proteomics_runtime.providers.assurance", "bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.catalog", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.support.primitives.stability"]
 outgoing_workspace_modules = []
@@ -462,6 +512,26 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_runtime.providers.selection"
 outgoing_internal_modules = ["bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.providers.local.esmfold", "bijux_proteomics_runtime.providers.local.rosettafold", "bijux_proteomics_runtime.providers.remote.colabfold", "bijux_proteomics_runtime.providers.remote.openprotein"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.rehydrate"
+outgoing_internal_modules = ["bijux_proteomics_runtime.rehydrate.loading", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.rehydrate.loading"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.workflow"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.resume"
+outgoing_internal_modules = ["bijux_proteomics_runtime.resume.execution", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.resume.execution"
+outgoing_internal_modules = ["bijux_proteomics_runtime.artifacts", "bijux_proteomics_runtime.support.workspace"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.runs"
@@ -642,6 +712,16 @@ outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.quality"
 module_name = "bijux_proteomics_runtime.state.snapshot"
 outgoing_internal_modules = ["bijux_proteomics_runtime.state.memory_records", "bijux_proteomics_runtime.state.schemas", "bijux_proteomics_runtime.support.primitives.decisions", "bijux_proteomics_runtime.support.primitives.hashing"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.streaming"
+outgoing_internal_modules = ["bijux_proteomics_runtime.streaming.execution", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.streaming.execution"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.support"
@@ -825,5 +905,5 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.runs"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_runtime.artifacts"]
 outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics_foundation"]

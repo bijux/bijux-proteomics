@@ -64,6 +64,11 @@ outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.refusals", "b
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_foundation.package_aliases"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_foundation.serialization"
 outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.document_schema", "bijux_proteomics_foundation.serialization.fingerprints", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.scientific_values", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_values"]
 outgoing_workspace_modules = []

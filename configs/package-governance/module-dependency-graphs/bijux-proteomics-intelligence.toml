@@ -9,6 +9,11 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_intelligence.belief_audit"
+outgoing_internal_modules = ["bijux_proteomics_intelligence.claims.support", "bijux_proteomics_intelligence.falsifiers"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.integrity.graph", "bijux_proteomics_knowledge.memory.models.claims"]
+
+[[module]]
 module_name = "bijux_proteomics_intelligence.candidates"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.candidates.filters", "bijux_proteomics_intelligence.candidates.records", "bijux_proteomics_intelligence.candidates.schema", "bijux_proteomics_intelligence.candidates.selection", "bijux_proteomics_intelligence.candidates.store", "bijux_proteomics_intelligence.candidates.transform", "bijux_proteomics_intelligence.candidates.updates"]
 outgoing_workspace_modules = []
@@ -77,6 +82,26 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_intelligence.candidates.validation"
 outgoing_internal_modules = []
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.claims"
+outgoing_internal_modules = ["bijux_proteomics_intelligence.claims.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.claims.support"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.integrity.graph", "bijux_proteomics_knowledge.memory.models.claims"]
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.contradictions"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.claims"]
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.falsifiers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.claims"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.governance"
@@ -239,6 +264,11 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_intelligence.next_steps"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.workflow.study_result", "bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics_intelligence.posture"
 outgoing_internal_modules = []
 outgoing_workspace_modules = []
@@ -252,6 +282,16 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation.outcomes.refusals", "
 module_name = "bijux_proteomics_intelligence.posture.skeptical"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.judgment.paths", "bijux_proteomics_intelligence.judgment.scenarios"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.outcomes.results"]
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.query"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.workflow.study_result", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_intelligence.refusal"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.claims"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews"

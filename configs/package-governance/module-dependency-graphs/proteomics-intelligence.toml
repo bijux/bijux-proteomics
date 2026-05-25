@@ -5,10 +5,5 @@ distribution_name = "proteomics-intelligence"
 
 [[module]]
 module_name = "proteomics_intelligence"
-outgoing_internal_modules = ["proteomics_intelligence.runtime_alias"]
-outgoing_workspace_modules = []
-
-[[module]]
-module_name = "proteomics_intelligence.runtime_alias"
 outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation.package_aliases"]

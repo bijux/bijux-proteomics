@@ -5,8 +5,8 @@ distribution_name = "proteomics-runtime"
 
 [[module]]
 module_name = "proteomics_runtime"
-outgoing_internal_modules = ["proteomics_runtime.runtime_alias"]
-outgoing_workspace_modules = []
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation.package_aliases"]
 
 [[module]]
 module_name = "proteomics_runtime.__main__"
@@ -16,9 +16,4 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "proteomics_runtime.cli"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_runtime.api.cli"]
-
-[[module]]
-module_name = "proteomics_runtime.runtime_alias"
-outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation.package_aliases"]

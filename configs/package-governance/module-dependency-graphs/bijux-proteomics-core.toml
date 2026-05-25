@@ -10,7 +10,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.benchmarks"
-outgoing_internal_modules = ["bijux_proteomics.benchmarks.adoption", "bijux_proteomics.benchmarks.corpora", "bijux_proteomics.benchmarks.dia_targeted_pressure", "bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_public_packages", "bijux_proteomics.benchmarks.identification_pressure", "bijux_proteomics.benchmarks.performance", "bijux_proteomics.benchmarks.ptm_pressure", "bijux_proteomics.benchmarks.quantification_pressure"]
+outgoing_internal_modules = ["bijux_proteomics.benchmarks.adoption", "bijux_proteomics.benchmarks.corpora", "bijux_proteomics.benchmarks.dia_targeted_pressure", "bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_public_packages", "bijux_proteomics.benchmarks.identification_pressure", "bijux_proteomics.benchmarks.performance", "bijux_proteomics.benchmarks.ptm_pressure", "bijux_proteomics.benchmarks.public_case_studies", "bijux_proteomics.benchmarks.quantification_pressure", "bijux_proteomics.benchmarks.scientific_fixture_corpus", "bijux_proteomics.benchmarks.weak_evidence"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -84,8 +84,23 @@ outgoing_internal_modules = ["bijux_proteomics.ptm.benchmarks"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.benchmarks.public_case_studies"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.workflow", "bijux_proteomics.workflow.biological_reporting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.benchmarks.quantification_pressure"
 outgoing_internal_modules = ["bijux_proteomics.quantification.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.benchmarks.scientific_fixture_corpus"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.benchmarks.weak_evidence"
+outgoing_internal_modules = ["bijux_proteomics.study.qc_benchmarks", "bijux_proteomics.workflow.pipelines.advanced_tmt", "bijux_proteomics.workflow.pipelines.public_benchmark_runner", "bijux_proteomics.workflow.public_benchmark_descriptors"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -130,12 +145,17 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.chemistry"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.contracts", "bijux_proteomics.chemistry.fragment_ion_review", "bijux_proteomics.chemistry.isotope_adduct_annotation", "bijux_proteomics.chemistry.modification_resolution", "bijux_proteomics.chemistry.modified_peptide_conflicts", "bijux_proteomics.chemistry.open_search_unknown_mod", "bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.chemistry.stable_isotope_labeling", "bijux_proteomics.chemistry.theoretical_fragment_reference"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.amino_acid_mass", "bijux_proteomics.chemistry.contracts", "bijux_proteomics.chemistry.fragment_ion_review", "bijux_proteomics.chemistry.isotope_adduct_annotation", "bijux_proteomics.chemistry.isotope_envelope", "bijux_proteomics.chemistry.modification_packs", "bijux_proteomics.chemistry.modification_registry", "bijux_proteomics.chemistry.modification_resolution", "bijux_proteomics.chemistry.modified_peptide_conflicts", "bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.chemistry.open_search_unknown_mod", "bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.chemistry.stable_isotope_labeling", "bijux_proteomics.chemistry.theoretical_fragment_reference"]
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics.chemistry.contracts"
+module_name = "bijux_proteomics.chemistry.amino_acid_mass"
 outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.chemistry.contracts"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.amino_acid_mass", "bijux_proteomics.chemistry.isotope_envelope"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -149,13 +169,33 @@ outgoing_internal_modules = ["bijux_proteomics.chemistry"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.chemistry.isotope_envelope"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.amino_acid_mass", "bijux_proteomics.chemistry.contracts", "bijux_proteomics.chemistry.modification_registry"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.chemistry.modification_packs"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.amino_acid_mass", "bijux_proteomics.chemistry.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.chemistry.modification_registry"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.amino_acid_mass", "bijux_proteomics.chemistry.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.chemistry.modification_resolution"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.contracts", "bijux_proteomics.chemistry.modification_registry"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.chemistry.modified_peptide_conflicts"
 outgoing_internal_modules = ["bijux_proteomics.chemistry"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.chemistry.modified_peptide_parser"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.contracts", "bijux_proteomics.domain.records"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -165,8 +205,8 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.chemistry.search_engine_modified_peptides"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.contracts"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser"]
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.chemistry.stable_isotope_labeling"
@@ -180,22 +220,47 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.dia"
-outgoing_internal_modules = ["bijux_proteomics.dia.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.dia.contracts", "bijux_proteomics.dia.library_coverage", "bijux_proteomics.dia.precursor_matrix", "bijux_proteomics.dia.protein_matrix", "bijux_proteomics.dia.run_qc", "bijux_proteomics.dia.transition_qc"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.dia.benchmarks"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics.dia.library_coverage"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.dia.contracts"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.dia.library_coverage"
+outgoing_internal_modules = ["bijux_proteomics.dia.protein_matrix", "bijux_proteomics.io.formats", "bijux_proteomics.io.spectral_library"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.dia.precursor_matrix"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.diann_import", "bijux_proteomics.identification.spectronaut_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.dia.protein_matrix"
+outgoing_internal_modules = ["bijux_proteomics.dia.precursor_matrix", "bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.dia.run_qc"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.diann_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.dia.transition_qc"
+outgoing_internal_modules = ["bijux_proteomics.io", "bijux_proteomics.io.transition_table"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.domain"
-outgoing_internal_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.context", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.operating_model", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.sequence", "bijux_proteomics.domain.structure", "bijux_proteomics.domain.summary", "bijux_proteomics.domain.targets", "bijux_proteomics.domain.validation"]
+outgoing_internal_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.context", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.operating_model", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.records", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.sequence", "bijux_proteomics.domain.structure", "bijux_proteomics.domain.summary", "bijux_proteomics.domain.targets", "bijux_proteomics.domain.validation"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -247,6 +312,11 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 module_name = "bijux_proteomics.domain.programs"
 outgoing_internal_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.context", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.operating_model", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.targets"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.domain.records"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.domain.repositories"
@@ -310,7 +380,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification"
-outgoing_internal_modules = ["bijux_proteomics.identification.calibration_drift", "bijux_proteomics.identification.comet_import", "bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contaminant_audit", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.diann_import", "bijux_proteomics.identification.evidence_level_fdr_review", "bijux_proteomics.identification.fragpipe_import", "bijux_proteomics.identification.generic_psm_mapper", "bijux_proteomics.identification.maxquant_import", "bijux_proteomics.identification.openms_import", "bijux_proteomics.identification.parsimony_review", "bijux_proteomics.identification.peptide_evidence_review", "bijux_proteomics.identification.picked_protein_fdr_review", "bijux_proteomics.identification.protein_ambiguity_review", "bijux_proteomics.identification.protein_coverage_review", "bijux_proteomics.identification.protein_coverage_visualization", "bijux_proteomics.identification.protein_grouping_review", "bijux_proteomics.identification.protein_inference_benchmarks", "bijux_proteomics.identification.psm_inspection", "bijux_proteomics.identification.sage_import", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.identification.spectronaut_import", "bijux_proteomics.identification.target_decoy_reference_validation"]
+outgoing_internal_modules = ["bijux_proteomics.identification.calibration_drift", "bijux_proteomics.identification.comet_import", "bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contaminant_audit", "bijux_proteomics.identification.contaminant_evidence", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.diann_import", "bijux_proteomics.identification.error_rate_annotation", "bijux_proteomics.identification.evidence_level_fdr_review", "bijux_proteomics.identification.fragpipe_benchmarks", "bijux_proteomics.identification.fragpipe_import", "bijux_proteomics.identification.generic_psm_mapper", "bijux_proteomics.identification.maxquant_import", "bijux_proteomics.identification.openms_import", "bijux_proteomics.identification.parsimony_review", "bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.identification.peptide_evidence_review", "bijux_proteomics.identification.peptide_target_decoy_fdr", "bijux_proteomics.identification.picked_protein_fdr", "bijux_proteomics.identification.picked_protein_fdr_review", "bijux_proteomics.identification.protein_ambiguity_review", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.identification.protein_coverage_review", "bijux_proteomics.identification.protein_coverage_visualization", "bijux_proteomics.identification.protein_evidence", "bijux_proteomics.identification.protein_evidence_review", "bijux_proteomics.identification.protein_grouping", "bijux_proteomics.identification.protein_grouping_review", "bijux_proteomics.identification.protein_inference_benchmarks", "bijux_proteomics.identification.protein_parsimony", "bijux_proteomics.identification.protein_target_decoy_fdr", "bijux_proteomics.identification.psm_features", "bijux_proteomics.identification.psm_inspection", "bijux_proteomics.identification.psm_rescoring", "bijux_proteomics.identification.psm_target_decoy_fdr", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.sage_import", "bijux_proteomics.identification.score_separation_diagnostic", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.identification.spectronaut_import", "bijux_proteomics.identification.target_decoy_reference_validation"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -325,7 +395,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_co
 
 [[module]]
 module_name = "bijux_proteomics.identification.comet_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -335,17 +405,82 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contaminant_audit"
-outgoing_internal_modules = ["bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contaminant_evidence", "bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contaminant_evidence"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.contracts"
-outgoing_internal_modules = ["bijux_proteomics.chemistry"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts.confidence", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.protein_inference", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.psm_io", "bijux_proteomics.identification.contracts.review", "bijux_proteomics.identification.contracts.score_fdr"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.confidence"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_evidence", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.evidence"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.fdr_levels"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_target_decoy_fdr", "bijux_proteomics.identification.protein_target_decoy_fdr", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.grouping"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_grouping", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.protein_inference"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_parsimony", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.protein_review"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.grouping", "bijux_proteomics.identification.contracts.protein_inference", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.picked_protein_fdr", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.psm"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.psm_io"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.review"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.confidence", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.fdr_levels", "bijux_proteomics.identification.contracts.protein_review", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.contracts.score_fdr", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.contracts.score_fdr"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts.evidence", "bijux_proteomics.identification.contracts.psm", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.psm_target_decoy_fdr", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.cross_run_reproducibility"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.diann_import"
-outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.scientific_tables", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.error_rate_annotation"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.psm_target_decoy_fdr"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -354,49 +489,74 @@ outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.identification.fragpipe_benchmarks"
+outgoing_internal_modules = ["bijux_proteomics.identification.fragpipe_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.identification.fragpipe_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.generic_psm_mapper"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.domain", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.maxquant_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.scientific_tables"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.openms_import"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.quantification"]
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.parsimony_review"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.protein_parsimony"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.peptide_evidence"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_target_decoy_fdr"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.peptide_evidence_review"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_evidence"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.peptide_target_decoy_fdr"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.picked_protein_fdr"
 outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.picked_protein_fdr_review"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.picked_protein_fdr"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.protein_ambiguity_review"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.protein_evidence"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.protein_coverage"
 outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.protein_coverage_review"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.protein_coverage"]
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.identification.protein_coverage_visualization"
@@ -404,13 +564,43 @@ outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.identification.protein_grouping_review"
+module_name = "bijux_proteomics.identification.protein_evidence"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.identification.protein_grouping"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.protein_evidence_review"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.protein_evidence"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.protein_grouping"
 outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.identification.protein_grouping_review"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics.identification.protein_inference_benchmarks"
 outgoing_internal_modules = ["bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.protein_parsimony"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.protein_grouping"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.protein_target_decoy_fdr"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.psm_features"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification.contracts", "bijux_proteomics.io.spectra", "bijux_proteomics.io.spectrum_peak_matching", "bijux_proteomics.sequences.digestion"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -419,8 +609,28 @@ outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.identification.psm_rescoring"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.psm_features"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.psm_target_decoy_fdr"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.rejected_evidence_table"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.identification.sage_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry.search_engine_modified_peptides", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.score_separation_diagnostic"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -430,12 +640,112 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.search_adapters"
-outgoing_internal_modules = ["bijux_proteomics.identification"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.comparison", "bijux_proteomics.identification.search_adapters.conformance", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.corpus_matrix", "bijux_proteomics.identification.search_adapters.engines.comet", "bijux_proteomics.identification.search_adapters.engines.diann", "bijux_proteomics.identification.search_adapters.engines.maxquant", "bijux_proteomics.identification.search_adapters.engines.msfragger", "bijux_proteomics.identification.search_adapters.engines.sage", "bijux_proteomics.identification.search_adapters.engines.spectronaut", "bijux_proteomics.identification.search_adapters.family_policy", "bijux_proteomics.identification.search_adapters.input_review", "bijux_proteomics.identification.search_adapters.normalization", "bijux_proteomics.identification.search_adapters.parameter_review", "bijux_proteomics.identification.search_adapters.registry", "bijux_proteomics.identification.search_adapters.regression"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.comparison"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.conformance"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.input_review", "bijux_proteomics.identification.search_adapters.normalization", "bijux_proteomics.identification.search_adapters.parameter_review"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.contracts"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.corpus"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.conformance", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.normalization"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.corpus_matrix"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.engines.comet", "bijux_proteomics.identification.search_adapters.engines.diann", "bijux_proteomics.identification.search_adapters.engines.maxquant", "bijux_proteomics.identification.search_adapters.engines.msfragger", "bijux_proteomics.identification.search_adapters.engines.sage", "bijux_proteomics.identification.search_adapters.engines.spectronaut"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.engines.comet", "bijux_proteomics.identification.search_adapters.engines.diann", "bijux_proteomics.identification.search_adapters.engines.generic", "bijux_proteomics.identification.search_adapters.engines.maxquant", "bijux_proteomics.identification.search_adapters.engines.msfragger", "bijux_proteomics.identification.search_adapters.engines.sage", "bijux_proteomics.identification.search_adapters.engines.spectronaut"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.comet"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.diann"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.generic"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.maxquant"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.msfragger"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.sage"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.engines.spectronaut"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.corpus", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.family_policy"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.contracts"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.input_review"
+outgoing_internal_modules = ["bijux_proteomics.domain", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.family_policy", "bijux_proteomics.identification.search_adapters.registry"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.normalization"
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.family_policy", "bijux_proteomics.identification.search_adapters.input_review", "bijux_proteomics.identification.search_adapters.registry"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.parameter_review"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.engines.comet", "bijux_proteomics.identification.search_adapters.engines.diann", "bijux_proteomics.identification.search_adapters.engines.maxquant", "bijux_proteomics.identification.search_adapters.engines.msfragger", "bijux_proteomics.identification.search_adapters.engines.sage", "bijux_proteomics.identification.search_adapters.engines.spectronaut", "bijux_proteomics.identification.search_adapters.parameter_support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.parameter_support"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.contracts"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.registry"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.engines.comet", "bijux_proteomics.identification.search_adapters.engines.diann", "bijux_proteomics.identification.search_adapters.engines.generic", "bijux_proteomics.identification.search_adapters.engines.maxquant", "bijux_proteomics.identification.search_adapters.engines.msfragger", "bijux_proteomics.identification.search_adapters.engines.sage", "bijux_proteomics.identification.search_adapters.engines.spectronaut"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.identification.search_adapters.regression"
+outgoing_internal_modules = ["bijux_proteomics.identification.search_adapters.contracts", "bijux_proteomics.identification.search_adapters.input_review"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.spectronaut_import"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.stable_outputs"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -445,12 +755,12 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.identification.target_decoy_reference_validation"
-outgoing_internal_modules = ["bijux_proteomics.identification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.identification.contracts", "bijux_proteomics.identification.psm_target_decoy_fdr"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.interfaces"
-outgoing_internal_modules = ["bijux_proteomics.interfaces.examples"]
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
@@ -465,7 +775,292 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.interfaces.cli.app"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.errors", "bijux_proteomics.domain.program_spec", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.interfaces.runtime_plans", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.run_qc", "bijux_proteomics.io.spectra", "bijux_proteomics.io.spectral_library", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_uniqueness_audit", "bijux_proteomics.study.qc"]
+outgoing_internal_modules = ["bijux_proteomics.interfaces.cli.commands", "bijux_proteomics.interfaces.cli.commands.groups", "bijux_proteomics.workflow.pipelines.orchestrator"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.cli.commands.benchmark_demo", "bijux_proteomics.interfaces.cli.commands.biological_reports", "bijux_proteomics.interfaces.cli.commands.chromatogram_commands", "bijux_proteomics.interfaces.cli.commands.dia_precursor_matrices", "bijux_proteomics.interfaces.cli.commands.dia_protein_qc", "bijux_proteomics.interfaces.cli.commands.differential_analysis", "bijux_proteomics.interfaces.cli.commands.fdr_review", "bijux_proteomics.interfaces.cli.commands.groups", "bijux_proteomics.interfaces.cli.commands.identification_evidence", "bijux_proteomics.interfaces.cli.commands.interpretation_activity", "bijux_proteomics.interfaces.cli.commands.interpretation_annotations", "bijux_proteomics.interfaces.cli.commands.interpretation_contexts", "bijux_proteomics.interfaces.cli.commands.interpretation_disease", "bijux_proteomics.interfaces.cli.commands.interpretation_mapping", "bijux_proteomics.interfaces.cli.commands.interpretation_pathway_complex_enrichment", "bijux_proteomics.interfaces.cli.commands.interpretation_regulators", "bijux_proteomics.interfaces.cli.commands.interpretation_set_go_enrichment", "bijux_proteomics.interfaces.cli.commands.isotope_labeling", "bijux_proteomics.interfaces.cli.commands.multiplex_analysis", "bijux_proteomics.interfaces.cli.commands.multiplex_matrix", "bijux_proteomics.interfaces.cli.commands.peptide_chemistry", "bijux_proteomics.interfaces.cli.commands.peptide_matrix_building", "bijux_proteomics.interfaces.cli.commands.peptide_review", "bijux_proteomics.interfaces.cli.commands.program_fasta", "bijux_proteomics.interfaces.cli.commands.protein_coverage_and_parsimony", "bijux_proteomics.interfaces.cli.commands.protein_grouping", "bijux_proteomics.interfaces.cli.commands.protein_matrix_lfq", "bijux_proteomics.interfaces.cli.commands.ptm_context_annotation", "bijux_proteomics.interfaces.cli.commands.ptm_differential", "bijux_proteomics.interfaces.cli.commands.ptm_motif_annotation", "bijux_proteomics.interfaces.cli.commands.ptm_parsing", "bijux_proteomics.interfaces.cli.commands.ptm_quantification", "bijux_proteomics.interfaces.cli.commands.ptm_regulator", "bijux_proteomics.interfaces.cli.commands.ptm_reporting", "bijux_proteomics.interfaces.cli.commands.qc_commands", "bijux_proteomics.interfaces.cli.commands.quantification_primary", "bijux_proteomics.interfaces.cli.commands.quantification_reports", "bijux_proteomics.interfaces.cli.commands.result_explanation", "bijux_proteomics.interfaces.cli.commands.results_query", "bijux_proteomics.interfaces.cli.commands.review_planning", "bijux_proteomics.interfaces.cli.commands.search_adapter", "bijux_proteomics.interfaces.cli.commands.search_import_fragpipe", "bijux_proteomics.interfaces.cli.commands.search_import_quant", "bijux_proteomics.interfaces.cli.commands.sequence_database", "bijux_proteomics.interfaces.cli.commands.spectral_library_commands", "bijux_proteomics.interfaces.cli.commands.spectrum_annotation", "bijux_proteomics.interfaces.cli.commands.spectrum_basic", "bijux_proteomics.interfaces.cli.commands.targeted_matrix_qc", "bijux_proteomics.interfaces.cli.commands.targeted_selection", "bijux_proteomics.interfaces.cli.commands.targeted_validation", "bijux_proteomics.interfaces.cli.commands.vendor_imports", "bijux_proteomics.interfaces.cli.commands.workflow_biological_reports", "bijux_proteomics.interfaces.cli.commands.workflow_inputs", "bijux_proteomics.interfaces.cli.commands.workflow_runtime"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.benchmark_demo"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.benchmark_demo", "bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.biological_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.biological_reports", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.chromatogram_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.chromatogram_commands", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.dia_precursor_matrices"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.dia_precursor_matrices", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.dia_protein_qc"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.dia_protein_qc", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.differential_analysis"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.differential_analysis", "bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.fdr_review"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.fdr_review", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.groups"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.identification_evidence"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.identification_evidence", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_activity"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_activity", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_annotations"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_annotations", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_contexts"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_contexts", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_disease"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_disease", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_mapping"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_mapping", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_pathway_complex_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_pathway_complex_enrichment", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_regulators"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_regulators", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.interpretation_set_go_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.isotope_labeling"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.isotope_labeling", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.multiplex_analysis"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.multiplex_analysis", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.multiplex_matrix"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.multiplex_matrix", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.peptide_chemistry"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.peptide_chemistry", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.peptide_matrix_building"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.peptide_matrix_building", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.peptide_review"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.peptide_review", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.program_fasta"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.program_fasta", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.protein_coverage_and_parsimony"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.protein_grouping"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.protein_grouping", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.protein_matrix_lfq"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.protein_matrix_lfq", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_context_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_context_annotation", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_differential"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_differential", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_motif_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_motif_annotation", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_parsing"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_parsing", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_quantification"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_quantification", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_regulator"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_regulator", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.ptm_reporting"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.ptm_reporting", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.qc_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.qc_commands", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.quantification_primary"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.quantification_primary", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.quantification_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.quantification_reports", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.quantify_runner"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.quantify_runner", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.result_explanation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.result_explanation", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.results_query"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.results_query", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.review_planning"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.review_planning", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.search_adapter"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.search_adapter", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.search_import_fragpipe"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.search_import_fragpipe", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.search_import_quant"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.search_import_quant", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.sequence_database"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.sequence_database", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.spectral_library_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.spectral_library_commands", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.spectrum_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.spectrum_annotation", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.spectrum_basic"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.spectrum_basic", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.targeted_matrix_qc"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.targeted_matrix_qc", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.targeted_selection"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.targeted_selection", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.targeted_validation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.targeted_validation", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.vendor_imports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.vendor_imports", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.workflow_biological_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.workflow_biological_reports", "bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.workflow_inputs"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.workflow_inputs", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.commands.workflow_runtime"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.workflow_runtime", "bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.cli.support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -499,33 +1094,568 @@ outgoing_internal_modules = ["bijux_proteomics.interfaces.execution.backend"]
 outgoing_workspace_modules = ["bijux_proteomics_runtime.runs"]
 
 [[module]]
+module_name = "bijux_proteomics.interfaces.python_api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.benchmark_demo"
+outgoing_internal_modules = ["bijux_proteomics.benchmarks", "bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow", "bijux_proteomics.workflow.pipelines.public_benchmark_runner"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.biological_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.chromatogram_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.dia_precursor_matrices"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.dia_protein_qc"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.differential_analysis"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.fdr_review"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.identification_evidence"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_activity"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_annotations"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_contexts"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_disease"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_mapping"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_pathway_complex_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_regulators"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.isotope_labeling"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.multiplex_analysis"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.multiplex_matrix"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.peptide_chemistry"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.peptide_matrix_building"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.peptide_review"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.program_fasta"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.protein_grouping"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.protein_matrix_lfq"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_context_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_differential"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_motif_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_parsing"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_quantification"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_regulator"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.ptm_reporting"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.qc_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.quantification_primary"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.python_api.quantify_runner", "bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.quantification_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.quantify_runner"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.result_explanation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.results_query"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.review_planning"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.search_adapter"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.search_import_fragpipe"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.search_import_quant"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.sequence_database"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.spectral_library_commands"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.spectrum_annotation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.spectrum_basic"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.targeted_matrix_qc"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.targeted_selection"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.targeted_validation"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.vendor_imports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.workflow_biological_reports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.workflow_inputs"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.python_api.workflow_runtime"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support", "bijux_proteomics.interfaces.support.workflow"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics.interfaces.runtime_plans"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows"]
 
 [[module]]
-module_name = "bijux_proteomics.io"
-outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.run_qc", "bijux_proteomics.io.spectra", "bijux_proteomics.io.spectral_library"]
+module_name = "bijux_proteomics.interfaces.support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.biomarker_candidate_support", "bijux_proteomics.interfaces.support.contrast_resolution", "bijux_proteomics.interfaces.support.imports", "bijux_proteomics.interfaces.support.output_protocol", "bijux_proteomics.interfaces.support.sequence_support", "bijux_proteomics.interfaces.support.targeted_panel_support", "bijux_proteomics.interfaces.support.targeted_selection_io", "bijux_proteomics.interfaces.support.timecourse_support", "bijux_proteomics.interfaces.support.validation_evidence_support"]
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics.interfaces.support.biomarker_candidate_support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports", "bijux_proteomics.interfaces.support.targeted_selection_io"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.contrast_resolution"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.foundation"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.errors", "bijux_proteomics.domain.program_spec"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.identification"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.cross_run_reproducibility", "bijux_proteomics.identification.error_rate_annotation", "bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.identification.psm_target_decoy_fdr", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.identification.score_separation_diagnostic", "bijux_proteomics.identification.search_adapters"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.imports"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.foundation", "bijux_proteomics.interfaces.support.identification", "bijux_proteomics.interfaces.support.interpretation", "bijux_proteomics.interfaces.support.io_and_dia", "bijux_proteomics.interfaces.support.multiplex_targeted", "bijux_proteomics.interfaces.support.ptm_quantification", "bijux_proteomics.interfaces.support.review_sequences_study"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.interpretation"
+outgoing_internal_modules = ["bijux_proteomics.interpretation"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.io_and_dia"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.interfaces.runtime_plans", "bijux_proteomics.io", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.run_qc", "bijux_proteomics.io.spectra", "bijux_proteomics.io.spectral_library", "bijux_proteomics.io.spectrum_peak_matching", "bijux_proteomics.panels"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.multiplex_targeted"
+outgoing_internal_modules = ["bijux_proteomics.isotope_labeling", "bijux_proteomics.multiplex", "bijux_proteomics.targeted"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.output_protocol"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.ptm_quantification"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.differential_abundance"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.review_sequences_study"
+outgoing_internal_modules = ["bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_uniqueness_audit", "bijux_proteomics.study.experiment_feasibility", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.study.protocol_consistency", "bijux_proteomics.study.qc", "bijux_proteomics.study.sample_sheet_repairs"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.sequence_support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports", "bijux_proteomics.interfaces.support.output_protocol"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.targeted_panel_support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports", "bijux_proteomics.interfaces.support.targeted_selection_io"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.targeted_selection_io"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.timecourse_support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.validation_evidence_support"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.support.imports", "bijux_proteomics.interfaces.support.targeted_selection_io"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interfaces.support.workflow"
+outgoing_internal_modules = ["bijux_proteomics.interfaces.cli", "bijux_proteomics.workflow", "bijux_proteomics.workflow.pipelines.orchestrator"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interpretation"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.interpretation.complex_activity", "bijux_proteomics.interpretation.complex_enrichment", "bijux_proteomics.interpretation.disease_phenotype_interpretation", "bijux_proteomics.interpretation.drug_target_interpretation", "bijux_proteomics.interpretation.foreground_background_model", "bijux_proteomics.interpretation.go_enrichment", "bijux_proteomics.interpretation.ortholog_mapping", "bijux_proteomics.interpretation.pathway_activity", "bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.interpretation.ppi_network_modules", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_set_enrichment", "bijux_proteomics.interpretation.protein_set_scoring", "bijux_proteomics.interpretation.regulator_inference", "bijux_proteomics.interpretation.tissue_cell_type_context"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.annotation_packs"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.complex_enrichment", "bijux_proteomics.interpretation.ortholog_mapping", "bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.regulator_inference", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.biological_context_mapping"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.compartment_biology"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_set_enrichment", "bijux_proteomics.interpretation.protein_set_scoring", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.complex_activity"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.complex_enrichment", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.complex_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.disease_phenotype_interpretation"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_set_enrichment", "bijux_proteomics.interpretation.protein_set_scoring", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.drug_target_interpretation"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.foreground_background_model"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.go_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.ortholog_mapping"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.pathway_activity"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.pathway_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.sequences", "bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.ppi_network_modules"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_set_enrichment", "bijux_proteomics.interpretation.protein_set_scoring", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.protein_annotation_mapping"
+outgoing_internal_modules = ["bijux_proteomics.sequences", "bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.protein_set_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_set_scoring"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.protein_set_scoring"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.regulator_inference"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.pathway_activity", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.interpretation.tissue_cell_type_context"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.biological_context_mapping", "bijux_proteomics.interpretation.protein_set_scoring", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.io.chimeric_spectrum"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.chromatographic_evidence"
+outgoing_internal_modules = ["bijux_proteomics.io.chromatographic_peak_picking", "bijux_proteomics.io.retention_time_alignment", "bijux_proteomics.io.xic_extraction"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.chromatographic_peak_picking"
+outgoing_internal_modules = ["bijux_proteomics.io.xic_extraction"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.deisotoping"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.dia_fragment_coelution"
+outgoing_internal_modules = ["bijux_proteomics.io.chromatographic_peak_picking", "bijux_proteomics.io.xic_extraction"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.format_validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.io.formats"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.io.spectra", "bijux_proteomics.sequences"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.io.format_validation", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.scientific_tables", "bijux_proteomics.sequences", "bijux_proteomics.study.contrasts", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.fragment_ratio_stability"
+outgoing_internal_modules = ["bijux_proteomics.io.dia_fragment_coelution", "bijux_proteomics.io.xic_extraction", "bijux_proteomics.targeted.result_import"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.ingestion"
-outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.quantification"]
+outgoing_internal_modules = ["bijux_proteomics.io.mgf_streaming", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.input_integrity"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.mgf_streaming"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.mzml_reader"
+outgoing_internal_modules = ["bijux_proteomics.io.format_validation", "bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.noise"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.precursor_isotope_fit"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io.chromatographic_peak_picking", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.io.xic_extraction"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.precursor_validation"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.raw_signal_evidence_cards"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.chimeric_spectrum", "bijux_proteomics.io.chromatographic_evidence", "bijux_proteomics.io.chromatographic_peak_picking", "bijux_proteomics.io.dia_fragment_coelution", "bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.precursor_isotope_fit", "bijux_proteomics.io.retention_time_alignment", "bijux_proteomics.io.xic_extraction"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.retention_time_alignment"
+outgoing_internal_modules = ["bijux_proteomics.io.chromatographic_peak_picking", "bijux_proteomics.io.xic_extraction"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.run_qc"
-outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.spectra"]
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.io.spectrum_entropy"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.io.spectra"
-outgoing_internal_modules = ["bijux_proteomics.chemistry"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.io.mgf_streaming", "bijux_proteomics.io.spectrum_peak_matching"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -534,9 +1664,189 @@ outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.ide
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.ptm"
-outgoing_internal_modules = ["bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.proteoforms", "bijux_proteomics.ptm.review"]
+module_name = "bijux_proteomics.io.spectral_library_intensity_agreement"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra", "bijux_proteomics.io.spectral_library"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.spectrum_entropy"
+outgoing_internal_modules = ["bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.spectrum_peak_matching"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io.noise", "bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.stable_outputs"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.io.target_panel"
+outgoing_internal_modules = ["bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.transition_table"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.io.xic_extraction"
+outgoing_internal_modules = ["bijux_proteomics.io.mzml_reader", "bijux_proteomics.io.spectra", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.isotope_labeling"
+outgoing_internal_modules = ["bijux_proteomics.isotope_labeling.silac_quantification", "bijux_proteomics.isotope_labeling.validation"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.isotope_labeling.silac_quantification"
+outgoing_internal_modules = ["bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.isotope_labeling.validation"
+outgoing_internal_modules = ["bijux_proteomics.isotope_labeling.silac_quantification", "bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab"
+outgoing_internal_modules = ["bijux_proteomics.lab.actions", "bijux_proteomics.lab.background", "bijux_proteomics.lab.cohort", "bijux_proteomics.lab.contamination", "bijux_proteomics.lab.digestion_diagnosis", "bijux_proteomics.lab.run_diagnosis", "bijux_proteomics.lab.sample_identity", "bijux_proteomics.lab.standards"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.lab.actions"
+outgoing_internal_modules = ["bijux_proteomics.lab.background", "bijux_proteomics.lab.cohort", "bijux_proteomics.lab.contamination", "bijux_proteomics.lab.digestion_diagnosis", "bijux_proteomics.lab.run_diagnosis", "bijux_proteomics.lab.sample_identity", "bijux_proteomics.lab.standards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.background"
+outgoing_internal_modules = ["bijux_proteomics.domain.records"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.cohort"
+outgoing_internal_modules = ["bijux_proteomics.io.formats"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.contamination"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.digestion_diagnosis"
+outgoing_internal_modules = ["bijux_proteomics.sequences.digestion", "bijux_proteomics.study.lab_protocol_context"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.run_diagnosis"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.sample_identity"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.lab.standards"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex"
+outgoing_internal_modules = ["bijux_proteomics.multiplex.interference_metrics", "bijux_proteomics.multiplex.normalization", "bijux_proteomics.multiplex.plex_integration", "bijux_proteomics.multiplex.ratio_analysis", "bijux_proteomics.multiplex.reporter_ion_import", "bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.multiplex.sample_metadata_validation"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.interference_metrics"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.multiplex.reporter_ion_import", "bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.normalization"
+outgoing_internal_modules = ["bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.plex_integration"
+outgoing_internal_modules = ["bijux_proteomics.multiplex.normalization", "bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.ratio_analysis"
+outgoing_internal_modules = ["bijux_proteomics.multiplex.normalization", "bijux_proteomics.multiplex.reporter_matrix", "bijux_proteomics.quantification", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.reporter_ion_import"
+outgoing_internal_modules = ["bijux_proteomics.chemistry"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.reporter_matrix"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.multiplex.reporter_ion_import", "bijux_proteomics.quantification", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.multiplex.sample_metadata_validation"
+outgoing_internal_modules = ["bijux_proteomics.io.formats"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.panels"
+outgoing_internal_modules = ["bijux_proteomics.panels.target_panel"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.panels.target_panel"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.io", "bijux_proteomics.quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.programs"
+outgoing_internal_modules = ["bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.targets"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.proteoforms"
+outgoing_internal_modules = ["bijux_proteomics.proteoforms.assembly", "bijux_proteomics.proteoforms.quantification"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.proteoforms.assembly"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.proteoforms.quantification"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.proteoforms.assembly"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm"
+outgoing_internal_modules = ["bijux_proteomics.ptm.abundance_correction", "bijux_proteomics.ptm.acetylation", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.context_annotation", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.crosstalk", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.evidence_cards", "bijux_proteomics.ptm.fragment_scoring", "bijux_proteomics.ptm.hotspots", "bijux_proteomics.ptm.kinase_inference", "bijux_proteomics.ptm.localization_risk", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.ptm.mechanism_classification", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.occupancy_estimation", "bijux_proteomics.ptm.ortholog_site_conservation", "bijux_proteomics.ptm.oxidation", "bijux_proteomics.ptm.peptide_parser", "bijux_proteomics.ptm.phosphatase_inference", "bijux_proteomics.ptm.protein_site_mapping", "bijux_proteomics.ptm.proteoforms", "bijux_proteomics.ptm.regulator_enrichment", "bijux_proteomics.ptm.reporting", "bijux_proteomics.ptm.review", "bijux_proteomics.ptm.site_annotation_import", "bijux_proteomics.ptm.site_groups", "bijux_proteomics.ptm.site_quantification"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.ptm.abundance_correction"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.acetylation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.ambiguity_handling"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.ptm.benchmarks"
@@ -544,13 +1854,108 @@ outgoing_internal_modules = ["bijux_proteomics.ptm", "bijux_proteomics.ptm.prote
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.ptm.contracts"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.quantification"]
+module_name = "bijux_proteomics.ptm.context_annotation"
+outgoing_internal_modules = ["bijux_proteomics.ptm.contracts", "bijux_proteomics.sequences"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.contracts"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.occupancy_estimation", "bijux_proteomics.ptm.peptide_parser", "bijux_proteomics.ptm.protein_site_mapping", "bijux_proteomics.quantification", "bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.crosstalk"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.site_annotation_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.differential_analysis"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.abundance_correction", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.ptm.peptide_parser", "bijux_proteomics.ptm.site_quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.quantification.normalization", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.evidence_cards"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.crosstalk", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.ptm.mechanism_classification", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.ortholog_site_conservation", "bijux_proteomics.ptm.regulator_enrichment", "bijux_proteomics.ptm.site_annotation_import", "bijux_proteomics.ptm.site_quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.fragment_scoring"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io.spectra"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.hotspots"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.kinase_inference"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.localization_risk"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.fragment_scoring", "bijux_proteomics.ptm.localization_scoring"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.localization_scoring"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.mechanism_classification"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.ptm.site_quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.motif_analysis"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.site_quantification"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.occupancy_estimation"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.ptm.contracts", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.ortholog_site_conservation"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.oxidation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.peptide_parser"
+outgoing_internal_modules = ["bijux_proteomics.chemistry"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.phosphatase_inference"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.protein_site_mapping"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics.ptm.proteoforms"
 outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.regulator_enrichment"
+outgoing_internal_modules = ["bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.site_annotation_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.reporting"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.ptm.evidence_cards", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.ptm.mechanism_classification", "bijux_proteomics.ptm.motif_analysis", "bijux_proteomics.ptm.ortholog_site_conservation", "bijux_proteomics.ptm.protein_site_mapping", "bijux_proteomics.ptm.regulator_enrichment", "bijux_proteomics.ptm.site_annotation_import", "bijux_proteomics.ptm.site_quantification", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.sequences"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -559,8 +1964,28 @@ outgoing_internal_modules = ["bijux_proteomics.ptm", "bijux_proteomics.quantific
 outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_lab.handoffs.ptm"]
 
 [[module]]
+module_name = "bijux_proteomics.ptm.site_annotation_import"
+outgoing_internal_modules = ["bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.site_groups"
+outgoing_internal_modules = ["bijux_proteomics.ptm.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.ptm.site_quantification"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.ptm.ambiguity_handling", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.localization_scoring", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.quantification"
-outgoing_internal_modules = ["bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix", "bijux_proteomics.quantification.protein_lfq", "bijux_proteomics.quantification.readiness", "bijux_proteomics.quantification.review"]
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.batch_effect"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.sample_exploration", "bijux_proteomics.study.design_diagnostics"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -569,39 +1994,249 @@ outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.qu
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.quantification.contracts"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io.formats"]
+module_name = "bijux_proteomics.quantification.censored_differential"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.missingness"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.quantification.composition"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts.artifact_bundle", "bijux_proteomics.quantification.contracts.design", "bijux_proteomics.quantification.contracts.differential", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.input_parsing", "bijux_proteomics.quantification.contracts.label_based", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.contracts.missingness", "bijux_proteomics.quantification.contracts.normalization_imputation", "bijux_proteomics.quantification.contracts.protein_rollup", "bijux_proteomics.quantification.contracts.study_qc"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.artifact_bundle"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.design", "bijux_proteomics.quantification.contracts.differential", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.contracts.missingness", "bijux_proteomics.quantification.contracts.normalization_imputation", "bijux_proteomics.quantification.contracts.study_qc"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.design"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.study.sample_run_identity"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.differential"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.design", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.contracts.study_qc", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.quantification.time_course_differential", "bijux_proteomics.study.sample_run_identity"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.input_models"
+outgoing_internal_modules = ["bijux_proteomics.domain.records"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.input_parsing"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.quantification.contracts.input_models"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.label_based"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.core_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.matrix_building"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.core_matrix"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.matrix_models"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.core_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.missingness"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.missingness"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.normalization_imputation"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.normalization"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.protein_rollup"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.contracts.matrix_models", "bijux_proteomics.quantification.contracts.normalization_imputation"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.contracts.study_qc"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.batch_effect", "bijux_proteomics.quantification.contracts.input_models", "bijux_proteomics.quantification.contracts.matrix_building", "bijux_proteomics.quantification.contracts.matrix_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.core_matrix"
+outgoing_internal_modules = ["bijux_proteomics.domain.records"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.design_matrix"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.study.sample_run_identity"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.differential_abundance"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.differential_imputation_dependence", "bijux_proteomics.quantification.differential_result_robustness", "bijux_proteomics.study.design_classification", "bijux_proteomics.study.experiment_feasibility", "bijux_proteomics.study.replicate_structure", "bijux_proteomics.study.sample_run_identity"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.differential_imputation_dependence"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.differential_result_robustness"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.quantification.replicate_qc", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.heatmap_preparation"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.imputation"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.core_matrix", "bijux_proteomics.quantification.differential_imputation_dependence"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.matrix_archive"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.method_agreement"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.missingness"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.model_rollup"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.quantification.peptide_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.multi_contrast_consistency"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.normalization"
+outgoing_internal_modules = ["bijux_proteomics.quantification.composition", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.core_matrix"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics.quantification.peptide_intensity_matrix"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.quantification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.core_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.peptide_level_differential"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.peptide_profile_inconsistency"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.power_estimation"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.quantification.protein_intensity_matrix"
-outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix"]
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.core_matrix", "bijux_proteomics.quantification.peptide_intensity_matrix"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.quantification.protein_lfq"
-outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.core_matrix", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.quantification.readiness"
-outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts"]
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.study"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
+module_name = "bijux_proteomics.quantification.replicate_qc"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.batch_effect", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.sample_exploration"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics.quantification.review"
-outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.quantification.readiness"]
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.quantification.multi_contrast_consistency", "bijux_proteomics.quantification.readiness", "bijux_proteomics.quantification.replicate_qc", "bijux_proteomics.quantification.statistical_backend", "bijux_proteomics.study.replicate_structure"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.sample_exploration"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.statistical_backend"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.time_course_differential"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.differential_result_robustness", "bijux_proteomics.study", "bijux_proteomics.study.sample_run_identity"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.quantification.uncertainty"
+outgoing_internal_modules = ["bijux_proteomics.quantification.model_rollup"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.value_provenance"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.quantification.variance_model"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.quantification.contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.review"
-outgoing_internal_modules = ["bijux_proteomics.review.collaboration", "bijux_proteomics.review.contracts", "bijux_proteomics.review.flagship_kernel", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story", "bijux_proteomics.review.structure_reports"]
+outgoing_internal_modules = ["bijux_proteomics.review.analysis_recommendations", "bijux_proteomics.review.belief_audit", "bijux_proteomics.review.biological_claim_validation", "bijux_proteomics.review.biological_hypotheses", "bijux_proteomics.review.biomarker_candidate_ranking", "bijux_proteomics.review.collaboration", "bijux_proteomics.review.compact_result_summary", "bijux_proteomics.review.contracts", "bijux_proteomics.review.evidence_aware_ranking", "bijux_proteomics.review.evidence_chain_reconstruction", "bijux_proteomics.review.evidence_graph", "bijux_proteomics.review.evidence_graph_confidence", "bijux_proteomics.review.evidence_graph_contradictions", "bijux_proteomics.review.evidence_graph_downgrades", "bijux_proteomics.review.evidence_graph_export", "bijux_proteomics.review.evidence_graph_queries", "bijux_proteomics.review.evidence_graph_run_diff", "bijux_proteomics.review.failure_explanations", "bijux_proteomics.review.flagship_kernel", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.review.result_explanations", "bijux_proteomics.review.result_queries", "bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story", "bijux_proteomics.review.structure_reports", "bijux_proteomics.review.volcano_plots"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.review.analysis_recommendations"
+outgoing_internal_modules = ["bijux_proteomics.review.result_queries"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.belief_audit"
+outgoing_internal_modules = ["bijux_proteomics.review.result_explanations", "bijux_proteomics.review.result_queries"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.biological_claim_validation"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.review.evidence_graph_confidence", "bijux_proteomics.review.evidence_graph_downgrades"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.biological_hypotheses"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.biomarker_candidate_ranking"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.review.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.review.collaboration"
@@ -609,8 +2244,63 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.review.compact_result_summary"
+outgoing_internal_modules = ["bijux_proteomics.review.analysis_recommendations", "bijux_proteomics.review.result_queries"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.review.contracts"
-outgoing_internal_modules = ["bijux_proteomics.review.inference_packets"]
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph", "bijux_proteomics.review.inference_packets"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_aware_ranking"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.review.contracts"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_chain_reconstruction"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_confidence"
+outgoing_internal_modules = ["bijux_proteomics.io.chromatographic_evidence", "bijux_proteomics.io.dia_fragment_coelution", "bijux_proteomics.io.fragment_ratio_stability", "bijux_proteomics.quantification.peptide_profile_inconsistency", "bijux_proteomics.review.evidence_graph", "bijux_proteomics.sequences"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_contradictions"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_downgrades"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph", "bijux_proteomics.review.evidence_graph_confidence"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_export"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_queries"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.evidence_graph_run_diff"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph", "bijux_proteomics.review.evidence_graph_downgrades"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.failure_explanations"
+outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -626,6 +2316,16 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.review.protein_family_graphs"
 outgoing_internal_modules = ["bijux_proteomics.sequences.digestion"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.result_explanations"
+outgoing_internal_modules = ["bijux_proteomics.review.result_queries"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.result_queries"
+outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -664,8 +2364,18 @@ outgoing_internal_modules = ["bijux_proteomics.review.structure_reports.compute"
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics.review.volcano_plots"
+outgoing_internal_modules = ["bijux_proteomics.ptm.differential_analysis", "bijux_proteomics.quantification.contracts", "bijux_proteomics.workflow.dia_differential_analysis", "bijux_proteomics.workflow.label_based_differential_analysis"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.scientific_tables"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification.contracts", "bijux_proteomics.isotope_labeling.silac_quantification", "bijux_proteomics.ptm.contracts", "bijux_proteomics.tabular"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.sequences"
-outgoing_internal_modules = ["bijux_proteomics.sequences.contaminant_database", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.fasta_profile", "bijux_proteomics.sequences.peptide_properties"]
+outgoing_internal_modules = ["bijux_proteomics.sequences.contaminant_database", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.fasta_profile", "bijux_proteomics.sequences.peptide_chemical_liability", "bijux_proteomics.sequences.peptide_detectability", "bijux_proteomics.sequences.peptide_properties", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.sequences.protein_identity_resolution", "bijux_proteomics.sequences.protein_index", "bijux_proteomics.sequences.protein_region_context", "bijux_proteomics.sequences.proteogenomic_peptide_support", "bijux_proteomics.sequences.theoretical_digest"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -694,13 +2404,28 @@ outgoing_internal_modules = ["bijux_proteomics.sequences.core"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.sequences.peptide_chemical_liability"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_detectability"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.peptide_detectability"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_properties", "bijux_proteomics.sequences.peptide_uniqueness_index"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.sequences.peptide_properties"
 outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.digestion"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.sequences.peptide_uniqueness_audit"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_uniqueness_index"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.peptide_uniqueness_index"
+outgoing_internal_modules = ["bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.tabular"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -709,13 +2434,83 @@ outgoing_internal_modules = ["bijux_proteomics.sequences.digestion"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.sequences.protein_identity_resolution"
+outgoing_internal_modules = ["bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.protein_index"
+outgoing_internal_modules = ["bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.protein_region_context"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.proteogenomic_peptide_support"
+outgoing_internal_modules = ["bijux_proteomics.sequences.core"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.sequences.theoretical_digest"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.sequences.digestion"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.study"
-outgoing_internal_modules = ["bijux_proteomics.study.contracts", "bijux_proteomics.study.laboratory_operations", "bijux_proteomics.study.laboratory_plans", "bijux_proteomics.study.qc"]
+outgoing_internal_modules = ["bijux_proteomics.study.carryover", "bijux_proteomics.study.contracts", "bijux_proteomics.study.contrasts", "bijux_proteomics.study.design_classification", "bijux_proteomics.study.design_diagnostics", "bijux_proteomics.study.design_validity", "bijux_proteomics.study.experiment_confidence", "bijux_proteomics.study.experiment_design", "bijux_proteomics.study.experiment_feasibility", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.study.laboratory_operations", "bijux_proteomics.study.laboratory_plans", "bijux_proteomics.study.lc_drift", "bijux_proteomics.study.protocol_consistency", "bijux_proteomics.study.qc", "bijux_proteomics.study.replicate_structure", "bijux_proteomics.study.sample_metadata", "bijux_proteomics.study.sample_run_identity", "bijux_proteomics.study.sample_sheet_repairs"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.study.carryover"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.study.contracts"
 outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.contrasts"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.design_classification"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.design_validity", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.design_diagnostics"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.design_validity"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.design_diagnostics", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.experiment_confidence"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.power_estimation", "bijux_proteomics.study.design_validity", "bijux_proteomics.study.experiment_design", "bijux_proteomics.study.experiment_feasibility", "bijux_proteomics.study.protocol_consistency", "bijux_proteomics.study.qc"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.experiment_design"
+outgoing_internal_modules = ["bijux_proteomics.io.formats"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.experiment_feasibility"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.design_classification", "bijux_proteomics.study.design_validity", "bijux_proteomics.study.experiment_design", "bijux_proteomics.study.replicate_structure"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.lab_protocol_context"
+outgoing_internal_modules = ["bijux_proteomics.scientific_tables"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -729,8 +2524,18 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.study.lc_drift"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.protocol_consistency"
+outgoing_internal_modules = ["bijux_proteomics.multiplex.reporter_ion_import", "bijux_proteomics.ptm.contracts", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.study.qc"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics.study.qc"
-outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.quantification", "bijux_proteomics.sequences.digestion"]
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification", "bijux_proteomics.identification.contaminant_evidence", "bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.quantification", "bijux_proteomics.sequences.digestion", "bijux_proteomics.study.lab_protocol_context"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
@@ -739,11 +2544,486 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics.workflow"
-outgoing_internal_modules = ["bijux_proteomics.workflow.blueprint"]
+module_name = "bijux_proteomics.study.replicate_structure"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.sample_metadata"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.scientific_tables"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.sample_run_identity"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.study.sample_sheet_repairs"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.tabular"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.targeted.assay_interference"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.sequences.digestion", "bijux_proteomics.targeted.discovery_peptide_selection", "bijux_proteomics.targeted.transition_selection"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.assay_qc"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.fragment_ratio_stability", "bijux_proteomics.targeted.fragment_ratios", "bijux_proteomics.targeted.result_import", "bijux_proteomics.targeted.transition_coelution"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.biomarker_stability"
+outgoing_internal_modules = ["bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_qc", "bijux_proteomics.targeted.panel_design", "bijux_proteomics.targeted.result_import", "bijux_proteomics.targeted.result_validation"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.carryover"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.carryover", "bijux_proteomics.study.experiment_design", "bijux_proteomics.targeted.result_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.discovery_peptide_selection"
+outgoing_internal_modules = ["bijux_proteomics.chemistry.modified_peptide_parser", "bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.sequences", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.peptide_uniqueness_index"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.fragment_ratios"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.panel_design"
+outgoing_internal_modules = ["bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_interference"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.panel_redundancy"
+outgoing_internal_modules = ["bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_qc", "bijux_proteomics.targeted.panel_design", "bijux_proteomics.targeted.result_import", "bijux_proteomics.targeted.result_validation"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.result_import"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.io"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.result_validation"
+outgoing_internal_modules = ["bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_qc", "bijux_proteomics.targeted.panel_design", "bijux_proteomics.targeted.result_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.target_matrix"
+outgoing_internal_modules = ["bijux_proteomics.targeted.result_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.transition_coelution"
+outgoing_internal_modules = ["bijux_proteomics.targeted.result_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.transition_selection"
+outgoing_internal_modules = ["bijux_proteomics.chemistry", "bijux_proteomics.identification.contracts", "bijux_proteomics.io", "bijux_proteomics.targeted.discovery_peptide_selection"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.validation_evidence_cards"
+outgoing_internal_modules = ["bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_interference", "bijux_proteomics.targeted.biomarker_stability", "bijux_proteomics.targeted.panel_design", "bijux_proteomics.targeted.result_validation"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.targeted.validation_planning"
+outgoing_internal_modules = ["bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.sequences", "bijux_proteomics.targeted.assay_interference", "bijux_proteomics.targeted.panel_design"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow"
+outgoing_internal_modules = ["bijux_proteomics.workflow.advanced_diann", "bijux_proteomics.workflow.advanced_fragpipe", "bijux_proteomics.workflow.advanced_maxquant", "bijux_proteomics.workflow.advanced_ptm", "bijux_proteomics.workflow.advanced_targeted", "bijux_proteomics.workflow.advanced_tmt", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.blueprint", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.cross_species_effect_comparison", "bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.cross_study_evidence_cards", "bijux_proteomics.workflow.cross_study_meta_analysis", "bijux_proteomics.workflow.cross_study_pathway_comparison", "bijux_proteomics.workflow.cross_study_protein_harmonization", "bijux_proteomics.workflow.dda_biological_workflow", "bijux_proteomics.workflow.dia_dda_comparison", "bijux_proteomics.workflow.dia_differential_analysis", "bijux_proteomics.workflow.diann_benchmarks", "bijux_proteomics.workflow.diann_biological_workflow", "bijux_proteomics.workflow.discovery_to_assay", "bijux_proteomics.workflow.flagship_run", "bijux_proteomics.workflow.integrated_scientific_report", "bijux_proteomics.workflow.interactive_result_bundle", "bijux_proteomics.workflow.interactive_result_comparison", "bijux_proteomics.workflow.label_based_differential_analysis", "bijux_proteomics.workflow.label_based_reporting", "bijux_proteomics.workflow.maxquant_benchmarks", "bijux_proteomics.workflow.maxquant_biological_workflow", "bijux_proteomics.workflow.mechanisms", "bijux_proteomics.workflow.multi_study", "bijux_proteomics.workflow.orchestrator", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards", "bijux_proteomics.workflow.ptm_site_workflow", "bijux_proteomics.workflow.public_benchmark_descriptors", "bijux_proteomics.workflow.public_benchmark_runner", "bijux_proteomics.workflow.public_benchmark_subset", "bijux_proteomics.workflow.public_dataset_comparison", "bijux_proteomics.workflow.result_archive", "bijux_proteomics.workflow.result_manifest", "bijux_proteomics.workflow.result_search_index", "bijux_proteomics.workflow.study_result", "bijux_proteomics.workflow.surprising_demo", "bijux_proteomics.workflow.surprising_demo_interrogation", "bijux_proteomics.workflow.synthetic_quant_truth", "bijux_proteomics.workflow.targeted_review_workflow", "bijux_proteomics.workflow.tmt_experiment_workflow", "bijux_proteomics.workflow.trust_bundle"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_diann"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_diann"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_fragpipe"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_fragpipe"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_maxquant"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_maxquant"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_ptm"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_ptm"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_targeted"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_targeted"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.advanced_tmt"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.advanced_tmt"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_assembly"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_report_claims", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.biological_report_section_confidence", "bijux_proteomics.workflow.biological_report_selection", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_claims"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.biological_report_ranking", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_html"
+outgoing_internal_modules = ["bijux_proteomics.workflow.biological_report_html_support", "bijux_proteomics.workflow.biological_report_models"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_html_support"
+outgoing_internal_modules = ["bijux_proteomics.workflow.biological_report_models"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_models"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_ranking"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_rendering"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.study", "bijux_proteomics.workflow.biological_report_html", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_section_confidence"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_report_selection"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.interpretation.compartment_biology", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.study", "bijux_proteomics.study.lab_protocol_context", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.cohort_stratification", "bijux_proteomics.workflow.protein_evidence_cards", "bijux_proteomics.workflow.protein_mechanism_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_reporting"
+outgoing_internal_modules = ["bijux_proteomics.review", "bijux_proteomics.workflow.biological_report_assembly", "bijux_proteomics.workflow.biological_report_models", "bijux_proteomics.workflow.biological_report_rendering"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.biological_result_graph"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.workflow.blueprint"
 outgoing_internal_modules = ["bijux_proteomics.domain.program_spec"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cohort_stratification"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_species_effect_comparison"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.ortholog_mapping", "bijux_proteomics.sequences", "bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_study_effect_comparison"
+outgoing_internal_modules = ["bijux_proteomics.quantification.contracts", "bijux_proteomics.workflow.cross_study_protein_harmonization", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_study_evidence_cards"
+outgoing_internal_modules = ["bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.cross_study_meta_analysis", "bijux_proteomics.workflow.cross_study_pathway_comparison", "bijux_proteomics.workflow.public_dataset_comparison"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_study_meta_analysis"
+outgoing_internal_modules = ["bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.cross_study_protein_harmonization", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_study_pathway_comparison"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.workflow.cross_study_protein_harmonization", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.cross_study_protein_harmonization"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.ortholog_mapping", "bijux_proteomics.sequences", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.dda_biological_workflow"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.study", "bijux_proteomics.workflow.biological_reporting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.dia_dda_comparison"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.identification.diann_import", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.peptide_intensity_matrix", "bijux_proteomics.quantification.protein_intensity_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.dia_differential_analysis"
+outgoing_internal_modules = ["bijux_proteomics.dia.protein_matrix", "bijux_proteomics.io.formats", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.quantification.normalization", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.diann_benchmarks"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.diann_import"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.diann_biological_workflow"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.identification.diann_import", "bijux_proteomics.identification.rejected_evidence_table", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.study", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.dia_differential_analysis"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.discovery_to_assay"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.discovery_to_assay"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.flagship_run"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.flagship_run"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.integrated_scientific_report"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.integrated_scientific_report"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.interactive_result_bundle"
+outgoing_internal_modules = ["bijux_proteomics.ptm.reporting", "bijux_proteomics.workflow.biological_reporting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.interactive_result_comparison"
+outgoing_internal_modules = ["bijux_proteomics.workflow.interactive_result_bundle"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.label_based_differential_analysis"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.isotope_labeling", "bijux_proteomics.multiplex", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.design_matrix", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.quantification.protein_intensity_matrix", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.label_based_reporting"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.isotope_labeling", "bijux_proteomics.multiplex", "bijux_proteomics.quantification", "bijux_proteomics.study", "bijux_proteomics.workflow.label_based_differential_analysis"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.maxquant_benchmarks"
+outgoing_internal_modules = ["bijux_proteomics.domain.records", "bijux_proteomics.identification.maxquant_import", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.quantification.differential_abundance", "bijux_proteomics.study", "bijux_proteomics.workflow.maxquant_biological_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.maxquant_biological_workflow"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.identification.maxquant_import", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.study", "bijux_proteomics.workflow.biological_reporting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.mechanisms"
+outgoing_internal_modules = ["bijux_proteomics.interpretation.complex_activity", "bijux_proteomics.interpretation.pathway_activity", "bijux_proteomics.interpretation.regulator_inference", "bijux_proteomics.review", "bijux_proteomics.review.evidence_graph_confidence", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.protein_mechanism_cards", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.multi_study"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.multi_study"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.orchestrator"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.orchestrator"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_diann"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.io", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.review.evidence_graph_confidence", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.diann_biological_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_fragpipe"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.dda_biological_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_maxquant"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.maxquant_biological_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_ptm"
+outgoing_internal_modules = ["bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.workflow.ptm_site_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_targeted"
+outgoing_internal_modules = ["bijux_proteomics.io", "bijux_proteomics.io.stable_outputs", "bijux_proteomics.targeted", "bijux_proteomics.workflow.targeted_review_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.advanced_tmt"
+outgoing_internal_modules = ["bijux_proteomics.io.stable_outputs", "bijux_proteomics.multiplex", "bijux_proteomics.quantification", "bijux_proteomics.workflow.tmt_experiment_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.discovery_to_assay"
+outgoing_internal_modules = ["bijux_proteomics.identification.peptide_evidence", "bijux_proteomics.io", "bijux_proteomics.sequences", "bijux_proteomics.targeted"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.flagship_run"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.study", "bijux_proteomics.study.contrasts", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.dda_biological_workflow", "bijux_proteomics.workflow.diann_biological_workflow", "bijux_proteomics.workflow.maxquant_biological_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.integrated_scientific_report"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo", "bijux_proteomics.workflow.pipelines.surprising_demo_interrogation"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.multi_study"
+outgoing_internal_modules = ["bijux_proteomics.interpretation", "bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.cross_study_pathway_comparison", "bijux_proteomics.workflow.cross_study_protein_harmonization"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.orchestrator"
+outgoing_internal_modules = ["bijux_proteomics.dia", "bijux_proteomics.identification", "bijux_proteomics.io.formats", "bijux_proteomics.isotope_labeling", "bijux_proteomics.multiplex", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.study", "bijux_proteomics.targeted", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.dda_biological_workflow", "bijux_proteomics.workflow.diann_biological_workflow", "bijux_proteomics.workflow.label_based_reporting", "bijux_proteomics.workflow.maxquant_biological_workflow", "bijux_proteomics.workflow.pipelines.advanced_targeted", "bijux_proteomics.workflow.ptm_site_workflow", "bijux_proteomics.workflow.targeted_review_workflow", "bijux_proteomics.workflow.tmt_experiment_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.public_benchmark_runner"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.multiplex", "bijux_proteomics.ptm", "bijux_proteomics.targeted", "bijux_proteomics.workflow.pipelines.orchestrator", "bijux_proteomics.workflow.public_benchmark_descriptors"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.surprising_demo"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.review.biological_claim_validation", "bijux_proteomics.targeted", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.pipelines.advanced_ptm", "bijux_proteomics.workflow.pipelines.advanced_targeted", "bijux_proteomics.workflow.pipelines.advanced_tmt", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.belief_audit", "bijux_proteomics_intelligence.contradictions", "bijux_proteomics_knowledge.memory.integrity.graph", "bijux_proteomics_knowledge.memory.models.claims", "bijux_proteomics_knowledge.memory.models.evidence"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.surprising_demo_interrogation"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.pipelines.trust_bundle"
+outgoing_internal_modules = ["bijux_proteomics.benchmarks.weak_evidence", "bijux_proteomics.workflow.pipelines.public_benchmark_runner", "bijux_proteomics.workflow.public_benchmark_descriptors"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.protein_evidence_cards"
+outgoing_internal_modules = ["bijux_proteomics.identification", "bijux_proteomics.identification.protein_coverage", "bijux_proteomics.interpretation", "bijux_proteomics.ptm", "bijux_proteomics.quantification", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.workflow.biological_result_graph"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.protein_mechanism_cards"
+outgoing_internal_modules = ["bijux_proteomics.ptm", "bijux_proteomics.review", "bijux_proteomics.sequences", "bijux_proteomics.workflow.biological_result_graph", "bijux_proteomics.workflow.protein_evidence_cards"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.ptm_site_workflow"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.reporting", "bijux_proteomics.quantification", "bijux_proteomics.sequences", "bijux_proteomics.study"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.public_benchmark_descriptors"
+outgoing_internal_modules = ["bijux_proteomics.io.formats"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.public_benchmark_runner"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.public_benchmark_runner"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.public_benchmark_subset"
+outgoing_internal_modules = ["bijux_proteomics.workflow.public_benchmark_descriptors"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.public_dataset_comparison"
+outgoing_internal_modules = ["bijux_proteomics.workflow.cross_study_effect_comparison", "bijux_proteomics.workflow.cross_study_meta_analysis", "bijux_proteomics.workflow.cross_study_pathway_comparison", "bijux_proteomics.workflow.pipelines.public_benchmark_runner", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.result_archive"
+outgoing_internal_modules = ["bijux_proteomics.review.evidence_graph", "bijux_proteomics.workflow.interactive_result_bundle", "bijux_proteomics.workflow.result_manifest", "bijux_proteomics.workflow.study_result"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.result_manifest"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.ptm.reporting", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.interactive_result_bundle"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.result_search_index"
+outgoing_internal_modules = ["bijux_proteomics.workflow.interactive_result_bundle"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.study_result"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.review.evidence_graph", "bijux_proteomics.workflow.biological_reporting", "bijux_proteomics.workflow.dda_biological_workflow", "bijux_proteomics.workflow.diann_biological_workflow", "bijux_proteomics.workflow.interactive_result_bundle", "bijux_proteomics.workflow.label_based_reporting", "bijux_proteomics.workflow.maxquant_biological_workflow", "bijux_proteomics.workflow.pipelines.flagship_run", "bijux_proteomics.workflow.ptm_site_workflow", "bijux_proteomics.workflow.result_manifest", "bijux_proteomics.workflow.tmt_experiment_workflow"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.surprising_demo"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.surprising_demo_interrogation"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo_interrogation"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics.workflow.synthetic_quant_truth"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.targeted_review_workflow"
+outgoing_internal_modules = ["bijux_proteomics.targeted"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.tmt_experiment_workflow"
+outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.multiplex", "bijux_proteomics.quantification", "bijux_proteomics.study", "bijux_proteomics.workflow.label_based_differential_analysis", "bijux_proteomics.workflow.label_based_reporting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.workflow.trust_bundle"
+outgoing_internal_modules = ["bijux_proteomics.workflow.pipelines.trust_bundle"]
+outgoing_workspace_modules = []
