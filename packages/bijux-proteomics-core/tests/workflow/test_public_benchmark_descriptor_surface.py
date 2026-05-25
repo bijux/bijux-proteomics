@@ -23,6 +23,12 @@ from bijux_proteomics.workflow import (
 )
 
 
+def _sha256(path: Path) -> str:
+    import hashlib
+
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _write_descriptor_copy(
     tmp_path: Path,
     source_name: str,
@@ -38,6 +44,20 @@ def _write_descriptor_copy(
     target_path = target_dir / "dataset.yml"
     target_path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
     return target_path
+
+
+def _rewrite_descriptor_source(
+    payload: dict,
+    *,
+    schema_id: str,
+    path: Path,
+) -> None:
+    for source in payload["source_files"]:
+        if source["schema_id"] == schema_id:
+            source["repo_relative_path"] = str(path)
+            source["sha256"] = _sha256(path)
+            return
+    raise AssertionError(f"missing schema_id {schema_id!r}")
 
 
 def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> None:
@@ -328,6 +348,35 @@ def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts
     assert report.status == "failed"
     assert any(
         failure.kind == PublicBenchmarkFailureKind.SAMPLE_METADATA_MISMATCH
+        for failure in report.failures
+    )
+
+
+def test_public_benchmark_runner_blocks_tmt_descriptor_with_missing_channel_mapping(
+    tmp_path: Path,
+) -> None:
+    missing_design = (
+        Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / "tmt_missing_channel.design.tsv"
+    )
+    descriptor_path = _write_descriptor_copy(
+        tmp_path,
+        "multiplex_tmtpro_review_package",
+        mutate=lambda payload: _rewrite_descriptor_source(
+            payload,
+            schema_id="design_tsv",
+            path=missing_design,
+        ),
+    )
+
+    report = run_public_benchmark_descriptor(
+        descriptor_path,
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "failed"
+    assert any(
+        failure.kind == PublicBenchmarkFailureKind.MULTIPLEX_CHANNEL_MAPPING_INVALID
+        and failure.subject == "missing_channel_assignment"
         for failure in report.failures
     )
 
