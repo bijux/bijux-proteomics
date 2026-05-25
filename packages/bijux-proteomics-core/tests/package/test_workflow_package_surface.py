@@ -1187,6 +1187,21 @@ def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     assert Path(report.html_index_path).exists()
 
 
+def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> None:
+    report = workflow.run_surprising_demo(
+        workflow.SurprisingDemoConfig(output_dir=tmp_path / "surprising_demo_run")
+    )
+
+    assert hasattr(workflow, "SurprisingDemoConfig")
+    assert hasattr(workflow, "load_surprising_demo_manifest")
+    assert hasattr(workflow, "run_surprising_demo")
+    assert hasattr(workflow, "surprising_demo_root")
+    assert report.summary.strong_protein_count >= 1
+    assert report.summary.downgraded_protein_count >= 1
+    assert report.summary.within_local_ten_minute_budget is True
+    assert Path(report.artifacts.report_json).name == "surprising_demo_report.json"
+
+
 def test_workflow_package_exports_public_dataset_comparison_surface(
     tmp_path: Path,
 ) -> None:
