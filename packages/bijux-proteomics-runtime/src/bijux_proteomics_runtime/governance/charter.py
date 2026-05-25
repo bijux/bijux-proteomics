@@ -155,6 +155,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         required_modules=(
             "artifacts/steps.py",
             "api/catalog.py",
+            "diff/completed_runs.py",
             "rehydrate/loading.py",
             "runs/contracts.py",
             "runs/launch_bundles.py",
@@ -216,6 +217,13 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Typed workflow-step artifact contracts keep replay-safe checksums and reviewable step outputs under one explicit runtime owner.",
+        )
+
+    if module_path.startswith("diff/"):
+        return _execution_value_entry(
+            module_path,
+            (RuntimeCharterCapability.REVIEWABLE_OUTPUTS,),
+            "Completed-run scientific diffs belong in runtime because they compare rehydrated reviewable outputs while ignoring runtime-only timestamp drift.",
         )
 
     if module_path.startswith("checkpoints/"):

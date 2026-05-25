@@ -51,6 +51,7 @@ STABILITY_EXPECTATIONS = {
     "bijux_proteomics_runtime.api": StabilityLevel.STABLE,
     "bijux_proteomics_runtime.artifacts": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.checkpoints": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.diff": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.providers": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.providers.remote": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.execution": StabilityLevel.SEALED,
