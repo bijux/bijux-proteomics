@@ -106,6 +106,7 @@ from bijux_proteomics.workflow.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.workflow.cohort_stratification import (
     render_cohort_interaction_candidate_tsv,
     render_cohort_stratification_summary_tsv,
@@ -970,6 +971,7 @@ def write_biological_result_report_bundle(
         _render_biological_result_report_html(report, artifacts),
         encoding="utf-8",
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return BiologicalResultReportExportManifest(
         summary=report.summary,
         artifacts=artifacts,

@@ -39,6 +39,19 @@ def test_tmt_label_based_report_export_writes_quality_ratio_and_differential_led
     output_dir = tmp_path / "tmt_report"
 
     assert manifest.source_kind.value == "tmt"
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
+    assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / "qc" / manifest.artifacts.tmt_validation_summary_tsv).exists()
+    assert (output_dir / "matrices" / manifest.artifacts.tmt_channel_totals_tsv).exists()
+    assert (output_dir / "stats" / manifest.artifacts.differential_results_tsv).exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
     assert (output_dir / manifest.artifacts.tmt_channel_totals_tsv).exists()
@@ -80,6 +93,7 @@ def test_silac_label_based_report_export_writes_quality_ratio_and_differential_l
     output_dir = tmp_path / "silac_report"
 
     assert manifest.source_kind.value == "silac"
+    assert (output_dir / "manifest.json").exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
     assert (output_dir / manifest.artifacts.silac_ratio_summary_tsv).exists()

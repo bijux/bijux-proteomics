@@ -83,6 +83,19 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert manifest.summary.mechanism_classification_count == 3
     assert manifest.summary.ortholog_conservation_entry_count == 5
     assert manifest.motif_summary_included is True
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
+    assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / "cards" / manifest.artifacts.evidence_card_tsv).exists()
+    assert (output_dir / "matrices" / manifest.artifacts.site_quant_matrix_tsv).exists()
+    assert (output_dir / "stats" / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.peptide_tsv).exists()
     assert (output_dir / manifest.artifacts.site_tsv).exists()

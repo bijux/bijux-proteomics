@@ -48,6 +48,19 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert manifest.go_summary_included is True
     assert manifest.pathway_summary_included is True
     assert manifest.complex_summary_included is True
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
+    assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / "cards" / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / "evidence" / manifest.artifacts.supported_claim_tsv).exists()
+    assert (output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()

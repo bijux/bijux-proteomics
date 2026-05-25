@@ -80,6 +80,7 @@ from bijux_proteomics.ptm.ambiguity_handling import (
     render_ptm_site_group_quant_missingness_tsv,
     render_ptm_site_group_quant_summary_tsv,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,
@@ -869,6 +870,7 @@ def write_ptm_report_bundle(
             encoding="utf-8",
         )
 
+    synchronize_workflow_artifact_layout(output_dir)
     return PtmReportExportManifest(
         summary=report.summary,
         artifacts=PtmReportArtifactPaths(

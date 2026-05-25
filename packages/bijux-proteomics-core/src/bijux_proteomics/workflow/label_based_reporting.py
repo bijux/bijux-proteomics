@@ -67,6 +67,7 @@ from bijux_proteomics.workflow.label_based_differential_analysis import (
     render_label_based_differential_volcano_plot_tsv,
     render_label_based_normalization_balance_plot_tsv,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -692,6 +693,7 @@ def write_label_based_report_bundle(
             encoding="utf-8",
         )
 
+    synchronize_workflow_artifact_layout(output_dir)
     return LabelBasedReportExportManifest(
         source_kind=report.source_kind,
         summary=report.summary,
