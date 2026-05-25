@@ -52,6 +52,7 @@ def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() 
 def test_intelligence_capability_map_keeps_stable_analytical_bands() -> None:
     assert list_intelligence_analytical_bands() == (
         IntelligenceAnalyticalBand.CANDIDATES,
+        IntelligenceAnalyticalBand.CLAIMS,
         IntelligenceAnalyticalBand.JUDGMENT,
         IntelligenceAnalyticalBand.POSTURE,
         IntelligenceAnalyticalBand.INTERPRETATION,
