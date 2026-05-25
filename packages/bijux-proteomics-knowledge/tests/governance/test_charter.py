@@ -76,6 +76,7 @@ def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> N
         "memory/models/__init__.py",
         "memory/normalization/__init__.py",
         "memory/reconciliation/__init__.py",
+        "orthologs/__init__.py",
         "pathways/__init__.py",
         "references/__init__.py",
         "references/grounding/__init__.py",

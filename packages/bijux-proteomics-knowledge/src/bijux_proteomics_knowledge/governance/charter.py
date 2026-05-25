@@ -98,7 +98,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, source-required disease and phenotype resolution, direct-versus-neighbor drug-target resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, knowledge coverage downgrades for sparse pathway or regulator annotation, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, source-required disease and phenotype resolution, direct-versus-neighbor drug-target resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, cross-species ortholog mapping that preserves ambiguity, knowledge coverage downgrades for sparse pathway or regulator annotation, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
             "coverage/report.py",
             "complexes/members.py",
@@ -106,6 +106,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
             "drugs/targets.py",
             "features/overlaps.py",
             "kinases/substrates.py",
+            "orthologs/mapping.py",
             "pathways/members.py",
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
@@ -264,6 +265,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Evidence memory keeps benchmark and context provenance attached to scientific records.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="orthologs/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The orthologs package root groups cross-species ortholog owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="orthologs/mapping.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Cross-species ortholog mapping keeps one-to-many and many-to-many edges explicit and resolves source aliases without letting symbol matching become orthology.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/integrity/__init__.py",
