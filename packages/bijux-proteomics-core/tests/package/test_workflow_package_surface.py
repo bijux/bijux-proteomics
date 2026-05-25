@@ -697,6 +697,23 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     assert hasattr(workflow, "render_public_benchmark_suite_signal_assessments_tsv")
 
 
+def test_workflow_package_exports_public_benchmark_subset_surface() -> None:
+    descriptor = workflow.load_public_benchmark_descriptor(
+        workflow.public_benchmark_root()
+        / "lfq_cohort_review_package"
+        / "dataset.yml"
+    )
+    report = workflow.build_public_benchmark_subset(
+        descriptor,
+        max_samples=2,
+        max_entities=1,
+    )
+
+    assert hasattr(workflow, "build_public_benchmark_subset")
+    assert report.selected_sample_ids == ("C1", "T1")
+    assert report.expected_count_ranges
+
+
 def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     report = workflow.build_public_benchmark_trust_bundle(
         workflow.public_benchmark_root(),
