@@ -1,0 +1,7 @@
+protein_ref	status	discrepancy_reason	source_table_present	inferred_by_workflow	quantified_by_workflow	significant_in_workflow
+O14920	shared	shared_between_source_and_workflow	true	true	true	true
+P04637	shared	shared_between_source_and_workflow	true	true	true	true
+Q8N158	shared	shared_between_source_and_workflow	true	true	true	false
+Q9Y243	shared	shared_between_source_and_workflow	true	true	true	true
+Q11111	source_only	present_in_source_summary_only	true	false	false	false
+P62993	workflow_only	missing_from_source_summary_but_inferred_and_quantified	false	true	true	false
