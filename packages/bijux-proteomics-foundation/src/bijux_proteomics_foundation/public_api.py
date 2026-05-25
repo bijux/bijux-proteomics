@@ -39,6 +39,8 @@ FOUNDATION_ROOT_API_BUDGET = FoundationRootApiBudget(
     max_init_lines=110,
 )
 
+PUBLIC_ROOT_MODULE_NAMES = ("package_aliases",)
+
 
 def list_foundation_root_api_entries() -> tuple[FoundationRootApiEntry, ...]:
     """Return the curated root API ledger for kernel-quality exports."""
@@ -139,6 +141,7 @@ def list_foundation_root_api_entries() -> tuple[FoundationRootApiEntry, ...]:
 
 __all__ = [
     "FOUNDATION_ROOT_API_BUDGET",
+    "PUBLIC_ROOT_MODULE_NAMES",
     "FoundationRootApiBudget",
     "FoundationRootApiCapability",
     "FoundationRootApiEntry",

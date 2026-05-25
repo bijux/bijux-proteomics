@@ -146,6 +146,8 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         required_modules=(
             "compatibility/__init__.py",
             "package_aliases.py",
+            "_package_aliases.py",
+            "compatibility/import_migrations.py",
             "compatibility/schema_assessments.py",
             "compatibility/schema_migrations.py",
             "compatibility/schema_versions.py",
@@ -247,6 +249,8 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
 
     if module_path in {
         "package_aliases.py",
+        "_package_aliases.py",
+        "compatibility/import_migrations.py",
         "compatibility/schema_versions.py",
         "compatibility/__init__.py",
         "compatibility/schema_assessments.py",

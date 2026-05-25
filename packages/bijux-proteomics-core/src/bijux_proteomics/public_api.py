@@ -28,7 +28,7 @@ CORE_ROOT_API_BUDGET = CoreRootApiBudget(
     max_init_lines=57,
 )
 
-PUBLIC_ROOT_MODULE_NAMES = ("programs",)
+PUBLIC_ROOT_MODULE_NAMES = ("programs", "scientific_tables", "tabular")
 
 
 def list_core_root_api_entries() -> tuple[CoreRootApiEntry, ...]:
