@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 985
+min_owner_logic_module_count = 990
 max_compatibility_surface_count = 0
 max_import_glue_module_count = 282
 max_dead_weight_module_count = 22
@@ -5297,6 +5297,14 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/scientific_tables.py"
+module_import_path = "bijux_proteomics.scientific_tables"
+module_kind = "owner_logic"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
 module_import_path = "bijux_proteomics.sequences"
 module_kind = "import_glue"
@@ -5598,6 +5606,14 @@ module_import_path = "bijux_proteomics.study.sample_sheet_repairs"
 module_kind = "owner_logic"
 public_definition_count = 7
 workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/tabular.py"
+module_import_path = "bijux_proteomics.tabular"
+module_kind = "owner_logic"
+public_definition_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -8553,6 +8569,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/io/test_scientific_table_migration_surface.py"
+module_import_path = "tests.bijux_proteomics_core.io.test_scientific_table_migration_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/tests/io/test_scientific_table_schema_surface.py"
 module_import_path = "tests.bijux_proteomics_core.io.test_scientific_table_schema_surface"
 module_kind = "test_only_helper"
@@ -8677,6 +8701,14 @@ module_path = "packages/bijux-proteomics-core/tests/io/test_table_engine_surface
 module_import_path = "tests.bijux_proteomics_core.io.test_table_engine_surface"
 module_kind = "test_only_helper"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/io/test_tabular_migration_surface.py"
+module_import_path = "tests.bijux_proteomics_core.io.test_tabular_migration_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
 workspace_import_root_count = 1
 
 [[module]]
@@ -12849,6 +12881,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/package_shape/root_module_migration_surfaces.py"
+module_import_path = "bijux_proteomics_dev.governance.package_shape.root_module_migration_surfaces"
+module_kind = "owner_logic"
+public_definition_count = 5
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/package_shape/top_level_module_visibility.py"
 module_import_path = "bijux_proteomics_dev.governance.package_shape.top_level_module_visibility"
 module_kind = "owner_logic"
@@ -14705,6 +14745,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/governance/package_shape/test_root_module_migration_surfaces.py"
+module_import_path = "tests.bijux_proteomics_dev.governance.package_shape.test_root_module_migration_surfaces"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/governance/package_shape/test_top_level_module_visibility.py"
 module_import_path = "tests.bijux_proteomics_dev.governance.package_shape.test_top_level_module_visibility"
 module_kind = "test_only_helper"
@@ -15521,6 +15569,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/import_migrations.py"
+module_import_path = "bijux_proteomics_foundation.compatibility.import_migrations"
+module_kind = "owner_logic"
+public_definition_count = 7
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_assessments.py"
 module_import_path = "bijux_proteomics_foundation.compatibility.schema_assessments"
 module_kind = "owner_logic"
@@ -15597,6 +15653,14 @@ module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundat
 module_import_path = "bijux_proteomics_foundation.outcomes.results"
 module_kind = "owner_logic"
 public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/package_aliases.py"
+module_import_path = "bijux_proteomics_foundation.package_aliases"
+module_kind = "owner_logic"
+public_definition_count = 0
 workspace_import_root_count = 1
 
 [[module]]
@@ -15713,11 +15777,27 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/compatibility/test_import_migration_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.compatibility.test_import_migration_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/tests/compatibility/test_package_alias_helpers.py"
 module_import_path = "tests.bijux_proteomics_foundation.compatibility.test_package_alias_helpers"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/compatibility/test_package_alias_migration_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.compatibility.test_package_alias_migration_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"

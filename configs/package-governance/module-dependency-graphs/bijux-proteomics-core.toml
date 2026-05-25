@@ -2384,6 +2384,11 @@ outgoing_internal_modules = ["bijux_proteomics.ptm.differential_analysis", "biju
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics.scientific_tables"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation.compatibility"]
+
+[[module]]
 module_name = "bijux_proteomics.sequences"
 outgoing_internal_modules = ["bijux_proteomics.sequences.contaminant_database", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.fasta_profile", "bijux_proteomics.sequences.peptide_chemical_liability", "bijux_proteomics.sequences.peptide_detectability", "bijux_proteomics.sequences.peptide_properties", "bijux_proteomics.sequences.peptide_uniqueness_index", "bijux_proteomics.sequences.protein_identity_resolution", "bijux_proteomics.sequences.protein_index", "bijux_proteomics.sequences.protein_region_context", "bijux_proteomics.sequences.proteogenomic_peptide_support", "bijux_proteomics.sequences.theoretical_digest"]
 outgoing_workspace_modules = []
@@ -2572,6 +2577,11 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 module_name = "bijux_proteomics.study.sample_sheet_repairs"
 outgoing_internal_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.study.experiment_design"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.tabular"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation.compatibility"]
 
 [[module]]
 module_name = "bijux_proteomics.targeted"

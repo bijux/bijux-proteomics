@@ -449,6 +449,11 @@ outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology",
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.root_module_migration_surfaces"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.top_level_module_visibility"
 outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_api_snapshots", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
 outgoing_workspace_modules = []

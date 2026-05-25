@@ -15,7 +15,12 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.compatibility"
-outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_assessments", "bijux_proteomics_foundation.compatibility.schema_migrations"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.import_migrations", "bijux_proteomics_foundation.compatibility.schema_assessments", "bijux_proteomics_foundation.compatibility.schema_migrations"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.compatibility.import_migrations"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
@@ -66,6 +71,11 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_foundation.outcomes.results"
 outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.states"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.package_aliases"
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility"]
 outgoing_workspace_modules = []
 
 [[module]]
