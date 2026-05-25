@@ -296,6 +296,7 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "run_targeted_validation_workflow")
     assert hasattr(module, "run_advanced_tmt_workflow")
     assert hasattr(module, "design_assay_from_discovery")
+    assert hasattr(module, "compare_studies")
     assert hasattr(module, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_public_benchmark_subset")
