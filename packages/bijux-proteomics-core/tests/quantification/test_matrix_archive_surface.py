@@ -220,3 +220,39 @@ def test_matrix_archive_round_trips_generated_quant_matrices(
         assert render_quant_matrix_archive_tsv(matrix) == render_quant_matrix_archive_tsv(
             reloaded
         )
+
+
+@given(matrix=_quant_matrix_strategy())
+@settings(deadline=None, max_examples=25)
+def test_matrix_archive_generated_masks_and_cell_ledger_match_matrix_semantics(
+    matrix: QuantMatrix,
+) -> None:
+    with TemporaryDirectory() as temp_dir:
+        archive_path = Path(temp_dir) / "matrix_archive.json"
+        archive = save_matrix_archive(matrix, archive_path)
+
+        expected_missing_mask = tuple(
+            tuple(
+                state in {MissingValueState.NOT_OBSERVED, MissingValueState.FILTERED}
+                for state in row
+            )
+            for row in matrix.missing_value_states
+        )
+        expected_imputation_mask = tuple(
+            tuple(
+                value is not None
+                and state in {MissingValueState.NOT_OBSERVED, MissingValueState.FILTERED}
+                for value, state in zip(value_row, state_row, strict=False)
+            )
+            for value_row, state_row in zip(
+                matrix.values,
+                matrix.missing_value_states,
+                strict=False,
+            )
+        )
+        ledger_lines = render_quant_matrix_archive_tsv(archive).splitlines()
+
+        assert archive.missing_mask == expected_missing_mask
+        assert archive.imputation_mask == expected_imputation_mask
+        assert ledger_lines[0].startswith("entity_id\tsample_id\tabundance\t")
+        assert len(ledger_lines) == 1 + len(matrix.entity_ids) * len(matrix.sample_ids)
