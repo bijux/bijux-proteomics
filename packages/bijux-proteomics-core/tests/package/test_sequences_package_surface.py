@@ -57,6 +57,29 @@ def test_sequences_package_exports_peptide_uniqueness_index_owner_surface() -> N
     assert index.summary.isoform_shared_count == 1
 
 
+def test_sequences_package_exports_reusable_protein_index_surface(
+    tmp_path: Path,
+) -> None:
+    index_path = tmp_path / "protein_index.json"
+    index = sequences.build_protein_index(
+        (
+            ">sp|P11111|ALPHA_HUMAN Alpha GN=ALPHA\nMPEPTIDEK\n"
+            ">sp|P22222|BETA_HUMAN Beta GN=BETA\nAAAKPEPTIDER\n"
+        ),
+        enzyme="trypsin",
+        missed_cleavages=0,
+        out_path=index_path,
+    )
+    reloaded = sequences.load_protein_index(index_path)
+
+    assert hasattr(sequences, "build_protein_index")
+    assert hasattr(sequences, "load_protein_index")
+    assert hasattr(sequences, "lookup_peptide_proteins")
+    assert hasattr(sequences, "lookup_protein_peptides")
+    assert sequences.lookup_peptide_proteins(reloaded, "MPEPTIDEK") == ("P11111",)
+    assert sequences.lookup_protein_peptides(index, "P22222") == ("AAAKPEPTIDER",)
+
+
 def test_sequences_package_exports_fasta_duplicate_accession_policy() -> None:
     strict_report = sequences.parse_fasta_document(
         (

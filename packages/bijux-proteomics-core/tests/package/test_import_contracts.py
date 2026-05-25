@@ -233,6 +233,18 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "render_protein_uncertainty_tsv")
 
 
+def test_sequences_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.sequences")
+
+    assert hasattr(module, "build_protein_index")
+    assert hasattr(module, "load_protein_index")
+    assert hasattr(module, "lookup_accession")
+    assert hasattr(module, "lookup_peptide_entry")
+    assert hasattr(module, "lookup_peptide_proteins")
+    assert hasattr(module, "lookup_protein_peptides")
+    assert hasattr(module, "lookup_protein_sequence")
+
+
 def test_study_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.study")
 
