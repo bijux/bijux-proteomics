@@ -8,17 +8,28 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+import math
+
+import numpy as np
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm.contracts import (
     PtmOccupancyConfidenceTier,
     PtmOccupancyEntry,
     PtmOccupancyUncertainty,
     PtmSiteEntry,
 )
-from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts import (
+    LabelFreeQuantTable,
+    Ms1FeatureRecord,
+    _condition_lookup,
+    _welch_t_test,
+    coerce_label_free_quant_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -86,6 +97,31 @@ class PtmSiteOccupancyReport(JsonModel):
 
     entries: tuple[PtmOccupancyEntry, ...] = Field(default_factory=tuple)
     summary: PtmSiteOccupancySummary
+    note: str = Field(..., min_length=1)
+
+
+class PtmOccupancyContrastEntry(JsonModel):
+    """One site-level occupancy contrast between control and case conditions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: str = Field(..., min_length=1)
+    occupancy_proxy_case: float | None = Field(default=None, ge=0.0, le=1.0)
+    occupancy_proxy_control: float | None = Field(default=None, ge=0.0, le=1.0)
+    occupancy_delta: float | None = None
+    p_value: float = Field(..., ge=0.0, le=1.0)
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    confidence_tier: PtmOccupancyConfidenceTier
+
+
+class PtmOccupancyContrastReport(JsonModel):
+    """Owned PTM occupancy contrast report over one two-condition design."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_control: str = Field(..., min_length=1)
+    condition_case: str = Field(..., min_length=1)
+    entries: tuple[PtmOccupancyContrastEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -222,6 +258,87 @@ def build_ptm_site_occupancy_report(
     )
 
 
+def test_occupancy_contrast(
+    modified_matrix: LabelFreeQuantTable | CanonicalQuantMatrix,
+    unmodified_matrix: LabelFreeQuantTable | CanonicalQuantMatrix,
+    design: tuple[ExperimentalDesignEntry, ...],
+) -> PtmOccupancyContrastReport:
+    """Compare occupancy proxies between control and case conditions."""
+
+    modified_table = coerce_label_free_quant_table(modified_matrix)
+    unmodified_table = coerce_label_free_quant_table(unmodified_matrix)
+    if not design:
+        raise ValueError("occupancy contrast requires a non-empty experimental design")
+
+    condition_by_sample = _condition_lookup(design)
+    condition_control, condition_case = _resolve_occupancy_contrast_conditions(design)
+    samples_control = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_control
+    )
+    samples_case = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_case
+    )
+    if not samples_control or not samples_case:
+        raise ValueError("occupancy contrast requires at least one sample per condition")
+
+    modified_lookup = _matrix_abundance_lookup(modified_table)
+    unmodified_lookup = _matrix_abundance_lookup(unmodified_table)
+    site_ids = tuple(
+        sorted(set(modified_table.entity_ids) | set(unmodified_table.entity_ids))
+    )
+    entries: list[PtmOccupancyContrastEntry] = []
+    for site_id in site_ids:
+        control_values, case_values, confidence_tier = _site_occupancy_statistics(
+            site_id,
+            samples_control=samples_control,
+            samples_case=samples_case,
+            modified_lookup=modified_lookup,
+            unmodified_lookup=unmodified_lookup,
+        )
+        proxy_control = _mean_or_none(control_values)
+        proxy_case = _mean_or_none(case_values)
+        occupancy_delta = (
+            None
+            if proxy_control is None or proxy_case is None
+            else round(proxy_case - proxy_control, 6)
+        )
+        p_value = _occupancy_contrast_p_value(control_values, case_values)
+        entries.append(
+            PtmOccupancyContrastEntry(
+                site_id=site_id,
+                occupancy_proxy_case=(
+                    None if proxy_case is None else round(proxy_case, 6)
+                ),
+                occupancy_proxy_control=(
+                    None if proxy_control is None else round(proxy_control, 6)
+                ),
+                occupancy_delta=occupancy_delta,
+                p_value=round(p_value, 6),
+                q_value=1.0,
+                confidence_tier=confidence_tier,
+            )
+        )
+    q_values = _benjamini_hochberg(tuple(entry.p_value for entry in entries))
+    corrected_entries = tuple(
+        entry.model_copy(update={"q_value": q_values[index]})
+        for index, entry in enumerate(entries)
+    )
+    return PtmOccupancyContrastReport(
+        condition_control=condition_control,
+        condition_case=condition_case,
+        entries=tuple(sorted(corrected_entries, key=lambda entry: entry.site_id)),
+        note=(
+            "ptm occupancy contrast compares per-sample modified-versus-unmodified "
+            "occupancy proxies between control and case conditions while keeping "
+            "missing unmodified counterpart evidence out of the high-confidence tier"
+        ),
+    )
+
+
 def build_ptm_occupancy_counterpart_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
@@ -304,6 +421,9 @@ def build_ptm_occupancy_counterpart_report(
             if entry.counterpart_status is PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
         ),
     )
+
+
+test_occupancy_contrast.__test__ = False
 
 
 def render_ptm_site_occupancy_summary_tsv(report: PtmSiteOccupancyReport) -> str:
@@ -420,3 +540,140 @@ def render_ptm_occupancy_counterpart_tsv(
             ]
         )
     return buffer.getvalue()
+
+
+def render_ptm_occupancy_contrast_tsv(report: PtmOccupancyContrastReport) -> str:
+    """Render PTM occupancy contrast entries as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_id",
+            "occupancy_proxy_case",
+            "occupancy_proxy_control",
+            "occupancy_delta",
+            "p_value",
+            "q_value",
+            "confidence_tier",
+        ]
+    )
+    for entry in report.entries:
+        writer.writerow(
+            [
+                entry.site_id,
+                "" if entry.occupancy_proxy_case is None else entry.occupancy_proxy_case,
+                (
+                    ""
+                    if entry.occupancy_proxy_control is None
+                    else entry.occupancy_proxy_control
+                ),
+                "" if entry.occupancy_delta is None else entry.occupancy_delta,
+                entry.p_value,
+                entry.q_value,
+                entry.confidence_tier.value,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def _resolve_occupancy_contrast_conditions(
+    design: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[str, str]:
+    conditions = tuple(
+        sorted({entry.condition for entry in design if entry.condition not in (None, "")})
+    )
+    if len(conditions) != 2:
+        raise ValueError(
+            "occupancy contrast requires exactly two conditions in the experimental design"
+        )
+    if "control" in conditions and "case" in conditions:
+        return "control", "case"
+    return conditions[0], conditions[1]
+
+
+def _matrix_abundance_lookup(
+    table: LabelFreeQuantTable,
+) -> dict[tuple[str, str], float]:
+    return {
+        (value.entity_id, value.sample_id): float(value.abundance or 0.0)
+        for value in table.values
+    }
+
+
+def _site_occupancy_statistics(
+    site_id: str,
+    *,
+    samples_control: tuple[str, ...],
+    samples_case: tuple[str, ...],
+    modified_lookup: dict[tuple[str, str], float],
+    unmodified_lookup: dict[tuple[str, str], float],
+) -> tuple[tuple[float, ...], tuple[float, ...], PtmOccupancyConfidenceTier]:
+    control_values: list[float] = []
+    case_values: list[float] = []
+    missing_unmodified_evidence = False
+    missing_modified_evidence = False
+    for sample_id in (*samples_control, *samples_case):
+        modified = modified_lookup.get((site_id, sample_id), 0.0)
+        unmodified = unmodified_lookup.get((site_id, sample_id), 0.0)
+        occupancy = _occupancy_proxy(modified, unmodified)
+        if occupancy is not None:
+            if sample_id in samples_control:
+                control_values.append(occupancy)
+            else:
+                case_values.append(occupancy)
+        if modified > 0.0 and unmodified <= 0.0:
+            missing_unmodified_evidence = True
+        elif unmodified > 0.0 and modified <= 0.0:
+            missing_modified_evidence = True
+        elif modified <= 0.0 and unmodified <= 0.0:
+            missing_unmodified_evidence = True
+    if missing_unmodified_evidence:
+        confidence_tier = PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
+    elif missing_modified_evidence:
+        confidence_tier = PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
+    else:
+        confidence_tier = PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
+    return tuple(control_values), tuple(case_values), confidence_tier
+
+
+def _occupancy_proxy(modified: float, unmodified: float) -> float | None:
+    total = modified + unmodified
+    if total <= 0.0:
+        return None
+    return modified / total
+
+
+def _mean_or_none(values: tuple[float, ...]) -> float | None:
+    if not values:
+        return None
+    return float(sum(values) / len(values))
+
+
+def _occupancy_contrast_p_value(
+    control_values: tuple[float, ...],
+    case_values: tuple[float, ...],
+) -> float:
+    if len(control_values) < 2 or len(case_values) < 2:
+        return 1.0
+    _, p_value = _welch_t_test(
+        np.array(control_values, dtype=float),
+        np.array(case_values, dtype=float),
+    )
+    if not math.isfinite(p_value):
+        return 1.0
+    return float(min(max(p_value, 0.0), 1.0))
+
+
+def _benjamini_hochberg(p_values: tuple[float, ...]) -> tuple[float, ...]:
+    if not p_values:
+        return ()
+    indexed = sorted(enumerate(p_values), key=lambda item: item[1])
+    adjusted = [1.0] * len(p_values)
+    running = 1.0
+    total = len(p_values)
+    for rank, (index, p_value) in enumerate(reversed(indexed), start=1):
+        adjusted_value = min(running, p_value * total / float(total - rank + 1))
+        running = adjusted_value
+        adjusted[index] = round(min(max(adjusted_value, 0.0), 1.0), 6)
+    return tuple(adjusted)
