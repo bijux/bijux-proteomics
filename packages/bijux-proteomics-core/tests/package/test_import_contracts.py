@@ -280,7 +280,9 @@ def test_interpretation_ppi_import_contract() -> None:
 def test_workflow_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow")
 
+    assert hasattr(module, "AdvancedDiannWorkflowConfig")
     assert hasattr(module, "run_proteomics_workflow")
+    assert hasattr(module, "run_advanced_diann_workflow")
     assert hasattr(module, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_public_benchmark_subset")
