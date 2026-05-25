@@ -11,17 +11,26 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmReportBundle
+from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
 from bijux_proteomics.workflow.biological_reporting import BiologicalResultReportBundle
 from bijux_proteomics.workflow.dda_biological_workflow import DdaBiologicalWorkflowBundle
 from bijux_proteomics.workflow.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.flagship_run import ProteomicsRunBundle
+from bijux_proteomics.workflow.interactive_result_bundle import (
+    InteractiveResultBundle,
+    InteractiveResultPathway,
+    InteractiveResultPeptide,
+    InteractiveResultProtein,
+    InteractiveResultPtmSite,
+)
 from bijux_proteomics.workflow.label_based_reporting import LabelBasedReportBundle
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.ptm_site_workflow import PtmSiteWorkflowBundle
+from bijux_proteomics.workflow.result_manifest import ResultManifestReport
 from bijux_proteomics.workflow.tmt_experiment_workflow import TmtExperimentWorkflowBundle
 from bijux_proteomics_foundation import JsonModel
 
@@ -29,6 +38,7 @@ from bijux_proteomics_foundation import JsonModel
 class ProteomicsStudyKind(StrEnum):
     """Durable study classes normalized onto one comparison surface."""
 
+    ARCHIVED = "archived"
     LABEL_FREE = "label_free"
     DDA = "dda"
     DIA = "dia"
@@ -61,6 +71,7 @@ class ProteomicsStudyStatisticKind(StrEnum):
 class ProteomicsStudyQcKind(StrEnum):
     """Stable QC and acceptance surfaces preserved on a study result."""
 
+    ARCHIVED_RESULT = "archived_result"
     SAMPLE_EXPLORATION = "sample_exploration"
     EXPERIMENT_CONFIDENCE = "experiment_confidence"
     DDA_ACCEPTANCE = "dda_acceptance"
@@ -218,8 +229,81 @@ class ProteomicsStudyResult(JsonModel):
     biological_report: BiologicalResultReportBundle | None = None
     label_based_report: LabelBasedReportBundle | None = None
     ptm_report: PtmReportBundle | None = None
+    interactive_result_bundle: InteractiveResultBundle | None = None
+    archive_manifest: ResultManifestReport | None = None
+    archived_evidence_graph: ProteomicsEvidenceGraph | None = None
     summary: ProteomicsStudyResultSummary
     note: str = Field(..., min_length=1)
+
+    def query_archived_protein(
+        self,
+        *,
+        object_id: str | None = None,
+        representative_protein_ref: str | None = None,
+    ) -> InteractiveResultProtein:
+        """Return one archived protein row without rerunning any workflow surface."""
+
+        bundle = self._require_interactive_result_bundle()
+        if object_id is None and representative_protein_ref is None:
+            raise ValueError(
+                "archived protein query requires object_id or representative_protein_ref"
+            )
+        for protein in bundle.proteins:
+            if object_id is not None and protein.object_id == object_id:
+                return protein
+            if (
+                representative_protein_ref is not None
+                and protein.representative_protein_ref == representative_protein_ref
+            ):
+                return protein
+        target = object_id or representative_protein_ref or ""
+        raise ValueError(f"archived protein is missing from result archive: {target}")
+
+    def query_archived_peptide(
+        self,
+        *,
+        peptide_id: str,
+    ) -> InteractiveResultPeptide:
+        """Return one archived peptide row without rerunning any workflow surface."""
+
+        bundle = self._require_interactive_result_bundle()
+        for peptide in bundle.peptides:
+            if peptide.peptide_id == peptide_id:
+                return peptide
+        raise ValueError(f"archived peptide is missing from result archive: {peptide_id}")
+
+    def query_archived_ptm_site(
+        self,
+        *,
+        site_key: str,
+    ) -> InteractiveResultPtmSite:
+        """Return one archived PTM-site row without rerunning any workflow surface."""
+
+        bundle = self._require_interactive_result_bundle()
+        for site in bundle.ptm_sites:
+            if site.site_key == site_key:
+                return site
+        raise ValueError(f"archived PTM site is missing from result archive: {site_key}")
+
+    def query_archived_pathway(
+        self,
+        *,
+        pathway_id: str,
+    ) -> InteractiveResultPathway:
+        """Return one archived pathway row without rerunning any workflow surface."""
+
+        bundle = self._require_interactive_result_bundle()
+        for pathway in bundle.pathways:
+            if pathway.pathway_id == pathway_id:
+                return pathway
+        raise ValueError(
+            f"archived pathway is missing from result archive: {pathway_id}"
+        )
+
+    def _require_interactive_result_bundle(self) -> InteractiveResultBundle:
+        if self.interactive_result_bundle is None:
+            raise ValueError("study result does not preserve an interactive archive bundle")
+        return self.interactive_result_bundle
 
 
 def build_proteomics_study_result(
