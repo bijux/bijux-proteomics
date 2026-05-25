@@ -13,13 +13,13 @@ from bijux_proteomics.domain.reason_codes import (
     ReasonCodeCategory,
     require_registered_reason_codes,
 )
-from bijux_proteomics.review.scientific_conflicts import (
+from bijux_proteomics.review.explanations.scientific_conflicts import (
     ScientificConflictReport,
     ScientificUntrustworthyChecklist,
     build_scientific_untrustworthy_checklists,
     evaluate_domain_conflicts,
 )
-from bijux_proteomics.review.scientific_story import (
+from bijux_proteomics.review.explanations.scientific_story import (
     ScientificConsistencyReport,
     WorkflowScientificSnapshot,
     evaluate_workflow_scientific_consistency,

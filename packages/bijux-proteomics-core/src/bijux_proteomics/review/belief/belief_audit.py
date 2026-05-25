@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.result_explanations import (
+from bijux_proteomics.review.explanations.result_explanations import (
     ResultExplanation,
     ResultExplanationKind,
     ResultExplanationRequest,
