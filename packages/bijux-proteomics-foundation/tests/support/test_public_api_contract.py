@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import bijux_proteomics_foundation
-from bijux_proteomics_foundation.support.public_api import (
+from bijux_proteomics_foundation.public_api import (
+    FOUNDATION_ROOT_API_BUDGET,
     FoundationRootApiCapability,
     FoundationRootApiEntry,
     list_foundation_root_api_entries,
@@ -43,3 +44,9 @@ def test_foundation_root_api_ledger_names_durable_owner_modules() -> None:
     )
     assert not any("runtime" in entry.owner_module for entry in entries)
     assert not any("knowledge" in entry.owner_module for entry in entries)
+
+
+def test_foundation_root_api_budget_matches_curated_public_surface() -> None:
+    assert FOUNDATION_ROOT_API_BUDGET.max_public_symbols == len(
+        bijux_proteomics_foundation.__all__
+    )
