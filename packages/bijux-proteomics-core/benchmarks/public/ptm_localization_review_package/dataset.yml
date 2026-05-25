@@ -82,6 +82,9 @@ expected_approximate_counts:
   - metric_id: ambiguous_site_count
     expected: 2
     tolerance: 0
+  - metric_id: ambiguous_group_row_count
+    expected: 2
+    tolerance: 0
   - metric_id: differential_site_count
     expected: 3
     tolerance: 0
@@ -141,6 +144,15 @@ output_checks:
   - output_id: ptm_site_quant_matrix
     relative_path: ptm_site_quant_matrix.tsv
     note: The exported PTM site quantification matrix proves the benchmark reached site-level quantification.
+  - output_id: ptm_site_group_summary
+    relative_path: ptm_site_group_summary.tsv
+    note: The exported PTM ambiguity-group summary proves unresolved localization groups remain explicit.
+  - output_id: ptm_site_group_matrix
+    relative_path: ptm_site_group_matrix.tsv
+    note: The exported PTM ambiguity-group matrix proves unresolved localization signal remains queryable without being forced into exact sites.
+  - output_id: ptm_site_group_missingness
+    relative_path: ptm_site_group_missingness.tsv
+    note: The exported PTM ambiguity-group missingness ledger proves the grouped matrix stays reviewable sample by sample.
   - output_id: ptm_differential_table
     relative_path: ptm_differential.tsv
     note: The exported PTM differential table proves the benchmark reached site-level contrast analysis.
