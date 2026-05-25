@@ -45,7 +45,12 @@ def test_run_surprising_demo_preserves_required_findings_and_outputs(
     assert (output_dir / report.artifacts.report_json).exists()
     assert (output_dir / report.artifacts.tmt_output_dir).is_dir()
     assert (output_dir / report.artifacts.ptm_output_dir).is_dir()
+    assert (output_dir / report.artifacts.biological_output_dir).is_dir()
     assert (output_dir / report.artifacts.targeted_output_dir).is_dir()
+    assert report.summary.supported_claim_count >= 1
+    assert report.summary.rejected_claim_count >= 1
+    assert report.summary.belief_audit_count >= 1
+    assert report.summary.contradiction_count >= 0
     assert (
         output_dir
         / report.artifacts.tmt_output_dir
@@ -61,3 +66,19 @@ def test_run_surprising_demo_preserves_required_findings_and_outputs(
         / report.artifacts.targeted_output_dir
         / report.targeted_report.manifest.artifacts.assay_qc_unreliable_targets_tsv
     ).exists()
+    assert (output_dir / report.artifacts.biological_report_manifest_json).exists()
+    assert (output_dir / report.artifacts.biological_report_html).exists()
+    assert (output_dir / report.artifacts.evidence_graph_nodes_tsv).exists()
+    assert (output_dir / report.artifacts.evidence_graph_edges_tsv).exists()
+    assert (output_dir / report.artifacts.protein_cards_tsv).exists()
+    assert (output_dir / report.artifacts.ptm_cards_tsv).exists()
+    assert (output_dir / report.artifacts.pathway_activity_tsv).exists()
+    assert (output_dir / report.artifacts.mechanism_cards_tsv).exists()
+    assert (output_dir / report.artifacts.qc_packets_tsv).exists()
+    assert (output_dir / report.artifacts.matrices_tsv).exists()
+    assert (output_dir / report.artifacts.assay_panel_tsv).exists()
+    assert (output_dir / report.artifacts.claims_tsv).exists()
+    assert (output_dir / report.artifacts.contradictions_tsv).exists()
+    assert (output_dir / report.artifacts.belief_audit_tsv).exists()
+    assert report.claim_report
+    assert report.belief_audit_report.entries

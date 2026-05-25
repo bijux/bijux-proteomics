@@ -1199,7 +1199,10 @@ def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> Non
     assert report.summary.strong_protein_count >= 1
     assert report.summary.downgraded_protein_count >= 1
     assert report.summary.within_local_ten_minute_budget is True
+    assert report.summary.supported_claim_count >= 1
+    assert report.summary.belief_audit_count >= 1
     assert Path(report.artifacts.report_json).name == "surprising_demo_report.json"
+    assert Path(report.artifacts.evidence_graph_nodes_tsv).name == "biological_evidence_graph_nodes.tsv"
 
 
 def test_workflow_package_exports_public_dataset_comparison_surface(
