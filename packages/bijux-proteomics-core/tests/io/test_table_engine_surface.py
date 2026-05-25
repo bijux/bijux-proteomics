@@ -52,6 +52,58 @@ _TABLE_ROW = st.fixed_dictionaries(
         "extra_info": _OPTIONAL_TEXT,
     }
 )
+_REPLICATE_TOKEN = st.one_of(
+    st.integers(min_value=1, max_value=12).map(str),
+    st.sampled_from(("", "NA", "one", "1.5", "false")),
+)
+_INTENSITY_TOKEN = st.one_of(
+    st.integers(min_value=-10_000, max_value=10_000).map(lambda value: f"{value / 10:g}"),
+    st.sampled_from(("", "NA", "abc", "true")),
+)
+_BOOLEAN_TOKEN = st.one_of(
+    st.sampled_from(("true", "false", "1", "0", "yes", "no", "", "NA", "maybe", "2")),
+)
+_RAW_TABLE_ROW = st.fixed_dictionaries(
+    {
+        "sample_id": _SAFE_TEXT,
+        "replicate": _REPLICATE_TOKEN,
+        "intensity": _INTENSITY_TOKEN,
+        "contaminant": _BOOLEAN_TOKEN,
+    }
+)
+
+
+def _expected_generated_row_issue_codes(row: dict[str, str]) -> tuple[str, ...]:
+    issue_codes: list[str] = []
+    replicate_value = row["replicate"].strip().lower()
+    if replicate_value in {"", "na", "n/a", "null", "none", "nan"}:
+        issue_codes.append("missing_required_value")
+    else:
+        try:
+            int(row["replicate"].strip())
+        except ValueError:
+            issue_codes.append("invalid_integer_value")
+
+    intensity_value = row["intensity"].strip().lower()
+    if intensity_value not in {"", "na", "n/a", "null", "none", "nan"}:
+        try:
+            float(row["intensity"].strip())
+        except ValueError:
+            issue_codes.append("invalid_float_value")
+
+    contaminant_value = row["contaminant"].strip().lower()
+    if contaminant_value not in {"", "na", "n/a", "null", "none", "nan"} and contaminant_value not in {
+        "true",
+        "false",
+        "1",
+        "0",
+        "yes",
+        "no",
+        "y",
+        "n",
+    }:
+        issue_codes.append("invalid_boolean_value")
+    return tuple(issue_codes)
 
 
 def test_parse_delimited_table_supports_required_columns_coercion_and_missing_values(
@@ -242,4 +294,58 @@ def test_parse_delimited_table_round_trips_generated_valid_rows(
         assert tuple(row.extra_values for row in report.accepted_rows) == tuple(
             {} if row["extra_info"] is None else {"extra_info": row["extra_info"]}
             for row in rows
+        )
+
+
+@given(rows=st.lists(_RAW_TABLE_ROW, min_size=1, max_size=5))
+@settings(deadline=None, max_examples=30)
+def test_parse_delimited_table_preserves_generated_rejection_invariants(
+    rows: list[dict[str, str]],
+) -> None:
+    with TemporaryDirectory() as temp_dir:
+        table_path = Path(temp_dir) / "generated_invalid_quant.tsv"
+        table_path.write_text(
+            render_rows_tsv(
+                fieldnames=("sample_id", "replicate", "intensity", "contaminant"),
+                rows=tuple(rows),
+            ),
+            encoding="utf-8",
+        )
+
+        report = parse_delimited_table(
+            table_path,
+            column_specs=(
+                DelimitedColumnSpec(name="sample_id", required=True),
+                DelimitedColumnSpec(
+                    name="replicate",
+                    required=True,
+                    value_type=DelimitedColumnValueType.INTEGER,
+                ),
+                DelimitedColumnSpec(
+                    name="intensity",
+                    value_type=DelimitedColumnValueType.FLOAT,
+                ),
+                DelimitedColumnSpec(
+                    name="contaminant",
+                    value_type=DelimitedColumnValueType.BOOLEAN,
+                ),
+            ),
+        )
+
+        expected_issue_codes = tuple(
+            _expected_generated_row_issue_codes(row) for row in rows
+        )
+        assert report.header == ("sample_id", "replicate", "intensity", "contaminant")
+        assert len(report.accepted_rows) + len(report.rejected_rows) == len(rows)
+        assert tuple(
+            sorted(
+                row.row_number
+                for row in (*report.accepted_rows, *report.rejected_rows)
+            )
+        ) == tuple(range(2, len(rows) + 2))
+        assert tuple(
+            tuple(issue.code for issue in rejected_row.issues)
+            for rejected_row in report.rejected_rows
+        ) == tuple(
+            issue_codes for issue_codes in expected_issue_codes if issue_codes
         )
