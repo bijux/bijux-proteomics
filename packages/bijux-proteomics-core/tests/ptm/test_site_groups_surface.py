@@ -7,10 +7,12 @@ from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import (
     PtmSiteGroupAmbiguityClass,
+    PtmSiteGroupEvidenceEntry,
+    build_ptm_site_group_evidence,
     build_site_groups,
     render_ptm_site_group_tsv,
 )
-from bijux_proteomics.ptm.contracts import PtmProteinSiteMapping
+from bijux_proteomics.ptm.contracts import PtmProteinSiteMapping, PtmSiteEntry
 
 
 def _mapping(
@@ -151,3 +153,61 @@ def test_render_ptm_site_group_tsv_exposes_required_surface() -> None:
         "site_group_id\tprotein_id\tcandidate_sites\tlocalized_site\tambiguity_class\n"
     )
     assert "P11111:Phospho:17|18|19\tP11111\t17;18;19\t\tambiguous_site_group" in rendered
+
+
+def test_build_ptm_site_group_evidence_uses_canonical_site_group_owner() -> None:
+    groups = build_ptm_site_group_evidence(
+        (
+            PtmSiteEntry(
+                site_key="P11111:S5:Phospho",
+                protein_ref="P11111",
+                residue="S",
+                position=5,
+                modification_name="Phospho",
+                localization_score=24.0,
+                best_q_value=0.01,
+                spectrum_count=2,
+                peptide_count=1,
+                localized_peptides=("S[Phospho]PEPTIDEK",),
+                sample_ids=("C1",),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+                candidate_positions=(5,),
+                ambiguous=False,
+                shared_peptide=False,
+                provenance=ImportedEvidenceProvenance(
+                    source_engine="ptm-localization",
+                    source_files=("inline",),
+                ),
+            ),
+            PtmSiteEntry(
+                site_key="P11111:T17:Phospho",
+                protein_ref="P11111",
+                residue="T",
+                position=17,
+                modification_name="Phospho",
+                localization_score=19.0,
+                best_q_value=0.02,
+                spectrum_count=1,
+                peptide_count=1,
+                localized_peptides=("AT[Phospho]SYK",),
+                sample_ids=("C1", "C2"),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+                candidate_positions=(17, 18, 19),
+                ambiguous=True,
+                shared_peptide=False,
+                provenance=ImportedEvidenceProvenance(
+                    source_engine="ptm-localization",
+                    source_files=("inline",),
+                ),
+            ),
+        )
+    )
+
+    assert all(isinstance(entry, PtmSiteGroupEvidenceEntry) for entry in groups)
+    assert {entry.group_key for entry in groups} == {
+        "P11111:Phospho:5",
+        "P11111:Phospho:17|18|19",
+    }
+    unresolved = next(entry for entry in groups if entry.unresolved)
+    assert unresolved.candidate_positions == (17, 18, 19)
+    assert unresolved.sample_ids == ("C1", "C2")

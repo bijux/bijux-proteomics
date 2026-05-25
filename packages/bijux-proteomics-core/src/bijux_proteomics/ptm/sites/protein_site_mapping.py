@@ -23,9 +23,11 @@ from bijux_proteomics.ptm.contracts import (
     PtmSiteAmbiguityEntry,
     PtmSiteCoverageEntry,
     PtmSiteEntry,
-    PtmSiteGroupEvidenceEntry,
     PtmUnmappedPeptideEntry,
 )
+from bijux_proteomics.ptm.sites import site_groups as _site_groups
+
+build_ptm_site_group_evidence = _site_groups.build_ptm_site_group_evidence
 
 
 def map_ptm_evidence_to_protein_sites(
@@ -317,18 +319,6 @@ def build_ptm_site_table(
             )
         )
     return tuple(entries)
-
-
-def build_ptm_site_group_evidence(
-    site_entries: tuple[PtmSiteEntry, ...],
-) -> tuple[PtmSiteGroupEvidenceEntry, ...]:
-    """Group PTM site evidence by candidate-position set when localization stays unresolved."""
-    from bijux_proteomics.ptm.ambiguity_handling import (
-        build_ptm_site_group_evidence as _build_ptm_site_group_evidence,
-    )
-
-    return _build_ptm_site_group_evidence(site_entries)
-
 
 def build_ptm_site_ambiguity_report(
     site_entries: tuple[PtmSiteEntry, ...],

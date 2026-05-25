@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+from importlib import import_module
 from io import StringIO
 from pathlib import Path
 
@@ -263,22 +264,8 @@ class PtmSiteEntry(JsonModel):
             },
         )
 
-
-class PtmSiteGroupEvidenceEntry(JsonModel):
-    """One grouped PTM site evidence record when localization remains unresolved."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    group_key: str = Field(..., min_length=1)
-    protein_ref: str = Field(..., min_length=1)
-    modification_name: str = Field(..., min_length=1)
-    candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
-    site_keys: tuple[str, ...] = Field(default_factory=tuple)
-    spectrum_count: int = Field(..., ge=1)
-    peptide_count: int = Field(..., ge=1)
-    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    unresolved: bool
-    note: str = Field(..., min_length=1)
+_SITE_GROUPS_MODULE = import_module("bijux_proteomics.ptm.sites.site_groups")
+PtmSiteGroupEvidenceEntry = _SITE_GROUPS_MODULE.PtmSiteGroupEvidenceEntry
 
 
 class PtmSiteAmbiguityEntry(JsonModel):
@@ -896,15 +883,7 @@ def build_ptm_site_table(
     return _build_ptm_site_table(mappings)
 
 
-def build_ptm_site_group_evidence(
-    site_entries: tuple[PtmSiteEntry, ...],
-) -> tuple[PtmSiteGroupEvidenceEntry, ...]:
-    """Group PTM site evidence by candidate-position set when localization stays unresolved."""
-    from bijux_proteomics.ptm.ambiguity_handling import (
-        build_ptm_site_group_evidence as _build_ptm_site_group_evidence,
-    )
-
-    return _build_ptm_site_group_evidence(site_entries)
+build_ptm_site_group_evidence = _SITE_GROUPS_MODULE.build_ptm_site_group_evidence
 
 
 def build_ptm_site_ambiguity_report(
