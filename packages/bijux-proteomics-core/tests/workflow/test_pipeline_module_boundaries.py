@@ -155,6 +155,23 @@ def test_workflow_pipelines_match_legacy_wrapper_exports() -> None:
         assert getattr(wrapper, attr_name) is getattr(owner, attr_name)
 
 
+def test_workflow_sources_do_not_import_benchmark_modules() -> None:
+    root = _workflow_source_root()
+
+    for path in root.rglob("*.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module is not None:
+                assert not node.module.startswith("bijux_proteomics.benchmarks"), (
+                    f"{path} should not import benchmark modules from workflow code"
+                )
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    assert not alias.name.startswith("bijux_proteomics.benchmarks"), (
+                        f"{path} should not import benchmark modules from workflow code"
+                    )
+
+
 def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
     root = _workflow_source_root() / "pipelines"
     expected_targets = {
