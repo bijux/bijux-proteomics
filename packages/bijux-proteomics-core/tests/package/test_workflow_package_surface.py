@@ -7,7 +7,24 @@ from pathlib import Path
 
 import bijux_proteomics.targeted as targeted
 from bijux_proteomics import workflow
+from bijux_proteomics.chemistry import (
+    FragmentIonSeries,
+    calculate_fragment_ions,
+    calculate_peptide_mz,
+)
+from bijux_proteomics.identification.contracts import (
+    TargetDecoyContaminantClass,
+    TargetDecoyLabel,
+)
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    CrossRunReproducibilityClass,
+)
+from bijux_proteomics.identification.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
+)
 from bijux_proteomics.interpretation import OrthologRecord, PathwayMemberKind
+from bijux_proteomics.io import SpectralLibraryEntry, SpectralLibraryFormat, SpectrumModel, SpectrumPeak
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
@@ -20,7 +37,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
-from bijux_proteomics.sequences import PeptideUniquenessClass
+from bijux_proteomics.sequences import PeptideUniquenessClass, parse_fasta_document
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics_foundation import DocumentSchema
 import yaml
@@ -470,6 +487,103 @@ def test_workflow_package_exports_targeted_validation_workflow_surface(
     assert "assay_reliability_status" in workflow.render_advanced_targeted_evidence_cards_tsv(
         report.evidence_cards
     )
+
+
+def test_workflow_package_exports_discovery_to_assay_surface() -> None:
+    proteins = parse_fasta_document(
+        ">sp|P00001|KIN1 GN=KIN1\nPEPTIDERAAASHALEDKAAAMMMWNQK\n"
+    ).accepted_records
+    peptide_evidence_entries = (
+        PeptideEvidenceEntry(
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            primary_class=PeptideEvidenceClass.STRONG,
+            peptide_q_value=0.001,
+            accepted=True,
+            psm_count=6,
+            spectrum_count=6,
+            run_count=4,
+            detection_frequency=1.0,
+            replicate_consistency=0.95,
+            condition_specificity=0.1,
+            detected_condition_count=2,
+            reproducibility_class=CrossRunReproducibilityClass.REPRODUCIBLE,
+            best_score=125.0,
+            charge_states=(2,),
+            run_ids=("run1", "run2", "run3", "run4"),
+            protein_refs=("P00001",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            target_decoy_contaminant_class=TargetDecoyContaminantClass.TARGET,
+            explanation="strong observed peptide support",
+        ),
+    )
+    precursor_mz = calculate_peptide_mz("PEPTIDER", charge=2)
+    fragments = calculate_fragment_ions(
+        "PEPTIDER",
+        charges=(1,),
+        series=(FragmentIonSeries.Y, FragmentIonSeries.B),
+    )
+    mz_by_label = {
+        f"{fragment.series.value}{fragment.ordinal}+{fragment.charge}": fragment.mz_monoisotopic
+        for fragment in fragments
+    }
+    spectral_library_entries = (
+        SpectralLibraryEntry(
+            library_entry_id="library:PEPTIDER",
+            source_format=SpectralLibraryFormat.MGF,
+            spectrum_id="library:PEPTIDER",
+            precursor_mz=precursor_mz,
+            precursor_charge=2,
+            peptide_sequence="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            modification_count=0,
+            protein_refs=("P00001",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+            spectrum=SpectrumModel(
+                spectrum_id="library:PEPTIDER",
+                precursor_mz=precursor_mz,
+                precursor_charge=2,
+                retention_time_seconds=12.5 * 60.0,
+                peaks=(
+                    SpectrumPeak(mz=mz_by_label["y7+1"], intensity=1000.0),
+                    SpectrumPeak(mz=mz_by_label["y6+1"], intensity=850.0),
+                    SpectrumPeak(mz=mz_by_label["y5+1"], intensity=700.0),
+                    SpectrumPeak(mz=mz_by_label["b5+1"], intensity=250.0),
+                ),
+            ),
+        ),
+    )
+
+    report = workflow.design_assay_from_discovery(
+        workflow.DiscoveryAssaySourceResult(
+            peptide_evidence_entries=peptide_evidence_entries,
+            protein_records=proteins,
+            spectral_library_entries=spectral_library_entries,
+        ),
+        (
+            workflow.DiscoveryAssayTargetInput(
+                candidate_id="protein:P00001",
+                candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                display_label="KIN1 discovery target",
+                target_protein_ref="P00001",
+                target_protein_group_id="protein_group_1",
+                protein_refs=("P00001",),
+                gene_symbol="KIN1",
+                priority_rank=1,
+                final_score=0.91,
+                penalty_total=0.0,
+                rank_reason_codes=("assay_ready",),
+                discovery_peptides=("PEPTIDER",),
+            ),
+        ),
+        top_peptides_per_target=1,
+    )
+
+    assert hasattr(workflow, "design_assay_from_discovery")
+    assert hasattr(workflow, "render_discovery_to_assay_targets_tsv")
+    assert report.summary.target_count == 1
+    assert report.summary.assay_ready_target_count == 1
+    assert "assay_feasibility" in workflow.render_discovery_to_assay_targets_tsv(report)
 
 
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
