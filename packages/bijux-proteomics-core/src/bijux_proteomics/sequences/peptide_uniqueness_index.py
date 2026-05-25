@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from collections.abc import Sequence
 from enum import StrEnum
 from pathlib import Path
@@ -270,7 +272,7 @@ def export_peptide_uniqueness_index_tsv(
     report: PeptideUniquenessIndexReport, path: Path
 ) -> Path:
     """Write a stable TSV export for a peptide uniqueness index."""
-    path.write_text(render_peptide_uniqueness_index_tsv(report))
+    write_output_table_tsv(path, render_peptide_uniqueness_index_tsv(report))
     return path
 
 

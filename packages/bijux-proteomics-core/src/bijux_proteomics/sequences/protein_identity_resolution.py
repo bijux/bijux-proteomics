@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 import hashlib
 from enum import StrEnum
@@ -234,7 +236,7 @@ def export_protein_identity_resolution_tsv(
 ) -> Path:
     """Write per-evidence protein identity resolution rows as TSV."""
 
-    path.write_text(render_protein_identity_resolution_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_protein_identity_resolution_tsv(report))
     return path
 
 

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from pathlib import Path
 import csv
 from io import StringIO
@@ -290,10 +292,7 @@ def write_public_biological_case_study_bundle(
     summary_name = "public_case_study_summary.tsv"
     biological_dir_name = "biological-report"
     biological_manifest_name = "biological_report_manifest.json"
-    (output_dir / summary_name).write_text(
-        render_public_biological_case_study_summary_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_public_biological_case_study_summary_tsv(report))
     biological_dir = output_dir / biological_dir_name
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,

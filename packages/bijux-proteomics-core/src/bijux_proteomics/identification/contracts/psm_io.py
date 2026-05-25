@@ -32,6 +32,7 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics._scientific_tables import (
     ScientificTableRejectedRow,
     ScientificTableValidationIssue,
@@ -366,7 +367,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
             for record in normalized
         ),
     )
-    path.write_text(content, encoding="utf-8")
+    write_output_table_tsv(path, content)
 
 
 def _scientific_header_validation_issues(

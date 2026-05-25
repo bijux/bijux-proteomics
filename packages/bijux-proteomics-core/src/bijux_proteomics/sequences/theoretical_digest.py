@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from collections import defaultdict
 from pathlib import Path
 
@@ -393,9 +395,9 @@ def write_theoretical_digest_bundle(
     peptides_path = out_dir / "digest_peptides.tsv"
     mappings_path = out_dir / "peptide_to_protein.tsv"
     summary_path = out_dir / "digest_summary.tsv"
-    peptides_path.write_text(render_theoretical_digest_peptides_tsv(bundle))
-    mappings_path.write_text(render_theoretical_digest_mappings_tsv(bundle))
-    summary_path.write_text(render_theoretical_digest_summary_tsv(bundle))
+    write_output_table_tsv(peptides_path, render_theoretical_digest_peptides_tsv(bundle))
+    write_output_table_tsv(mappings_path, render_theoretical_digest_mappings_tsv(bundle))
+    write_output_table_tsv(summary_path, render_theoretical_digest_summary_tsv(bundle))
     return peptides_path, mappings_path, summary_path
 
 

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from collections import Counter, defaultdict
 from difflib import SequenceMatcher
@@ -196,10 +198,7 @@ def export_sample_sheet_repair_suggestions_tsv(
 ) -> None:
     """Write one advisory repair ledger to a governed TSV artifact."""
 
-    path.write_text(
-        render_sample_sheet_repair_suggestions_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_sample_sheet_repair_suggestions_tsv(report))
 
 
 def _coerce_design_entries(
