@@ -33,6 +33,7 @@ _PIPELINE_MODULES = (
     "surprising_demo_interrogation",
     "tmt_experiment_workflow",
     "trust_bundle",
+    "weak_evidence",
 )
 _FORBIDDEN_HELPER_TOKENS = (
     "_parse_",
@@ -144,6 +145,7 @@ def test_workflow_pipelines_match_legacy_wrapper_exports() -> None:
         "surprising_demo": "run_surprising_demo",
         "tmt_experiment_workflow": "build_tmt_experiment_workflow_bundle",
         "trust_bundle": "build_trust_bundle",
+        "weak_evidence": "run_weak_evidence_benchmark",
     }
     for module_name, attr_name in wrapper_to_attr.items():
         wrapper = importlib.import_module(f"bijux_proteomics.workflow.{module_name}")

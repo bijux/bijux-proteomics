@@ -472,11 +472,15 @@ def test_workflow_pipeline_package_import_contract() -> None:
     trust_bundle = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.trust_bundle"
     )
+    weak_evidence = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.weak_evidence"
+    )
 
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
     assert hasattr(advanced_tmt, "run_advanced_tmt_workflow")
     assert hasattr(orchestrator, "run_proteomics_workflow")
     assert hasattr(trust_bundle, "build_trust_bundle")
+    assert hasattr(weak_evidence, "run_weak_evidence_benchmark")
 
 
 def test_workflow_subpackage_import_contract() -> None:
@@ -484,6 +488,7 @@ def test_workflow_subpackage_import_contract() -> None:
     cards = importlib.import_module("bijux_proteomics.workflow.cards")
     exports = importlib.import_module("bijux_proteomics.workflow.exports")
     demo = importlib.import_module("bijux_proteomics.workflow.demo")
+    weak_evidence = importlib.import_module("bijux_proteomics.workflow.weak_evidence")
     dda = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
     )
@@ -504,6 +509,8 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_interrogation_report")
+    assert hasattr(weak_evidence, "build_flagship_weak_evidence_benchmark_descriptor")
+    assert hasattr(weak_evidence, "run_weak_evidence_benchmark")
     assert hasattr(dda, "build_dda_biological_workflow_bundle")
     assert hasattr(label_reporting, "build_tmt_label_based_report_bundle")
 

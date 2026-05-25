@@ -1205,6 +1205,21 @@ def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     assert Path(report.html_index_path).exists()
 
 
+def test_workflow_package_exports_weak_evidence_surface(tmp_path: Path) -> None:
+    report = workflow.run_weak_evidence_benchmark(
+        workflow.build_flagship_weak_evidence_benchmark_descriptor(
+            tmp_path / "weak_evidence"
+        )
+    )
+
+    assert hasattr(workflow, "build_flagship_weak_evidence_benchmark_descriptor")
+    assert hasattr(workflow, "run_weak_evidence_benchmark")
+    assert hasattr(workflow, "render_weak_evidence_benchmark_summary_tsv")
+    assert report.summary.failed_qc_block_count >= 1
+    assert report.summary.refused_claim_count >= 1
+    assert report.summary.status.value == "passed"
+
+
 def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> None:
     report = workflow.run_surprising_demo(
         workflow.SurprisingDemoConfig(output_dir=tmp_path / "surprising_demo_run")

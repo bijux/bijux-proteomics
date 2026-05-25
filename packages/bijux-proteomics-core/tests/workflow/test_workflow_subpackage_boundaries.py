@@ -67,6 +67,7 @@ _ROOT_WRAPPER_TARGETS = {
     "result_search_index.py": (
         "bijux_proteomics.workflow.exports.result_search_index"
     ),
+    "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
 
