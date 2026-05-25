@@ -14,6 +14,7 @@ from typing import Any
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.multiplex import build_multiplex_metadata_validation_report
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.ptm import PtmProteinCorrectionMode
 from bijux_proteomics.targeted import TargetedResultSourceKind
@@ -60,6 +61,7 @@ class PublicBenchmarkFailureKind(StrEnum):
     OUTPUT_CHECK_FAILED = "output_check_failed"
     APPROXIMATE_COUNT_MISMATCH = "approximate_count_mismatch"
     SAMPLE_METADATA_MISMATCH = "sample_metadata_mismatch"
+    MULTIPLEX_CHANNEL_MAPPING_INVALID = "multiplex_channel_mapping_invalid"
     EXPECTED_SIGNAL_MISMATCH = "expected_signal_mismatch"
 
 
@@ -234,6 +236,7 @@ def run_public_benchmark_descriptor(
         for schema_id in missing_schemas
     )
     failures.extend(_verify_sample_metadata(descriptor, source_map=source_map))
+    failures.extend(_verify_tmt_channel_mapping(descriptor, source_map=source_map))
     if failures:
         return PublicBenchmarkRunReport(
             descriptor_path=str(descriptor_path),
@@ -718,6 +721,48 @@ def _verify_sample_metadata(
                     ),
                 )
             )
+    return failures
+
+
+def _verify_tmt_channel_mapping(
+    descriptor: PublicBenchmarkDescriptor,
+    *,
+    source_map: dict[str, Path],
+) -> list[PublicBenchmarkFailure]:
+    if descriptor.search_engine is not PublicBenchmarkSearchEngine.TMT:
+        return []
+    design_path = source_map.get("design_tsv")
+    if design_path is None:
+        return []
+
+    design_report = parse_experimental_design_table(design_path)
+    validation_report = build_multiplex_metadata_validation_report(design_report)
+    failures: list[PublicBenchmarkFailure] = []
+
+    if validation_report.summary.missing_channel_assignment_count > 0:
+        failures.append(
+            PublicBenchmarkFailure(
+                kind=PublicBenchmarkFailureKind.MULTIPLEX_CHANNEL_MAPPING_INVALID,
+                subject="missing_channel_assignment",
+                message=(
+                    "tmt benchmark design is missing one or more multiplex channel "
+                    "assignments; benchmark execution must block until every declared "
+                    "group-channel position is mapped"
+                ),
+            )
+        )
+    if validation_report.summary.duplicate_assignment_count > 0:
+        failures.append(
+            PublicBenchmarkFailure(
+                kind=PublicBenchmarkFailureKind.MULTIPLEX_CHANNEL_MAPPING_INVALID,
+                subject="duplicate_channel_assignment",
+                message=(
+                    "tmt benchmark design contains duplicate multiplex channel or "
+                    "sample assignments; benchmark execution must block until "
+                    "multiplex mappings are unique"
+                ),
+            )
+        )
     return failures
 
 
