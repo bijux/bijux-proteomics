@@ -98,8 +98,9 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries, exact protein feature overlap queries, pathway coverage-aware membership resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, pathway coverage-aware membership resolution, sparse-complex confidence resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
+            "complexes/members.py",
             "features/overlaps.py",
             "pathways/members.py",
             "references/grounding/contexts.py",
@@ -142,6 +143,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="complexes/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The complexes package root groups exact complex membership owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="complexes/members.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Complex membership resolution keeps observed and missing subunits explicit and lets sparse assemblies degrade to low confidence instead of overstating partial evidence.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="features/__init__.py",
