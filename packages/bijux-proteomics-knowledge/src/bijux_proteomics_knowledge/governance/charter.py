@@ -125,6 +125,15 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The package root is an export surface and deliberately forwards stable scientific memory entrypoints.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="public_api.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="The machine-readable root API contract keeps the supported curated-memory import surface explicit and release-auditable.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="governance/__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The governance package root groups package-boundary audits without separate scientific-memory logic.",

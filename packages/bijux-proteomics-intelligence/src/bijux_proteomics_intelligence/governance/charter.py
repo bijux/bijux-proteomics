@@ -435,6 +435,18 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
     ),
     IntelligenceModuleAuditEntry(
+        module_path="public_api.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.PRIORITIZATION,
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="The machine-readable root API contract keeps the supported analytical import surface explicit and release-auditable.",
+    ),
+    IntelligenceModuleAuditEntry(
         module_path="belief_audit.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(

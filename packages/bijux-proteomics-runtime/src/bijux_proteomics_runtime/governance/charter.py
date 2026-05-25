@@ -342,6 +342,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "The machine-readable charter keeps runtime ownership explicit, auditable, and release-blocking.",
         )
 
+    if module_path == "public_api.py":
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.CANONICAL_ENTRYPOINTS,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "The machine-readable runtime root API contract keeps the supported operator-facing import surface explicit and release-auditable.",
+        )
+
     if module_path == "governance/compatibility_bridges.py":
         return _execution_value_entry(
             module_path,

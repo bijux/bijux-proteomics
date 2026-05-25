@@ -195,6 +195,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "The machine-readable charter keeps the allowed primitive surface explicit and release-blocking.",
         )
 
+    if module_path == "public_api.py":
+        return _shared_contract_entry(
+            module_path,
+            (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
+            "The machine-readable root API contract keeps the supported shared primitive surface explicit and release-auditable.",
+        )
+
     if module_path in {
         "identity/__init__.py",
         "identity/identifiers.py",

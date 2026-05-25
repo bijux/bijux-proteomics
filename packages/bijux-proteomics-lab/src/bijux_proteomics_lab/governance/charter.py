@@ -130,6 +130,18 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="The package root is an export surface and intentionally aggregates stable operational entrypoints.",
     ),
     LabModuleAuditEntry(
+        module_path="public_api.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.ASSAY_PLANNING,
+            LabCharterCapability.QUEUEING,
+            LabCharterCapability.PROGRESSION,
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="The machine-readable root API contract keeps the supported lab-operational import surface explicit and release-auditable.",
+    ),
+    LabModuleAuditEntry(
         module_path="design/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The design band re-exports the experiment-design owner surface under the durable design namespace.",
