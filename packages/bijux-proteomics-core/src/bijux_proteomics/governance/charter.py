@@ -232,6 +232,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "lab/sample_identity.py",
             "lab/standards.py",
             "quantification/core_matrix.py",
+            "quantification/matrix_archive.py",
             "quantification/contracts.py",
             "quantification/batch_effect.py",
             "quantification/censored_differential.py",
