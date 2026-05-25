@@ -417,6 +417,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/pipelines/advanced_ptm.py",
             "workflow/pipelines/advanced_targeted.py",
             "workflow/pipelines/advanced_tmt.py",
+            "workflow/artifact_layout.py",
             "workflow/biological_reporting.py",
             "workflow/biological_report_assembly.py",
             "workflow/biological_report_claims.py",
