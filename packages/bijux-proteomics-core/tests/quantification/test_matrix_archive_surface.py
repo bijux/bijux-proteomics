@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import string
+from tempfile import TemporaryDirectory
 
 from bijux_proteomics.domain.records import (
     MissingValueState,
@@ -18,6 +20,80 @@ from bijux_proteomics.quantification.matrix_archive import (
     render_quant_matrix_archive_tsv,
     save_matrix_archive,
 )
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
+
+hypothesis = import_or_skip(
+    "hypothesis",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="hypothesis is required for the matrix archive property-based surface",
+)
+given = hypothesis.given
+settings = hypothesis.settings
+st = hypothesis.strategies
+
+_SAFE_TEXT = st.text(
+    alphabet=string.ascii_letters + string.digits + "-_./",
+    min_size=1,
+    max_size=12,
+).filter(
+    lambda value: value.strip().lower()
+    not in {"", "na", "n/a", "null", "none", "nan"}
+)
+_OPTIONAL_TEXT = st.one_of(st.none(), _SAFE_TEXT)
+_SMALL_FLOAT = st.integers(min_value=-10_000, max_value=10_000).map(
+    lambda value: value / 10.0
+)
+_MATRIX_VALUE = st.one_of(st.none(), _SMALL_FLOAT)
+_METADATA_MAP = st.dictionaries(_SAFE_TEXT, _SAFE_TEXT, max_size=3)
+
+
+@st.composite
+def _quant_matrix_strategy(draw: st.DrawFn) -> QuantMatrix:
+    entity_ids = tuple(draw(st.lists(_SAFE_TEXT, min_size=1, max_size=4, unique=True)))
+    sample_ids = tuple(draw(st.lists(_SAFE_TEXT, min_size=1, max_size=4, unique=True)))
+    values = tuple(
+        tuple(draw(_MATRIX_VALUE) for _ in sample_ids) for _ in entity_ids
+    )
+    missing_value_states = tuple(
+        tuple(draw(st.sampled_from(tuple(MissingValueState))) for _ in sample_ids)
+        for _ in entity_ids
+    )
+    support_counts = tuple(
+        tuple(draw(st.integers(min_value=0, max_value=5)) for _ in sample_ids)
+        for _ in entity_ids
+    )
+    row_metadata = tuple(draw(_METADATA_MAP) for _ in entity_ids)
+    sample_metadata = tuple(
+        SampleMetadata(
+            sample_id=sample_id,
+            run_id=f"{sample_id}.mzML",
+            condition=draw(_SAFE_TEXT),
+            replicate=draw(st.one_of(st.none(), st.integers(min_value=1, max_value=3))),
+            fraction=draw(st.one_of(st.none(), st.integers(min_value=1, max_value=2))),
+            batch=draw(_OPTIONAL_TEXT),
+            instrument=draw(_OPTIONAL_TEXT),
+            search_engine=draw(_OPTIONAL_TEXT),
+            metadata=draw(st.dictionaries(_SAFE_TEXT, _SAFE_TEXT, max_size=2)),
+        )
+        for sample_id in sample_ids
+    )
+    return QuantMatrix(
+        matrix_id=draw(_SAFE_TEXT),
+        entity_kind=draw(st.sampled_from(tuple(QuantEntityKind))),
+        measure_kind=draw(st.sampled_from(tuple(QuantMeasureKind))),
+        entity_ids=entity_ids,
+        sample_ids=sample_ids,
+        values=values,
+        missing_value_states=missing_value_states,
+        support_counts=support_counts,
+        row_metadata=row_metadata,
+        sample_metadata=sample_metadata,
+        transformation_history=tuple(draw(st.lists(_SAFE_TEXT, max_size=3, unique=True))),
+        metadata=draw(st.dictionaries(_SAFE_TEXT, _SAFE_TEXT, max_size=3)),
+    )
 
 
 def test_matrix_archive_preserves_masks_metadata_and_transformation_history(
@@ -123,3 +199,24 @@ def test_matrix_archive_round_trip_stays_byte_stable_for_tsv_and_json_exports(
         first_path.read_text(encoding="utf-8")
     )
     assert archive.document_schema.document_kind == "quant_matrix_archive"
+
+
+@given(matrix=_quant_matrix_strategy())
+@settings(deadline=None, max_examples=25)
+def test_matrix_archive_round_trips_generated_quant_matrices(
+    matrix: QuantMatrix,
+) -> None:
+    with TemporaryDirectory() as temp_dir:
+        first_path = Path(temp_dir) / "matrix_archive_first.json"
+        second_path = Path(temp_dir) / "matrix_archive_second.json"
+
+        archive = save_matrix_archive(matrix, first_path)
+        reloaded = load_matrix_archive(first_path)
+        save_matrix_archive(reloaded, second_path)
+
+        assert first_path.read_bytes() == second_path.read_bytes()
+        assert reloaded == archive
+        assert reloaded.to_quant_matrix() == matrix
+        assert render_quant_matrix_archive_tsv(matrix) == render_quant_matrix_archive_tsv(
+            reloaded
+        )
