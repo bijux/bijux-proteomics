@@ -27,6 +27,7 @@ __all__ = [
     "PublicPackageApiLoad",
     "ordered_public_package_modules",
     "load_public_package_apis",
+    "run_cross_package_smoke_workflow",
     "run_foundation_core_knowledge_smoke",
 ]
 
@@ -61,6 +62,12 @@ class CrossPackageSmokeReport:
     sequence_length: int
     knowledge_pathway_id: str
     knowledge_coverage_fraction: float
+    recommendation_id: str | None = None
+    recommendation_type: str | None = None
+    runtime_run_id: str | None = None
+    runtime_downstream_surface: str | None = None
+    runtime_app_title: str | None = None
+    runtime_summary_path: str | None = None
 
 
 def ordered_public_package_modules() -> tuple[tuple[str, str], ...]:
@@ -175,6 +182,139 @@ def run_foundation_core_knowledge_smoke(
     )
 
 
+def run_cross_package_smoke_workflow(base_dir: Path) -> CrossPackageSmokeReport:
+    """Run the full tiny smoke workflow through all product packages."""
+
+    foundation_core_knowledge = run_foundation_core_knowledge_smoke(base_dir)
+
+    from bijux_proteomics.workflow.interactive_result_bundle import (
+        InteractiveResultBundle,
+        InteractiveResultBundleSummary,
+        InteractiveResultPathway,
+    )
+    from bijux_proteomics.workflow.study_result import (
+        ProteomicsStudyDesignEntry,
+        ProteomicsStudyDesignSnapshot,
+        ProteomicsStudyKind,
+        ProteomicsStudyResult,
+        ProteomicsStudyResultSummary,
+    )
+    from bijux_proteomics_intelligence import next_steps
+    from bijux_proteomics_runtime import AppConfig, create_app
+    from bijux_proteomics_runtime.workflows import run_reviewable_sequence_path
+
+    recommendation_report = next_steps.recommend_next_experiments(
+        ProteomicsStudyResult(
+            study_kind=ProteomicsStudyKind.ARCHIVED,
+            source_surface="cross-package-smoke",
+            design=ProteomicsStudyDesignSnapshot(
+                entries=(
+                    ProteomicsStudyDesignEntry(
+                        sample_id="S1",
+                        condition="treated",
+                    ),
+                ),
+                sample_count=1,
+                condition_count=1,
+                batch_count=0,
+                paired_sample_count=0,
+                multiplexed_sample_count=0,
+                note="cross-package smoke design",
+            ),
+            interactive_result_bundle=InteractiveResultBundle(
+                source_reports=(),
+                summary=InteractiveResultBundleSummary(
+                    biological_report_available=True,
+                    ptm_report_available=False,
+                    run_qc_input_count=0,
+                    sample_count=1,
+                    protein_count=0,
+                    peptide_count=0,
+                    ptm_site_count=0,
+                    pathway_count=1,
+                    qc_entry_count=0,
+                    card_count=0,
+                    graph_node_count=0,
+                    graph_edge_count=0,
+                    plot_count=0,
+                ),
+                samples=(),
+                proteins=(),
+                peptides=(),
+                ptm_sites=(),
+                pathways=(
+                    InteractiveResultPathway(
+                        pathway_id=foundation_core_knowledge.knowledge_pathway_id,
+                        adjusted_p_value=0.04,
+                        supporting_protein_refs=(
+                            foundation_core_knowledge.canonical_accession,
+                        ),
+                        unresolved_member_ids=("SIGB",),
+                    ),
+                ),
+                qc_entries=(),
+                cards=(),
+                graph_nodes=(),
+                graph_edges=(),
+                plots=(),
+                note="cross-package smoke pathway bundle",
+            ),
+            summary=ProteomicsStudyResultSummary(
+                design_entry_count=1,
+                matrix_surface_count=0,
+                statistic_surface_count=0,
+                qc_surface_count=0,
+                card_surface_count=0,
+                conclusion_count=0,
+            ),
+            note="cross-package smoke study result",
+        )
+    )
+    recommendation = recommendation_report.entries[0]
+
+    app = create_app(
+        AppConfig(
+            base_dir=base_dir,
+            docs_enabled=False,
+            title=f"cross-package-{recommendation.recommendation_type.value}",
+        )
+    )
+    runtime_manifest = run_reviewable_sequence_path(
+        base_dir,
+        sequence=_smoke_sequence(),
+        execution_mode="cpu",
+    )
+
+    return CrossPackageSmokeReport(
+        public_root_loads=foundation_core_knowledge.public_root_loads,
+        stages=(
+            *foundation_core_knowledge.stages,
+            CrossPackageSmokeStage(
+                package_name="intelligence",
+                stage_name="recommend_next_experiments",
+                summary="intelligence converted the knowledge gap into one explicit follow-up experiment recommendation",
+            ),
+            CrossPackageSmokeStage(
+                package_name="runtime",
+                stage_name="run_reviewable_sequence_path",
+                summary="runtime published a reviewable execution output for the same tiny sequence",
+            ),
+        ),
+        canonical_payload_hash=foundation_core_knowledge.canonical_payload_hash,
+        canonical_payload_json=foundation_core_knowledge.canonical_payload_json,
+        canonical_accession=foundation_core_knowledge.canonical_accession,
+        sequence_length=foundation_core_knowledge.sequence_length,
+        knowledge_pathway_id=foundation_core_knowledge.knowledge_pathway_id,
+        knowledge_coverage_fraction=foundation_core_knowledge.knowledge_coverage_fraction,
+        recommendation_id=recommendation.recommendation_id,
+        recommendation_type=recommendation.recommendation_type.value,
+        runtime_run_id=runtime_manifest.run_id,
+        runtime_downstream_surface=runtime_manifest.downstream_surface,
+        runtime_app_title=app.title,
+        runtime_summary_path=runtime_manifest.summary_path,
+    )
+
+
 def _smoke_annotation_pack() -> AnnotationPack:
     return AnnotationPack(
         source_path="cross-package-smoke-annotation-pack.json",
@@ -216,3 +356,7 @@ def _smoke_fasta_payload() -> str:
         ">sp|P04637|TP53_HUMAN tumor protein p53\n"
         "MEEPQSDPSVEPPLSQETFSDLWKLLPEN\n"
     )
+
+
+def _smoke_sequence() -> str:
+    return "MEEPQSDPSVEPPLSQETFSDLWKLLPEN"

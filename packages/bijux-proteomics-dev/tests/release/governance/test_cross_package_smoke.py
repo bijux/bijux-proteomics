@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_dev.release.governance.cross_package_smoke import (
+    run_cross_package_smoke_workflow,
     run_foundation_core_knowledge_smoke,
 )
 
@@ -44,3 +45,33 @@ def test_cross_package_smoke_foundation_core_knowledge_chain_keeps_root_imports_
         "runtime",
     )
     assert all(load.export_names for load in report.public_root_loads)
+
+
+def test_cross_package_smoke_workflow_crosses_intelligence_and_runtime(tmp_path: Path) -> (
+    None
+):
+    report = run_cross_package_smoke_workflow(tmp_path)
+
+    assert tuple(stage.package_name for stage in report.stages) == (
+        "foundation",
+        "core",
+        "knowledge",
+        "intelligence",
+        "runtime",
+    )
+    assert tuple(stage.stage_name for stage in report.stages) == (
+        "canonical_payload",
+        "parse_fasta_document",
+        "resolve_pathway_members",
+        "recommend_next_experiments",
+        "run_reviewable_sequence_path",
+    )
+    assert report.recommendation_id == (
+        "pathway_member_resolution:pathway:guardian_response"
+    )
+    assert report.recommendation_type == "pathway_member_resolution"
+    assert report.runtime_downstream_surface == "intelligence_review"
+    assert report.runtime_app_title == "cross-package-pathway_member_resolution"
+    assert report.runtime_run_id is not None
+    assert report.runtime_summary_path is not None
+    assert Path(report.runtime_summary_path).exists()
