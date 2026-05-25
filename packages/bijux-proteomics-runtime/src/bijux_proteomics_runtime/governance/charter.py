@@ -136,6 +136,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REPLAY_AND_RECOVERY,
         owned_surface="Replay-safe bundles, checkpoints, cache claims, rerun planning, cleanup, and recovery behavior that preserve trustworthy run reuse.",
         required_modules=(
+            "resume/execution.py",
             "runs/replay.py",
             "runs/reruns.py",
             "runs/integrity.py",
@@ -210,6 +211,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Typed workflow-step artifact contracts keep replay-safe checksums and reviewable step outputs under one explicit runtime owner.",
+        )
+
+    if module_path.startswith("resume/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Artifact-valid workflow resume planning belongs in runtime because it decides which completed steps stay trustworthy under changed inputs and config.",
         )
 
     if module_path.startswith("providers/"):
