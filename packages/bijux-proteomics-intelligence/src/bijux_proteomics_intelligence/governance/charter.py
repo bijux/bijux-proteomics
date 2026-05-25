@@ -26,6 +26,7 @@ class IntelligenceAnalyticalBand(StrEnum):
     """Stable analytical bands that organize intelligence owner modules."""
 
     CANDIDATES = "candidates"
+    CLAIMS = "claims"
     JUDGMENT = "judgment"
     POSTURE = "posture"
     INTERPRETATION = "interpretation"
@@ -140,6 +141,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         refusal_scope=(
             "refuse opaque score-only ordering",
             "refuse package-root convenience exports as a substitute for candidate ownership",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.CLAIMS,
+        owned_surface=(
+            "graph-backed claim-support validation that keeps unsupported or "
+            "contradicted analytical claims explicit before downstream judgment and review"
+        ),
+        required_modules=("claims/support.py",),
+        decision_scope=(
+            "invalidate claims that are not anchored to explicit evidence-graph support",
+            "keep contradicting graph evidence visible before contradiction summaries",
+        ),
+        refusal_scope=(
+            "refuse free-text claim support that is not linked to the evidence graph",
+            "do not take over knowledge-owned claim curation or evidence-graph construction",
         ),
     ),
     IntelligenceCapabilityMapEntry(
@@ -258,8 +275,9 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
     ),
     IntelligenceCharterEntry(
         capability=IntelligenceCharterCapability.CONTRADICTION_HANDLING,
-        owned_surface="Explicit contradiction, freshness, and uncertainty posture that can refuse overconfident recommendations.",
+        owned_surface="Explicit contradiction, claim-support, freshness, and uncertainty posture that can refuse overconfident recommendations.",
         required_modules=(
+            "claims/support.py",
             "posture/evidence.py",
             "judgment/scenarios.py",
             "judgment/paths.py",
@@ -306,6 +324,20 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="claims/__init__.py",
+        classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
+        reason="The claims package root groups claim-support validation owners without separate analytical logic.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="claims/support.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Claim-support validation keeps unsupported claims invalid and leaves contradicting graph evidence explicit before downstream judgment or review packets are built.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="governance/charter.py",
