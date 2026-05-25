@@ -18,6 +18,7 @@ __all__ = [
     "judgment",
     "learning",
     "posture",
+    "query",
     "reviews",
 ]
 _INTELLIGENCE_ROOT_MODULES = {name: f"{__name__}.{name}" for name in __all__}
