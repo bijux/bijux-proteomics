@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -513,52 +515,19 @@ def write_dda_biological_workflow_bundle(
     protein_discrepancy_name = "dda_source_protein_discrepancies.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_dda_biological_workflow_summary_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_dda_biological_workflow_summary_tsv(report))
     export_psm_tsv(report.accepted_psms, output_dir / accepted_name)
-    (output_dir / filtered_name).write_text(
-        render_filtered_dda_psms_tsv(report.filtered_psms),
-        encoding="utf-8",
-    )
-    (output_dir / rejected_name).write_text(
-        render_rejected_psm_rows_tsv(report.parse_rejected_rows),
-        encoding="utf-8",
-    )
-    (output_dir / parsimony_summary_name).write_text(
-        render_parsimony_review_summary_tsv(report.parsimony_review),
-        encoding="utf-8",
-    )
-    (output_dir / parsimony_proteins_name).write_text(
-        render_parsimony_review_proteins_tsv(report.parsimony_review),
-        encoding="utf-8",
-    )
-    (output_dir / parsimony_ambiguities_name).write_text(
-        render_parsimony_review_ambiguities_tsv(report.parsimony_review),
-        encoding="utf-8",
-    )
-    (output_dir / protein_lfq_summary_name).write_text(
-        render_protein_lfq_summary_tsv(report.protein_lfq_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_lfq_matrix_name).write_text(
-        render_protein_lfq_matrix_tsv(report.protein_lfq_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_lfq_pairwise_name).write_text(
-        render_protein_lfq_pairwise_ratios_tsv(report.protein_lfq_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_lfq_missingness_name).write_text(
-        render_protein_lfq_missingness_tsv(report.protein_lfq_report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / filtered_name), render_filtered_dda_psms_tsv(report.filtered_psms))
+    write_output_table_tsv((output_dir / rejected_name), render_rejected_psm_rows_tsv(report.parse_rejected_rows))
+    write_output_table_tsv((output_dir / parsimony_summary_name), render_parsimony_review_summary_tsv(report.parsimony_review))
+    write_output_table_tsv((output_dir / parsimony_proteins_name), render_parsimony_review_proteins_tsv(report.parsimony_review))
+    write_output_table_tsv((output_dir / parsimony_ambiguities_name), render_parsimony_review_ambiguities_tsv(report.parsimony_review))
+    write_output_table_tsv((output_dir / protein_lfq_summary_name), render_protein_lfq_summary_tsv(report.protein_lfq_report))
+    write_output_table_tsv((output_dir / protein_lfq_matrix_name), render_protein_lfq_matrix_tsv(report.protein_lfq_report))
+    write_output_table_tsv((output_dir / protein_lfq_pairwise_name), render_protein_lfq_pairwise_ratios_tsv(report.protein_lfq_report))
+    write_output_table_tsv((output_dir / protein_lfq_missingness_name), render_protein_lfq_missingness_tsv(report.protein_lfq_report))
     if report.protein_group_discrepancies:
-        (output_dir / protein_discrepancy_name).write_text(
-            render_protein_group_discrepancies_tsv(report.protein_group_discrepancies),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / protein_discrepancy_name), render_protein_group_discrepancies_tsv(report.protein_group_discrepancies))
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,

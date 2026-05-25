@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -336,22 +338,10 @@ def write_tmt_experiment_workflow_bundle(
     interference_channel_summary_name = "tmt_interference_channel_summary.tsv"
     report_manifest_name = "label_based_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_tmt_experiment_workflow_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / import_summary_name).write_text(
-        render_tmt_workflow_import_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / accepted_rows_name).write_text(
-        render_tmt_workflow_accepted_reporter_rows_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / rejected_rows_name).write_text(
-        render_tmt_workflow_rejected_reporter_rows_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_tmt_experiment_workflow_summary_tsv(report))
+    write_output_table_tsv((output_dir / import_summary_name), render_tmt_workflow_import_summary_tsv(report))
+    write_output_table_tsv((output_dir / accepted_rows_name), render_tmt_workflow_accepted_reporter_rows_tsv(report))
+    write_output_table_tsv((output_dir / rejected_rows_name), render_tmt_workflow_rejected_reporter_rows_tsv(report))
     export_multiplex_metadata_summary_tsv(
         report.metadata_validation_report,
         output_dir / metadata_summary_name,

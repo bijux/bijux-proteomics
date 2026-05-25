@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -546,7 +548,7 @@ def export_public_dataset_dataset_summary_tsv(
 ) -> None:
     """Write per-dataset summaries to TSV."""
 
-    path.write_text(render_public_dataset_dataset_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_public_dataset_dataset_summary_tsv(report))
 
 
 def export_public_dataset_failure_tsv(
@@ -555,7 +557,7 @@ def export_public_dataset_failure_tsv(
 ) -> None:
     """Write exact failed-dataset reasons to TSV."""
 
-    path.write_text(render_public_dataset_failure_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_public_dataset_failure_tsv(report))
 
 
 def export_public_dataset_combined_summary_tsv(
@@ -564,7 +566,7 @@ def export_public_dataset_combined_summary_tsv(
 ) -> None:
     """Write the combined public-dataset summary to TSV."""
 
-    path.write_text(render_public_dataset_combined_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_public_dataset_combined_summary_tsv(report))
 
 
 def export_public_dataset_effect_comparison_tsv(
@@ -573,7 +575,7 @@ def export_public_dataset_effect_comparison_tsv(
 ) -> None:
     """Write the combined cross-study effect comparison to TSV."""
 
-    path.write_text(render_public_dataset_effect_comparison_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_public_dataset_effect_comparison_tsv(report))
 
 
 def export_public_dataset_meta_analysis_tsv(
@@ -582,7 +584,7 @@ def export_public_dataset_meta_analysis_tsv(
 ) -> None:
     """Write the combined cross-study meta-analysis to TSV."""
 
-    path.write_text(render_public_dataset_meta_analysis_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_public_dataset_meta_analysis_tsv(report))
 
 
 def export_public_dataset_pathway_comparison_tsv(
@@ -591,10 +593,7 @@ def export_public_dataset_pathway_comparison_tsv(
 ) -> None:
     """Write the combined cross-study pathway comparison to TSV."""
 
-    path.write_text(
-        render_public_dataset_pathway_comparison_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_public_dataset_pathway_comparison_tsv(report))
 def _format_int(value: int | None) -> str:
     return "" if value is None else str(value)
 

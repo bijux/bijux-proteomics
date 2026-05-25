@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -612,7 +614,7 @@ def export_label_based_differential_matrix_tsv(
 ) -> None:
     """Write one labeled differential matrix to a stable TSV artifact."""
 
-    path.write_text(render_label_based_differential_matrix_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_label_based_differential_matrix_tsv(report))
 
 
 def export_label_based_differential_results_tsv(
@@ -621,10 +623,7 @@ def export_label_based_differential_results_tsv(
 ) -> None:
     """Write one labeled differential result surface to a stable TSV artifact."""
 
-    path.write_text(
-        render_label_based_differential_results_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_label_based_differential_results_tsv(report))
 
 
 def export_label_based_normalization_balance_plot_tsv(
@@ -633,10 +632,7 @@ def export_label_based_normalization_balance_plot_tsv(
 ) -> None:
     """Write one labeled normalization-balance plot payload as TSV."""
 
-    path.write_text(
-        render_label_based_normalization_balance_plot_tsv(plot),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_label_based_normalization_balance_plot_tsv(plot))
 
 
 def export_label_based_differential_volcano_plot_tsv(
@@ -645,10 +641,7 @@ def export_label_based_differential_volcano_plot_tsv(
 ) -> None:
     """Write one labeled volcano plot payload as TSV."""
 
-    path.write_text(
-        render_label_based_differential_volcano_plot_tsv(plot),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_label_based_differential_volcano_plot_tsv(plot))
 
 
 def _build_input_report_from_protein_matrix(

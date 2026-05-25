@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -582,7 +584,7 @@ def export_cross_study_pathway_comparison_tsv(
 ) -> None:
     """Write pathway comparison summaries to TSV."""
 
-    path.write_text(render_cross_study_pathway_comparison_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_pathway_comparison_tsv(report))
 
 
 def export_cross_study_pathway_detail_tsv(
@@ -591,7 +593,7 @@ def export_cross_study_pathway_detail_tsv(
 ) -> None:
     """Write pathway comparison details to TSV."""
 
-    path.write_text(render_cross_study_pathway_detail_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_pathway_detail_tsv(report))
 
 
 def export_cross_study_shared_pathway_signal_tsv(
@@ -600,7 +602,7 @@ def export_cross_study_shared_pathway_signal_tsv(
 ) -> None:
     """Write shared pathway signals to TSV."""
 
-    path.write_text(render_cross_study_shared_pathway_signal_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_shared_pathway_signal_tsv(report))
 
 
 def export_cross_study_opposite_pathway_signal_tsv(
@@ -609,10 +611,7 @@ def export_cross_study_opposite_pathway_signal_tsv(
 ) -> None:
     """Write opposite pathway signals to TSV."""
 
-    path.write_text(
-        render_cross_study_opposite_pathway_signal_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_opposite_pathway_signal_tsv(report))
 
 
 def export_cross_study_study_specific_pathway_tsv(
@@ -621,10 +620,7 @@ def export_cross_study_study_specific_pathway_tsv(
 ) -> None:
     """Write study-specific pathway signals to TSV."""
 
-    path.write_text(
-        render_cross_study_study_specific_pathway_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_study_specific_pathway_tsv(report))
 
 
 def _extract_study_pathway_observations(

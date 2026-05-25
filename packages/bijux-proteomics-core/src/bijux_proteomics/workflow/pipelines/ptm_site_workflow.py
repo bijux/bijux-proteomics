@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 import json
@@ -316,18 +318,9 @@ def write_ptm_site_workflow_bundle(
     rejected_name = "ptm_site_workflow_rejected_evidence.tsv"
     ptm_report_manifest_name = "ptm_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_ptm_site_workflow_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / accepted_name).write_text(
-        render_ptm_site_workflow_accepted_evidence_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / rejected_name).write_text(
-        render_ptm_site_workflow_rejected_evidence_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_ptm_site_workflow_summary_tsv(report))
+    write_output_table_tsv((output_dir / accepted_name), render_ptm_site_workflow_accepted_evidence_tsv(report))
+    write_output_table_tsv((output_dir / rejected_name), render_ptm_site_workflow_rejected_evidence_tsv(report))
     ptm_report_manifest = write_ptm_report_bundle(report.report, output_dir)
     (output_dir / ptm_report_manifest_name).write_text(
         ptm_report_manifest.to_stable_json() + "\n",

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -455,28 +457,16 @@ def write_proteomics_run_bundle(
     workflow_manifest_name = "proteomics_workflow_manifest.json"
     biological_manifest_name = "biological_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_proteomics_run_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / qc_summary_name).write_text(
-        render_proteomics_run_qc_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / normalized_matrix_name).write_text(
-        _render_normalized_matrix_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_name).write_text(
+    write_output_table_tsv((output_dir / summary_name), render_proteomics_run_summary_tsv(report))
+    write_output_table_tsv((output_dir / qc_summary_name), render_proteomics_run_qc_summary_tsv(report))
+    write_output_table_tsv((output_dir / normalized_matrix_name), _render_normalized_matrix_tsv(report))
+    write_output_table_tsv(
+        output_dir / differential_name,
         render_differential_abundance_tsv(
             _biological_report(report).differential_report
         ),
-        encoding="utf-8",
     )
-    (output_dir / enrichment_name).write_text(
-        render_proteomics_run_enrichment_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / enrichment_name), render_proteomics_run_enrichment_tsv(report))
     source_report_path = output_dir / biological_manifest.artifacts.report_html
     (output_dir / report_name).write_text(
         source_report_path.read_text(encoding="utf-8"),

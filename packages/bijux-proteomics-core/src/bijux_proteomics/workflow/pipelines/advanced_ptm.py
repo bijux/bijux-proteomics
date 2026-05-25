@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -208,31 +210,16 @@ def run_advanced_ptm_workflow(
         ambiguity_group_summary_name = "advanced_ptm_site_group_summary.tsv"
         ambiguity_group_matrix_name = "advanced_ptm_site_group_matrix.tsv"
         ambiguity_group_missingness_name = "advanced_ptm_site_group_missingness.tsv"
-        (output_dir / ambiguity_group_summary_name).write_text(
-            render_ptm_site_group_quant_summary_tsv(ambiguity_group_quantification),
-            encoding="utf-8",
-        )
-        (output_dir / ambiguity_group_matrix_name).write_text(
-            render_ptm_site_group_quant_matrix_tsv(ambiguity_group_quantification),
-            encoding="utf-8",
-        )
-        (output_dir / ambiguity_group_missingness_name).write_text(
-            render_ptm_site_group_quant_missingness_tsv(ambiguity_group_quantification),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / ambiguity_group_summary_name), render_ptm_site_group_quant_summary_tsv(ambiguity_group_quantification))
+        write_output_table_tsv((output_dir / ambiguity_group_matrix_name), render_ptm_site_group_quant_matrix_tsv(ambiguity_group_quantification))
+        write_output_table_tsv((output_dir / ambiguity_group_missingness_name), render_ptm_site_group_quant_missingness_tsv(ambiguity_group_quantification))
 
     excluded_name = "advanced_ptm_excluded_ambiguous_sites.tsv"
     occupancy_name = "advanced_ptm_occupancy_counterparts.tsv"
     summary_name = "advanced_ptm_summary.tsv"
 
-    (output_dir / excluded_name).write_text(
-        render_advanced_ptm_excluded_ambiguity_tsv(exact_site_exclusion_audit),
-        encoding="utf-8",
-    )
-    (output_dir / occupancy_name).write_text(
-        render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / excluded_name), render_advanced_ptm_excluded_ambiguity_tsv(exact_site_exclusion_audit))
+    write_output_table_tsv((output_dir / occupancy_name), render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report))
 
     report_manifest = workflow_manifest.ptm_report_manifest
     summary = AdvancedPtmWorkflowSummary(
@@ -262,10 +249,7 @@ def run_advanced_ptm_workflow(
         narrative_claim_count=base_report.report.summary.narrative_claim_count,
         protein_correction_mode=config.protein_correction_mode,
     )
-    (output_dir / summary_name).write_text(
-        render_advanced_ptm_workflow_summary_tsv(summary),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_advanced_ptm_workflow_summary_tsv(summary))
 
     manifest = AdvancedPtmWorkflowManifest(
         summary=summary,

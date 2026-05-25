@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 from collections import Counter, defaultdict
 import csv
 from enum import StrEnum
@@ -669,7 +671,7 @@ def export_protein_evidence_card_summary_tsv(
 ) -> None:
     """Write the protein-card summary ledger to one stable TSV artifact."""
 
-    path.write_text(render_protein_evidence_card_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_protein_evidence_card_summary_tsv(report))
 
 
 def export_protein_evidence_card_tsv(
@@ -678,7 +680,7 @@ def export_protein_evidence_card_tsv(
 ) -> None:
     """Write final protein cards to one stable TSV artifact."""
 
-    path.write_text(render_protein_evidence_card_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_protein_evidence_card_tsv(report))
 
 
 def _group_values_by_entity(

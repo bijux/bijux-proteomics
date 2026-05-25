@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -655,10 +657,7 @@ def export_cross_study_protein_harmonization_tsv(
 ) -> None:
     """Write harmonized cross-study protein memberships to a TSV artifact."""
 
-    path.write_text(
-        render_cross_study_protein_harmonization_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_protein_harmonization_tsv(report))
 
 
 def export_cross_study_protein_unresolved_tsv(
@@ -667,10 +666,7 @@ def export_cross_study_protein_unresolved_tsv(
 ) -> None:
     """Write unresolved cross-study protein identities to a TSV artifact."""
 
-    path.write_text(
-        render_cross_study_protein_unresolved_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_protein_unresolved_tsv(report))
 
 
 def _extract_study_observations(

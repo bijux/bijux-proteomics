@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -239,39 +241,21 @@ def run_targeted_validation_workflow(
     evidence_card_name = "advanced_targeted_evidence_cards.tsv"
     summary_name = "advanced_targeted_summary.tsv"
 
-    (output_dir / validation_summary_name).write_text(
-        render_targeted_result_validation_summary_tsv(validation_report),
-        encoding="utf-8",
-    )
-    (output_dir / confirmed_name).write_text(
-        render_targeted_result_validation_tsv(
+    write_output_table_tsv((output_dir / validation_summary_name), render_targeted_result_validation_summary_tsv(validation_report))
+    write_output_table_tsv((output_dir / confirmed_name), render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.CONFIRMED,
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / contradicted_name).write_text(
-        render_targeted_result_validation_tsv(
+        ))
+    write_output_table_tsv((output_dir / contradicted_name), render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.CONTRADICTED,
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / inconclusive_name).write_text(
-        render_targeted_result_validation_tsv(
+        ))
+    write_output_table_tsv((output_dir / inconclusive_name), render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.INCONCLUSIVE,
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / validation_evidence_name).write_text(
-        render_targeted_result_validation_evidence_tsv(validation_report),
-        encoding="utf-8",
-    )
-    (output_dir / evidence_card_name).write_text(
-        render_advanced_targeted_evidence_cards_tsv(evidence_cards),
-        encoding="utf-8",
-    )
+        ))
+    write_output_table_tsv((output_dir / validation_evidence_name), render_targeted_result_validation_evidence_tsv(validation_report))
+    write_output_table_tsv((output_dir / evidence_card_name), render_advanced_targeted_evidence_cards_tsv(evidence_cards))
 
     summary = AdvancedTargetedWorkflowSummary(
         observation_count=import_report.summary.observation_count,
@@ -290,10 +274,7 @@ def run_targeted_validation_workflow(
         inconclusive_count=validation_report.summary.inconclusive_count,
         evidence_card_count=len(evidence_cards),
     )
-    (output_dir / summary_name).write_text(
-        render_advanced_targeted_workflow_summary_tsv(summary),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_advanced_targeted_workflow_summary_tsv(summary))
 
     manifest = AdvancedTargetedWorkflowManifest(
         summary=summary,

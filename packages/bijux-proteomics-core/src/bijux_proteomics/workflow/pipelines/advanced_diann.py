@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -249,40 +251,31 @@ def run_advanced_diann_workflow(
     belief_audit_name = "advanced_diann_belief_audit.tsv"
     summary_name = "advanced_diann_summary.tsv"
 
-    (output_dir / final_results_name).write_text(
-        render_evidence_graph_final_results_tsv(graph_final_results),
-        encoding="utf-8",
-    )
-    (output_dir / accepted_name).write_text(
+    write_output_table_tsv((output_dir / final_results_name), render_evidence_graph_final_results_tsv(graph_final_results))
+    write_output_table_tsv(
+        output_dir / accepted_name,
         render_advanced_diann_protein_decisions_tsv(
             _build_protein_decisions(
                 graph=base_report.biological_report.graph_report.graph,
                 entries=accepted_protein_entries,
             )
         ),
-        encoding="utf-8",
     )
-    (output_dir / downgraded_name).write_text(
+    write_output_table_tsv(
+        output_dir / downgraded_name,
         render_advanced_diann_protein_decisions_tsv(
             _build_protein_decisions(
                 graph=base_report.biological_report.graph_report.graph,
                 entries=downgraded_protein_entries,
             )
         ),
-        encoding="utf-8",
     )
 
     belief_audit = build_belief_audit_report_from_artifacts(
         biological_report_dir=output_dir,
     )
-    (output_dir / belief_audit_summary_name).write_text(
-        render_belief_audit_summary_tsv(belief_audit),
-        encoding="utf-8",
-    )
-    (output_dir / belief_audit_name).write_text(
-        render_belief_audit_tsv(belief_audit),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / belief_audit_summary_name), render_belief_audit_summary_tsv(belief_audit))
+    write_output_table_tsv((output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit))
 
     fragment_coelution_report = _build_fragment_coelution_report(config)
     fragment_runs_name = None
@@ -290,14 +283,8 @@ def run_advanced_diann_workflow(
     if fragment_coelution_report is not None:
         fragment_runs_name = "advanced_diann_fragment_coelution_runs.tsv"
         fragment_fragments_name = "advanced_diann_fragment_coelution_fragments.tsv"
-        (output_dir / fragment_runs_name).write_text(
-            render_dia_fragment_coelution_runs_tsv(fragment_coelution_report),
-            encoding="utf-8",
-        )
-        (output_dir / fragment_fragments_name).write_text(
-            render_dia_fragment_coelution_fragments_tsv(fragment_coelution_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / fragment_runs_name), render_dia_fragment_coelution_runs_tsv(fragment_coelution_report))
+        write_output_table_tsv((output_dir / fragment_fragments_name), render_dia_fragment_coelution_fragments_tsv(fragment_coelution_report))
 
     summary = AdvancedDiannWorkflowSummary(
         imported_precursor_count=base_report.summary.imported_precursor_count,
@@ -324,10 +311,7 @@ def run_advanced_diann_workflow(
             else len(fragment_coelution_report.fragment_entries)
         ),
     )
-    (output_dir / summary_name).write_text(
-        render_advanced_diann_workflow_summary_tsv(summary),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_advanced_diann_workflow_summary_tsv(summary))
 
     manifest = AdvancedDiannWorkflowManifest(
         summary=summary,

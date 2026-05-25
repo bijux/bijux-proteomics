@@ -3,6 +3,8 @@
 """Biological report TSV rendering and artifact export."""
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -313,113 +315,50 @@ def write_biological_result_report_bundle(
     biological_hypothesis_name = None
     rejected_hypothesis_candidate_name = None
 
-    (output_dir / summary_name).write_text(
-        render_biological_result_report_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_name).write_text(
-        render_differential_abundance_tsv(report.differential_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_card_summary_name).write_text(
-        render_protein_evidence_card_summary_tsv(report.protein_cards),
-        encoding="utf-8",
-    )
-    (output_dir / protein_card_name).write_text(
-        render_protein_evidence_card_tsv(report.protein_cards),
-        encoding="utf-8",
-    )
-    (output_dir / protein_mechanism_card_summary_name).write_text(
-        render_protein_mechanism_card_summary_tsv(report.protein_mechanism_cards),
-        encoding="utf-8",
-    )
-    (output_dir / protein_mechanism_card_name).write_text(
-        render_protein_mechanism_card_tsv(report.protein_mechanism_cards),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_biological_result_report_summary_tsv(report))
+    write_output_table_tsv((output_dir / differential_name), render_differential_abundance_tsv(report.differential_report))
+    write_output_table_tsv((output_dir / protein_card_summary_name), render_protein_evidence_card_summary_tsv(report.protein_cards))
+    write_output_table_tsv((output_dir / protein_card_name), render_protein_evidence_card_tsv(report.protein_cards))
+    write_output_table_tsv((output_dir / protein_mechanism_card_summary_name), render_protein_mechanism_card_summary_tsv(report.protein_mechanism_cards))
+    write_output_table_tsv((output_dir / protein_mechanism_card_name), render_protein_mechanism_card_tsv(report.protein_mechanism_cards))
     graph_export = export_proteomics_evidence_graph(report.graph_report.graph)
-    (output_dir / evidence_graph_nodes_name).write_text(
-        render_proteomics_evidence_graph_nodes_tsv(graph_export),
-        encoding="utf-8",
-    )
-    (output_dir / evidence_graph_edges_name).write_text(
-        render_proteomics_evidence_graph_edges_tsv(graph_export),
-        encoding="utf-8",
-    )
-    (output_dir / experiment_confidence_summary_name).write_text(
-        render_experiment_confidence_summary_tsv(report.experiment_confidence_report),
-        encoding="utf-8",
-    )
-    (output_dir / experiment_confidence_components_name).write_text(
-        render_experiment_confidence_component_tsv(report.experiment_confidence_report),
-        encoding="utf-8",
-    )
-    (output_dir / section_confidence_name).write_text(
-        render_biological_report_section_confidence_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / evidence_graph_nodes_name), render_proteomics_evidence_graph_nodes_tsv(graph_export))
+    write_output_table_tsv((output_dir / evidence_graph_edges_name), render_proteomics_evidence_graph_edges_tsv(graph_export))
+    write_output_table_tsv((output_dir / experiment_confidence_summary_name), render_experiment_confidence_summary_tsv(report.experiment_confidence_report))
+    write_output_table_tsv((output_dir / experiment_confidence_components_name), render_experiment_confidence_component_tsv(report.experiment_confidence_report))
+    write_output_table_tsv((output_dir / section_confidence_name), render_biological_report_section_confidence_tsv(report))
     if report.evidence_aware_ranking_report is not None:
         evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
-        (output_dir / evidence_aware_ranking_name).write_text(
-            render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / evidence_aware_ranking_name), render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report))
     if report.claim_validation_report is not None:
         claim_validation_summary_name = "biological_claim_validation_summary.tsv"
         supported_claim_name = "biological_supported_claims.tsv"
         rejected_claim_name = "biological_rejected_claims.tsv"
-        (output_dir / claim_validation_summary_name).write_text(
-            render_biological_claim_validation_summary_tsv(
+        write_output_table_tsv((output_dir / claim_validation_summary_name), render_biological_claim_validation_summary_tsv(
                 report.claim_validation_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / supported_claim_name).write_text(
-            render_supported_biological_claim_tsv(report.claim_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / rejected_claim_name).write_text(
-            render_rejected_biological_claim_tsv(report.claim_validation_report),
-            encoding="utf-8",
-        )
+            ))
+        write_output_table_tsv((output_dir / supported_claim_name), render_supported_biological_claim_tsv(report.claim_validation_report))
+        write_output_table_tsv((output_dir / rejected_claim_name), render_rejected_biological_claim_tsv(report.claim_validation_report))
     if report.biological_hypothesis_report is not None:
         biological_hypothesis_summary_name = "biological_hypothesis_summary.tsv"
         biological_hypothesis_name = "biological_hypotheses.tsv"
         rejected_hypothesis_candidate_name = (
             "biological_rejected_hypothesis_candidates.tsv"
         )
-        (output_dir / biological_hypothesis_summary_name).write_text(
-            render_biological_hypothesis_summary_tsv(report.biological_hypothesis_report),
-            encoding="utf-8",
-        )
-        (output_dir / biological_hypothesis_name).write_text(
-            render_biological_hypothesis_tsv(report.biological_hypothesis_report),
-            encoding="utf-8",
-        )
-        (output_dir / rejected_hypothesis_candidate_name).write_text(
-            render_rejected_biological_hypothesis_candidate_tsv(
+        write_output_table_tsv((output_dir / biological_hypothesis_summary_name), render_biological_hypothesis_summary_tsv(report.biological_hypothesis_report))
+        write_output_table_tsv((output_dir / biological_hypothesis_name), render_biological_hypothesis_tsv(report.biological_hypothesis_report))
+        write_output_table_tsv((output_dir / rejected_hypothesis_candidate_name), render_rejected_biological_hypothesis_candidate_tsv(
                 report.biological_hypothesis_report
-            ),
-            encoding="utf-8",
-        )
-    (output_dir / foreground_background_summary_name).write_text(
-        render_biological_foreground_background_summary_tsv(
+            ))
+    write_output_table_tsv((output_dir / foreground_background_summary_name), render_biological_foreground_background_summary_tsv(
             report.foreground_background_model
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / foreground_background_entry_name).write_text(
-        render_biological_foreground_background_entry_tsv(
+        ))
+    write_output_table_tsv((output_dir / foreground_background_entry_name), render_biological_foreground_background_entry_tsv(
             report.foreground_background_model
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / foreground_background_issue_name).write_text(
-        render_biological_foreground_background_issue_tsv(
+        ))
+    write_output_table_tsv((output_dir / foreground_background_issue_name), render_biological_foreground_background_issue_tsv(
             report.foreground_background_model
-        ),
-        encoding="utf-8",
-    )
+        ))
     if (
         report.regulator_evidence_import_report is not None
         and report.regulator_inference_report is not None
@@ -428,36 +367,15 @@ def write_biological_result_report_bundle(
         regulator_inference_name = "biological_regulator_inference.tsv"
         regulator_unresolved_name = "biological_regulator_inference_unresolved.tsv"
         regulator_rejected_name = "biological_regulator_evidence_rejected.tsv"
-        (output_dir / regulator_inference_summary_name).write_text(
-            render_regulator_inference_summary_tsv(report.regulator_inference_report),
-            encoding="utf-8",
-        )
-        (output_dir / regulator_inference_name).write_text(
-            render_regulator_inference_tsv(report.regulator_inference_report),
-            encoding="utf-8",
-        )
-        (output_dir / regulator_unresolved_name).write_text(
-            render_unresolved_regulator_target_tsv(report.regulator_inference_report),
-            encoding="utf-8",
-        )
-        (output_dir / regulator_rejected_name).write_text(
-            render_rejected_regulator_evidence_tsv(
+        write_output_table_tsv((output_dir / regulator_inference_summary_name), render_regulator_inference_summary_tsv(report.regulator_inference_report))
+        write_output_table_tsv((output_dir / regulator_inference_name), render_regulator_inference_tsv(report.regulator_inference_report))
+        write_output_table_tsv((output_dir / regulator_unresolved_name), render_unresolved_regulator_target_tsv(report.regulator_inference_report))
+        write_output_table_tsv((output_dir / regulator_rejected_name), render_rejected_regulator_evidence_tsv(
                 report.regulator_evidence_import_report
-            ),
-            encoding="utf-8",
-        )
-    (output_dir / annotation_summary_name).write_text(
-        render_protein_annotation_summary_tsv(report.annotation_report),
-        encoding="utf-8",
-    )
-    (output_dir / annotation_name).write_text(
-        render_protein_annotation_tsv(report.annotation_report),
-        encoding="utf-8",
-    )
-    (output_dir / annotation_unmapped_name).write_text(
-        render_unmapped_protein_annotation_tsv(report.annotation_report),
-        encoding="utf-8",
-    )
+            ))
+    write_output_table_tsv((output_dir / annotation_summary_name), render_protein_annotation_summary_tsv(report.annotation_report))
+    write_output_table_tsv((output_dir / annotation_name), render_protein_annotation_tsv(report.annotation_report))
+    write_output_table_tsv((output_dir / annotation_unmapped_name), render_unmapped_protein_annotation_tsv(report.annotation_report))
     if (
         report.context_import_report is not None
         and report.context_mapping_report is not None
@@ -467,26 +385,11 @@ def write_biological_result_report_bundle(
         context_term_name = "biological_context_terms.tsv"
         context_unmapped_name = "biological_context_unmapped.tsv"
         context_rejected_name = "biological_context_rejected.tsv"
-        (output_dir / context_summary_name).write_text(
-            render_biological_context_mapping_summary_tsv(report.context_mapping_report),
-            encoding="utf-8",
-        )
-        (output_dir / context_mapping_name).write_text(
-            render_biological_context_mapping_tsv(report.context_mapping_report),
-            encoding="utf-8",
-        )
-        (output_dir / context_term_name).write_text(
-            render_biological_context_term_tsv(report.context_mapping_report),
-            encoding="utf-8",
-        )
-        (output_dir / context_unmapped_name).write_text(
-            render_unmapped_biological_context_tsv(report.context_mapping_report),
-            encoding="utf-8",
-        )
-        (output_dir / context_rejected_name).write_text(
-            render_rejected_biological_context_tsv(report.context_import_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / context_summary_name), render_biological_context_mapping_summary_tsv(report.context_mapping_report))
+        write_output_table_tsv((output_dir / context_mapping_name), render_biological_context_mapping_tsv(report.context_mapping_report))
+        write_output_table_tsv((output_dir / context_term_name), render_biological_context_term_tsv(report.context_mapping_report))
+        write_output_table_tsv((output_dir / context_unmapped_name), render_unmapped_biological_context_tsv(report.context_mapping_report))
+        write_output_table_tsv((output_dir / context_rejected_name), render_rejected_biological_context_tsv(report.context_import_report))
     else:
         context_summary_name = None
         context_mapping_name = None
@@ -498,26 +401,14 @@ def write_biological_result_report_bundle(
         cohort_stratum_name = "biological_cohort_strata.tsv"
         cohort_effect_name = "biological_cohort_subgroup_effects.tsv"
         cohort_interaction_name = "biological_cohort_interaction_candidates.tsv"
-        (output_dir / cohort_summary_name).write_text(
-            render_cohort_stratification_summary_tsv(
+        write_output_table_tsv((output_dir / cohort_summary_name), render_cohort_stratification_summary_tsv(
                 report.cohort_stratification_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / cohort_stratum_name).write_text(
-            render_cohort_stratum_tsv(report.cohort_stratification_report),
-            encoding="utf-8",
-        )
-        (output_dir / cohort_effect_name).write_text(
-            render_cohort_subgroup_effect_tsv(report.cohort_stratification_report),
-            encoding="utf-8",
-        )
-        (output_dir / cohort_interaction_name).write_text(
-            render_cohort_interaction_candidate_tsv(
+            ))
+        write_output_table_tsv((output_dir / cohort_stratum_name), render_cohort_stratum_tsv(report.cohort_stratification_report))
+        write_output_table_tsv((output_dir / cohort_effect_name), render_cohort_subgroup_effect_tsv(report.cohort_stratification_report))
+        write_output_table_tsv((output_dir / cohort_interaction_name), render_cohort_interaction_candidate_tsv(
                 report.cohort_stratification_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     else:
         cohort_summary_name = None
         cohort_stratum_name = None
@@ -530,30 +421,18 @@ def write_biological_result_report_bundle(
         tissue_context_interpretation_name = (
             "biological_tissue_context_interpretation.tsv"
         )
-        (output_dir / tissue_context_summary_name).write_text(
-            render_tissue_cell_type_context_summary_tsv(
+        write_output_table_tsv((output_dir / tissue_context_summary_name), render_tissue_cell_type_context_summary_tsv(
                 report.tissue_cell_type_context_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / tissue_context_sample_name).write_text(
-            render_tissue_cell_type_sample_consistency_tsv(
+            ))
+        write_output_table_tsv((output_dir / tissue_context_sample_name), render_tissue_cell_type_sample_consistency_tsv(
                 report.tissue_cell_type_context_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / tissue_context_unexpected_name).write_text(
-            render_tissue_cell_type_unexpected_signal_tsv(
+            ))
+        write_output_table_tsv((output_dir / tissue_context_unexpected_name), render_tissue_cell_type_unexpected_signal_tsv(
                 report.tissue_cell_type_context_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / tissue_context_interpretation_name).write_text(
-            render_tissue_cell_type_interpretation_tsv(
+            ))
+        write_output_table_tsv((output_dir / tissue_context_interpretation_name), render_tissue_cell_type_interpretation_tsv(
                 report.tissue_cell_type_context_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     else:
         tissue_context_summary_name = None
         tissue_context_sample_name = None
@@ -562,14 +441,8 @@ def write_biological_result_report_bundle(
     if report.drug_target_report is not None:
         drug_target_summary_name = "biological_drug_target_summary.tsv"
         drug_target_name = "biological_drug_target_interpretation.tsv"
-        (output_dir / drug_target_summary_name).write_text(
-            render_drug_target_interpretation_summary_tsv(report.drug_target_report),
-            encoding="utf-8",
-        )
-        (output_dir / drug_target_name).write_text(
-            render_drug_target_interpretation_tsv(report.drug_target_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / drug_target_summary_name), render_drug_target_interpretation_summary_tsv(report.drug_target_report))
+        write_output_table_tsv((output_dir / drug_target_name), render_drug_target_interpretation_tsv(report.drug_target_report))
     else:
         drug_target_summary_name = None
         drug_target_name = None
@@ -581,24 +454,15 @@ def write_biological_result_report_bundle(
         disease_phenotype_unknown_name = (
             "biological_disease_phenotype_unknown_annotations.tsv"
         )
-        (output_dir / disease_phenotype_summary_name).write_text(
-            render_disease_phenotype_interpretation_summary_tsv(
+        write_output_table_tsv((output_dir / disease_phenotype_summary_name), render_disease_phenotype_interpretation_summary_tsv(
                 report.disease_phenotype_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / disease_phenotype_term_name).write_text(
-            render_disease_phenotype_interpretation_tsv(
+            ))
+        write_output_table_tsv((output_dir / disease_phenotype_term_name), render_disease_phenotype_interpretation_tsv(
                 report.disease_phenotype_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / disease_phenotype_unknown_name).write_text(
-            render_unknown_disease_phenotype_annotation_tsv(
+            ))
+        write_output_table_tsv((output_dir / disease_phenotype_unknown_name), render_unknown_disease_phenotype_annotation_tsv(
                 report.disease_phenotype_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     else:
         disease_phenotype_summary_name = None
         disease_phenotype_term_name = None
@@ -618,48 +482,24 @@ def write_biological_result_report_bundle(
             "biological_compartment_activity_unresolved.tsv"
         )
         compartment_unknown_name = "biological_compartment_unknown_localization.tsv"
-        (output_dir / compartment_summary_name).write_text(
-            render_compartment_biology_summary_tsv(report.compartment_biology_report),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_enrichment_name).write_text(
-            render_compartment_enrichment_tsv(report.compartment_biology_report),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_activity_matrix_name).write_text(
-            render_compartment_activity_matrix_tsv(report.compartment_biology_report),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_activity_sample_name).write_text(
-            render_compartment_activity_sample_score_tsv(
+        write_output_table_tsv((output_dir / compartment_summary_name), render_compartment_biology_summary_tsv(report.compartment_biology_report))
+        write_output_table_tsv((output_dir / compartment_enrichment_name), render_compartment_enrichment_tsv(report.compartment_biology_report))
+        write_output_table_tsv((output_dir / compartment_activity_matrix_name), render_compartment_activity_matrix_tsv(report.compartment_biology_report))
+        write_output_table_tsv((output_dir / compartment_activity_sample_name), render_compartment_activity_sample_score_tsv(
                 report.compartment_biology_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_activity_condition_name).write_text(
-            render_compartment_activity_condition_score_tsv(
+            ))
+        write_output_table_tsv((output_dir / compartment_activity_condition_name), render_compartment_activity_condition_score_tsv(
                 report.compartment_biology_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_activity_comparison_name).write_text(
-            render_compartment_activity_condition_comparison_tsv(
+            ))
+        write_output_table_tsv((output_dir / compartment_activity_comparison_name), render_compartment_activity_condition_comparison_tsv(
                 report.compartment_biology_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_activity_unresolved_name).write_text(
-            render_compartment_activity_unresolved_member_tsv(
+            ))
+        write_output_table_tsv((output_dir / compartment_activity_unresolved_name), render_compartment_activity_unresolved_member_tsv(
                 report.compartment_biology_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / compartment_unknown_name).write_text(
-            render_unknown_compartment_localization_tsv(
+            ))
+        write_output_table_tsv((output_dir / compartment_unknown_name), render_unknown_compartment_localization_tsv(
                 report.compartment_biology_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     else:
         compartment_summary_name = None
         compartment_enrichment_name = None
@@ -681,38 +521,17 @@ def write_biological_result_report_bundle(
         pathway_activity_unresolved_name = (
             "biological_pathway_activity_unresolved.tsv"
         )
-        (output_dir / pathway_activity_summary_name).write_text(
-            render_pathway_activity_summary_tsv(report.pathway_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_matrix_name).write_text(
-            render_pathway_activity_matrix_tsv(report.pathway_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_sample_name).write_text(
-            render_pathway_activity_sample_score_tsv(report.pathway_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_condition_name).write_text(
-            render_pathway_activity_condition_score_tsv(report.pathway_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_comparison_name).write_text(
-            render_pathway_activity_condition_comparison_tsv(
+        write_output_table_tsv((output_dir / pathway_activity_summary_name), render_pathway_activity_summary_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_activity_matrix_name), render_pathway_activity_matrix_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_activity_sample_name), render_pathway_activity_sample_score_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_activity_condition_name), render_pathway_activity_condition_score_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_activity_comparison_name), render_pathway_activity_condition_comparison_tsv(
                 report.pathway_activity_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_member_name).write_text(
-            render_pathway_member_contribution_tsv(report.pathway_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_activity_unresolved_name).write_text(
-            render_pathway_activity_unresolved_member_tsv(
+            ))
+        write_output_table_tsv((output_dir / pathway_activity_member_name), render_pathway_member_contribution_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_activity_unresolved_name), render_pathway_activity_unresolved_member_tsv(
                 report.pathway_activity_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     if report.complex_activity_report is not None:
         complex_activity_summary_name = "biological_complex_activity_summary.tsv"
         complex_activity_matrix_name = "biological_complex_activity_matrix.tsv"
@@ -725,38 +544,17 @@ def write_biological_result_report_bundle(
         complex_activity_unresolved_name = (
             "biological_complex_activity_unresolved.tsv"
         )
-        (output_dir / complex_activity_summary_name).write_text(
-            render_complex_activity_summary_tsv(report.complex_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_matrix_name).write_text(
-            render_complex_activity_matrix_tsv(report.complex_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_sample_name).write_text(
-            render_complex_activity_sample_score_tsv(report.complex_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_condition_name).write_text(
-            render_complex_activity_condition_score_tsv(report.complex_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_comparison_name).write_text(
-            render_complex_activity_condition_comparison_tsv(
+        write_output_table_tsv((output_dir / complex_activity_summary_name), render_complex_activity_summary_tsv(report.complex_activity_report))
+        write_output_table_tsv((output_dir / complex_activity_matrix_name), render_complex_activity_matrix_tsv(report.complex_activity_report))
+        write_output_table_tsv((output_dir / complex_activity_sample_name), render_complex_activity_sample_score_tsv(report.complex_activity_report))
+        write_output_table_tsv((output_dir / complex_activity_condition_name), render_complex_activity_condition_score_tsv(report.complex_activity_report))
+        write_output_table_tsv((output_dir / complex_activity_comparison_name), render_complex_activity_condition_comparison_tsv(
                 report.complex_activity_report
-            ),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_member_name).write_text(
-            render_complex_member_contribution_tsv(report.complex_activity_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_activity_unresolved_name).write_text(
-            render_complex_activity_unresolved_member_tsv(
+            ))
+        write_output_table_tsv((output_dir / complex_activity_member_name), render_complex_member_contribution_tsv(report.complex_activity_report))
+        write_output_table_tsv((output_dir / complex_activity_unresolved_name), render_complex_activity_unresolved_member_tsv(
                 report.complex_activity_report
-            ),
-            encoding="utf-8",
-        )
+            ))
     else:
         complex_activity_summary_name = None
         complex_activity_matrix_name = None
@@ -765,10 +563,7 @@ def write_biological_result_report_bundle(
         complex_activity_comparison_name = None
         complex_activity_member_name = None
         complex_activity_unresolved_name = None
-    (output_dir / volcano_tsv_name).write_text(
-        render_volcano_review_tsv(report.volcano_review),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / volcano_tsv_name), render_volcano_review_tsv(report.volcano_review))
     export_volcano_review_json(report.volcano_review, output_dir / volcano_json_name)
     export_volcano_review_svg(report.volcano_review, output_dir / volcano_svg_name)
     export_volcano_review_html(report.volcano_review, output_dir / volcano_html_name)
@@ -807,18 +602,9 @@ def write_biological_result_report_bundle(
         go_summary_name = "biological_go_summary.tsv"
         go_term_name = "biological_go_terms.tsv"
         go_unannotated_name = "biological_go_unannotated.tsv"
-        (output_dir / go_summary_name).write_text(
-            render_go_enrichment_summary_tsv(report.go_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / go_term_name).write_text(
-            render_go_enrichment_term_tsv(report.go_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / go_unannotated_name).write_text(
-            render_go_enrichment_unannotated_tsv(report.go_enrichment_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / go_summary_name), render_go_enrichment_summary_tsv(report.go_enrichment_report))
+        write_output_table_tsv((output_dir / go_term_name), render_go_enrichment_term_tsv(report.go_enrichment_report))
+        write_output_table_tsv((output_dir / go_unannotated_name), render_go_enrichment_unannotated_tsv(report.go_enrichment_report))
 
     pathway_summary_name = None
     pathway_entry_name = None
@@ -827,18 +613,9 @@ def write_biological_result_report_bundle(
         pathway_summary_name = "biological_pathway_summary.tsv"
         pathway_entry_name = "biological_pathway_entries.tsv"
         pathway_unresolved_name = "biological_pathway_unresolved.tsv"
-        (output_dir / pathway_summary_name).write_text(
-            render_pathway_enrichment_summary_tsv(report.pathway_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_entry_name).write_text(
-            render_pathway_enrichment_entry_tsv(report.pathway_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / pathway_unresolved_name).write_text(
-            render_pathway_unresolved_member_tsv(report.pathway_enrichment_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / pathway_summary_name), render_pathway_enrichment_summary_tsv(report.pathway_enrichment_report))
+        write_output_table_tsv((output_dir / pathway_entry_name), render_pathway_enrichment_entry_tsv(report.pathway_enrichment_report))
+        write_output_table_tsv((output_dir / pathway_unresolved_name), render_pathway_unresolved_member_tsv(report.pathway_enrichment_report))
 
     complex_summary_name = None
     complex_entry_name = None
@@ -847,18 +624,9 @@ def write_biological_result_report_bundle(
         complex_summary_name = "biological_complex_summary.tsv"
         complex_entry_name = "biological_complex_entries.tsv"
         complex_unresolved_name = "biological_complex_unresolved.tsv"
-        (output_dir / complex_summary_name).write_text(
-            render_complex_enrichment_summary_tsv(report.complex_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_entry_name).write_text(
-            render_complex_enrichment_entry_tsv(report.complex_enrichment_report),
-            encoding="utf-8",
-        )
-        (output_dir / complex_unresolved_name).write_text(
-            render_complex_unresolved_member_tsv(report.complex_enrichment_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / complex_summary_name), render_complex_enrichment_summary_tsv(report.complex_enrichment_report))
+        write_output_table_tsv((output_dir / complex_entry_name), render_complex_enrichment_entry_tsv(report.complex_enrichment_report))
+        write_output_table_tsv((output_dir / complex_unresolved_name), render_complex_unresolved_member_tsv(report.complex_enrichment_report))
 
     artifacts = BiologicalResultReportArtifactPaths(
         summary_tsv=summary_name,

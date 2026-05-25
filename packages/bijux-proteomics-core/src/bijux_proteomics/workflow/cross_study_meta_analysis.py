@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -530,7 +532,7 @@ def export_cross_study_meta_analysis_tsv(
 ) -> None:
     """Write combined meta-analysis entries to TSV."""
 
-    path.write_text(render_cross_study_meta_analysis_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_meta_analysis_tsv(report))
 
 
 def export_cross_study_meta_analysis_study_weight_tsv(
@@ -539,10 +541,7 @@ def export_cross_study_meta_analysis_study_weight_tsv(
 ) -> None:
     """Write per-study meta-analysis weights to TSV."""
 
-    path.write_text(
-        render_cross_study_meta_analysis_study_weight_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_meta_analysis_study_weight_tsv(report))
 
 
 def export_cross_study_meta_analysis_rejected_tsv(
@@ -551,10 +550,7 @@ def export_cross_study_meta_analysis_rejected_tsv(
 ) -> None:
     """Write rejected meta-analysis groups to TSV."""
 
-    path.write_text(
-        render_cross_study_meta_analysis_rejected_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_meta_analysis_rejected_tsv(report))
 
 
 def _meta_analysis_rejection(

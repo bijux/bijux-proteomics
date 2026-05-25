@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -212,15 +214,9 @@ def run_advanced_fragpipe_workflow(
     discrepancy_name = "advanced_fragpipe_protein_group_discrepancies.tsv"
     summary_name = "advanced_fragpipe_summary.tsv"
 
-    (output_dir / peptide_evidence_name).write_text(
-        render_advanced_fragpipe_peptide_evidence_tsv(peptide_evidence),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / peptide_evidence_name), render_advanced_fragpipe_peptide_evidence_tsv(peptide_evidence))
     if discrepancy_reasons:
-        (output_dir / discrepancy_name).write_text(
-            render_advanced_fragpipe_discrepancy_tsv(discrepancy_reasons),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / discrepancy_name), render_advanced_fragpipe_discrepancy_tsv(discrepancy_reasons))
 
     summary = AdvancedFragpipeWorkflowSummary(
         imported_psm_row_count=base_report.summary.imported_psm_row_count,
@@ -234,10 +230,7 @@ def run_advanced_fragpipe_workflow(
         workflow_only_protein_group_count=base_report.summary.workflow_only_protein_group_count,
         significant_protein_count=base_report.summary.significant_protein_count,
     )
-    (output_dir / summary_name).write_text(
-        render_advanced_fragpipe_workflow_summary_tsv(summary),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_advanced_fragpipe_workflow_summary_tsv(summary))
 
     manifest = AdvancedFragpipeWorkflowManifest(
         summary=summary,

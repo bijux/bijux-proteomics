@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -185,14 +187,8 @@ def run_advanced_maxquant_workflow(
     peptide_contribution_name = "advanced_maxquant_peptide_contributions.tsv"
     summary_name = "advanced_maxquant_summary.tsv"
 
-    (output_dir / excluded_name).write_text(
-        render_filtered_maxquant_protein_groups_tsv(excluded_groups),
-        encoding="utf-8",
-    )
-    (output_dir / peptide_contribution_name).write_text(
-        render_advanced_maxquant_peptide_contributions_tsv(peptide_contributions),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / excluded_name), render_filtered_maxquant_protein_groups_tsv(excluded_groups))
+    write_output_table_tsv((output_dir / peptide_contribution_name), render_advanced_maxquant_peptide_contributions_tsv(peptide_contributions))
 
     claim_validation = base_report.biological_report.claim_validation_report
     summary = AdvancedMaxquantWorkflowSummary(
@@ -214,10 +210,7 @@ def run_advanced_maxquant_workflow(
             0 if claim_validation is None else claim_validation.summary.rejected_claim_count
         ),
     )
-    (output_dir / summary_name).write_text(
-        render_advanced_maxquant_workflow_summary_tsv(summary),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_advanced_maxquant_workflow_summary_tsv(summary))
 
     manifest = AdvancedMaxquantWorkflowManifest(
         summary=summary,

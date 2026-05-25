@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -527,46 +529,16 @@ def write_maxquant_biological_workflow_bundle(
     lfq_matrix_name = "maxquant_lfq_matrix.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_maxquant_biological_workflow_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / import_summary_name).write_text(
-        render_maxquant_summary_tsv(report.import_report.summary),
-        encoding="utf-8",
-    )
-    (output_dir / evidence_name).write_text(
-        render_maxquant_evidence_tsv(report.import_report.evidence_rows),
-        encoding="utf-8",
-    )
-    (output_dir / peptides_name).write_text(
-        render_maxquant_peptide_tsv(report.import_report.peptide_rows),
-        encoding="utf-8",
-    )
-    (output_dir / protein_groups_name).write_text(
-        render_maxquant_protein_group_tsv(report.import_report.protein_group_rows),
-        encoding="utf-8",
-    )
-    (output_dir / accepted_groups_name).write_text(
-        render_maxquant_protein_group_tsv(report.accepted_protein_groups),
-        encoding="utf-8",
-    )
-    (output_dir / filtered_groups_name).write_text(
-        render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups),
-        encoding="utf-8",
-    )
-    (output_dir / foreground_name).write_text(
-        render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries),
-        encoding="utf-8",
-    )
-    (output_dir / lfq_summary_name).write_text(
-        render_maxquant_lfq_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / lfq_matrix_name).write_text(
-        render_maxquant_lfq_matrix_tsv(report.lfq_table),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), render_maxquant_biological_workflow_summary_tsv(report))
+    write_output_table_tsv((output_dir / import_summary_name), render_maxquant_summary_tsv(report.import_report.summary))
+    write_output_table_tsv((output_dir / evidence_name), render_maxquant_evidence_tsv(report.import_report.evidence_rows))
+    write_output_table_tsv((output_dir / peptides_name), render_maxquant_peptide_tsv(report.import_report.peptide_rows))
+    write_output_table_tsv((output_dir / protein_groups_name), render_maxquant_protein_group_tsv(report.import_report.protein_group_rows))
+    write_output_table_tsv((output_dir / accepted_groups_name), render_maxquant_protein_group_tsv(report.accepted_protein_groups))
+    write_output_table_tsv((output_dir / filtered_groups_name), render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups))
+    write_output_table_tsv((output_dir / foreground_name), render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries))
+    write_output_table_tsv((output_dir / lfq_summary_name), render_maxquant_lfq_summary_tsv(report))
+    write_output_table_tsv((output_dir / lfq_matrix_name), render_maxquant_lfq_matrix_tsv(report.lfq_table))
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,

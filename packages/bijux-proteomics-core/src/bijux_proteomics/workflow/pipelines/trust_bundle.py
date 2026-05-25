@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from html import escape
@@ -347,16 +349,10 @@ def _write_benchmark_result_artifacts(
     run_root = benchmark_result_root / "runs"
     run_root.mkdir(parents=True, exist_ok=True)
 
-    summary_path.write_text(
-        render_public_benchmark_suite_summary_tsv(suite),
-        encoding="utf-8",
-    )
-    failures_path.write_text(
-        render_public_benchmark_suite_failures_tsv(suite),
-        encoding="utf-8",
-    )
-    source_audit_path.write_text(_render_source_audits_tsv(suite), encoding="utf-8")
-    verified_count_path.write_text(_render_verified_counts_tsv(suite), encoding="utf-8")
+    write_output_table_tsv(summary_path, render_public_benchmark_suite_summary_tsv(suite))
+    write_output_table_tsv(failures_path, render_public_benchmark_suite_failures_tsv(suite))
+    write_output_table_tsv(source_audit_path, _render_source_audits_tsv(suite))
+    write_output_table_tsv(verified_count_path, _render_verified_counts_tsv(suite))
     suite_json_path.write_text(suite.to_stable_json() + "\n", encoding="utf-8")
 
     references = [
@@ -420,14 +416,8 @@ def _write_weak_evidence_result_artifacts(
         summary_path = benchmark_dir / "summary.tsv"
         criteria_path = benchmark_dir / "criteria.tsv"
         report_path = benchmark_dir / "report.json"
-        summary_path.write_text(
-            render_weak_evidence_benchmark_summary_tsv(report),
-            encoding="utf-8",
-        )
-        criteria_path.write_text(
-            render_weak_evidence_benchmark_criteria_tsv(report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv(summary_path, render_weak_evidence_benchmark_summary_tsv(report))
+        write_output_table_tsv(criteria_path, render_weak_evidence_benchmark_criteria_tsv(report))
         report_path.write_text(report.to_stable_json() + "\n", encoding="utf-8")
         references.extend(
             (
@@ -556,7 +546,7 @@ def _write_category_index(
         }
         for artifact in references
     ]
-    path.write_text(_dict_rows_to_tsv(rows), encoding="utf-8")
+    write_output_table_tsv(path, _dict_rows_to_tsv(rows))
 
 
 def _write_indexed_category_artifacts(

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -844,7 +846,7 @@ def render_dia_differential_volcano_plot_tsv(
 def export_dia_differential_matrix_tsv(table: LabelFreeQuantTable, path: Path) -> None:
     """Write one DIA differential matrix to a stable TSV artifact."""
 
-    path.write_text(render_dia_differential_matrix_tsv(table), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_differential_matrix_tsv(table))
 
 
 def export_dia_differential_results_tsv(
@@ -853,7 +855,7 @@ def export_dia_differential_results_tsv(
 ) -> None:
     """Write one DIA differential result surface to a stable TSV artifact."""
 
-    path.write_text(render_dia_differential_results_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_differential_results_tsv(report))
 
 
 def export_dia_differential_qc_summary_tsv(
@@ -862,7 +864,7 @@ def export_dia_differential_qc_summary_tsv(
 ) -> None:
     """Write one DIA differential QC summary to a stable TSV artifact."""
 
-    path.write_text(render_dia_differential_qc_summary_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_differential_qc_summary_tsv(report))
 
 
 def export_dia_normalization_balance_plot_tsv(
@@ -871,7 +873,7 @@ def export_dia_normalization_balance_plot_tsv(
 ) -> None:
     """Write one normalization-balance plot payload to a stable TSV artifact."""
 
-    path.write_text(render_dia_normalization_balance_plot_tsv(plot), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_normalization_balance_plot_tsv(plot))
 
 
 def export_dia_differential_volcano_plot_tsv(
@@ -880,7 +882,7 @@ def export_dia_differential_volcano_plot_tsv(
 ) -> None:
     """Write one DIA volcano plot payload to a stable TSV artifact."""
 
-    path.write_text(render_dia_differential_volcano_plot_tsv(plot), encoding="utf-8")
+    write_output_table_tsv(path, render_dia_differential_volcano_plot_tsv(plot))
 
 
 def _condition_names(

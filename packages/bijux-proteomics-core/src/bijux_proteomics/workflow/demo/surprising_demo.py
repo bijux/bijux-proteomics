@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from datetime import UTC, datetime
 import json
@@ -877,38 +879,14 @@ def _write_surprising_demo_artifacts(
         contradictions_tsv=contradictions_name,
         belief_audit_tsv=belief_audit_name,
     )
-    (output_dir / summary_name).write_text(
-        _render_surprising_demo_summary_tsv(summary),
-        encoding="utf-8",
-    )
-    (output_dir / findings_name).write_text(
-        _render_surprising_demo_findings_tsv(findings),
-        encoding="utf-8",
-    )
-    (output_dir / qc_packets_name).write_text(
-        _render_demo_qc_packets_tsv(output_dir),
-        encoding="utf-8",
-    )
-    (output_dir / matrices_name).write_text(
-        _render_demo_matrix_index_tsv(biological_manifest, ptm_report),
-        encoding="utf-8",
-    )
-    (output_dir / assay_panel_name).write_text(
-        _render_demo_assay_panel_tsv(targeted_panel_assays),
-        encoding="utf-8",
-    )
-    (output_dir / claims_name).write_text(
-        _render_demo_claims_tsv(claim_report),
-        encoding="utf-8",
-    )
-    (output_dir / contradictions_name).write_text(
-        render_claim_contradictions_tsv(contradiction_report.entries),
-        encoding="utf-8",
-    )
-    (output_dir / belief_audit_name).write_text(
-        render_belief_audit_tsv(belief_audit_report.entries),
-        encoding="utf-8",
-    )
+    write_output_table_tsv((output_dir / summary_name), _render_surprising_demo_summary_tsv(summary))
+    write_output_table_tsv((output_dir / findings_name), _render_surprising_demo_findings_tsv(findings))
+    write_output_table_tsv((output_dir / qc_packets_name), _render_demo_qc_packets_tsv(output_dir))
+    write_output_table_tsv((output_dir / matrices_name), _render_demo_matrix_index_tsv(biological_manifest, ptm_report))
+    write_output_table_tsv((output_dir / assay_panel_name), _render_demo_assay_panel_tsv(targeted_panel_assays))
+    write_output_table_tsv((output_dir / claims_name), _render_demo_claims_tsv(claim_report))
+    write_output_table_tsv((output_dir / contradictions_name), render_claim_contradictions_tsv(contradiction_report.entries))
+    write_output_table_tsv((output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit_report.entries))
     return artifacts
 
 

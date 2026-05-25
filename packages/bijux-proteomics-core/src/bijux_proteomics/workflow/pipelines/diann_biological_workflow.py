@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -341,100 +343,34 @@ def write_diann_biological_workflow_bundle(
     differential_balance_name = "diann_differential_balance.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
-    (output_dir / summary_name).write_text(
-        render_diann_biological_workflow_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / import_summary_name).write_text(
-        render_diann_summary_tsv(report.import_report.summary),
-        encoding="utf-8",
-    )
-    (output_dir / import_rejected_rows_name).write_text(
-        render_diann_rejected_row_tsv(report.import_report.rejected_rows),
-        encoding="utf-8",
-    )
-    (output_dir / import_rejected_evidence_name).write_text(
-        render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows),
-        encoding="utf-8",
-    )
-    (output_dir / precursor_summary_name).write_text(
-        render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / precursor_matrix_name).write_text(
-        render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / precursor_q_value_name).write_text(
-        render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / precursor_metadata_name).write_text(
-        render_dia_precursor_metadata_tsv(report.precursor_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / peptide_matrix_name).write_text(
-        render_dia_peptide_quantity_matrix_tsv(report.peptide_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_summary_name).write_text(
-        render_dia_protein_matrix_summary_tsv(report.protein_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_matrix_name).write_text(
-        render_dia_protein_quantity_matrix_tsv(report.protein_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / protein_rollup_evidence_name).write_text(
-        render_dia_protein_rollup_evidence_tsv(report.protein_matrix_report),
-        encoding="utf-8",
-    )
-    (output_dir / run_qc_summary_name).write_text(
-        render_dia_run_qc_summary_tsv(report.run_qc_report),
-        encoding="utf-8",
-    )
-    (output_dir / run_qc_runs_name).write_text(
-        render_dia_run_qc_run_table_tsv(report.run_qc_report),
-        encoding="utf-8",
-    )
-    (output_dir / run_qc_intensity_name).write_text(
-        render_dia_run_qc_intensity_distribution_tsv(report.run_qc_report),
-        encoding="utf-8",
-    )
-    (output_dir / run_qc_correlation_name).write_text(
-        render_dia_run_qc_correlation_tsv(report.run_qc_report),
-        encoding="utf-8",
-    )
-    (output_dir / run_qc_outliers_name).write_text(
-        render_dia_run_qc_outlier_tsv(report.run_qc_report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_raw_name).write_text(
-        render_dia_differential_matrix_tsv(
+    write_output_table_tsv((output_dir / summary_name), render_diann_biological_workflow_summary_tsv(report))
+    write_output_table_tsv((output_dir / import_summary_name), render_diann_summary_tsv(report.import_report.summary))
+    write_output_table_tsv((output_dir / import_rejected_rows_name), render_diann_rejected_row_tsv(report.import_report.rejected_rows))
+    write_output_table_tsv((output_dir / import_rejected_evidence_name), render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows))
+    write_output_table_tsv((output_dir / precursor_summary_name), render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report))
+    write_output_table_tsv((output_dir / precursor_matrix_name), render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report))
+    write_output_table_tsv((output_dir / precursor_q_value_name), render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report))
+    write_output_table_tsv((output_dir / precursor_metadata_name), render_dia_precursor_metadata_tsv(report.precursor_matrix_report))
+    write_output_table_tsv((output_dir / peptide_matrix_name), render_dia_peptide_quantity_matrix_tsv(report.peptide_matrix_report))
+    write_output_table_tsv((output_dir / protein_summary_name), render_dia_protein_matrix_summary_tsv(report.protein_matrix_report))
+    write_output_table_tsv((output_dir / protein_matrix_name), render_dia_protein_quantity_matrix_tsv(report.protein_matrix_report))
+    write_output_table_tsv((output_dir / protein_rollup_evidence_name), render_dia_protein_rollup_evidence_tsv(report.protein_matrix_report))
+    write_output_table_tsv((output_dir / run_qc_summary_name), render_dia_run_qc_summary_tsv(report.run_qc_report))
+    write_output_table_tsv((output_dir / run_qc_runs_name), render_dia_run_qc_run_table_tsv(report.run_qc_report))
+    write_output_table_tsv((output_dir / run_qc_intensity_name), render_dia_run_qc_intensity_distribution_tsv(report.run_qc_report))
+    write_output_table_tsv((output_dir / run_qc_correlation_name), render_dia_run_qc_correlation_tsv(report.run_qc_report))
+    write_output_table_tsv((output_dir / run_qc_outliers_name), render_dia_run_qc_outlier_tsv(report.run_qc_report))
+    write_output_table_tsv((output_dir / differential_raw_name), render_dia_differential_matrix_tsv(
             report.differential_analysis_report.input_report.table
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / differential_normalized_name).write_text(
-        render_dia_differential_matrix_tsv(
+        ))
+    write_output_table_tsv((output_dir / differential_normalized_name), render_dia_differential_matrix_tsv(
             report.differential_analysis_report.normalized_table
-        ),
-        encoding="utf-8",
-    )
-    (output_dir / differential_results_name).write_text(
-        render_dia_differential_results_tsv(report.differential_analysis_report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_qc_summary_name).write_text(
-        render_dia_differential_qc_summary_tsv(report.differential_analysis_report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_balance_name).write_text(
-        render_dia_normalization_balance_plot_tsv(
+        ))
+    write_output_table_tsv((output_dir / differential_results_name), render_dia_differential_results_tsv(report.differential_analysis_report))
+    write_output_table_tsv((output_dir / differential_qc_summary_name), render_dia_differential_qc_summary_tsv(report.differential_analysis_report))
+    write_output_table_tsv((output_dir / differential_balance_name), render_dia_normalization_balance_plot_tsv(
             report.differential_analysis_report.normalization_balance_plot
-        ),
-        encoding="utf-8",
-    )
+        ))
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,

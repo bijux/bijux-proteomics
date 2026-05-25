@@ -11,6 +11,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.targeted import (
     TargetedAssayQcReport,
     TargetedMatrixReport,
@@ -320,7 +321,7 @@ def _int_summary(summary: dict[str, object]) -> dict[str, int]:
 
 
 def _write_text(path: Path, text: str) -> None:
-    path.write_text(text, encoding="utf-8")
+    write_output_table_tsv(path, text)
 
 
 __all__ = [

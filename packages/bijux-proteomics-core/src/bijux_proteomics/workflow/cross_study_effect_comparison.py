@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -603,7 +605,7 @@ def export_cross_study_effect_comparison_tsv(
 ) -> None:
     """Write cross-study effect comparison summaries to TSV."""
 
-    path.write_text(render_cross_study_effect_comparison_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_effect_comparison_tsv(report))
 
 
 def export_cross_study_effect_detail_tsv(
@@ -612,7 +614,7 @@ def export_cross_study_effect_detail_tsv(
 ) -> None:
     """Write per-study cross-study effect details to TSV."""
 
-    path.write_text(render_cross_study_effect_detail_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_effect_detail_tsv(report))
 
 
 def export_cross_study_replicated_hit_tsv(
@@ -621,7 +623,7 @@ def export_cross_study_replicated_hit_tsv(
 ) -> None:
     """Write replicated cross-study hits to TSV."""
 
-    path.write_text(render_cross_study_replicated_hit_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_replicated_hit_tsv(report))
 
 
 def export_cross_study_study_specific_hit_tsv(
@@ -630,10 +632,7 @@ def export_cross_study_study_specific_hit_tsv(
 ) -> None:
     """Write study-specific cross-study hits to TSV."""
 
-    path.write_text(
-        render_cross_study_study_specific_hit_tsv(report),
-        encoding="utf-8",
-    )
+    write_output_table_tsv(path, render_cross_study_study_specific_hit_tsv(report))
 
 
 def export_cross_study_conflicting_hit_tsv(
@@ -642,7 +641,7 @@ def export_cross_study_conflicting_hit_tsv(
 ) -> None:
     """Write conflicting cross-study hits to TSV."""
 
-    path.write_text(render_cross_study_conflicting_hit_tsv(report), encoding="utf-8")
+    write_output_table_tsv(path, render_cross_study_conflicting_hit_tsv(report))
 
 
 def _extract_study_effect_observations(

@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+
 import csv
 from io import StringIO
 from pathlib import Path
@@ -566,34 +568,19 @@ def write_label_based_report_bundle(
     sample_qc_name = "label_based_sample_qc.tsv"
     differential_results_name = "label_based_differential_results.tsv"
     differential_balance_name = "label_based_differential_balance.tsv"
-    (output_dir / summary_name).write_text(
-        render_label_based_report_summary_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / sample_qc_name).write_text(
-        render_label_based_sample_qc_tsv(report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_results_name).write_text(
-        render_label_based_differential_results_tsv(report.differential_analysis_report),
-        encoding="utf-8",
-    )
-    (output_dir / differential_balance_name).write_text(
-        render_label_based_normalization_balance_plot_tsv(
+    write_output_table_tsv((output_dir / summary_name), render_label_based_report_summary_tsv(report))
+    write_output_table_tsv((output_dir / sample_qc_name), render_label_based_sample_qc_tsv(report))
+    write_output_table_tsv((output_dir / differential_results_name), render_label_based_differential_results_tsv(report.differential_analysis_report))
+    write_output_table_tsv((output_dir / differential_balance_name), render_label_based_normalization_balance_plot_tsv(
             report.differential_analysis_report.normalization_balance_plot
-        ),
-        encoding="utf-8",
-    )
+        ))
 
     differential_volcano_name = None
     if report.differential_analysis_report.volcano_plot is not None:
         differential_volcano_name = "label_based_differential_volcano.tsv"
-        (output_dir / differential_volcano_name).write_text(
-            render_label_based_differential_volcano_plot_tsv(
+        write_output_table_tsv((output_dir / differential_volcano_name), render_label_based_differential_volcano_plot_tsv(
                 report.differential_analysis_report.volcano_plot
-            ),
-            encoding="utf-8",
-        )
+            ))
 
     tmt_channel_totals_name = None
     tmt_normalization_summary_name = None
@@ -606,53 +593,26 @@ def write_label_based_report_bundle(
     tmt_validation_weak_name = None
     if report.tmt_matrix_report is not None:
         tmt_channel_totals_name = "tmt_channel_totals.tsv"
-        (output_dir / tmt_channel_totals_name).write_text(
-            render_tmt_channel_totals_tsv(report.tmt_matrix_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / tmt_channel_totals_name), render_tmt_channel_totals_tsv(report.tmt_matrix_report))
     if report.tmt_normalization_report is not None:
         tmt_normalization_summary_name = "tmt_normalization_summary.tsv"
         tmt_normalization_transform_name = "tmt_normalization_transforms.tsv"
         tmt_normalization_distribution_name = "tmt_normalization_distributions.tsv"
-        (output_dir / tmt_normalization_summary_name).write_text(
-            render_tmt_normalization_summary_tsv(report.tmt_normalization_report),
-            encoding="utf-8",
-        )
-        (output_dir / tmt_normalization_transform_name).write_text(
-            render_tmt_normalization_transform_tsv(report.tmt_normalization_report),
-            encoding="utf-8",
-        )
-        (output_dir / tmt_normalization_distribution_name).write_text(
-            render_tmt_channel_distribution_tsv(report.tmt_normalization_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / tmt_normalization_summary_name), render_tmt_normalization_summary_tsv(report.tmt_normalization_report))
+        write_output_table_tsv((output_dir / tmt_normalization_transform_name), render_tmt_normalization_transform_tsv(report.tmt_normalization_report))
+        write_output_table_tsv((output_dir / tmt_normalization_distribution_name), render_tmt_channel_distribution_tsv(report.tmt_normalization_report))
     if report.tmt_ratio_report is not None:
         tmt_protein_ratio_name = "tmt_protein_ratios.tsv"
-        (output_dir / tmt_protein_ratio_name).write_text(
-            render_tmt_protein_ratio_tsv(report.tmt_ratio_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / tmt_protein_ratio_name), render_tmt_protein_ratio_tsv(report.tmt_ratio_report))
     if report.tmt_validation_report is not None:
         tmt_validation_summary_name = "tmt_validation_summary.tsv"
         tmt_validation_channel_name = "tmt_validation_channels.tsv"
         tmt_validation_distribution_name = "tmt_validation_distributions.tsv"
         tmt_validation_weak_name = "tmt_validation_weak.tsv"
-        (output_dir / tmt_validation_summary_name).write_text(
-            render_tmt_validation_summary_tsv(report.tmt_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / tmt_validation_channel_name).write_text(
-            render_tmt_validation_channel_tsv(report.tmt_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / tmt_validation_distribution_name).write_text(
-            render_tmt_validation_distribution_tsv(report.tmt_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / tmt_validation_weak_name).write_text(
-            render_tmt_validation_weak_tsv(report.tmt_validation_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / tmt_validation_summary_name), render_tmt_validation_summary_tsv(report.tmt_validation_report))
+        write_output_table_tsv((output_dir / tmt_validation_channel_name), render_tmt_validation_channel_tsv(report.tmt_validation_report))
+        write_output_table_tsv((output_dir / tmt_validation_distribution_name), render_tmt_validation_distribution_tsv(report.tmt_validation_report))
+        write_output_table_tsv((output_dir / tmt_validation_weak_name), render_tmt_validation_weak_tsv(report.tmt_validation_report))
 
     silac_ratio_summary_name = None
     silac_protein_ratio_name = None
@@ -663,35 +623,17 @@ def write_label_based_report_bundle(
     if report.silac_ratio_report is not None:
         silac_ratio_summary_name = "silac_ratio_summary.tsv"
         silac_protein_ratio_name = "silac_protein_ratios.tsv"
-        (output_dir / silac_ratio_summary_name).write_text(
-            render_silac_ratio_summary_tsv(report.silac_ratio_report),
-            encoding="utf-8",
-        )
-        (output_dir / silac_protein_ratio_name).write_text(
-            render_silac_protein_ratio_tsv(report.silac_ratio_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / silac_ratio_summary_name), render_silac_ratio_summary_tsv(report.silac_ratio_report))
+        write_output_table_tsv((output_dir / silac_protein_ratio_name), render_silac_protein_ratio_tsv(report.silac_ratio_report))
     if report.silac_validation_report is not None:
         silac_validation_summary_name = "silac_validation_summary.tsv"
         silac_validation_label_name = "silac_validation_labels.tsv"
         silac_validation_distribution_name = "silac_validation_distributions.tsv"
         silac_validation_weak_name = "silac_validation_weak.tsv"
-        (output_dir / silac_validation_summary_name).write_text(
-            render_silac_validation_summary_tsv(report.silac_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / silac_validation_label_name).write_text(
-            render_silac_validation_label_tsv(report.silac_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / silac_validation_distribution_name).write_text(
-            render_silac_validation_distribution_tsv(report.silac_validation_report),
-            encoding="utf-8",
-        )
-        (output_dir / silac_validation_weak_name).write_text(
-            render_silac_validation_weak_tsv(report.silac_validation_report),
-            encoding="utf-8",
-        )
+        write_output_table_tsv((output_dir / silac_validation_summary_name), render_silac_validation_summary_tsv(report.silac_validation_report))
+        write_output_table_tsv((output_dir / silac_validation_label_name), render_silac_validation_label_tsv(report.silac_validation_report))
+        write_output_table_tsv((output_dir / silac_validation_distribution_name), render_silac_validation_distribution_tsv(report.silac_validation_report))
+        write_output_table_tsv((output_dir / silac_validation_weak_name), render_silac_validation_weak_tsv(report.silac_validation_report))
 
     synchronize_workflow_artifact_layout(
         output_dir,
