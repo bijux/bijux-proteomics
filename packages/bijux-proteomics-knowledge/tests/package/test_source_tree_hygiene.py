@@ -37,6 +37,7 @@ def test_knowledge_tests_follow_owned_boundary_families() -> None:
         "identity",
         "memory",
         "package",
+        "pathways",
         "references",
         "reviews",
     }
