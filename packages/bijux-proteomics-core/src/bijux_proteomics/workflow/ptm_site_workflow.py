@@ -333,7 +333,10 @@ def write_ptm_site_workflow_bundle(
         ptm_report_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="write_ptm_site_workflow_bundle",
+    )
     return PtmSiteWorkflowExportManifest(
         summary=report.summary,
         artifacts=PtmSiteWorkflowArtifactPaths(

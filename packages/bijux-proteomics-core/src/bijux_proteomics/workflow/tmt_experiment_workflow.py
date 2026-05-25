@@ -392,7 +392,10 @@ def write_tmt_experiment_workflow_bundle(
         label_based_report_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="write_tmt_experiment_workflow_bundle",
+    )
     return TmtExperimentWorkflowExportManifest(
         source_kind=report.source_kind,
         summary=report.summary,

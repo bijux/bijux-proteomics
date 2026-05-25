@@ -575,7 +575,10 @@ def write_maxquant_biological_workflow_bundle(
         biological_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
-    synchronize_workflow_artifact_layout(output_dir)
+    synchronize_workflow_artifact_layout(
+        output_dir,
+        producer_function="write_maxquant_biological_workflow_bundle",
+    )
     return MaxquantBiologicalWorkflowExportManifest(
         summary=report.summary,
         artifacts=MaxquantBiologicalWorkflowArtifactPaths(
