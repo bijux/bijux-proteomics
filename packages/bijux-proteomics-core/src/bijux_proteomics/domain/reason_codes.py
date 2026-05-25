@@ -347,12 +347,27 @@ _RESULT_WARNING_CODES = frozenset(
 
 _REJECTED_EVIDENCE_CODES = frozenset(
     {
+        "contaminant",
+        "contradicted",
+        "excluded_due_to_interference",
         "filtered_protein_group",
+        "inconclusive",
         "missing_pair_id",
+        "missing_from_source_summary_but_inferred_and_quantified",
+        "missing_from_source_summary_but_inferred_only",
+        "missing_from_source_summary_but_marked_significant_only",
+        "missing_from_source_summary_but_present_in_workflow",
+        "missing_from_source_summary_but_quantified_only",
+        "missing_lfq_signal",
+        "missing_protein_refs",
+        "only_identified_by_site",
+        "present_in_source_summary_only",
         "protein_assignment_mismatch",
         "rejected_psm_row",
         "rejected_row",
         "rejected_scientific_row",
+        "reverse",
+        "shared_between_source_and_workflow",
     }
 )
 
