@@ -138,6 +138,8 @@ def test_io_package_import_contract() -> None:
     assert hasattr(module, "extract_mzml_xic_traces")
     assert hasattr(module, "render_peak_shape_score_tsv")
     assert hasattr(module, "render_rt_alignment_fit_models_tsv")
+    assert hasattr(module, "scan_input_integrity")
+    assert hasattr(module, "render_input_integrity_issues_tsv")
     assert hasattr(module, "render_rt_residual_penalties_tsv")
     assert hasattr(module, "render_dia_fragment_trace_coelution_tsv")
     assert hasattr(module, "render_picked_chromatographic_peaks_tsv")
