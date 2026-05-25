@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from tests.support.paths import repo_root
+from agentic_proteins_testsupport.paths import repo_root
 
 
 def test_docs_contract() -> None:

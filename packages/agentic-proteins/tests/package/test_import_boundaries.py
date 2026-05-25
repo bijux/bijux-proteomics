@@ -6,7 +6,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from tests.support.paths import package_tests_root, repo_root
+from agentic_proteins_testsupport.paths import package_tests_root, repo_root
 
 LAYER_ORDER = {
     "cli": 7,
