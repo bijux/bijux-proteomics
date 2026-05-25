@@ -700,7 +700,9 @@ class LabReviewPacketRendered(JsonModel):
     packet_markdown: str = Field(..., min_length=1)
 
 
-def render_lab_review_packet(payload: LabReviewPacketInput) -> LabReviewPacketRendered:
+def build_lab_review_packet_rendering(
+    payload: LabReviewPacketInput,
+) -> LabReviewPacketRendered:
     """Render assay rationale/evidence/controls/risk/capacity/handoff packet views."""
 
     packet = {
@@ -727,6 +729,12 @@ def render_lab_review_packet(payload: LabReviewPacketInput) -> LabReviewPacketRe
         packet_json=json.dumps(packet, sort_keys=True, separators=(",", ":")),
         packet_markdown="\n".join(markdown_lines) + "\n",
     )
+
+
+def render_lab_review_packet(payload: LabReviewPacketInput) -> LabReviewPacketRendered:
+    """Compatibility wrapper for the legacy lab review packet renderer name."""
+
+    return build_lab_review_packet_rendering(payload)
 
 
 class WetLabAutomationBoundaryInput(JsonModel):
