@@ -264,6 +264,8 @@ def test_interpretation_ppi_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interpretation")
 
     assert hasattr(module, "build_ppi_network_module_report")
+    assert hasattr(module, "load_annotation_pack")
+    assert hasattr(module, "AnnotationPackValidationError")
 
 
 def test_workflow_package_import_contract() -> None:

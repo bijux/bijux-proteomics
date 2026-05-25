@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from bijux_proteomics import interpretation
@@ -623,3 +624,47 @@ def test_interpretation_package_exports_regulator_inference_surface() -> None:
     rendered = interpretation.render_regulator_inference_tsv(report)
     assert "signal_surface" in rendered.splitlines()[0]
     assert "MAPK14\tkinase_substrate\tsite_regulation" in rendered
+
+
+def test_interpretation_package_exports_annotation_pack_surface(tmp_path: Path) -> None:
+    pack_path = tmp_path / "annotation_pack.json"
+    pack_path.write_text(
+        json.dumps(
+            {
+                "pack_name": "public-annotations",
+                "protein_features": [
+                    {
+                        "protein_ref": "sp|P04637|P53_HUMAN",
+                        "gene_symbol": "TP53",
+                    }
+                ],
+                "pathways": [
+                    {
+                        "pathway_id": "pathway:stress_response",
+                        "protein_ref": "P04637",
+                    }
+                ],
+                "orthologs": [
+                    {
+                        "source_species": "human",
+                        "source_protein_ref": "P04637",
+                        "target_species": "mouse",
+                        "target_protein_ref": "P02340",
+                    }
+                ],
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert hasattr(interpretation, "load_annotation_pack")
+    assert hasattr(interpretation, "AnnotationPackValidationError")
+
+    pack = interpretation.load_annotation_pack(pack_path)
+
+    assert pack.pack_name == "public-annotations"
+    assert pack.protein_features[0].protein_ref == "P04637"
+    assert pack.pathways[0].member_id == "P04637"
+    assert pack.orthologs[0].target_protein_ref == "P02340"
