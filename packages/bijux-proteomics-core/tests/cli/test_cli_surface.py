@@ -336,6 +336,56 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert "evidence_graphs/index.tsv" in Path("trust_bundle/index.html").read_text()
 
 
+def test_demo_command_runs_from_shipped_inputs_only() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "demo",
+                "--out-dir",
+                "proteomics_demo",
+                "--summary-tsv-out",
+                "proteomics_demo.summary.tsv",
+                "--findings-tsv-out",
+                "proteomics_demo.findings.tsv",
+                "--claims-tsv-out",
+                "proteomics_demo.claims.tsv",
+                "--contradictions-tsv-out",
+                "proteomics_demo.contradictions.tsv",
+                "--belief-audit-tsv-out",
+                "proteomics_demo.belief_audit.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["within_local_ten_minute_budget"] is True
+        assert payload["summary"]["strong_protein_count"] >= 1
+        assert payload["summary"]["downgraded_protein_count"] >= 1
+        assert payload["summary"]["supported_claim_count"] >= 1
+        assert payload["summary"]["belief_audit_count"] >= 1
+        assert Path("proteomics_demo/surprising_demo_report.json").exists()
+        assert Path("proteomics_demo/biological_review/biological_report_manifest.json").exists()
+        assert Path("proteomics_demo/biological_review/biological_evidence_graph_nodes.tsv").exists()
+        assert Path("proteomics_demo/biological_review/biological_protein_cards.tsv").exists()
+        assert Path("proteomics_demo/ptm_review/ptm_evidence_cards.tsv").exists()
+        assert Path(
+            "proteomics_demo/biological_review/biological_pathway_activity_condition_comparisons.tsv"
+        ).exists()
+        assert Path("proteomics_demo/biological_review/biological_protein_mechanism_cards.tsv").exists()
+        assert Path("proteomics_demo/demo_qc_packets.tsv").exists()
+        assert Path("proteomics_demo/demo_matrices.tsv").exists()
+        assert Path("proteomics_demo/demo_assay_panel.tsv").exists()
+        assert Path("proteomics_demo/demo_claims.tsv").exists()
+        assert Path("proteomics_demo/demo_claim_contradictions.tsv").exists()
+        assert Path("proteomics_demo/demo_belief_audit.tsv").exists()
+        assert "strong_protein_count" in Path("proteomics_demo.summary.tsv").read_text()
+        assert "weak_or_downgraded_protein" in Path("proteomics_demo.findings.tsv").read_text()
+        assert "claim_id" in Path("proteomics_demo.claims.tsv").read_text()
+        assert "claim_id" in Path("proteomics_demo.belief_audit.tsv").read_text()
+
+
 def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
