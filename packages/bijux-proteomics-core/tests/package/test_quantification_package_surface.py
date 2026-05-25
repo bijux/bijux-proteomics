@@ -4,6 +4,13 @@
 from __future__ import annotations
 
 import bijux_proteomics.quantification as quantification
+from bijux_proteomics.domain.records import (
+    MissingValueState,
+    QuantEntityKind,
+    QuantMeasureKind,
+    QuantMatrix,
+    SampleMetadata,
+)
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.study import SampleRunAnalysisPolicy
 
@@ -536,6 +543,47 @@ def test_quantification_package_exports_variance_model_owner_surface() -> None:
         "entity_id\tmean_intensity\tobserved_variance\texpected_variance\tvariance_residual"
         in rendered
     )
+
+
+def test_quantification_package_exports_matrix_archive_surface(tmp_path) -> None:
+    matrix = QuantMatrix(
+        matrix_id="matrix-archive-surface",
+        entity_kind=QuantEntityKind.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        entity_ids=("P001",),
+        sample_ids=("S1", "S2"),
+        values=((10.0, 7.5),),
+        missing_value_states=(
+            (MissingValueState.OBSERVED, MissingValueState.FILTERED),
+        ),
+        support_counts=((2, 1),),
+        row_metadata=({"protein_refs": "P001"},),
+        sample_metadata=(
+            SampleMetadata(
+                sample_id="S1",
+                run_id="run-1",
+                condition="control",
+            ),
+            SampleMetadata(
+                sample_id="S2",
+                run_id="run-2",
+                condition="case",
+            ),
+        ),
+        transformation_history=("imputation:reference_group",),
+    )
+    archive_path = tmp_path / "quant_matrix_archive.json"
+
+    archive = quantification.save_matrix_archive(matrix, archive_path)
+    loaded = quantification.load_matrix_archive(archive_path)
+    rendered = quantification.render_quant_matrix_archive_tsv(loaded)
+
+    assert hasattr(quantification, "save_matrix_archive")
+    assert hasattr(quantification, "load_matrix_archive")
+    assert hasattr(quantification, "render_quant_matrix_archive_tsv")
+    assert archive.imputation_mask == ((False, True),)
+    assert loaded.to_quant_matrix() == matrix
+    assert "imputation_mask" in rendered
 
 
 def test_quantification_package_exports_missingness_classification_surface() -> None:

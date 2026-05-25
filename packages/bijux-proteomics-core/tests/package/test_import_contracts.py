@@ -216,6 +216,7 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "test_protein_effect_from_peptides")
     assert hasattr(module, "render_bootstrap_effect_stability_tsv")
     assert hasattr(module, "render_compositional_bias_tsv")
+    assert hasattr(module, "render_quant_matrix_archive_tsv")
     assert hasattr(module, "render_quant_method_agreement_tsv")
     assert hasattr(module, "render_protein_abundance_tsv")
     assert hasattr(module, "render_imputation_policy_comparison_tsv")
@@ -231,6 +232,8 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "render_censored_differential_tsv")
     assert hasattr(module, "render_mean_variance_trend_tsv")
     assert hasattr(module, "render_protein_uncertainty_tsv")
+    assert hasattr(module, "save_matrix_archive")
+    assert hasattr(module, "load_matrix_archive")
 
 
 def test_sequences_package_import_contract() -> None:
