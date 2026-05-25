@@ -348,6 +348,37 @@ def test_workflow_package_exports_advanced_ptm_surface(tmp_path: Path) -> None:
     )
 
 
+def test_workflow_package_exports_advanced_tmt_surface(tmp_path: Path) -> None:
+    report = workflow.run_advanced_tmt_workflow(
+        workflow.AdvancedTmtWorkflowConfig(
+            result_tsv_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "multiplex"
+                / "maxquant_tmt_interference.tsv"
+            ),
+            design_tsv_path=(
+                Path(__file__).resolve().parent.parent
+                / "fixtures"
+                / "multiplex"
+                / "tmt.design.tsv"
+            ),
+            output_dir=tmp_path / "advanced_tmt_package_surface",
+            control_channel="126",
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert hasattr(workflow, "run_advanced_tmt_workflow")
+    assert hasattr(workflow, "render_advanced_tmt_evidence_cards_tsv")
+    assert report.summary.excluded_protein_count == 1
+    assert report.summary.high_interference_peptide_count == 2
+    assert "confidence_status" in workflow.render_advanced_tmt_evidence_cards_tsv(
+        report.evidence_cards
+    )
+
+
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
     report = workflow.build_cross_study_protein_harmonization_report_from_observations(
         (
