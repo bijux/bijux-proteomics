@@ -19,6 +19,10 @@ from agentic_proteins.providers.capabilities import (
 )
 from agentic_proteins.providers.selection import cuda_available
 from bijux_proteomics.domain.structure.structure import kabsch_and_pairs, tm_score
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    skip_test,
+)
 from bijux_proteomics_runtime.support.primitives.fingerprints import hash_payload
 from agentic_proteins_testsupport.artifacts import assert_valid_run_artifacts
 
@@ -94,19 +98,28 @@ def test_real_local_prediction(
     capabilities = PROVIDER_CAPABILITIES.get(provider)
     if capabilities and capabilities.supports_gpu and not capabilities.supports_cpu:
         if not cuda_available():
-            pytest.skip("GPU required for this provider")
+            skip_test(
+                category=SkipCategory.HARDWARE_REQUIREMENT,
+                reason=f"GPU is required for provider {provider}",
+            )
         execution_mode = "gpu"
     else:
         execution_mode = "cpu"
     errors = provider_requirements(provider)
     if errors:
-        pytest.skip(f"Provider requirements unmet for {provider}: {errors}")
+        skip_test(
+            category=SkipCategory.PROVIDER_REQUIREMENT,
+            reason=f"provider requirements are unmet for {provider}: {errors}",
+        )
 
     outdir = run_output_dir(case["name"], provider)
     fasta = PACKAGE_ROOT / case["fasta"]
     ground_truth = PACKAGE_ROOT / case["ground_truth"]
     if not fasta.exists() or not ground_truth.exists():
-        pytest.skip("Real local benchmark fixtures are not available in this checkout")
+        skip_test(
+            category=SkipCategory.CHECKOUT_FIXTURE,
+            reason="real local benchmark fixtures are not available in this checkout",
+        )
 
     payload = _run_cli(
         ROOT, outdir, provider=provider, fasta=fasta, execution_mode=execution_mode
@@ -147,13 +160,22 @@ def test_cpu_fallback_small_protein(
 ) -> None:
     """Run a small protein on CPU and verify fallback warning + runtime bound."""
     if not PROVIDER_CAPABILITIES["local_esmfold"].supports_cpu:
-        pytest.skip("CPU fallback not supported for local_esmfold")
+        skip_test(
+            category=SkipCategory.PROVIDER_REQUIREMENT,
+            reason="local_esmfold does not support cpu fallback execution",
+        )
     errors = provider_requirements("local_esmfold")
     if errors:
-        pytest.skip(f"Provider requirements unmet for local_esmfold: {errors}")
+        skip_test(
+            category=SkipCategory.PROVIDER_REQUIREMENT,
+            reason=f"provider requirements are unmet for local_esmfold: {errors}",
+        )
     fasta = PACKAGE_ROOT / "examples/ex03_1crn_A/seq_1crn_chainA.fasta"
     if not fasta.exists():
-        pytest.skip("CPU fallback benchmark fixture is not available in this checkout")
+        skip_test(
+            category=SkipCategory.CHECKOUT_FIXTURE,
+            reason="cpu fallback benchmark fixture is not available in this checkout",
+        )
 
     outdir = run_output_dir("cpu_fallback_small", "local_esmfold")
     start = time.monotonic()
@@ -187,10 +209,16 @@ def test_artifact_contract_local_esmfold(
     """Verify report schema + hash stability + artifact presence."""
     errors = provider_requirements("local_esmfold")
     if errors:
-        pytest.skip(f"Provider requirements unmet for local_esmfold: {errors}")
+        skip_test(
+            category=SkipCategory.PROVIDER_REQUIREMENT,
+            reason=f"provider requirements are unmet for local_esmfold: {errors}",
+        )
     fasta = PACKAGE_ROOT / "examples/ex02_1ubq_A/seq_1ubq_chainA.fasta"
     if not fasta.exists():
-        pytest.skip("Artifact-contract fixture is not available in this checkout")
+        skip_test(
+            category=SkipCategory.CHECKOUT_FIXTURE,
+            reason="artifact-contract fixture is not available in this checkout",
+        )
 
     outdir = run_output_dir("artifact_contract", "local_esmfold")
     payload = _run_cli(
@@ -229,7 +257,10 @@ def test_missing_weights_fail_cleanly(
 ) -> None:
     """Ensure missing weights fail cleanly without partial artifacts."""
     if not cuda_available():
-        pytest.skip("GPU required for local_rosettafold")
+        skip_test(
+            category=SkipCategory.HARDWARE_REQUIREMENT,
+            reason="GPU is required for local_rosettafold",
+        )
     weights_path = PACKAGE_ROOT / "models/rosettafold/RFAA_paper_weights.pt"
     backup_path = weights_path.with_suffix(".pt.bak")
     had_weights = weights_path.exists()
@@ -238,7 +269,10 @@ def test_missing_weights_fail_cleanly(
     try:
         fasta = PACKAGE_ROOT / "examples/ex02_1ubq_A/seq_1ubq_chainA.fasta"
         if not fasta.exists():
-            pytest.skip("Missing-weights fixture is not available in this checkout")
+            skip_test(
+                category=SkipCategory.CHECKOUT_FIXTURE,
+                reason="missing-weights fixture is not available in this checkout",
+            )
         outdir = run_output_dir("missing_weights", "local_rosettafold")
         payload = _run_cli(
             ROOT,
