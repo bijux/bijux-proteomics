@@ -53,6 +53,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
     write_biological_result_report_bundle,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -566,6 +567,7 @@ def write_dda_biological_workflow_bundle(
         biological_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return DdaBiologicalWorkflowExportManifest(
         summary=report.summary,
         artifacts=DdaBiologicalWorkflowArtifactPaths(

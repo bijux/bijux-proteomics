@@ -44,6 +44,7 @@ from bijux_proteomics.workflow.label_based_reporting import (
     build_tmt_label_based_report_bundle,
     write_label_based_report_bundle,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -391,6 +392,7 @@ def write_tmt_experiment_workflow_bundle(
         label_based_report_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return TmtExperimentWorkflowExportManifest(
         source_kind=report.source_kind,
         summary=report.summary,

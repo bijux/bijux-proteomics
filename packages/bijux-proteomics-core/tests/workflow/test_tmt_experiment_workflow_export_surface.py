@@ -33,6 +33,21 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     manifest = export_tmt_experiment_workflow_bundle(report, tmp_path / "tmt_workflow")
     output_dir = tmp_path / "tmt_workflow"
 
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
+    assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / "inputs" / manifest.artifacts.accepted_reporter_rows_tsv).exists()
+    assert (output_dir / "qc" / manifest.artifacts.interference_summary_tsv).exists()
+    assert (
+        output_dir / "reports" / manifest.artifacts.label_based_report_manifest_json
+    ).exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.reporter_import_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_reporter_rows_tsv).exists()

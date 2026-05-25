@@ -35,6 +35,7 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import ExperimentDesign, build_experiment_design
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -332,6 +333,7 @@ def write_ptm_site_workflow_bundle(
         ptm_report_manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return PtmSiteWorkflowExportManifest(
         summary=report.summary,
         artifacts=PtmSiteWorkflowArtifactPaths(
