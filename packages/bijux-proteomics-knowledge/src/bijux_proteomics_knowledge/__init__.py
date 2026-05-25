@@ -26,6 +26,13 @@ from bijux_proteomics_knowledge.drugs import (
     render_drug_target_resolution_tsv,
     resolve_drug_targets,
 )
+from bijux_proteomics_knowledge.disease import (
+    DiseaseTermResolutionEntry,
+    DiseaseTermResolutionReport,
+    DiseaseTermResolutionSummary,
+    render_disease_term_resolution_tsv,
+    resolve_disease_terms,
+)
 from bijux_proteomics_knowledge.kinases import (
     KinaseSubstrateMatchType,
     KinaseSubstrateResolutionEntry,
@@ -70,6 +77,9 @@ __all__ = [
     "ComplexMembershipResolutionEntry",
     "ComplexMembershipResolutionReport",
     "ComplexMembershipResolutionSummary",
+    "DiseaseTermResolutionEntry",
+    "DiseaseTermResolutionReport",
+    "DiseaseTermResolutionSummary",
     "DrugTargetRelationshipType",
     "DrugTargetResolutionEntry",
     "DrugTargetResolutionReport",
@@ -93,12 +103,14 @@ __all__ = [
     "evaluate_schema_compatibility",
     "overlap_protein_features",
     "render_complex_membership_resolution_tsv",
+    "render_disease_term_resolution_tsv",
     "render_drug_target_resolution_tsv",
     "render_kinase_substrate_resolution_tsv",
     "render_pathway_membership_resolution_tsv",
     "render_protein_feature_overlaps_tsv",
     "render_protein_id_resolution_tsv",
     "resolve_complex_members",
+    "resolve_disease_terms",
     "resolve_drug_targets",
     "resolve_kinase_substrates",
     "resolve_pathway_members",
