@@ -64,6 +64,7 @@ def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> N
         "__init__.py",
         "complexes/__init__.py",
         "contracts/__init__.py",
+        "coverage/__init__.py",
         "disease/__init__.py",
         "drugs/__init__.py",
         "features/__init__.py",

@@ -98,8 +98,9 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, source-required disease and phenotype resolution, direct-versus-neighbor drug-target resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, source-required disease and phenotype resolution, direct-versus-neighbor drug-target resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, knowledge coverage downgrades for sparse pathway or regulator annotation, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
+            "coverage/report.py",
             "complexes/members.py",
             "disease/terms.py",
             "drugs/targets.py",
@@ -146,6 +147,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="coverage/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The coverage package root groups annotation-coverage owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="coverage/report.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Knowledge coverage reporting keeps sparse pathway, PTM-site, and regulator annotation coverage explicit so downstream biological interpretation can be downgraded instead of overstated.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="complexes/__init__.py",
