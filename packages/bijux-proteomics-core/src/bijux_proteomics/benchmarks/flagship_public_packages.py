@@ -909,6 +909,24 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_validation_discovery_claims",
+            path=(
+                f"{package_root}/evidence/targeted_validation_discovery_claims.json"
+            ),
+            evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
+            public_identity_note=(
+                "Discovery-claim inputs keep the public targeted benchmark validation run anchored to explicit candidate expectations."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_validation_panel_assays",
+            path=f"{package_root}/evidence/targeted_validation_panel_assays.json",
+            evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
+            public_identity_note=(
+                "Panel-assay inputs bind the targeted benchmark candidates back to concrete peptide assays before verdicts are emitted."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="targeted_qc_table",
             path=f"{package_root}/evidence/targeted_benchmark_qc.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.TARGETED_QC_TABLE,
@@ -1187,7 +1205,7 @@ def build_flagship_targeted_public_benchmark_package() -> (
         rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:targeted_transition_control_bundle",
         public_dataset_identity=(
-            "tracked Skyline-style targeted result and design snapshots plus supporting QC and approved, failed, and refused follow-up packet snapshots"
+            "tracked Skyline-style targeted result and design snapshots plus supporting QC, benchmark-ranked validation inputs, and approved, failed, and refused follow-up packet snapshots"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="bounded Skyline-class comparator confrontation is shipped",
@@ -1204,7 +1222,7 @@ def build_flagship_targeted_public_benchmark_package() -> (
             "premature protein certainty",
         ),
         claim_scope=(
-            "Targeted credibility is now anchored in a public transition-control package with runnable Skyline-style results, explicit QC review, and approved, failed, and refused consequence packets instead of a buried QC fixture."
+            "Targeted credibility is now anchored in a public transition-control package with runnable Skyline-style results, explicit QC review, benchmark-ranked validation inputs, and approved, failed, and refused consequence packets instead of a buried QC fixture."
         ),
         note=(
             "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but absolute calibration, interference, and vendor-parity limits remain explicit."

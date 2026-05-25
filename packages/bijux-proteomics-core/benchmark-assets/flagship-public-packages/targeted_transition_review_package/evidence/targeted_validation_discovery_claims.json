@@ -1,0 +1,36 @@
+[
+  {
+    "candidate_id": "protein:P001",
+    "candidate_kind": "protein",
+    "display_label": "P001 benchmark candidate",
+    "target_protein_ref": "P001",
+    "priority_rank": 1,
+    "final_score": 0.91,
+    "penalty_total": 0.0,
+    "discovery_effect_size": 0.8,
+    "support_count": 3,
+    "robustness_score": 0.8,
+    "assay_feasibility_score": 0.9,
+    "rank_reason_codes": [
+      "assay_ready"
+    ],
+    "ranking_note": "benchmark candidate"
+  },
+  {
+    "candidate_id": "protein:P002",
+    "candidate_kind": "protein",
+    "display_label": "P002 benchmark candidate",
+    "target_protein_ref": "P002",
+    "priority_rank": 2,
+    "final_score": 0.85,
+    "penalty_total": 0.0,
+    "discovery_effect_size": -0.7,
+    "support_count": 3,
+    "robustness_score": 0.75,
+    "assay_feasibility_score": 0.88,
+    "rank_reason_codes": [
+      "assay_ready"
+    ],
+    "ranking_note": "benchmark candidate"
+  }
+]
