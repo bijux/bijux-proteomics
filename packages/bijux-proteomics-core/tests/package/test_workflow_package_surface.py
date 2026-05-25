@@ -1223,6 +1223,25 @@ def test_workflow_package_exports_surprising_demo_interrogation_surface(
     )
 
 
+def test_workflow_package_exports_integrated_scientific_report_surface(
+    tmp_path: Path,
+) -> None:
+    report = workflow.build_integrated_scientific_report(
+        tmp_path / "surprising_demo_integrated_report"
+    )
+
+    assert hasattr(workflow, "build_integrated_scientific_report")
+    assert hasattr(workflow, "IntegratedScientificReportSectionKey")
+    assert report.summary.section_count == len(workflow.IntegratedScientificReportSectionKey)
+    assert (
+        report.summary.scientific_claim_count
+        == report.summary.linked_scientific_claim_count
+    )
+    assert "linked_scientific_claim_count" in (
+        workflow.render_integrated_scientific_report_summary_tsv(report)
+    )
+
+
 def test_workflow_package_exports_public_dataset_comparison_surface(
     tmp_path: Path,
 ) -> None:
