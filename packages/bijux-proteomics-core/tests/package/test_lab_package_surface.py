@@ -265,3 +265,48 @@ def test_lab_package_exports_sample_swap_suspicion_surface() -> None:
         for row in rows
     )
     assert "swap_suspicion_score" in rendered
+
+
+def test_lab_package_exports_cohort_balance_surface() -> None:
+    metadata = (
+        ExperimentalDesignEntry(
+            sample_id="control_1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="control_1.mzml",
+            metadata={"sex": "female"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="control_2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="control_2.mzml",
+            metadata={"sex": "female"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case_1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case_1.mzml",
+            metadata={"sex": "male"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case_2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case_2.mzml",
+            metadata={"sex": "male"},
+        ),
+    )
+
+    rows = lab.check_cohort_balance(metadata)
+    rendered = lab.render_cohort_balance_tsv(rows)
+
+    assert hasattr(lab, "check_cohort_balance")
+    assert hasattr(lab, "render_cohort_balance_tsv")
+    assert any(row.confounded_with_condition is True for row in rows)
+    assert "analysis_warning" in rendered
