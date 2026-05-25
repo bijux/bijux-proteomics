@@ -168,6 +168,27 @@ def test_io_package_import_contract() -> None:
     assert hasattr(module, "validate_precursor_isotope_charge")
 
 
+def test_io_subpackage_import_contract() -> None:
+    formats = importlib.import_module("bijux_proteomics.io.formats")
+    spectra = importlib.import_module("bijux_proteomics.io.spectra")
+    tables = importlib.import_module("bijux_proteomics.io.tables")
+    raw = importlib.import_module("bijux_proteomics.io.raw")
+    chromatography = importlib.import_module("bijux_proteomics.io.chromatography")
+
+    assert hasattr(formats, "parse_experimental_design_table")
+    assert hasattr(formats, "detect_proteomics_format")
+    assert hasattr(spectra, "SpectrumModel")
+    assert hasattr(spectra, "score_chimeric_spectra")
+    assert hasattr(tables, "parse_transition_table")
+    assert hasattr(tables, "parse_xic_target_table")
+    assert hasattr(raw, "parse_mzml")
+    assert hasattr(raw, "extract_mzml_xic_traces")
+    assert hasattr(chromatography, "extract_xic")
+    assert hasattr(chromatography, "pick_chromatographic_peaks")
+    assert hasattr(chromatography, "score_chromatographic_evidence")
+    assert hasattr(chromatography, "score_dia_fragment_ratio_stability")
+
+
 def test_identification_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.identification")
 
