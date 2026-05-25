@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections import Counter
+import warnings
 
 from pydantic import ConfigDict, Field
 
@@ -42,12 +43,23 @@ class ContaminantDatabaseBuildReport(JsonModel):
     contaminant_namespace_counts: dict[str, int] = Field(default_factory=dict)
 
 
-def load_builtin_contaminant_records() -> tuple[NormalizedProteinRecord, ...]:
-    """Return the built-in contaminant panel with explicit contaminant labels."""
+def build_builtin_contaminant_records() -> tuple[NormalizedProteinRecord, ...]:
+    """Build the built-in contaminant panel with explicit contaminant labels."""
     report = parse_fasta_document(
         _BUILTIN_CONTAMINANT_FASTA, mode=FastaParseMode.STRICT
     )
     return relabel_contaminant_records(report.accepted_records)
+
+
+def load_builtin_contaminant_records() -> tuple[NormalizedProteinRecord, ...]:
+    """Compatibility wrapper for the canonical built-in contaminant assembly surface."""
+    warnings.warn(
+        "load_builtin_contaminant_records is deprecated; use "
+        "build_builtin_contaminant_records for the shipped contaminant panel.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return build_builtin_contaminant_records()
 
 
 def relabel_contaminant_records(
@@ -93,7 +105,7 @@ def append_contaminant_database(
     external_contaminant_records: tuple[NormalizedProteinRecord, ...] = (),
 ) -> tuple[tuple[NormalizedProteinRecord, ...], ContaminantDatabaseBuildReport]:
     """Append built-in and external contaminants while skipping duplicate accessions."""
-    appended_builtin = load_builtin_contaminant_records() if include_builtin else ()
+    appended_builtin = build_builtin_contaminant_records() if include_builtin else ()
     appended_external = relabel_contaminant_records(external_contaminant_records)
     existing_accessions = {
         _stable_record_accession(record) for record in target_records
