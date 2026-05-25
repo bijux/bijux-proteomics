@@ -1,0 +1,9 @@
+id	Modified sequence	Leading proteins	Experiment	Isolation interference [%]	Reporter intensity corrected 126	Reporter intensity corrected 127N	Reporter intensity corrected 128N
+1	PEPTIDEK	P11111	plex-a	8	1200	2400	6000
+2	PEPTIDER	P11111	plex-a	10	1400	2800	6200
+3	PEPTIDEK	P11111	plex-b	11	1250	2500	6100
+4	PEPTIDER	P11111	plex-b	9	1450	2900	6300
+5	DPEPTIDE	P22222	plex-a	35	900	920	4100
+6	ACDMPEP	P22222	plex-a	8	1100	2200	5000
+7	DPEPTIDE	P22222	plex-b	42	1000	1030	4300
+8	ACDMPEP	P22222	plex-b	10	1200	2400	5200

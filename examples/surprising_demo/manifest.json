@@ -1,0 +1,20 @@
+{
+  "example_id": "surprising_demo",
+  "note": "This compact shipped demo preserves one strong protein, one downgraded protein, one PTM ambiguity, one targeted QC issue, and one validation candidate through owned workflow outputs.",
+  "tmt_result_tsv": "evidence/tmt_interference_demo.tsv",
+  "tmt_design_tsv": "evidence/tmt_interference_demo.design.tsv",
+  "ptm_evidence_tsv": "evidence/ptm_localization_results.tsv",
+  "ptm_feature_tsv": "evidence/ptm_features.tsv",
+  "ptm_proteins_fasta": "evidence/ptm_sites.fasta",
+  "ptm_design_tsv": "evidence/ptm.design.tsv",
+  "ptm_annotation_tsv": "evidence/ptm_site_annotations.tsv",
+  "targeted_result_tsv": "evidence/targeted_validation_results.tsv",
+  "targeted_design_tsv": "evidence/targeted_validation.design.tsv",
+  "targeted_discovery_claims_json": "evidence/targeted_validation_discovery_claims.json",
+  "targeted_panel_assays_json": "evidence/targeted_validation_panel_assays.json",
+  "expected_strong_protein_id": "P11111",
+  "expected_downgraded_protein_id": "P22222",
+  "expected_ambiguous_site_key": "P11111:S17:Phospho",
+  "expected_qc_issue_candidate_id": "protein:P001",
+  "expected_validation_candidate_id": "protein:P001"
+}
