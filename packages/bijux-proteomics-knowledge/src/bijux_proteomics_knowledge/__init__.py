@@ -5,6 +5,12 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_knowledge.identity.proteins import (
+    ProteinIdResolutionEntry,
+    ProteinIdentityResolutionStatus,
+    render_protein_id_resolution_tsv,
+    resolve_protein_ids,
+)
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
 from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
 from bijux_proteomics_knowledge.memory.models.evidence import (
@@ -18,5 +24,9 @@ __all__ = [
     "EvidenceClaim",
     "EvidenceRecord",
     "KnowledgeDecisionBrief",
+    "ProteinIdResolutionEntry",
+    "ProteinIdentityResolutionStatus",
     "evaluate_schema_compatibility",
+    "render_protein_id_resolution_tsv",
+    "resolve_protein_ids",
 ]
