@@ -20,6 +20,7 @@ from bijux_proteomics.ptm.context_annotation import *  # noqa: F401,F403
 from bijux_proteomics.ptm.evidence_cards import *  # noqa: F401,F403
 from bijux_proteomics.ptm.fragment_scoring import *  # noqa: F401,F403
 from bijux_proteomics.ptm.hotspots import *  # noqa: F401,F403
+from bijux_proteomics.ptm.kinase_inference import *  # noqa: F401,F403
 from bijux_proteomics.ptm.localization_risk import *  # noqa: F401,F403
 from bijux_proteomics.ptm.mechanism_classification import *  # noqa: F401,F403
 from bijux_proteomics.ptm.ortholog_site_conservation import *  # noqa: F401,F403
