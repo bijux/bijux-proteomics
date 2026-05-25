@@ -4,13 +4,20 @@ from collections.abc import Mapping
 import json
 from pathlib import Path
 
-import pytest
-
-pytest.importorskip("httpx")
-from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
 from bijux_proteomics_runtime.api import AppConfig, create_app
+
+fastapi_testclient = import_or_skip(
+    "fastapi.testclient",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="httpx is required for the runtime api document-contract surface",
+)
+TestClient = fastapi_testclient.TestClient
 
 
 def _write_json(path: Path, payload: Mapping[str, object]) -> None:
