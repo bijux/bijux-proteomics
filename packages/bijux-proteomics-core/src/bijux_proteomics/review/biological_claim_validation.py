@@ -12,8 +12,8 @@ from io import StringIO
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.stable_outputs import sort_strings
-from bijux_proteomics.review.evidence_graph_confidence import EvidenceGraphConfidenceTier
-from bijux_proteomics.review.evidence_graph_downgrades import FinalClaimEvidenceTier
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import FinalClaimEvidenceTier
 from bijux_proteomics_foundation import JsonModel
 
 

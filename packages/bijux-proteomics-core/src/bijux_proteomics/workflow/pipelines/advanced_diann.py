@@ -41,7 +41,7 @@ from bijux_proteomics.review import (
     render_belief_audit_tsv,
     render_evidence_graph_final_results_tsv,
 )
-from bijux_proteomics.review.evidence_graph_confidence import EvidenceGraphConfidenceTier
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultSelectionPolicy,
