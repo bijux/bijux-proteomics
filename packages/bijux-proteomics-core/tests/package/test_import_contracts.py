@@ -262,17 +262,23 @@ def test_lab_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.lab")
 
     assert hasattr(module, "build_lab_action_packets")
+    assert hasattr(module, "build_lab_cost_model_report")
+    assert hasattr(module, "build_lcms_run_qc_report")
     assert hasattr(module, "build_internal_standard_sample_qc")
+    assert hasattr(module, "build_protocol_consistency_report")
+    assert hasattr(module, "build_qc_promotion_block_report")
     assert hasattr(module, "check_cohort_balance")
     assert hasattr(module, "compare_samples_to_blanks")
     assert hasattr(module, "classify_contamination")
     assert hasattr(module, "classify_digestion")
     assert hasattr(module, "classify_run_failure")
     assert hasattr(module, "detect_sample_swaps")
+    assert hasattr(module, "parse_lab_protocol_context_table")
     assert hasattr(module, "render_lab_action_packets_tsv")
     assert hasattr(module, "render_cohort_balance_tsv")
     assert hasattr(module, "render_internal_standard_tracking_tsv")
     assert hasattr(module, "render_sample_swap_suspicion_tsv")
+    assert hasattr(module, "transition_assay_progression")
     assert hasattr(module, "track_internal_standards")
     assert hasattr(module, "render_background_comparison_tsv")
     assert hasattr(module, "render_contamination_classification_tsv")
@@ -385,6 +391,22 @@ def test_study_package_import_contract() -> None:
     assert hasattr(module, "render_batch_condition_confounding_tsv")
     assert hasattr(module, "render_lc_drift_tsv")
     assert hasattr(module, "build_run_qc_assessment")
+
+
+def test_study_subpackage_import_contract() -> None:
+    design = importlib.import_module("bijux_proteomics.study.design")
+    metadata = importlib.import_module("bijux_proteomics.study.metadata")
+
+    assert hasattr(design, "build_experiment_design")
+    assert hasattr(design, "build_experiment_design_validity_report")
+    assert hasattr(design, "build_experiment_confidence_report")
+    assert hasattr(design, "build_replicate_structure_report")
+    assert hasattr(design, "resolve_pairwise_study_contrast")
+
+    assert hasattr(metadata, "build_study_metadata_model")
+    assert hasattr(metadata, "parse_sample_metadata_table")
+    assert hasattr(metadata, "build_sample_run_identity_report")
+    assert hasattr(metadata, "build_sample_sheet_repair_suggestion_report")
 
 
 def test_interpretation_ppi_import_contract() -> None:
