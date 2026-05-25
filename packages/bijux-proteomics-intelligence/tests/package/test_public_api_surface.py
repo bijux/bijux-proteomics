@@ -21,6 +21,7 @@ def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
         "learning",
         "posture",
         "query",
+        "refusal",
         "reviews",
     ]
 
@@ -36,6 +37,7 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.learning, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.posture, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.query, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.refusal, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.reviews, ModuleType)
 
     assert bijux_proteomics_intelligence.candidates.__name__ == (
@@ -55,6 +57,9 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     )
     assert bijux_proteomics_intelligence.query.__name__ == (
         "bijux_proteomics_intelligence.query"
+    )
+    assert bijux_proteomics_intelligence.refusal.__name__ == (
+        "bijux_proteomics_intelligence.refusal"
     )
     assert bijux_proteomics_intelligence.reviews.__name__ == (
         "bijux_proteomics_intelligence.reviews"
@@ -88,6 +93,12 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
             "bijux_proteomics_intelligence.query"
         ).answer_result_question.__name__
         == "answer_result_question"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.refusal"
+        ).refuse_unsupported_claims.__name__
+        == "refuse_unsupported_claims"
     )
     assert (
         import_module(
