@@ -18,7 +18,7 @@ from bijux_proteomics.sequences.digestion import (
     get_protease_rule,
     protease_registry,
 )
-from bijux_proteomics.study.lab_protocol_context import DigestionEnzyme
+from bijux_proteomics.lab.protocol_context import DigestionEnzyme
 from bijux_proteomics_foundation import JsonModel
 
 

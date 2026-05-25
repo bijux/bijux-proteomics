@@ -26,10 +26,14 @@ from bijux_proteomics.study.design.experiment_feasibility import (
     ExperimentFeasibilityReport,
     build_experiment_feasibility_report,
 )
-from bijux_proteomics.study.protocol_consistency import (
+from bijux_proteomics.lab.protocol_consistency import (
     ProtocolConsistencyReport,
 )
-from bijux_proteomics.study.qc import LcmsRunQcReport, QcRunAssessmentReport, QcStatus
+from bijux_proteomics.lab.qc import (
+    LcmsRunQcReport,
+    QcRunAssessmentReport,
+    QcStatus,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
