@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.cli.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.python_api.peptide_review import run_peptide_detectability_command, run_precursor_mass_error_command, run_modified_peptide_parse_command, run_modification_resolve_command
 
 @click.command("peptide-detectability")
 @click.argument("sequence")
@@ -88,52 +89,6 @@ def peptide_detectability_command(
     'Score peptide observability from owned sequence and chemistry semantics.'
     return run_peptide_detectability_command(sequence, modifications, charge, protease, custom_protease, custom_protease_name, uniqueness_class, uniqueness_score, observed_psm_count, registry_path, tsv_out, out_path)
 
-def run_peptide_detectability_command(
-    sequence: str,
-    modifications: tuple[str, ...],
-    charge: int,
-    protease: str,
-    custom_protease: str | None,
-    custom_protease_name: str,
-    uniqueness_class: str | None,
-    uniqueness_score: float | None,
-    observed_psm_count: int | None,
-    registry_path: Path | None,
-    tsv_out: Path | None,
-    out_path: Path | None,
-) -> None:
-    try:
-        protease_rule, custom_specification = _resolve_cli_protease_rule(
-            protease=protease,
-            custom_protease=custom_protease,
-            custom_protease_name=custom_protease_name,
-        )
-        registry = (
-            load_modification_registry(registry_path)
-            if registry_path is not None
-            else None
-        )
-        report = build_peptide_detectability_report(
-            sequence,
-            modification_assignments=modifications,
-            charge=charge,
-            protease=protease_rule,
-            registry=registry,
-            uniqueness_class=uniqueness_class,
-            uniqueness_score=uniqueness_score,
-            observed_psm_count=observed_psm_count,
-        )
-    except ValueError as exc:
-        raise click.ClickException(str(exc)) from exc
-
-    if tsv_out is not None:
-        _write_text_output(tsv_out, render_peptide_detectability_tsv(report))
-
-    payload = report.to_dict()
-    payload["custom_protease"] = custom_specification
-    payload["tsv_out"] = str(tsv_out) if tsv_out else None
-    _emit_json(payload, out_path=out_path)
-
 @click.command("precursor-mass-error")
 @click.argument(
     "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -200,94 +155,6 @@ def precursor_mass_error_command(
     'Report precursor mass error from peptide plus observed-m/z tables.'
     return run_precursor_mass_error_command(input_tsv, peptide_column, observed_mz_column, charge_column, spectrum_id_column, max_isotope_offset, registry_path, summary_tsv_out, observations_tsv_out, ppm_distribution_tsv_out, charge_distribution_tsv_out, isotope_distribution_tsv_out, out_path)
 
-def run_precursor_mass_error_command(
-    input_tsv: Path,
-    peptide_column: str,
-    observed_mz_column: str,
-    charge_column: str,
-    spectrum_id_column: str,
-    max_isotope_offset: int,
-    registry_path: Path | None,
-    summary_tsv_out: Path | None,
-    observations_tsv_out: Path | None,
-    ppm_distribution_tsv_out: Path | None,
-    charge_distribution_tsv_out: Path | None,
-    isotope_distribution_tsv_out: Path | None,
-    out_path: Path | None,
-) -> None:
-    try:
-        registry = (
-            load_modification_registry(registry_path)
-            if registry_path is not None
-            else None
-        )
-        queries = _load_precursor_mass_error_queries(
-            input_tsv,
-            peptide_column=peptide_column,
-            observed_mz_column=observed_mz_column,
-            charge_column=charge_column,
-            spectrum_id_column=spectrum_id_column,
-        )
-        report = build_precursor_mass_error_report(
-            queries,
-            registry=registry,
-            max_isotope_offset=max_isotope_offset,
-        )
-    except ValueError as exc:
-        raise click.ClickException(str(exc)) from exc
-
-    if summary_tsv_out is not None:
-        _write_text_output(
-            summary_tsv_out,
-            render_precursor_mass_error_summary_tsv(report),
-        )
-    if observations_tsv_out is not None:
-        _write_text_output(
-            observations_tsv_out,
-            render_precursor_mass_error_observations_tsv(report.observations),
-        )
-    if ppm_distribution_tsv_out is not None:
-        _write_text_output(
-            ppm_distribution_tsv_out,
-            render_precursor_mass_error_distribution_tsv(
-                report.ppm_error_distribution,
-                distribution_name="abs_ppm",
-            ),
-        )
-    if charge_distribution_tsv_out is not None:
-        _write_text_output(
-            charge_distribution_tsv_out,
-            render_precursor_mass_error_distribution_tsv(
-                report.charge_distribution,
-                distribution_name="charge",
-            ),
-        )
-    if isotope_distribution_tsv_out is not None:
-        _write_text_output(
-            isotope_distribution_tsv_out,
-            render_precursor_mass_error_distribution_tsv(
-                report.isotope_offset_distribution,
-                distribution_name="recommended_isotope_offset",
-            ),
-        )
-
-    payload = report.to_dict()
-    payload["input_row_count"] = len(queries)
-    payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
-    payload["observations_tsv_out"] = (
-        str(observations_tsv_out) if observations_tsv_out else None
-    )
-    payload["ppm_distribution_tsv_out"] = (
-        str(ppm_distribution_tsv_out) if ppm_distribution_tsv_out else None
-    )
-    payload["charge_distribution_tsv_out"] = (
-        str(charge_distribution_tsv_out) if charge_distribution_tsv_out else None
-    )
-    payload["isotope_distribution_tsv_out"] = (
-        str(isotope_distribution_tsv_out) if isotope_distribution_tsv_out else None
-    )
-    _emit_json(payload, out_path=out_path)
-
 @click.command("modified-peptide-parse")
 @click.argument("notation")
 @click.option(
@@ -319,28 +186,6 @@ def modified_peptide_parse_command(
     'Normalize one search-engine modified peptide notation.'
     return run_modified_peptide_parse_command(notation, dialect, registry_path, out_path)
 
-def run_modified_peptide_parse_command(
-    notation: str,
-    dialect: str,
-    registry_path: Path | None,
-    out_path: Path | None,
-) -> None:
-    try:
-        registry = (
-            load_modification_registry(registry_path)
-            if registry_path is not None
-            else None
-        )
-        report = build_search_engine_modified_peptide_report(
-            notation,
-            dialect=dialect,
-            registry=registry,
-        )
-    except ValueError as exc:
-        raise click.ClickException(str(exc)) from exc
-
-    _emit_json(report.to_dict(), out_path=out_path)
-
 @click.command("modification-resolve")
 @click.argument("token")
 @click.option(
@@ -370,28 +215,6 @@ def modification_resolve_command(
 ) -> None:
     'Resolve one modification token against builtin or custom registries.'
     return run_modification_resolve_command(token, residue, registry_path, out_path)
-
-def run_modification_resolve_command(
-    token: str,
-    residue: str | None,
-    registry_path: Path | None,
-    out_path: Path | None,
-) -> None:
-    try:
-        registry = (
-            load_modification_registry(registry_path)
-            if registry_path is not None
-            else None
-        )
-        report = build_modification_resolution_report(
-            token,
-            residue=residue,
-            registry=registry,
-        )
-    except ValueError as exc:
-        raise click.ClickException(str(exc)) from exc
-
-    _emit_json(report.to_dict(), out_path=out_path)
 
 COMMANDS = (
     peptide_detectability_command,

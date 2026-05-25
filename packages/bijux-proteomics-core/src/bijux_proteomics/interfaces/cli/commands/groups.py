@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.cli.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 @click.group("qc")
 def qc_group() -> None:

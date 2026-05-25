@@ -26,15 +26,23 @@ class _LazyCliProxy:
         return "<lazy bijux_proteomics cli proxy>"
 
 
+def _is_lazy_cli_import(exc: ImportError) -> bool:
+    missing_name = getattr(exc, "name", None)
+    error_text = str(exc)
+    if missing_name in {"click", "pydantic"}:
+        return True
+    if missing_name is not None and missing_name.startswith("bijux_proteomics_"):
+        return True
+    return any(
+        dependency_name in error_text
+        for dependency_name in ("click", "pydantic", "bijux_proteomics_")
+    )
+
+
 try:
     from bijux_proteomics.interfaces.cli.app import cli as cli
 except ImportError as exc:
-    missing_name = getattr(exc, "name", None)
-    error_text = str(exc)
-    dependency_missing = missing_name in {"click", "pydantic"} or (
-        "click" in error_text or "pydantic" in error_text
-    )
-    if not dependency_missing:
+    if not _is_lazy_cli_import(exc):
         raise
     cli = _LazyCliProxy()
 
