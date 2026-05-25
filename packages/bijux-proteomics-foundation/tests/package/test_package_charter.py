@@ -85,4 +85,5 @@ def test_foundation_thin_abstractions_stay_limited_to_curated_compatibility_path
 
     assert thin_paths == {
         "__init__.py",
+        "testing/__init__.py",
     }

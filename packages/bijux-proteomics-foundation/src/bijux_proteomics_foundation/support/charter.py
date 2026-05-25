@@ -182,6 +182,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The package root is a constrained export surface over the shared primitive modules.",
         )
 
+    if module_path == "testing/__init__.py":
+        return FoundationModuleAuditEntry(
+            module_path=module_path,
+            classification=FoundationModuleClassification.THIN_ABSTRACTION,
+            reason="The testing package root is a constrained private namespace over shared test-support helpers.",
+        )
+
     if module_path == "support/charter.py":
         return _shared_contract_entry(
             module_path,
@@ -210,11 +217,12 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/provenance.py",
         "support/public_api.py",
         "support/states.py",
+        "testing/pytest_markers.py",
     }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
-            "Shared identifiers, provenance, state vocabulary, version primitives, and the audited root export ledger belong in foundation because every higher package must agree on them.",
+            "Shared identifiers, provenance, state vocabulary, version primitives, test marker policy, and the audited root export ledger belong in foundation because every higher package must agree on them.",
         )
 
     if module_path in {
