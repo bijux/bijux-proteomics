@@ -8,7 +8,13 @@ from __future__ import annotations
 from importlib import import_module
 
 _PTM_EXPORT_MODULES = (
+    "bijux_proteomics.ptm.cards",
     "bijux_proteomics.ptm.contracts",
+    "bijux_proteomics.ptm.localization",
+    "bijux_proteomics.ptm.parsing",
+    "bijux_proteomics.ptm.quant",
+    "bijux_proteomics.ptm.regulation",
+    "bijux_proteomics.ptm.sites",
     "bijux_proteomics.ptm.abundance_correction",
     "bijux_proteomics.ptm.crosstalk",
     "bijux_proteomics.ptm.differential_analysis",

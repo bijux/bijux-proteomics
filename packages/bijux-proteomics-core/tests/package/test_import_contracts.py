@@ -256,6 +256,22 @@ def test_ptm_package_import_contract() -> None:
     assert hasattr(module, "render_ptm_fragment_scores_tsv")
 
 
+def test_ptm_subpackage_import_contract() -> None:
+    parsing = importlib.import_module("bijux_proteomics.ptm.parsing")
+    localization = importlib.import_module("bijux_proteomics.ptm.localization")
+    sites = importlib.import_module("bijux_proteomics.ptm.sites")
+    quant = importlib.import_module("bijux_proteomics.ptm.quant")
+    regulation = importlib.import_module("bijux_proteomics.ptm.regulation")
+    cards = importlib.import_module("bijux_proteomics.ptm.cards")
+
+    assert hasattr(parsing, "parse_ptm_peptide")
+    assert hasattr(localization, "build_ptm_localization_scoring_report")
+    assert hasattr(sites, "build_ptm_ambiguity_review_report")
+    assert hasattr(quant, "build_ptm_differential_analysis_report")
+    assert hasattr(regulation, "build_ptm_regulator_enrichment_report")
+    assert hasattr(cards, "build_ptm_evidence_card_report")
+
+
 def test_proteoforms_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.proteoforms")
 

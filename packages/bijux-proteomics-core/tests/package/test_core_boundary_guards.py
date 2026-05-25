@@ -22,7 +22,7 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_knowledge.references.workflows.comparator_failures",
         "bijux_proteomics_knowledge.references.workflows.scientific_thresholds",
     },
-    "ptm/review.py": {
+    "ptm/cards/review.py": {
         "bijux_proteomics_lab.handoffs.ptm",
     },
 }
