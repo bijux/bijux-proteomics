@@ -65,6 +65,7 @@ def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
     assert report.summary.peptide_entry_count == 8
     assert report.summary.site_row_count == 5
     assert report.summary.ambiguous_site_count == 2
+    assert report.summary.ambiguous_group_row_count == 0
     assert report.summary.modified_peptide_count == 3
     assert report.summary.localization_entry_count == 8
     assert report.summary.evidence_card_count == 0
@@ -101,7 +102,7 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
 
     assert summary_lines[0] == (
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
-        "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
+        "ambiguous_site_count\tambiguous_group_row_count\tmodified_peptide_count\tlocalization_entry_count\t"
         "quantified_site_row_count\tdifferential_site_count\tmotif_term_count\t"
         "evidence_card_count\tnarrative_claim_count\tmechanism_classification_count\tortholog_conservation_entry_count"
     )
@@ -145,6 +146,7 @@ def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
 
     assert report.summary.quantified_site_row_count == 3
     assert report.summary.differential_site_count == 3
+    assert report.summary.ambiguous_group_row_count == 2
     assert report.summary.evidence_card_count == 3
     assert report.summary.narrative_claim_count == 3
     assert report.summary.mechanism_classification_count == 3

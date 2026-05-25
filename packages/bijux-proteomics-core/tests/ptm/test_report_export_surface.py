@@ -79,6 +79,7 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert manifest.summary.accepted_evidence_count == 8
     assert manifest.summary.quantified_site_row_count == 3
     assert manifest.summary.differential_site_count == 3
+    assert manifest.summary.ambiguous_group_row_count == 2
     assert manifest.summary.mechanism_classification_count == 3
     assert manifest.summary.ortholog_conservation_entry_count == 5
     assert manifest.motif_summary_included is True
@@ -87,6 +88,9 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.site_tsv).exists()
     assert (output_dir / manifest.artifacts.localization_tsv).exists()
     assert (output_dir / manifest.artifacts.site_quant_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.site_group_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.site_group_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.site_group_missingness_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
     assert (output_dir / manifest.artifacts.regulator_enrichment_summary_tsv).exists()
@@ -109,6 +113,15 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     ).read_text()
     assert "P11111:S5:Phospho" in (
         output_dir / manifest.artifacts.site_quant_matrix_tsv
+    ).read_text()
+    assert "group_row_count" in (
+        output_dir / manifest.artifacts.site_group_summary_tsv
+    ).read_text()
+    assert "group_key" in (
+        output_dir / manifest.artifacts.site_group_matrix_tsv
+    ).read_text()
+    assert "sample_id" in (
+        output_dir / manifest.artifacts.site_group_missingness_tsv
     ).read_text()
     assert "corrected_log2_fold_change" in (
         output_dir / manifest.artifacts.differential_tsv

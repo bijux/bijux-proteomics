@@ -67,6 +67,15 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     ).read_text(encoding="utf-8").splitlines()[0]
     assert (output_dir / manifest.ptm_report_manifest.artifacts.peptide_tsv).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.site_tsv).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.site_group_summary_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.site_group_matrix_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.site_group_missingness_tsv
+    ).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.differential_tsv).exists()
     assert (
         output_dir / manifest.ptm_report_manifest.artifacts.regulator_enrichment_tsv
