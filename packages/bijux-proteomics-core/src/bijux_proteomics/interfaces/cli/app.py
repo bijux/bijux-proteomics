@@ -1017,6 +1017,8 @@ from bijux_proteomics.workflow import (
     render_dia_dda_peptide_overlap_tsv,
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
+    render_integrated_scientific_report_sentences_tsv,
+    render_integrated_scientific_report_summary_tsv,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_signal_assessments_tsv,
     render_public_benchmark_suite_summary_tsv,
@@ -1044,6 +1046,7 @@ from bijux_proteomics.workflow import (
     build_surprising_demo_interrogation_report,
     build_interactive_result_comparison_from_artifacts,
     build_interactive_result_bundle_from_artifacts,
+    build_integrated_scientific_report,
     build_result_manifest_from_artifacts,
     render_interactive_result_comparison_pathway_tsv,
     render_interactive_result_comparison_protein_tsv,
@@ -6132,6 +6135,55 @@ def surprising_demo_query_command(
         _write_text_output(
             answers_tsv_out,
             render_surprising_demo_interrogation_answers_tsv(report),
+        )
+    _emit_json(report, out_path=out_path)
+
+
+@cli.command("demo-report")
+@click.option(
+    "--out-dir",
+    "output_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path("artifacts/proteomics-demo"),
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--sentences-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def surprising_demo_report_command(
+    output_dir: Path,
+    summary_tsv_out: Path | None,
+    sentences_tsv_out: Path | None,
+    html_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build the shipped integrated scientific report from owned local outputs."""
+
+    try:
+        report = build_integrated_scientific_report(output_dir)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_integrated_scientific_report_summary_tsv(report),
+        )
+    if sentences_tsv_out is not None:
+        _write_text_output(
+            sentences_tsv_out,
+            render_integrated_scientific_report_sentences_tsv(report),
+        )
+    if html_out is not None:
+        html_out.write_text(
+            (output_dir / report.artifacts.report_html).read_text(encoding="utf-8"),
+            encoding="utf-8",
         )
     _emit_json(report, out_path=out_path)
 
