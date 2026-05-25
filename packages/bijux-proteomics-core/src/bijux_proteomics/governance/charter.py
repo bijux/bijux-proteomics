@@ -222,6 +222,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "study/laboratory_plans.py",
             "study/laboratory_operations.py",
             "study/qc.py",
+            "lab/run_diagnosis.py",
             "quantification/core_matrix.py",
             "quantification/contracts.py",
             "quantification/batch_effect.py",
@@ -457,7 +458,14 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     if module_path in {"tabular.py", "scientific_tables.py"} or module_path.startswith(("io/", "identification/")):
         return CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION
     if module_path.startswith(
-        ("quantification/", "study/", "multiplex/", "isotope_labeling/", "targeted/")
+        (
+            "quantification/",
+            "study/",
+            "lab/",
+            "multiplex/",
+            "isotope_labeling/",
+            "targeted/",
+        )
     ):
         return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
     if module_path.startswith(("ptm/", "dia/", "proteoforms/")):
