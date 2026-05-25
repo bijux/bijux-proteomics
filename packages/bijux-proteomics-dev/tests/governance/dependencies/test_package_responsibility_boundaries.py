@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.dependencies.package_responsibility_map import (
+    PACKAGE_RESPONSIBILITY_MAP_PATH,
     evaluate_package_responsibility_boundary_violations,
+    run,
 )
 from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
     WorkspaceModuleDependencyEdge,
@@ -61,3 +65,9 @@ def test_package_responsibility_boundaries_flag_required_import_directions() -> 
         "foundation_higher_package_import",
         "knowledge_runtime_import",
     ]
+
+
+@pytest.mark.slow
+def test_package_responsibility_map_is_up_to_date() -> None:
+    assert PACKAGE_RESPONSIBILITY_MAP_PATH.exists()
+    assert run(check=True) == 0
