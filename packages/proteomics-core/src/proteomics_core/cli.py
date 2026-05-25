@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from bijux_proteomics_foundation.package_aliases import run_cli_alias
+from bijux_proteomics_foundation._package_aliases import run_cli_alias
 
 __all__ = ["main"]
 

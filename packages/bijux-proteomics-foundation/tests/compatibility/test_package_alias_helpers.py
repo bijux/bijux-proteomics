@@ -7,7 +7,7 @@ from types import ModuleType
 import sys
 
 from bijux_proteomics_foundation import DocumentSchema
-from bijux_proteomics_foundation.package_aliases import (
+from bijux_proteomics_foundation._package_aliases import (
     alias_package_version,
     canonical_module_getattr,
     run_cli_alias,
