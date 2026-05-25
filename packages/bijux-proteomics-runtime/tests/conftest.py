@@ -8,6 +8,9 @@ import shutil
 import sys
 
 import pytest
+from bijux_proteomics_foundation.testing.pytest_markers import (
+    apply_default_test_markers,
+)
 
 sys.dont_write_bytecode = True
 RUNTIME_CLEAN_ROOTS = (
@@ -37,5 +40,8 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: pytest.ExitCode) -
 def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:
-    for item in items:
-        item.add_marker(pytest.mark.unit)
+    apply_default_test_markers(
+        items,
+        benchmark_dirs=("performance",),
+        integration_dirs=("api", "execution", "workflows"),
+    )
