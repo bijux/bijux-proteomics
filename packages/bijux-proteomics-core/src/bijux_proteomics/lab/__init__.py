@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.lab.background import *  # noqa: F401,F403
 from bijux_proteomics.lab.contamination import *  # noqa: F401,F403
 from bijux_proteomics.lab.digestion_diagnosis import *  # noqa: F401,F403
 from bijux_proteomics.lab.run_diagnosis import *  # noqa: F401,F403
