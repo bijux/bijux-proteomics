@@ -69,9 +69,12 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.ONTOLOGIES,
-        owned_surface="Ontology mappings that normalize shared scientific language across workflows.",
-        required_modules=("references/grounding/ontologies.py",),
-        release_blocker="Knowledge cannot ship if controlled scientific terms resolve through ad hoc local aliases.",
+        owned_surface="Ontology mappings and exact identity resolvers that normalize shared scientific language and curated entity naming across workflows.",
+        required_modules=(
+            "identity/proteins.py",
+            "references/grounding/ontologies.py",
+        ),
+        release_blocker="Knowledge cannot ship if controlled scientific terms or curated identity aliases resolve through ad hoc local aliases.",
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
@@ -137,6 +140,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="identity/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The identity package root groups exact resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="identity/proteins.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.ONTOLOGIES,),
+        reason="Protein identity resolution keeps curated accession, alias, and species normalization explicit instead of forcing ambiguous aliases into one winner.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/__init__.py",
