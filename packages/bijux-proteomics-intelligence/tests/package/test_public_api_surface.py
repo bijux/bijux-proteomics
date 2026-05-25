@@ -11,6 +11,7 @@ import bijux_proteomics_intelligence
 
 def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
     assert bijux_proteomics_intelligence.__all__ == [
+        "belief_audit",
         "candidates",
         "claims",
         "contradictions",
@@ -29,6 +30,7 @@ def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
 
 def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.candidates, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.belief_audit, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.claims, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.contradictions, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.falsifiers, ModuleType)
@@ -42,6 +44,9 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.refusal, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.reviews, ModuleType)
 
+    assert bijux_proteomics_intelligence.belief_audit.__name__ == (
+        "bijux_proteomics_intelligence.belief_audit"
+    )
     assert bijux_proteomics_intelligence.candidates.__name__ == (
         "bijux_proteomics_intelligence.candidates"
     )
@@ -68,6 +73,12 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     )
     assert bijux_proteomics_intelligence.reviews.__name__ == (
         "bijux_proteomics_intelligence.reviews"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.belief_audit"
+        ).build_belief_audit.__name__
+        == "build_belief_audit"
     )
     assert (
         import_module(
