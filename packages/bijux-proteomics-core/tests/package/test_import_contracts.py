@@ -104,6 +104,13 @@ def test_core_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> 
     )
 
 
+def test_chemistry_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.chemistry")
+
+    assert hasattr(module, "load_modification_pack")
+    assert hasattr(module, "ModificationPackValidationError")
+
+
 def test_io_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.io")
 
