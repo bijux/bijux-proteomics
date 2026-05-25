@@ -860,6 +860,35 @@ def test_workflow_package_exports_multi_study_comparison_surface() -> None:
     assert "harmonized_id" in workflow.render_multi_study_harmonized_proteins_tsv(report)
 
 
+def test_workflow_package_exports_mechanism_card_workflow_surface() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    biological_report = workflow.build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        context_annotation_tsv_path=_fixture("biological_report_compartments.tsv"),
+        regulator_evidence_tsv_path=_fixture("biological_report_regulator_evidence.tsv"),
+        regulator_site_signal_tsv_path=_fixture("biological_report_regulator_sites.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    report = workflow.build_mechanism_cards(biological_report)
+
+    assert hasattr(workflow, "build_mechanism_cards")
+    assert hasattr(workflow, "render_mechanism_cards_tsv")
+    assert report.summary.card_count >= 5
+    assert report.summary.kinase_candidate_count >= 1
+    assert "evidence_for" in workflow.render_mechanism_cards_tsv(report)
+    assert "missing_evidence" in workflow.render_mechanism_cards_tsv(report)
+
+
 def test_workflow_package_exports_cross_species_effect_comparison_surface() -> None:
     report = workflow.build_cross_species_effect_comparison_report_from_observations(
         (
