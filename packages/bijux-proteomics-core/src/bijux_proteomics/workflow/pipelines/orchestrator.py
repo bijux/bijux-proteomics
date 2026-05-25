@@ -117,6 +117,12 @@ from bijux_proteomics.workflow.targeted_review_workflow import (
     export_targeted_assay_qc_workflow_artifacts,
     export_targeted_matrix_workflow_artifacts,
 )
+from bijux_proteomics.workflow.result_types import (
+    WorkflowResult as StandardWorkflowResult,
+    artifact_name_map,
+    build_rejected_evidence_entries_from_issue_rows,
+    build_result_warning,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -422,7 +428,7 @@ WorkflowExportManifest = (
 )
 
 
-class WorkflowResult(JsonModel):
+class WorkflowResult(StandardWorkflowResult):
     """Stable result packet returned by the core workflow orchestrator."""
 
     model_config = ConfigDict(extra="forbid")
@@ -430,10 +436,16 @@ class WorkflowResult(JsonModel):
     mode: WorkflowMode
     report: WorkflowReport
     source_report: WorkflowSourceReport | None = None
-    export_manifest: WorkflowExportManifest | None = None
+    manifest: WorkflowExportManifest | None = None
     design_row_count: int | None = Field(default=None, ge=0)
     outputs: dict[str, str] = Field(default_factory=dict)
     note: str = Field(..., min_length=1)
+
+    @property
+    def export_manifest(self) -> WorkflowExportManifest | None:
+        """Backward-compatible alias for the standardized manifest field."""
+
+        return self.manifest
 
 
 def run_proteomics_workflow(config: WorkflowConfig) -> WorkflowResult:
@@ -492,8 +504,11 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed label-free matrix, differential, annotation, enrichment, and reporting through the shared biological workflow owner"
@@ -551,8 +566,11 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed DDA, generic PSM, or FragPipe input through the governed DDA biological workflow owner"
@@ -598,8 +616,11 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed DIA-NN input through the governed DIA import, matrix, QC, differential, and biology workflow owner"
@@ -645,8 +666,11 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed MaxQuant evidence through the governed protein-group acceptance and biology workflow owner"
@@ -689,8 +713,11 @@ def _run_tmt_workflow(config: TmtWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(report.design_report.accepted_entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed TMT reporter evidence through the governed TMT experiment workflow owner"
@@ -725,8 +752,11 @@ def _run_silac_workflow(config: SilacWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed SILAC evidence through the governed SILAC label-based workflow owner"
@@ -792,8 +822,11 @@ def _run_ptm_workflow(config: PtmWorkflowConfig) -> WorkflowResult:
     return WorkflowResult(
         mode=config.mode,
         report=report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=len(report.experiment_design.entries),
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(report=report),
+        rejected_evidence=_workflow_rejected_evidence(report=report),
         outputs=outputs,
         note=(
             "workflow orchestrator routed localized PTM evidence through the governed PTM site workflow owner"
@@ -830,7 +863,13 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             mode=config.mode,
             report=report,
             source_report=import_report,
-            export_manifest=manifest,
+            manifest=manifest,
+            artifacts=_workflow_artifact_map(outputs, manifest),
+            warnings=_workflow_warnings(source_report=import_report, report=report),
+            rejected_evidence=_workflow_rejected_evidence(
+                source_report=import_report,
+                report=report,
+            ),
             outputs=outputs,
             note=note,
         )
@@ -875,8 +914,17 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             mode=config.mode,
             report=report,
             source_report=report.import_report,
-            export_manifest=report.manifest,
+            manifest=report.manifest,
             design_row_count=len(experiment_design.entries),
+            artifacts=_workflow_artifact_map(outputs, report.manifest, report=report),
+            warnings=_workflow_warnings(
+                source_report=report.import_report,
+                report=report,
+            ),
+            rejected_evidence=_workflow_rejected_evidence(
+                source_report=report.import_report,
+                report=report,
+            ),
             outputs=outputs,
             note=(
                 "workflow orchestrator routed targeted observations through the governed targeted validation owner"
@@ -913,8 +961,14 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         source_report=import_report,
-        export_manifest=manifest,
+        manifest=manifest,
         design_row_count=design_row_count,
+        artifacts=_workflow_artifact_map(outputs, manifest),
+        warnings=_workflow_warnings(source_report=import_report, report=report),
+        rejected_evidence=_workflow_rejected_evidence(
+            source_report=import_report,
+            report=report,
+        ),
         outputs=outputs,
         note=(
             "workflow orchestrator routed targeted observations through the governed targeted assay-qc owner"
@@ -937,6 +991,58 @@ def _build_targeted_import_report(
     if source_kind is TargetedResultSourceKind.SKYLINE_EXPORT:
         return build_skyline_result_import_report(input_tsv_path)
     return build_transition_table_result_import_report(input_tsv_path)
+
+
+def _workflow_artifact_map(
+    outputs: dict[str, str],
+    manifest: WorkflowExportManifest | None,
+    *,
+    report: object | None = None,
+) -> dict[str, str]:
+    artifacts = dict(outputs)
+    if manifest is not None and hasattr(manifest, "artifacts"):
+        artifacts.update(artifact_name_map(getattr(manifest, "artifacts")))
+    if report is not None and hasattr(report, "artifacts"):
+        artifacts.update(dict(getattr(report, "artifacts")))
+    return artifacts
+
+
+def _workflow_warnings(
+    *,
+    source_report: WorkflowSourceReport | None = None,
+    report: object | None = None,
+):
+    warnings = []
+    if report is not None and hasattr(report, "warnings"):
+        warnings.extend(getattr(report, "warnings"))
+    if source_report is not None and getattr(source_report, "rejected_rows", ()):
+        warnings.append(
+            build_result_warning(
+                warning_id="workflow:source-rejections",
+                warning_code="source_rejected_rows_present",
+                source_surface="workflow_orchestrator",
+                message=(
+                    f"{len(source_report.rejected_rows)} source evidence rows were rejected "
+                    "before downstream workflow analysis"
+                ),
+            )
+        )
+    return tuple(warnings)
+
+
+def _workflow_rejected_evidence(
+    *,
+    source_report: WorkflowSourceReport | None = None,
+    report: object | None = None,
+):
+    if report is not None and hasattr(report, "rejected_evidence"):
+        return tuple(getattr(report, "rejected_evidence"))
+    if source_report is not None and getattr(source_report, "rejected_rows", ()):
+        return build_rejected_evidence_entries_from_issue_rows(
+            source_report.rejected_rows,
+            source_surface="workflow_orchestrator",
+        )
+    return ()
 
 
 __all__ = [
