@@ -69,14 +69,14 @@ from bijux_proteomics.review.collaboration import (
     build_external_reviewer_bundle,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics.study.laboratory_plans import (
+from bijux_proteomics.lab.planning import (
     TargetedPlatformAssumptionInput,
     TargetedWorkflowBoundaryInput,
     TargetedWorkflowMethod,
     build_targeted_platform_support_matrix,
     evaluate_targeted_workflow_boundary,
 )
-from bijux_proteomics.study.qc_benchmarks import (
+from bijux_proteomics.lab.qc_benchmarks import (
     build_workflow_minimum_control_report,
 )
 from bijux_proteomics_foundation import JsonModel, fingerprint_model

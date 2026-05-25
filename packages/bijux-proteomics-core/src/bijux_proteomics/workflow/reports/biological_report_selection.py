@@ -216,7 +216,7 @@ from bijux_proteomics.study import (
     render_experiment_confidence_component_tsv,
     render_experiment_confidence_summary_tsv,
 )
-from bijux_proteomics.study.lab_protocol_context import (
+from bijux_proteomics.lab.protocol_context import (
     build_lab_protocol_interpretation_profile,
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
@@ -408,4 +408,3 @@ def _build_protein_reference_entries(
             )
             row_number += 1
     return tuple(entries)
-

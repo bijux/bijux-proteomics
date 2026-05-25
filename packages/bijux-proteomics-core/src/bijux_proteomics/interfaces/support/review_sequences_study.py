@@ -97,7 +97,7 @@ from bijux_proteomics.sequences.digestion import (
 from bijux_proteomics.sequences.peptide_uniqueness_audit import (
     build_peptide_database_lookup_report,
 )
-from bijux_proteomics.study.qc import (
+from bijux_proteomics.lab.qc import (
     QcEvidenceInputFile,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
@@ -111,12 +111,12 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
-from bijux_proteomics.study.lab_protocol_context import (
+from bijux_proteomics.lab.protocol_context import (
     build_lab_protocol_interpretation_profile,
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
 )
-from bijux_proteomics.study.protocol_consistency import (
+from bijux_proteomics.lab.protocol_consistency import (
     build_protocol_consistency_report,
     render_protocol_consistency_tsv,
 )

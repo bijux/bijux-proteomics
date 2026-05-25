@@ -8,7 +8,7 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.quantification import LabelFreeQuantTable
-from bijux_proteomics.study.qc import (
+from bijux_proteomics.lab.qc import (
     LcmsRunQcReport,
     QcAssessmentSeverity,
     QcRunAssessmentReport,

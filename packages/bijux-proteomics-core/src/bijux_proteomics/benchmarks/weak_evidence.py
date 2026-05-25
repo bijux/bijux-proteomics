@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.study.qc_benchmarks import (
+from bijux_proteomics.lab.qc_benchmarks import (
     QcPromotionBlockObservation,
     QcPromotionBlockReport,
     build_qc_promotion_block_report,

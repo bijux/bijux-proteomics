@@ -16,7 +16,7 @@ from bijux_proteomics.quantification import (
     MissingValueKind,
     ReplicateCorrelationReport,
 )
-from bijux_proteomics.study.qc import (
+from bijux_proteomics.lab.qc import (
     InstrumentBatchQcReport,
     QcRunAssessmentReport,
 )
