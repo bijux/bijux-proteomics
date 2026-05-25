@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
+    build_builtin_contaminant_records,
     generate_decoy_records,
     load_builtin_contaminant_records,
     parse_fasta_document,
@@ -129,13 +132,18 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
         report.accepted_records[:1],
         mode=DecoyGenerationMode.REVERSE,
     )
-    contaminant_record = load_builtin_contaminant_records()[0]
+    contaminant_record = build_builtin_contaminant_records()[0]
+    with pytest.warns(
+        DeprecationWarning, match="build_builtin_contaminant_records"
+    ):
+        legacy_contaminant_record = load_builtin_contaminant_records()[0]
     combined_records = (
         *report.accepted_records,
         *decoy_records,
         contaminant_record,
     )
 
+    assert legacy_contaminant_record == contaminant_record
     target_sequences = {
         peptide.sequence for peptide in digest_protein_records(report.accepted_records)
     }

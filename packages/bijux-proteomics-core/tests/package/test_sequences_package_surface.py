@@ -21,6 +21,15 @@ def test_sequences_package_exports_digestion_owner_surface() -> None:
     assert [peptide.sequence for peptide in peptides] == ["AK", "RPQK", "AAAR"]
 
 
+def test_sequences_package_exports_builtin_contaminant_builder_surface() -> None:
+    records = sequences.build_builtin_contaminant_records()
+
+    assert hasattr(sequences, "build_builtin_contaminant_records")
+    assert hasattr(sequences, "load_builtin_contaminant_records")
+    assert len(records) == 4
+    assert all(record.contaminant for record in records)
+
+
 def test_sequences_package_exports_theoretical_digest_owner_surface() -> None:
     report = sequences.parse_fasta_document(
         ">sp|P12345|DEMO Demo\nACDMK\n",

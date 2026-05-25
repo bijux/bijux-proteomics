@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.sequences import (
+    build_builtin_contaminant_records,
     canonicalize_protein_reference,
     DecoyGenerationMode,
     DuplicateAccessionPolicy,
@@ -334,9 +335,14 @@ def test_build_fasta_stats_reports_target_and_decoy_counts(
 
 
 def test_load_builtin_contaminant_records_returns_labeled_builtin_panel() -> None:
-    records = load_builtin_contaminant_records()
+    records = build_builtin_contaminant_records()
+    with pytest.warns(
+        DeprecationWarning, match="build_builtin_contaminant_records"
+    ):
+        legacy_records = load_builtin_contaminant_records()
 
     assert len(records) == 4
+    assert legacy_records == records
     assert all(record.contaminant for record in records)
     assert all(record.canonical_accession.startswith("CON__") for record in records)
     assert any(record.gene == "ALB" for record in records)

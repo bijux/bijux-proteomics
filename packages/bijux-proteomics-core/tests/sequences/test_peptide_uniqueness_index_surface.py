@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics.sequences import (
     FastaParseMode,
     PeptideDigestionMode,
     PeptideUniquenessClass,
+    build_builtin_contaminant_records,
     build_peptide_uniqueness_index,
     generate_decoy_records,
     load_builtin_contaminant_records,
@@ -62,8 +65,13 @@ def test_build_peptide_uniqueness_index_distinguishes_contaminant_decoy_and_mixe
     decoy_records = generate_decoy_records(
         report.accepted_records[-1:],
     )
-    contaminant_record = load_builtin_contaminant_records()[0]
+    contaminant_record = build_builtin_contaminant_records()[0]
+    with pytest.warns(
+        DeprecationWarning, match="build_builtin_contaminant_records"
+    ):
+        legacy_contaminant_record = load_builtin_contaminant_records()[0]
 
+    assert legacy_contaminant_record == contaminant_record
     index = build_peptide_uniqueness_index(
         (
             *report.accepted_records,
