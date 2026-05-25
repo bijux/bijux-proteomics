@@ -3,10 +3,44 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+import subprocess
+import sys
+
 from .public_api_smoke_support import (
     load_public_package_apis,
     ordered_public_package_modules,
 )
+
+
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
+
+
+def _product_source_pythonpath() -> str:
+    roots = (
+        "packages/agentic-proteins/src",
+        "packages/bijux-proteomics/src",
+        "packages/bijux-proteomics-core/src",
+        "packages/bijux-proteomics-foundation/src",
+        "packages/bijux-proteomics-intelligence/src",
+        "packages/bijux-proteomics-knowledge/src",
+        "packages/bijux-proteomics-lab/src",
+        "packages/bijux-proteomics-runtime/src",
+        "packages/proteomics/src",
+        "packages/proteomics-core/src",
+        "packages/proteomics-foundation/src",
+        "packages/proteomics-intelligence/src",
+        "packages/proteomics-knowledge/src",
+        "packages/proteomics-lab/src",
+        "packages/proteomics-runtime/src",
+        "packages/bijux-proteomics-dev/tests",
+    )
+    return ":".join(str(REPO_ROOT / root) for root in roots)
 
 
 def test_cross_package_public_api_smoke_loads_every_root_export_in_order() -> None:
@@ -121,3 +155,37 @@ def test_cross_package_public_api_smoke_loads_every_root_export_in_order() -> No
         ),
         ("AppConfig", "RunManager", "cli", "create_app"),
     )
+
+
+def test_cross_package_public_api_smoke_does_not_require_dev_package_imports() -> None:
+    code = """
+import builtins
+
+from package.public_api_smoke_support import load_public_package_apis
+
+original_import = builtins.__import__
+
+def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == "bijux_proteomics_dev" or name.startswith("bijux_proteomics_dev."):
+        raise ModuleNotFoundError(f"blocked import: {name}")
+    return original_import(name, globals, locals, fromlist, level)
+
+builtins.__import__ = guarded_import
+loads = load_public_package_apis()
+assert tuple(load.package_name for load in loads) == (
+    "foundation",
+    "core",
+    "knowledge",
+    "intelligence",
+    "runtime",
+)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+        env={**os.environ, "PYTHONPATH": _product_source_pythonpath()},
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
