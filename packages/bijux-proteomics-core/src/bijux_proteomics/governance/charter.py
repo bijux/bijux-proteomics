@@ -146,6 +146,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "tabular.py",
             "scientific_tables.py",
+            "_output_tables.py",
             "_tabular.py",
             "_scientific_tables.py",
             "io/formats/__init__.py",
@@ -624,6 +625,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     }:
         return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
     if module_path in {
+        "_output_tables.py",
         "_tabular.py",
         "_scientific_tables.py",
         "tabular.py",
