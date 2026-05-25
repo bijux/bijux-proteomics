@@ -244,8 +244,10 @@ addopts = [
 ]
 markers = [
   "api: HTTP API tests (manual, not for CI)",
+  "benchmark: performance and benchmark-oriented tests",
   "e2e: end-to-end tests",
   "evaluation: evaluation benchmarks (deterministic, no regressions)",
+  "external_data: tests that exercise checked-in external corpora and bundles",
   "gpu: requires CUDA",
   "integration: integration tests",
   "live: live provider integration",

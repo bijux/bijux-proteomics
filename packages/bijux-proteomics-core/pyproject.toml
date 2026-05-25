@@ -86,6 +86,9 @@ packages = ["src/bijux_proteomics"]
 
 [tool.pytest.ini_options]
 markers = [
+  "benchmark: performance and benchmark-oriented tests",
+  "external_data: tests that exercise checked-in external corpora and bundles",
+  "integration: integration tests",
   "unit: marks package-level unit tests",
 ]
 
