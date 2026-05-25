@@ -5,7 +5,19 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.cards.collaboration import *  # noqa: F401,F403
-from bijux_proteomics.review.cards.compact_result_summary import *  # noqa: F401,F403
-from bijux_proteomics.review.cards.inference_packets import *  # noqa: F401,F403
-from bijux_proteomics.review.cards.protein_family_graphs import *  # noqa: F401,F403
+from importlib import import_module
+
+_CARD_MODULES = (
+    "bijux_proteomics.review.cards.collaboration",
+    "bijux_proteomics.review.cards.compact_result_summary",
+    "bijux_proteomics.review.cards.inference_packets",
+    "bijux_proteomics.review.cards.protein_family_graphs",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _CARD_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
