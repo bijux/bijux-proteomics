@@ -10,6 +10,7 @@ from typing import Any, cast
 import numpy as np
 import pytest
 
+from bijux_proteomics.domain.errors import SchemaError, UnsupportedFormatError
 import bijux_proteomics.review.structure_reports as R
 import bijux_proteomics.review.structure_reports.render as render
 
@@ -271,22 +272,22 @@ def test_from_json_success_and_validations() -> None:
     # invalid schema version
     d_bad = deepcopy(d)
     d_bad["schema_version"] = "9.9"
-    with pytest.raises(ValueError):
+    with pytest.raises(UnsupportedFormatError):
         R.from_json(json.dumps(d_bad))
     # invalid band keys
     d_bad = deepcopy(d)
     d_bad["metrics"]["tertiary"]["plddt_bands"] = {"x": 100}
-    with pytest.raises(ValueError):
+    with pytest.raises(SchemaError):
         R.from_json(json.dumps(d_bad))
     # out-of-range band value
     d_bad = deepcopy(d)
     d_bad["metrics"]["tertiary"]["plddt_bands"][R.PLDDTBand.GE90.value] = 120.0
-    with pytest.raises(ValueError):
+    with pytest.raises(SchemaError):
         R.from_json(json.dumps(d_bad))
     # invalid SS8 key
     d_bad = deepcopy(d)
     d_bad["metrics"]["secondary"]["ss8_pct"] = {"Z": 100}
-    with pytest.raises(ValueError):
+    with pytest.raises(SchemaError):
         R.from_json(json.dumps(d_bad))
 
 
