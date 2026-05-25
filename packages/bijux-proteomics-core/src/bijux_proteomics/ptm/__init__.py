@@ -26,3 +26,4 @@ from bijux_proteomics.ptm.site_quantification import *  # noqa: F401,F403
 from bijux_proteomics.ptm.proteoforms import *  # noqa: F401,F403
 from bijux_proteomics.ptm.review import *  # noqa: F401,F403
 from bijux_proteomics.ptm.site_annotation_import import *  # noqa: F401,F403
+from bijux_proteomics.ptm.site_groups import *  # noqa: F401,F403
