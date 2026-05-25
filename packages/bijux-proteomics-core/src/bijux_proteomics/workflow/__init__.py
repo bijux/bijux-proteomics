@@ -53,6 +53,7 @@ _WORKFLOW_EXPORT_MODULES = (
     "bijux_proteomics.workflow.targeted_review_workflow",
     "bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
     "bijux_proteomics.workflow.trust_bundle",
+    "bijux_proteomics.workflow.weak_evidence",
     "bijux_proteomics.workflow.pipelines.dia_differential_analysis",
     "bijux_proteomics.workflow.pipelines.dia_dda_comparison",
     "bijux_proteomics.workflow.pipelines.label_based_differential_analysis",
