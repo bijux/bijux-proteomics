@@ -9,6 +9,10 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
@@ -33,6 +37,21 @@ class QuantDecisionReadinessState(StrEnum):
     DECISION_GRADE = "decision_grade"
     REVIEW_GRADE = "review_grade"
     BLOCKED = "blocked"
+
+
+class QuantDecisionBlockingReasonCode(StrEnum):
+    """Stable blockers that prevent decision-grade quantitative interpretation."""
+
+    INSUFFICIENT_REPLICATES = "insufficient_replicates"
+    BATCH_CONDITION_CONFOUNDING = "confounded_batch_condition"
+    MULTI_BATCH_SHIFT = "multi_batch_shift"
+
+
+class QuantDecisionAdvisoryReasonCode(StrEnum):
+    """Stable advisories that downgrade quantitative interpretation to review grade."""
+
+    BATCH_SHIFT_WARNING = "batch_shift_warning"
+    WITHIN_CONDITION_REPLICATE_INSTABILITY = "within_condition_replicate_instability"
 
 
 class ReplicateStructureEntry(JsonModel):
@@ -73,8 +92,12 @@ class QuantDecisionReadinessReport(JsonModel):
     replicate_audit: ReplicateStructureAuditReport
     flagged_batch_count: int = Field(..., ge=0)
     low_correlation_pair_count: int = Field(..., ge=0)
-    blocking_reasons: tuple[str, ...] = Field(default_factory=tuple)
-    advisory_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    blocking_reasons: tuple[QuantDecisionBlockingReasonCode, ...] = Field(
+        default_factory=tuple
+    )
+    advisory_reasons: tuple[QuantDecisionAdvisoryReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -148,25 +171,25 @@ def build_quant_decision_readiness_report(
         shift_threshold=batch_shift_threshold,
     )
     flagged_batch_count = sum(1 for entry in batch_report.batches if entry.flagged)
-    blocking_reasons: list[str] = []
-    advisory_reasons: list[str] = []
+    blocking_reasons: list[QuantDecisionBlockingReasonCode] = []
+    advisory_reasons: list[QuantDecisionAdvisoryReasonCode] = []
     if replicate_audit.underpowered_conditions:
         blocking_reasons.append(
-            "replicate structure is underpowered for one or more conditions"
+            QuantDecisionBlockingReasonCode.INSUFFICIENT_REPLICATES
         )
     if batch_report.batch_correction_blocked:
         blocking_reasons.append(
-            "batch is fully confounded with condition so batch correction is blocked"
+            QuantDecisionBlockingReasonCode.BATCH_CONDITION_CONFOUNDING
         )
     if flagged_batch_count >= blocking_batch_count:
         blocking_reasons.append(
-            "multiple batches show global-abundance shifts beyond the decision threshold"
+            QuantDecisionBlockingReasonCode.MULTI_BATCH_SHIFT
         )
     elif batch_report.batch_warning is not None:
-        advisory_reasons.append(batch_report.batch_warning)
+        advisory_reasons.append(QuantDecisionAdvisoryReasonCode.BATCH_SHIFT_WARNING)
     if low_correlation_pair_count > 0:
         advisory_reasons.append(
-            "within-condition replicate correlations show instability that weakens decision-grade interpretation"
+            QuantDecisionAdvisoryReasonCode.WITHIN_CONDITION_REPLICATE_INSTABILITY
         )
 
     if blocking_reasons:
@@ -189,14 +212,28 @@ def build_quant_decision_readiness_report(
         replicate_audit=replicate_audit,
         flagged_batch_count=flagged_batch_count,
         low_correlation_pair_count=low_correlation_pair_count,
-        blocking_reasons=tuple(blocking_reasons),
-        advisory_reasons=tuple(advisory_reasons),
+        blocking_reasons=tuple(
+            QuantDecisionBlockingReasonCode(code)
+            for code in require_registered_reason_codes(
+                tuple(reason.value for reason in blocking_reasons),
+                ReasonCodeCategory.WORKFLOW_BLOCK,
+            )
+        ),
+        advisory_reasons=tuple(
+            QuantDecisionAdvisoryReasonCode(code)
+            for code in require_registered_reason_codes(
+                tuple(reason.value for reason in advisory_reasons),
+                ReasonCodeCategory.WORKFLOW_ADVISORY,
+            )
+        ),
         note=note,
     )
 
 
 __all__ = [
     "BatchEffectDecisionPosture",
+    "QuantDecisionAdvisoryReasonCode",
+    "QuantDecisionBlockingReasonCode",
     "QuantDecisionReadinessReport",
     "QuantDecisionReadinessState",
     "ReplicateStructureAuditReport",

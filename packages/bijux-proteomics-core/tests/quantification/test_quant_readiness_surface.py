@@ -9,6 +9,7 @@ from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
+    QuantDecisionBlockingReasonCode,
     QuantDecisionReadinessState,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -358,7 +359,4 @@ def test_quant_decision_readiness_report_blocks_fully_confounded_batch_correctio
 
     assert report.readiness_state is QuantDecisionReadinessState.BLOCKED
     assert report.batch_effect_posture is BatchEffectDecisionPosture.BLOCKED
-    assert any(
-        "batch is fully confounded with condition" in reason
-        for reason in report.blocking_reasons
-    )
+    assert QuantDecisionBlockingReasonCode.BATCH_CONDITION_CONFOUNDING in report.blocking_reasons
