@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_dev.release.governance.cross_package_smoke import (
+from .public_api_smoke_support import (
     load_public_package_apis,
     ordered_public_package_modules,
 )
