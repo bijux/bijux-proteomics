@@ -329,6 +329,9 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert "targeted_transition_review_package" in Path(
             "trust_bundle.summary.tsv"
         ).read_text()
+        assert "flagship_weak_evidence_benchmark" in Path(
+            "trust_bundle.summary.tsv"
+        ).read_text()
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
         assert "evidence_graphs/index.tsv" in Path("trust_bundle/index.html").read_text()
 
