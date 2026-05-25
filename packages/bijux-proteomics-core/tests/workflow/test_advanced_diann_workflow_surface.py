@@ -66,6 +66,18 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     assert "shared_peptide_only" in downgraded_tsv
     assert "raw_bad_precursor" in rejected_evidence_tsv
     assert "audit_id\tsubject_kind\tsubject_id" in belief_audit_tsv
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
+    assert (output_dir / "reports" / report.manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / "evidence" / report.manifest.artifacts.accepted_proteins_tsv).exists()
+    assert (output_dir / "qc" / report.manifest.artifacts.belief_audit_tsv).exists()
     assert (output_dir / report.manifest.artifacts.diann_workflow_manifest_json).exists()
     assert (output_dir / report.manifest.artifacts.biological_report_manifest_json).exists()
     assert report.manifest.artifacts.supported_claim_tsv is not None

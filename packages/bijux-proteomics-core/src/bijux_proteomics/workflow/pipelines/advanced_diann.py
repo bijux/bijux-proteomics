@@ -59,6 +59,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -354,6 +355,7 @@ def run_advanced_diann_workflow(
     )
     manifest_path = output_dir / "advanced_diann_workflow_manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    synchronize_workflow_artifact_layout(output_dir)
 
     return AdvancedDiannWorkflowReport(
         diann_workflow=base_report,

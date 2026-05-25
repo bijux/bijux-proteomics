@@ -35,6 +35,7 @@ from bijux_proteomics.targeted import (
     render_targeted_matrix_target_tsv,
     render_targeted_result_observation_tsv,
 )
+from bijux_proteomics.workflow.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -160,6 +161,7 @@ def export_targeted_matrix_workflow_artifacts(
         output_dir / artifacts.matrix_missingness_tsv,
         render_targeted_matrix_missingness_tsv(matrix_report),
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return TargetedMatrixWorkflowExportManifest(
         source_kind=import_report.source_kind,
         import_summary=_int_summary(import_report.summary.to_dict()),
@@ -278,6 +280,7 @@ def export_targeted_assay_qc_workflow_artifacts(
         output_dir / artifacts.assay_qc_unreliable_targets_tsv,
         render_targeted_assay_qc_unreliable_tsv(assay_qc_report),
     )
+    synchronize_workflow_artifact_layout(output_dir)
     return TargetedAssayQcWorkflowExportManifest(
         source_kind=import_report.source_kind,
         import_summary=_int_summary(import_report.summary.to_dict()),

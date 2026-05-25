@@ -171,6 +171,15 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
     )
 
     output_dir = tmp_path / "advanced_targeted_review"
+    assert (output_dir / "manifest.json").exists()
+    assert (output_dir / "inputs").is_dir()
+    assert (output_dir / "qc").is_dir()
+    assert (output_dir / "evidence").is_dir()
+    assert (output_dir / "matrices").is_dir()
+    assert (output_dir / "stats").is_dir()
+    assert (output_dir / "biology").is_dir()
+    assert (output_dir / "cards").is_dir()
+    assert (output_dir / "reports").is_dir()
     confirmed_tsv = (
         output_dir / report.manifest.artifacts.confirmed_validation_tsv
     ).read_text(encoding="utf-8")
