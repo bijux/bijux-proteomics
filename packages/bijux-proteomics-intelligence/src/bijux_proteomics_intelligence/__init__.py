@@ -11,6 +11,7 @@ from types import ModuleType
 __all__ = [
     "candidates",
     "claims",
+    "contradictions",
     "governance",
     "interpretation",
     "judgment",
