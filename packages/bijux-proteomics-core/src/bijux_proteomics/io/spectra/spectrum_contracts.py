@@ -24,10 +24,10 @@ from bijux_proteomics.chemistry import (
     calculate_peptide_mz,
     canonicalize_modified_peptide,
 )
-from bijux_proteomics.io.spectrum_peak_matching import (
+from bijux_proteomics.io.spectra.spectrum_peak_matching import (
     build_spectrum_peak_match_report,
 )
-from bijux_proteomics.io.mgf_streaming import (
+from bijux_proteomics.io.raw.mgf_streaming import (
     iter_mgf_spectra as _iter_mgf_spectra,
     parse_mgf as _parse_mgf,
 )
