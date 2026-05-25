@@ -1,0 +1,4 @@
+SpecID	Sequence	Z	PrimaryScore	PosteriorError	Proteins	DecoyFlag
+engine-1	PEPTIDE	2	61.5	0.002	P12345	target
+engine-2	PES[PhosphoTIDE	3	59.1	0.006	P12345;Q22222	target
+engine-3	DECOYPEP	2	35.0	1.2	X00001	decoy

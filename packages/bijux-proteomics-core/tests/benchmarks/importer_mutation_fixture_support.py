@@ -132,6 +132,30 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
                 " below zero so the importer refuses impossible abundance evidence"
             ),
         ),
+        ImporterMutationFixture(
+            fixture_id="importer_mutation:psm_invalid_q_and_malformed_modification",
+            owner_surface="identification.contracts.parse_psm_tsv",
+            source_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/psm/"
+                "engine_mapped_results.tsv"
+            ),
+            mutated_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"
+                "psm/psm_invalid_q_and_malformed_modification.tsv"
+            ),
+            mutation_kinds=(
+                ImporterMutationKind.INVALID_Q_VALUE,
+                ImporterMutationKind.MALFORMED_MODIFICATION,
+            ),
+            expected_accepted_count=1,
+            expected_rejected_count=2,
+            expected_issue_codes=("invalid_q_value", "invalid_peptide_notation"),
+            note=(
+                "keeps one valid mapped PSM row, mutates one posterior-error value"
+                " beyond one, and breaks one modified peptide token so structured"
+                " identification rejection stays explicit"
+            ),
+        ),
     )
 
 
