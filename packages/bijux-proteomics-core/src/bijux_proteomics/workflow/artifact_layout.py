@@ -5,12 +5,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import shutil
 from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -27,14 +30,28 @@ class WorkflowArtifactFolder(StrEnum):
     REPORTS = "reports"
 
 
+class WorkflowArtifactKind(StrEnum):
+    """Stable file-format kinds tracked in workflow artifact manifests."""
+
+    TSV_TABLE = "tsv_table"
+    JSON_DOCUMENT = "json_document"
+    TEXT_DOCUMENT = "text_document"
+
+
 class WorkflowArtifactLayoutEntry(JsonModel):
     """One canonical artifact placement inside a workflow output directory."""
 
     model_config = ConfigDict(extra="forbid")
 
     legacy_relative_path: str = Field(..., min_length=1)
+    relative_path: str = Field(..., min_length=1)
     canonical_relative_path: str = Field(..., min_length=1)
     folder: WorkflowArtifactFolder
+    artifact_kind: WorkflowArtifactKind
+    artifact_schema: str = Field(..., min_length=1)
+    row_count: int = Field(..., ge=0)
+    checksum_sha256: str = Field(..., min_length=64, max_length=64)
+    producer_function: str = Field(..., min_length=1)
 
 
 class WorkflowArtifactLayoutManifest(JsonModel):
@@ -43,6 +60,8 @@ class WorkflowArtifactLayoutManifest(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     layout_name: str = "workflow_artifact_layout"
+    manifest_schema_version: str = "2026-05-25"
+    producer_function: str = Field(..., min_length=1)
     folder_names: tuple[str, ...] = Field(
         default_factory=lambda: tuple(folder.value for folder in WorkflowArtifactFolder)
     )
@@ -51,6 +70,8 @@ class WorkflowArtifactLayoutManifest(JsonModel):
 
 def synchronize_workflow_artifact_layout(
     output_dir: Path,
+    *,
+    producer_function: str = "synchronize_workflow_artifact_layout",
 ) -> WorkflowArtifactLayoutManifest:
     """Populate canonical workflow folders from flat compatibility artifacts."""
 
@@ -63,18 +84,78 @@ def synchronize_workflow_artifact_layout(
         folder = classify_workflow_artifact_name(path.name)
         canonical_relative_path = f"{folder.value}/{path.name}"
         shutil.copyfile(path, output_dir / canonical_relative_path)
+        canonical_path = output_dir / canonical_relative_path
         entries.append(
-            WorkflowArtifactLayoutEntry(
+            _build_layout_entry(
+                canonical_path=canonical_path,
                 legacy_relative_path=path.name,
                 canonical_relative_path=canonical_relative_path,
                 folder=folder,
+                producer_function=producer_function,
             )
         )
-    manifest = WorkflowArtifactLayoutManifest(artifacts=tuple(entries))
+    manifest = WorkflowArtifactLayoutManifest(
+        producer_function=producer_function,
+        artifacts=tuple(entries),
+    )
     (output_dir / "manifest.json").write_text(
         manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
+    return manifest
+
+
+def load_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutManifest:
+    """Load the stable workflow artifact manifest from one output directory."""
+
+    manifest_path = output_dir / "manifest.json"
+    if not manifest_path.exists():
+        raise ScientificEvidenceError(
+            f"workflow artifact manifest is missing from {output_dir}"
+        )
+    return WorkflowArtifactLayoutManifest.model_validate_json(
+        manifest_path.read_text(encoding="utf-8")
+    )
+
+
+def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutManifest:
+    """Validate manifest-listed workflow artifacts against current on-disk content."""
+
+    manifest = load_workflow_artifact_manifest(output_dir)
+    for artifact in manifest.artifacts:
+        artifact_path = output_dir / artifact.relative_path
+        if not artifact_path.is_file():
+            raise ScientificEvidenceError(
+                f"workflow artifact manifest lists missing file {artifact.relative_path}"
+            )
+        actual_kind = _classify_artifact_kind(artifact_path)
+        if actual_kind is not artifact.artifact_kind:
+            raise InvalidWorkflowError(
+                "workflow artifact manifest kind mismatch for "
+                f"{artifact.relative_path}: expected {artifact.artifact_kind.value}, "
+                f"found {actual_kind.value}"
+            )
+        actual_schema = _infer_artifact_schema(artifact_path, actual_kind)
+        if actual_schema != artifact.artifact_schema:
+            raise InvalidWorkflowError(
+                "workflow artifact manifest schema mismatch for "
+                f"{artifact.relative_path}: expected {artifact.artifact_schema!r}, "
+                f"found {actual_schema!r}"
+            )
+        actual_row_count = _count_artifact_rows(artifact_path, actual_kind)
+        if actual_row_count != artifact.row_count:
+            raise InvalidWorkflowError(
+                "workflow artifact manifest row-count mismatch for "
+                f"{artifact.relative_path}: expected {artifact.row_count}, "
+                f"found {actual_row_count}"
+            )
+        actual_checksum = _compute_sha256(artifact_path)
+        if actual_checksum != artifact.checksum_sha256:
+            raise InvalidWorkflowError(
+                "workflow artifact manifest checksum mismatch for "
+                f"{artifact.relative_path}: expected {artifact.checksum_sha256}, "
+                f"found {actual_checksum}"
+            )
     return manifest
 
 
@@ -189,10 +270,78 @@ def _prepare_managed_directories(output_dir: Path) -> None:
                 entry.unlink()
 
 
+def _build_layout_entry(
+    *,
+    canonical_path: Path,
+    legacy_relative_path: str,
+    canonical_relative_path: str,
+    folder: WorkflowArtifactFolder,
+    producer_function: str,
+) -> WorkflowArtifactLayoutEntry:
+    artifact_kind = _classify_artifact_kind(canonical_path)
+    return WorkflowArtifactLayoutEntry(
+        legacy_relative_path=legacy_relative_path,
+        relative_path=canonical_relative_path,
+        canonical_relative_path=canonical_relative_path,
+        folder=folder,
+        artifact_kind=artifact_kind,
+        artifact_schema=_infer_artifact_schema(canonical_path, artifact_kind),
+        row_count=_count_artifact_rows(canonical_path, artifact_kind),
+        checksum_sha256=_compute_sha256(canonical_path),
+        producer_function=producer_function,
+    )
+
+
+def _classify_artifact_kind(path: Path) -> WorkflowArtifactKind:
+    suffix = path.suffix.lower()
+    if suffix == ".tsv":
+        return WorkflowArtifactKind.TSV_TABLE
+    if suffix == ".json":
+        return WorkflowArtifactKind.JSON_DOCUMENT
+    return WorkflowArtifactKind.TEXT_DOCUMENT
+
+
+def _infer_artifact_schema(path: Path, artifact_kind: WorkflowArtifactKind) -> str:
+    if artifact_kind is WorkflowArtifactKind.TSV_TABLE:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if not lines:
+            return "tsv[]"
+        columns = tuple(lines[0].split("\t"))
+        return f"tsv[{','.join(columns)}]"
+    if artifact_kind is WorkflowArtifactKind.JSON_DOCUMENT:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, list):
+            return "json[list]"
+        if isinstance(payload, dict):
+            return "json[object]"
+        return "json[scalar]"
+    suffix = path.suffix.lower().lstrip(".") or "text"
+    return f"text[{suffix}]"
+
+
+def _count_artifact_rows(path: Path, artifact_kind: WorkflowArtifactKind) -> int:
+    if artifact_kind is WorkflowArtifactKind.TSV_TABLE:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        return 0 if not lines else len(lines) - 1
+    if artifact_kind is WorkflowArtifactKind.JSON_DOCUMENT:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, list):
+            return len(payload)
+        return 1
+    return len([line for line in path.read_text(encoding="utf-8").splitlines() if line])
+
+
+def _compute_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 __all__ = [
     "WorkflowArtifactFolder",
+    "WorkflowArtifactKind",
     "WorkflowArtifactLayoutEntry",
     "WorkflowArtifactLayoutManifest",
     "classify_workflow_artifact_name",
+    "load_workflow_artifact_manifest",
     "synchronize_workflow_artifact_layout",
+    "validate_workflow_artifact_manifest",
 ]
