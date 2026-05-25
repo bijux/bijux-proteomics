@@ -28,6 +28,7 @@ class IntelligenceAnalyticalBand(StrEnum):
     CANDIDATES = "candidates"
     CLAIMS = "claims"
     CONTRADICTIONS = "contradictions"
+    FALSIFIERS = "falsifiers"
     JUDGMENT = "judgment"
     POSTURE = "posture"
     INTERPRETATION = "interpretation"
@@ -177,6 +178,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.FALSIFIERS,
+        owned_surface=(
+            "claim challenge generation that states what evidence would overturn "
+            "protein, PTM, pathway, regulator, and biomarker interpretations"
+        ),
+        required_modules=("falsifiers.py",),
+        decision_scope=(
+            "emit claim-specific falsifier types instead of one generic challenge template",
+            "tie required evidence to the biological surface that currently carries the claim",
+        ),
+        refusal_scope=(
+            "refuse generic falsifiers that ignore whether the claim is protein, PTM, pathway, regulator, and biomarker scoped",
+            "do not take over lab scheduling or knowledge-owned assay catalog curation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.JUDGMENT,
         owned_surface=(
             "scenario evaluation, decision paths, and recommendation semantics that "
@@ -306,6 +323,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
+            "falsifiers.py",
             "reviews/decision_briefs.py",
             "judgment/recommendations.py",
             "judgment/paths.py",
@@ -365,6 +383,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
             IntelligenceCharterCapability.REVIEW_REASONING,
         ),
         reason="Contradiction detection preserves direct disagreements while distinguishing corrected site-specific PTM residuals from real protein-versus-site conflicts.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="falsifiers.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="Falsifier generation keeps claim challenge paths explicit by emitting distinct evidence requirements for protein, PTM, pathway, regulator, and biomarker claims.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="governance/charter.py",
