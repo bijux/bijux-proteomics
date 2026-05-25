@@ -180,6 +180,30 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
                 " evidence parsing refuses both rows with explicit issues"
             ),
         ),
+        ImporterMutationFixture(
+            fixture_id="importer_mutation:tmt_reporter_negative_intensity_and_malformed_modification",
+            owner_surface="multiplex.parse_tmt_reporter_table",
+            source_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/multiplex/"
+                "maxquant_tmt_evidence.tsv"
+            ),
+            mutated_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"
+                "multiplex/tmt_reporter_negative_intensity_and_malformed_modification.tsv"
+            ),
+            mutation_kinds=(
+                ImporterMutationKind.NEGATIVE_INTENSITY,
+                ImporterMutationKind.MALFORMED_MODIFICATION,
+            ),
+            expected_accepted_count=1,
+            expected_rejected_count=2,
+            expected_issue_codes=("invalid_peptide", "negative_reporter_intensity"),
+            note=(
+                "keeps one valid reporter row, corrupts one modified peptide token,"
+                " and flips one reporter channel below zero while the rest of the row"
+                " stays intact"
+            ),
+        ),
     )
 
 
