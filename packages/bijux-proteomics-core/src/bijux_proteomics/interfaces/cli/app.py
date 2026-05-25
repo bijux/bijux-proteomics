@@ -1029,7 +1029,10 @@ from bijux_proteomics.workflow import (
     render_public_dataset_failure_tsv,
     render_public_dataset_meta_analysis_tsv,
     render_public_dataset_pathway_comparison_tsv,
+    render_surprising_demo_findings_tsv,
+    render_surprising_demo_summary_tsv,
     render_trust_bundle_run_summary_tsv,
+    SurprisingDemoConfig,
     build_public_dataset_evidence_card_report,
     build_public_benchmark_trust_bundle,
     build_public_dataset_comparison_report,
@@ -1053,6 +1056,7 @@ from bijux_proteomics.workflow import (
     search_result_index,
     resolve_public_benchmark_path,
     resolve_public_benchmark_root,
+    run_surprising_demo,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -5989,6 +5993,73 @@ def build_trust_bundle_command(
     if manifest_json_out is not None:
         manifest_json_out.write_text(report.to_stable_json() + "\n", encoding="utf-8")
     _emit_json(report)
+
+
+@cli.command("demo")
+@click.option(
+    "--out-dir",
+    "output_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path("artifacts/proteomics-demo"),
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--findings-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--claims-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--contradictions-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--belief-audit-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def surprising_demo_command(
+    output_dir: Path,
+    summary_tsv_out: Path | None,
+    findings_tsv_out: Path | None,
+    claims_tsv_out: Path | None,
+    contradictions_tsv_out: Path | None,
+    belief_audit_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run the shipped proteomics demo from local example data only."""
+
+    try:
+        report = run_surprising_demo(SurprisingDemoConfig(output_dir=output_dir))
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_surprising_demo_summary_tsv(report))
+    if findings_tsv_out is not None:
+        _write_text_output(findings_tsv_out, render_surprising_demo_findings_tsv(report))
+    if claims_tsv_out is not None:
+        claims_tsv_out.write_text(
+            (output_dir / report.artifacts.claims_tsv).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    if contradictions_tsv_out is not None:
+        contradictions_tsv_out.write_text(
+            (output_dir / report.artifacts.contradictions_tsv).read_text(
+                encoding="utf-8"
+            ),
+            encoding="utf-8",
+        )
+    if belief_audit_tsv_out is not None:
+        belief_audit_tsv_out.write_text(
+            (output_dir / report.artifacts.belief_audit_tsv).read_text(
+                encoding="utf-8"
+            ),
+            encoding="utf-8",
+        )
+    _emit_json(report, out_path=out_path)
 
 
 @cli.command("public-dataset-comparison")
