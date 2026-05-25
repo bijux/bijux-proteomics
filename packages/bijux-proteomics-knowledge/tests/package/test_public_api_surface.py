@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_knowledge import (
     ComplexMembershipConfidence,
+    DiseaseTermResolutionEntry,
     DrugTargetRelationshipType,
     EvidenceBundle,
     EvidenceClaim,
@@ -18,12 +19,14 @@ from bijux_proteomics_knowledge import (
     evaluate_schema_compatibility,
     overlap_protein_features,
     render_complex_membership_resolution_tsv,
+    render_disease_term_resolution_tsv,
     render_drug_target_resolution_tsv,
     render_kinase_substrate_resolution_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
     resolve_complex_members,
+    resolve_disease_terms,
     resolve_drug_targets,
     resolve_kinase_substrates,
     resolve_pathway_members,
@@ -306,4 +309,46 @@ def test_knowledge_public_root_exposes_drug_target_resolution_surface() -> None:
     assert report.entries[1].relationship_type is DrugTargetRelationshipType.INDIRECT_PATHWAY_NEIGHBOR
     assert render_drug_target_resolution_tsv(report.entries).splitlines()[0] == (
         "protein_id\tdrug\trelationship_type\tdirect_target\tannotation_source"
+    )
+
+
+def test_knowledge_public_root_exposes_disease_term_resolution_surface() -> None:
+    report = resolve_disease_terms(
+        ("P04637", "P28482"),
+        (
+            BiologicalContextRecord(
+                protein_ref="P04637",
+                context_kind=BiologicalContextKind.DISEASE_TERM,
+                context_id="DOID:162",
+                context_name="cancer",
+                source_name="Disease Ontology",
+            ),
+            BiologicalContextRecord(
+                protein_ref="P28482",
+                context_kind=BiologicalContextKind.PHENOTYPE_TERM,
+                context_id="HP:0001250",
+                context_name="seizures",
+                source_name="HPO",
+            ),
+        ),
+    )
+
+    assert report.entries == (
+        DiseaseTermResolutionEntry(
+            protein_id="P04637",
+            term_id="DOID:162",
+            term_name="cancer",
+            source="Disease Ontology",
+            evidence_type="disease_term",
+        ),
+        DiseaseTermResolutionEntry(
+            protein_id="P28482",
+            term_id="HP:0001250",
+            term_name="seizures",
+            source="HPO",
+            evidence_type="phenotype_term",
+        ),
+    )
+    assert render_disease_term_resolution_tsv(report.entries).splitlines()[0] == (
+        "protein_id\tterm_id\tterm_name\tsource\tevidence_type"
     )
