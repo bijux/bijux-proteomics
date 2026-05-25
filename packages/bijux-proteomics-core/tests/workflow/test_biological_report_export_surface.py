@@ -9,6 +9,7 @@ from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow import (
     build_biological_result_report_bundle,
     export_biological_result_report_bundle,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -61,6 +62,14 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / "cards" / manifest.artifacts.protein_card_tsv).exists()
     assert (output_dir / "evidence" / manifest.artifacts.supported_claim_tsv).exists()
     assert (output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.producer_function == "export_biological_result_report_bundle"
+    assert summary_entry.relative_path == f"reports/{manifest.artifacts.summary_tsv}"
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()

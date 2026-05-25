@@ -269,9 +269,12 @@ def test_workflow_package_exports_result_archive_surface() -> None:
 
 
 def test_workflow_package_exports_artifact_layout_surface() -> None:
+    assert hasattr(workflow, "WorkflowArtifactKind")
     assert hasattr(workflow, "WorkflowArtifactFolder")
     assert hasattr(workflow, "classify_workflow_artifact_name")
+    assert hasattr(workflow, "load_workflow_artifact_manifest")
     assert hasattr(workflow, "synchronize_workflow_artifact_layout")
+    assert hasattr(workflow, "validate_workflow_artifact_manifest")
 
 
 def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None:

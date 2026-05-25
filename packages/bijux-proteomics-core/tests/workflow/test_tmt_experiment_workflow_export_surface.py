@@ -9,6 +9,7 @@ from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.workflow import (
     build_tmt_experiment_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -48,6 +49,13 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     assert (
         output_dir / "reports" / manifest.artifacts.label_based_report_manifest_json
     ).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.producer_function == "write_tmt_experiment_workflow_bundle"
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.reporter_import_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_reporter_rows_tsv).exists()
