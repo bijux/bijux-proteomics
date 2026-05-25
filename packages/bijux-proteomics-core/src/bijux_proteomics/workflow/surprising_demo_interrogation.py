@@ -14,6 +14,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.workflow.surprising_demo import (
     SurprisingDemoConfig,
+    SurprisingDemoReport,
     run_surprising_demo,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -103,8 +104,15 @@ class _SurprisingDemoContext(JsonModel):
 def ensure_surprising_demo_outputs(output_dir: Path) -> Path:
     """Ensure the shipped demo outputs exist at the requested directory."""
 
-    if (output_dir / "surprising_demo_report.json").exists():
-        return output_dir
+    report_path = output_dir / "surprising_demo_report.json"
+    if report_path.exists():
+        try:
+            SurprisingDemoReport.model_validate_json(
+                report_path.read_text(encoding="utf-8")
+            )
+            return output_dir
+        except Exception:  # noqa: BLE001
+            pass
     run_surprising_demo(SurprisingDemoConfig(output_dir=output_dir))
     return output_dir
 

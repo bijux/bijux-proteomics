@@ -41,6 +41,10 @@ from bijux_proteomics.workflow.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
     export_biological_result_report_bundle,
 )
+from bijux_proteomics.workflow.study_result import (
+    ProteomicsStudyResult,
+    build_proteomics_study_result_from_biological_report_bundle,
+)
 from bijux_proteomics.workflow.advanced_ptm import (
     AdvancedPtmWorkflowConfig,
     AdvancedPtmWorkflowReport,
@@ -207,6 +211,7 @@ class SurprisingDemoReport(JsonModel):
     artifacts: SurprisingDemoArtifactPaths
     tmt_report: AdvancedTmtWorkflowReport
     ptm_report: AdvancedPtmWorkflowReport
+    study_result: ProteomicsStudyResult
     biological_report_manifest: BiologicalResultReportExportManifest
     claim_report: tuple[EvidenceClaim, ...] = Field(default_factory=tuple)
     contradiction_report: ClaimContradictionReport
@@ -313,6 +318,9 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         manifest=manifest,
         ptm_report=ptm_report,
     )
+    study_result = build_proteomics_study_result_from_biological_report_bundle(
+        biological_report
+    )
     biological_manifest = export_biological_result_report_bundle(
         biological_report,
         biological_output_dir,
@@ -409,6 +417,7 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         artifacts=artifacts,
         tmt_report=tmt_report,
         ptm_report=ptm_report,
+        study_result=study_result,
         biological_report_manifest=biological_manifest,
         claim_report=claim_report,
         contradiction_report=contradiction_report,
