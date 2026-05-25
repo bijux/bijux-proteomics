@@ -17,6 +17,7 @@ __all__ = [
     "interpretation",
     "judgment",
     "learning",
+    "next_steps",
     "posture",
     "query",
     "refusal",
