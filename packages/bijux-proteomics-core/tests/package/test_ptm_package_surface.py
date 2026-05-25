@@ -13,10 +13,21 @@ from bijux_proteomics.chemistry import (
 )
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.io.spectra import SpectrumPeak
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord
 from bijux_proteomics.quantification import parse_ms1_feature_table
+from bijux_proteomics.quantification.contracts import (
+    LabelFreeQuantTable,
+    MissingValueKind,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+    QuantValue,
+)
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -257,6 +268,52 @@ def test_ptm_package_exports_occupancy_owner_surface() -> None:
     )
     assert target.confidence_tier.value == "high_confidence"
     assert target.unmodified_feature_count == 1
+
+
+def test_ptm_package_exports_occupancy_contrast_surface() -> None:
+    report = ptm.test_occupancy_contrast(
+        _occupancy_matrix(
+            {
+                "P11111:S5:Phospho": {
+                    "ctrl-1": 10.0,
+                    "ctrl-2": 12.0,
+                    "case-1": 80.0,
+                    "case-2": 84.0,
+                },
+                "P22222:Y18:Phospho": {
+                    "ctrl-1": 20.0,
+                    "ctrl-2": 25.0,
+                    "case-1": 35.0,
+                    "case-2": 40.0,
+                },
+            }
+        ),
+        _occupancy_matrix(
+            {
+                "P11111:S5:Phospho": {
+                    "ctrl-1": 90.0,
+                    "ctrl-2": 88.0,
+                    "case-1": 20.0,
+                    "case-2": 16.0,
+                },
+            }
+        ),
+        _occupancy_design(),
+    )
+    rendered = ptm.render_ptm_occupancy_contrast_tsv(report)
+
+    assert hasattr(ptm, "test_occupancy_contrast")
+    assert hasattr(ptm, "render_ptm_occupancy_contrast_tsv")
+    high_confidence = next(
+        entry for entry in report.entries if entry.site_id == "P11111:S5:Phospho"
+    )
+    missing_unmodified = next(
+        entry for entry in report.entries if entry.site_id == "P22222:Y18:Phospho"
+    )
+    assert high_confidence.occupancy_delta == 0.71
+    assert high_confidence.confidence_tier.value == "high_confidence"
+    assert missing_unmodified.confidence_tier.value == "missing_unmodified_evidence"
+    assert "confidence_tier" in rendered.splitlines()[0]
 
 
 def test_ptm_package_exports_motif_owner_surface() -> None:
@@ -520,3 +577,71 @@ def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     assert report.evidence_cards.summary.ortholog_context_card_count == 3
     assert "card_id" in ptm.render_ptm_evidence_card_tsv(report.evidence_cards)
     assert report.evidence_aware_ranking_report.summary.ptm_site_entry_count == 3
+
+
+def _occupancy_matrix(
+    site_values: dict[str, dict[str, float | None]],
+) -> LabelFreeQuantTable:
+    sample_ids = tuple(
+        sorted({sample_id for values in site_values.values() for sample_id in values})
+    )
+    entity_ids = tuple(sorted(site_values))
+    values: list[QuantValue] = []
+    for entity_id in entity_ids:
+        row = site_values[entity_id]
+        for sample_id in sample_ids:
+            abundance = row.get(sample_id)
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=(
+                        MissingValueKind.OBSERVED
+                        if abundance is not None
+                        else MissingValueKind.NOT_OBSERVED
+                    ),
+                    source_feature_count=0 if abundance is None else 1,
+                )
+            )
+    return LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PEPTIDE,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        sample_ids=sample_ids,
+        entity_ids=entity_ids,
+        values=tuple(values),
+    )
+
+
+def _occupancy_design() -> tuple[ExperimentalDesignEntry, ...]:
+    return (
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.raw",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.raw",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.raw",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.raw",
+        ),
+    )
