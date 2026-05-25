@@ -14,6 +14,5 @@ from .interpretation import *  # noqa: F401,F403
 from .multiplex_targeted import *  # noqa: F401,F403
 from .ptm_quantification import *  # noqa: F401,F403
 from .review_sequences_study import *  # noqa: F401,F403
-from .workflow import *  # noqa: F401,F403
 
 __all__ = [name for name in globals() if not name.startswith("__")]

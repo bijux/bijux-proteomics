@@ -39,11 +39,6 @@ from bijux_proteomics.chemistry import (
     render_isotope_envelopes_tsv,
     render_fragment_ion_report_tsv,
 )
-from bijux_proteomics.benchmarks import (
-    build_lfq_cohort_biological_case_study_report,
-    export_public_biological_case_study_report,
-    render_public_biological_case_study_summary_tsv,
-)
 from bijux_proteomics.domain.errors import (
     ProteomicsOperatorError,
     ProteomicsOperatorErrorCode,
