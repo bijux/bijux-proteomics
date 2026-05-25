@@ -79,7 +79,7 @@ def run_fasta_dedup_command(
         allow_rejected=False,
     )
     deduplicated, dedup_report = deduplicate_fasta_records(report.accepted_records)
-    out_fasta.write_text(render_fasta_records(deduplicated))
+    out_fasta.write_text(render_records_fasta(deduplicated))
     _emit_json(dedup_report, out_path=report_out)
 
 def run_fasta_contaminants_command(
@@ -115,7 +115,7 @@ def run_fasta_contaminants_command(
         include_builtin=include_builtin,
         external_contaminant_records=tuple(external_records),
     )
-    out_fasta.write_text(render_fasta_records(combined))
+    out_fasta.write_text(render_records_fasta(combined))
     _emit_json(build_report, out_path=report_out)
 
 def run_fasta_filter_command(
@@ -146,7 +146,7 @@ def run_fasta_filter_command(
         organism=organism,
         exclude_contaminants=exclude_contaminants,
     )
-    out_fasta.write_text(render_fasta_records(filtered))
+    out_fasta.write_text(render_records_fasta(filtered))
     _emit_json(filter_report, out_path=report_out)
 
 def run_fasta_stats_command(

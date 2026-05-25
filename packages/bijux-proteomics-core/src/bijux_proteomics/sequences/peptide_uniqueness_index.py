@@ -22,7 +22,7 @@ from bijux_proteomics.sequences.digestion import (
     digest_protein_records,
     get_protease_rule,
 )
-from bijux_proteomics._tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -235,7 +235,7 @@ def render_peptide_uniqueness_index_tsv(
     report: PeptideUniquenessIndexReport,
 ) -> str:
     """Render a stable TSV export for a peptide uniqueness index."""
-    return render_tsv_rows(
+    return render_rows_tsv(
         fieldnames=(
             "peptide_sequence",
             "lookup_sequence",

@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.identification.cross_run_reproducibility import (
         RunDetectionContext,
     )
-from bijux_proteomics._tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.psm import (
     PsmParseReport,
@@ -309,7 +309,7 @@ def export_psm_jsonl(records: tuple[PsmRecord, ...], path: Path) -> None:
 def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
     """Write normalized PSM records as a stable TSV table."""
     normalized = normalize_psm_records(records)
-    content = render_tsv_rows(
+    content = render_rows_tsv(
         fieldnames=(
             "run_id",
             "spectrum_id",

@@ -932,7 +932,7 @@ def build_decoy_generation_manifest(
         package_name="bijux-proteomics-core",
         status="generated",
     )
-    rendered_output = render_fasta_records(output_records)
+    rendered_output = render_records_fasta(output_records)
     manifest = DecoyGenerationManifest(
         document_schema=schema,
         decoy_mode=mode,
@@ -1122,7 +1122,7 @@ def validate_target_decoy_database(
     )
 
 
-def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
+def render_records_fasta(records: tuple[NormalizedProteinRecord, ...]) -> str:
     """Render normalized records back into FASTA text."""
     lines: list[str] = []
     for record in records:
@@ -1132,6 +1132,12 @@ def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
             for index in range(0, len(record.residues), 60)
         )
     return "\n".join(lines) + ("\n" if lines else "")
+
+
+def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
+    """Compatibility wrapper for the legacy FASTA renderer name."""
+
+    return render_records_fasta(records)
 
 
 def parse_uniprot_accession(value: str) -> UniProtAccession:

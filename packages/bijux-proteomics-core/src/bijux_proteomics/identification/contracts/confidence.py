@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.identification.cross_run_reproducibility import (
         RunDetectionContext,
     )
-from bijux_proteomics._tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.fdr_levels import (
     FdrEvidenceLevel,

@@ -10,6 +10,7 @@ from bijux_proteomics._tabular import (
     DelimitedColumnValueType,
     infer_delimited_table_delimiter,
     parse_delimited_table,
+    render_rows_tsv,
     render_tsv_rows,
 )
 
@@ -98,7 +99,7 @@ def test_table_engine_infers_delimiter_and_renders_stable_tsv() -> None:
     assert infer_delimited_table_delimiter("a\tb") == "\t"
     assert infer_delimited_table_delimiter("a,b") == ","
 
-    rendered = render_tsv_rows(
+    rendered = render_rows_tsv(
         fieldnames=("sample_id", "replicate", "intensity", "accepted"),
         rows=(
             {
@@ -121,3 +122,20 @@ def test_table_engine_infers_delimiter_and_renders_stable_tsv() -> None:
         "s1\t1\t12.5\ttrue\n"
         "s2\t2\t\tfalse\n"
     )
+    assert render_tsv_rows(
+        fieldnames=("sample_id", "replicate", "intensity", "accepted"),
+        rows=(
+            {
+                "sample_id": "s1",
+                "replicate": 1,
+                "intensity": 12.5,
+                "accepted": True,
+            },
+            {
+                "sample_id": "s2",
+                "replicate": 2,
+                "intensity": None,
+                "accepted": False,
+            },
+        ),
+    ) == rendered

@@ -14,7 +14,7 @@ from bijux_proteomics.domain.records import (
     QuantMatrix,
     SampleMetadata,
 )
-from bijux_proteomics._tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -98,7 +98,7 @@ def render_quant_matrix_archive_tsv(matrix: QuantMatrix | QuantMatrixArchive) ->
         sample.sample_id: sample
         for sample in quant_matrix.sample_metadata
     }
-    return render_tsv_rows(
+    return render_rows_tsv(
         fieldnames=(
             "entity_id",
             "sample_id",

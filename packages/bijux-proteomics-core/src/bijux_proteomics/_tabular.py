@@ -290,7 +290,7 @@ def parse_delimited_table(
     )
 
 
-def render_tsv_rows(
+def render_rows_tsv(
     *,
     fieldnames: Sequence[str],
     rows: Sequence[Mapping[str, object | None]],
@@ -303,6 +303,16 @@ def render_tsv_rows(
     for row in rows:
         writer.writerow([_format_tsv_value(row.get(field)) for field in fieldnames])
     return buffer.getvalue()
+
+
+def render_tsv_rows(
+    *,
+    fieldnames: Sequence[str],
+    rows: Sequence[Mapping[str, object | None]],
+) -> str:
+    """Compatibility wrapper for the legacy TSV row renderer name."""
+
+    return render_rows_tsv(fieldnames=fieldnames, rows=rows)
 
 
 def _header_issues(
