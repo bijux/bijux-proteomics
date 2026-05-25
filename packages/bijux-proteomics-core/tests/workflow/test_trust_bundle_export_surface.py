@@ -33,3 +33,4 @@ def test_render_trust_bundle_run_summary_tsv_lists_generated_bundle_runs(
     assert "ptm_localization_review_package" in summary_tsv
     assert "targeted_transition_review_package" in summary_tsv
     assert "dia_diann_review_snapshot" in summary_tsv
+    assert "flagship_weak_evidence_benchmark" in summary_tsv
