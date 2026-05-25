@@ -25,6 +25,7 @@ class IntelligenceCharterCapability(StrEnum):
 class IntelligenceAnalyticalBand(StrEnum):
     """Stable analytical bands that organize intelligence owner modules."""
 
+    BELIEF_AUDIT = "belief_audit"
     CANDIDATES = "candidates"
     CLAIMS = "claims"
     CONTRADICTIONS = "contradictions"
@@ -126,6 +127,22 @@ DEFAULT_INTELLIGENCE_CHARTER = IntelligenceProductCharter(
 )
 
 DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] = (
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.BELIEF_AUDIT,
+        owned_surface=(
+            "claim-level belief audits that balance supporting evidence, "
+            "contradicting evidence, uncertainty, falsification, and next checks"
+        ),
+        required_modules=("belief_audit.py",),
+        decision_scope=(
+            "emit one explicit audit row for every claim instead of letting top claims bypass balanced review",
+            "keep support, contradiction, uncertainty, falsifier, and next-check state visible in one governed surface",
+        ),
+        refusal_scope=(
+            "refuse report-ready top claims that do not have belief-audit rows",
+            "do not take over evidence-graph construction or knowledge-owned claim curation",
+        ),
+    ),
     IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.CANDIDATES,
         owned_surface=(
@@ -365,6 +382,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
             "contradictions.py",
             "claims/support.py",
             "refusal.py",
+            "belief_audit.py",
             "posture/evidence.py",
             "judgment/scenarios.py",
             "judgment/paths.py",
@@ -375,6 +393,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
+            "belief_audit.py",
             "falsifiers.py",
             "next_steps.py",
             "query.py",
@@ -414,6 +433,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="belief_audit.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Belief-audit rows keep support, contradiction, uncertainty, falsification, and next checks explicit for every claim so high-confidence claims cannot bypass balanced review.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="claims/__init__.py",
