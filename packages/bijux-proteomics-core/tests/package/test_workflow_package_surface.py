@@ -285,6 +285,27 @@ def test_workflow_package_exports_advanced_maxquant_surface(tmp_path: Path) -> N
     )
 
 
+def test_workflow_package_exports_advanced_fragpipe_surface(tmp_path: Path) -> None:
+    report = workflow.run_advanced_fragpipe_workflow(
+        workflow.AdvancedFragpipeWorkflowConfig(
+            psm_tsv_path=_fixture("fragpipe_biological_psms.tsv"),
+            design_tsv_path=_fixture("biological_report.design.tsv"),
+            proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+            output_dir=tmp_path / "advanced_fragpipe_package_surface",
+            philosopher_protein_tsv_path=_fixture("fragpipe_biological_proteins.tsv"),
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert hasattr(workflow, "run_advanced_fragpipe_workflow")
+    assert hasattr(workflow, "render_advanced_fragpipe_discrepancy_tsv")
+    assert report.summary.protein_group_discrepancy_count == 2
+    assert "discrepancy_reason" in workflow.render_advanced_fragpipe_discrepancy_tsv(
+        report.discrepancy_reasons
+    )
+
+
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
     report = workflow.build_cross_study_protein_harmonization_report_from_observations(
         (
