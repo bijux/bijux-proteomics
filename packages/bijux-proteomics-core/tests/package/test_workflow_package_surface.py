@@ -1205,6 +1205,24 @@ def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> Non
     assert Path(report.artifacts.evidence_graph_nodes_tsv).name == "biological_evidence_graph_nodes.tsv"
 
 
+def test_workflow_package_exports_surprising_demo_interrogation_surface(
+    tmp_path: Path,
+) -> None:
+    demo_output_dir = tmp_path / "surprising_demo_query_run"
+    workflow.ensure_surprising_demo_outputs(demo_output_dir)
+    report = workflow.build_surprising_demo_interrogation_report(demo_output_dir)
+
+    assert hasattr(workflow, "SurprisingDemoQueryKind")
+    assert hasattr(workflow, "build_surprising_demo_example_requests")
+    assert hasattr(workflow, "build_surprising_demo_interrogation_report")
+    assert hasattr(workflow, "ensure_surprising_demo_outputs")
+    assert report.summary.query_count == 4
+    assert report.summary.answered_query_count == 4
+    assert "confidence_reasons" in workflow.render_surprising_demo_interrogation_answers_tsv(
+        report
+    )
+
+
 def test_workflow_package_exports_public_dataset_comparison_surface(
     tmp_path: Path,
 ) -> None:
