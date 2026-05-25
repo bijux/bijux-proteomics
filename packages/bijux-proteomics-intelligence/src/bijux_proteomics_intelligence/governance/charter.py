@@ -27,6 +27,7 @@ class IntelligenceAnalyticalBand(StrEnum):
 
     CANDIDATES = "candidates"
     CLAIMS = "claims"
+    CONTRADICTIONS = "contradictions"
     JUDGMENT = "judgment"
     POSTURE = "posture"
     INTERPRETATION = "interpretation"
@@ -160,6 +161,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.CONTRADICTIONS,
+        owned_surface=(
+            "pairwise contradiction detection that distinguishes direct disagreement "
+            "from site-specific PTM residuals after protein-abundance correction"
+        ),
+        required_modules=("contradictions.py",),
+        decision_scope=(
+            "keep direct target disagreements explicit before recommendation synthesis",
+            "treat protein-steady and PTM-shifted pairs as site-specific only when corrected residual site evidence remains strong",
+        ),
+        refusal_scope=(
+            "refuse to collapse corrected site-specific PTM residuals into protein-level contradiction",
+            "do not take over knowledge-owned claim curation or PTM correction generation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.JUDGMENT,
         owned_surface=(
             "scenario evaluation, decision paths, and recommendation semantics that "
@@ -277,6 +294,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.CONTRADICTION_HANDLING,
         owned_surface="Explicit contradiction, claim-support, freshness, and uncertainty posture that can refuse overconfident recommendations.",
         required_modules=(
+            "contradictions.py",
             "claims/support.py",
             "posture/evidence.py",
             "judgment/scenarios.py",
@@ -338,6 +356,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
             IntelligenceCharterCapability.REVIEW_REASONING,
         ),
         reason="Claim-support validation keeps unsupported claims invalid and leaves contradicting graph evidence explicit before downstream judgment or review packets are built.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="contradictions.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Contradiction detection preserves direct disagreements while distinguishing corrected site-specific PTM residuals from real protein-versus-site conflicts.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="governance/charter.py",
