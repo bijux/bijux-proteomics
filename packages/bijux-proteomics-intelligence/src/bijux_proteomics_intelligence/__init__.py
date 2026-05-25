@@ -10,6 +10,7 @@ from types import ModuleType
 
 __all__ = [
     "candidates",
+    "claims",
     "governance",
     "interpretation",
     "judgment",
