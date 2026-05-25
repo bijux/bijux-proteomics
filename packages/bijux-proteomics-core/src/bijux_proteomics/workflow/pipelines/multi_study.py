@@ -37,6 +37,12 @@ from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     render_cross_study_protein_unresolved_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    artifact_name_map,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 
 
 class MultiStudyComparisonSummary(JsonModel):
@@ -58,11 +64,36 @@ class MultiStudyComparisonSummary(JsonModel):
     study_specific_pathway_count: int = Field(..., ge=0)
 
 
-class MultiStudyComparisonReport(JsonModel):
+class MultiStudyComparisonArtifactPaths(JsonModel):
+    """Stable artifact names exposed by the multi-study comparison workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary_tsv: str = "multi_study_comparison_summary.tsv"
+    harmonized_proteins_tsv: str = "multi_study_harmonized_proteins.tsv"
+    unresolved_proteins_tsv: str = "multi_study_unresolved_proteins.tsv"
+    shared_effects_tsv: str = "multi_study_shared_effects.tsv"
+    conflicting_effects_tsv: str = "multi_study_conflicting_effects.tsv"
+    shared_pathways_tsv: str = "multi_study_shared_pathways.tsv"
+    study_specific_pathways_tsv: str = "multi_study_study_specific_pathways.tsv"
+
+
+class MultiStudyComparisonManifest(JsonModel):
+    """Manifest for stable multi-study comparison artifact names."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifacts: MultiStudyComparisonArtifactPaths = Field(
+        default_factory=MultiStudyComparisonArtifactPaths
+    )
+
+
+class MultiStudyComparisonReport(BiologyResult):
     """Owned report over harmonized biological signals across multiple studies."""
 
     model_config = ConfigDict(extra="forbid")
 
+    manifest: MultiStudyComparisonManifest = Field(default_factory=MultiStudyComparisonManifest)
     harmonization_report: CrossStudyProteinHarmonizationReport
     effect_comparison_report: CrossStudyProteinEffectComparisonReport
     pathway_comparison_report: CrossStudyPathwayComparisonReport
@@ -135,8 +166,26 @@ def compare_studies(
         for entry in pathway_comparison_report.comparisons
         if entry.comparison_status is CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL
     )
+    manifest = MultiStudyComparisonManifest()
+    summary = MultiStudyComparisonSummary(
+        input_study_count=len(results),
+        harmonization_supported_study_count=harmonization_report.summary.supported_study_count,
+        effect_supported_study_count=effect_comparison_report.summary.supported_study_count,
+        pathway_supported_study_count=pathway_comparison_report.summary.supported_study_count,
+        harmonized_protein_group_count=harmonization_report.summary.harmonized_group_count,
+        harmonized_protein_membership_count=harmonization_report.summary.harmonized_membership_count,
+        unresolved_protein_entry_count=harmonization_report.summary.unresolved_entry_count,
+        ambiguous_ortholog_unresolved_count=(
+            harmonization_report.summary.ambiguous_ortholog_entry_count
+        ),
+        shared_effect_count=len(shared_effects),
+        conflicting_effect_count=len(conflicting_effects),
+        shared_pathway_count=len(shared_pathways),
+        study_specific_pathway_count=len(study_specific_pathways),
+    )
 
     return MultiStudyComparisonReport(
+        manifest=manifest,
         harmonization_report=harmonization_report,
         effect_comparison_report=effect_comparison_report,
         pathway_comparison_report=pathway_comparison_report,
@@ -146,22 +195,13 @@ def compare_studies(
         conflicting_effects=conflicting_effects,
         shared_pathways=shared_pathways,
         study_specific_pathways=study_specific_pathways,
-        summary=MultiStudyComparisonSummary(
-            input_study_count=len(results),
-            harmonization_supported_study_count=harmonization_report.summary.supported_study_count,
-            effect_supported_study_count=effect_comparison_report.summary.supported_study_count,
-            pathway_supported_study_count=pathway_comparison_report.summary.supported_study_count,
-            harmonized_protein_group_count=harmonization_report.summary.harmonized_group_count,
-            harmonized_protein_membership_count=harmonization_report.summary.harmonized_membership_count,
-            unresolved_protein_entry_count=harmonization_report.summary.unresolved_entry_count,
-            ambiguous_ortholog_unresolved_count=(
-                harmonization_report.summary.ambiguous_ortholog_entry_count
-            ),
-            shared_effect_count=len(shared_effects),
-            conflicting_effect_count=len(conflicting_effects),
-            shared_pathway_count=len(shared_pathways),
-            study_specific_pathway_count=len(study_specific_pathways),
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_multi_study_warnings(summary, manifest),
+        rejected_evidence=_build_multi_study_rejected_evidence(
+            harmonization_report.unresolved_entries,
+            manifest,
         ),
+        summary=summary,
         note=(
             "multi-study comparison composes governed cross-study protein "
             "harmonization, effect comparison, and pathway comparison so shared "
@@ -248,7 +288,60 @@ def render_multi_study_study_specific_pathways_tsv(
     return render_cross_study_study_specific_pathway_tsv(report.pathway_comparison_report)
 
 
+def _build_multi_study_warnings(
+    summary: MultiStudyComparisonSummary,
+    manifest: MultiStudyComparisonManifest,
+):
+    warnings = []
+    if summary.conflicting_effect_count:
+        warnings.append(
+            build_result_warning(
+                warning_id="multi-study:conflicting-effects",
+                warning_code="conflicting_effects_present",
+                source_surface="multi_study",
+                message=(
+                    f"{summary.conflicting_effect_count} harmonized protein effects "
+                    "disagree across studies"
+                ),
+                related_artifact=manifest.artifacts.conflicting_effects_tsv,
+            )
+        )
+    if summary.ambiguous_ortholog_unresolved_count:
+        warnings.append(
+            build_result_warning(
+                warning_id="multi-study:ambiguous-orthologs",
+                warning_code="ambiguous_ortholog_unresolved",
+                source_surface="multi_study",
+                message=(
+                    f"{summary.ambiguous_ortholog_unresolved_count} protein observations "
+                    "remain unresolved because ortholog mapping is ambiguous"
+                ),
+                related_artifact=manifest.artifacts.unresolved_proteins_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_multi_study_rejected_evidence(
+    unresolved_proteins: tuple[CrossStudyProteinUnresolvedEntry, ...],
+    manifest: MultiStudyComparisonManifest,
+):
+    return tuple(
+        build_rejected_evidence_entry(
+            evidence_id=f"multi_study:{entry.observation_id}",
+            source_surface="multi_study",
+            reason_code=entry.reason.value,
+            message=entry.note,
+            related_artifact=manifest.artifacts.unresolved_proteins_tsv,
+            entity_id=entry.source_entity_id,
+        )
+        for entry in unresolved_proteins
+    )
+
+
 __all__ = [
+    "MultiStudyComparisonArtifactPaths",
+    "MultiStudyComparisonManifest",
     "MultiStudyComparisonReport",
     "MultiStudyComparisonSummary",
     "compare_studies",

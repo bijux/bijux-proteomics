@@ -42,6 +42,12 @@ from bijux_proteomics.targeted import (
     render_targeted_transition_selection_selected_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics.workflow.result_types import (
+    WorkflowResult,
+    artifact_name_map,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 
 
 class DiscoveryAssaySourceResult(JsonModel):
@@ -128,11 +134,38 @@ class DiscoveryToAssaySummary(JsonModel):
     panel_transition_count: int = Field(..., ge=0)
 
 
-class DiscoveryToAssayReport(JsonModel):
+class DiscoveryToAssayArtifactPaths(JsonModel):
+    """Stable artifact names exposed by the discovery-to-assay workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary_tsv: str = "discovery_to_assay_summary.tsv"
+    targets_tsv: str = "discovery_to_assay_targets.tsv"
+    selected_peptides_tsv: str = "discovery_to_assay_selected_peptides.tsv"
+    rejected_peptides_tsv: str = "discovery_to_assay_rejected_peptides.tsv"
+    selected_transitions_tsv: str = "discovery_to_assay_selected_transitions.tsv"
+    rejected_transitions_tsv: str = "discovery_to_assay_rejected_transitions.tsv"
+    assay_tsv: str = "discovery_to_assay_assays.tsv"
+    panel_tsv: str = "discovery_to_assay_panel.tsv"
+    omitted_targets_tsv: str = "discovery_to_assay_omitted_targets.tsv"
+
+
+class DiscoveryToAssayManifest(JsonModel):
+    """Manifest for the stable discovery-to-assay workflow artifact surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifacts: DiscoveryToAssayArtifactPaths = Field(
+        default_factory=DiscoveryToAssayArtifactPaths
+    )
+
+
+class DiscoveryToAssayReport(WorkflowResult):
     """Workflow-owned discovery-to-assay report with explicit gating surfaces."""
 
     model_config = ConfigDict(extra="forbid")
 
+    manifest: DiscoveryToAssayManifest = Field(default_factory=DiscoveryToAssayManifest)
     peptide_selection_report: DiscoveryTargetedPeptideSelectionReport
     transition_selection_report: TargetedTransitionSelectionReport
     assay_interference_report: TargetedAssayInterferenceReport
@@ -214,42 +247,49 @@ def design_assay_from_discovery(
         transition_selection_report=transition_selection_report,
         panel_design_report=panel_design_report,
     )
+    manifest = DiscoveryToAssayManifest()
+    summary = DiscoveryToAssaySummary(
+        target_count=len(target_entries),
+        protein_target_count=sum(
+            1
+            for entry in target_entries
+            if entry.candidate_kind is TargetedPanelCandidateKind.PROTEIN
+        ),
+        ptm_site_target_count=sum(
+            1
+            for entry in target_entries
+            if entry.candidate_kind is TargetedPanelCandidateKind.PTM_SITE
+        ),
+        target_with_acceptable_peptide_count=sum(
+            1 for entry in target_entries if entry.acceptable_peptide_count > 0
+        ),
+        assay_ready_target_count=sum(
+            1
+            for entry in target_entries
+            if entry.assay_feasibility is DiscoveryAssayFeasibilityStatus.ASSAY_READY
+        ),
+        blocked_target_count=sum(
+            1
+            for entry in target_entries
+            if entry.assay_feasibility is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
+        ),
+        retained_assay_count=len(panel_design_report.assay_entries),
+        panel_transition_count=len(panel_design_report.panel_entries),
+    )
     return DiscoveryToAssayReport(
+        manifest=manifest,
         peptide_selection_report=peptide_selection_report,
         transition_selection_report=transition_selection_report,
         assay_interference_report=assay_interference_report,
         panel_design_report=panel_design_report,
         target_entries=target_entries,
-        summary=DiscoveryToAssaySummary(
-            target_count=len(target_entries),
-            protein_target_count=sum(
-                1
-                for entry in target_entries
-                if entry.candidate_kind is TargetedPanelCandidateKind.PROTEIN
-            ),
-            ptm_site_target_count=sum(
-                1
-                for entry in target_entries
-                if entry.candidate_kind is TargetedPanelCandidateKind.PTM_SITE
-            ),
-            target_with_acceptable_peptide_count=sum(
-                1 for entry in target_entries if entry.acceptable_peptide_count > 0
-            ),
-            assay_ready_target_count=sum(
-                1
-                for entry in target_entries
-                if entry.assay_feasibility
-                is DiscoveryAssayFeasibilityStatus.ASSAY_READY
-            ),
-            blocked_target_count=sum(
-                1
-                for entry in target_entries
-                if entry.assay_feasibility
-                is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
-            ),
-            retained_assay_count=len(panel_design_report.assay_entries),
-            panel_transition_count=len(panel_design_report.panel_entries),
+        artifacts=artifact_name_map(manifest.artifacts),
+        warnings=_build_discovery_to_assay_warnings(summary, manifest),
+        rejected_evidence=_build_discovery_to_assay_rejected_evidence(
+            target_entries,
+            manifest,
         ),
+        summary=summary,
         note=(
             "discovery-to-assay design composes governed peptide selection, transition "
             "selection, assay interference scoring, and panel design so no target is "
@@ -396,6 +436,58 @@ def render_discovery_to_assay_omitted_targets_tsv(report: DiscoveryToAssayReport
     """Render omitted-target rows from the composed workflow report."""
 
     return render_targeted_panel_design_omitted_candidate_tsv(report.panel_design_report)
+
+
+def _build_discovery_to_assay_warnings(
+    summary: DiscoveryToAssaySummary,
+    manifest: DiscoveryToAssayManifest,
+):
+    warnings = []
+    if summary.blocked_target_count:
+        warnings.append(
+            build_result_warning(
+                warning_id="discovery-to-assay:blocked-targets",
+                warning_code="blocked_targets_present",
+                source_surface="discovery_to_assay",
+                message=(
+                    f"{summary.blocked_target_count} discovery-ranked targets remain "
+                    "blocked from assay export"
+                ),
+                related_artifact=manifest.artifacts.omitted_targets_tsv,
+            )
+        )
+    if summary.assay_ready_target_count < summary.target_count:
+        warnings.append(
+            build_result_warning(
+                warning_id="discovery-to-assay:partial-panel-coverage",
+                warning_code="partial_assay_coverage",
+                source_surface="discovery_to_assay",
+                message=(
+                    "discovery-ranked targets include peptide-unavailable, "
+                    "transition-limited, or site-specific follow-up cases"
+                ),
+                related_artifact=manifest.artifacts.targets_tsv,
+            )
+        )
+    return tuple(warnings)
+
+
+def _build_discovery_to_assay_rejected_evidence(
+    target_entries: tuple[DiscoveryAssayTargetEntry, ...],
+    manifest: DiscoveryToAssayManifest,
+):
+    return tuple(
+        build_rejected_evidence_entry(
+            evidence_id=f"discovery_to_assay:{entry.candidate_id}",
+            source_surface="discovery_to_assay",
+            reason_code=entry.assay_feasibility.value,
+            message=entry.note,
+            related_artifact=manifest.artifacts.omitted_targets_tsv,
+            entity_id=entry.candidate_id,
+        )
+        for entry in target_entries
+        if entry.assay_feasibility is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
+    )
 
 
 def _merge_discovery_targets(
@@ -675,6 +767,8 @@ __all__ = [
     "DiscoveryAssaySourceResult",
     "DiscoveryAssayTargetEntry",
     "DiscoveryAssayTargetInput",
+    "DiscoveryToAssayArtifactPaths",
+    "DiscoveryToAssayManifest",
     "DiscoveryToAssayReport",
     "DiscoveryToAssaySummary",
     "design_assay_from_discovery",
