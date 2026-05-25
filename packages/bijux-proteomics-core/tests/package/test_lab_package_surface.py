@@ -166,3 +166,38 @@ def test_lab_package_exports_background_comparison_surface() -> None:
     assert hasattr(lab, "render_background_comparison_tsv")
     assert any(row.background_flag is True for row in rows)
     assert "background_flag" in rendered
+
+
+def test_lab_package_exports_internal_standard_tracking_surface() -> None:
+    matrix = QuantMatrix(
+        matrix_id="internal_standard_surface_matrix",
+        entity_kind=QuantEntityKind.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        entity_ids=("STD_A", "STD_B"),
+        sample_ids=("sample_a", "sample_b", "sample_c"),
+        values=((1000.0, 980.0, 620.0), (500.0, 510.0, 505.0)),
+        missing_value_states=(
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+            (
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+                MissingValueState.OBSERVED,
+            ),
+        ),
+        support_counts=((1, 1, 1), (1, 1, 1)),
+    )
+
+    rows = lab.track_internal_standards(matrix, ("STD_A", "STD_B"))
+    qc_rows = lab.build_internal_standard_sample_qc(rows)
+    rendered = lab.render_internal_standard_tracking_tsv(rows)
+
+    assert hasattr(lab, "track_internal_standards")
+    assert hasattr(lab, "build_internal_standard_sample_qc")
+    assert hasattr(lab, "render_internal_standard_tracking_tsv")
+    assert any(row.drift_flag is True for row in rows)
+    assert any(row.qc_status.value == "caution" for row in qc_rows)
+    assert "drift_flag" in rendered
