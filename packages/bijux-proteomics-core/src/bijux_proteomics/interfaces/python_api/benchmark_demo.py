@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from bijux_proteomics.benchmarks import (
     build_lfq_cohort_biological_case_study_report,
-    export_public_biological_case_study_report,
     render_public_biological_case_study_summary_tsv,
+    write_public_biological_case_study_bundle,
 )
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
@@ -306,7 +306,7 @@ def run_public_case_study_command(
             render_public_biological_case_study_summary_tsv(report),
         )
     if report_dir is not None:
-        export_manifest = export_public_biological_case_study_report(report, report_dir)
+        export_manifest = write_public_biological_case_study_bundle(report, report_dir)
         manifest_path = report_dir / "public_case_study_manifest.json"
         manifest_path.write_text(
             export_manifest.to_stable_json() + "\n",

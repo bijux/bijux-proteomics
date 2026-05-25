@@ -17,7 +17,7 @@ from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
-    export_biological_result_report_bundle,
+    write_biological_result_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -280,7 +280,7 @@ def render_public_biological_case_study_summary_tsv(
     return handle.getvalue()
 
 
-def export_public_biological_case_study_report(
+def write_public_biological_case_study_bundle(
     report: PublicBiologicalCaseStudyReport,
     output_dir: Path,
 ) -> PublicBiologicalCaseStudyExportManifest:
@@ -295,7 +295,7 @@ def export_public_biological_case_study_report(
         encoding="utf-8",
     )
     biological_dir = output_dir / biological_dir_name
-    biological_manifest = export_biological_result_report_bundle(
+    biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         biological_dir,
     )
@@ -318,6 +318,15 @@ def export_public_biological_case_study_report(
             "summary alongside the full downstream biological report directory"
         ),
     )
+
+
+def export_public_biological_case_study_report(
+    report: PublicBiologicalCaseStudyReport,
+    output_dir: Path,
+) -> PublicBiologicalCaseStudyExportManifest:
+    """Compatibility wrapper for the legacy public case-study export name."""
+
+    return write_public_biological_case_study_bundle(report, output_dir)
 
 
 def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) -> None:
@@ -352,5 +361,6 @@ __all__ = [
     "build_lfq_cohort_biological_case_study_report",
     "build_public_biological_case_study_catalog",
     "export_public_biological_case_study_report",
+    "write_public_biological_case_study_bundle",
     "render_public_biological_case_study_summary_tsv",
 ]

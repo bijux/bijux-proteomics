@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.benchmarks import (
     build_lfq_cohort_biological_case_study_report,
     export_public_biological_case_study_report,
+    write_public_biological_case_study_bundle,
 )
 
 
@@ -16,7 +17,11 @@ def test_public_case_study_export_writes_summary_and_biological_report_bundle(
 ) -> None:
     report = build_lfq_cohort_biological_case_study_report()
 
-    manifest = export_public_biological_case_study_report(report, tmp_path)
+    manifest = write_public_biological_case_study_bundle(report, tmp_path)
+    compatibility_manifest = export_public_biological_case_study_report(
+        report,
+        tmp_path / "compatibility",
+    )
 
     summary_path = tmp_path / manifest.artifacts.summary_tsv
     biological_manifest_path = tmp_path / manifest.artifacts.biological_report_manifest_json
@@ -29,3 +34,4 @@ def test_public_case_study_export_writes_summary_and_biological_report_bundle(
         encoding="utf-8"
     )
     assert manifest.summary.go_enriched_term_count == 1
+    assert compatibility_manifest.artifacts.summary_tsv == manifest.artifacts.summary_tsv
