@@ -9,6 +9,10 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.errors import (
+    InvalidWorkflowError,
+    ScientificEvidenceError,
+)
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmReportBundle
 from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
@@ -245,7 +249,7 @@ class ProteomicsStudyResult(JsonModel):
 
         bundle = self._require_interactive_result_bundle()
         if object_id is None and representative_protein_ref is None:
-            raise ValueError(
+            raise ScientificEvidenceError(
                 "archived protein query requires object_id or representative_protein_ref"
             )
         for protein in bundle.proteins:
@@ -257,7 +261,9 @@ class ProteomicsStudyResult(JsonModel):
             ):
                 return protein
         target = object_id or representative_protein_ref or ""
-        raise ValueError(f"archived protein is missing from result archive: {target}")
+        raise ScientificEvidenceError(
+            f"archived protein is missing from result archive: {target}"
+        )
 
     def query_archived_peptide(
         self,
@@ -270,7 +276,9 @@ class ProteomicsStudyResult(JsonModel):
         for peptide in bundle.peptides:
             if peptide.peptide_id == peptide_id:
                 return peptide
-        raise ValueError(f"archived peptide is missing from result archive: {peptide_id}")
+        raise ScientificEvidenceError(
+            f"archived peptide is missing from result archive: {peptide_id}"
+        )
 
     def query_archived_ptm_site(
         self,
@@ -283,7 +291,9 @@ class ProteomicsStudyResult(JsonModel):
         for site in bundle.ptm_sites:
             if site.site_key == site_key:
                 return site
-        raise ValueError(f"archived PTM site is missing from result archive: {site_key}")
+        raise ScientificEvidenceError(
+            f"archived PTM site is missing from result archive: {site_key}"
+        )
 
     def query_archived_pathway(
         self,
@@ -296,13 +306,15 @@ class ProteomicsStudyResult(JsonModel):
         for pathway in bundle.pathways:
             if pathway.pathway_id == pathway_id:
                 return pathway
-        raise ValueError(
+        raise ScientificEvidenceError(
             f"archived pathway is missing from result archive: {pathway_id}"
         )
 
     def _require_interactive_result_bundle(self) -> InteractiveResultBundle:
         if self.interactive_result_bundle is None:
-            raise ValueError("study result does not preserve an interactive archive bundle")
+            raise InvalidWorkflowError(
+                "study result does not preserve an interactive archive bundle"
+            )
         return self.interactive_result_bundle
 
 
@@ -353,7 +365,9 @@ def build_proteomics_study_result_from_run_bundle(
         return build_proteomics_study_result_from_dda_workflow_bundle(
             bundle.fragpipe_workflow
         )
-    raise ValueError("proteomics run bundle does not include a study workflow payload")
+    raise InvalidWorkflowError(
+        "proteomics run bundle does not include a study workflow payload"
+    )
 
 
 def build_proteomics_study_result_from_biological_report_bundle(

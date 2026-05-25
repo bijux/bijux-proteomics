@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from bijux_proteomics.domain.errors import ScientificEvidenceError
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
@@ -237,5 +238,8 @@ def test_result_archive_rehydrates_ptm_only_archives_honestly(tmp_path: Path) ->
     assert result.query_archived_ptm_site(
         site_key=result.interactive_result_bundle.ptm_sites[0].site_key
     ).protein_ref
-    with pytest.raises(ValueError, match="archived pathway is missing from result archive"):
+    with pytest.raises(
+        ScientificEvidenceError,
+        match="archived pathway is missing from result archive",
+    ):
         result.query_archived_pathway(pathway_id="missing:pathway")

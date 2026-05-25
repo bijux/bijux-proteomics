@@ -8,6 +8,12 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+from pydantic import ValidationError
+
+from bijux_proteomics.domain.errors import (
+    InvalidWorkflowError,
+    SchemaError,
+)
 from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceEdge,
@@ -52,9 +58,14 @@ def load_result_archive(path: Path) -> ProteomicsStudyResult:
     """Load one archived result manifest into a queryable study result."""
 
     manifest_path = _resolve_manifest_path(path)
-    manifest = ResultManifestReport.model_validate_json(
-        manifest_path.read_text(encoding="utf-8")
-    )
+    try:
+        manifest = ResultManifestReport.model_validate_json(
+            manifest_path.read_text(encoding="utf-8")
+        )
+    except ValidationError as exc:
+        raise SchemaError(
+            f"result archive manifest is invalid: {manifest_path}"
+        ) from exc
     biological_report_dir = _resolve_source_report_dir(
         manifest=manifest,
         manifest_path=manifest_path,
@@ -66,7 +77,7 @@ def load_result_archive(path: Path) -> ProteomicsStudyResult:
         source_kind=ResultManifestSourceKind.PTM_REPORT,
     )
     if biological_report_dir is None and ptm_report_dir is None:
-        raise ValueError(
+        raise InvalidWorkflowError(
             "result archive rehydration requires at least one biological or PTM source report"
         )
     run_qc_paths = _resolve_run_qc_paths(manifest=manifest, manifest_path=manifest_path)
@@ -120,7 +131,7 @@ def _resolve_manifest_path(path: Path) -> Path:
     else:
         manifest_path = path
     if not manifest_path.exists():
-        raise ValueError(
+        raise InvalidWorkflowError(
             f"result archive manifest is missing from path: {manifest_path}"
         )
     return manifest_path
@@ -537,7 +548,9 @@ def _require_source_report_dir(
         source_kind=source_kind,
     )
     if path is None:
-        raise ValueError(f"source report directory is missing for {source_kind.value}")
+        raise InvalidWorkflowError(
+            f"source report directory is missing for {source_kind.value}"
+        )
     return path
 
 
@@ -578,19 +591,19 @@ def _build_evidence_node(node: object) -> ProteomicsEvidenceNode:
 
 def _build_evidence_edge(edge: object) -> ProteomicsEvidenceEdge:
     if edge.source_row_ref is None:
-        raise ValueError(
+        raise SchemaError(
             f"archived evidence edge is missing source_row_ref: {edge.source_node_id}->{edge.target_node_id}"
         )
     if edge.confidence is None:
-        raise ValueError(
+        raise SchemaError(
             f"archived evidence edge is missing confidence: {edge.source_node_id}->{edge.target_node_id}"
         )
     if edge.evidence_type is None:
-        raise ValueError(
+        raise SchemaError(
             f"archived evidence edge is missing evidence_type: {edge.source_node_id}->{edge.target_node_id}"
         )
     if edge.reason is None:
-        raise ValueError(
+        raise SchemaError(
             f"archived evidence edge is missing reason: {edge.source_node_id}->{edge.target_node_id}"
         )
     return ProteomicsEvidenceEdge(
@@ -608,7 +621,7 @@ def _build_evidence_edge(edge: object) -> ProteomicsEvidenceEdge:
 def _parse_context_ref(value: str) -> ProteomicsEvidenceContextRef:
     entity_type_value, separator, entity_ref = value.partition(":")
     if not separator or not entity_ref:
-        raise ValueError(f"archived evidence context ref is malformed: {value!r}")
+        raise SchemaError(f"archived evidence context ref is malformed: {value!r}")
     return ProteomicsEvidenceContextRef(
         entity_type=ProteomicsEvidenceNodeKind(entity_type_value),
         entity_ref=entity_ref,
@@ -619,7 +632,7 @@ def _read_tsv_rows(path: Path) -> tuple[dict[str, str], ...]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         if reader.fieldnames is None:
-            raise ValueError(f"{path.name!r} must include a header row")
+            raise SchemaError(f"{path.name!r} must include a header row")
         return tuple(
             {
                 str(key or "").strip(): str(value or "").strip()
