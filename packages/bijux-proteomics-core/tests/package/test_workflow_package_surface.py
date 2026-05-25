@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import bijux_proteomics.targeted as targeted
 from bijux_proteomics import workflow
 from bijux_proteomics.interpretation import OrthologRecord, PathwayMemberKind
 from bijux_proteomics.io.formats import (
@@ -19,6 +20,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
+from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics_foundation import DocumentSchema
 import yaml
@@ -375,6 +377,97 @@ def test_workflow_package_exports_advanced_tmt_surface(tmp_path: Path) -> None:
     assert report.summary.excluded_protein_count == 1
     assert report.summary.high_interference_peptide_count == 2
     assert "confidence_status" in workflow.render_advanced_tmt_evidence_cards_tsv(
+        report.evidence_cards
+    )
+
+
+def test_workflow_package_exports_targeted_validation_workflow_surface(
+    tmp_path: Path,
+) -> None:
+    skyline_path = tmp_path / "targeted_validation.skyline.tsv"
+    skyline_path.write_text(
+        "\n".join(
+            (
+                "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality",
+                "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t25000\t12.50\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r1\t20000\t12.56\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r2\t27000\t12.48\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\tcontrol_r2\t21000\t12.55\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r1\t120000\t12.51\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r1\t98000\t12.57\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\ttreat_r2\t118000\t12.52\tpass",
+                "P11111\tPEPTIDER\t2\t501.25\ty8\t902.5\ttreat_r2\t95000\t12.58\tpass",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    design_path = tmp_path / "targeted_validation.design.tsv"
+    design_path.write_text(
+        "\n".join(
+            (
+                "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file",
+                "control_r1\tcontrol\t1\t1\tcontrol_r1.raw\tcontrol_r1.tsv",
+                "control_r2\tcontrol\t2\t1\tcontrol_r2.raw\tcontrol_r2.tsv",
+                "treat_r1\ttreatment\t1\t1\ttreat_r1.raw\ttreat_r1.tsv",
+                "treat_r2\ttreatment\t2\t1\ttreat_r2.raw\ttreat_r2.tsv",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = workflow.run_targeted_validation_workflow(
+        workflow.TargetedValidationWorkflowConfig(
+            result_tsv_path=skyline_path,
+            design_tsv_path=design_path,
+            output_dir=tmp_path / "advanced_targeted_package_surface",
+            discovery_claims=(
+                targeted.TargetedValidationDiscoveryClaimInput(
+                    candidate_id="protein:P11111",
+                    candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                    display_label="P11111 robust candidate",
+                    target_protein_ref="P11111",
+                    priority_rank=1,
+                    final_score=0.91,
+                    penalty_total=0.0,
+                    discovery_effect_size=1.0,
+                    support_count=4,
+                    robustness_score=0.85,
+                    assay_feasibility_score=0.92,
+                    rank_reason_codes=("assay_ready",),
+                    ranking_note="strong validation-ready candidate",
+                ),
+            ),
+            panel_assays=(
+                targeted.TargetedValidationPanelAssayInput(
+                    assay_entry_id="assay:P11111:PEPTIDER",
+                    biomarker_candidate_id="protein:P11111",
+                    biomarker_candidate_kind=targeted.TargetedPanelCandidateKind.PROTEIN,
+                    biomarker_display_label="P11111 robust candidate",
+                    biomarker_priority_rank=1,
+                    target_protein_ref="P11111",
+                    target_protein_group_id="protein_group_1",
+                    gene_symbol="GENE1",
+                    peptide_sequence="PEPTIDER",
+                    canonical_peptide="PEPTIDER",
+                    uniqueness_class=PeptideUniquenessClass.UNIQUE,
+                    precursor_charge=2,
+                    selected_transition_count=3,
+                    exported_transition_count=3,
+                    warning_note="assay retained for panel export",
+                ),
+            ),
+            case_condition="treatment",
+            control_condition="control",
+        )
+    )
+
+    assert hasattr(workflow, "run_targeted_validation_workflow")
+    assert hasattr(workflow, "render_advanced_targeted_evidence_cards_tsv")
+    assert report.summary.confirmed_count == 1
+    assert report.summary.evidence_card_count == 1
+    assert "assay_reliability_status" in workflow.render_advanced_targeted_evidence_cards_tsv(
         report.evidence_cards
     )
 
