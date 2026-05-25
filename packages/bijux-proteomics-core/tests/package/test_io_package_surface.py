@@ -567,3 +567,27 @@ def test_io_package_exports_precursor_validation_owner_surface() -> None:
     assert hasattr(io, "render_precursor_validation_summary_tsv")
     assert report.entries[0].inferred_charge == 2
     assert "charge_mismatch" in rendered
+
+
+def test_io_package_exports_input_integrity_owner_surface(tmp_path: Path) -> None:
+    input_path = tmp_path / "integrity.tsv"
+    input_path.write_text(
+        (
+            "sample_id\tintensity\tprotein_id\n"
+            "S1\t100.0\tP1\n"
+            "S1\tinvalid\tP2\n"
+        ),
+        encoding="utf-8",
+    )
+
+    report = io.scan_input_integrity((input_path,))
+    rendered = io.render_input_integrity_issues_tsv(report)
+
+    assert hasattr(io, "scan_input_integrity")
+    assert hasattr(io, "render_input_integrity_issues_tsv")
+    assert report.total_issue_count == 2
+    assert {issue.issue_code for issue in report.files[0].issues} == {
+        "duplicate_id",
+        "invalid_numeric_value",
+    }
+    assert "invalid_numeric_value" in rendered
