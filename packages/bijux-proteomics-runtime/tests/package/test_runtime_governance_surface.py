@@ -23,6 +23,10 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
         == StabilityLevel.SEALED
     )
     assert (
+        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.checkpoints"]
+        == StabilityLevel.SEALED
+    )
+    assert (
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.providers"]
         == StabilityLevel.EXPERIMENTAL
     )
@@ -72,6 +76,7 @@ def test_runtime_api_lock_freezes_canonical_runtime_symbols() -> None:
 def test_runtime_api_lock_declares_runtime_owned_extension_boundaries() -> None:
     assert "bijux_proteomics_runtime.providers.remote" in DEPRECATED_EXTENSIONS
     assert "bijux_proteomics_runtime.artifacts" in DO_NOT_EXTEND_ZONES
+    assert "bijux_proteomics_runtime.checkpoints" in DO_NOT_EXTEND_ZONES
     assert "bijux_proteomics_runtime.parallel" in DO_NOT_EXTEND_ZONES
     assert "bijux_proteomics_runtime.resume" in DO_NOT_EXTEND_ZONES
     assert "bijux_proteomics_runtime.runs" in DO_NOT_EXTEND_ZONES
