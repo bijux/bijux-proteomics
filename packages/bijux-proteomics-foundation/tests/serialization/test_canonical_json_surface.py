@@ -8,6 +8,9 @@ from pathlib import Path
 import string
 from typing import cast
 
+import pytest
+
+pytest.importorskip("hypothesis")
 from hypothesis import given
 from hypothesis import strategies as st
 from pydantic import ConfigDict, Field

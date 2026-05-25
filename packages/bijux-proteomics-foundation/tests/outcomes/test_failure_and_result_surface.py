@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import string
 
+import pytest
+
+pytest.importorskip("hypothesis")
 from hypothesis import given
 from hypothesis import strategies as st
 from pydantic import ValidationError
-import pytest
 
 from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
