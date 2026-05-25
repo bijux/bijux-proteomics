@@ -1,0 +1,32 @@
+# Generated canonical package top-level module visibility report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.top_level_module_visibility
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+public_module_files = []
+private_module_files = ["_package_aliases.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+public_module_files = ["programs.py"]
+private_module_files = ["_scientific_tables.py", "_tabular.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+public_module_files = []
+private_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+public_module_files = ["belief_audit.py", "contradictions.py", "falsifiers.py", "next_steps.py", "query.py", "refusal.py"]
+private_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+public_module_files = []
+private_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+public_module_files = []
+private_module_files = []

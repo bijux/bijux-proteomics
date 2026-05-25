@@ -28,6 +28,8 @@ CORE_ROOT_API_BUDGET = CoreRootApiBudget(
     max_init_lines=57,
 )
 
+PUBLIC_ROOT_MODULE_NAMES = ("programs",)
+
 
 def list_core_root_api_entries() -> tuple[CoreRootApiEntry, ...]:
     """Return the curated public root API for the core package."""
@@ -68,6 +70,7 @@ def list_core_root_api_entries() -> tuple[CoreRootApiEntry, ...]:
 
 __all__ = [
     "CORE_ROOT_API_BUDGET",
+    "PUBLIC_ROOT_MODULE_NAMES",
     "CoreRootApiBudget",
     "CoreRootApiEntry",
     "list_core_root_api_entries",
