@@ -212,6 +212,34 @@ def test_identification_subpackage_import_contract() -> None:
     assert hasattr(adapters, "build_diann_import_report")
 
 
+def test_review_subpackage_import_contract() -> None:
+    evidence_graph = importlib.import_module("bijux_proteomics.review.evidence_graph")
+    claims = importlib.import_module("bijux_proteomics.review.claims")
+    cards = importlib.import_module("bijux_proteomics.review.cards")
+    belief = importlib.import_module("bijux_proteomics.review.belief")
+    explanations = importlib.import_module("bijux_proteomics.review.explanations")
+
+    assert hasattr(evidence_graph, "build_proteomics_evidence_graph")
+    assert hasattr(evidence_graph, "propagate_evidence_graph_confidence")
+    assert hasattr(evidence_graph, "compare_evidence_graph_runs")
+
+    assert hasattr(claims, "build_analysis_recommendation_report_from_artifacts")
+    assert hasattr(claims, "build_biological_claim_validation_report")
+    assert hasattr(claims, "build_result_query_report_from_artifacts")
+
+    assert hasattr(cards, "build_external_reviewer_bundle")
+    assert hasattr(cards, "build_compact_result_summary_report_from_artifacts")
+    assert hasattr(cards, "build_inference_disagreement_review_packet")
+
+    assert hasattr(belief, "build_belief_audit_report_from_artifacts")
+    assert hasattr(belief, "build_biomarker_candidate_ranking_report")
+    assert hasattr(belief, "build_flagship_scientific_kernel_report")
+
+    assert hasattr(explanations, "build_failure_explanation_report")
+    assert hasattr(explanations, "build_result_explanation_report_from_artifacts")
+    assert hasattr(explanations, "build_dia_volcano_review")
+
+
 def test_quantification_subpackage_import_contract() -> None:
     matrix = importlib.import_module("bijux_proteomics.quantification.matrix")
     rollup = importlib.import_module("bijux_proteomics.quantification.rollup")
