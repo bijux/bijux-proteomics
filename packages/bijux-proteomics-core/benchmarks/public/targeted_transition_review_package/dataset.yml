@@ -13,9 +13,21 @@ source_files:
     repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc.design.tsv
     sha256: 9a04d7d678c32bc35c335220241f9b20b4f47bea0a2215c0b3e74bdb519c55b6
     note: Shipped four-sample targeted design with control and treatment replicates.
+  - source_id: targeted_validation_discovery_claims
+    schema_id: discovery_claims_json
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_validation_discovery_claims.json
+    sha256: d97ce1e07350e7618995ac384dcbeae633949ed87b8d5e657ead1c2f4f5e1001
+    note: Shipped discovery-claim inputs keep targeted validation tied to explicit benchmark-ranked candidates.
+  - source_id: targeted_validation_panel_assays
+    schema_id: panel_assays_json
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_validation_panel_assays.json
+    sha256: 424bfaadc29dcfa616e4cba3d0da053efeba6aa7efe60aaa53ae628452b58f36
+    note: Shipped panel-assay inputs bind the benchmark candidates back to concrete targeted peptide assays.
 expected_input_schemas:
   - input_tsv
   - design_tsv
+  - discovery_claims_json
+  - panel_assays_json
 sample_groups:
   - group_id: control
     sample_ids: [control_r1, control_r2]
@@ -61,6 +73,10 @@ expected_approximate_counts:
     expected: 1
   - metric_id: unreliable_target_count
     expected: 2
+  - metric_id: discovery_claim_count
+    expected: 2
+  - metric_id: inconclusive_count
+    expected: 2
 expected_biological_signals: []
 known_limitations:
   - limitation_id: no_vendor_chromatogram_replay
@@ -70,14 +86,14 @@ known_limitations:
     description: The shipped public package proves targeted matrix and assay-QC behavior from a Skyline-style export, but it does not claim chromatogram-level vendor replay or absolute calibration parity.
 command:
   cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/targeted_transition_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
-  note: Run the flagship targeted public package through the owned targeted assay-QC workflow so matrix, coelution, fragment-ratio stability, unreliable-target, and review ledgers are regenerated from the shipped Skyline-style result table.
+  note: Run the flagship targeted public package through the owned targeted validation workflow so matrix, transition QC, coelution, fragment-ratio stability, unreliable-target, and validation-status ledgers are regenerated from the shipped Skyline-style result table and benchmark-ranked assay plan.
   parameters:
     source_kind: skyline_export
-    stage: assay_qc
+    stage: validation
 output_checks:
   - output_id: workflow_manifest
-    relative_path: targeted_assay_qc_workflow_manifest.json
-    note: The targeted assay-QC workflow manifest keeps exported artifact paths stable.
+    relative_path: advanced_targeted_workflow_manifest.json
+    note: The advanced targeted workflow manifest keeps validation, assay-QC, and matrix artifact paths stable together.
   - output_id: import_summary
     relative_path: targeted_import_summary.tsv
     note: The import summary confirms the shipped Skyline-style result table was parsed through the owned targeted import boundary.
@@ -114,4 +130,13 @@ output_checks:
   - output_id: assay_qc_unreliable_targets
     relative_path: targeted_assay_qc_unreliable_targets.tsv
     note: The unreliable-target ledger proves explicitly flagged targeted assays remain visible.
-note: The targeted flagship public package now ships a runnable Skyline-style result table and replicate design, so the owned targeted workflow can regenerate import, matrix, coelution, fragment-ratio stability, replicate-CV, unreliable-target, and validation ledgers from one real benchmark run.
+  - output_id: validation_summary
+    relative_path: targeted_validation_summary.tsv
+    note: The validation summary proves the shipped benchmark now exports candidate-level validation status instead of stopping at assay QC.
+  - output_id: inconclusive_validation
+    relative_path: targeted_validation_inconclusive.tsv
+    note: The inconclusive ledger proves unreliable targeted evidence stays explicit rather than being misreported as confirmation.
+  - output_id: validation_evidence
+    relative_path: targeted_validation_evidence.tsv
+    note: The validation evidence ledger keeps assay-backed reasons attached to every benchmark verdict.
+note: The targeted flagship public package now ships a runnable Skyline-style result table, replicate design, discovery-claim inputs, and panel-assay inputs, so the owned targeted validation workflow can regenerate import, matrix, transition QC, coelution, fragment-ratio stability, unreliable-target, and validation-status ledgers from one real benchmark run.

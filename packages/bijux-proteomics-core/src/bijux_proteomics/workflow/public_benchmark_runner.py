@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +18,11 @@ from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import build_multiplex_metadata_validation_report
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.ptm import PtmProteinCorrectionMode
-from bijux_proteomics.targeted import TargetedResultSourceKind
+from bijux_proteomics.targeted import (
+    TargetedResultSourceKind,
+    TargetedValidationDiscoveryClaimInput,
+    TargetedValidationPanelAssayInput,
+)
 from bijux_proteomics.workflow.public_benchmark_descriptors import (
     PublicBenchmarkDescriptor,
     PublicBenchmarkExpectedBiologicalSignal,
@@ -539,6 +544,9 @@ def _build_workflow_config(
             output_dir=output_dir,
         )
     if engine == PublicBenchmarkSearchEngine.TARGETED:
+        stage = TargetedWorkflowStage(
+            str(parameters.get("stage", TargetedWorkflowStage.MATRIX))
+        )
         return TargetedWorkflowConfig(
             input_tsv_path=source_map["input_tsv"],
             source_kind=TargetedResultSourceKind(
@@ -548,13 +556,49 @@ def _build_workflow_config(
                     )
                 )
             ),
-            stage=TargetedWorkflowStage(
-                str(parameters.get("stage", TargetedWorkflowStage.MATRIX))
-            ),
+            stage=stage,
             design_tsv_path=source_map.get("design_tsv"),
+            discovery_claims=(
+                ()
+                if stage is not TargetedWorkflowStage.VALIDATION
+                else _load_targeted_discovery_claims(
+                    source_map.get("discovery_claims_json")
+                )
+            ),
+            panel_assays=(
+                ()
+                if stage is not TargetedWorkflowStage.VALIDATION
+                else _load_targeted_panel_assays(source_map.get("panel_assays_json"))
+            ),
+            case_condition=(
+                None if stage is not TargetedWorkflowStage.VALIDATION else condition_b
+            ),
+            control_condition=(
+                None if stage is not TargetedWorkflowStage.VALIDATION else condition_a
+            ),
             output_dir=output_dir,
         )
     raise ValueError(f"unsupported public benchmark search_engine '{engine}'")
+
+
+def _load_targeted_discovery_claims(
+    path: Path | None,
+) -> tuple[TargetedValidationDiscoveryClaimInput, ...]:
+    if path is None:
+        return ()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return tuple(
+        TargetedValidationDiscoveryClaimInput.model_validate(item) for item in payload
+    )
+
+
+def _load_targeted_panel_assays(
+    path: Path | None,
+) -> tuple[TargetedValidationPanelAssayInput, ...]:
+    if path is None:
+        return ()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return tuple(TargetedValidationPanelAssayInput.model_validate(item) for item in payload)
 
 
 def _verify_approximate_counts(
@@ -569,6 +613,18 @@ def _verify_approximate_counts(
     if nested_summary is not None:
         for metric_id, observed in nested_summary.to_dict().items():
             summary_dict.setdefault(metric_id, observed)
+    targeted_assay_qc_manifest = getattr(
+        workflow_result.report,
+        "targeted_assay_qc_workflow_manifest",
+        None,
+    )
+    if targeted_assay_qc_manifest is not None:
+        for report_name in ("import_summary", "matrix_summary", "assay_qc_summary"):
+            report_summary = getattr(targeted_assay_qc_manifest, report_name, None)
+            if report_summary is None:
+                continue
+            for metric_id, observed in report_summary.items():
+                summary_dict.setdefault(metric_id, observed)
     verified_counts: dict[str, int] = {}
     failures: list[PublicBenchmarkFailure] = []
 
