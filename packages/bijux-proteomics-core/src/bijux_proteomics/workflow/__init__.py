@@ -5,6 +5,7 @@ from __future__ import annotations
 from bijux_proteomics.workflow.blueprint import *  # noqa: F401,F403
 from bijux_proteomics.workflow.biological_reporting import *  # noqa: F401,F403
 from bijux_proteomics.workflow.biological_result_graph import *  # noqa: F401,F403
+from bijux_proteomics.workflow.advanced_diann import *  # noqa: F401,F403
 from bijux_proteomics.workflow.cohort_stratification import *  # noqa: F401,F403
 from bijux_proteomics.workflow.cross_study_effect_comparison import *  # noqa: F401,F403
 from bijux_proteomics.workflow.cross_study_evidence_cards import *  # noqa: F401,F403
