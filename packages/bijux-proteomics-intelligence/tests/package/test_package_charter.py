@@ -55,6 +55,7 @@ def test_intelligence_capability_map_keeps_stable_analytical_bands() -> None:
         IntelligenceAnalyticalBand.CLAIMS,
         IntelligenceAnalyticalBand.CONTRADICTIONS,
         IntelligenceAnalyticalBand.FALSIFIERS,
+        IntelligenceAnalyticalBand.QUERY,
         IntelligenceAnalyticalBand.JUDGMENT,
         IntelligenceAnalyticalBand.POSTURE,
         IntelligenceAnalyticalBand.INTERPRETATION,
@@ -79,5 +80,5 @@ def test_intelligence_module_audit_requires_substantial_analytical_surface() -> 
         if entry.classification is IntelligenceModuleClassification.THIN_ABSTRACTION
     ]
 
-    assert len(analytical_modules) >= 10
+    assert len(analytical_modules) >= 11
     assert len(thin_modules) <= 2
