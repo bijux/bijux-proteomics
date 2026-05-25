@@ -112,6 +112,26 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
                 " explicit"
             ),
         ),
+        ImporterMutationFixture(
+            fixture_id="importer_mutation:ms1_feature_negative_intensity",
+            owner_surface="quantification.parse_ms1_feature_table",
+            source_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/quant/"
+                "ms1_features.tsv"
+            ),
+            mutated_repo_relative_path=(
+                "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"
+                "quant/ms1_feature_negative_intensity.tsv"
+            ),
+            mutation_kinds=(ImporterMutationKind.NEGATIVE_INTENSITY,),
+            expected_accepted_count=1,
+            expected_rejected_count=1,
+            expected_issue_codes=("negative_intensity",),
+            note=(
+                "copies two valid MS1 feature rows and mutates one quantitative value"
+                " below zero so the importer refuses impossible abundance evidence"
+            ),
+        ),
     )
 
 

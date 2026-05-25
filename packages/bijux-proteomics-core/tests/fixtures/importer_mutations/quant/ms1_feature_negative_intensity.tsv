@@ -1,0 +1,3 @@
+feature_id	sample_id	peptide	proteins	intensity	charge	mz	retention_time_seconds	missing_reason
+f001	C1	APEPTIDE	P001	1000	2	500.2	1200	""
+f002	C1	APEPTIDER	P001	-900	2	550.2	1215	""
