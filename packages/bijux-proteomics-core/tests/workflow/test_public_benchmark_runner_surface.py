@@ -90,9 +90,11 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     ptm_run = runs["ptm_localization_review_package"]
     assert ptm_run.status == "passed"
     assert ptm_run.verified_counts["accepted_evidence_count"] == 8
+    assert ptm_run.verified_counts["ambiguous_group_row_count"] == 2
     assert ptm_run.verified_counts["evidence_card_count"] == 3
     assert ptm_run.verified_counts["motif_term_count"] == 22
     assert Path(ptm_run.output_dir, "ptm_site_workflow_manifest.json").exists()
+    assert Path(ptm_run.output_dir, "ptm_site_group_matrix.tsv").exists()
     assert Path(ptm_run.output_dir, "ptm_regulator_enrichment.tsv").exists()
 
     diann_run = runs["dia_diann_review_snapshot"]
