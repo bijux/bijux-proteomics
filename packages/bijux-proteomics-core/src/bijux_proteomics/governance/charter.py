@@ -284,6 +284,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/motif_analysis.py",
             "ptm/ortholog_site_conservation.py",
             "ptm/occupancy_estimation.py",
+            "ptm/phosphatase_inference.py",
             "ptm/differential_analysis.py",
             "ptm/peptide_parser.py",
             "ptm/protein_site_mapping.py",
