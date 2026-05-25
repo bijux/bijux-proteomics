@@ -19,6 +19,7 @@ _QUANTIFICATION_EXPORT_MODULES = (
     "bijux_proteomics.quantification.differential_result_robustness",
     "bijux_proteomics.quantification.heatmap_preparation",
     "bijux_proteomics.quantification.imputation",
+    "bijux_proteomics.quantification.matrix_archive",
     "bijux_proteomics.quantification.method_agreement",
     "bijux_proteomics.quantification.model_rollup",
     "bijux_proteomics.quantification.missingness",
