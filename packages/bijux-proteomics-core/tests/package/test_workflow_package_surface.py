@@ -1178,9 +1178,12 @@ def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
         output_dir=tmp_path / "trust_bundle",
     )
 
+    assert hasattr(workflow, "build_trust_bundle")
+    assert hasattr(workflow, "build_flagship_trust_bundle_descriptors")
     assert hasattr(workflow, "build_public_benchmark_trust_bundle")
     assert report.suite_report.passed_count == 8
     assert report.evidence_graph_artifacts
+    assert report.handwritten_result_table_count == 0
     assert Path(report.html_index_path).exists()
 
 
