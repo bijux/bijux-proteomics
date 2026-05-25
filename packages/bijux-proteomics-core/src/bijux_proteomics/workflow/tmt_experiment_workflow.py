@@ -426,6 +426,10 @@ def _source_report(report: TmtExperimentWorkflowBundle):
 def _require_workflow_ready_metadata(
     report: MultiplexMetadataValidationReport,
 ) -> None:
+    if report.summary.missing_channel_assignment_count > 0:
+        raise ValueError(
+            "tmt workflow requires complete multiplex channel coverage in the design table"
+        )
     if report.summary.duplicate_assignment_count > 0:
         raise ValueError(
             "tmt workflow requires unique multiplex channel and sample assignments in the design table"
