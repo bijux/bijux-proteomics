@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
@@ -22,13 +23,18 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
 )
 
 __all__ = [
+    "CrossPackageBoundaryCheckpoint",
     "CrossPackageSmokeReport",
     "CrossPackageSmokeStage",
     "PublicPackageApiLoad",
+    "ordered_cross_package_boundary_checkpoints",
     "ordered_public_package_modules",
+    "render_cross_package_smoke_summary",
     "load_public_package_apis",
     "run_cross_package_smoke_workflow",
     "run_foundation_core_knowledge_smoke",
+    "run",
+    "validate_cross_package_smoke_report",
 ]
 
 
@@ -70,6 +76,15 @@ class CrossPackageSmokeReport:
     runtime_summary_path: str | None = None
 
 
+@dataclass(frozen=True)
+class CrossPackageBoundaryCheckpoint:
+    """One explicit ordered package boundary that the smoke workflow must cross."""
+
+    package_name: str
+    stage_name: str
+    boundary_symbol: str
+
+
 def ordered_public_package_modules() -> tuple[tuple[str, str], ...]:
     """Return the canonical product-package root order for smoke loading."""
 
@@ -99,6 +114,42 @@ def load_public_package_apis() -> tuple[PublicPackageApiLoad, ...]:
             )
         )
     return tuple(loaded)
+
+
+def ordered_cross_package_boundary_checkpoints() -> tuple[CrossPackageBoundaryCheckpoint, ...]:
+    """Return the canonical ordered boundary chain for the smoke workflow."""
+
+    return (
+        CrossPackageBoundaryCheckpoint(
+            package_name="foundation",
+            stage_name="canonical_payload",
+            boundary_symbol="bijux_proteomics_foundation.hash_payload",
+        ),
+        CrossPackageBoundaryCheckpoint(
+            package_name="core",
+            stage_name="parse_fasta_document",
+            boundary_symbol="bijux_proteomics.parse_fasta_document",
+        ),
+        CrossPackageBoundaryCheckpoint(
+            package_name="knowledge",
+            stage_name="resolve_pathway_members",
+            boundary_symbol="bijux_proteomics_knowledge.resolve_pathway_members",
+        ),
+        CrossPackageBoundaryCheckpoint(
+            package_name="intelligence",
+            stage_name="recommend_next_experiments",
+            boundary_symbol=(
+                "bijux_proteomics_intelligence.next_steps.recommend_next_experiments"
+            ),
+        ),
+        CrossPackageBoundaryCheckpoint(
+            package_name="runtime",
+            stage_name="run_reviewable_sequence_path",
+            boundary_symbol=(
+                "bijux_proteomics_runtime.workflows.run_reviewable_sequence_path"
+            ),
+        ),
+    )
 
 
 def run_foundation_core_knowledge_smoke(
@@ -360,3 +411,94 @@ def _smoke_fasta_payload() -> str:
 
 def _smoke_sequence() -> str:
     return "MEEPQSDPSVEPPLSQETFSDLWKLLPEN"
+
+
+def validate_cross_package_smoke_report(
+    report: CrossPackageSmokeReport,
+) -> tuple[str, ...]:
+    """Return ordered smoke-boundary issues for the first broken checkpoint onward."""
+
+    actual = tuple((stage.package_name, stage.stage_name) for stage in report.stages)
+    expected = tuple(
+        (checkpoint.package_name, checkpoint.stage_name)
+        for checkpoint in ordered_cross_package_boundary_checkpoints()
+    )
+    issues: list[str] = []
+    for index, checkpoint in enumerate(ordered_cross_package_boundary_checkpoints()):
+        if index >= len(actual):
+            issues.append(
+                f"missing boundary {checkpoint.package_name}.{checkpoint.stage_name} "
+                f"at {checkpoint.boundary_symbol}"
+            )
+            break
+        actual_package_name, actual_stage_name = actual[index]
+        if (actual_package_name, actual_stage_name) != (
+            checkpoint.package_name,
+            checkpoint.stage_name,
+        ):
+            issues.append(
+                "first broken boundary is "
+                f"{checkpoint.package_name}.{checkpoint.stage_name} at "
+                f"{checkpoint.boundary_symbol}; got "
+                f"{actual_package_name}.{actual_stage_name}"
+            )
+            break
+    if not issues and actual != expected:
+        issues.append("unexpected extra smoke stages appear after the canonical boundary chain")
+    return tuple(issues)
+
+
+def render_cross_package_smoke_summary(report: CrossPackageSmokeReport) -> str:
+    """Render a stable human-readable smoke summary with boundary checkpoints."""
+
+    lines = [
+        "cross-package smoke workflow",
+        f"- root package loads: {', '.join(load.package_name for load in report.public_root_loads)}",
+        f"- canonical accession: {report.canonical_accession}",
+        f"- knowledge pathway: {report.knowledge_pathway_id}",
+    ]
+    if report.recommendation_id is not None:
+        lines.append(f"- intelligence recommendation: {report.recommendation_id}")
+    if report.runtime_run_id is not None:
+        lines.append(f"- runtime run id: {report.runtime_run_id}")
+    lines.append("- boundaries:")
+    for checkpoint in ordered_cross_package_boundary_checkpoints():
+        lines.append(
+            f"  - {checkpoint.package_name}.{checkpoint.stage_name}: {checkpoint.boundary_symbol}"
+        )
+    return "\n".join(lines)
+
+
+def run(repo_root: Path | None = None) -> int:
+    """Execute the cross-package smoke workflow and print a stable summary."""
+
+    report = run_cross_package_smoke_workflow(repo_root or Path.cwd() / "artifacts" / "cross-package-smoke")
+    issues = validate_cross_package_smoke_report(report)
+    print(render_cross_package_smoke_summary(report))
+    if issues:
+        for issue in issues:
+            print(issue)
+        return 1
+    return 0
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the ordered cross-package public API smoke workflow.",
+    )
+    parser.add_argument(
+        "--repo-root",
+        default=None,
+        help="Optional directory for smoke runtime outputs.",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = _parse_args()
+    repo_root = None if args.repo_root is None else Path(args.repo_root)
+    return run(repo_root=repo_root)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
