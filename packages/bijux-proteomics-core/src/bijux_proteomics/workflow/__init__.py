@@ -27,6 +27,7 @@ from bijux_proteomics.workflow.protein_mechanism_cards import *  # noqa: F401,F4
 from bijux_proteomics.workflow.public_benchmark_descriptors import *  # noqa: F401,F403
 from bijux_proteomics.workflow.public_benchmark_runner import *  # noqa: F401,F403
 from bijux_proteomics.workflow.public_dataset_comparison import *  # noqa: F401,F403
+from bijux_proteomics.workflow.result_archive import *  # noqa: F401,F403
 from bijux_proteomics.workflow.result_manifest import *  # noqa: F401,F403
 from bijux_proteomics.workflow.result_search_index import *  # noqa: F401,F403
 from bijux_proteomics.workflow.study_result import *  # noqa: F401,F403
