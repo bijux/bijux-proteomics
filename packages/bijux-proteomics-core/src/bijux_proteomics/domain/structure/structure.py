@@ -10,6 +10,7 @@ import os
 import shutil
 import tempfile
 from typing import Any, cast
+import warnings
 
 from Bio.Align import PairwiseAligner
 from Bio.Align.substitution_matrices import load as load_subst
@@ -56,14 +57,25 @@ def _res3_to1(resname: str) -> str:
         return "X"
 
 
-def load_structure_from_pdb_text(pdb_text: str) -> Structure:
-    """Loads a protein structure from PDB text."""
+def parse_structure_from_pdb_text(pdb_text: str) -> Structure:
+    """Parse one protein structure from raw PDB text."""
     parser = PDBParser(QUIET=True)  # type: ignore[no-untyped-call]
     handle = io.StringIO(pdb_text)
     return cast(
         Structure,
         parser.get_structure("pred", handle),  # type: ignore[no-untyped-call]
     )
+
+
+def load_structure_from_pdb_text(pdb_text: str) -> Structure:
+    """Compatibility wrapper for the canonical raw PDB parser."""
+    warnings.warn(
+        "load_structure_from_pdb_text is deprecated; use "
+        "parse_structure_from_pdb_text for raw PDB text parsing.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return parse_structure_from_pdb_text(pdb_text)
 
 
 def residue_count(structure: Structure) -> int:
