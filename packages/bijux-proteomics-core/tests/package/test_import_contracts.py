@@ -151,9 +151,11 @@ def test_ptm_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.ptm")
 
     assert hasattr(module, "correct_site_by_protein")
+    assert hasattr(module, "test_occupancy_contrast")
     assert hasattr(module, "detect_false_localization")
     assert hasattr(module, "build_site_groups")
     assert hasattr(module, "render_false_localization_tsv")
+    assert hasattr(module, "render_ptm_occupancy_contrast_tsv")
     assert hasattr(module, "render_site_protein_correction_tsv")
     assert hasattr(module, "render_ptm_site_group_tsv")
     assert hasattr(module, "score_ptm_fragments")
