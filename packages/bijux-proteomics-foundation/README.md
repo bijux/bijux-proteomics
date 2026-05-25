@@ -63,6 +63,12 @@ serialization, and cross-package consistency for reproducible proteomics data.
 pip install bijux-proteomics-foundation
 ```
 
+Test install:
+
+```bash
+pip install -e '.[test]'
+```
+
 ## Quick start
 
 ```python
