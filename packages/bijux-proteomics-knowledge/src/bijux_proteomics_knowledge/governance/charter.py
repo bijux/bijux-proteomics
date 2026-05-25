@@ -98,8 +98,9 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
+            "features/overlaps.py",
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
             "reviews/decision_briefs.py",
@@ -140,6 +141,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="features/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The features package root groups exact overlap owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="features/overlaps.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Protein feature overlap resolution keeps inclusive protein-coordinate interpretation explicit instead of forcing downstream packages to reimplement boundary logic.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="identity/__init__.py",
