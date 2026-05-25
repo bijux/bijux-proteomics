@@ -287,6 +287,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/regulator_enrichment.py",
             "ptm/review.py",
             "ptm/site_annotation_import.py",
+            "ptm/site_groups.py",
             "ptm/site_quantification.py",
             "dia/contracts.py",
             "dia/library_coverage.py",
