@@ -60,6 +60,34 @@ def _rewrite_descriptor_source(
     raise AssertionError(f"missing schema_id {schema_id!r}")
 
 
+def _write_clean_targeted_results(path: Path) -> None:
+    path.write_text(
+        "\n".join(
+            (
+                "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality",
+                "P001\tPEPTIDEK\t2\t445.2\ty7\t789.4\tcontrol_r1\t25000\t12.50\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty8\t902.5\tcontrol_r1\t20000\t12.56\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty7\t789.4\tcontrol_r2\t27000\t12.48\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty8\t902.5\tcontrol_r2\t21000\t12.55\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty7\t789.4\ttreat_r1\t120000\t12.51\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty8\t902.5\ttreat_r1\t98000\t12.57\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty7\t789.4\ttreat_r2\t118000\t12.52\tpass",
+                "P001\tPEPTIDEK\t2\t445.2\ty8\t902.5\ttreat_r2\t95000\t12.58\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty5\t602.3\tcontrol_r1\t93000\t18.40\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty6\t715.4\tcontrol_r1\t87000\t18.47\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty5\t602.3\tcontrol_r2\t92000\t18.41\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty6\t715.4\tcontrol_r2\t86000\t18.48\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty5\t602.3\ttreat_r1\t43000\t18.42\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty6\t715.4\ttreat_r1\t39000\t18.46\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty5\t602.3\ttreat_r2\t42000\t18.40\tpass",
+                "P002\tACDMPEP\t3\t512.3\ty6\t715.4\ttreat_r2\t38500\t18.45\tpass",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
         public_benchmark_root() / "ptm_localization_review_package" / "dataset.yml"
@@ -165,9 +193,15 @@ def test_public_benchmark_descriptor_loads_runnable_targeted_contracts() -> None
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.TARGETED
-    assert descriptor.expected_input_schemas == ("input_tsv", "design_tsv")
+    assert descriptor.expected_input_schemas == (
+        "input_tsv",
+        "design_tsv",
+        "discovery_claims_json",
+        "panel_assays_json",
+    )
     assert len(descriptor.sample_metadata) == 4
-    assert descriptor.expected_approximate_counts[-1].metric_id == "unreliable_target_count"
+    assert descriptor.command.parameters["stage"] == "validation"
+    assert descriptor.expected_approximate_counts[-1].metric_id == "inconclusive_count"
     assert descriptor.known_limitations[0].severity is (
         PublicBenchmarkKnownLimitationSeverity.ADVISORY
     )
@@ -302,12 +336,46 @@ def test_public_benchmark_runner_executes_runnable_targeted_descriptor(
     assert report.verified_counts["target_count"] == 2
     assert report.verified_counts["flagged_coelution_target_entry_count"] == 3
     assert report.verified_counts["unreliable_target_count"] == 2
+    assert report.verified_counts["discovery_claim_count"] == 2
+    assert report.verified_counts["inconclusive_count"] == 2
     assert not report.expected_signal_assessments
+    assert Path(report.output_dir, "advanced_targeted_workflow_manifest.json").exists()
     assert Path(report.output_dir, "targeted_assay_qc_summary.tsv").exists()
     assert Path(report.output_dir, "targeted_matrix_summary.tsv").exists()
     assert Path(report.output_dir, "targeted_assay_qc_unreliable_targets.tsv").exists()
     assert Path(report.output_dir, "targeted_assay_qc_fragment_ratios.tsv").exists()
     assert Path(report.output_dir, "targeted_assay_qc_transition_qc.tsv").exists()
+    assert Path(report.output_dir, "targeted_validation_summary.tsv").exists()
+    assert Path(report.output_dir, "targeted_validation_inconclusive.tsv").exists()
+    assert Path(report.output_dir, "targeted_validation_evidence.tsv").exists()
+
+
+def test_public_benchmark_runner_fails_targeted_descriptor_without_unreliable_evidence(
+    tmp_path: Path,
+) -> None:
+    clean_results = tmp_path / "clean_targeted_results.tsv"
+    _write_clean_targeted_results(clean_results)
+    descriptor_path = _write_descriptor_copy(
+        tmp_path,
+        "targeted_transition_review_package",
+        mutate=lambda payload: _rewrite_descriptor_source(
+            payload,
+            schema_id="input_tsv",
+            path=clean_results,
+        ),
+    )
+
+    report = run_public_benchmark_descriptor(
+        descriptor_path,
+        output_root=tmp_path / "runs",
+    )
+
+    assert report.status == "failed"
+    assert any(
+        failure.kind == PublicBenchmarkFailureKind.APPROXIMATE_COUNT_MISMATCH
+        and failure.subject == "unreliable_target_count"
+        for failure in report.failures
+    )
 
 
 def test_public_benchmark_runner_executes_weak_evidence_lfq_descriptor(
