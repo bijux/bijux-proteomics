@@ -5,17 +5,33 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.actions import *  # noqa: F401,F403
-from bijux_proteomics.lab.background import *  # noqa: F401,F403
-from bijux_proteomics.lab.carryover import *  # noqa: F401,F403
-from bijux_proteomics.lab.cohort import *  # noqa: F401,F403
-from bijux_proteomics.lab.contamination import *  # noqa: F401,F403
-from bijux_proteomics.lab.digestion_diagnosis import *  # noqa: F401,F403
-from bijux_proteomics.lab.lc_drift import *  # noqa: F401,F403
-from bijux_proteomics.lab.protocol_consistency import *  # noqa: F401,F403
-from bijux_proteomics.lab.protocol_context import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc_benchmarks import *  # noqa: F401,F403
-from bijux_proteomics.lab.run_diagnosis import *  # noqa: F401,F403
-from bijux_proteomics.lab.sample_identity import *  # noqa: F401,F403
-from bijux_proteomics.lab.standards import *  # noqa: F401,F403
+from importlib import import_module
+
+_LAB_EXPORT_MODULES = (
+    "bijux_proteomics.lab.protocol_context",
+    "bijux_proteomics.lab.qc",
+    "bijux_proteomics.lab.qc_benchmarks",
+    "bijux_proteomics.lab.carryover",
+    "bijux_proteomics.lab.lc_drift",
+    "bijux_proteomics.lab.protocol_consistency",
+    "bijux_proteomics.lab.operations",
+    "bijux_proteomics.lab.planning",
+    "bijux_proteomics.lab.actions",
+    "bijux_proteomics.lab.background",
+    "bijux_proteomics.lab.cohort",
+    "bijux_proteomics.lab.contamination",
+    "bijux_proteomics.lab.digestion_diagnosis",
+    "bijux_proteomics.lab.run_diagnosis",
+    "bijux_proteomics.lab.sample_identity",
+    "bijux_proteomics.lab.standards",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _LAB_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

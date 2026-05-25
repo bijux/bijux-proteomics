@@ -5,7 +5,21 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study.metadata.contracts import *  # noqa: F401,F403
-from bijux_proteomics.study.metadata.sample_metadata import *  # noqa: F401,F403
-from bijux_proteomics.study.metadata.sample_run_identity import *  # noqa: F401,F403
-from bijux_proteomics.study.metadata.sample_sheet_repairs import *  # noqa: F401,F403
+from importlib import import_module
+
+_STUDY_METADATA_EXPORT_MODULES = (
+    "bijux_proteomics.study.metadata.contracts",
+    "bijux_proteomics.study.metadata.sample_metadata",
+    "bijux_proteomics.study.metadata.sample_run_identity",
+    "bijux_proteomics.study.metadata.sample_sheet_repairs",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _STUDY_METADATA_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

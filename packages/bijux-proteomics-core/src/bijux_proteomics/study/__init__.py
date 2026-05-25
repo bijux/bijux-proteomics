@@ -5,22 +5,27 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study.contrasts import *  # noqa: F401,F403
-from bijux_proteomics.study.contracts import *  # noqa: F401,F403
-from bijux_proteomics.study.carryover import *  # noqa: F401,F403
-from bijux_proteomics.study.lc_drift import *  # noqa: F401,F403
-from bijux_proteomics.study.design_classification import *  # noqa: F401,F403
-from bijux_proteomics.study.design_diagnostics import *  # noqa: F401,F403
-from bijux_proteomics.study.experiment_feasibility import *  # noqa: F401,F403
-from bijux_proteomics.study.experiment_confidence import *  # noqa: F401,F403
-from bijux_proteomics.study.design_validity import *  # noqa: F401,F403
-from bijux_proteomics.study.experiment_design import *  # noqa: F401,F403
-from bijux_proteomics.study.lab_protocol_context import *  # noqa: F401,F403
-from bijux_proteomics.study.protocol_consistency import *  # noqa: F401,F403
-from bijux_proteomics.study.replicate_structure import *  # noqa: F401,F403
-from bijux_proteomics.study.sample_sheet_repairs import *  # noqa: F401,F403
-from bijux_proteomics.study.sample_run_identity import *  # noqa: F401,F403
-from bijux_proteomics.study.sample_metadata import *  # noqa: F401,F403
-from bijux_proteomics.study.laboratory_operations import *  # noqa: F401,F403
-from bijux_proteomics.study.laboratory_plans import *  # noqa: F401,F403
-from bijux_proteomics.study.qc import *  # noqa: F401,F403
+from importlib import import_module
+
+_STUDY_EXPORT_MODULES = (
+    "bijux_proteomics.study.design",
+    "bijux_proteomics.study.metadata",
+    "bijux_proteomics.study.carryover",
+    "bijux_proteomics.study.lc_drift",
+    "bijux_proteomics.study.lab_protocol_context",
+    "bijux_proteomics.study.protocol_consistency",
+    "bijux_proteomics.study.laboratory_operations",
+    "bijux_proteomics.study.laboratory_plans",
+    "bijux_proteomics.study.qc",
+    "bijux_proteomics.study.qc_benchmarks",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _STUDY_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

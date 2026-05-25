@@ -5,11 +5,25 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study.design.contrasts import *  # noqa: F401,F403
-from bijux_proteomics.study.design.design_classification import *  # noqa: F401,F403
-from bijux_proteomics.study.design.design_diagnostics import *  # noqa: F401,F403
-from bijux_proteomics.study.design.design_validity import *  # noqa: F401,F403
-from bijux_proteomics.study.design.experiment_confidence import *  # noqa: F401,F403
-from bijux_proteomics.study.design.experiment_design import *  # noqa: F401,F403
-from bijux_proteomics.study.design.experiment_feasibility import *  # noqa: F401,F403
-from bijux_proteomics.study.design.replicate_structure import *  # noqa: F401,F403
+from importlib import import_module
+
+_STUDY_DESIGN_EXPORT_MODULES = (
+    "bijux_proteomics.study.design.experiment_design",
+    "bijux_proteomics.study.design.contrasts",
+    "bijux_proteomics.study.design.design_diagnostics",
+    "bijux_proteomics.study.design.design_validity",
+    "bijux_proteomics.study.design.design_classification",
+    "bijux_proteomics.study.design.replicate_structure",
+    "bijux_proteomics.study.design.experiment_feasibility",
+    "bijux_proteomics.study.design.experiment_confidence",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _STUDY_DESIGN_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
