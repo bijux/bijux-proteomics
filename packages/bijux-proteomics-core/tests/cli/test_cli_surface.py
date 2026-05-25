@@ -418,6 +418,45 @@ def test_demo_query_command_answers_shipped_interrogation_examples() -> None:
         assert "what_validates_target" in answer_tsv
 
 
+def test_demo_report_command_emits_integrated_scientific_report_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "demo-report",
+                "--out-dir",
+                "proteomics_demo_report",
+                "--summary-tsv-out",
+                "proteomics_demo_report.summary.tsv",
+                "--sentences-tsv-out",
+                "proteomics_demo_report.sentences.tsv",
+                "--html-out",
+                "proteomics_demo_report.html",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["section_count"] == 9
+        assert payload["summary"]["scientific_claim_count"] >= 1
+        assert (
+            payload["summary"]["scientific_claim_count"]
+            == payload["summary"]["linked_scientific_claim_count"]
+        )
+        assert Path("proteomics_demo_report/integrated_scientific_report.json").exists()
+        assert Path("proteomics_demo_report/integrated_scientific_report.html").exists()
+        assert "linked_scientific_claim_count" in Path(
+            "proteomics_demo_report.summary.tsv"
+        ).read_text()
+        sentence_tsv = Path("proteomics_demo_report.sentences.tsv").read_text()
+        assert "scientific_claim" in sentence_tsv
+        assert "targeted-evidence-card:protein:P001" in sentence_tsv
+        html = Path("proteomics_demo_report.html").read_text()
+        assert "Experiment Design" in html
+        assert "Belief Audit" in html
+
+
 def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
