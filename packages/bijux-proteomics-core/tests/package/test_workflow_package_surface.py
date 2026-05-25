@@ -95,6 +95,15 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
     assert report.experiment_confidence_report.summary.component_count == 7
 
 
+def test_workflow_package_exports_standardized_result_types() -> None:
+    assert hasattr(workflow, "BiologyResult")
+    assert hasattr(workflow, "ImportResult")
+    assert hasattr(workflow, "RejectedEvidenceEntry")
+    assert hasattr(workflow, "ResultWarningEntry")
+    assert hasattr(workflow, "build_result_warning")
+    assert hasattr(workflow, "build_rejected_evidence_entry")
+
+
 def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path) -> None:
     design_entries = tuple(
         parse_experimental_design_table(

@@ -241,6 +241,12 @@ def test_multi_study_comparison_outputs_harmonized_shared_conflicting_and_study_
     assert any(
         entry.pathway_id == "custom:study_specific" for entry in report.study_specific_pathways
     )
+    assert report.manifest.artifacts.harmonized_proteins_tsv == "multi_study_harmonized_proteins.tsv"
+    assert report.artifacts["conflicting_effects_tsv"] == "multi_study_conflicting_effects.tsv"
+    assert {warning.warning_code for warning in report.warnings} == {
+        "conflicting_effects_present"
+    }
+    assert report.rejected_evidence == ()
     assert "harmonized_protein_group_count" in render_multi_study_comparison_summary_tsv(report)
     assert "harmonized_id" in render_multi_study_harmonized_proteins_tsv(report)
     assert "replicated_hit" in render_multi_study_shared_effects_tsv(report)
@@ -286,6 +292,13 @@ def test_multi_study_comparison_keeps_ambiguous_cross_species_mappings_unresolve
     assert {
         entry.reason for entry in report.unresolved_proteins
     } == {CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING}
+    assert {warning.warning_code for warning in report.warnings} == {
+        "ambiguous_ortholog_unresolved"
+    }
+    assert len(report.rejected_evidence) == 3
+    assert {
+        entry.reason_code for entry in report.rejected_evidence
+    } == {"ambiguous_ortholog_mapping"}
     unresolved_tsv = render_multi_study_unresolved_proteins_tsv(report)
     assert "ambiguous_ortholog_mapping" in unresolved_tsv
     assert "Q9MOUSE1" in unresolved_tsv

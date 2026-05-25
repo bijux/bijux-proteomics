@@ -211,6 +211,16 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
     assert report.summary.target_count == 3
     assert report.summary.assay_ready_target_count == 1
     assert report.summary.target_with_acceptable_peptide_count == 2
+    assert report.manifest.artifacts.targets_tsv == "discovery_to_assay_targets.tsv"
+    assert report.artifacts["targets_tsv"] == "discovery_to_assay_targets.tsv"
+    assert {warning.warning_code for warning in report.warnings} == {
+        "blocked_targets_present",
+        "partial_assay_coverage",
+    }
+    assert {entry.entity_id for entry in report.rejected_evidence} == {
+        "protein:P404",
+        "ptm_site:P00001:S15",
+    }
 
     assert (
         targets["protein:P00001"].assay_feasibility
@@ -288,6 +298,8 @@ def test_design_assay_from_discovery_marks_transition_limited_targets_without_ex
     assert target.transition_supported_peptide_count == 1
     assert target.retained_assay_count == 0
     assert target.panel_transition_count == 0
+    assert report.rejected_evidence[0].reason_code == "transition_limited"
+    assert report.rejected_evidence[0].related_artifact == "discovery_to_assay_omitted_targets.tsv"
     assert report.panel_design_report.assay_entries == ()
     assert "no retained targeted assay survived peptide selection" in (
         render_discovery_to_assay_omitted_targets_tsv(report)

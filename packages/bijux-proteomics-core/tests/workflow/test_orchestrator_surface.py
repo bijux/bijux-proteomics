@@ -153,7 +153,12 @@ def test_run_proteomics_workflow_supports_label_free_mode(tmp_path: Path) -> Non
 
     assert result.mode is WorkflowMode.LABEL_FREE
     assert result.design_row_count == 6
+    assert result.manifest is result.export_manifest
     assert result.export_manifest is not None
+    assert result.artifacts["output_dir"] == str(tmp_path / "label_free")
+    assert result.artifacts["manifest_json"].endswith("biological_report_manifest.json")
+    assert result.warnings == ()
+    assert result.rejected_evidence == ()
     assert result.report.summary.protein_count == 5
     assert result.report.selection_policy.heatmap_max_entity_count == 75
 
@@ -354,6 +359,10 @@ def test_run_proteomics_workflow_supports_targeted_validation_mode(
 
     assert result.mode is WorkflowMode.TARGETED
     assert result.design_row_count == 4
+    assert result.manifest is result.export_manifest
     assert result.source_report is not None
+    assert result.artifacts["confirmed_validation_tsv"] == "targeted_validation_confirmed.tsv"
+    assert result.warnings == result.report.warnings
+    assert result.rejected_evidence == result.report.rejected_evidence
     assert result.report.summary.discovery_claim_count == 2
     assert result.report.summary.inconclusive_count == 2

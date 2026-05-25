@@ -309,6 +309,10 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "AdvancedTmtWorkflowConfig")
     assert hasattr(module, "DiscoveryAssaySourceResult")
     assert hasattr(module, "DiscoveryAssayTargetInput")
+    assert hasattr(module, "BiologyResult")
+    assert hasattr(module, "ImportResult")
+    assert hasattr(module, "RejectedEvidenceEntry")
+    assert hasattr(module, "ResultWarningEntry")
     assert hasattr(module, "run_proteomics_workflow")
     assert hasattr(module, "run_advanced_diann_workflow")
     assert hasattr(module, "run_advanced_fragpipe_workflow")
@@ -327,6 +331,15 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "build_interactive_result_comparison_from_artifacts")
     assert hasattr(module, "build_result_manifest_from_artifacts")
     assert hasattr(module, "build_result_search_index_from_artifacts")
+
+
+def test_workflow_result_types_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.workflow.result_types")
+
+    assert hasattr(module, "BiologyResult")
+    assert hasattr(module, "WorkflowResult")
+    assert hasattr(module, "build_result_warning")
+    assert hasattr(module, "build_rejected_evidence_entry")
 
 
 def test_workflow_pipeline_package_import_contract() -> None:
