@@ -238,6 +238,27 @@ def test_workflow_package_exports_result_manifest_surface() -> None:
 def test_workflow_package_exports_result_archive_surface() -> None:
     assert hasattr(workflow, "load_result_archive")
     assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
+
+
+def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None:
+    report = workflow.run_advanced_diann_workflow(
+        workflow.AdvancedDiannWorkflowConfig(
+            result_tsv_path=_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_fixture("diann_advanced_reference.fasta"),
+            output_dir=tmp_path / "advanced_diann_package_surface",
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert hasattr(workflow, "run_advanced_diann_workflow")
+    assert hasattr(workflow, "render_advanced_diann_protein_decisions_tsv")
+    assert report.summary.rejected_evidence_count == 1
+    assert report.summary.downgraded_protein_count >= 1
+    assert "representative_protein_ref" in workflow.render_advanced_diann_protein_decisions_tsv(
+        report.accepted_protein_decisions
+    )
     assert workflow.ProteomicsStudyQcKind.ARCHIVED_RESULT.value == "archived_result"
 
 
