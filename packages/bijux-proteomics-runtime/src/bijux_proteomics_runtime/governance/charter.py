@@ -139,6 +139,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REPLAY_AND_RECOVERY,
         owned_surface="Replay-safe bundles, checkpoints, cache claims, rerun planning, cleanup, and recovery behavior that preserve trustworthy run reuse.",
         required_modules=(
+            "handoff/archive.py",
             "rehydrate/loading.py",
             "resume/execution.py",
             "runs/replay.py",
@@ -156,6 +157,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
             "artifacts/steps.py",
             "api/catalog.py",
             "diff/completed_runs.py",
+            "handoff/archive.py",
             "rehydrate/loading.py",
             "runs/contracts.py",
             "runs/launch_bundles.py",
@@ -224,6 +226,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             module_path,
             (RuntimeCharterCapability.REVIEWABLE_OUTPUTS,),
             "Completed-run scientific diffs belong in runtime because they compare rehydrated reviewable outputs while ignoring runtime-only timestamp drift.",
+        )
+
+    if module_path.startswith("handoff/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Portable collaborator handoff archives belong in runtime because they preserve rehydrated review surfaces for offline loading and query without the original run tree.",
         )
 
     if module_path.startswith("checkpoints/"):
