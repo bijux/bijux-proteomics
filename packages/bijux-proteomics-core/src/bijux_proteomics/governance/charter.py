@@ -402,6 +402,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/result_search_index.py",
             "workflow/study_result.py",
             "workflow/surprising_demo.py",
+            "workflow/surprising_demo_interrogation.py",
             "workflow/synthetic_quant_truth.py",
             "workflow/trust_bundle.py",
             "interfaces/execution/backend.py",
