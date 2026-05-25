@@ -36,6 +36,7 @@ def test_knowledge_tests_follow_owned_boundary_families() -> None:
         "features",
         "governance",
         "identity",
+        "kinases",
         "memory",
         "package",
         "pathways",

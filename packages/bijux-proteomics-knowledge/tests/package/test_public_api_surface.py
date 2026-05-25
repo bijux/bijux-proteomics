@@ -9,6 +9,7 @@ from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceClaim,
     EvidenceRecord,
+    KinaseSubstrateMatchType,
     KnowledgeDecisionBrief,
     PathwayCoverageConfidenceStatus,
     ProteinFeatureType,
@@ -16,10 +17,12 @@ from bijux_proteomics_knowledge import (
     evaluate_schema_compatibility,
     overlap_protein_features,
     render_complex_membership_resolution_tsv,
+    render_kinase_substrate_resolution_tsv,
     render_pathway_membership_resolution_tsv,
     render_protein_feature_overlaps_tsv,
     render_protein_id_resolution_tsv,
     resolve_complex_members,
+    resolve_kinase_substrates,
     resolve_pathway_members,
     resolve_protein_ids,
 )
@@ -37,6 +40,10 @@ from bijux_proteomics.interpretation.pathway_enrichment import (
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
+)
+from bijux_proteomics.interpretation.regulator_inference import (
+    RegulatorEvidenceRecord,
+    RegulatorEvidenceType,
 )
 from bijux_proteomics.sequences.protein_region_context import ProteinRegionContextRecord
 from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
@@ -196,4 +203,45 @@ def test_knowledge_public_root_exposes_complex_membership_surface() -> None:
     )
     assert render_complex_membership_resolution_tsv(report.entries).splitlines()[0] == (
         "complex_id\tobserved_members\tmissing_members\tmember_coverage\tcomplex_confidence"
+    )
+
+
+def test_knowledge_public_root_exposes_kinase_substrate_resolution_surface() -> None:
+    report = resolve_kinase_substrates(
+        ("TP53:S15:Phospho", "P04637:S15:Phospho"),
+        AnnotationPack(
+            source_path="public-root-kinase-pack.json",
+            pack_name="public-root-kinase-pack",
+            protein_features=(
+                ProteinAnnotationRecord(
+                    protein_ref="P04637",
+                    gene_symbol="TP53",
+                    description="tumor protein p53",
+                ),
+            ),
+            kinase_substrates=(
+                RegulatorEvidenceRecord(
+                    regulator="MAPK1",
+                    evidence_type=RegulatorEvidenceType.KINASE_SUBSTRATE,
+                    site_key="P04637:S15:Phospho",
+                    source_accession="PSP:0001",
+                ),
+            ),
+            summary=AnnotationPackSummary(
+                protein_feature_count=1,
+                pathway_count=0,
+                complex_count=0,
+                compartment_count=0,
+                drug_target_count=0,
+                disease_term_count=0,
+                kinase_substrate_count=1,
+                ortholog_count=0,
+            ),
+        ),
+    )
+
+    assert report.entries[0].match_type is KinaseSubstrateMatchType.EXACT_ACCESSION_SITE
+    assert report.entries[1].match_type is KinaseSubstrateMatchType.GENE_SYMBOL_SITE_EQUIVALENT
+    assert render_kinase_substrate_resolution_tsv(report.entries).splitlines()[0] == (
+        "site_id\tkinase\tmatch_type\tannotation_source"
     )
