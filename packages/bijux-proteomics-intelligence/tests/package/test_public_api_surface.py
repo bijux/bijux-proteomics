@@ -7,6 +7,9 @@ from importlib import import_module
 from types import ModuleType
 
 import bijux_proteomics_intelligence
+from bijux_proteomics_intelligence.public_api import (
+    list_intelligence_root_api_entries,
+)
 
 
 def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
@@ -26,6 +29,12 @@ def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
         "refusal",
         "reviews",
     ]
+
+
+def test_intelligence_public_api_module_matches_root_exports() -> None:
+    assert tuple(
+        entry.export_name for entry in list_intelligence_root_api_entries()
+    ) == tuple(bijux_proteomics_intelligence.__all__)
 
 
 def test_intelligence_public_api_loads_owner_modules_lazily() -> None:

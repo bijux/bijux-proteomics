@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema
+from bijux_proteomics_knowledge.public_api import list_knowledge_root_api_entries
 from bijux_proteomics_knowledge import (
     ComplexMembershipConfidence,
     CrossSpeciesOrthologAmbiguity,
@@ -72,6 +73,14 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceStrength,
 )
 from bijux_proteomics_knowledge.features import ProteinFeatureQueryInterval
+
+
+def test_knowledge_public_api_module_matches_root_exports() -> None:
+    from bijux_proteomics_knowledge import __all__ as root_exports
+
+    assert tuple(
+        entry.export_name for entry in list_knowledge_root_api_entries()
+    ) == tuple(root_exports)
 
 
 def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
