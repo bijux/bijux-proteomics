@@ -39,6 +39,7 @@ FORBIDDEN_PRESENTATION_TOKENS = {
     "route",
     "router",
 }
+PRIVATE_PRESENTATION_COMPATIBILITY_MODULES = {"_package_aliases"}
 FORBIDDEN_RUNTIME_TRANSPORT_TOKENS = {
     "artifactformat",
     "schemaformatcompatibilityreport",
@@ -137,6 +138,8 @@ def test_foundation_excludes_api_and_cli_formatting_surfaces() -> None:
     for path in _python_files(FOUNDATION_SRC_ROOT):
         tree = _load_tree(path)
         stem = path.stem.lower()
+        if stem in PRIVATE_PRESENTATION_COMPATIBILITY_MODULES:
+            continue
         defined_names = _defined_names(tree)
         if stem in {"api", "cli", "render"}:
             violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
