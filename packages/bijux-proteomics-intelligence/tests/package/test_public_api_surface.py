@@ -14,6 +14,7 @@ def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
         "candidates",
         "claims",
         "contradictions",
+        "falsifiers",
         "governance",
         "interpretation",
         "judgment",
@@ -27,6 +28,7 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.candidates, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.claims, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.contradictions, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.falsifiers, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.governance, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.interpretation, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.judgment, ModuleType)
@@ -42,6 +44,9 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     )
     assert bijux_proteomics_intelligence.contradictions.__name__ == (
         "bijux_proteomics_intelligence.contradictions"
+    )
+    assert bijux_proteomics_intelligence.falsifiers.__name__ == (
+        "bijux_proteomics_intelligence.falsifiers"
     )
     assert bijux_proteomics_intelligence.governance.__name__ == (
         "bijux_proteomics_intelligence.governance"
@@ -66,6 +71,12 @@ def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
             "bijux_proteomics_intelligence.contradictions"
         ).find_claim_contradictions.__name__
         == "find_claim_contradictions"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.falsifiers"
+        ).generate_falsifiers.__name__
+        == "generate_falsifiers"
     )
     assert (
         import_module(
