@@ -12,6 +12,7 @@ __all__ = [
     "candidates",
     "claims",
     "contradictions",
+    "falsifiers",
     "governance",
     "interpretation",
     "judgment",
