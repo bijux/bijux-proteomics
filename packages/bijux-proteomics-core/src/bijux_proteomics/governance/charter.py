@@ -420,6 +420,8 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "__init__.py",
             "programs.py",
             "interfaces/examples.py",
+            "interfaces/support/__init__.py",
+            "interfaces/python_api/__init__.py",
             "interfaces/cli/app.py",
             "governance/charter.py",
             "benchmarks/adoption.py",
