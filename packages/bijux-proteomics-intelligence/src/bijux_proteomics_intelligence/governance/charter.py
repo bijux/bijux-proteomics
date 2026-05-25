@@ -29,6 +29,7 @@ class IntelligenceAnalyticalBand(StrEnum):
     CLAIMS = "claims"
     CONTRADICTIONS = "contradictions"
     FALSIFIERS = "falsifiers"
+    QUERY = "query"
     JUDGMENT = "judgment"
     POSTURE = "posture"
     INTERPRETATION = "interpretation"
@@ -194,6 +195,22 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.QUERY,
+        owned_surface=(
+            "deterministic result-question answering that returns governed IDs for "
+            "significance, rejection, peptide support, failed samples, and claim weakness"
+        ),
+        required_modules=("query.py",),
+        decision_scope=(
+            "answer supported result questions from preserved study-result objects without free-text guessing",
+            "return explicit IDs alongside prose so answers stay machine-actionable",
+        ),
+        refusal_scope=(
+            "refuse prose-only answers that omit referenced IDs",
+            "do not take over artifact parsing or core-owned result-query artifact loaders",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.JUDGMENT,
         owned_surface=(
             "scenario evaluation, decision paths, and recommendation semantics that "
@@ -324,6 +341,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
             "falsifiers.py",
+            "query.py",
             "reviews/decision_briefs.py",
             "judgment/recommendations.py",
             "judgment/paths.py",
@@ -392,6 +410,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
             IntelligenceCharterCapability.RECOMMENDATION,
         ),
         reason="Falsifier generation keeps claim challenge paths explicit by emitting distinct evidence requirements for protein, PTM, pathway, regulator, and biomarker claims.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="query.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+        ),
+        reason="Result-question answering keeps significance, rejection, peptide support, failed sample, and weakening answers deterministic and machine-readable by returning preserved IDs instead of prose alone.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="governance/charter.py",
