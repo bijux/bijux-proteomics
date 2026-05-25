@@ -98,3 +98,35 @@ def test_lab_package_exports_digestion_diagnosis_surface() -> None:
         row.digestion_status is lab.DigestionStatus.ENZYME_MISMATCH for row in rows
     )
     assert "digestion_status" in rendered
+
+
+def test_lab_package_exports_contamination_classification_surface() -> None:
+    rows = lab.classify_contamination(
+        (
+            lab.ContaminantEvidenceEntry(
+                sample_id="sample_standard",
+                protein_ref="CON__ALBU_BOVIN",
+                intensity=1600.0,
+                sample_total_intensity=10_000.0,
+            ),
+            lab.ContaminantEvidenceEntry(
+                sample_id="sample_unknown",
+                protein_ref="CON__Q9UNKNOWN",
+                intensity=800.0,
+                sample_total_intensity=10_000.0,
+            ),
+        ),
+        (
+            lab.ContaminantAnnotationEntry(
+                protein_ref="CON__ALBU_BOVIN",
+                contaminant_class=lab.ContaminantClass.STANDARD,
+            ),
+        ),
+    )
+    rendered = lab.render_contamination_classification_tsv(rows)
+
+    assert hasattr(lab, "classify_contamination")
+    assert hasattr(lab, "render_contamination_classification_tsv")
+    assert any(row.contaminant_class is lab.ContaminantClass.STANDARD for row in rows)
+    assert any(row.contaminant_class is lab.ContaminantClass.UNKNOWN for row in rows)
+    assert "action_hint" in rendered
