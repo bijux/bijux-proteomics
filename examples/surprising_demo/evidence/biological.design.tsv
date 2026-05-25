@@ -1,0 +1,7 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+c1	control	1	1	c1.raw	c1.tsv	b1	orbitrap	maxquant
+c2	control	2	1	c2.raw	c2.tsv	b1	orbitrap	maxquant
+c3	control	3	1	c3.raw	c3.tsv	b1	orbitrap	maxquant
+t1	treated	1	1	t1.raw	t1.tsv	b1	orbitrap	maxquant
+t2	treated	2	1	t2.raw	t2.tsv	b1	orbitrap	maxquant
+t3	treated	3	1	t3.raw	t3.tsv	b1	orbitrap	maxquant

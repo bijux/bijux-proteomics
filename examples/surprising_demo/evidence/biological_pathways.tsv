@@ -1,0 +1,4 @@
+pathway_id	pathway_name	protein_ref	source_name
+pw:stress	Stress response	P11111	demo
+pw:stress	Stress response	P22222	demo
+pw:housekeeping	Housekeeping	Q9DEC1	demo
