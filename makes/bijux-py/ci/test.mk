@@ -16,8 +16,9 @@ ENABLE_BENCH              ?= 1
 PYTEST_ADDOPTS_EXTRA      ?=
 TEST_PRE_TARGETS          ?=
 TEST_MAIN_ARGS            ?=
-TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q
-TEST_UNIT_FALLBACK_ARGS   ?= -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q
+TEST_UNIT_DIR_ARGS        ?= -m "unit and not slow and not benchmark and not external_data" --maxfail=1 -q
+TEST_UNIT_FALLBACK_ARGS   ?= -m "unit and not slow and not benchmark and not external_data" --maxfail=1 -q
+TEST_SLOW_ARGS            ?= -m "slow or benchmark or external_data" --maxfail=1 -q
 TEST_E2E_ARGS             ?= -m "e2e" --maxfail=1 -q
 TEST_REGRESSION_ARGS      ?= -m "regression" --maxfail=1 -q
 TEST_EVALUATION_ARGS      ?= -m "evaluation" --maxfail=1 -q
@@ -102,7 +103,7 @@ PYTEST_FLAGS = \
   $(PYTEST_ADDOPTS_EXTRA)
 PYTEST_INFO_FLAGS = -o cache_dir="$(CACHE_DIR_ABS)"
 
-.PHONY: test test-unit test-e2e test-regression test-evaluation test-ci test-clean test-syntax coverage-core real-local
+.PHONY: test test-unit test-e2e test-regression test-evaluation test-slow test-ci test-clean test-syntax coverage-core real-local
 
 test:
 	@echo "→ Running full test suite on $(TEST_PATHS)"
@@ -217,6 +218,22 @@ test-evaluation:
 	@rm -rf "$(TMP_DIR_ABS)"
 	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
 	@rm -rf $(TEST_CLEAN_PATHS) || true
+
+test-slow:
+	@echo "→ Running slow and corpus-backed tests"
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
+	@( cd "$(PYTEST_ROOTDIR_ABS)" && \
+	  PYTHONPATH="$(TEST_SOURCE_PATH_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	  PYTHONDONTWRITEBYTECODE=1 \
+	  COVERAGE_FILE="$(COV_DATA_ABS)" \
+	  HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	  $(TEST_PYCACHE_ENV) \
+	  sh -c '$(PYTEST) --rootdir "$(PYTEST_ROOTDIR_ABS)" -c "$(PYTEST_INI_ABS)" $(TEST_PATH_ARGS) $(TEST_SLOW_ARGS) $(PYTEST_FLAGS)' )
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 	@if [ -n "$(TEST_PATHS_EVALUATION)" ] && [ -d "$(TEST_PATHS_EVALUATION)" ] && find "$(TEST_PATHS_EVALUATION)" -type f -name 'test_*.py' | grep -q .; then \
 	  ( cd "$(PYTEST_ROOTDIR_ABS)" && \
 	    PYTHONPATH="$(TEST_SOURCE_PATH_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \

@@ -1,7 +1,7 @@
 PACKAGE_KIND ?= repository-python
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 API_MODE ?= freeze
-TEST_MAIN_ARGS ?= -m "not slow and not real_local and not api"
+TEST_MAIN_ARGS ?= -m "unit and not slow and not benchmark and not external_data and not real_local and not api"
 TEST_E2E_ARGS ?= -m "e2e and not slow" --maxfail=1 -q
 TEST_REGRESSION_ARGS ?= -m "regression and not slow" --maxfail=1 -q
 TEST_EVALUATION_ARGS ?= -m "evaluation and not slow" --maxfail=1 -q
@@ -29,3 +29,8 @@ test-all-plus-run-time: TEST_MAIN_ARGS =
 test-all-plus-run-time: PYTEST_ADDOPTS_EXTRA = -o timeout=0 --durations=0 --durations-min=0
 test-all-plus-run-time: test
 .PHONY: test-all-plus-run-time
+
+test-slow: TEST_MAIN_ARGS = -m "slow or benchmark or external_data"
+test-slow: PYTEST_ADDOPTS_EXTRA = -o timeout=0 --durations=0 --durations-min=0
+test-slow: test
+.PHONY: test-slow
