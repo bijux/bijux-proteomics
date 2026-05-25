@@ -296,6 +296,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/site_groups.py",
             "ptm/site_quantification.py",
             "proteoforms/assembly.py",
+            "proteoforms/quantification.py",
             "dia/contracts.py",
             "dia/library_coverage.py",
             "dia/precursor_matrix.py",
