@@ -57,6 +57,12 @@ bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
 parquet = [
   "pyarrow>=16,<25",
 ]
+test = [
+  "pytest>=8.4.1,<10.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-benchmark>=4.0.0,<6.0",
+  "pytest-timeout>=2.4.0,<3.0",
+]
 
 [tool.hatch.version]
 source = "vcs"
