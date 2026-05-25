@@ -177,6 +177,20 @@ def test_identification_package_import_contract() -> None:
     assert hasattr(module, "render_psm_rescoring_explanation_tsv")
 
 
+def test_identification_subpackage_import_contract() -> None:
+    psm = importlib.import_module("bijux_proteomics.identification.psm")
+    peptide = importlib.import_module("bijux_proteomics.identification.peptide")
+    protein = importlib.import_module("bijux_proteomics.identification.protein")
+    fdr = importlib.import_module("bijux_proteomics.identification.fdr")
+    adapters = importlib.import_module("bijux_proteomics.identification.adapters")
+
+    assert hasattr(psm, "extract_psm_features")
+    assert hasattr(peptide, "build_peptide_evidence_report")
+    assert hasattr(protein, "build_protein_grouping_report")
+    assert hasattr(fdr, "build_psm_target_decoy_fdr_report")
+    assert hasattr(adapters, "build_diann_import_report")
+
+
 def test_lab_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.lab")
 

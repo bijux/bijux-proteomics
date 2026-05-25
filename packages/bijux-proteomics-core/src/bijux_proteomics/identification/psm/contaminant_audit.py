@@ -11,7 +11,7 @@ from bijux_proteomics.identification.confidence import (
     ProteinInferenceStrategyKind,
     compare_protein_inference_strategies,
 )
-from bijux_proteomics.identification.contaminant_evidence import (
+from bijux_proteomics.identification.psm.contaminant_evidence import (
     ContaminantSeparatedPsmEntry as ContaminantPsmEntry,
     build_contaminant_evidence_report,
 )

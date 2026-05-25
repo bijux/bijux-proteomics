@@ -19,7 +19,7 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
-from bijux_proteomics.identification.rejected_evidence_table import (
+from bijux_proteomics.identification.psm.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
     build_rejected_evidence_rows_from_psm_rows,
 )

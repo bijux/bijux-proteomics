@@ -15,7 +15,7 @@ import numpy as np
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.identification.psm_features import PsmFeatureRow
+from bijux_proteomics.identification.psm.psm_features import PsmFeatureRow
 from bijux_proteomics_foundation import JsonModel
 
 FeatureTransform = Literal["identity", "absolute"]
