@@ -5,6 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from bijux_proteomics.domain.errors import DesignError
 from bijux_proteomics.io import ExperimentalDesignEntry
 from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.targeted import (
@@ -323,3 +326,39 @@ def test_targeted_result_validation_keeps_shared_peptide_assays_inconclusive(
     )
     assert evidence.verdict is TargetedValidationVerdict.INCONCLUSIVE
     assert evidence.validation_direction is TargetedValidationDirection.UP
+
+
+def test_targeted_result_validation_rejects_invalid_case_control_design(
+    tmp_path: Path,
+) -> None:
+    skyline_path = tmp_path / "invalid.skyline.tsv"
+    skyline_path.write_text(
+        "ProteinName\tPeptideModifiedSequence\tPrecursorCharge\tPrecursorMz\tFragmentIon\tProductMz\tReplicateName\tArea\tRetentionTime\tPeakQuality\n"
+        "P11111\tPEPTIDER\t2\t501.25\ty7\t789.4\tcontrol_r1\t25000\t12.50\tpass\n",
+        encoding="utf-8",
+    )
+    import_report = build_skyline_result_import_report(skyline_path)
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="control_r1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="control_r1.raw",
+            identifications_file="control_r1.tsv",
+        ),
+    )
+
+    with pytest.raises(
+        DesignError, match="case_condition and control_condition must differ"
+    ):
+        build_targeted_result_validation_report(
+            discovery_claims=(),
+            panel_assays=(),
+            import_report=import_report,
+            design_entries=design_entries,
+            policy=TargetedResultValidationPolicy(
+                case_condition="control",
+                control_condition="control",
+            ),
+        )

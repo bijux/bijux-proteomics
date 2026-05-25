@@ -14,6 +14,7 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.errors import DesignError
 from bijux_proteomics.io import ExperimentalDesignEntry
 from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.targeted.assay_qc import (
@@ -229,13 +230,13 @@ def build_targeted_result_validation_report(
         if entry.sample_id in sample_ids
     }
     if policy.case_condition == policy.control_condition:
-        raise ValueError("case_condition and control_condition must differ")
+        raise DesignError("case_condition and control_condition must differ")
     if policy.case_condition not in condition_by_sample.values():
-        raise ValueError(
+        raise DesignError(
             f"case_condition {policy.case_condition!r} is not present in targeted design entries"
         )
     if policy.control_condition not in condition_by_sample.values():
-        raise ValueError(
+        raise DesignError(
             f"control_condition {policy.control_condition!r} is not present in targeted design entries"
         )
 

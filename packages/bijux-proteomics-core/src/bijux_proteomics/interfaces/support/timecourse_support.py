@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.errors import DesignError
+
 from .imports import *  # noqa: F401,F403
 
 
@@ -22,7 +24,7 @@ def _parse_timepoint_order_file(path: Path) -> tuple[str, ...]:
         labels = labels[1:]
     ordered_labels = tuple(labels)
     if not ordered_labels:
-        raise ValueError("timepoint order file must contain at least one label")
+        raise DesignError("timepoint order file must contain at least one label")
     return ordered_labels
 
 
