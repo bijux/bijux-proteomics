@@ -28,6 +28,15 @@ from bijux_proteomics_knowledge.pathways import (
     render_pathway_membership_resolution_tsv,
     resolve_pathway_members,
 )
+from bijux_proteomics_knowledge.complexes import (
+    ComplexCoveragePolicy,
+    ComplexMembershipConfidence,
+    ComplexMembershipResolutionEntry,
+    ComplexMembershipResolutionReport,
+    ComplexMembershipResolutionSummary,
+    render_complex_membership_resolution_tsv,
+    resolve_complex_members,
+)
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
 from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
 from bijux_proteomics_knowledge.memory.models.evidence import (
@@ -40,6 +49,11 @@ __all__ = [
     "EvidenceBundle",
     "EvidenceClaim",
     "EvidenceRecord",
+    "ComplexCoveragePolicy",
+    "ComplexMembershipConfidence",
+    "ComplexMembershipResolutionEntry",
+    "ComplexMembershipResolutionReport",
+    "ComplexMembershipResolutionSummary",
     "KnowledgeDecisionBrief",
     "PathwayCoverageConfidenceEntry",
     "PathwayCoverageConfidenceStatus",
@@ -54,9 +68,11 @@ __all__ = [
     "ProteinIdentityResolutionStatus",
     "evaluate_schema_compatibility",
     "overlap_protein_features",
+    "render_complex_membership_resolution_tsv",
     "render_pathway_membership_resolution_tsv",
     "render_protein_feature_overlaps_tsv",
     "render_protein_id_resolution_tsv",
+    "resolve_complex_members",
     "resolve_pathway_members",
     "resolve_protein_ids",
 ]
