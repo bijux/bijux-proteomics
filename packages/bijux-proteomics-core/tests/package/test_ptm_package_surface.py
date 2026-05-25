@@ -292,6 +292,37 @@ def test_ptm_package_exports_phosphatase_inference_owner_surface() -> None:
     assert "annotation_coverage" in rendered
 
 
+def test_ptm_package_exports_oxidation_artifact_owner_surface() -> None:
+    rows = ptm.detect_oxidation_artifacts(
+        (
+            ptm.PtmOxidizedPeptideObservation(
+                sample_id="S1",
+                peptide_id="pep-1",
+                methionine_count=10,
+                oxidized_methionine_count=1,
+                site_localized=True,
+            ),
+            ptm.PtmOxidizedPeptideObservation(
+                sample_id="S1",
+                peptide_id="pep-2",
+                methionine_count=10,
+                oxidized_methionine_count=1,
+                site_localized=True,
+            ),
+        ),
+        (
+            ptm.PtmOxidationSampleQcEntry(sample_id="S1", qc_score=0.92),
+        ),
+    )
+    rendered = ptm.render_ptm_oxidation_artifact_tsv(rows)
+
+    assert hasattr(ptm, "detect_oxidation_artifacts")
+    assert hasattr(ptm, "render_ptm_oxidation_artifact_tsv")
+    assert rows[0].sample_id == "S1"
+    assert rows[0].site_specific_confidence.value == "supported"
+    assert "global_oxidation_warning" in rendered
+
+
 def test_ptm_package_exports_localization_risk_owner_surface() -> None:
     localization_candidates = (
         PtmEvidenceRecord(
