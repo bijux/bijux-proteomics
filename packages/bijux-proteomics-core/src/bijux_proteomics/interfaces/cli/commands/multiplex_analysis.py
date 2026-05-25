@@ -1,0 +1,713 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+# ruff: noqa: F401,F403,F405
+
+"""Multiplex ratio and differential CLI commands."""
+
+from __future__ import annotations
+
+from bijux_proteomics.interfaces.cli.support import *  # noqa: F401,F403,F405
+
+@click.command("tmt-ratios")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--control-channel",
+    required=True,
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--normalization-method",
+    type=_tmt_ratio_normalization_choice(),
+    default="none",
+    show_default=True,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--peptide-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_ratio_command(
+    input_tsv: Path,
+    design_path: Path,
+    control_channel: str,
+    source_kind: str,
+    normalization_method: str,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    'Compute governed TMT sample/control ratios across multiplex channels.'
+    return run_tmt_ratio_command(input_tsv, design_path, control_channel, source_kind, normalization_method, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, summary_tsv_out, peptide_tsv_out, protein_tsv_out, out_path)
+
+def run_tmt_ratio_command(
+    input_tsv: Path,
+    design_path: Path,
+    control_channel: str,
+    source_kind: str,
+    normalization_method: str,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        feature_bundle = build_tmt_reporter_feature_bundle(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+        )
+        normalization_policy = (
+            None
+            if normalization_method == "none"
+            else TmtNormalizationPolicy(
+                method=TmtNormalizationMethod(normalization_method),
+            )
+        )
+        report = build_tmt_ratio_report(
+            feature_bundle,
+            control_channel=control_channel,
+            normalization_policy=normalization_policy,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_ratio_summary_tsv(report, summary_tsv_out)
+    if peptide_tsv_out is not None:
+        export_tmt_peptide_ratio_tsv(report, peptide_tsv_out)
+    if protein_tsv_out is not None:
+        export_tmt_protein_ratio_tsv(report, protein_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "control_channel": control_channel,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+@click.command("tmt-integrate-plexes")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--plex-effect-ratio-threshold",
+    default=1.25,
+    show_default=True,
+    type=float,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--alignment-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--plex-effect-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--protein-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_integrate_plexes_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    plex_effect_ratio_threshold: float,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    alignment_tsv_out: Path | None,
+    plex_effect_tsv_out: Path | None,
+    protein_matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    'Integrate multiple TMT plexes through bridge-normalized protein matrices.'
+    return run_tmt_integrate_plexes_command(input_tsv, design_path, source_kind, plex_effect_ratio_threshold, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, summary_tsv_out, alignment_tsv_out, plex_effect_tsv_out, protein_matrix_tsv_out, out_path)
+
+def run_tmt_integrate_plexes_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    plex_effect_ratio_threshold: float,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    alignment_tsv_out: Path | None,
+    plex_effect_tsv_out: Path | None,
+    protein_matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        feature_bundle = build_tmt_reporter_feature_bundle(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+        )
+        report = build_tmt_plex_integration_report(
+            feature_bundle,
+            policy=TmtPlexIntegrationPolicy(
+                plex_effect_ratio_threshold=plex_effect_ratio_threshold,
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_plex_integration_summary_tsv(report, summary_tsv_out)
+    if alignment_tsv_out is not None:
+        export_tmt_plex_alignment_tsv(report, alignment_tsv_out)
+    if plex_effect_tsv_out is not None:
+        export_tmt_plex_effect_tsv(report, plex_effect_tsv_out)
+    if protein_matrix_tsv_out is not None:
+        export_tmt_integrated_protein_matrix_tsv(report, protein_matrix_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "alignment_tsv": (
+                None if alignment_tsv_out is None else str(alignment_tsv_out)
+            ),
+            "plex_effect_tsv": (
+                None if plex_effect_tsv_out is None else str(plex_effect_tsv_out)
+            ),
+            "protein_matrix_tsv": (
+                None
+                if protein_matrix_tsv_out is None
+                else str(protein_matrix_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+@click.command("tmt-differential")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option(
+    "--raw-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--normalized-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--results-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--balance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--volcano-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--volcano-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-svg-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--volcano-adjusted-p-value-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--volcano-absolute-log2-fold-change-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_differential_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    raw_matrix_tsv_out: Path | None,
+    normalized_matrix_tsv_out: Path | None,
+    results_tsv_out: Path | None,
+    balance_tsv_out: Path | None,
+    volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
+    out_path: Path | None,
+) -> None:
+    'Run differential analysis over governed TMT protein matrices.'
+    return run_tmt_differential_command(input_tsv, design_path, source_kind, normalization_method, condition_a, condition_b, batch_field, covariate_fields, pairing_field, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, raw_matrix_tsv_out, normalized_matrix_tsv_out, results_tsv_out, balance_tsv_out, volcano_tsv_out, volcano_json_out, volcano_svg_out, volcano_html_out, volcano_adjusted_p_value_threshold, volcano_absolute_log2_fold_change_threshold, volcano_top_label_count, out_path)
+
+def run_tmt_differential_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    raw_matrix_tsv_out: Path | None,
+    normalized_matrix_tsv_out: Path | None,
+    results_tsv_out: Path | None,
+    balance_tsv_out: Path | None,
+    volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
+    out_path: Path | None,
+) -> None:
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_tmt_differential_analysis_report(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+            normalization_method=NormalizationMethod(normalization_method),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    volcano_plot = report.volcano_plot
+    volcano_review = None
+    if (
+        volcano_tsv_out is not None
+        or volcano_json_out is not None
+        or volcano_svg_out is not None
+        or volcano_html_out is not None
+    ):
+        if report.differential_abundance_report is None:
+            raise click.ClickException(
+                "volcano export requires a resolvable contrast or exactly two conditions"
+            )
+        volcano_plot = build_label_based_differential_volcano_plot(
+            report.differential_abundance_report,
+            protein_refs_by_entity={
+                row.entity_id: row.protein_refs for row in report.normalized_matrix.rows
+            },
+            adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+            absolute_log2_fold_change_threshold=(
+                volcano_absolute_log2_fold_change_threshold
+            ),
+        )
+        volcano_review = build_label_based_volcano_review(
+            volcano_plot,
+            policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change_threshold
+                ),
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+
+    if raw_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.input_report,
+            raw_matrix_tsv_out,
+        )
+    if normalized_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.normalized_matrix,
+            normalized_matrix_tsv_out,
+        )
+    if results_tsv_out is not None:
+        export_label_based_differential_results_tsv(report, results_tsv_out)
+    if balance_tsv_out is not None:
+        export_label_based_normalization_balance_plot_tsv(
+            report.normalization_balance_plot,
+            balance_tsv_out,
+        )
+    if volcano_tsv_out is not None and volcano_plot is not None:
+        export_label_based_differential_volcano_plot_tsv(
+            volcano_plot,
+            volcano_tsv_out,
+        )
+    if volcano_review is not None:
+        _export_volcano_review_assets(
+            review_report=volcano_review,
+            json_out=volcano_json_out,
+            svg_out=volcano_svg_out,
+            html_out=volcano_html_out,
+        )
+
+    payload = {
+        "source_kind": source_kind,
+        "report": report.to_dict(),
+        "volcano_review": None if volcano_review is None else volcano_review.to_dict(),
+        "outputs": {
+            "raw_matrix_tsv": (
+                None if raw_matrix_tsv_out is None else str(raw_matrix_tsv_out)
+            ),
+            "normalized_matrix_tsv": (
+                None
+                if normalized_matrix_tsv_out is None
+                else str(normalized_matrix_tsv_out)
+            ),
+            "results_tsv": (
+                None if results_tsv_out is None else str(results_tsv_out)
+            ),
+            "balance_tsv": (
+                None if balance_tsv_out is None else str(balance_tsv_out)
+            ),
+            "volcano_tsv": (
+                None
+                if volcano_tsv_out is None or volcano_plot is None
+                else str(volcano_tsv_out)
+            ),
+            "volcano_json": (
+                None if volcano_json_out is None else str(volcano_json_out)
+            ),
+            "volcano_svg": None if volcano_svg_out is None else str(volcano_svg_out),
+            "volcano_html": (
+                None if volcano_html_out is None else str(volcano_html_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+@click.command("tmt-report")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--control-channel",
+    required=True,
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--channel-normalization-method",
+    type=_tmt_normalization_method_choice(),
+    default=TmtNormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option(
+    "--differential-normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option(
+    "--output-dir",
+    required=True,
+    type=click.Path(path_type=Path, file_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_report_command(
+    input_tsv: Path,
+    design_path: Path,
+    control_channel: str,
+    source_kind: str,
+    channel_normalization_method: str,
+    differential_normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    'Build a governed TMT report directory with channel quality, ratios, and protein changes.'
+    return run_tmt_report_command(input_tsv, design_path, control_channel, source_kind, channel_normalization_method, differential_normalization_method, condition_a, condition_b, batch_field, covariate_fields, pairing_field, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, output_dir, out_path)
+
+def run_tmt_report_command(
+    input_tsv: Path,
+    design_path: Path,
+    control_channel: str,
+    source_kind: str,
+    channel_normalization_method: str,
+    differential_normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    result = _run_orchestrated_workflow(
+        TmtWorkflowConfig(
+            result_tsv_path=input_tsv,
+            design_tsv_path=design_path,
+            control_channel=control_channel,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=_parse_tmt_channel_column_specs(channel_columns),
+            channel_normalization_method=TmtNormalizationMethod(
+                channel_normalization_method
+            ),
+            differential_normalization_method=NormalizationMethod(
+                differential_normalization_method
+            ),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+            output_dir=output_dir,
+        )
+    )
+    workflow_report = result.report
+    workflow_manifest = result.export_manifest
+    if workflow_manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
+
+    _emit_json(
+        {
+            "source_kind": source_kind,
+            "control_channel": control_channel,
+            "workflow_report": workflow_report.to_dict(),
+            "report": workflow_report.report.to_dict(),
+            "workflow_export_manifest": workflow_manifest.to_dict(),
+            "export_manifest": workflow_manifest.label_based_report_manifest.to_dict(),
+            "outputs": result.outputs,
+        },
+        out_path=out_path,
+    )
+
+COMMANDS = (
+    tmt_ratio_command,
+    tmt_integrate_plexes_command,
+    tmt_differential_command,
+    tmt_report_command,
+)
