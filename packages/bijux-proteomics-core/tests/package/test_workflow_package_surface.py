@@ -262,6 +262,29 @@ def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None
     assert workflow.ProteomicsStudyQcKind.ARCHIVED_RESULT.value == "archived_result"
 
 
+def test_workflow_package_exports_advanced_maxquant_surface(tmp_path: Path) -> None:
+    report = workflow.run_advanced_maxquant_workflow(
+        workflow.AdvancedMaxquantWorkflowConfig(
+            evidence_txt_path=_fixture("maxquant_biological/evidence.txt"),
+            peptides_txt_path=_fixture("maxquant_biological/peptides.txt"),
+            protein_groups_txt_path=_fixture("maxquant_biological/proteinGroups.txt"),
+            design_tsv_path=_fixture("maxquant_biological/design.tsv"),
+            proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+            output_dir=tmp_path / "advanced_maxquant_package_surface",
+            config_path=_fixture("maxquant_biological/maxquant_settings.txt"),
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert hasattr(workflow, "run_advanced_maxquant_workflow")
+    assert hasattr(workflow, "render_advanced_maxquant_peptide_contributions_tsv")
+    assert report.summary.excluded_reverse_or_contaminant_count == 2
+    assert "peptide_sequence" in workflow.render_advanced_maxquant_peptide_contributions_tsv(
+        report.peptide_contributions
+    )
+
+
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
     report = workflow.build_cross_study_protein_harmonization_report_from_observations(
         (
