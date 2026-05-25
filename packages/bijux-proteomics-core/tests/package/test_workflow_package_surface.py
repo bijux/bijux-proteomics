@@ -268,6 +268,12 @@ def test_workflow_package_exports_result_archive_surface() -> None:
     assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
 
 
+def test_workflow_package_exports_artifact_layout_surface() -> None:
+    assert hasattr(workflow, "WorkflowArtifactFolder")
+    assert hasattr(workflow, "classify_workflow_artifact_name")
+    assert hasattr(workflow, "synchronize_workflow_artifact_layout")
+
+
 def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None:
     report = workflow.run_advanced_diann_workflow(
         workflow.AdvancedDiannWorkflowConfig(
