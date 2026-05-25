@@ -9,8 +9,12 @@ import csv
 import io
 from typing import Protocol
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_code,
+)
 from bijux_proteomics.identification.contracts import RejectedPsmRow
 from bijux_proteomics._scientific_tables import ScientificTableRejectedRow
 from bijux_proteomics_foundation import JsonModel
@@ -32,6 +36,16 @@ class RejectedEvidenceTableEntry(JsonModel):
     entity_id: str = Field(..., min_length=1)
     reason_code: str = Field(..., min_length=1)
     detail: str = Field(..., min_length=1)
+
+    @field_validator("reason_code")
+    @classmethod
+    def _validate_reason_code(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.VALIDATION_ISSUE,
+            ReasonCodeCategory.REJECTED_EVIDENCE,
+            ReasonCodeCategory.RESULT_WARNING,
+        )
 
 
 def build_rejected_evidence_rows_from_psm_rows(

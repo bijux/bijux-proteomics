@@ -12,8 +12,12 @@ from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_code,
+)
 from bijux_proteomics.io.formats import DocumentSchema
 from bijux_proteomics.ptm.reporting import PtmReportExportManifest
 from bijux_proteomics.workflow.biological_reporting import (
@@ -113,6 +117,14 @@ class ResultManifestWarningEntry(JsonModel):
     entity_id: str | None = None
     related_path: str | None = None
     message: str = Field(..., min_length=1)
+
+    @field_validator("warning_code")
+    @classmethod
+    def _validate_warning_code(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.RESULT_WARNING,
+        )
 
 
 class ResultManifestSummary(JsonModel):

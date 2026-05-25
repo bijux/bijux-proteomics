@@ -8,8 +8,12 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Iterable
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_code,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -33,6 +37,14 @@ class ResultWarningEntry(JsonModel):
     related_artifact: str | None = None
     entity_id: str | None = None
 
+    @field_validator("warning_code")
+    @classmethod
+    def _validate_warning_code(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.RESULT_WARNING,
+        )
+
 
 class RejectedEvidenceEntry(JsonModel):
     """One stable rejected-evidence row exposed by a standardized result object."""
@@ -45,6 +57,16 @@ class RejectedEvidenceEntry(JsonModel):
     message: str = Field(..., min_length=1)
     related_artifact: str | None = None
     entity_id: str | None = None
+
+    @field_validator("reason_code")
+    @classmethod
+    def _validate_reason_code(cls, value: str) -> str:
+        return require_registered_reason_code(
+            value,
+            ReasonCodeCategory.VALIDATION_ISSUE,
+            ReasonCodeCategory.REJECTED_EVIDENCE,
+            ReasonCodeCategory.RESULT_WARNING,
+        )
 
 
 class _StandardResult(JsonModel):
