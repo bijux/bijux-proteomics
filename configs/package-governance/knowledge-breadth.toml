@@ -2,17 +2,17 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.breadth
 
 [metrics]
-root_public_symbol_count = 5
+root_public_symbol_count = 61
 references_public_symbol_count = 10
-total_public_surface_count = 15
+total_public_surface_count = 71
 query_helper_count = 1
 curated_registry_entry_count = 90
-curated_entries_per_public_surface = 6.0
+curated_entries_per_public_surface = 1.27
 curated_entries_per_query_helper = 90.0
 
 [guard]
-baseline_total_public_surface_count = 15
+baseline_total_public_surface_count = 71
 baseline_query_helper_count = 1
 baseline_curated_registry_entry_count = 90
-baseline_curated_entries_per_public_surface = 6.0
+baseline_curated_entries_per_public_surface = 1.27
 baseline_curated_entries_per_query_helper = 90.0

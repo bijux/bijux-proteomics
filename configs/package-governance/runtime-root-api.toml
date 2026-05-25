@@ -1,29 +1,30 @@
-# Curated runtime root API policy.
+# Generated bijux-proteomics-runtime root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots
 
 [budget]
 max_public_symbols = 4
-max_init_lines = 28
+max_init_lines = 26
 
 [[symbol]]
 name = "AppConfig"
 owner_module = "bijux_proteomics_runtime.api"
 classification = "stable_entrypoint"
-rationale = "Runtime app configuration is part of the supported integration boundary."
+rationale = "runtime app configuration is part of the supported integration boundary"
 
 [[symbol]]
 name = "RunManager"
 owner_module = "bijux_proteomics_runtime.runs.manager"
 classification = "stable_entrypoint"
-rationale = "Canonical runtime orchestration belongs to the run-owned execution family."
+rationale = "canonical runtime orchestration belongs to the run-owned execution family"
 
 [[symbol]]
 name = "cli"
-owner_module = "bijux_proteomics_runtime.interfaces.cli"
+owner_module = "bijux_proteomics_runtime.api.cli"
 classification = "stable_entrypoint"
-rationale = "The runtime CLI is a first-class operator entrypoint."
+rationale = "the runtime CLI is a first-class operator entrypoint"
 
 [[symbol]]
 name = "create_app"
 owner_module = "bijux_proteomics_runtime.api"
 classification = "stable_entrypoint"
-rationale = "HTTP integrations need one canonical app factory at the runtime root."
+rationale = "HTTP integrations need one canonical app factory at the runtime root"

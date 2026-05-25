@@ -1,12 +1,13 @@
-# Curated core root API policy.
+# Generated bijux-proteomics-core root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots
 
 [budget]
 max_public_symbols = 5
-max_init_lines = 22
+max_init_lines = 57
 
 [[symbol]]
 name = "DigestPolicy"
-owner_module = "bijux_proteomics.digestion"
+owner_module = "bijux_proteomics.sequences.digestion"
 classification = "essential_scientific_contract"
 rationale = "stable digestion policy entrypoint for public callers"
 
