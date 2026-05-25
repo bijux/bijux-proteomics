@@ -6,12 +6,12 @@ from __future__ import annotations
 import string
 
 import pytest
-
-pytest.importorskip("hypothesis")
-from hypothesis import given
-from hypothesis import strategies as st
 from pydantic import BaseModel, ValidationError
 
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
 from bijux_proteomics_foundation.identity.identifiers import (
     IdentifierKind,
     LabActionId,
@@ -22,6 +22,14 @@ from bijux_proteomics_foundation.identity.identifiers import (
     classify_identifier,
     ensure_identifier_kind,
 )
+
+hypothesis = import_or_skip(
+    "hypothesis",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="hypothesis is required for the identifier property-based surface",
+)
+given = hypothesis.given
+st = hypothesis.strategies
 
 IDENTIFIER_SUFFIX_STRATEGY = st.lists(
     st.text(alphabet=string.ascii_letters + string.digits, min_size=1, max_size=8),

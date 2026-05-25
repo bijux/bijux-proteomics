@@ -6,11 +6,12 @@ from __future__ import annotations
 import string
 
 import pytest
-
-pytest.importorskip("hypothesis")
-from hypothesis import given
-from hypothesis import strategies as st
 from pydantic import ValidationError
+
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
 
 from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
@@ -28,6 +29,14 @@ from bijux_proteomics_foundation.support.provenance import (
     ProvenancePointerKind,
 )
 from bijux_proteomics_foundation.support.states import SupportState
+
+hypothesis = import_or_skip(
+    "hypothesis",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="hypothesis is required for the outcome property-based test surface",
+)
+given = hypothesis.given
+st = hypothesis.strategies
 
 JSON_SCALAR_STRATEGY = st.one_of(
     st.none(),
