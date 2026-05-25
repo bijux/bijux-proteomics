@@ -15,11 +15,11 @@ REPO_ROOT = next(
 )
 
 
-def test_workflow_authority_docs_match_matrix() -> None:
+def test_docs_workflow_authority_surface_match_matrix() -> None:
     assert validate_workflow_authority_docs(REPO_ROOT) == ()
 
 
-def test_workflow_authority_docs_require_second_public_package_for_family_trust(
+def test_docs_workflow_authority_surface_require_second_public_package_for_family_trust(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
@@ -36,7 +36,7 @@ def test_workflow_authority_docs_require_second_public_package_for_family_trust(
     )
 
 
-def test_workflow_authority_docs_require_generalization_report_for_family_trust(
+def test_docs_workflow_authority_surface_require_generalization_report_for_family_trust(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     original_validate = validate_workflow_authority_docs
