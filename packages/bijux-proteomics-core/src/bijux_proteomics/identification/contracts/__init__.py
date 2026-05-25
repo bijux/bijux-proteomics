@@ -151,5 +151,6 @@ __all__ = [
     'validate_ptm_identification_confidence',
     'build_review_ready_evidence_bundle',
     'export_review_ready_evidence_bundle',
+    'write_review_ready_evidence_bundle',
     'build_search_result_provenance_manifest',
 ]

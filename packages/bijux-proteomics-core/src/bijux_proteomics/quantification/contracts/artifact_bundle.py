@@ -262,6 +262,12 @@ def build_quant_artifact_bundle(
         }
     )
 
-def export_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
+def write_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
     """Write a stable JSON artifact bundle for quant review."""
     path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def export_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
+    """Compatibility wrapper for the legacy quant artifact bundle export name."""
+
+    write_quant_artifact_bundle(bundle, path)

@@ -676,12 +676,21 @@ def build_psm_peptide_protein_trace_bundle(
     )
 
 
-def export_psm_peptide_protein_trace_bundle(
+def write_psm_peptide_protein_trace_bundle(
     bundle: PsmPeptideProteinTraceBundle,
     destination: Path,
 ) -> None:
     """Write a JSON export of the trace bundle for scientific review."""
     destination.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def export_psm_peptide_protein_trace_bundle(
+    bundle: PsmPeptideProteinTraceBundle,
+    destination: Path,
+) -> None:
+    """Compatibility wrapper for the legacy PSM trace bundle export name."""
+
+    write_psm_peptide_protein_trace_bundle(bundle, destination)
 
 
 class ConfidenceThresholdBundleEntry(JsonModel):

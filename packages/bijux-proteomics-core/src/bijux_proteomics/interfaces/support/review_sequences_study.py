@@ -73,12 +73,12 @@ from bijux_proteomics.sequences import (
     render_fasta_profile_invalid_sequence_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
-    render_fasta_records,
+    render_records_fasta,
     render_peptide_detectability_tsv,
     build_theoretical_digest_bundle,
-    export_theoretical_digest_bundle,
     sequence_checksum,
     validate_target_decoy_database,
+    write_theoretical_digest_bundle,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (

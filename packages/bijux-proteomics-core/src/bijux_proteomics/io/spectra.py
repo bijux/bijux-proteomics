@@ -2072,7 +2072,7 @@ def build_annotated_spectrum_bundle(
     )
 
 
-def export_annotated_spectrum_bundle(
+def write_annotated_spectrum_bundle(
     bundle: AnnotatedSpectrumBundle,
     path: Path,
 ) -> None:
@@ -2081,3 +2081,12 @@ def export_annotated_spectrum_bundle(
         json.dumps(bundle.to_dict(), sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8",
     )
+
+
+def export_annotated_spectrum_bundle(
+    bundle: AnnotatedSpectrumBundle,
+    path: Path,
+) -> None:
+    """Compatibility wrapper for the legacy annotated spectrum bundle export name."""
+
+    write_annotated_spectrum_bundle(bundle, path)

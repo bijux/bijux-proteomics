@@ -10,6 +10,7 @@ from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.confidence import (
     build_psm_peptide_protein_trace_bundle,
     export_psm_peptide_protein_trace_bundle,
+    write_psm_peptide_protein_trace_bundle,
 )
 
 
@@ -53,9 +54,12 @@ def test_export_psm_peptide_protein_trace_bundle_writes_json_payload(
 ) -> None:
     bundle = build_psm_peptide_protein_trace_bundle(_records())
     destination = tmp_path / "trace_bundle.json"
+    compatibility_destination = tmp_path / "trace_bundle_compatibility.json"
 
-    export_psm_peptide_protein_trace_bundle(bundle, destination)
+    write_psm_peptide_protein_trace_bundle(bundle, destination)
+    export_psm_peptide_protein_trace_bundle(bundle, compatibility_destination)
 
     payload = json.loads(destination.read_text())
     assert payload["trace_entry_count"] == 2
     assert payload["trace_hash"] == bundle.trace_hash
+    assert compatibility_destination.read_text() == destination.read_text()

@@ -64,7 +64,7 @@ def run_fasta_decoy_command(
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
     output_records = decoys if decoys_only else (*report.accepted_records, *decoys)
-    out_fasta.write_text(render_fasta_records(tuple(output_records)))
+    out_fasta.write_text(render_records_fasta(tuple(output_records)))
     generation_report = build_decoy_generation_report(
         report.accepted_records,
         decoys,
@@ -255,7 +255,7 @@ def run_theoretical_digest_command(
     )
 
     try:
-        peptides_path, mappings_path, summary_path = export_theoretical_digest_bundle(
+        peptides_path, mappings_path, summary_path = write_theoretical_digest_bundle(
             bundle,
             out_dir,
         )

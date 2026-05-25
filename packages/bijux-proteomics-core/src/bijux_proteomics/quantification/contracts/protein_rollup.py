@@ -389,12 +389,21 @@ def build_label_free_provenance_bundle(
         }
     )
 
-def export_label_free_provenance_bundle(
+def write_label_free_provenance_bundle(
     bundle: LabelFreeProvenanceBundle,
     path: Path,
 ) -> None:
     """Write a stable JSON bundle for LFQ provenance review."""
     path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def export_label_free_provenance_bundle(
+    bundle: LabelFreeProvenanceBundle,
+    path: Path,
+) -> None:
+    """Compatibility wrapper for the legacy LFQ provenance bundle export name."""
+
+    write_label_free_provenance_bundle(bundle, path)
 
 def export_quant_matrix_tsv(
     matrix_export: QuantMatrixExport,

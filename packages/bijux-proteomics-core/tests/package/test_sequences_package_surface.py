@@ -35,6 +35,7 @@ def test_sequences_package_exports_theoretical_digest_owner_surface() -> None:
 
     assert hasattr(sequences, "build_theoretical_digest_bundle")
     assert hasattr(sequences, "export_theoretical_digest_bundle")
+    assert hasattr(sequences, "write_theoretical_digest_bundle")
     assert bundle.summary.output_candidate_peptide_count == 1
 
 

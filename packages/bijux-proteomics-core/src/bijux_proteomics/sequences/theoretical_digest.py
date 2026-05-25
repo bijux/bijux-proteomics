@@ -384,7 +384,7 @@ def build_theoretical_digest_bundle(
     )
 
 
-def export_theoretical_digest_bundle(
+def write_theoretical_digest_bundle(
     bundle: TheoreticalDigestBundle,
     out_dir: Path,
 ) -> tuple[Path, Path, Path]:
@@ -397,6 +397,15 @@ def export_theoretical_digest_bundle(
     mappings_path.write_text(render_theoretical_digest_mappings_tsv(bundle))
     summary_path.write_text(render_theoretical_digest_summary_tsv(bundle))
     return peptides_path, mappings_path, summary_path
+
+
+def export_theoretical_digest_bundle(
+    bundle: TheoreticalDigestBundle,
+    out_dir: Path,
+) -> tuple[Path, Path, Path]:
+    """Compatibility wrapper for the legacy theoretical digest bundle export name."""
+
+    return write_theoretical_digest_bundle(bundle, out_dir)
 
 
 def render_theoretical_digest_peptides_tsv(bundle: TheoreticalDigestBundle) -> str:
@@ -725,6 +734,7 @@ __all__ = [
     "TheoreticalDigestSummary",
     "build_theoretical_digest_bundle",
     "export_theoretical_digest_bundle",
+    "write_theoretical_digest_bundle",
     "render_theoretical_digest_mappings_tsv",
     "render_theoretical_digest_peptides_tsv",
     "render_theoretical_digest_summary_tsv",

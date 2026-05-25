@@ -10,6 +10,7 @@ from .artifact_bundle import (
     export_quant_reproducibility_manifest,
     build_quant_artifact_bundle,
     export_quant_artifact_bundle,
+    write_quant_artifact_bundle,
 )
 
 from .design import (
@@ -186,6 +187,7 @@ from .protein_rollup import (
     build_protein_quant_rollup_evidence,
     build_label_free_provenance_bundle,
     export_label_free_provenance_bundle,
+    write_label_free_provenance_bundle,
     export_quant_matrix_tsv,
 )
 
@@ -230,6 +232,7 @@ __all__ = [
     "export_quant_reproducibility_manifest",
     "build_quant_artifact_bundle",
     "export_quant_artifact_bundle",
+    "write_quant_artifact_bundle",
     "QuantDesignMatrixColumnKind",
     "QuantDesignMatrixColumnEncoding",
     "QuantDesignMatrixColumn",
@@ -376,6 +379,7 @@ __all__ = [
     "build_protein_quant_rollup_evidence",
     "build_label_free_provenance_bundle",
     "export_label_free_provenance_bundle",
+    "write_label_free_provenance_bundle",
     "export_quant_matrix_tsv",
     "StudyScaleReplicateSampleEntry",
     "StudyScaleReplicateCorrelationReport",

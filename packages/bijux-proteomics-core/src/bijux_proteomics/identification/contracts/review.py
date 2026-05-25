@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.identification.cross_run_reproducibility import (
         RunDetectionContext,
     )
-from bijux_proteomics._tabular import render_tsv_rows
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.evidence import (
     PeptideSummaryReport,
@@ -267,12 +267,21 @@ def build_review_ready_evidence_bundle(
     )
 
 
-def export_review_ready_evidence_bundle(
+def write_review_ready_evidence_bundle(
     bundle: ReviewReadyEvidenceBundle,
     path: Path,
 ) -> None:
     """Write a stable JSON evidence bundle for downstream review."""
     path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def export_review_ready_evidence_bundle(
+    bundle: ReviewReadyEvidenceBundle,
+    path: Path,
+) -> None:
+    """Compatibility wrapper for the legacy review-ready bundle export name."""
+
+    write_review_ready_evidence_bundle(bundle, path)
 
 
 def build_search_result_provenance_manifest(
@@ -316,5 +325,6 @@ __all__ = [
     'validate_ptm_identification_confidence',
     'build_review_ready_evidence_bundle',
     'export_review_ready_evidence_bundle',
+    'write_review_ready_evidence_bundle',
     'build_search_result_provenance_manifest',
 ]
