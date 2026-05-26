@@ -260,3 +260,17 @@ def test_root_mypy_configuration_matches_shared_python_baseline() -> None:
     assert mypy_config["mypy-openprotein"]["ignore_missing_imports"] == "true"
     assert mypy_config["mypy-torch"]["ignore_missing_imports"] == "true"
     assert mypy_config["mypy-transformers"]["ignore_missing_imports"] == "true"
+
+
+def test_public_api_mypy_configuration_matches_curated_public_contract() -> None:
+    mypy_config = _config_parser(REPO_ROOT / "configs" / "mypy-public-api.ini")
+    public_mypy = mypy_config["mypy"]
+
+    assert public_mypy["python_version"] == "3.11"
+    assert public_mypy["strict"] == "true"
+    assert public_mypy["namespace_packages"] == "true"
+    assert public_mypy["plugins"] == "pydantic.mypy"
+    configured_paths = {
+        entry.strip() for entry in public_mypy["mypy_path"].split(":") if entry.strip()
+    }
+    assert configured_paths == set(_package_source_roots())
