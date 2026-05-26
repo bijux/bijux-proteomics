@@ -31,12 +31,16 @@ class QuantMeasureKind(StrEnum):
     SPECTRAL_COUNT = "spectral_count"
 
 class MissingValueKind(StrEnum):
-    """Stable distinction between absent, zero, and filtered quant values."""
+    """Stable semantics for observed, absent, imputed, and excluded quant cells."""
 
     OBSERVED = "observed"
     ZERO = "zero"
     NOT_OBSERVED = "missing_not_observed"
     FILTERED = "filtered"
+    IMPUTED = "imputed"
+    CENSORED = "censored"
+    EXCLUDED = "excluded"
+    NOT_APPLICABLE = "not_applicable"
 
 class QuantRollupMethod(StrEnum):
     """Supported peptide-to-protein quant rollup policies."""

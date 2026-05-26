@@ -248,8 +248,14 @@ def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValue
         ):
             return MissingValueKind.ZERO
         return MissingValueKind.OBSERVED
+    if any(kind is MissingValueKind.EXCLUDED for kind in kinds):
+        return MissingValueKind.EXCLUDED
+    if any(kind is MissingValueKind.CENSORED for kind in kinds):
+        return MissingValueKind.CENSORED
     if any(kind is MissingValueKind.FILTERED for kind in kinds):
         return MissingValueKind.FILTERED
+    if all(kind is MissingValueKind.NOT_APPLICABLE for kind in kinds):
+        return MissingValueKind.NOT_APPLICABLE
     return MissingValueKind.NOT_OBSERVED
 
 def _aggregate_abundance(

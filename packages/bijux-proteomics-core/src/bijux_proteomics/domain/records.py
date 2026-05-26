@@ -54,12 +54,16 @@ class QuantMeasureKind(StrEnum):
 
 
 class MissingValueState(StrEnum):
-    """Stable distinction between observed, zero, and missing quant cells."""
+    """Stable semantics for observed, absent, imputed, and excluded quant cells."""
 
     OBSERVED = "observed"
     ZERO = "zero"
     NOT_OBSERVED = "missing_not_observed"
     FILTERED = "filtered"
+    IMPUTED = "imputed"
+    CENSORED = "censored"
+    EXCLUDED = "excluded"
+    NOT_APPLICABLE = "not_applicable"
 
 
 class _CanonicalRecord(JsonModel):

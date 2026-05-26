@@ -77,6 +77,10 @@ class MissingValueSummaryEntry(JsonModel):
     zero_count: int = Field(..., ge=0)
     not_observed_count: int = Field(..., ge=0)
     filtered_count: int = Field(..., ge=0)
+    imputed_count: int = Field(default=0, ge=0)
+    censored_count: int = Field(default=0, ge=0)
+    excluded_count: int = Field(default=0, ge=0)
+    not_applicable_count: int = Field(default=0, ge=0)
 
 class MissingValueSummaryPolicy(JsonModel):
     """Correction and filtering rules applied before missing-value summarization."""
@@ -110,6 +114,10 @@ class MissingnessEntitySummaryEntry(JsonModel):
     zero_sample_count: int = Field(..., ge=0)
     not_observed_sample_count: int = Field(..., ge=0)
     filtered_sample_count: int = Field(..., ge=0)
+    imputed_sample_count: int = Field(default=0, ge=0)
+    censored_sample_count: int = Field(default=0, ge=0)
+    excluded_sample_count: int = Field(default=0, ge=0)
+    not_applicable_sample_count: int = Field(default=0, ge=0)
     missing_fraction: float = Field(..., ge=0.0, le=1.0)
 
 class MissingnessEntitySummaryReport(JsonModel):
@@ -131,6 +139,10 @@ class MissingnessConditionSummaryEntry(JsonModel):
     zero_value_count: int = Field(..., ge=0)
     not_observed_value_count: int = Field(..., ge=0)
     filtered_value_count: int = Field(..., ge=0)
+    imputed_value_count: int = Field(default=0, ge=0)
+    censored_value_count: int = Field(default=0, ge=0)
+    excluded_value_count: int = Field(default=0, ge=0)
+    not_applicable_value_count: int = Field(default=0, ge=0)
     missing_fraction: float = Field(..., ge=0.0, le=1.0)
     condition_specific_absence_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 

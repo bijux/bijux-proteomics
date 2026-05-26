@@ -133,6 +133,7 @@ from .matrix_models import (
     QuantImputationProvenance,
     QuantMatrixExportRow,
     QuantMatrixExport,
+    render_label_free_quant_missingness_matrix_tsv,
 )
 
 from .missingness import (
@@ -334,6 +335,7 @@ __all__ = [
     "QuantImputationProvenance",
     "QuantMatrixExportRow",
     "QuantMatrixExport",
+    "render_label_free_quant_missingness_matrix_tsv",
     "MissingDataMechanism",
     "MissingDataMechanismEntry",
     "MissingDataMechanismReport",

@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, model_validator
@@ -218,6 +220,29 @@ class LabelFreeQuantTable(JsonModel):
 
         assert self.quant_matrix is not None
         return self.quant_matrix
+
+
+def render_label_free_quant_missingness_matrix_tsv(table: LabelFreeQuantTable) -> str:
+    """Render one per-cell missingness mask beside a wide quant matrix export."""
+
+    sample_ids = tuple(table.sample_ids)
+    value_lookup = {(value.entity_id, value.sample_id): value for value in table.values}
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("entity_id", "protein_refs", "member_peptides", *sample_ids))
+    for entity_id in table.entity_ids:
+        writer.writerow(
+            (
+                entity_id,
+                ";".join(table.entity_protein_refs.get(entity_id, ())),
+                ";".join(table.entity_member_peptides.get(entity_id, ())),
+                *[
+                    value_lookup[(entity_id, sample_id)].missing_value_kind.value
+                    for sample_id in sample_ids
+                ],
+            )
+        )
+    return handle.getvalue()
 
     @classmethod
     def from_quant_matrix(

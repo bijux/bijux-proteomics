@@ -50,6 +50,31 @@ class MissingnessLabel(StrEnum):
     STRUCTURAL_ABSENCE = "structural_absence"
 
 
+_MISSING_VALUE_KINDS = (
+    MissingValueKind.OBSERVED,
+    MissingValueKind.ZERO,
+    MissingValueKind.NOT_OBSERVED,
+    MissingValueKind.FILTERED,
+    MissingValueKind.IMPUTED,
+    MissingValueKind.CENSORED,
+    MissingValueKind.EXCLUDED,
+    MissingValueKind.NOT_APPLICABLE,
+)
+
+
+def _empty_missing_value_counts() -> dict[MissingValueKind, int]:
+    return {kind: 0 for kind in _MISSING_VALUE_KINDS}
+
+
+def _is_missing_burden(kind: MissingValueKind) -> bool:
+    return kind in {
+        MissingValueKind.NOT_OBSERVED,
+        MissingValueKind.FILTERED,
+        MissingValueKind.CENSORED,
+        MissingValueKind.EXCLUDED,
+    }
+
+
 class MissingnessClassificationEntry(JsonModel):
     """One entity-level missingness classification row."""
 
@@ -84,20 +109,15 @@ def build_missingness_entity_summary_report(
     lookup = _matrix_value_index(table)
     entries: list[MissingnessEntitySummaryEntry] = []
     for entity_id in table.entity_ids:
-        counts = {
-            MissingValueKind.OBSERVED: 0,
-            MissingValueKind.ZERO: 0,
-            MissingValueKind.NOT_OBSERVED: 0,
-            MissingValueKind.FILTERED: 0,
-        }
+        counts = _empty_missing_value_counts()
         for sample_id in table.sample_ids:
             kind = _apply_missing_value_summary_policy(
                 lookup[(entity_id, sample_id)].missing_value_kind,
                 policy=active_policy,
             )
             counts[kind] += 1
-        missing_count = (
-            counts[MissingValueKind.NOT_OBSERVED] + counts[MissingValueKind.FILTERED]
+        missing_count = sum(
+            count for kind, count in counts.items() if _is_missing_burden(kind)
         )
         entries.append(
             MissingnessEntitySummaryEntry(
@@ -106,6 +126,10 @@ def build_missingness_entity_summary_report(
                 zero_sample_count=counts[MissingValueKind.ZERO],
                 not_observed_sample_count=counts[MissingValueKind.NOT_OBSERVED],
                 filtered_sample_count=counts[MissingValueKind.FILTERED],
+                imputed_sample_count=counts[MissingValueKind.IMPUTED],
+                censored_sample_count=counts[MissingValueKind.CENSORED],
+                excluded_sample_count=counts[MissingValueKind.EXCLUDED],
+                not_applicable_sample_count=counts[MissingValueKind.NOT_APPLICABLE],
                 missing_fraction=(
                     float(missing_count / len(table.sample_ids)) if table.sample_ids else 0.0
                 ),
@@ -144,13 +168,17 @@ def build_missingness_condition_summary_report(
                 for sample_id in sample_ids
             ]
             if any(
-                kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+                kind
+                in (
+                    MissingValueKind.OBSERVED,
+                    MissingValueKind.ZERO,
+                    MissingValueKind.IMPUTED,
+                )
                 for kind in condition_kinds
             ):
                 observed_conditions.add(condition)
             if all(
-                kind in (MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED)
-                for kind in condition_kinds
+                _is_missing_burden(kind) for kind in condition_kinds
             ):
                 missing_conditions.add(condition)
         observed_conditions_by_entity[entity_id] = observed_conditions
@@ -158,12 +186,7 @@ def build_missingness_condition_summary_report(
 
     entries: list[MissingnessConditionSummaryEntry] = []
     for condition, sample_ids in sorted(sample_ids_by_condition.items()):
-        counts = {
-            MissingValueKind.OBSERVED: 0,
-            MissingValueKind.ZERO: 0,
-            MissingValueKind.NOT_OBSERVED: 0,
-            MissingValueKind.FILTERED: 0,
-        }
+        counts = _empty_missing_value_counts()
         for entity_id in table.entity_ids:
             for sample_id in sample_ids:
                 kind = _apply_missing_value_summary_policy(
@@ -172,8 +195,8 @@ def build_missingness_condition_summary_report(
                 )
                 counts[kind] += 1
         total_values = len(table.entity_ids) * len(sample_ids)
-        missing_count = (
-            counts[MissingValueKind.NOT_OBSERVED] + counts[MissingValueKind.FILTERED]
+        missing_count = sum(
+            count for kind, count in counts.items() if _is_missing_burden(kind)
         )
         condition_specific_absence = tuple(
             sorted(
@@ -192,6 +215,10 @@ def build_missingness_condition_summary_report(
                 zero_value_count=counts[MissingValueKind.ZERO],
                 not_observed_value_count=counts[MissingValueKind.NOT_OBSERVED],
                 filtered_value_count=counts[MissingValueKind.FILTERED],
+                imputed_value_count=counts[MissingValueKind.IMPUTED],
+                censored_value_count=counts[MissingValueKind.CENSORED],
+                excluded_value_count=counts[MissingValueKind.EXCLUDED],
+                not_applicable_value_count=counts[MissingValueKind.NOT_APPLICABLE],
                 missing_fraction=(
                     float(missing_count / total_values) if total_values else 0.0
                 ),
@@ -224,18 +251,23 @@ def build_missingness_intensity_dependence_report(
                 value.missing_value_kind,
                 policy=active_policy,
             )
-            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+            in (
+                MissingValueKind.OBSERVED,
+                MissingValueKind.ZERO,
+                MissingValueKind.IMPUTED,
+            )
         ]
         if not observed_abundances:
             continue
         missing_count = sum(
             1
             for sample_id in table.sample_ids
-            if _apply_missing_value_summary_policy(
-                lookup[(entity_id, sample_id)].missing_value_kind,
-                policy=active_policy,
+            if _is_missing_burden(
+                _apply_missing_value_summary_policy(
+                    lookup[(entity_id, sample_id)].missing_value_kind,
+                    policy=active_policy,
+                )
             )
-            in (MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED)
         )
         points.append(
             MissingnessIntensityPoint(
@@ -315,7 +347,11 @@ def summarize_missing_values(
             1
             for sample_id in table.sample_ids
             if lookup[(entity_id, sample_id)].missing_value_kind
-            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+            in (
+                MissingValueKind.OBSERVED,
+                MissingValueKind.ZERO,
+                MissingValueKind.IMPUTED,
+            )
         )
         if observed_samples < active_policy.min_observed_samples_per_entity:
             excluded_entity_ids.append(entity_id)
@@ -324,12 +360,7 @@ def summarize_missing_values(
 
     entries: list[MissingValueSummaryEntry] = []
     for sample_id in table.sample_ids:
-        counts = {
-            MissingValueKind.OBSERVED: 0,
-            MissingValueKind.ZERO: 0,
-            MissingValueKind.NOT_OBSERVED: 0,
-            MissingValueKind.FILTERED: 0,
-        }
+        counts = _empty_missing_value_counts()
         for entity_id in included_entity_ids:
             kind = _apply_missing_value_summary_policy(
                 lookup[(entity_id, sample_id)].missing_value_kind,
@@ -343,6 +374,10 @@ def summarize_missing_values(
                 zero_count=counts[MissingValueKind.ZERO],
                 not_observed_count=counts[MissingValueKind.NOT_OBSERVED],
                 filtered_count=counts[MissingValueKind.FILTERED],
+                imputed_count=counts[MissingValueKind.IMPUTED],
+                censored_count=counts[MissingValueKind.CENSORED],
+                excluded_count=counts[MissingValueKind.EXCLUDED],
+                not_applicable_count=counts[MissingValueKind.NOT_APPLICABLE],
             )
         )
     return MissingValueSummaryReport(
@@ -391,6 +426,7 @@ def build_missing_data_mechanism_report(
             if cell.missing_value_kind in (
                 MissingValueKind.OBSERVED,
                 MissingValueKind.ZERO,
+                MissingValueKind.IMPUTED,
             ):
                 observed_conditions.add(condition)
                 observed_samples.append(sample_id)
@@ -401,10 +437,9 @@ def build_missing_data_mechanism_report(
             condition_kinds = {
                 lookup[(entity_id, sample_id)].missing_value_kind for sample_id in sample_ids
             }
-            if condition_kinds and condition_kinds <= {
-                MissingValueKind.NOT_OBSERVED,
-                MissingValueKind.FILTERED,
-            }:
+            if condition_kinds and all(
+                _is_missing_burden(kind) for kind in condition_kinds
+            ):
                 fully_missing_conditions.add(condition)
 
         missing_batches = {
