@@ -218,6 +218,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/public_api.py",
         "support/states.py",
         "testing/public_function_docstrings.py",
+        "testing/public_function_type_boundaries.py",
         "testing/source_tree_complexity.py",
         "testing/skip_policy.py",
         "testing/pytest_markers.py",
