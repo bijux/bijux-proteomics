@@ -9,8 +9,9 @@ import csv
 from enum import StrEnum
 from io import StringIO
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
 from bijux_proteomics.interpretation.complex_activity import (
     ComplexActivityConfidenceStatus,
@@ -65,10 +66,20 @@ class MechanismCard(JsonModel):
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     source_surface: str = Field(..., min_length=1)
     source_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
     evidence_for: tuple[str, ...] = Field(default_factory=tuple)
     evidence_against: tuple[str, ...] = Field(default_factory=tuple)
     missing_evidence: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> MechanismCard:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class MechanismCardSummary(JsonModel):
@@ -201,6 +212,8 @@ def render_mechanism_cards_tsv(report: MechanismCardReport) -> str:
             "confidence_score",
             "source_surface",
             "source_ids",
+            "source_row_refs",
+            "derived_no_source_reason",
             "evidence_for",
             "evidence_against",
             "missing_evidence",
@@ -218,6 +231,10 @@ def render_mechanism_cards_tsv(report: MechanismCardReport) -> str:
                 f"{card.confidence_score:.3f}",
                 card.source_surface,
                 "|".join(card.source_ids),
+                "|".join(card.source_row_refs),
+                ""
+                if card.derived_no_source_reason is None
+                else card.derived_no_source_reason,
                 "|".join(card.evidence_for),
                 "|".join(card.evidence_against),
                 "|".join(card.missing_evidence),
@@ -308,6 +325,9 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
                 confidence_score=_clamp_score(confidence_score),
                 source_surface="pathway_activity_report",
                 source_ids=(entry.pathway_id,),
+                derived_no_source_reason=_derived_no_source_reason(
+                    "pathway activity comparisons aggregate governed member-contribution and condition-score surfaces rather than one direct input row"
+                ),
                 evidence_for=tuple(evidence_for),
                 evidence_against=tuple(evidence_against),
                 missing_evidence=tuple(missing_evidence),
@@ -382,6 +402,9 @@ def _build_kinase_candidate_cards(
                 confidence_score=_clamp_score(confidence_score),
                 source_surface="regulator_inference_report",
                 source_ids=(entry.regulator, *entry.supporting_site_keys),
+                derived_no_source_reason=_derived_no_source_reason(
+                    "regulator inference cards aggregate governed upstream-target evidence and downstream signal surfaces rather than one direct input row"
+                ),
                 evidence_for=tuple(evidence_for),
                 evidence_against=tuple(evidence_against),
                 missing_evidence=tuple(missing_evidence),
@@ -464,6 +487,9 @@ def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[M
                 confidence_score=_clamp_score(confidence_score),
                 source_surface="complex_activity_report",
                 source_ids=(entry.complex_id,),
+                derived_no_source_reason=_derived_no_source_reason(
+                    "complex activity cards aggregate governed complex-member and condition-comparison surfaces rather than one direct input row"
+                ),
                 evidence_for=tuple(evidence_for),
                 evidence_against=tuple(evidence_against),
                 missing_evidence=tuple(missing_evidence),
@@ -548,6 +574,9 @@ def _build_compartment_signal_cards(
                 confidence_score=_clamp_score(confidence_score),
                 source_surface="compartment_biology_report",
                 source_ids=(entry.set_id,),
+                derived_no_source_reason=_derived_no_source_reason(
+                    "compartment signal cards aggregate governed localization, enrichment, and activity surfaces rather than one direct input row"
+                ),
                 evidence_for=tuple(evidence_for),
                 evidence_against=tuple(evidence_against),
                 missing_evidence=tuple(missing_evidence),
@@ -621,6 +650,8 @@ def _build_biomarker_candidate_cards(
                 confidence_score=entry.decomposition.final_score,
                 source_surface="protein_mechanism_cards",
                 source_ids=tuple(sorted({entry.candidate_id, *entry.source_ids})),
+                source_row_refs=source_card.source_row_refs,
+                derived_no_source_reason=source_card.derived_no_source_reason,
                 evidence_for=tuple(evidence_for),
                 evidence_against=tuple(evidence_against),
                 missing_evidence=tuple(missing_evidence),
@@ -716,6 +747,12 @@ def _format_float(value: float | None) -> str:
     if value is None:
         return "na"
     return f"{value:.3f}"
+
+
+def _derived_no_source_reason(reason: str) -> str:
+    return SourceRowLineage.from_derived_reason(reason).derived_no_source_reason or reason
+
+
 __all__ = [
     "MechanismCard",
     "MechanismCardConfidence",

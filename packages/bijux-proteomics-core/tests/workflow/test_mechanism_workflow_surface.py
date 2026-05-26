@@ -57,6 +57,7 @@ def test_build_mechanism_cards_emits_all_required_card_classes_with_complete_evi
     assert all(card.evidence_against for card in report.cards)
     assert all(card.missing_evidence for card in report.cards)
     assert all(card.confidence.value in {"high", "moderate", "low"} for card in report.cards)
+    assert all(card.source_row_refs or card.derived_no_source_reason for card in report.cards)
     assert report.summary.pathway_shift_count == 1
     assert report.summary.kinase_candidate_count == 1
     assert report.summary.complex_change_count == 1
@@ -67,6 +68,7 @@ def test_build_mechanism_cards_emits_all_required_card_classes_with_complete_evi
     assert "evidence_for" in card_tsv
     assert "evidence_against" in card_tsv
     assert "missing_evidence" in card_tsv
+    assert "derived_no_source_reason" in card_tsv
     assert any(card.card_id.startswith("pathway-shift-card:") for card in report.cards)
     assert any(card.card_id.startswith("kinase-candidate-card:") for card in report.cards)
     assert any(card.card_id.startswith("complex-change-card:") for card in report.cards)

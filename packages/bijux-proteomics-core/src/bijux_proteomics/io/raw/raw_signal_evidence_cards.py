@@ -11,8 +11,9 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_raw_signal_card_id
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
@@ -133,6 +134,16 @@ class RawSignalEvidenceCard(JsonModel):
         default_factory=tuple
     )
     warnings: tuple[RawSignalEvidenceCardWarning, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> RawSignalEvidenceCard:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class RawSignalEvidenceCardSummary(JsonModel):
@@ -318,6 +329,9 @@ def build_raw_signal_evidence_card_report(
                 fragment_entries=fragment_entries,
                 precursor_isotope_fit_entries=precursor_isotope_fit_entries,
                 warnings=warnings,
+                derived_no_source_reason=(
+                    "raw-signal evidence cards summarize mzML trace windows, spectra, and peak models rather than row-numbered tabular inputs"
+                ),
             )
         )
 
@@ -507,6 +521,8 @@ def render_raw_signal_evidence_card_tsv(report: RawSignalEvidenceCardReport) -> 
             "warning_codes",
             "isotope_fit_run_count",
             "flagged_isotope_fit_count",
+            "source_row_refs",
+            "derived_no_source_reason",
         )
     )
     for card in report.cards:
@@ -538,6 +554,10 @@ def render_raw_signal_evidence_card_tsv(report: RawSignalEvidenceCardReport) -> 
                     for entry in card.precursor_isotope_fit_entries
                     if entry.concern_codes or entry.isotope_fit_score < 0.75
                 ),
+                "|".join(card.source_row_refs),
+                ""
+                if card.derived_no_source_reason is None
+                else card.derived_no_source_reason,
             )
         )
     return buffer.getvalue()

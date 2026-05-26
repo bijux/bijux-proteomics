@@ -207,6 +207,8 @@ def test_cross_study_evidence_cards_preserve_conflicting_protein_and_failed_data
     assert card.negative_dataset_ids == ("study_b",)
     assert card.significant_dataset_ids == ("study_a", "study_b")
     assert card.failed_dataset_ids == ("study_failed",)
+    assert card.source_row_refs == ()
+    assert card.derived_no_source_reason is not None
     assert {
         entry.dataset_state for entry in card.dataset_entries
     } == {
@@ -215,6 +217,7 @@ def test_cross_study_evidence_cards_preserve_conflicting_protein_and_failed_data
         CrossStudyEvidenceDatasetState.DATASET_FAILED,
     }
     assert "conflicting_datasets" in render_cross_study_evidence_card_tsv(report)
+    assert "derived_no_source_reason" in render_cross_study_evidence_card_tsv(report)
     dataset_tsv = render_cross_study_evidence_dataset_tsv(report)
     assert "dataset_failed" in dataset_tsv
     assert "negative_signal" in dataset_tsv

@@ -10,8 +10,9 @@ from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_cross_study_card_id
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
@@ -111,7 +112,17 @@ class CrossStudyEvidenceCardEntry(JsonModel):
     dataset_entries: tuple[CrossStudyEvidenceCardDatasetEntry, ...] = Field(
         default_factory=tuple
     )
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> CrossStudyEvidenceCardEntry:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class CrossStudyEvidenceCardSummary(JsonModel):
@@ -349,6 +360,8 @@ def render_cross_study_evidence_card_tsv(report: CrossStudyEvidenceCardReport) -
             "combined_adjusted_p_value",
             "heterogeneity_i_squared",
             "pathway_coverage_range",
+            "source_row_refs",
+            "derived_no_source_reason",
             "note",
         ]
     )
@@ -373,6 +386,10 @@ def render_cross_study_evidence_card_tsv(report: CrossStudyEvidenceCardReport) -
                 _format_float(entry.combined_adjusted_p_value),
                 _format_float(entry.heterogeneity_i_squared),
                 _format_float(entry.pathway_coverage_range),
+                ";".join(entry.source_row_refs),
+                ""
+                if entry.derived_no_source_reason is None
+                else entry.derived_no_source_reason,
                 entry.note,
             ]
         )
@@ -505,6 +522,9 @@ def _build_protein_card(
         ),
         pathway_coverage_range=None,
         dataset_entries=dataset_entries,
+        derived_no_source_reason=(
+            "cross-study protein cards aggregate governed per-dataset effect comparisons and meta-analysis outputs rather than one direct input row"
+        ),
         note=f"{comparison.note}.{meta_note}".strip(),
     )
 
@@ -572,6 +592,9 @@ def _build_pathway_card(
         heterogeneity_i_squared=None,
         pathway_coverage_range=comparison.coverage_fraction_range,
         dataset_entries=dataset_entries,
+        derived_no_source_reason=(
+            "cross-study pathway cards aggregate governed per-dataset pathway comparisons rather than one direct input row"
+        ),
         note=comparison.note,
     )
 
