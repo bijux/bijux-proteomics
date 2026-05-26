@@ -321,9 +321,11 @@ def test_design_assay_from_discovery_marks_transition_limited_targets_without_ex
     assert target.transition_supported_peptide_count == 1
     assert target.retained_assay_count == 0
     assert target.panel_transition_count == 0
-    assert report.rejected_evidence[0].reason_code == "transition_limited"
+    assert report.rejected_evidence[0].reason_code == "partial_assay_coverage"
     assert report.rejected_evidence[0].related_artifact == "discovery_to_assay_omitted_targets.tsv"
     assert report.panel_design_report.assay_entries == ()
+    assert report.validation_candidate_cards.summary.blocked_by_assay_design_count == 1
+    assert report.validation_candidate_cards.cards[0].final_status.value == "blocked_by_assay_design"
     assert "no retained targeted assay survived peptide selection" in (
         render_discovery_to_assay_omitted_targets_tsv(report)
     )
