@@ -160,6 +160,18 @@ def test_runtime_surface_area_exposes_advanced_diann_comparison() -> None:
     assert callable(compare_advanced_diann_runtime_outputs)
 
 
+def test_runtime_surface_area_exposes_workflow_failure_reports() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        WorkflowFailureReport,
+        build_workflow_failure_report,
+        write_workflow_failure_report,
+    )
+
+    assert WorkflowFailureReport is not None
+    assert callable(build_workflow_failure_report)
+    assert callable(write_workflow_failure_report)
+
+
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
     from bijux_proteomics_runtime.support.primitives.surface_area import (
         EXTENSION_POINTS,
