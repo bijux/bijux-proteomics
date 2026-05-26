@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+
+import pytest
 
 from bijux_proteomics.workflow import (
     IntegratedScientificReportSectionKey,
@@ -80,3 +83,34 @@ def test_build_integrated_scientific_report_preserves_required_sections_and_link
     assert (output_dir / report.artifacts.sentences_tsv).exists()
     assert (output_dir / report.artifacts.report_html).exists()
     assert (output_dir / report.artifacts.report_json).exists()
+
+
+def test_build_integrated_scientific_report_rejects_top_claim_without_belief_audit(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "integrated_demo_report_invalid_belief_audit"
+    report = build_integrated_scientific_report(output_dir)
+    payload = json.loads(
+        (output_dir / report.source_report_json).read_text(encoding="utf-8")
+    )
+    top_claim_id = payload["intelligence_report_contract"]["belief_audit_report"][
+        "summary"
+    ]["top_claim_ids"][0]
+
+    for claim_entry in payload["intelligence_report_contract"]["claim_entries"]:
+        if claim_entry["claim"]["claim_id"] == top_claim_id:
+            claim_entry["belief_audit"] = None
+            break
+    else:
+        raise AssertionError(f"top claim {top_claim_id} was not present in the report")
+
+    (output_dir / report.source_report_json).write_text(
+        json.dumps(payload, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=f"missing belief audit for top claim {top_claim_id}",
+    ):
+        build_integrated_scientific_report(output_dir)
