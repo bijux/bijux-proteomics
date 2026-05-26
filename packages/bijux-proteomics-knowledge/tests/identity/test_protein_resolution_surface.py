@@ -6,7 +6,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.interpretation.annotation_packs import load_annotation_pack
+from bijux_proteomics.interpretation.annotation_packs import (
+    load_annotation_pack,
+    render_annotation_pack_json,
+)
 from bijux_proteomics_knowledge.identity.proteins import (
     ProteinIdentityResolutionStatus,
     render_protein_id_resolution_tsv,
@@ -101,3 +104,30 @@ def test_resolve_protein_ids_respects_species_filter(
     assert entries[0].ambiguity_count == 1
     assert "resolution_status" in rendered
     assert "P04637\tTP53\tHomo sapiens\tgene_symbol\t1" in rendered
+
+
+def test_resolve_protein_ids_round_trips_exported_annotation_pack(
+    tmp_path: Path,
+) -> None:
+    original_pack = load_annotation_pack(
+        _write_annotation_pack(tmp_path / "annotation_pack.json")
+    )
+    exported_path = tmp_path / "annotation_pack_round_trip.json"
+    exported_path.write_text(
+        render_annotation_pack_json(original_pack),
+        encoding="utf-8",
+    )
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    original_entries = resolve_protein_ids(
+        ("TP53", "P04637", "ENSP00000288602", "UNKNOWN"),
+        original_pack,
+        species="Homo sapiens",
+    )
+    reloaded_entries = resolve_protein_ids(
+        ("TP53", "P04637", "ENSP00000288602", "UNKNOWN"),
+        reloaded_pack,
+        species="Homo sapiens",
+    )
+
+    assert reloaded_entries == original_entries

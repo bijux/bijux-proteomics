@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
+    load_annotation_pack,
+    render_annotation_pack_json,
 )
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
@@ -88,6 +92,29 @@ def test_resolve_pathway_members_uses_coverage_to_downgrade_pathway_confidence()
         "pathway:guardian_response\tprotein:P04637\tgene:SIGB\t0.5\t",
         "pathway:stress_network\tprotein:P04637\tgene:MAPK1;gene:SIGB;protein:O14920\t0.25\t",
     ]
+
+
+def test_resolve_pathway_members_round_trips_exported_annotation_pack(
+    tmp_path: Path,
+) -> None:
+    original_pack = _annotation_pack()
+    exported_path = tmp_path / "pathway_annotation_pack.json"
+    exported_path.write_text(
+        render_annotation_pack_json(original_pack),
+        encoding="utf-8",
+    )
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    original_report = resolve_pathway_members(
+        ("P04637", "Q9Y243", "UNKNOWN1"),
+        original_pack,
+    )
+    reloaded_report = resolve_pathway_members(
+        ("P04637", "Q9Y243", "UNKNOWN1"),
+        reloaded_pack,
+    )
+
+    assert reloaded_report == original_report
 
 
 def _annotation_pack() -> AnnotationPack:
