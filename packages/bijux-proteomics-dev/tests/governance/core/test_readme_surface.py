@@ -8,6 +8,13 @@ REPO_ROOT = next(
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
 CORE_README = REPO_ROOT / "packages" / "bijux-proteomics-core" / "README.md"
+CORE_SHIPPED_DEMO_TUTORIAL = (
+    REPO_ROOT
+    / "packages"
+    / "bijux-proteomics-core"
+    / "docs"
+    / "SHIPPED-DEMO-CLI.md"
+)
 
 
 def test_core_readme_describes_core_as_the_scientific_heart() -> None:
@@ -53,3 +60,16 @@ def test_core_readme_source_guide_points_to_live_core_modules() -> None:
     for relative_path in expected_paths:
         assert relative_path in text
         assert (REPO_ROOT / relative_path).exists()
+
+
+def test_core_readme_routes_non_developers_to_shipped_demo_cli_tutorial() -> None:
+    readme = CORE_README.read_text(encoding="utf-8")
+    tutorial = CORE_SHIPPED_DEMO_TUTORIAL.read_text(encoding="utf-8")
+
+    assert "[Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md)" in readme
+    assert "minimal non-developer CLI path" in readme
+    assert "bijux-proteomics demo --out-dir demo_result" in tutorial
+    assert "bijux-proteomics validate-result demo_result" in tutorial
+    assert "bijux-proteomics query-result demo_result" in tutorial
+    assert "surprising_demo_report.json" in tutorial
+    assert "result_manifest.json" in tutorial
