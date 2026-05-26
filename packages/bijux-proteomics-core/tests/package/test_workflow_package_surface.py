@@ -335,6 +335,12 @@ def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None
     assert hasattr(workflow, "render_advanced_diann_protein_decisions_tsv")
     assert report.summary.rejected_evidence_count == 1
     assert report.summary.downgraded_protein_count >= 1
+    study_result = workflow.build_proteomics_study_result(report)
+    assert study_result.source_surface == "AdvancedDiannWorkflowReport"
+    assert any(
+        surface.kind is workflow.ProteomicsStudyQcKind.BELIEF_AUDIT
+        for surface in study_result.qc_surfaces
+    )
     assert "representative_protein_ref" in workflow.render_advanced_diann_protein_decisions_tsv(
         report.accepted_protein_decisions
     )
