@@ -1251,6 +1251,33 @@ def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> Non
     assert Path(report.artifacts.evidence_graph_nodes_tsv).name == "biological_evidence_graph_nodes.tsv"
 
 
+def test_workflow_package_exports_scale_demo_surface(tmp_path: Path) -> None:
+    report = workflow.run_scale_demo(
+        workflow.ScaleDemoConfig(
+            output_dir=tmp_path / "scale_demo_run",
+            protein_count=18,
+            peptides_per_protein=2,
+            replicates_per_condition=2,
+            pathway_count=6,
+        )
+    )
+
+    assert hasattr(workflow, "ScaleDemoConfig")
+    assert hasattr(workflow, "run_scale_demo")
+    assert hasattr(workflow, "render_scale_demo_summary_tsv")
+    assert hasattr(workflow, "render_scale_demo_stage_metrics_tsv")
+    assert hasattr(workflow, "render_scale_demo_validation_tsv")
+    assert report.summary.sample_count == 4
+    assert report.summary.protein_count == 18
+    assert report.summary.generated_feature_row_count == 144
+    assert report.summary.outputs_validated is True
+    assert len(report.stage_metrics) == 5
+    assert Path(report.artifacts.report_json).name == "scale_demo_report.json"
+    assert Path(report.artifacts.biological_report_manifest_json).name == (
+        "biological_report_manifest.json"
+    )
+
+
 def test_workflow_package_exports_surprising_demo_interrogation_surface(
     tmp_path: Path,
 ) -> None:

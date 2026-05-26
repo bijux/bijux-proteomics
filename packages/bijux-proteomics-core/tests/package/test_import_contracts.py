@@ -519,6 +519,8 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(exports, "build_result_manifest_from_artifacts")
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
     assert hasattr(exports, "index_workflow_artifact_manifest")
+    assert hasattr(demo, "run_scale_demo")
+    assert hasattr(demo, "render_scale_demo_summary_tsv")
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_interrogation_report")
     assert hasattr(weak_evidence, "build_flagship_weak_evidence_benchmark_descriptor")

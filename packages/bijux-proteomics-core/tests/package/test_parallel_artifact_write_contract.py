@@ -14,6 +14,7 @@ OUTPUT_TABLE_OWNER = SOURCE_ROOT / "_output_tables.py"
 OUTPUT_PROTOCOL_OWNER = SOURCE_ROOT / "interfaces" / "support" / "output_protocol.py"
 ARTIFACT_LAYOUT_OWNER = SOURCE_ROOT / "workflow" / "exports" / "artifact_layout.py"
 MANAGED_WORKFLOW_WRITE_OWNERS = (
+    "workflow/demo/scale_demo.py",
     "workflow/demo/surprising_demo.py",
     "workflow/pipelines/advanced_diann.py",
     "workflow/pipelines/advanced_fragpipe.py",

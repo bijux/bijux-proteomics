@@ -67,6 +67,7 @@ _ROOT_WRAPPER_TARGETS = {
     "result_search_index.py": (
         "bijux_proteomics.workflow.exports.result_search_index"
     ),
+    "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
     "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
@@ -126,6 +127,9 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(exports, "build_result_search_index_from_artifacts")
     assert hasattr(exports, "load_result_archive")
 
+    assert hasattr(demo, "ScaleDemoConfig")
+    assert hasattr(demo, "run_scale_demo")
+    assert hasattr(demo, "render_scale_demo_summary_tsv")
     assert hasattr(demo, "load_surprising_demo_manifest")
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_example_requests")
