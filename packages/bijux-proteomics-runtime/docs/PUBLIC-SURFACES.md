@@ -42,3 +42,10 @@ an exact owner module that runtime maintainers should edit directly.
 - owner tests: `tests/workflows/test_runtime_workflow_paths.py`, `tests/runs/test_runtime_local_and_import_end_to_end.py`, `tests/runs/test_runtime_import_surface.py`
 - owner fixtures: `tests/fixtures/execution/import_review_path.json`
 - contract: canonical import-to-review execution keeps imported evidence separate from runtime-derived review outputs
+
+## `workflows.advanced_diann_archive:archive_completed_advanced_diann_run`
+
+- owner code: `src/bijux_proteomics_runtime/workflows/advanced_diann_archive.py`, `src/bijux_proteomics_runtime/workflows/advanced_diann.py`
+- owner tests: `tests/workflows/test_advanced_diann_archive_surface.py`, `tests/workflows/test_advanced_diann_python_api_tutorial_surface.py`
+- owner docs: `docs/ADVANCED-DIANN-PYTHON-API.md`
+- contract: completed advanced DIA-NN runtime outputs stay queryable as a governed `result_manifest.json` archive that runtime can rehydrate without rerunning the scientific workflow
