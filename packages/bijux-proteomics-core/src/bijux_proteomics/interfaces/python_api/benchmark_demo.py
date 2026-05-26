@@ -131,6 +131,45 @@ def run_surprising_demo_command(
         )
     _emit_json(report, out_path=out_path)
 
+
+def run_scale_demo_command(
+    output_dir: Path,
+    protein_count: int,
+    peptides_per_protein: int,
+    replicates_per_condition: int,
+    pathway_count: int,
+    summary_tsv_out: Path | None,
+    stage_metrics_tsv_out: Path | None,
+    validation_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    try:
+        report = run_scale_demo(
+            ScaleDemoConfig(
+                output_dir=output_dir,
+                protein_count=protein_count,
+                peptides_per_protein=peptides_per_protein,
+                replicates_per_condition=replicates_per_condition,
+                pathway_count=pathway_count,
+            )
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_scale_demo_summary_tsv(report))
+    if stage_metrics_tsv_out is not None:
+        _write_text_output(
+            stage_metrics_tsv_out,
+            render_scale_demo_stage_metrics_tsv(report),
+        )
+    if validation_tsv_out is not None:
+        _write_text_output(
+            validation_tsv_out,
+            render_scale_demo_validation_tsv(report),
+        )
+    _emit_json(report, out_path=out_path)
+
 def run_surprising_demo_query_command(
     output_dir: Path,
     query_kind: str | None,
