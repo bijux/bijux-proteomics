@@ -89,12 +89,15 @@ def build_evidence_graph_final_result_table(
 
     confidence_report = propagate_evidence_graph_confidence(graph)
     contradiction_report = detect_evidence_graph_contradictions(graph)
+    contradiction_reasons_by_claim_node_id = _contradiction_reasons_by_claim_node_id(
+        contradiction_report
+    )
     entries: list[EvidenceGraphFinalResultEntry] = []
     for confidence_entry in confidence_report.entries:
         reasons = _downgrade_reasons_for_entry(
             graph,
             confidence_entry,
-            contradiction_report=contradiction_report,
+            contradiction_reasons_by_claim_node_id=contradiction_reasons_by_claim_node_id,
         )
         effective_confidence_tier = _apply_confidence_downgrades(
             confidence_entry.confidence_tier,
@@ -174,7 +177,10 @@ def _downgrade_reasons_for_entry(
     graph: ProteomicsEvidenceGraph,
     entry: EvidenceGraphConfidenceEntry,
     *,
-    contradiction_report: EvidenceGraphContradictionReport,
+    contradiction_reasons_by_claim_node_id: dict[
+        str,
+        tuple[EvidenceGraphDowngradeReason, ...],
+    ],
 ) -> tuple[EvidenceGraphDowngradeReason, ...]:
     subject = _require_node_by_id(graph, entry.subject_node_id)
     reasons: set[EvidenceGraphDowngradeReason] = set()
@@ -192,7 +198,7 @@ def _downgrade_reasons_for_entry(
         _claim_level_downgrade_reasons(
             graph,
             entry.claim_node_id,
-            contradiction_report=contradiction_report,
+            contradiction_reasons_by_claim_node_id=contradiction_reasons_by_claim_node_id,
         )
     )
     return tuple(sorted(reasons, key=lambda value: value.value))
@@ -291,7 +297,10 @@ def _claim_level_downgrade_reasons(
     graph: ProteomicsEvidenceGraph,
     claim_node_id: str,
     *,
-    contradiction_report: EvidenceGraphContradictionReport,
+    contradiction_reasons_by_claim_node_id: dict[
+        str,
+        tuple[EvidenceGraphDowngradeReason, ...],
+    ],
 ) -> set[EvidenceGraphDowngradeReason]:
     reasons: set[EvidenceGraphDowngradeReason] = set()
     quant_values = _source_nodes_for_relation(
@@ -306,14 +315,24 @@ def _claim_level_downgrade_reasons(
     claim_node = _require_node_by_id(graph, claim_node_id)
     if claim_node.trust_class in {"single_run_only", "exploratory"}:
         reasons.add(EvidenceGraphDowngradeReason.POOR_REPRODUCIBILITY)
+    reasons.update(contradiction_reasons_by_claim_node_id.get(claim_node_id, ()))
+    return reasons
+
+
+def _contradiction_reasons_by_claim_node_id(
+    contradiction_report: EvidenceGraphContradictionReport,
+) -> dict[str, tuple[EvidenceGraphDowngradeReason, ...]]:
+    reasons_by_claim_node_id: dict[str, set[EvidenceGraphDowngradeReason]] = {}
     for contradiction in contradiction_report.entries:
-        if contradiction.claim_node_id != claim_node_id:
-            continue
+        reasons = reasons_by_claim_node_id.setdefault(contradiction.claim_node_id, set())
         if contradiction.severity is EvidenceGraphContradictionSeverity.FAIL:
             reasons.add(EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION)
         else:
             reasons.add(EvidenceGraphDowngradeReason.CONTRADICTION_CAUTION)
-    return reasons
+    return {
+        claim_node_id: tuple(sorted(reasons, key=lambda value: value.value))
+        for claim_node_id, reasons in reasons_by_claim_node_id.items()
+    }
 
 
 def _protein_mapping_count(graph: ProteomicsEvidenceGraph, peptide_node_id: str) -> int:
