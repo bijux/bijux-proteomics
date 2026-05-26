@@ -31,6 +31,14 @@ def test_review_package_exports_proteomics_evidence_graph_owner_surface() -> Non
     assert graph.summary.edge_kind_counts == {"sample_contains_run": 1}
 
 
+def test_review_package_exports_queryable_card_loader_surface() -> None:
+    assert hasattr(review, "load_standard_card_tsv")
+    assert review.StandardCardKind.PROTEIN.value == "protein"
+    assert review.StandardCardSubjectKind.BIOMARKER_CANDIDATE.value == (
+        "biomarker_candidate"
+    )
+
+
 def test_review_package_exports_evidence_graph_query_engine_surface() -> None:
     builder = review.ProteomicsEvidenceGraphBuilder()
     protein = builder.add_protein("P11111", label="P11111")

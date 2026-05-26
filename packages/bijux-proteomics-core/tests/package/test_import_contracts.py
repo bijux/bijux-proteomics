@@ -518,6 +518,7 @@ def test_workflow_subpackage_import_contract() -> None:
 def test_review_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.review")
 
+    assert hasattr(module, "load_standard_card_tsv")
     assert hasattr(module, "build_analysis_recommendation_report_from_artifacts")
     assert hasattr(module, "build_belief_audit_report_from_artifacts")
     assert hasattr(module, "build_compact_result_summary_report_from_artifacts")

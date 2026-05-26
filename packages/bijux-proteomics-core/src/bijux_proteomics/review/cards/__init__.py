@@ -8,6 +8,7 @@ from __future__ import annotations
 from importlib import import_module
 
 _CARD_MODULES = (
+    "bijux_proteomics.review.cards.queryable_cards",
     "bijux_proteomics.review.cards.collaboration",
     "bijux_proteomics.review.cards.compact_result_summary",
     "bijux_proteomics.review.cards.inference_packets",
