@@ -54,7 +54,9 @@ class WorkflowArtifactLayoutEntry(JsonModel):
     folder: WorkflowArtifactFolder
     artifact_kind: WorkflowArtifactKind
     artifact_schema: str = Field(..., min_length=1)
+    artifact_schema_version: str = Field(..., min_length=1)
     output_table_schema: OutputTableSchema | None = None
+    output_table_schema_sidecar_relative_path: str | None = None
     row_count: int = Field(..., ge=0)
     checksum_sha256: str = Field(..., min_length=64, max_length=64)
     producer_function: str = Field(..., min_length=1)
@@ -146,6 +148,7 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
             _validate_tsv_artifact_schema(
                 artifact=artifact,
                 artifact_path=artifact_path,
+                output_dir=output_dir,
             )
         actual_schema = _infer_artifact_schema(artifact_path, actual_kind)
         if actual_schema != artifact.artifact_schema:
@@ -292,10 +295,15 @@ def _build_layout_entry(
 ) -> WorkflowArtifactLayoutEntry:
     artifact_kind = _classify_artifact_kind(canonical_path)
     output_table_schema = None
+    output_table_schema_sidecar_relative_path = None
     if artifact_kind is WorkflowArtifactKind.TSV_TABLE:
         output_table_schema = infer_output_table_schema(
             canonical_path.read_text(encoding="utf-8"),
             table_name=canonical_path.stem,
+        )
+        output_table_schema_sidecar_relative_path = _write_output_table_schema_sidecar(
+            canonical_path=canonical_path,
+            output_table_schema=output_table_schema,
         )
     return WorkflowArtifactLayoutEntry(
         legacy_relative_path=legacy_relative_path,
@@ -304,7 +312,12 @@ def _build_layout_entry(
         folder=folder,
         artifact_kind=artifact_kind,
         artifact_schema=_infer_artifact_schema(canonical_path, artifact_kind),
+        artifact_schema_version=_infer_artifact_schema_version(
+            artifact_kind=artifact_kind,
+            output_table_schema=output_table_schema,
+        ),
         output_table_schema=output_table_schema,
+        output_table_schema_sidecar_relative_path=output_table_schema_sidecar_relative_path,
         row_count=_count_artifact_rows(canonical_path, artifact_kind),
         checksum_sha256=_compute_sha256(canonical_path),
         producer_function=producer_function,
@@ -315,10 +328,37 @@ def _validate_tsv_artifact_schema(
     *,
     artifact: WorkflowArtifactLayoutEntry,
     artifact_path: Path,
+    output_dir: Path,
 ) -> None:
     if artifact.output_table_schema is None:
         raise InvalidWorkflowError(
             "workflow artifact manifest is missing typed table schema for "
+            f"{artifact.relative_path}"
+        )
+    if artifact.artifact_schema_version != artifact.output_table_schema.schema_version:
+        raise InvalidWorkflowError(
+            "workflow artifact manifest schema-version mismatch for "
+            f"{artifact.relative_path}: expected "
+            f"{artifact.output_table_schema.schema_version}, found "
+            f"{artifact.artifact_schema_version}"
+        )
+    if artifact.output_table_schema_sidecar_relative_path is None:
+        raise InvalidWorkflowError(
+            "workflow artifact manifest is missing table-schema sidecar for "
+            f"{artifact.relative_path}"
+        )
+    sidecar_path = output_dir / artifact.output_table_schema_sidecar_relative_path
+    if not sidecar_path.is_file():
+        raise ScientificEvidenceError(
+            "workflow artifact manifest lists missing table-schema sidecar "
+            f"{artifact.output_table_schema_sidecar_relative_path}"
+        )
+    sidecar_schema = OutputTableSchema.model_validate_json(
+        sidecar_path.read_text(encoding="utf-8")
+    )
+    if sidecar_schema != artifact.output_table_schema:
+        raise InvalidWorkflowError(
+            "workflow artifact manifest table-schema sidecar mismatch for "
             f"{artifact.relative_path}"
         )
     validation_report = validate_output_table_text(
@@ -332,6 +372,26 @@ def _validate_tsv_artifact_schema(
         "workflow artifact manifest table-schema mismatch for "
         f"{artifact.relative_path}: {first_issue.message}"
     )
+
+
+def _write_output_table_schema_sidecar(
+    *,
+    canonical_path: Path,
+    output_table_schema: OutputTableSchema,
+) -> str:
+    sidecar_path = canonical_path.with_name(f"{canonical_path.name}.schema.json")
+    sidecar_path.write_text(output_table_schema.to_stable_json() + "\n", encoding="utf-8")
+    return sidecar_path.relative_to(canonical_path.parents[1]).as_posix()
+
+
+def _infer_artifact_schema_version(
+    *,
+    artifact_kind: WorkflowArtifactKind,
+    output_table_schema: OutputTableSchema | None,
+) -> str:
+    if artifact_kind is WorkflowArtifactKind.TSV_TABLE and output_table_schema is not None:
+        return output_table_schema.schema_version
+    return WorkflowArtifactLayoutManifest.model_fields["manifest_schema_version"].default
 
 
 def _classify_artifact_kind(path: Path) -> WorkflowArtifactKind:

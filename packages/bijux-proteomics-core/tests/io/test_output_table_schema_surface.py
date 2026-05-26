@@ -21,6 +21,7 @@ def test_infer_output_table_schema_tracks_header_types_and_meaning() -> None:
         table_name="protein_support",
     )
 
+    assert schema.schema_version == "2026-05-26"
     assert schema.table_name == "protein_support"
     assert schema.table_meaning == "Stable TSV output for protein support."
     assert [column.name for column in schema.columns] == [

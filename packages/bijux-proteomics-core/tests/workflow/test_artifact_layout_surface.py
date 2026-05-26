@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
+from bijux_proteomics._output_tables import OutputTableSchema
 from bijux_proteomics.workflow.artifact_layout import (
     WorkflowArtifactFolder,
     WorkflowArtifactKind,
@@ -63,9 +64,15 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
     assert entries["tmt_validation_summary.tsv"].folder is WorkflowArtifactFolder.QC
     assert entries["tmt_validation_summary.tsv"].artifact_kind is WorkflowArtifactKind.TSV_TABLE
     assert entries["tmt_validation_summary.tsv"].artifact_schema == "tsv[placeholder]"
+    assert entries["tmt_validation_summary.tsv"].artifact_schema_version == "2026-05-26"
     assert entries["tmt_validation_summary.tsv"].output_table_schema is not None
+    assert entries["tmt_validation_summary.tsv"].output_table_schema.schema_version == "2026-05-26"
     assert entries["tmt_validation_summary.tsv"].output_table_schema.table_name == "tmt_validation_summary"
     assert entries["tmt_validation_summary.tsv"].output_table_schema.columns[0].name == "placeholder"
+    assert entries["tmt_validation_summary.tsv"].output_table_schema_sidecar_relative_path == (
+        "qc/tmt_validation_summary.tsv.schema.json"
+    )
+    assert (tmp_path / "qc" / "tmt_validation_summary.tsv.schema.json").exists()
     assert entries["tmt_validation_summary.tsv"].row_count == 0
     assert entries["tmt_validation_summary.tsv"].producer_function == "test_workflow_surface"
     assert entries["ptm_evidence_cards.tsv"].folder is WorkflowArtifactFolder.CARDS
@@ -93,10 +100,15 @@ def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
     assert load_workflow_artifact_manifest(tmp_path).producer_function == "test_workflow_surface"
     assert manifest.artifacts[0].row_count == 1
     assert manifest.artifacts[0].artifact_schema == "tsv[metric,value]"
+    assert manifest.artifacts[0].artifact_schema_version == "2026-05-26"
     assert manifest.artifacts[0].output_table_schema is not None
+    assert manifest.artifacts[0].output_table_schema.schema_version == "2026-05-26"
     assert tuple(
         column.name for column in manifest.artifacts[0].output_table_schema.columns
     ) == ("metric", "value")
+    assert (
+        tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
+    ).exists()
 
 
 def test_validate_workflow_artifact_manifest_rejects_checksum_drift(
@@ -156,6 +168,43 @@ def test_validate_workflow_artifact_manifest_rejects_tsv_type_drift(
     )
 
     with pytest.raises(InvalidWorkflowError, match="invalid integer value"):
+        validate_workflow_artifact_manifest(tmp_path)
+
+
+def test_validate_workflow_artifact_manifest_rejects_missing_tsv_schema_sidecar(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+    (tmp_path / "reports" / "biological_report_summary.tsv.schema.json").unlink()
+
+    with pytest.raises(ScientificEvidenceError, match="missing table-schema sidecar"):
+        validate_workflow_artifact_manifest(tmp_path)
+
+
+def test_validate_workflow_artifact_manifest_rejects_tsv_schema_sidecar_version_drift(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+    sidecar_path = tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
+    sidecar = OutputTableSchema.model_validate_json(sidecar_path.read_text(encoding="utf-8"))
+    drifted_sidecar = sidecar.model_copy(update={"schema_version": "2026-05-99"})
+    sidecar_path.write_text(drifted_sidecar.to_stable_json() + "\n", encoding="utf-8")
+
+    with pytest.raises(InvalidWorkflowError, match="sidecar mismatch"):
         validate_workflow_artifact_manifest(tmp_path)
 
 

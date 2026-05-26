@@ -32,6 +32,7 @@ class OutputTableSchema(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = "2026-05-26"
     table_name: str = Field(..., min_length=1)
     table_meaning: str = Field(..., min_length=1)
     columns: tuple[OutputTableColumnSchema, ...] = Field(default_factory=tuple)
