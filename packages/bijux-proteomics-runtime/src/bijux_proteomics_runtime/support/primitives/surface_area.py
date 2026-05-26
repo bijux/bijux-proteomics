@@ -11,6 +11,7 @@ PUBLIC_ENTRYPOINTS = (
     "bijux_proteomics_runtime.runs.RunManager",
     "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path",
     "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path",
+    "bijux_proteomics_runtime.workflows.architecture_demo.run_runtime_architecture_demo",
     "bijux_proteomics_runtime.workflows.package_smoke.run_runtime_package_smoke_workflow",
 )
 
@@ -34,7 +35,7 @@ CONFIG_KNOBS = (
 )
 
 SURFACE_CAPS = {
-    "public_entrypoints": 6,
+    "public_entrypoints": 7,
     "extension_points": 3,
     "config_knobs": 10,
 }

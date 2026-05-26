@@ -90,9 +90,27 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
         in PUBLIC_ENTRYPOINTS
     )
     assert (
+        "bijux_proteomics_runtime.workflows.architecture_demo.run_runtime_architecture_demo"
+        in PUBLIC_ENTRYPOINTS
+    )
+    assert (
         "bijux_proteomics_runtime.workflows.package_smoke.run_runtime_package_smoke_workflow"
         in PUBLIC_ENTRYPOINTS
     )
+
+
+def test_runtime_surface_area_exposes_runtime_architecture_demo() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        RuntimeArchitectureDemoArtifacts,
+        RuntimeArchitectureDemoConfig,
+        RuntimeArchitectureDemoWorkflowReport,
+        run_runtime_architecture_demo,
+    )
+
+    assert RuntimeArchitectureDemoArtifacts is not None
+    assert RuntimeArchitectureDemoConfig is not None
+    assert RuntimeArchitectureDemoWorkflowReport is not None
+    assert callable(run_runtime_architecture_demo)
 
 
 def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
