@@ -78,6 +78,17 @@ class WorkflowArtifactLayoutManifest(JsonModel):
     artifacts: tuple[WorkflowArtifactLayoutEntry, ...] = Field(default_factory=tuple)
 
 
+class WorkflowArtifactExpectation(JsonModel):
+    """One workflow-owned artifact declared by a typed workflow manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_manifest_relative_path: str = Field(..., min_length=1)
+    manifest_key_path: str = Field(..., min_length=1)
+    legacy_relative_path: str = Field(..., min_length=1)
+    canonical_relative_path: str = Field(..., min_length=1)
+
+
 def synchronize_workflow_artifact_layout(
     output_dir: Path,
     *,
@@ -180,6 +191,10 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
                 f"{artifact.relative_path}: expected {artifact.checksum_sha256}, "
                 f"found {actual_checksum}"
             )
+    validate_workflow_artifact_completeness(
+        output_dir=output_dir,
+        manifest=manifest,
+    )
     return manifest
 
 
@@ -338,6 +353,119 @@ def _build_layout_entry(
     )
 
 
+def validate_workflow_artifact_completeness(
+    *,
+    output_dir: Path,
+    manifest: WorkflowArtifactLayoutManifest | None = None,
+) -> WorkflowArtifactLayoutManifest:
+    """Validate manifest-declared workflow completeness against on-disk artifacts."""
+
+    if manifest is None:
+        manifest = load_workflow_artifact_manifest(output_dir)
+    indexed_artifacts = {
+        artifact.legacy_relative_path: artifact for artifact in manifest.artifacts
+    }
+    for expectation in _collect_workflow_artifact_expectations(
+        output_dir=output_dir,
+        manifest=manifest,
+    ):
+        legacy_path = output_dir / expectation.legacy_relative_path
+        if not legacy_path.is_file():
+            raise ScientificEvidenceError(
+                "workflow artifact completeness validation failed for "
+                f"{expectation.source_manifest_relative_path}: missing "
+                f"{expectation.legacy_relative_path} declared at "
+                f"{expectation.manifest_key_path}"
+            )
+        layout_entry = indexed_artifacts.get(expectation.legacy_relative_path)
+        if layout_entry is None:
+            raise InvalidWorkflowError(
+                "workflow artifact completeness validation failed for "
+                f"{expectation.source_manifest_relative_path}: "
+                f"{expectation.legacy_relative_path} declared at "
+                f"{expectation.manifest_key_path} is missing from manifest.json"
+            )
+        if layout_entry.relative_path != expectation.canonical_relative_path:
+            raise InvalidWorkflowError(
+                "workflow artifact completeness validation failed for "
+                f"{expectation.source_manifest_relative_path}: "
+                f"{expectation.legacy_relative_path} declared at "
+                f"{expectation.manifest_key_path} must map to "
+                f"{expectation.canonical_relative_path}, found {layout_entry.relative_path}"
+            )
+    return manifest
+
+
+def _collect_workflow_artifact_expectations(
+    *,
+    output_dir: Path,
+    manifest: WorkflowArtifactLayoutManifest,
+) -> tuple[WorkflowArtifactExpectation, ...]:
+    expectations: list[WorkflowArtifactExpectation] = []
+    for artifact in manifest.artifacts:
+        if (
+            artifact.artifact_kind is not WorkflowArtifactKind.JSON_DOCUMENT
+            or "manifest" not in Path(artifact.legacy_relative_path).stem
+        ):
+            continue
+        payload = json.loads((output_dir / artifact.relative_path).read_text(encoding="utf-8"))
+        expectations.extend(
+            _collect_manifest_declared_artifacts(
+                payload=payload,
+                source_manifest_relative_path=artifact.relative_path,
+            )
+        )
+    return tuple(expectations)
+
+
+def _collect_manifest_declared_artifacts(
+    *,
+    payload: object,
+    source_manifest_relative_path: str,
+) -> tuple[WorkflowArtifactExpectation, ...]:
+    expectations: list[WorkflowArtifactExpectation] = []
+
+    def visit(node: object, path: str, *, inside_artifacts: bool) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                next_path = f"{path}.{key}"
+                visit(
+                    value,
+                    next_path,
+                    inside_artifacts=inside_artifacts or key == "artifacts",
+                )
+            return
+        if isinstance(node, list):
+            for index, value in enumerate(node):
+                visit(value, f"{path}[{index}]", inside_artifacts=inside_artifacts)
+            return
+        if not inside_artifacts or not _is_declared_artifact_path(node):
+            return
+        legacy_relative_path = str(node)
+        expectations.append(
+            WorkflowArtifactExpectation(
+                source_manifest_relative_path=source_manifest_relative_path,
+                manifest_key_path=path,
+                legacy_relative_path=legacy_relative_path,
+                canonical_relative_path=(
+                    f"{classify_workflow_artifact_name(legacy_relative_path).value}/"
+                    f"{legacy_relative_path}"
+                ),
+            )
+        )
+
+    visit(payload, "manifest", inside_artifacts=False)
+    return tuple(expectations)
+
+
+def _is_declared_artifact_path(value: object) -> bool:
+    if not isinstance(value, str) or not value:
+        return False
+    if value.startswith("/") or "://" in value or "/" in value:
+        return False
+    return value.endswith((".tsv", ".json", ".html", ".svg", ".txt"))
+
+
 def _validate_tsv_artifact_schema(
     *,
     artifact: WorkflowArtifactLayoutEntry,
@@ -454,10 +582,12 @@ def _compute_sha256(path: Path) -> str:
 __all__ = [
     "WorkflowArtifactFolder",
     "WorkflowArtifactKind",
+    "WorkflowArtifactExpectation",
     "WorkflowArtifactLayoutEntry",
     "WorkflowArtifactLayoutManifest",
     "classify_workflow_artifact_name",
     "load_workflow_artifact_manifest",
     "synchronize_workflow_artifact_layout",
+    "validate_workflow_artifact_completeness",
     "validate_workflow_artifact_manifest",
 ]
