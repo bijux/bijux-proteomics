@@ -112,6 +112,7 @@ def test_review_subpackages_export_representative_owner_surfaces() -> None:
     explanations = importlib.import_module("bijux_proteomics.review.explanations")
 
     assert hasattr(evidence_graph, "build_proteomics_evidence_graph")
+    assert hasattr(evidence_graph, "load_lazy_proteomics_evidence_graph")
     assert hasattr(evidence_graph, "render_evidence_graph_final_results_tsv")
     assert hasattr(evidence_graph, "query_protein_evidence_summary")
 

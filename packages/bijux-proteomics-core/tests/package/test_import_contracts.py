@@ -222,6 +222,7 @@ def test_review_subpackage_import_contract() -> None:
     explanations = importlib.import_module("bijux_proteomics.review.explanations")
 
     assert hasattr(evidence_graph, "build_proteomics_evidence_graph")
+    assert hasattr(evidence_graph, "load_lazy_proteomics_evidence_graph")
     assert hasattr(evidence_graph, "propagate_evidence_graph_confidence")
     assert hasattr(evidence_graph, "compare_evidence_graph_runs")
 

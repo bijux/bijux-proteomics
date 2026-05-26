@@ -607,6 +607,52 @@ def test_review_package_exports_evidence_graph_external_export_surface() -> None
     assert bundle.contradiction_node_count == 1
 
 
+def test_review_package_exports_lazy_evidence_graph_query_surface(tmp_path) -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    sample = builder.add_sample("S1", label="sample S1")
+    run = builder.add_run("R1", label="run R1")
+    qc_decision = builder.add_qc_decision(
+        "qc:R1:fail",
+        label="carryover warning",
+        claim_state="caution",
+        trust_class="medium",
+    )
+    builder.add_sample_contains_run(
+        sample.node_id,
+        run.node_id,
+        source_row_ref="design.tsv:2",
+        confidence=1.0,
+        reason="sample table assigns run R1 to sample S1",
+    )
+    builder.add_run_governed_by_qc_decision(
+        run.node_id,
+        qc_decision.node_id,
+        source_row_ref="qc.tsv:2",
+        confidence=1.0,
+        reason="carryover suspicion downgraded run R1",
+    )
+
+    bundle = review.export_proteomics_evidence_graph(builder.build())
+    nodes_path = tmp_path / "evidence_graph_nodes.tsv"
+    edges_path = tmp_path / "evidence_graph_edges.tsv"
+    nodes_path.write_text(
+        review.render_proteomics_evidence_graph_nodes_tsv(bundle),
+        encoding="utf-8",
+    )
+    edges_path.write_text(
+        review.render_proteomics_evidence_graph_edges_tsv(bundle),
+        encoding="utf-8",
+    )
+
+    lazy_graph = review.load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
+    report = review.query_sample_qc_reasons(lazy_graph, sample_id="S1")
+
+    assert hasattr(review, "load_lazy_proteomics_evidence_graph")
+    assert report.sample.entity_ref == "S1"
+    assert [node.entity_ref for node in report.qc_decisions] == ["qc:R1:fail"]
+    assert report.qc_edges[0].source_row_ref == "qc.tsv:2"
+
+
 def test_review_package_exports_evidence_aware_ranking_surface() -> None:
     report = review.build_evidence_aware_ranking_report(
         (
