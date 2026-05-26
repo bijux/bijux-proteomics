@@ -2320,6 +2320,7 @@ def instantiate_proteomics_workflow_template(
 def build_deterministic_execution_contract(
     manifest: ProteomicsWorkflowManifest,
     *,
+    dag_plan: ProteomicsDagPlan,
     container_steps: tuple[ContainerizedStepSpec, ...],
     parallel_plan: ParallelExecutionPlan,
     hpc_job: HpcJobDescriptor,
@@ -2355,7 +2356,7 @@ def build_deterministic_execution_contract(
         manifest_sha256=manifest_sha256,
         input_fingerprint=input_fingerprint,
         policy_fingerprint=policy_fingerprint,
-        ordered_step_ids=tuple(step.step_id for step in manifest.steps),
+        ordered_step_ids=dag_plan.ordered_step_ids,
         parallel_group_ids=tuple(group.group_id for group in parallel_plan.groups),
         container_steps_sha256=container_steps_sha256,
         hpc_job_sha256=_stable_model_sha256(hpc_job),
@@ -2972,28 +2973,10 @@ def build_parallel_execution_plan(
     manifest: ProteomicsWorkflowManifest,
 ) -> ParallelExecutionPlan:
     """Group workflow steps into deterministic parallel stages."""
-    levels: dict[str, int] = {}
-    step_by_id = {step.step_id: step for step in manifest.steps}
-    unresolved = set(step_by_id)
-    while unresolved:
-        progressed = False
-        for step_id in tuple(unresolved):
-            step = step_by_id[step_id]
-            if all(dependency in levels for dependency in step.depends_on):
-                levels[step_id] = (
-                    0
-                    if not step.depends_on
-                    else max(levels[dependency] for dependency in step.depends_on) + 1
-                )
-                unresolved.remove(step_id)
-                progressed = True
-        if not progressed:
-            raise ValueError(
-                "workflow steps contain a cycle and cannot be parallelized deterministically"
-            )
+    dag_plan = build_proteomics_dag_plan(manifest)
     grouped: dict[int, list[str]] = {}
-    for step_id, level in levels.items():
-        grouped.setdefault(level, []).append(step_id)
+    for node in dag_plan.nodes:
+        grouped.setdefault(node.execution_layer, []).append(node.node_id)
     groups = tuple(
         ParallelExecutionGroup(
             group_id=f"{manifest.workflow_id}-parallel-{level}",
@@ -3223,6 +3206,7 @@ def build_proteomics_workflow_runtime_bundle(
     hpc_job = build_hpc_job_descriptor(manifest, scheduler=scheduler)
     deterministic_execution = build_deterministic_execution_contract(
         manifest,
+        dag_plan=dag_plan,
         container_steps=container_steps,
         parallel_plan=parallel_plan,
         hpc_job=hpc_job,
