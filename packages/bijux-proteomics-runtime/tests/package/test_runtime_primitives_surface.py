@@ -108,6 +108,22 @@ def test_runtime_surface_area_exposes_workflow_cache_reuse_planning() -> None:
     assert callable(build_workflow_cache_reuse_plan)
 
 
+def test_runtime_surface_area_exposes_workflow_dag_planning() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        ProteomicsDagPlan,
+        WorkflowDagValidationReport,
+        build_parallel_execution_plan,
+        build_proteomics_dag_plan,
+        validate_proteomics_dag_plan,
+    )
+
+    assert ProteomicsDagPlan is not None
+    assert WorkflowDagValidationReport is not None
+    assert callable(build_proteomics_dag_plan)
+    assert callable(validate_proteomics_dag_plan)
+    assert callable(build_parallel_execution_plan)
+
+
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
     from bijux_proteomics_runtime.support.primitives.surface_area import (
         EXTENSION_POINTS,
