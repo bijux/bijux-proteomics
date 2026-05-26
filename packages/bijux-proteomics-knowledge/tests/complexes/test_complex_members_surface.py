@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
+    load_annotation_pack,
+    render_annotation_pack_json,
 )
 from bijux_proteomics.interpretation.complex_enrichment import (
     ComplexMemberKind,
@@ -75,6 +79,29 @@ def test_resolve_complex_members_downgrades_sparse_large_complexes() -> None:
     )
     assert "complex:megacomplex\tprotein:P04637\t" in rendered
     assert "\t0.05\tlow_confidence" in rendered
+
+
+def test_resolve_complex_members_round_trips_exported_annotation_pack(
+    tmp_path: Path,
+) -> None:
+    original_pack = _annotation_pack()
+    exported_path = tmp_path / "complex_annotation_pack.json"
+    exported_path.write_text(
+        render_annotation_pack_json(original_pack),
+        encoding="utf-8",
+    )
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    original_report = resolve_complex_members(
+        ("P04637", "Q9Y243", "UNKNOWN1"),
+        original_pack,
+    )
+    reloaded_report = resolve_complex_members(
+        ("P04637", "Q9Y243", "UNKNOWN1"),
+        reloaded_pack,
+    )
+
+    assert reloaded_report == original_report
 
 
 def _annotation_pack() -> AnnotationPack:

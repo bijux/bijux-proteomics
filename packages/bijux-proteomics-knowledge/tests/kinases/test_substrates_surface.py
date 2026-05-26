@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
+    load_annotation_pack,
+    render_annotation_pack_json,
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
@@ -84,6 +88,37 @@ def test_resolve_kinase_substrates_supports_annotation_identifiers_and_tsv_outpu
         "P04637:S15:Phospho\tMAPK1\texact_accession_site\tPSP:0001",
         "UniProtKB:P04637:S15:Phospho\tMAPK1\tannotation_identifier_site_equivalent\tPSP:0001",
     ]
+
+
+def test_resolve_kinase_substrates_round_trips_exported_annotation_pack(
+    tmp_path: Path,
+) -> None:
+    original_pack = _annotation_pack()
+    exported_path = tmp_path / "kinase_annotation_pack.json"
+    exported_path.write_text(
+        render_annotation_pack_json(original_pack),
+        encoding="utf-8",
+    )
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    original_report = resolve_kinase_substrates(
+        (
+            "P04637:S15:Phospho",
+            "TP53:S15:Phospho",
+            "UniProtKB:P04637:S15:Phospho",
+        ),
+        original_pack,
+    )
+    reloaded_report = resolve_kinase_substrates(
+        (
+            "P04637:S15:Phospho",
+            "TP53:S15:Phospho",
+            "UniProtKB:P04637:S15:Phospho",
+        ),
+        reloaded_pack,
+    )
+
+    assert reloaded_report == original_report
 
 
 def _annotation_pack() -> AnnotationPack:
