@@ -9,6 +9,7 @@ from importlib import import_module
 
 _MATRIX_EXPORT_MODULES = (
     "bijux_proteomics.quantification.matrix.core_matrix",
+    "bijux_proteomics.quantification.matrix.dense_views",
     "bijux_proteomics.quantification.matrix.design_matrix",
     "bijux_proteomics.quantification.matrix.matrix_archive",
     "bijux_proteomics.quantification.matrix.peptide_intensity_matrix",

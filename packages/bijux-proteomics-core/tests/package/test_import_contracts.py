@@ -257,6 +257,8 @@ def test_quantification_subpackage_import_contract() -> None:
     provenance = importlib.import_module("bijux_proteomics.quantification.provenance")
 
     assert hasattr(matrix, "build_numeric_quant_matrix")
+    assert hasattr(matrix, "build_dense_label_free_quant_table_view")
+    assert hasattr(matrix, "missing_value_kind_to_code")
     assert hasattr(rollup, "fit_peptide_bias_model")
     assert hasattr(normalization, "normalize_label_free_table")
     assert hasattr(missingness, "build_missingness_classifier_report")
@@ -373,6 +375,8 @@ def test_quantification_package_import_contract() -> None:
     assert hasattr(module, "render_protein_uncertainty_tsv")
     assert hasattr(module, "save_matrix_archive")
     assert hasattr(module, "load_matrix_archive")
+    assert hasattr(module, "build_dense_label_free_quant_table_view")
+    assert hasattr(module, "missing_value_code_to_kind")
 
 
 def test_sequences_package_import_contract() -> None:
