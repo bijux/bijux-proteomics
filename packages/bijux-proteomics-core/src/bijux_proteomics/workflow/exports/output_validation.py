@@ -191,7 +191,10 @@ def _classify_workflow_output_validation_code(
 
 def _extract_artifact_relative_path(message: str) -> str | None:
     if " declared at " in message and "missing " in message:
-        return message.removeprefix("missing ").split(" declared at ", maxsplit=1)[0]
+        return message.split("missing ", maxsplit=1)[1].split(
+            " declared at ",
+            maxsplit=1,
+        )[0]
     for token in message.replace(":", " ").split():
         if "/" in token or "." in token:
             return token.strip("',\"")
