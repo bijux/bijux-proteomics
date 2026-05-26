@@ -27,11 +27,14 @@ from bijux_proteomics.dia import (
     build_dia_precursor_matrix_report,
     build_dia_protein_matrix_report,
     build_dia_run_qc_report,
+    render_dia_peptide_missingness_tsv,
     render_dia_peptide_quantity_matrix_tsv,
+    render_dia_precursor_missingness_tsv,
     render_dia_precursor_matrix_summary_tsv,
     render_dia_precursor_metadata_tsv,
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
+    render_dia_protein_missingness_tsv,
     render_dia_protein_matrix_summary_tsv,
     render_dia_protein_quantity_matrix_tsv,
     render_dia_protein_rollup_evidence_tsv,
@@ -67,6 +70,7 @@ from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
     build_dia_differential_analysis_report,
     build_dia_differential_input_report,
     render_dia_differential_matrix_tsv,
+    render_dia_differential_missingness_tsv,
     render_dia_differential_qc_summary_tsv,
     render_dia_differential_results_tsv,
     render_dia_normalization_balance_plot_tsv,
@@ -126,10 +130,13 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     precursor_summary_tsv: str = Field(..., min_length=1)
     precursor_quantity_matrix_tsv: str = Field(..., min_length=1)
     precursor_q_value_matrix_tsv: str = Field(..., min_length=1)
+    precursor_missingness_tsv: str = Field(..., min_length=1)
     precursor_metadata_tsv: str = Field(..., min_length=1)
     peptide_quantity_matrix_tsv: str = Field(..., min_length=1)
+    peptide_missingness_tsv: str = Field(..., min_length=1)
     protein_summary_tsv: str = Field(..., min_length=1)
     protein_quantity_matrix_tsv: str = Field(..., min_length=1)
+    protein_missingness_tsv: str = Field(..., min_length=1)
     protein_rollup_evidence_tsv: str = Field(..., min_length=1)
     run_qc_summary_tsv: str = Field(..., min_length=1)
     run_qc_runs_tsv: str = Field(..., min_length=1)
@@ -138,6 +145,8 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     run_qc_outliers_tsv: str = Field(..., min_length=1)
     differential_raw_matrix_tsv: str = Field(..., min_length=1)
     differential_normalized_matrix_tsv: str = Field(..., min_length=1)
+    differential_raw_missingness_tsv: str = Field(..., min_length=1)
+    differential_normalized_missingness_tsv: str = Field(..., min_length=1)
     differential_results_tsv: str = Field(..., min_length=1)
     differential_qc_summary_tsv: str = Field(..., min_length=1)
     differential_balance_tsv: str = Field(..., min_length=1)
@@ -326,10 +335,13 @@ def write_diann_biological_workflow_bundle(
     precursor_summary_name = "diann_precursor_matrix_summary.tsv"
     precursor_matrix_name = "diann_precursor_quantity_matrix.tsv"
     precursor_q_value_name = "diann_precursor_q_values.tsv"
+    precursor_missingness_name = "diann_precursor_missingness.tsv"
     precursor_metadata_name = "diann_precursor_metadata.tsv"
     peptide_matrix_name = "diann_peptide_quantity_matrix.tsv"
+    peptide_missingness_name = "diann_peptide_missingness.tsv"
     protein_summary_name = "diann_protein_matrix_summary.tsv"
     protein_matrix_name = "diann_protein_quantity_matrix.tsv"
+    protein_missingness_name = "diann_protein_missingness.tsv"
     protein_rollup_evidence_name = "diann_protein_rollup_evidence.tsv"
     run_qc_summary_name = "diann_run_qc_summary.tsv"
     run_qc_runs_name = "diann_run_qc_runs.tsv"
@@ -338,6 +350,8 @@ def write_diann_biological_workflow_bundle(
     run_qc_outliers_name = "diann_run_qc_outliers.tsv"
     differential_raw_name = "diann_differential_raw_matrix.tsv"
     differential_normalized_name = "diann_differential_normalized_matrix.tsv"
+    differential_raw_missingness_name = "diann_differential_raw_missingness.tsv"
+    differential_normalized_missingness_name = "diann_differential_normalized_missingness.tsv"
     differential_results_name = "diann_differential_results.tsv"
     differential_qc_summary_name = "diann_differential_qc_summary.tsv"
     differential_balance_name = "diann_differential_balance.tsv"
@@ -350,10 +364,13 @@ def write_diann_biological_workflow_bundle(
     write_output_table_tsv((output_dir / precursor_summary_name), render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / precursor_matrix_name), render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / precursor_q_value_name), render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report))
+    write_output_table_tsv((output_dir / precursor_missingness_name), render_dia_precursor_missingness_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / precursor_metadata_name), render_dia_precursor_metadata_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / peptide_matrix_name), render_dia_peptide_quantity_matrix_tsv(report.peptide_matrix_report))
+    write_output_table_tsv((output_dir / peptide_missingness_name), render_dia_peptide_missingness_tsv(report.peptide_matrix_report))
     write_output_table_tsv((output_dir / protein_summary_name), render_dia_protein_matrix_summary_tsv(report.protein_matrix_report))
     write_output_table_tsv((output_dir / protein_matrix_name), render_dia_protein_quantity_matrix_tsv(report.protein_matrix_report))
+    write_output_table_tsv((output_dir / protein_missingness_name), render_dia_protein_missingness_tsv(report.protein_matrix_report))
     write_output_table_tsv((output_dir / protein_rollup_evidence_name), render_dia_protein_rollup_evidence_tsv(report.protein_matrix_report))
     write_output_table_tsv((output_dir / run_qc_summary_name), render_dia_run_qc_summary_tsv(report.run_qc_report))
     write_output_table_tsv((output_dir / run_qc_runs_name), render_dia_run_qc_run_table_tsv(report.run_qc_report))
@@ -364,6 +381,12 @@ def write_diann_biological_workflow_bundle(
             report.differential_analysis_report.input_report.table
         ))
     write_output_table_tsv((output_dir / differential_normalized_name), render_dia_differential_matrix_tsv(
+            report.differential_analysis_report.normalized_table
+        ))
+    write_output_table_tsv((output_dir / differential_raw_missingness_name), render_dia_differential_missingness_tsv(
+            report.differential_analysis_report.input_report.table
+        ))
+    write_output_table_tsv((output_dir / differential_normalized_missingness_name), render_dia_differential_missingness_tsv(
             report.differential_analysis_report.normalized_table
         ))
     write_output_table_tsv((output_dir / differential_results_name), render_dia_differential_results_tsv(report.differential_analysis_report))
@@ -393,10 +416,13 @@ def write_diann_biological_workflow_bundle(
             precursor_summary_tsv=precursor_summary_name,
             precursor_quantity_matrix_tsv=precursor_matrix_name,
             precursor_q_value_matrix_tsv=precursor_q_value_name,
+            precursor_missingness_tsv=precursor_missingness_name,
             precursor_metadata_tsv=precursor_metadata_name,
             peptide_quantity_matrix_tsv=peptide_matrix_name,
+            peptide_missingness_tsv=peptide_missingness_name,
             protein_summary_tsv=protein_summary_name,
             protein_quantity_matrix_tsv=protein_matrix_name,
+            protein_missingness_tsv=protein_missingness_name,
             protein_rollup_evidence_tsv=protein_rollup_evidence_name,
             run_qc_summary_tsv=run_qc_summary_name,
             run_qc_runs_tsv=run_qc_runs_name,
@@ -405,6 +431,8 @@ def write_diann_biological_workflow_bundle(
             run_qc_outliers_tsv=run_qc_outliers_name,
             differential_raw_matrix_tsv=differential_raw_name,
             differential_normalized_matrix_tsv=differential_normalized_name,
+            differential_raw_missingness_tsv=differential_raw_missingness_name,
+            differential_normalized_missingness_tsv=differential_normalized_missingness_name,
             differential_results_tsv=differential_results_name,
             differential_qc_summary_tsv=differential_qc_summary_name,
             differential_balance_tsv=differential_balance_name,

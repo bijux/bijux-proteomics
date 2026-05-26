@@ -50,6 +50,8 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     assert (output_dir / manifest.artifacts.parse_rejected_tsv).exists()
     assert (output_dir / manifest.artifacts.parsimony_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_lfq_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_lfq_missingness_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_lfq_missingness_mask_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
     assert (output_dir / manifest.artifacts.report_html).exists()
     assert "accepted_psm_count" in (
@@ -63,6 +65,9 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     ).read_text(encoding="utf-8")
     assert "entity_id" in (
         output_dir / manifest.artifacts.protein_lfq_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "observed" in (
+        output_dir / manifest.artifacts.protein_lfq_missingness_mask_tsv
     ).read_text(encoding="utf-8")
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html

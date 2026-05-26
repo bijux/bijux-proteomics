@@ -61,6 +61,7 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert (output_dir / manifest.artifacts.filtered_protein_groups_tsv).exists()
     assert (output_dir / manifest.artifacts.enrichment_foreground_tsv).exists()
     assert (output_dir / manifest.artifacts.lfq_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.lfq_missingness_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
@@ -94,6 +95,9 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert "\ttrue\t" not in foreground_tsv
     assert "entity_id" in (
         output_dir / manifest.artifacts.lfq_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "observed" in (
+        output_dir / manifest.artifacts.lfq_missingness_tsv
     ).read_text(encoding="utf-8")
     assert "card_id" in (
         output_dir / manifest.artifacts.protein_card_tsv

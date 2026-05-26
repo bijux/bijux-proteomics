@@ -43,6 +43,7 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_psms,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
+    render_protein_lfq_missingness_mask_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
 )
@@ -182,6 +183,7 @@ class DdaBiologicalWorkflowArtifactPaths(JsonModel):
     protein_lfq_matrix_tsv: str = Field(..., min_length=1)
     protein_lfq_pairwise_tsv: str = Field(..., min_length=1)
     protein_lfq_missingness_tsv: str = Field(..., min_length=1)
+    protein_lfq_missingness_mask_tsv: str = Field(..., min_length=1)
     protein_group_discrepancy_tsv: str | None = None
     biological_manifest_json: str = Field(..., min_length=1)
     report_html: str = Field(..., min_length=1)
@@ -512,6 +514,7 @@ def write_dda_biological_workflow_bundle(
     protein_lfq_matrix_name = "dda_protein_lfq_matrix.tsv"
     protein_lfq_pairwise_name = "dda_protein_lfq_pairwise.tsv"
     protein_lfq_missingness_name = "dda_protein_lfq_missingness.tsv"
+    protein_lfq_missingness_mask_name = "dda_protein_lfq_missingness_mask.tsv"
     protein_discrepancy_name = "dda_source_protein_discrepancies.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
@@ -526,6 +529,7 @@ def write_dda_biological_workflow_bundle(
     write_output_table_tsv((output_dir / protein_lfq_matrix_name), render_protein_lfq_matrix_tsv(report.protein_lfq_report))
     write_output_table_tsv((output_dir / protein_lfq_pairwise_name), render_protein_lfq_pairwise_ratios_tsv(report.protein_lfq_report))
     write_output_table_tsv((output_dir / protein_lfq_missingness_name), render_protein_lfq_missingness_tsv(report.protein_lfq_report))
+    write_output_table_tsv((output_dir / protein_lfq_missingness_mask_name), render_protein_lfq_missingness_mask_tsv(report.protein_lfq_report))
     if report.protein_group_discrepancies:
         write_output_table_tsv((output_dir / protein_discrepancy_name), render_protein_group_discrepancies_tsv(report.protein_group_discrepancies))
     biological_manifest = write_biological_result_report_bundle(
@@ -554,6 +558,7 @@ def write_dda_biological_workflow_bundle(
             protein_lfq_matrix_tsv=protein_lfq_matrix_name,
             protein_lfq_pairwise_tsv=protein_lfq_pairwise_name,
             protein_lfq_missingness_tsv=protein_lfq_missingness_name,
+            protein_lfq_missingness_mask_tsv=protein_lfq_missingness_mask_name,
             protein_group_discrepancy_tsv=(
                 protein_discrepancy_name
                 if report.protein_group_discrepancies

@@ -35,6 +35,7 @@ from bijux_proteomics.quantification import (
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
+    render_label_free_quant_missingness_matrix_tsv,
 )
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.reports.biological_reporting import (
@@ -162,6 +163,7 @@ class MaxquantBiologicalWorkflowArtifactPaths(JsonModel):
     enrichment_foreground_tsv: str = Field(..., min_length=1)
     lfq_summary_tsv: str = Field(..., min_length=1)
     lfq_matrix_tsv: str = Field(..., min_length=1)
+    lfq_missingness_tsv: str = Field(..., min_length=1)
     biological_manifest_json: str = Field(..., min_length=1)
     protein_card_summary_tsv: str = Field(..., min_length=1)
     protein_card_tsv: str = Field(..., min_length=1)
@@ -527,6 +529,7 @@ def write_maxquant_biological_workflow_bundle(
     foreground_name = "maxquant_biological_foreground.tsv"
     lfq_summary_name = "maxquant_lfq_summary.tsv"
     lfq_matrix_name = "maxquant_lfq_matrix.tsv"
+    lfq_missingness_name = "maxquant_lfq_missingness.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
     write_output_table_tsv((output_dir / summary_name), render_maxquant_biological_workflow_summary_tsv(report))
@@ -539,6 +542,7 @@ def write_maxquant_biological_workflow_bundle(
     write_output_table_tsv((output_dir / foreground_name), render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries))
     write_output_table_tsv((output_dir / lfq_summary_name), render_maxquant_lfq_summary_tsv(report))
     write_output_table_tsv((output_dir / lfq_matrix_name), render_maxquant_lfq_matrix_tsv(report.lfq_table))
+    write_output_table_tsv((output_dir / lfq_missingness_name), render_label_free_quant_missingness_matrix_tsv(report.lfq_table))
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
@@ -564,6 +568,7 @@ def write_maxquant_biological_workflow_bundle(
             enrichment_foreground_tsv=foreground_name,
             lfq_summary_tsv=lfq_summary_name,
             lfq_matrix_tsv=lfq_matrix_name,
+            lfq_missingness_tsv=lfq_missingness_name,
             biological_manifest_json=biological_manifest_name,
             protein_card_summary_tsv=biological_manifest.artifacts.protein_card_summary_tsv,
             protein_card_tsv=biological_manifest.artifacts.protein_card_tsv,
