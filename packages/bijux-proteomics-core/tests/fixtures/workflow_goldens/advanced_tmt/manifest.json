@@ -3,10 +3,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_id,representative_protein_ref,confidence_status,supporting_clean_peptide_count,flagged_peptide_count,excluded_peptide_count,compression_status,differential_log2_fold_change,adjusted_p_value,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/advanced_tmt_evidence_cards.tsv",
       "checksum_sha256": "2f0f83c7fe8e2c9a1e00799a7c0ea3ee6fe17f566b1ff7a9f9b64637ac99e28f",
       "folder": "cards",
       "legacy_relative_path": "advanced_tmt_evidence_cards.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'protein_id' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "protein_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'representative_protein_ref' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "representative_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'confidence_status' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "confidence_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'supporting_clean_peptide_count' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "supporting_clean_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_peptide_count' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "flagged_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_peptide_count' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "excluded_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'compression_status' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "compression_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'differential_log2_fold_change' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "differential_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'advanced_tmt_evidence_cards'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced tmt evidence cards.",
+        "table_name": "advanced_tmt_evidence_cards"
+      },
+      "output_table_schema_sidecar_relative_path": "cards/advanced_tmt_evidence_cards.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "cards/advanced_tmt_evidence_cards.tsv",
       "row_count": 2
@@ -14,10 +83,85 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,protein_id,peptide_sequence,ratio,log2_ratio,isolation_interference_fraction,high_interference,disposition,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/advanced_tmt_peptide_confidence.tsv",
       "checksum_sha256": "ec2786ece90be1b2c9040af5cc49e98cf9d433024c69610d4ee9b991a3945bd7",
       "folder": "qc",
       "legacy_relative_path": "advanced_tmt_peptide_confidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_channel' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "numerator_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_sample_id' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "numerator_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_id' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "protein_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ratio' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_ratio' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'isolation_interference_fraction' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "isolation_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'high_interference' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "high_interference",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'disposition' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "disposition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'advanced_tmt_peptide_confidence'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced tmt peptide confidence.",
+        "table_name": "advanced_tmt_peptide_confidence"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/advanced_tmt_peptide_confidence.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/advanced_tmt_peptide_confidence.tsv",
       "row_count": 4
@@ -25,10 +169,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,numerator_condition,numerator_role,control_channel,control_sample_id,control_condition,peptide_id,peptide_sequence,protein_refs,numerator_abundance,control_abundance,ratio,log2_ratio,missing_reason,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/advanced_tmt_peptide_ratios.tsv",
       "checksum_sha256": "7c2bf56b13a16f7afaa04f34e8f3495def970be455a4d4558bd540c8368cf2c1",
       "folder": "matrices",
       "legacy_relative_path": "advanced_tmt_peptide_ratios.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_channel' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "numerator_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_sample_id' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "numerator_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_condition' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "numerator_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_role' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "numerator_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'control_channel' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "control_channel",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'control_sample_id' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "control_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'control_condition' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "control_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_id' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "peptide_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_abundance' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "numerator_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'control_abundance' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "control_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_ratio' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'missing_reason' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "missing_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'advanced_tmt_peptide_ratios'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced tmt peptide ratios.",
+        "table_name": "advanced_tmt_peptide_ratios"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/advanced_tmt_peptide_ratios.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/advanced_tmt_peptide_ratios.tsv",
       "row_count": 12
@@ -36,10 +291,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_id,representative_protein_ref,clean_sample_peptide_count,flagged_sample_peptide_count,clean_median_abs_log2_ratio,flagged_median_abs_log2_ratio,protein_median_abs_log2_ratio,attenuation_delta,compression_status,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/advanced_tmt_protein_compression.tsv",
       "checksum_sha256": "f57bd3a1a14301f8e77e1fa2dfa811db238d2fd2b90b69dab2f2be68c9a09a59",
       "folder": "evidence",
       "legacy_relative_path": "advanced_tmt_protein_compression.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'protein_id' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "protein_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'representative_protein_ref' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "representative_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'clean_sample_peptide_count' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "clean_sample_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_sample_peptide_count' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "flagged_sample_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'clean_median_abs_log2_ratio' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "clean_median_abs_log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'flagged_median_abs_log2_ratio' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "flagged_median_abs_log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'protein_median_abs_log2_ratio' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "protein_median_abs_log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'attenuation_delta' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "attenuation_delta",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'compression_status' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "compression_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'advanced_tmt_protein_compression'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced tmt protein compression.",
+        "table_name": "advanced_tmt_protein_compression"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/advanced_tmt_protein_compression.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "evidence/advanced_tmt_protein_compression.tsv",
       "row_count": 2
@@ -47,10 +371,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/advanced_tmt_summary.tsv",
       "checksum_sha256": "fe14ceb560a110339e528208ce2bc26e21674c0e8c02e80537f4ae1a0ff0cc38",
       "folder": "reports",
       "legacy_relative_path": "advanced_tmt_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'advanced_tmt_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'advanced_tmt_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced tmt summary.",
+        "table_name": "advanced_tmt_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/advanced_tmt_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/advanced_tmt_summary.tsv",
       "row_count": 14
@@ -58,10 +403,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_tmt_workflow_manifest.json",
       "checksum_sha256": "ac9de470cfdccb77e6dad7837aafbe91d21325e0958423390bf645e93812eee5",
       "folder": "reports",
       "legacy_relative_path": "advanced_tmt_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/advanced_tmt_workflow_manifest.json",
       "row_count": 1
@@ -69,10 +417,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,stage,total_abundance,median_abundance,interquartile_range]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/label_based_differential_balance.tsv",
       "checksum_sha256": "a8405bc7a530c84b8801199ff352aa0fa64e3369f2a09bb35868ed7e03e0b8d2",
       "folder": "stats",
       "legacy_relative_path": "label_based_differential_balance.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'label_based_differential_balance'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'stage' in TSV output 'label_based_differential_balance'.",
+            "name": "stage",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_abundance' in TSV output 'label_based_differential_balance'.",
+            "name": "total_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'median_abundance' in TSV output 'label_based_differential_balance'.",
+            "name": "median_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'interquartile_range' in TSV output 'label_based_differential_balance'.",
+            "name": "interquartile_range",
+            "required": true,
+            "value_type": "float"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for label based differential balance.",
+        "table_name": "label_based_differential_balance"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/label_based_differential_balance.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "stats/label_based_differential_balance.tsv",
       "row_count": 8
@@ -80,10 +467,217 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,condition_a,condition_b,contrast_name,observations_a,observations_b,complete_pair_count,zero_values_a,zero_values_b,not_observed_values_a,not_observed_values_b,filtered_values_a,filtered_values_b,mean_log2_abundance_a,mean_log2_abundance_b,log2_fold_change,p_value,adjusted_p_value,standard_error,confidence_interval_low,confidence_interval_high,effect_size_cohens_d,no_impute_adjusted_p_value,no_impute_log2_fold_change,imputed_adjusted_p_value,imputed_log2_fold_change,imputation_significance_change_reason,imputation_dependent_hit,robustness_score,robustness_qc_status,robustness_reason_codes,robustness_note,uncertainty_note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/label_based_differential_results.tsv",
       "checksum_sha256": "026646af90b9738a4cc5534f4a8c38f9c6b52fc096648f44e6c8250b9fd2e4cc",
       "folder": "stats",
       "legacy_relative_path": "label_based_differential_results.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'label_based_differential_results'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'label_based_differential_results'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'label_based_differential_results'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'contrast_name' in TSV output 'label_based_differential_results'.",
+            "name": "contrast_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observations_a' in TSV output 'label_based_differential_results'.",
+            "name": "observations_a",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observations_b' in TSV output 'label_based_differential_results'.",
+            "name": "observations_b",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'complete_pair_count' in TSV output 'label_based_differential_results'.",
+            "name": "complete_pair_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_values_a' in TSV output 'label_based_differential_results'.",
+            "name": "zero_values_a",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_values_b' in TSV output 'label_based_differential_results'.",
+            "name": "zero_values_b",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_observed_values_a' in TSV output 'label_based_differential_results'.",
+            "name": "not_observed_values_a",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_observed_values_b' in TSV output 'label_based_differential_results'.",
+            "name": "not_observed_values_b",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_values_a' in TSV output 'label_based_differential_results'.",
+            "name": "filtered_values_a",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_values_b' in TSV output 'label_based_differential_results'.",
+            "name": "filtered_values_b",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_log2_abundance_a' in TSV output 'label_based_differential_results'.",
+            "name": "mean_log2_abundance_a",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'mean_log2_abundance_b' in TSV output 'label_based_differential_results'.",
+            "name": "mean_log2_abundance_b",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_fold_change' in TSV output 'label_based_differential_results'.",
+            "name": "log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'p_value' in TSV output 'label_based_differential_results'.",
+            "name": "p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'label_based_differential_results'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'standard_error' in TSV output 'label_based_differential_results'.",
+            "name": "standard_error",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_interval_low' in TSV output 'label_based_differential_results'.",
+            "name": "confidence_interval_low",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_interval_high' in TSV output 'label_based_differential_results'.",
+            "name": "confidence_interval_high",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'effect_size_cohens_d' in TSV output 'label_based_differential_results'.",
+            "name": "effect_size_cohens_d",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'no_impute_adjusted_p_value' in TSV output 'label_based_differential_results'.",
+            "name": "no_impute_adjusted_p_value",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'no_impute_log2_fold_change' in TSV output 'label_based_differential_results'.",
+            "name": "no_impute_log2_fold_change",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputed_adjusted_p_value' in TSV output 'label_based_differential_results'.",
+            "name": "imputed_adjusted_p_value",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputed_log2_fold_change' in TSV output 'label_based_differential_results'.",
+            "name": "imputed_log2_fold_change",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputation_significance_change_reason' in TSV output 'label_based_differential_results'.",
+            "name": "imputation_significance_change_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputation_dependent_hit' in TSV output 'label_based_differential_results'.",
+            "name": "imputation_dependent_hit",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'robustness_score' in TSV output 'label_based_differential_results'.",
+            "name": "robustness_score",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'robustness_qc_status' in TSV output 'label_based_differential_results'.",
+            "name": "robustness_qc_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'robustness_reason_codes' in TSV output 'label_based_differential_results'.",
+            "name": "robustness_reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'robustness_note' in TSV output 'label_based_differential_results'.",
+            "name": "robustness_note",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'uncertainty_note' in TSV output 'label_based_differential_results'.",
+            "name": "uncertainty_note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for label based differential results.",
+        "table_name": "label_based_differential_results"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/label_based_differential_results.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "stats/label_based_differential_results.tsv",
       "row_count": 2
@@ -91,10 +685,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,protein_refs,log2_fold_change,raw_p_value,adjusted_p_value,negative_log10_adjusted_p_value,highlighted]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/label_based_differential_volcano.tsv",
       "checksum_sha256": "e0d4d98d3584c437a4bafa813c17125b84bc0e90f7ac50491fe1dc44c4c1e6c2",
       "folder": "stats",
       "legacy_relative_path": "label_based_differential_volcano.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'label_based_differential_volcano'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'label_based_differential_volcano'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'log2_fold_change' in TSV output 'label_based_differential_volcano'.",
+            "name": "log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'raw_p_value' in TSV output 'label_based_differential_volcano'.",
+            "name": "raw_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'label_based_differential_volcano'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'negative_log10_adjusted_p_value' in TSV output 'label_based_differential_volcano'.",
+            "name": "negative_log10_adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'highlighted' in TSV output 'label_based_differential_volcano'.",
+            "name": "highlighted",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for label based differential volcano.",
+        "table_name": "label_based_differential_volcano"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/label_based_differential_volcano.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "stats/label_based_differential_volcano.tsv",
       "row_count": 2
@@ -102,10 +747,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/label_based_report_manifest.json",
       "checksum_sha256": "e8080b8ee99c8164c7fa040c09ce5ef560bf34618853c9a2d1423d3b11fd5851",
       "folder": "reports",
       "legacy_relative_path": "label_based_report_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/label_based_report_manifest.json",
       "row_count": 1
@@ -113,10 +761,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,sample_count,quality_entry_count,protein_ratio_count,differential_result_count,sample_qc_entry_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/label_based_report_summary.tsv",
       "checksum_sha256": "0c3f4d4d9cedbda477176f75c613d516d5b563e31293692b0f900a8afc66f168",
       "folder": "reports",
       "legacy_relative_path": "label_based_report_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_kind' in TSV output 'label_based_report_summary'.",
+            "name": "source_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'label_based_report_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'quality_entry_count' in TSV output 'label_based_report_summary'.",
+            "name": "quality_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'protein_ratio_count' in TSV output 'label_based_report_summary'.",
+            "name": "protein_ratio_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'differential_result_count' in TSV output 'label_based_report_summary'.",
+            "name": "differential_result_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_qc_entry_count' in TSV output 'label_based_report_summary'.",
+            "name": "sample_qc_entry_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for label based report summary.",
+        "table_name": "label_based_report_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/label_based_report_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/label_based_report_summary.tsv",
       "row_count": 1
@@ -124,10 +817,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,sample_id,condition,sample_role,multiplex_group,assay_axis,total_signal,before_balance_ratio,after_balance_ratio,missing_measurement_count,weak_measurement_count,abnormal_distribution_count,flagged,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/label_based_sample_qc.tsv",
       "checksum_sha256": "7028499a09b1fa3f66460e50c9575cd958a4a2d988d603ee55b01de68e164500",
       "folder": "matrices",
       "legacy_relative_path": "label_based_sample_qc.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_kind' in TSV output 'label_based_sample_qc'.",
+            "name": "source_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'label_based_sample_qc'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'label_based_sample_qc'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'label_based_sample_qc'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'label_based_sample_qc'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_axis' in TSV output 'label_based_sample_qc'.",
+            "name": "assay_axis",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_signal' in TSV output 'label_based_sample_qc'.",
+            "name": "total_signal",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'before_balance_ratio' in TSV output 'label_based_sample_qc'.",
+            "name": "before_balance_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'after_balance_ratio' in TSV output 'label_based_sample_qc'.",
+            "name": "after_balance_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'missing_measurement_count' in TSV output 'label_based_sample_qc'.",
+            "name": "missing_measurement_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'weak_measurement_count' in TSV output 'label_based_sample_qc'.",
+            "name": "weak_measurement_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'abnormal_distribution_count' in TSV output 'label_based_sample_qc'.",
+            "name": "abnormal_distribution_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'label_based_sample_qc'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'label_based_sample_qc'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for label based sample qc.",
+        "table_name": "label_based_sample_qc"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/label_based_sample_qc.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/label_based_sample_qc.tsv",
       "row_count": 8
@@ -135,10 +921,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,sample_role,assigned,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_channel_assignments.tsv",
       "checksum_sha256": "375924761dfb60668db9dd2eaa70a8e2a259294a017dad52bae5b67c8ab377f6",
       "folder": "matrices",
       "legacy_relative_path": "tmt_channel_assignments.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_channel_assignments'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_channel_assignments'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_channel_assignments'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_channel_assignments'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'tmt_channel_assignments'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assigned' in TSV output 'tmt_channel_assignments'.",
+            "name": "assigned",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_channel_assignments'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt channel assignments.",
+        "table_name": "tmt_channel_assignments"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_channel_assignments.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_channel_assignments.tsv",
       "row_count": 8
@@ -146,10 +983,73 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,total_intensity,observed_row_count,missing_row_count,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_channel_totals.tsv",
       "checksum_sha256": "561a88c0ad64ccb4e257b3779ea26cb294d0dab0ef3641280c6a037718d9128d",
       "folder": "matrices",
       "legacy_relative_path": "tmt_channel_totals.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_channel_totals'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_channel_totals'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_channel_totals'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_channel_totals'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_channel_totals'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_intensity' in TSV output 'tmt_channel_totals'.",
+            "name": "total_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'observed_row_count' in TSV output 'tmt_channel_totals'.",
+            "name": "observed_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_row_count' in TSV output 'tmt_channel_totals'.",
+            "name": "missing_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_channel_totals'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt channel totals.",
+        "table_name": "tmt_channel_totals"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_channel_totals.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_channel_totals.tsv",
       "row_count": 8
@@ -157,10 +1057,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[issue_kind,multiplex_group,multiplex_channel,sample_id,entry_count,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_duplicate_assignments.tsv",
       "checksum_sha256": "3332b2e7b38e5ccefcfd197632cdd65820a469bb8879bf679d47e11607dc1190",
       "folder": "qc",
       "legacy_relative_path": "tmt_duplicate_assignments.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'issue_kind' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "issue_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entry_count' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "entry_count",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_duplicate_assignments'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt duplicate assignments.",
+        "table_name": "tmt_duplicate_assignments"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_duplicate_assignments.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_duplicate_assignments.tsv",
       "row_count": 0
@@ -168,10 +1113,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/tmt_experiment_workflow_manifest.json",
       "checksum_sha256": "e0882ca7627cc9d7812f595afda1d7a00b2b51d437c78085cb9a9cc0d7232327",
       "folder": "reports",
       "legacy_relative_path": "tmt_experiment_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/tmt_experiment_workflow_manifest.json",
       "row_count": 1
@@ -179,10 +1127,91 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,modified_peptide,protein_refs,reporter_intensity,isolation_interference_fraction,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_filtered_interference.tsv",
       "checksum_sha256": "a5aca517cb584068a98644466b4099a0a073787432373ecf8c206a2fd19d5ca0",
       "folder": "qc",
       "legacy_relative_path": "tmt_filtered_interference.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_row_id' in TSV output 'tmt_filtered_interference'.",
+            "name": "source_row_id",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_filtered_interference'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_filtered_interference'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_filtered_interference'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_filtered_interference'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'tmt_filtered_interference'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_filtered_interference'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_peptide' in TSV output 'tmt_filtered_interference'.",
+            "name": "modified_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'tmt_filtered_interference'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reporter_intensity' in TSV output 'tmt_filtered_interference'.",
+            "name": "reporter_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'isolation_interference_fraction' in TSV output 'tmt_filtered_interference'.",
+            "name": "isolation_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_filtered_interference'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt filtered interference.",
+        "table_name": "tmt_filtered_interference"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_filtered_interference.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_filtered_interference.tsv",
       "row_count": 6
@@ -190,10 +1219,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,observed_row_count,missing_interference_count,threshold_exceeded_count,mean_interference_fraction,max_interference_fraction,flagged,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_interference_channel_summary.tsv",
       "checksum_sha256": "d57d54919b61d7a978f69e35fa79b18991444f550c37b872623208bc11b4f837",
       "folder": "matrices",
       "legacy_relative_path": "tmt_interference_channel_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_row_count' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "observed_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_interference_count' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "missing_interference_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'threshold_exceeded_count' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "threshold_exceeded_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_interference_fraction' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "mean_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'max_interference_fraction' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "max_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_interference_channel_summary'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt interference channel summary.",
+        "table_name": "tmt_interference_channel_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_interference_channel_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_interference_channel_summary.tsv",
       "row_count": 6
@@ -201,10 +1317,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,modified_peptide,protein_refs,reporter_intensity,isolation_interference_fraction,threshold_exceeded,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_interference_observations.tsv",
       "checksum_sha256": "0d2c11f8c16e724393ec83291d92a88f81aa370747de492d206a66519517ea59",
       "folder": "qc",
       "legacy_relative_path": "tmt_interference_observations.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_row_id' in TSV output 'tmt_interference_observations'.",
+            "name": "source_row_id",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_interference_observations'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_interference_observations'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_interference_observations'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_interference_observations'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'tmt_interference_observations'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_interference_observations'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_peptide' in TSV output 'tmt_interference_observations'.",
+            "name": "modified_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'tmt_interference_observations'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reporter_intensity' in TSV output 'tmt_interference_observations'.",
+            "name": "reporter_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'isolation_interference_fraction' in TSV output 'tmt_interference_observations'.",
+            "name": "isolation_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'threshold_exceeded' in TSV output 'tmt_interference_observations'.",
+            "name": "threshold_exceeded",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_interference_observations'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt interference observations.",
+        "table_name": "tmt_interference_observations"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_interference_observations.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_interference_observations.tsv",
       "row_count": 12
@@ -212,10 +1415,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,observed_channel_row_count,missing_interference_count,threshold_exceeded_count,filtered_channel_row_count,channel_summary_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_interference_summary.tsv",
       "checksum_sha256": "e26c2c1775e973102bb3f4a8029492251f54fb0a208fa1c131dda86ca6771701",
       "folder": "qc",
       "legacy_relative_path": "tmt_interference_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group_count' in TSV output 'tmt_interference_summary'.",
+            "name": "multiplex_group_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_channel_row_count' in TSV output 'tmt_interference_summary'.",
+            "name": "observed_channel_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_interference_count' in TSV output 'tmt_interference_summary'.",
+            "name": "missing_interference_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'threshold_exceeded_count' in TSV output 'tmt_interference_summary'.",
+            "name": "threshold_exceeded_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_channel_row_count' in TSV output 'tmt_interference_summary'.",
+            "name": "filtered_channel_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'channel_summary_count' in TSV output 'tmt_interference_summary'.",
+            "name": "channel_summary_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt interference summary.",
+        "table_name": "tmt_interference_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_interference_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_interference_summary.tsv",
       "row_count": 1
@@ -223,10 +1471,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,multiplex_channel_count,assigned_channel_count,missing_channel_assignment_count,duplicate_assignment_count,missing_condition_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_metadata_summary.tsv",
       "checksum_sha256": "9d05739df03cca213acba5efc6ff3da9caf924ea98af3ef649430a564e71dac4",
       "folder": "qc",
       "legacy_relative_path": "tmt_metadata_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "multiplex_group_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "multiplex_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'assigned_channel_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "assigned_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_channel_assignment_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "missing_channel_assignment_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'duplicate_assignment_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "duplicate_assignment_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_condition_count' in TSV output 'tmt_metadata_summary'.",
+            "name": "missing_condition_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt metadata summary.",
+        "table_name": "tmt_metadata_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_metadata_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_metadata_summary.tsv",
       "row_count": 1
@@ -234,10 +1527,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,sample_role,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/tmt_missing_conditions.tsv",
       "checksum_sha256": "68b3f1d32dfb1d3447af9f479d48ac447de987011018ec259e15e1d9c2bb4e99",
       "folder": "reports",
       "legacy_relative_path": "tmt_missing_conditions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_missing_conditions'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_missing_conditions'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_missing_conditions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_role' in TSV output 'tmt_missing_conditions'.",
+            "name": "sample_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_missing_conditions'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt missing conditions.",
+        "table_name": "tmt_missing_conditions"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/tmt_missing_conditions.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/tmt_missing_conditions.tsv",
       "row_count": 0
@@ -245,10 +1577,91 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[stage,multiplex_group,multiplex_channel,sample_id,condition,channel_role,total_abundance,median_abundance,interquartile_range,ratio_to_group_median,flagged,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_normalization_distributions.tsv",
       "checksum_sha256": "60c3ff2a5acc72b36a560f2fb4f72097986747c416154439f5d4f3d38cc11dcd",
       "folder": "matrices",
       "legacy_relative_path": "tmt_normalization_distributions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'stage' in TSV output 'tmt_normalization_distributions'.",
+            "name": "stage",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_normalization_distributions'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_normalization_distributions'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_normalization_distributions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_normalization_distributions'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_normalization_distributions'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_abundance' in TSV output 'tmt_normalization_distributions'.",
+            "name": "total_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'median_abundance' in TSV output 'tmt_normalization_distributions'.",
+            "name": "median_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'interquartile_range' in TSV output 'tmt_normalization_distributions'.",
+            "name": "interquartile_range",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio_to_group_median' in TSV output 'tmt_normalization_distributions'.",
+            "name": "ratio_to_group_median",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'tmt_normalization_distributions'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_normalization_distributions'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt normalization distributions.",
+        "table_name": "tmt_normalization_distributions"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_normalization_distributions.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_normalization_distributions.tsv",
       "row_count": 16
@@ -256,10 +1669,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[method,multiplex_group_count,channel_count,transform_count,before_flagged_channel_count,after_flagged_channel_count,reference_group_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/tmt_normalization_summary.tsv",
       "checksum_sha256": "57c03691d6cb2542fb17d5becaa08ab9c06d8983ed3b1327a15665c977f61c8d",
       "folder": "reports",
       "legacy_relative_path": "tmt_normalization_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'method' in TSV output 'tmt_normalization_summary'.",
+            "name": "method",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "multiplex_group_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'channel_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'transform_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "transform_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'before_flagged_channel_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "before_flagged_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'after_flagged_channel_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "after_flagged_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reference_group_count' in TSV output 'tmt_normalization_summary'.",
+            "name": "reference_group_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt normalization summary.",
+        "table_name": "tmt_normalization_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/tmt_normalization_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/tmt_normalization_summary.tsv",
       "row_count": 1
@@ -267,10 +1731,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,method,scale_factor,reference_sample_id,reference_channel,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_normalization_transforms.tsv",
       "checksum_sha256": "fcc571bb6ab84c09553329f591fedaee31f6ae81c31fdeb8630c768da2838aa3",
       "folder": "matrices",
       "legacy_relative_path": "tmt_normalization_transforms.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_normalization_transforms'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_normalization_transforms'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_normalization_transforms'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_normalization_transforms'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_normalization_transforms'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'method' in TSV output 'tmt_normalization_transforms'.",
+            "name": "method",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'scale_factor' in TSV output 'tmt_normalization_transforms'.",
+            "name": "scale_factor",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_sample_id' in TSV output 'tmt_normalization_transforms'.",
+            "name": "reference_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reference_channel' in TSV output 'tmt_normalization_transforms'.",
+            "name": "reference_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_normalization_transforms'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt normalization transforms.",
+        "table_name": "tmt_normalization_transforms"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_normalization_transforms.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_normalization_transforms.tsv",
       "row_count": 8
@@ -278,10 +1811,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,numerator_condition,numerator_role,control_channel,control_sample_id,control_condition,protein_id,target_kind,protein_refs,numerator_abundance,control_abundance,ratio,log2_ratio,missing_reason,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_protein_ratios.tsv",
       "checksum_sha256": "cff3bc0ef894dd4a0471fed1c1a4e2b13cb56f874959b5f109b224ac6067bfcf",
       "folder": "matrices",
       "legacy_relative_path": "tmt_protein_ratios.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_protein_ratios'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_channel' in TSV output 'tmt_protein_ratios'.",
+            "name": "numerator_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_sample_id' in TSV output 'tmt_protein_ratios'.",
+            "name": "numerator_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_condition' in TSV output 'tmt_protein_ratios'.",
+            "name": "numerator_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_role' in TSV output 'tmt_protein_ratios'.",
+            "name": "numerator_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'control_channel' in TSV output 'tmt_protein_ratios'.",
+            "name": "control_channel",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'control_sample_id' in TSV output 'tmt_protein_ratios'.",
+            "name": "control_sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'control_condition' in TSV output 'tmt_protein_ratios'.",
+            "name": "control_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_id' in TSV output 'tmt_protein_ratios'.",
+            "name": "protein_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_kind' in TSV output 'tmt_protein_ratios'.",
+            "name": "target_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'tmt_protein_ratios'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'numerator_abundance' in TSV output 'tmt_protein_ratios'.",
+            "name": "numerator_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'control_abundance' in TSV output 'tmt_protein_ratios'.",
+            "name": "control_abundance",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio' in TSV output 'tmt_protein_ratios'.",
+            "name": "ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_ratio' in TSV output 'tmt_protein_ratios'.",
+            "name": "log2_ratio",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'missing_reason' in TSV output 'tmt_protein_ratios'.",
+            "name": "missing_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_protein_ratios'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt protein ratios.",
+        "table_name": "tmt_protein_ratios"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_protein_ratios.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_protein_ratios.tsv",
       "row_count": 12
@@ -289,10 +1933,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/tmt_reporter_import_summary.tsv",
       "checksum_sha256": "d78c4287d00abdaa6d13742b74c02575a99dc25e6af13db6e4266d000fde4e21",
       "folder": "inputs",
       "legacy_relative_path": "tmt_reporter_import_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'tmt_reporter_import_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'tmt_reporter_import_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt reporter import summary.",
+        "table_name": "tmt_reporter_import_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "inputs/tmt_reporter_import_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "inputs/tmt_reporter_import_summary.tsv",
       "row_count": 7
@@ -300,10 +1965,43 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,issue_codes,issue_messages,raw_fields]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/tmt_reporter_rejected_rows.tsv",
       "checksum_sha256": "8e76fb00d927d9272e3bc8a5f5af8ebe7a202382fc38ac19cf243f5f0ba74481",
       "folder": "inputs",
       "legacy_relative_path": "tmt_reporter_rejected_rows.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'row_number' in TSV output 'tmt_reporter_rejected_rows'.",
+            "name": "row_number",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'issue_codes' in TSV output 'tmt_reporter_rejected_rows'.",
+            "name": "issue_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'issue_messages' in TSV output 'tmt_reporter_rejected_rows'.",
+            "name": "issue_messages",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'raw_fields' in TSV output 'tmt_reporter_rejected_rows'.",
+            "name": "raw_fields",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt reporter rejected rows.",
+        "table_name": "tmt_reporter_rejected_rows"
+      },
+      "output_table_schema_sidecar_relative_path": "inputs/tmt_reporter_rejected_rows.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "inputs/tmt_reporter_rejected_rows.tsv",
       "row_count": 0
@@ -311,10 +2009,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,modified_peptide,canonical_peptide,protein_refs,isolation_interference_fraction,channel_intensities]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/tmt_reporter_rows.tsv",
       "checksum_sha256": "c0b1bbdfe7f4d5c574ec16b21ebcf341b3386186ff67726b8ae35ab1474b9001",
       "folder": "inputs",
       "legacy_relative_path": "tmt_reporter_rows.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_row_id' in TSV output 'tmt_reporter_rows'.",
+            "name": "source_row_id",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_reporter_rows'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_peptide' in TSV output 'tmt_reporter_rows'.",
+            "name": "modified_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'canonical_peptide' in TSV output 'tmt_reporter_rows'.",
+            "name": "canonical_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'tmt_reporter_rows'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'isolation_interference_fraction' in TSV output 'tmt_reporter_rows'.",
+            "name": "isolation_interference_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'channel_intensities' in TSV output 'tmt_reporter_rows'.",
+            "name": "channel_intensities",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt reporter rows.",
+        "table_name": "tmt_reporter_rows"
+      },
+      "output_table_schema_sidecar_relative_path": "inputs/tmt_reporter_rows.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "inputs/tmt_reporter_rows.tsv",
       "row_count": 4
@@ -322,10 +2071,85 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,source_column_present,observed_row_count,missing_row_count,total_intensity,present,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_validation_channels.tsv",
       "checksum_sha256": "a40478b868fb405ecf6e0c977c9d0d8f4d0538af1984ce60265e79dd793fa0c9",
       "folder": "matrices",
       "legacy_relative_path": "tmt_validation_channels.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_validation_channels'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_validation_channels'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_validation_channels'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'tmt_validation_channels'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_validation_channels'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_column_present' in TSV output 'tmt_validation_channels'.",
+            "name": "source_column_present",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'observed_row_count' in TSV output 'tmt_validation_channels'.",
+            "name": "observed_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_row_count' in TSV output 'tmt_validation_channels'.",
+            "name": "missing_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'total_intensity' in TSV output 'tmt_validation_channels'.",
+            "name": "total_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'present' in TSV output 'tmt_validation_channels'.",
+            "name": "present",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_validation_channels'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt validation channels.",
+        "table_name": "tmt_validation_channels"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_validation_channels.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_validation_channels.tsv",
       "row_count": 8
@@ -333,10 +2157,73 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,channel_role,total_intensity,channel_median_total_intensity,ratio_to_channel_median,abnormal_distribution,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/tmt_validation_distributions.tsv",
       "checksum_sha256": "c536d946e86a6bff1310c8db251ccf6c3f23ddfaec0039d8356154c22de7ab0e",
       "folder": "matrices",
       "legacy_relative_path": "tmt_validation_distributions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_validation_distributions'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_validation_distributions'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_validation_distributions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_validation_distributions'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_intensity' in TSV output 'tmt_validation_distributions'.",
+            "name": "total_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'channel_median_total_intensity' in TSV output 'tmt_validation_distributions'.",
+            "name": "channel_median_total_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio_to_channel_median' in TSV output 'tmt_validation_distributions'.",
+            "name": "ratio_to_channel_median",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'abnormal_distribution' in TSV output 'tmt_validation_distributions'.",
+            "name": "abnormal_distribution",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_validation_distributions'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt validation distributions.",
+        "table_name": "tmt_validation_distributions"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/tmt_validation_distributions.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "matrices/tmt_validation_distributions.tsv",
       "row_count": 8
@@ -344,10 +2231,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,expected_channel_count,missing_channel_count,abnormal_distribution_count,weak_channel_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_validation_summary.tsv",
       "checksum_sha256": "26cdeff8818b1573de8690e1920e1f723847055b0e9aee5cf462fa36e60f73ab",
       "folder": "qc",
       "legacy_relative_path": "tmt_validation_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group_count' in TSV output 'tmt_validation_summary'.",
+            "name": "multiplex_group_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'expected_channel_count' in TSV output 'tmt_validation_summary'.",
+            "name": "expected_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_channel_count' in TSV output 'tmt_validation_summary'.",
+            "name": "missing_channel_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'abnormal_distribution_count' in TSV output 'tmt_validation_summary'.",
+            "name": "abnormal_distribution_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'weak_channel_count' in TSV output 'tmt_validation_summary'.",
+            "name": "weak_channel_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt validation summary.",
+        "table_name": "tmt_validation_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_validation_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_validation_summary.tsv",
       "row_count": 1
@@ -355,10 +2281,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,channel_role,issue_kind,total_intensity_ratio_to_channel_max,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/tmt_validation_weak.tsv",
       "checksum_sha256": "8df36248094a45d18f2d7857ff7b16a14c36bd61bf4aa3844e8f5903bbf3afe3",
       "folder": "qc",
       "legacy_relative_path": "tmt_validation_weak.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'multiplex_group' in TSV output 'tmt_validation_weak'.",
+            "name": "multiplex_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'multiplex_channel' in TSV output 'tmt_validation_weak'.",
+            "name": "multiplex_channel",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'tmt_validation_weak'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'channel_role' in TSV output 'tmt_validation_weak'.",
+            "name": "channel_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'issue_kind' in TSV output 'tmt_validation_weak'.",
+            "name": "issue_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'total_intensity_ratio_to_channel_max' in TSV output 'tmt_validation_weak'.",
+            "name": "total_intensity_ratio_to_channel_max",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'tmt_validation_weak'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt validation weak.",
+        "table_name": "tmt_validation_weak"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/tmt_validation_weak.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "qc/tmt_validation_weak.tsv",
       "row_count": 2
@@ -366,10 +2343,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/tmt_workflow_summary.tsv",
       "checksum_sha256": "73cf4a53f9422b5c6dd8362b3864b2a4573ea3e699b77666e1a266e358403b17",
       "folder": "reports",
       "legacy_relative_path": "tmt_workflow_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'tmt_workflow_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'tmt_workflow_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for tmt workflow summary.",
+        "table_name": "tmt_workflow_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/tmt_workflow_summary.tsv.schema.json",
       "producer_function": "run_advanced_tmt_workflow",
       "relative_path": "reports/tmt_workflow_summary.tsv",
       "row_count": 14

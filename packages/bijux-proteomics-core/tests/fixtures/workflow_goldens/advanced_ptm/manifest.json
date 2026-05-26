@@ -3,10 +3,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,group_key,protein_ref,residue,position,modification_name,candidate_positions,localized_peptides,sample_ids,reason]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/advanced_ptm_excluded_ambiguous_sites.tsv",
       "checksum_sha256": "d0bb802de9c9c384799ca4062b92ea67842501813536a355d1b88ec676700484",
       "folder": "evidence",
       "legacy_relative_path": "advanced_ptm_excluded_ambiguous_sites.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'group_key' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "group_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_positions' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "candidate_positions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localized_peptides' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "localized_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_ids' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "sample_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason' in TSV output 'advanced_ptm_excluded_ambiguous_sites'.",
+            "name": "reason",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm excluded ambiguous sites.",
+        "table_name": "advanced_ptm_excluded_ambiguous_sites"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/advanced_ptm_excluded_ambiguous_sites.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/advanced_ptm_excluded_ambiguous_sites.tsv",
       "row_count": 2
@@ -14,10 +83,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,sample_id,modified_intensity,unmodified_intensity,occupancy_fraction,confidence_tier,uncertainty,counterpart_status,modified_peptides,unmodified_peptides,modified_feature_count,unmodified_feature_count,caveat]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/advanced_ptm_occupancy_counterparts.tsv",
       "checksum_sha256": "c91982a22ea1755044bf05496f426fbaa8678d8cbdd66841d30f3ca7eb81ee3c",
       "folder": "evidence",
       "legacy_relative_path": "advanced_ptm_occupancy_counterparts.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_intensity' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "modified_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'unmodified_intensity' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "unmodified_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'occupancy_fraction' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "occupancy_fraction",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_tier' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "confidence_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'uncertainty' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "uncertainty",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'counterpart_status' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "counterpart_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_peptides' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "modified_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'unmodified_peptides' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "unmodified_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modified_feature_count' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "modified_feature_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unmodified_feature_count' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "unmodified_feature_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'caveat' in TSV output 'advanced_ptm_occupancy_counterparts'.",
+            "name": "caveat",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm occupancy counterparts.",
+        "table_name": "advanced_ptm_occupancy_counterparts"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/advanced_ptm_occupancy_counterparts.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/advanced_ptm_occupancy_counterparts.tsv",
       "row_count": 10
@@ -25,10 +181,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[group_key,protein_ref,modification_name,candidate_positions,possible_residues,confidence_tier,C1,C2,T1,T2]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/advanced_ptm_site_group_matrix.tsv",
       "checksum_sha256": "77ab10c7a81fbf09724ea37707f428a61ea0aa5d365de2c9137dc9bc261396ee",
       "folder": "matrices",
       "legacy_relative_path": "advanced_ptm_site_group_matrix.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'group_key' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "group_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_positions' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "candidate_positions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'possible_residues' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "possible_residues",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'confidence_tier' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "confidence_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C1' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "C1",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'C2' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "C2",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'T1' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "T1",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'T2' in TSV output 'advanced_ptm_site_group_matrix'.",
+            "name": "T2",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm site group matrix.",
+        "table_name": "advanced_ptm_site_group_matrix"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/advanced_ptm_site_group_matrix.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/advanced_ptm_site_group_matrix.tsv",
       "row_count": 2
@@ -36,10 +261,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,observed_count,zero_count,not_observed_count,filtered_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/advanced_ptm_site_group_missingness.tsv",
       "checksum_sha256": "964d36fa73a97e1f31695d1f445026a305a2307d1788512f88f65d19bfdb9058",
       "folder": "matrices",
       "legacy_relative_path": "advanced_ptm_site_group_missingness.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'advanced_ptm_site_group_missingness'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_count' in TSV output 'advanced_ptm_site_group_missingness'.",
+            "name": "observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_count' in TSV output 'advanced_ptm_site_group_missingness'.",
+            "name": "zero_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_observed_count' in TSV output 'advanced_ptm_site_group_missingness'.",
+            "name": "not_observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_count' in TSV output 'advanced_ptm_site_group_missingness'.",
+            "name": "filtered_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm site group missingness.",
+        "table_name": "advanced_ptm_site_group_missingness"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/advanced_ptm_site_group_missingness.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/advanced_ptm_site_group_missingness.tsv",
       "row_count": 4
@@ -47,10 +311,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[group_row_count,sample_count,observed_cell_count,zero_cell_count,missing_cell_count,filtered_cell_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/advanced_ptm_site_group_summary.tsv",
       "checksum_sha256": "96c6c01a3ed4e153b4fe3312c064c0e3764e0eb264dede7416f0a7fc0cd53802",
       "folder": "evidence",
       "legacy_relative_path": "advanced_ptm_site_group_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'group_row_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "group_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_cell_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "observed_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_cell_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "zero_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_cell_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "missing_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_cell_count' in TSV output 'advanced_ptm_site_group_summary'.",
+            "name": "filtered_cell_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm site group summary.",
+        "table_name": "advanced_ptm_site_group_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/advanced_ptm_site_group_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/advanced_ptm_site_group_summary.tsv",
       "row_count": 1
@@ -58,10 +367,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/advanced_ptm_summary.tsv",
       "checksum_sha256": "a1e1ab5fa83bb6333e7e6248b3f3c08138a216345d63ab4624ec90f66af16b68",
       "folder": "reports",
       "legacy_relative_path": "advanced_ptm_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'advanced_ptm_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'advanced_ptm_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced ptm summary.",
+        "table_name": "advanced_ptm_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/advanced_ptm_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/advanced_ptm_summary.tsv",
       "row_count": 17
@@ -69,10 +399,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_ptm_workflow_manifest.json",
       "checksum_sha256": "869fd499f008d61c0034eafc765f5f902102dabbad720b2eee5b9126ad951345",
       "folder": "reports",
       "legacy_relative_path": "advanced_ptm_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/advanced_ptm_workflow_manifest.json",
       "row_count": 1
@@ -80,10 +413,223 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,localization_tier,low_localization,ambiguous,shared_peptide,localized_peptides,condition_a,condition_b,observations_a,observations_b,complete_pair_count,mean_log2_abundance_a,mean_log2_abundance_b,log2_fold_change,protein_log2_fold_change,corrected_log2_fold_change,p_value,adjusted_p_value,no_impute_adjusted_p_value,no_impute_log2_fold_change,imputed_adjusted_p_value,imputed_log2_fold_change,imputation_significance_change_reason,imputation_dependent_hit,standard_error,confidence_interval_low,confidence_interval_high,effect_size_cohens_d,protein_correction_status,uncertainty_note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/ptm_differential.tsv",
       "checksum_sha256": "3ee3cb1d3e716298ab1e60db0100e875ba0fac03f415ae664583392d0340e60d",
       "folder": "stats",
       "legacy_relative_path": "ptm_differential.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_differential'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_differential'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_differential'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_differential'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_differential'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_tier' in TSV output 'ptm_differential'.",
+            "name": "localization_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'low_localization' in TSV output 'ptm_differential'.",
+            "name": "low_localization",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'ambiguous' in TSV output 'ptm_differential'.",
+            "name": "ambiguous",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'shared_peptide' in TSV output 'ptm_differential'.",
+            "name": "shared_peptide",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'localized_peptides' in TSV output 'ptm_differential'.",
+            "name": "localized_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'ptm_differential'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'ptm_differential'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observations_a' in TSV output 'ptm_differential'.",
+            "name": "observations_a",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observations_b' in TSV output 'ptm_differential'.",
+            "name": "observations_b",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'complete_pair_count' in TSV output 'ptm_differential'.",
+            "name": "complete_pair_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_log2_abundance_a' in TSV output 'ptm_differential'.",
+            "name": "mean_log2_abundance_a",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'mean_log2_abundance_b' in TSV output 'ptm_differential'.",
+            "name": "mean_log2_abundance_b",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_fold_change' in TSV output 'ptm_differential'.",
+            "name": "log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'protein_log2_fold_change' in TSV output 'ptm_differential'.",
+            "name": "protein_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'corrected_log2_fold_change' in TSV output 'ptm_differential'.",
+            "name": "corrected_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'p_value' in TSV output 'ptm_differential'.",
+            "name": "p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_differential'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'no_impute_adjusted_p_value' in TSV output 'ptm_differential'.",
+            "name": "no_impute_adjusted_p_value",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'no_impute_log2_fold_change' in TSV output 'ptm_differential'.",
+            "name": "no_impute_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'imputed_adjusted_p_value' in TSV output 'ptm_differential'.",
+            "name": "imputed_adjusted_p_value",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputed_log2_fold_change' in TSV output 'ptm_differential'.",
+            "name": "imputed_log2_fold_change",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputation_significance_change_reason' in TSV output 'ptm_differential'.",
+            "name": "imputation_significance_change_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'imputation_dependent_hit' in TSV output 'ptm_differential'.",
+            "name": "imputation_dependent_hit",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'standard_error' in TSV output 'ptm_differential'.",
+            "name": "standard_error",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_interval_low' in TSV output 'ptm_differential'.",
+            "name": "confidence_interval_low",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_interval_high' in TSV output 'ptm_differential'.",
+            "name": "confidence_interval_high",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'effect_size_cohens_d' in TSV output 'ptm_differential'.",
+            "name": "effect_size_cohens_d",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'protein_correction_status' in TSV output 'ptm_differential'.",
+            "name": "protein_correction_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'uncertainty_note' in TSV output 'ptm_differential'.",
+            "name": "uncertainty_note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm differential.",
+        "table_name": "ptm_differential"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/ptm_differential.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "stats/ptm_differential.tsv",
       "row_count": 3
@@ -91,10 +637,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,raw_log2_fold_change,corrected_log2_fold_change,plotted_log2_fold_change,raw_p_value,adjusted_p_value,negative_log10_adjusted_p_value,highlighted,protein_correction_status]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/ptm_differential_volcano.tsv",
       "checksum_sha256": "1d376059909bc36d97e84d4b9e6bb20eb3e66656304040e4540e78ea8a1ab0ad",
       "folder": "stats",
       "legacy_relative_path": "ptm_differential_volcano.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_differential_volcano'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_differential_volcano'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_differential_volcano'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_differential_volcano'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_differential_volcano'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'raw_log2_fold_change' in TSV output 'ptm_differential_volcano'.",
+            "name": "raw_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'corrected_log2_fold_change' in TSV output 'ptm_differential_volcano'.",
+            "name": "corrected_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'plotted_log2_fold_change' in TSV output 'ptm_differential_volcano'.",
+            "name": "plotted_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'raw_p_value' in TSV output 'ptm_differential_volcano'.",
+            "name": "raw_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_differential_volcano'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'negative_log10_adjusted_p_value' in TSV output 'ptm_differential_volcano'.",
+            "name": "negative_log10_adjusted_p_value",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'highlighted' in TSV output 'ptm_differential_volcano'.",
+            "name": "highlighted",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'protein_correction_status' in TSV output 'ptm_differential_volcano'.",
+            "name": "protein_correction_status",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm differential volcano.",
+        "table_name": "ptm_differential_volcano"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/ptm_differential_volcano.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "stats/ptm_differential_volcano.tsv",
       "row_count": 3
@@ -102,10 +735,163 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,entity_kind,display_label,priority_rank,final_score,weighted_evidence_total,penalty_total,uncertainty,effect_size,adjusted_p_value,abundance_value,support_count,annotation_label,effect_score,significance_score,abundance_score,support_score,qc_score,annotation_score,reproducibility_score,confidence_score,penalty_codes,source_ids,ranking_note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/ptm_evidence_aware_ranking.tsv",
       "checksum_sha256": "7df16033d67b9baacd667f47c1b60c8f0210dad7684276840aeaa8e98923ba83",
       "folder": "stats",
       "legacy_relative_path": "ptm_evidence_aware_ranking.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_kind' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "entity_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'display_label' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "display_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'priority_rank' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "priority_rank",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'final_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "final_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'weighted_evidence_total' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "weighted_evidence_total",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'penalty_total' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "penalty_total",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'uncertainty' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "uncertainty",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'effect_size' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'abundance_value' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "abundance_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'support_count' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "support_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'annotation_label' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "annotation_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'effect_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "effect_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'significance_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "significance_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'abundance_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "abundance_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'support_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "support_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'qc_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "qc_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'annotation_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "annotation_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reproducibility_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "reproducibility_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'confidence_score' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "confidence_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'penalty_codes' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "penalty_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_ids' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "source_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ranking_note' in TSV output 'ptm_evidence_aware_ranking'.",
+            "name": "ranking_note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm evidence aware ranking.",
+        "table_name": "ptm_evidence_aware_ranking"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/ptm_evidence_aware_ranking.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "stats/ptm_evidence_aware_ranking.tsv",
       "row_count": 3
@@ -113,10 +899,91 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[condition_a,condition_b,significant_site_count,card_count,narrative_claim_count,regulator_supported_card_count,motif_annotated_card_count,crosstalk_supported_card_count,mechanism_classified_card_count,ortholog_context_card_count,functional_context_card_count,warning_card_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/ptm_evidence_card_summary.tsv",
       "checksum_sha256": "1357bb4c5c9d5a936385a0b55d48f0fe75b473fed3aa742d1c85bf782ac652b0",
       "folder": "cards",
       "legacy_relative_path": "ptm_evidence_card_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'significant_site_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "significant_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'narrative_claim_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "narrative_claim_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'regulator_supported_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "regulator_supported_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'motif_annotated_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "motif_annotated_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'crosstalk_supported_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "crosstalk_supported_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mechanism_classified_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "mechanism_classified_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ortholog_context_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "ortholog_context_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'functional_context_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "functional_context_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'warning_card_count' in TSV output 'ptm_evidence_card_summary'.",
+            "name": "warning_card_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm evidence card summary.",
+        "table_name": "ptm_evidence_card_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "cards/ptm_evidence_card_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "cards/ptm_evidence_card_summary.tsv",
       "row_count": 1
@@ -124,10 +991,217 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[card_id,site_key,protein_ref,residue,position,modification_name,target_decoy_label,identity_level,identity_reason,condition_a,condition_b,adjusted_p_value,log2_fold_change,corrected_log2_fold_change,localization_tier,protein_correction_status,mechanism_class,mechanism_reason_codes,peptide_spectrum_count,observed_sample_count,centered_windows,ortholog_conservation_status,ortholog_conservation_species_pair,ortholog_target_site_keys,ortholog_target_protein_refs,functional_regions,regulators,crosstalk_partner_site_keys,crosstalk_relationships,crosstalk_evidence_sources,crosstalk_shared_pathways,warning_codes,claim_ids]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/ptm_evidence_cards.tsv",
       "checksum_sha256": "e05b79c7c8209cf9ec75a2233d3327e7fa0b9aac48770ee8a98a4a3c51533b1a",
       "folder": "cards",
       "legacy_relative_path": "ptm_evidence_cards.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'card_id' in TSV output 'ptm_evidence_cards'.",
+            "name": "card_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_evidence_cards'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_evidence_cards'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_evidence_cards'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_evidence_cards'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_evidence_cards'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_decoy_label' in TSV output 'ptm_evidence_cards'.",
+            "name": "target_decoy_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'identity_level' in TSV output 'ptm_evidence_cards'.",
+            "name": "identity_level",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'identity_reason' in TSV output 'ptm_evidence_cards'.",
+            "name": "identity_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'ptm_evidence_cards'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'ptm_evidence_cards'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_evidence_cards'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'log2_fold_change' in TSV output 'ptm_evidence_cards'.",
+            "name": "log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'corrected_log2_fold_change' in TSV output 'ptm_evidence_cards'.",
+            "name": "corrected_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_tier' in TSV output 'ptm_evidence_cards'.",
+            "name": "localization_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_correction_status' in TSV output 'ptm_evidence_cards'.",
+            "name": "protein_correction_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'mechanism_class' in TSV output 'ptm_evidence_cards'.",
+            "name": "mechanism_class",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'mechanism_reason_codes' in TSV output 'ptm_evidence_cards'.",
+            "name": "mechanism_reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_spectrum_count' in TSV output 'ptm_evidence_cards'.",
+            "name": "peptide_spectrum_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_sample_count' in TSV output 'ptm_evidence_cards'.",
+            "name": "observed_sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'centered_windows' in TSV output 'ptm_evidence_cards'.",
+            "name": "centered_windows",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ortholog_conservation_status' in TSV output 'ptm_evidence_cards'.",
+            "name": "ortholog_conservation_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ortholog_conservation_species_pair' in TSV output 'ptm_evidence_cards'.",
+            "name": "ortholog_conservation_species_pair",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ortholog_target_site_keys' in TSV output 'ptm_evidence_cards'.",
+            "name": "ortholog_target_site_keys",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ortholog_target_protein_refs' in TSV output 'ptm_evidence_cards'.",
+            "name": "ortholog_target_protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'functional_regions' in TSV output 'ptm_evidence_cards'.",
+            "name": "functional_regions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'regulators' in TSV output 'ptm_evidence_cards'.",
+            "name": "regulators",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'crosstalk_partner_site_keys' in TSV output 'ptm_evidence_cards'.",
+            "name": "crosstalk_partner_site_keys",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'crosstalk_relationships' in TSV output 'ptm_evidence_cards'.",
+            "name": "crosstalk_relationships",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'crosstalk_evidence_sources' in TSV output 'ptm_evidence_cards'.",
+            "name": "crosstalk_evidence_sources",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'crosstalk_shared_pathways' in TSV output 'ptm_evidence_cards'.",
+            "name": "crosstalk_shared_pathways",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'warning_codes' in TSV output 'ptm_evidence_cards'.",
+            "name": "warning_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'claim_ids' in TSV output 'ptm_evidence_cards'.",
+            "name": "claim_ids",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm evidence cards.",
+        "table_name": "ptm_evidence_cards"
+      },
+      "output_table_schema_sidecar_relative_path": "cards/ptm_evidence_cards.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "cards/ptm_evidence_cards.tsv",
       "row_count": 3
@@ -135,10 +1209,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[claim_id,card_id,site_key,claim_kind,text]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_evidence_claims.tsv",
       "checksum_sha256": "356b362bb16ce9d087c27549de9036c31bdc2f1e6debd173b0651da66adf3be6",
       "folder": "evidence",
       "legacy_relative_path": "ptm_evidence_claims.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'claim_id' in TSV output 'ptm_evidence_claims'.",
+            "name": "claim_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'card_id' in TSV output 'ptm_evidence_claims'.",
+            "name": "card_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_evidence_claims'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'claim_kind' in TSV output 'ptm_evidence_claims'.",
+            "name": "claim_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'text' in TSV output 'ptm_evidence_claims'.",
+            "name": "text",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm evidence claims.",
+        "table_name": "ptm_evidence_claims"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_evidence_claims.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_evidence_claims.tsv",
       "row_count": 3
@@ -146,10 +1259,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[spectrum_id,sample_id,localized_peptide,canonical_peptide,modification_name,peptide_site_index,candidate_site_indices,ambiguity_group,localization_score,localization_probability,probability_source,localization_tier,ambiguous,multi_phosphorylated,site_determining_ions,supported_site_determining_ions,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_localization.tsv",
       "checksum_sha256": "6bdd49374e8c7030862d081358eacf92ee4da11614407a2accd27b81b2b8c2e2",
       "folder": "evidence",
       "legacy_relative_path": "ptm_localization.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'spectrum_id' in TSV output 'ptm_localization'.",
+            "name": "spectrum_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'ptm_localization'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localized_peptide' in TSV output 'ptm_localization'.",
+            "name": "localized_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'canonical_peptide' in TSV output 'ptm_localization'.",
+            "name": "canonical_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_localization'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_site_index' in TSV output 'ptm_localization'.",
+            "name": "peptide_site_index",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'candidate_site_indices' in TSV output 'ptm_localization'.",
+            "name": "candidate_site_indices",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ambiguity_group' in TSV output 'ptm_localization'.",
+            "name": "ambiguity_group",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_score' in TSV output 'ptm_localization'.",
+            "name": "localization_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_probability' in TSV output 'ptm_localization'.",
+            "name": "localization_probability",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'probability_source' in TSV output 'ptm_localization'.",
+            "name": "probability_source",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_tier' in TSV output 'ptm_localization'.",
+            "name": "localization_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ambiguous' in TSV output 'ptm_localization'.",
+            "name": "ambiguous",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'multi_phosphorylated' in TSV output 'ptm_localization'.",
+            "name": "multi_phosphorylated",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'site_determining_ions' in TSV output 'ptm_localization'.",
+            "name": "site_determining_ions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'supported_site_determining_ions' in TSV output 'ptm_localization'.",
+            "name": "supported_site_determining_ions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'ptm_localization'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm localization.",
+        "table_name": "ptm_localization"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_localization.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_localization.tsv",
       "row_count": 8
@@ -157,10 +1381,127 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,mechanism_class,reason_codes,raw_log2_fold_change,corrected_log2_fold_change,protein_log2_fold_change,adjusted_p_value,protein_adjusted_p_value,localization_tier,localized_peptide_count,observed_sample_count,complete_pair_count,protein_correction_status,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/ptm_mechanism_classification.tsv",
       "checksum_sha256": "28a3210121c66312f8581525bb5f2ccbc531659af7e8f25b4940e0edcfcf6056",
       "folder": "biology",
       "legacy_relative_path": "ptm_mechanism_classification.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_mechanism_classification'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_mechanism_classification'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_mechanism_classification'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_mechanism_classification'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_mechanism_classification'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'mechanism_class' in TSV output 'ptm_mechanism_classification'.",
+            "name": "mechanism_class",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'ptm_mechanism_classification'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'raw_log2_fold_change' in TSV output 'ptm_mechanism_classification'.",
+            "name": "raw_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'corrected_log2_fold_change' in TSV output 'ptm_mechanism_classification'.",
+            "name": "corrected_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'protein_log2_fold_change' in TSV output 'ptm_mechanism_classification'.",
+            "name": "protein_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_mechanism_classification'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'protein_adjusted_p_value' in TSV output 'ptm_mechanism_classification'.",
+            "name": "protein_adjusted_p_value",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_tier' in TSV output 'ptm_mechanism_classification'.",
+            "name": "localization_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localized_peptide_count' in TSV output 'ptm_mechanism_classification'.",
+            "name": "localized_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_sample_count' in TSV output 'ptm_mechanism_classification'.",
+            "name": "observed_sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'complete_pair_count' in TSV output 'ptm_mechanism_classification'.",
+            "name": "complete_pair_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'protein_correction_status' in TSV output 'ptm_mechanism_classification'.",
+            "name": "protein_correction_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'ptm_mechanism_classification'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm mechanism classification.",
+        "table_name": "ptm_mechanism_classification"
+      },
+      "output_table_schema_sidecar_relative_path": "biology/ptm_mechanism_classification.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "biology/ptm_mechanism_classification.tsv",
       "row_count": 3
@@ -168,10 +1509,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[condition_a,condition_b,site_count,abundance_driven_count,site_specific_count,ambiguous_count,unsupported_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_mechanism_classification_summary.tsv",
       "checksum_sha256": "2e25d0bc8094d31ffb3cb7e34e99814fe127996632e040ade7a3675a16238fad",
       "folder": "reports",
       "legacy_relative_path": "ptm_mechanism_classification_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_count' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'abundance_driven_count' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "abundance_driven_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'site_specific_count' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "site_specific_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ambiguous_count' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "ambiguous_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unsupported_count' in TSV output 'ptm_mechanism_classification_summary'.",
+            "name": "unsupported_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm mechanism classification summary.",
+        "table_name": "ptm_mechanism_classification_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_mechanism_classification_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_mechanism_classification_summary.tsv",
       "row_count": 1
@@ -179,10 +1571,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[position_offset,residue,background_mode,regulated_window_count,background_window_count,regulated_frequency,background_frequency]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_motif_frequency.tsv",
       "checksum_sha256": "973a54f8a2e6294a25f1d900010f04d5f9f5feb7ce1d0a412dd1a9e959d6ff7f",
       "folder": "reports",
       "legacy_relative_path": "ptm_motif_frequency.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'position_offset' in TSV output 'ptm_motif_frequency'.",
+            "name": "position_offset",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_motif_frequency'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'background_mode' in TSV output 'ptm_motif_frequency'.",
+            "name": "background_mode",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'regulated_window_count' in TSV output 'ptm_motif_frequency'.",
+            "name": "regulated_window_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'background_window_count' in TSV output 'ptm_motif_frequency'.",
+            "name": "background_window_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'regulated_frequency' in TSV output 'ptm_motif_frequency'.",
+            "name": "regulated_frequency",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'background_frequency' in TSV output 'ptm_motif_frequency'.",
+            "name": "background_frequency",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm motif frequency.",
+        "table_name": "ptm_motif_frequency"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_motif_frequency.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_motif_frequency.tsv",
       "row_count": 22
@@ -190,10 +1633,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[window_role,position_offset,residue,background_mode,residue_count,total_window_count,frequency]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_motif_logo.tsv",
       "checksum_sha256": "96723d5426e5ab4fbbf516858b65a1b6ee8faf01d7eb08a95581b217d80af6bc",
       "folder": "reports",
       "legacy_relative_path": "ptm_motif_logo.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'window_role' in TSV output 'ptm_motif_logo'.",
+            "name": "window_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position_offset' in TSV output 'ptm_motif_logo'.",
+            "name": "position_offset",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_motif_logo'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'background_mode' in TSV output 'ptm_motif_logo'.",
+            "name": "background_mode",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue_count' in TSV output 'ptm_motif_logo'.",
+            "name": "residue_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'total_window_count' in TSV output 'ptm_motif_logo'.",
+            "name": "total_window_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'frequency' in TSV output 'ptm_motif_logo'.",
+            "name": "frequency",
+            "required": true,
+            "value_type": "float"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm motif logo.",
+        "table_name": "ptm_motif_logo"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_motif_logo.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_motif_logo.tsv",
       "row_count": 22
@@ -201,10 +1695,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[position_offset,residue,background_mode,regulated_window_count,background_window_count,regulated_frequency,background_frequency,frequency_difference,enrichment_ratio,exclusive_to_regulated]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_motif_terms.tsv",
       "checksum_sha256": "e8e00a0c7f993a72b9880b0354bee8405bd7e52a20360d4b49da1a74617235f0",
       "folder": "reports",
       "legacy_relative_path": "ptm_motif_terms.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'position_offset' in TSV output 'ptm_motif_terms'.",
+            "name": "position_offset",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_motif_terms'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'background_mode' in TSV output 'ptm_motif_terms'.",
+            "name": "background_mode",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'regulated_window_count' in TSV output 'ptm_motif_terms'.",
+            "name": "regulated_window_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'background_window_count' in TSV output 'ptm_motif_terms'.",
+            "name": "background_window_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'regulated_frequency' in TSV output 'ptm_motif_terms'.",
+            "name": "regulated_frequency",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'background_frequency' in TSV output 'ptm_motif_terms'.",
+            "name": "background_frequency",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'frequency_difference' in TSV output 'ptm_motif_terms'.",
+            "name": "frequency_difference",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'enrichment_ratio' in TSV output 'ptm_motif_terms'.",
+            "name": "enrichment_ratio",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'exclusive_to_regulated' in TSV output 'ptm_motif_terms'.",
+            "name": "exclusive_to_regulated",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm motif terms.",
+        "table_name": "ptm_motif_terms"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_motif_terms.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_motif_terms.tsv",
       "row_count": 22
@@ -212,10 +1775,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,background_mode,window_role,direction,centered_window,flank_size,plotted_log2_fold_change,adjusted_p_value,ambiguous,protein_correction_mode]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_motif_windows.tsv",
       "checksum_sha256": "2be335003ba51b6b1ba9d9b8fdf98c43f3a1e0297af0130a65d33735920aa8ee",
       "folder": "reports",
       "legacy_relative_path": "ptm_motif_windows.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_motif_windows'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_motif_windows'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_motif_windows'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_motif_windows'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_motif_windows'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'background_mode' in TSV output 'ptm_motif_windows'.",
+            "name": "background_mode",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'window_role' in TSV output 'ptm_motif_windows'.",
+            "name": "window_role",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'direction' in TSV output 'ptm_motif_windows'.",
+            "name": "direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'centered_window' in TSV output 'ptm_motif_windows'.",
+            "name": "centered_window",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'flank_size' in TSV output 'ptm_motif_windows'.",
+            "name": "flank_size",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'plotted_log2_fold_change' in TSV output 'ptm_motif_windows'.",
+            "name": "plotted_log2_fold_change",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_motif_windows'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ambiguous' in TSV output 'ptm_motif_windows'.",
+            "name": "ambiguous",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'protein_correction_mode' in TSV output 'ptm_motif_windows'.",
+            "name": "protein_correction_mode",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm motif windows.",
+        "table_name": "ptm_motif_windows"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_motif_windows.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_motif_windows.tsv",
       "row_count": 2
@@ -223,10 +1879,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[spectrum_id,sample_id,localized_peptide,canonical_peptide,sequence,charge,score,q_value,localization_score,localization_probability,protein_refs,modification_names,target_decoy_label]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_peptides.tsv",
       "checksum_sha256": "3b328a047242f77e6bedda9067191f1b087cf70a741cd697d961e4edf9e91494",
       "folder": "evidence",
       "legacy_relative_path": "ptm_peptides.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'spectrum_id' in TSV output 'ptm_peptides'.",
+            "name": "spectrum_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'ptm_peptides'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localized_peptide' in TSV output 'ptm_peptides'.",
+            "name": "localized_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'canonical_peptide' in TSV output 'ptm_peptides'.",
+            "name": "canonical_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sequence' in TSV output 'ptm_peptides'.",
+            "name": "sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'charge' in TSV output 'ptm_peptides'.",
+            "name": "charge",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'score' in TSV output 'ptm_peptides'.",
+            "name": "score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'q_value' in TSV output 'ptm_peptides'.",
+            "name": "q_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_score' in TSV output 'ptm_peptides'.",
+            "name": "localization_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_probability' in TSV output 'ptm_peptides'.",
+            "name": "localization_probability",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'ptm_peptides'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modification_names' in TSV output 'ptm_peptides'.",
+            "name": "modification_names",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_decoy_label' in TSV output 'ptm_peptides'.",
+            "name": "target_decoy_label",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm peptides.",
+        "table_name": "ptm_peptides"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_peptides.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_peptides.tsv",
       "row_count": 8
@@ -234,10 +1977,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[regulator,regulator_kind,direction,supporting_site_count,supporting_sites,regulated_site_count,annotated_regulated_site_count,background_annotated_site_count,regulator_background_site_count,expected_supporting_site_count,annotation_coverage_fraction,enrichment_ratio,p_value,adjusted_p_value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/ptm_regulator_enrichment.tsv",
       "checksum_sha256": "43776f6a37ef3521b263351c31e8df7c1d3fb1bf194a0bfe4eda1be5a58c5a0b",
       "folder": "stats",
       "legacy_relative_path": "ptm_regulator_enrichment.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'regulator' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "regulator",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'regulator_kind' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "regulator_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'direction' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'supporting_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "supporting_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'supporting_sites' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "supporting_sites",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'regulated_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "regulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'annotated_regulated_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "annotated_regulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'background_annotated_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "background_annotated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'regulator_background_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "regulator_background_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'expected_supporting_site_count' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "expected_supporting_site_count",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'annotation_coverage_fraction' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "annotation_coverage_fraction",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'enrichment_ratio' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "enrichment_ratio",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'p_value' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "p_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'adjusted_p_value' in TSV output 'ptm_regulator_enrichment'.",
+            "name": "adjusted_p_value",
+            "required": true,
+            "value_type": "float"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm regulator enrichment.",
+        "table_name": "ptm_regulator_enrichment"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/ptm_regulator_enrichment.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "stats/ptm_regulator_enrichment.tsv",
       "row_count": 3
@@ -245,10 +2081,85 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[condition_a,condition_b,eligible_site_count,upregulated_site_count,downregulated_site_count,annotated_upregulated_site_count,annotated_downregulated_site_count,evaluated_regulator_count,kinase_result_count,phosphatase_result_count,enriched_regulator_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/ptm_regulator_enrichment_summary.tsv",
       "checksum_sha256": "3908d03bdc31d46b658c69fc592e96cc843e7280244fb8444e39e40a8cd8b3f8",
       "folder": "stats",
       "legacy_relative_path": "ptm_regulator_enrichment_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'condition_a' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "condition_a",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition_b' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "condition_b",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'eligible_site_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "eligible_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'upregulated_site_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "upregulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'downregulated_site_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "downregulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'annotated_upregulated_site_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "annotated_upregulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'annotated_downregulated_site_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "annotated_downregulated_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'evaluated_regulator_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "evaluated_regulator_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'kinase_result_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "kinase_result_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'phosphatase_result_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "phosphatase_result_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'enriched_regulator_count' in TSV output 'ptm_regulator_enrichment_summary'.",
+            "name": "enriched_regulator_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm regulator enrichment summary.",
+        "table_name": "ptm_regulator_enrichment_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "stats/ptm_regulator_enrichment_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "stats/ptm_regulator_enrichment_summary.tsv",
       "row_count": 1
@@ -256,10 +2167,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/ptm_report_manifest.json",
       "checksum_sha256": "56e7a0b28107248eabcd476cd555449e4d07c1510be0e95387084b487a6ae6db",
       "folder": "reports",
       "legacy_relative_path": "ptm_report_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_report_manifest.json",
       "row_count": 1
@@ -267,10 +2181,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[accepted_evidence_count,peptide_entry_count,site_row_count,ambiguous_site_count,ambiguous_group_row_count,modified_peptide_count,localization_entry_count,quantified_site_row_count,differential_site_count,motif_term_count,evidence_card_count,narrative_claim_count,mechanism_classification_count,ortholog_conservation_entry_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/ptm_report_summary.tsv",
       "checksum_sha256": "72fa4a6197580c49c0630f932ccaa8708905daaebf49d99c3db265619a258745",
       "folder": "reports",
       "legacy_relative_path": "ptm_report_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'accepted_evidence_count' in TSV output 'ptm_report_summary'.",
+            "name": "accepted_evidence_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'peptide_entry_count' in TSV output 'ptm_report_summary'.",
+            "name": "peptide_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'site_row_count' in TSV output 'ptm_report_summary'.",
+            "name": "site_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ambiguous_site_count' in TSV output 'ptm_report_summary'.",
+            "name": "ambiguous_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ambiguous_group_row_count' in TSV output 'ptm_report_summary'.",
+            "name": "ambiguous_group_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modified_peptide_count' in TSV output 'ptm_report_summary'.",
+            "name": "modified_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'localization_entry_count' in TSV output 'ptm_report_summary'.",
+            "name": "localization_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'quantified_site_row_count' in TSV output 'ptm_report_summary'.",
+            "name": "quantified_site_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'differential_site_count' in TSV output 'ptm_report_summary'.",
+            "name": "differential_site_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'motif_term_count' in TSV output 'ptm_report_summary'.",
+            "name": "motif_term_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'evidence_card_count' in TSV output 'ptm_report_summary'.",
+            "name": "evidence_card_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'narrative_claim_count' in TSV output 'ptm_report_summary'.",
+            "name": "narrative_claim_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mechanism_classification_count' in TSV output 'ptm_report_summary'.",
+            "name": "mechanism_classification_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ortholog_conservation_entry_count' in TSV output 'ptm_report_summary'.",
+            "name": "ortholog_conservation_entry_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm report summary.",
+        "table_name": "ptm_report_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/ptm_report_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "reports/ptm_report_summary.tsv",
       "row_count": 1
@@ -278,10 +2285,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[group_key,protein_ref,modification_name,candidate_positions,possible_residues,confidence_tier,C1,C2,T1,T2]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/ptm_site_group_matrix.tsv",
       "checksum_sha256": "77ab10c7a81fbf09724ea37707f428a61ea0aa5d365de2c9137dc9bc261396ee",
       "folder": "matrices",
       "legacy_relative_path": "ptm_site_group_matrix.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'group_key' in TSV output 'ptm_site_group_matrix'.",
+            "name": "group_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_site_group_matrix'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_site_group_matrix'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_positions' in TSV output 'ptm_site_group_matrix'.",
+            "name": "candidate_positions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'possible_residues' in TSV output 'ptm_site_group_matrix'.",
+            "name": "possible_residues",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'confidence_tier' in TSV output 'ptm_site_group_matrix'.",
+            "name": "confidence_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C1' in TSV output 'ptm_site_group_matrix'.",
+            "name": "C1",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'C2' in TSV output 'ptm_site_group_matrix'.",
+            "name": "C2",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'T1' in TSV output 'ptm_site_group_matrix'.",
+            "name": "T1",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'T2' in TSV output 'ptm_site_group_matrix'.",
+            "name": "T2",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site group matrix.",
+        "table_name": "ptm_site_group_matrix"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/ptm_site_group_matrix.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/ptm_site_group_matrix.tsv",
       "row_count": 2
@@ -289,10 +2365,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,observed_count,zero_count,not_observed_count,filtered_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/ptm_site_group_missingness.tsv",
       "checksum_sha256": "964d36fa73a97e1f31695d1f445026a305a2307d1788512f88f65d19bfdb9058",
       "folder": "matrices",
       "legacy_relative_path": "ptm_site_group_missingness.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'ptm_site_group_missingness'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_count' in TSV output 'ptm_site_group_missingness'.",
+            "name": "observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_count' in TSV output 'ptm_site_group_missingness'.",
+            "name": "zero_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_observed_count' in TSV output 'ptm_site_group_missingness'.",
+            "name": "not_observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_count' in TSV output 'ptm_site_group_missingness'.",
+            "name": "filtered_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site group missingness.",
+        "table_name": "ptm_site_group_missingness"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/ptm_site_group_missingness.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/ptm_site_group_missingness.tsv",
       "row_count": 4
@@ -300,10 +2415,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[group_row_count,sample_count,observed_cell_count,zero_cell_count,missing_cell_count,filtered_cell_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_site_group_summary.tsv",
       "checksum_sha256": "96c6c01a3ed4e153b4fe3312c064c0e3764e0eb264dede7416f0a7fc0cd53802",
       "folder": "evidence",
       "legacy_relative_path": "ptm_site_group_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'group_row_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "group_row_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_cell_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "observed_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_cell_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "zero_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_cell_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "missing_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_cell_count' in TSV output 'ptm_site_group_summary'.",
+            "name": "filtered_cell_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site group summary.",
+        "table_name": "ptm_site_group_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_site_group_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_site_group_summary.tsv",
       "row_count": 1
@@ -311,10 +2471,109 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,target_decoy_label,localization_tier,ambiguous,shared_peptide,candidate_positions,localized_peptides,C1,C2,T1,T2]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/ptm_site_quant_matrix.tsv",
       "checksum_sha256": "00f5daae9a0afd60060e01386b6bdf8eb44b69515430eb8d8bc1924df9b9225a",
       "folder": "matrices",
       "legacy_relative_path": "ptm_site_quant_matrix.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_decoy_label' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "target_decoy_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_tier' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "localization_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ambiguous' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "ambiguous",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'shared_peptide' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "shared_peptide",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'candidate_positions' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "candidate_positions",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'localized_peptides' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "localized_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C1' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "C1",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'C2' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "C2",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'T1' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "T1",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'T2' in TSV output 'ptm_site_quant_matrix'.",
+            "name": "T2",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site quant matrix.",
+        "table_name": "ptm_site_quant_matrix"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/ptm_site_quant_matrix.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/ptm_site_quant_matrix.tsv",
       "row_count": 3
@@ -322,10 +2581,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,observed_count,zero_count,not_observed_count,filtered_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/ptm_site_quant_missingness.tsv",
       "checksum_sha256": "68075746a90d7c8bfc700211b32b66d5eed04f2358d732189b44b39f2cac7b16",
       "folder": "matrices",
       "legacy_relative_path": "ptm_site_quant_missingness.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'ptm_site_quant_missingness'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_count' in TSV output 'ptm_site_quant_missingness'.",
+            "name": "observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_count' in TSV output 'ptm_site_quant_missingness'.",
+            "name": "zero_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_observed_count' in TSV output 'ptm_site_quant_missingness'.",
+            "name": "not_observed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'filtered_count' in TSV output 'ptm_site_quant_missingness'.",
+            "name": "filtered_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site quant missingness.",
+        "table_name": "ptm_site_quant_missingness"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/ptm_site_quant_missingness.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "matrices/ptm_site_quant_missingness.tsv",
       "row_count": 4
@@ -333,10 +2631,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,spectrum_id,localized_peptide,canonical_peptide,sequence,charge,score,q_value,localization_score,localization_probability,protein_refs,candidate_site_indices,target_decoy_label,modification_names]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_site_workflow_accepted_evidence.tsv",
       "checksum_sha256": "0e3a4b9d78260def17236cd61c88d9a4cd1243ce19e031d8ff434e791ea730ac",
       "folder": "evidence",
       "legacy_relative_path": "ptm_site_workflow_accepted_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'spectrum_id' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "spectrum_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localized_peptide' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "localized_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'canonical_peptide' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "canonical_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sequence' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'charge' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "charge",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'score' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "score",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'q_value' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "q_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_score' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "localization_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'localization_probability' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "localization_probability",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_site_indices' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "candidate_site_indices",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_decoy_label' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "target_decoy_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'modification_names' in TSV output 'ptm_site_workflow_accepted_evidence'.",
+            "name": "modification_names",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site workflow accepted evidence.",
+        "table_name": "ptm_site_workflow_accepted_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_site_workflow_accepted_evidence.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_site_workflow_accepted_evidence.tsv",
       "row_count": 8
@@ -344,10 +2735,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "evidence/ptm_site_workflow_manifest.json",
       "checksum_sha256": "206e8d376fb4b0fa56d6de0edfbb1f0b34c781d2f440d5ffabef96d08cb8492c",
       "folder": "evidence",
       "legacy_relative_path": "ptm_site_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_site_workflow_manifest.json",
       "row_count": 1
@@ -355,10 +2749,43 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,issue_codes,issue_messages,raw_fields]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_site_workflow_rejected_evidence.tsv",
       "checksum_sha256": "8e76fb00d927d9272e3bc8a5f5af8ebe7a202382fc38ac19cf243f5f0ba74481",
       "folder": "evidence",
       "legacy_relative_path": "ptm_site_workflow_rejected_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'row_number' in TSV output 'ptm_site_workflow_rejected_evidence'.",
+            "name": "row_number",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'issue_codes' in TSV output 'ptm_site_workflow_rejected_evidence'.",
+            "name": "issue_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'issue_messages' in TSV output 'ptm_site_workflow_rejected_evidence'.",
+            "name": "issue_messages",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'raw_fields' in TSV output 'ptm_site_workflow_rejected_evidence'.",
+            "name": "raw_fields",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site workflow rejected evidence.",
+        "table_name": "ptm_site_workflow_rejected_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_site_workflow_rejected_evidence.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_site_workflow_rejected_evidence.tsv",
       "row_count": 0
@@ -366,10 +2793,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_site_workflow_summary.tsv",
       "checksum_sha256": "17708ba41b875c0e2dd71e7781f4e37ab53c01eb20216c91ef302126c10242ba",
       "folder": "evidence",
       "legacy_relative_path": "ptm_site_workflow_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'ptm_site_workflow_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'ptm_site_workflow_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm site workflow summary.",
+        "table_name": "ptm_site_workflow_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_site_workflow_summary.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_site_workflow_summary.tsv",
       "row_count": 14
@@ -377,10 +2825,127 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[site_key,protein_ref,residue,position,modification_name,localization_score,best_q_value,spectrum_count,peptide_count,sample_ids,candidate_positions,ambiguous,shared_peptide,target_decoy_label,source_engine,source_file,source_row_numbers,original_identifiers]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/ptm_sites.tsv",
-      "checksum_sha256": "ec7b5394cf0510cfb2b2ebe7a59ed28006f8ec7d7a6271de63bf78e0479ccc23",
+      "checksum_sha256": "526942c8e65e3b09ddbe5c517f7bf71e16efcd242a6aa0815d2a8372163849c3",
       "folder": "evidence",
       "legacy_relative_path": "ptm_sites.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'ptm_sites'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'ptm_sites'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'residue' in TSV output 'ptm_sites'.",
+            "name": "residue",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'position' in TSV output 'ptm_sites'.",
+            "name": "position",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'modification_name' in TSV output 'ptm_sites'.",
+            "name": "modification_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'localization_score' in TSV output 'ptm_sites'.",
+            "name": "localization_score",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'best_q_value' in TSV output 'ptm_sites'.",
+            "name": "best_q_value",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'spectrum_count' in TSV output 'ptm_sites'.",
+            "name": "spectrum_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'peptide_count' in TSV output 'ptm_sites'.",
+            "name": "peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_ids' in TSV output 'ptm_sites'.",
+            "name": "sample_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_positions' in TSV output 'ptm_sites'.",
+            "name": "candidate_positions",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'ambiguous' in TSV output 'ptm_sites'.",
+            "name": "ambiguous",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'shared_peptide' in TSV output 'ptm_sites'.",
+            "name": "shared_peptide",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'target_decoy_label' in TSV output 'ptm_sites'.",
+            "name": "target_decoy_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_engine' in TSV output 'ptm_sites'.",
+            "name": "source_engine",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_file' in TSV output 'ptm_sites'.",
+            "name": "source_file",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_row_numbers' in TSV output 'ptm_sites'.",
+            "name": "source_row_numbers",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'original_identifiers' in TSV output 'ptm_sites'.",
+            "name": "original_identifiers",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for ptm sites.",
+        "table_name": "ptm_sites"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/ptm_sites.tsv.schema.json",
       "producer_function": "run_advanced_ptm_workflow",
       "relative_path": "evidence/ptm_sites.tsv",
       "row_count": 5

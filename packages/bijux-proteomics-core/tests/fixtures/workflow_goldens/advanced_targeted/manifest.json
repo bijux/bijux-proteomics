@@ -3,10 +3,127 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,validation_verdict,assay_reliability_status,assay_entry_count,reliable_assay_count,unreliable_assay_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,coelution_issue_count,ratio_drift_issue_count,validation_log2_effect,discovery_effect_size,reason_codes,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/advanced_targeted_evidence_cards.tsv",
       "checksum_sha256": "1befcb4aa023a2e9a9de1e59c8e866827a1bceec930a707e49e07eaef2526ad0",
       "folder": "cards",
       "legacy_relative_path": "advanced_targeted_evidence_cards.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_kind' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "candidate_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'display_label' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "display_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_protein_ref' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "target_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_verdict' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "validation_verdict",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_reliability_status' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "assay_reliability_status",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_entry_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "assay_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reliable_assay_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "reliable_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unreliable_assay_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "unreliable_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'confirmed_assay_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "confirmed_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'contradicted_assay_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "contradicted_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'inconclusive_assay_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "inconclusive_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coelution_issue_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "coelution_issue_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'ratio_drift_issue_count' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "ratio_drift_issue_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'validation_log2_effect' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "validation_log2_effect",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_effect_size' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "discovery_effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced targeted evidence cards.",
+        "table_name": "advanced_targeted_evidence_cards"
+      },
+      "output_table_schema_sidecar_relative_path": "cards/advanced_targeted_evidence_cards.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "cards/advanced_targeted_evidence_cards.tsv",
       "row_count": 3
@@ -14,10 +131,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/advanced_targeted_summary.tsv",
       "checksum_sha256": "7fbfd2fd830cea67d7a270bb07410c5e64765559dc1eca7bea0ce32eaa4ab77b",
       "folder": "reports",
       "legacy_relative_path": "advanced_targeted_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'advanced_targeted_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'advanced_targeted_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for advanced targeted summary.",
+        "table_name": "advanced_targeted_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "reports/advanced_targeted_summary.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "reports/advanced_targeted_summary.tsv",
       "row_count": 11
@@ -25,10 +163,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_targeted_workflow_manifest.json",
       "checksum_sha256": "5bc27f655ae759e3cf1fff057b19dbf1f8e0944b8fa369bae451e9fa1cfb5da5",
       "folder": "reports",
       "legacy_relative_path": "advanced_targeted_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "reports/advanced_targeted_workflow_manifest.json",
       "row_count": 1
@@ -36,10 +177,115 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,expected_transition_count,observed_transition_count,coeluting_transition_count,coeluting_transition_ids,noncoeluting_transition_ids,anchor_transition_id,anchor_retention_time_minutes,mean_retention_time_minutes,reference_retention_time_minutes,absolute_alignment_delta_minutes,alignment_flagged,coelution_tier,reliable_transition_support,reliability_reasons]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_coelution.tsv",
       "checksum_sha256": "27e9d34d2692f42ab31e475c30dec0e016b90a638e1c1e522b5083a0c0c5863d",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_coelution.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'expected_transition_count' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "expected_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_transition_count' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "observed_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coeluting_transition_count' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "coeluting_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coeluting_transition_ids' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "coeluting_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'noncoeluting_transition_ids' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "noncoeluting_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'anchor_transition_id' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "anchor_transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'anchor_retention_time_minutes' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "anchor_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'mean_retention_time_minutes' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "mean_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_retention_time_minutes' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "reference_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'absolute_alignment_delta_minutes' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "absolute_alignment_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'alignment_flagged' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "alignment_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'coelution_tier' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "coelution_tier",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reliable_transition_support' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "reliable_transition_support",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'reliability_reasons' in TSV output 'targeted_assay_qc_coelution'.",
+            "name": "reliability_reasons",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc coelution.",
+        "table_name": "targeted_assay_qc_coelution"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_coelution.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_coelution.tsv",
       "row_count": 8
@@ -47,10 +293,91 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,total_target_intensity,relative_share,reference_relative_share,absolute_share_delta,ratio_cv,drift_flag,unstable_transition_flagged,flagged]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_assay_qc_fragment_ratios.tsv",
       "checksum_sha256": "c108cc02fa558cdba6fe4ad69e22cae57519562312da6afa55ed7232e2bc5b67",
       "folder": "matrices",
       "legacy_relative_path": "targeted_assay_qc_fragment_ratios.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'total_target_intensity' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "total_target_intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'relative_share' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "relative_share",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_relative_share' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "reference_relative_share",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'absolute_share_delta' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "absolute_share_delta",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio_cv' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "ratio_cv",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'drift_flag' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "drift_flag",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'unstable_transition_flagged' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "unstable_transition_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'targeted_assay_qc_fragment_ratios'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc fragment ratios.",
+        "table_name": "targeted_assay_qc_fragment_ratios"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_assay_qc_fragment_ratios.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_assay_qc_fragment_ratios.tsv",
       "row_count": 16
@@ -58,10 +385,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,condition,replicate_count,detected_replicate_count,mean_intensity,coefficient_of_variation,flagged]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_replicate_cv.tsv",
       "checksum_sha256": "a0f6461200825402de21a7baf564f23e2db8fba188e440ee9a5035fc649cf05f",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_replicate_cv.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'replicate_count' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "replicate_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'detected_replicate_count' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "detected_replicate_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_intensity' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "mean_intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coefficient_of_variation' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "coefficient_of_variation",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'targeted_assay_qc_replicate_cv'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc replicate cv.",
+        "table_name": "targeted_assay_qc_replicate_cv"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_replicate_cv.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_replicate_cv.tsv",
       "row_count": 4
@@ -69,10 +447,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,observed_transition_count,mean_retention_time_minutes,reference_retention_time_minutes,absolute_delta_minutes,flagged]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_retention.tsv",
       "checksum_sha256": "742c3aab65c34e434945b6e6b58f1cefc3ae4a39b46c95df409ed1ed2d22dc6b",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_retention.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_transition_count' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "observed_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_retention_time_minutes' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "mean_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_retention_time_minutes' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "reference_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'absolute_delta_minutes' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "absolute_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'flagged' in TSV output 'targeted_assay_qc_retention'.",
+            "name": "flagged",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc retention.",
+        "table_name": "targeted_assay_qc_retention"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_retention.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_retention.tsv",
       "row_count": 8
@@ -80,10 +509,157 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_name,target_count,sample_count,target_qc_entry_count,reliable_target_entry_count,transition_consistency_entry_count,coelution_target_entry_count,flagged_coelution_target_entry_count,transition_coelution_entry_count,coeluting_transition_entry_count,transition_qc_entry_count,passing_transition_qc_entry_count,fragment_ratio_entry_count,fragment_ratio_stability_fragment_entry_count,unstable_fragment_ratio_entry_count,drift_flagged_fragment_ratio_observation_count,retention_time_entry_count,flagged_retention_time_entry_count,replicate_cv_entry_count,flagged_replicate_cv_entry_count,unreliable_target_entry_count,unreliable_target_count,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_summary.tsv",
       "checksum_sha256": "bfdde35b2568843311a54a3fedf46ab0696e44460a8341b925743dcb23c598f6",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_name' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "source_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "target_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'target_qc_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "target_qc_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reliable_target_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "reliable_target_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'transition_consistency_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "transition_consistency_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coelution_target_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "coelution_target_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_coelution_target_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "flagged_coelution_target_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'transition_coelution_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "transition_coelution_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coeluting_transition_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "coeluting_transition_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'transition_qc_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "transition_qc_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'passing_transition_qc_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "passing_transition_qc_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'fragment_ratio_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "fragment_ratio_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'fragment_ratio_stability_fragment_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "fragment_ratio_stability_fragment_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unstable_fragment_ratio_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "unstable_fragment_ratio_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'drift_flagged_fragment_ratio_observation_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "drift_flagged_fragment_ratio_observation_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retention_time_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "retention_time_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_retention_time_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "flagged_retention_time_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'replicate_cv_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "replicate_cv_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_replicate_cv_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "flagged_replicate_cv_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unreliable_target_entry_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "unreliable_target_entry_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unreliable_target_count' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "unreliable_target_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_assay_qc_summary'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc summary.",
+        "table_name": "targeted_assay_qc_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_summary.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_summary.tsv",
       "row_count": 1
@@ -91,10 +667,139 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,expected_transition_count,observed_transition_count,coeluting_transition_count,coeluting_transition_ids,passing_transition_count,passing_transition_ids,failing_transition_ids,passing_total_intensity,mean_retention_time_minutes,reference_retention_time_minutes,absolute_delta_minutes,quality_flag_count,condition_replicate_cv,condition_replicate_cv_flagged,reliability_score,reliable,reliability_reasons]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_targets.tsv",
       "checksum_sha256": "280fefb19ca64a700d373e4a1305e2c2c14331533e96546ff80dda782b53dd6e",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_targets.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'expected_transition_count' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "expected_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_transition_count' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "observed_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coeluting_transition_count' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "coeluting_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'coeluting_transition_ids' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "coeluting_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'passing_transition_count' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "passing_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'passing_transition_ids' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "passing_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'failing_transition_ids' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "failing_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'passing_total_intensity' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "passing_total_intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_retention_time_minutes' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "mean_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_retention_time_minutes' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "reference_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'absolute_delta_minutes' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "absolute_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flag_count' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "quality_flag_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'condition_replicate_cv' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "condition_replicate_cv",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'condition_replicate_cv_flagged' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "condition_replicate_cv_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'reliability_score' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "reliability_score",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reliable' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "reliable",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'reliability_reasons' in TSV output 'targeted_assay_qc_targets'.",
+            "name": "reliability_reasons",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc targets.",
+        "table_name": "targeted_assay_qc_targets"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_targets.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_targets.tsv",
       "row_count": 8
@@ -102,10 +807,91 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,detected,retention_time_minutes,anchor_transition_id,anchor_retention_time_minutes,reference_retention_time_minutes,coelution_delta_minutes,reference_delta_minutes,coeluting,failure_reasons]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_transition_coelution.tsv",
       "checksum_sha256": "9b270e7902081996e766d0555660c69571e074feba3460a87f133e8810ff269b",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_transition_coelution.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detected' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "detected",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'retention_time_minutes' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'anchor_transition_id' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "anchor_transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'anchor_retention_time_minutes' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "anchor_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_retention_time_minutes' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "reference_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'coelution_delta_minutes' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "coelution_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_delta_minutes' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "reference_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'coeluting' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "coeluting",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'failure_reasons' in TSV output 'targeted_assay_qc_transition_coelution'.",
+            "name": "failure_reasons",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc transition coelution.",
+        "table_name": "targeted_assay_qc_transition_coelution"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_transition_coelution.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_transition_coelution.tsv",
       "row_count": 16
@@ -113,10 +899,151 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,transition_id,detected,intensity,quality_flag,relative_share,reference_relative_share,absolute_share_delta,ratio_cv,coeluting,coelution_flagged,reference_alignment_flagged,coelution_delta_minutes,reference_delta_minutes,quality_flagged,ratio_flagged,ratio_drift_flagged,ratio_unstable_transition_flagged,passed,failure_reasons]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_transition_qc.tsv",
       "checksum_sha256": "93d720af1365a9b9532df1d42c4d4d95040b4a070d9aec4225ca4efc8d36eea4",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_transition_qc.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detected' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "detected",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'quality_flag' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "quality_flag",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'relative_share' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "relative_share",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_relative_share' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "reference_relative_share",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'absolute_share_delta' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "absolute_share_delta",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'ratio_cv' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "ratio_cv",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'coeluting' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "coeluting",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'coelution_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "coelution_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'reference_alignment_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "reference_alignment_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'coelution_delta_minutes' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "coelution_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'reference_delta_minutes' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "reference_delta_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "quality_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'ratio_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "ratio_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'ratio_drift_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "ratio_drift_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'ratio_unstable_transition_flagged' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "ratio_unstable_transition_flagged",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'passed' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "passed",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'failure_reasons' in TSV output 'targeted_assay_qc_transition_qc'.",
+            "name": "failure_reasons",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc transition qc.",
+        "table_name": "targeted_assay_qc_transition_qc"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_transition_qc.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_transition_qc.tsv",
       "row_count": 16
@@ -124,10 +1051,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,detected_transition_count,expected_transition_count,consistency_fraction]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_transitions.tsv",
       "checksum_sha256": "a4f1efee2e57e10a46de05242537a2c4b96b766fdd871056e54ec527ea15bbce",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_transitions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_transitions'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_transitions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detected_transition_count' in TSV output 'targeted_assay_qc_transitions'.",
+            "name": "detected_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'expected_transition_count' in TSV output 'targeted_assay_qc_transitions'.",
+            "name": "expected_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'consistency_fraction' in TSV output 'targeted_assay_qc_transitions'.",
+            "name": "consistency_fraction",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc transitions.",
+        "table_name": "targeted_assay_qc_transitions"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_transitions.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_transitions.tsv",
       "row_count": 8
@@ -135,10 +1101,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,flagged_transition_ids,quality_flags,reasons]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_assay_qc_unreliable_targets.tsv",
       "checksum_sha256": "5b89974259dc71a7b25486c9763ebd70409af9b8d332b14081e03b947f086ca3",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_unreliable_targets.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'condition' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'flagged_transition_ids' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "flagged_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'quality_flags' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "quality_flags",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reasons' in TSV output 'targeted_assay_qc_unreliable_targets'.",
+            "name": "reasons",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted assay qc unreliable targets.",
+        "table_name": "targeted_assay_qc_unreliable_targets"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_assay_qc_unreliable_targets.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_unreliable_targets.tsv",
       "row_count": 0
@@ -146,10 +1157,13 @@
     {
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
+      "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "qc/targeted_assay_qc_workflow_manifest.json",
       "checksum_sha256": "acb646cd6dcd2f5ad600303f41ee541a71655bdd89bafa2eea052f8513f8bf30",
       "folder": "qc",
       "legacy_relative_path": "targeted_assay_qc_workflow_manifest.json",
+      "output_table_schema": null,
+      "output_table_schema_sidecar_relative_path": null,
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_assay_qc_workflow_manifest.json",
       "row_count": 1
@@ -157,10 +1171,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,transition_id,precursor_id,precursor_charge,peptide_sequence,sample_id,intensity,retention_time_minutes,quality_flag,protein_ref,fragment_label,precursor_mz,fragment_mz,source_engine,source_file,source_row_numbers,original_identifiers]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/targeted_import_observations.tsv",
-      "checksum_sha256": "9fcd5ad8922c1ff2bd26821c5a5f21e7a3c39d658c4fc73701b53d1dfe1914a5",
+      "checksum_sha256": "cbec0a9c23861bd062f1cee3b0a63d0b1b80ca965a14a53539e2801555ad2009",
       "folder": "inputs",
       "legacy_relative_path": "targeted_import_observations.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_kind' in TSV output 'targeted_import_observations'.",
+            "name": "source_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_import_observations'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'precursor_id' in TSV output 'targeted_import_observations'.",
+            "name": "precursor_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'precursor_charge' in TSV output 'targeted_import_observations'.",
+            "name": "precursor_charge",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'targeted_import_observations'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_import_observations'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_import_observations'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retention_time_minutes' in TSV output 'targeted_import_observations'.",
+            "name": "retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flag' in TSV output 'targeted_import_observations'.",
+            "name": "quality_flag",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'targeted_import_observations'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'fragment_label' in TSV output 'targeted_import_observations'.",
+            "name": "fragment_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'precursor_mz' in TSV output 'targeted_import_observations'.",
+            "name": "precursor_mz",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'fragment_mz' in TSV output 'targeted_import_observations'.",
+            "name": "fragment_mz",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'source_engine' in TSV output 'targeted_import_observations'.",
+            "name": "source_engine",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_file' in TSV output 'targeted_import_observations'.",
+            "name": "source_file",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_row_numbers' in TSV output 'targeted_import_observations'.",
+            "name": "source_row_numbers",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'original_identifiers' in TSV output 'targeted_import_observations'.",
+            "name": "original_identifiers",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted import observations.",
+        "table_name": "targeted_import_observations"
+      },
+      "output_table_schema_sidecar_relative_path": "inputs/targeted_import_observations.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "inputs/targeted_import_observations.tsv",
       "row_count": 16
@@ -168,10 +1293,67 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,source_name,observation_count,precursor_count,quality_flag_count,retention_time_count,sample_count,transition_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/targeted_import_summary.tsv",
       "checksum_sha256": "d33d84f6fa7587c9a0ecd37e195fabfeb94cce6aa71123ca4fd46b42cc2f204c",
       "folder": "inputs",
       "legacy_relative_path": "targeted_import_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_kind' in TSV output 'targeted_import_summary'.",
+            "name": "source_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_name' in TSV output 'targeted_import_summary'.",
+            "name": "source_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observation_count' in TSV output 'targeted_import_summary'.",
+            "name": "observation_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'precursor_count' in TSV output 'targeted_import_summary'.",
+            "name": "precursor_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'quality_flag_count' in TSV output 'targeted_import_summary'.",
+            "name": "quality_flag_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retention_time_count' in TSV output 'targeted_import_summary'.",
+            "name": "retention_time_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'targeted_import_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'transition_count' in TSV output 'targeted_import_summary'.",
+            "name": "transition_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted import summary.",
+        "table_name": "targeted_import_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "inputs/targeted_import_summary.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "inputs/targeted_import_summary.tsv",
       "row_count": 1
@@ -179,10 +1361,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,retention_time_minutes,quality_flag,exclusion_reason]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_excluded_transitions.tsv",
       "checksum_sha256": "6c1123493f512ccd97657b778b94fa07bb6abc67a62ae8a7b42a2d6ecce750aa",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_excluded_transitions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'retention_time_minutes' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "retention_time_minutes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'quality_flag' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "quality_flag",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'exclusion_reason' in TSV output 'targeted_matrix_excluded_transitions'.",
+            "name": "exclusion_reason",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix excluded transitions.",
+        "table_name": "targeted_matrix_excluded_transitions"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_excluded_transitions.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_excluded_transitions.tsv",
       "row_count": 0
@@ -190,10 +1423,49 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,peptide_sequence,protein_ref,quality_flag_count,flagged_sample_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_flagged_targets.tsv",
       "checksum_sha256": "f08cca4c1cba5fdd3e35d1d8f10fab84433625ff95adb45d5e3ecf30aafe764c",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_flagged_targets.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_flagged_targets'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'targeted_matrix_flagged_targets'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'targeted_matrix_flagged_targets'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'quality_flag_count' in TSV output 'targeted_matrix_flagged_targets'.",
+            "name": "quality_flag_count",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'flagged_sample_count' in TSV output 'targeted_matrix_flagged_targets'.",
+            "name": "flagged_sample_count",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix flagged targets.",
+        "table_name": "targeted_matrix_flagged_targets"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_flagged_targets.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_flagged_targets.tsv",
       "row_count": 0
@@ -201,10 +1473,61 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,observed_transition_count,retained_transition_count,excluded_transition_count,missing,missing_reason]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_missingness.tsv",
       "checksum_sha256": "ccd581aaf9433de9bb874e3d05dfda1e719a121403dc0088d2719f3c8be73f61",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_missingness.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_missingness'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_matrix_missingness'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_transition_count' in TSV output 'targeted_matrix_missingness'.",
+            "name": "observed_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_count' in TSV output 'targeted_matrix_missingness'.",
+            "name": "retained_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_count' in TSV output 'targeted_matrix_missingness'.",
+            "name": "excluded_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing' in TSV output 'targeted_matrix_missingness'.",
+            "name": "missing",
+            "required": true,
+            "value_type": "boolean"
+          },
+          {
+            "meaning": "Stable column 'missing_reason' in TSV output 'targeted_matrix_missingness'.",
+            "name": "missing_reason",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix missingness.",
+        "table_name": "targeted_matrix_missingness"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_missingness.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_missingness.tsv",
       "row_count": 8
@@ -212,10 +1535,55 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,retention_time_minutes,quality_flag]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_retained_transitions.tsv",
       "checksum_sha256": "4b86474f8381fb8a1ee5ca0aa361b3f40ff32d5fae12420daead02959aa25f5f",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_retained_transitions.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'transition_id' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "transition_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retention_time_minutes' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flag' in TSV output 'targeted_matrix_retained_transitions'.",
+            "name": "quality_flag",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix retained transitions.",
+        "table_name": "targeted_matrix_retained_transitions"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_retained_transitions.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_retained_transitions.tsv",
       "row_count": 16
@@ -223,10 +1591,97 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,source_transition_ids,retained_transition_ids,excluded_transition_ids,observed_transition_count,retained_transition_count,excluded_transition_count,intensity,retention_time_minutes,quality_flags,missing_reason,detected]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_samples.tsv",
       "checksum_sha256": "dc370b6e15d9197e45c83dde5289b50f59e87671407badccf06190e35d3e4a50",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_samples.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_samples'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'sample_id' in TSV output 'targeted_matrix_samples'.",
+            "name": "sample_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_transition_ids' in TSV output 'targeted_matrix_samples'.",
+            "name": "source_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_ids' in TSV output 'targeted_matrix_samples'.",
+            "name": "retained_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_ids' in TSV output 'targeted_matrix_samples'.",
+            "name": "excluded_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'observed_transition_count' in TSV output 'targeted_matrix_samples'.",
+            "name": "observed_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_count' in TSV output 'targeted_matrix_samples'.",
+            "name": "retained_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_count' in TSV output 'targeted_matrix_samples'.",
+            "name": "excluded_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'intensity' in TSV output 'targeted_matrix_samples'.",
+            "name": "intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retention_time_minutes' in TSV output 'targeted_matrix_samples'.",
+            "name": "retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flags' in TSV output 'targeted_matrix_samples'.",
+            "name": "quality_flags",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'missing_reason' in TSV output 'targeted_matrix_samples'.",
+            "name": "missing_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detected' in TSV output 'targeted_matrix_samples'.",
+            "name": "detected",
+            "required": true,
+            "value_type": "boolean"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix samples.",
+        "table_name": "targeted_matrix_samples"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_samples.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_samples.tsv",
       "row_count": 8
@@ -234,10 +1689,79 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_name,target_count,sample_count,observed_cell_count,missing_cell_count,zero_passing_cell_count,retained_transition_count,excluded_transition_count,quality_flag_count,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_summary.tsv",
       "checksum_sha256": "aeda1b8c07052a13403f3a15d99d03c25fed3193a3c88a51acb1e31a7cadeb33",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'source_name' in TSV output 'targeted_matrix_summary'.",
+            "name": "source_name",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "target_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'sample_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'observed_cell_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "observed_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'missing_cell_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "missing_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'zero_passing_cell_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "zero_passing_cell_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "retained_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "excluded_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'quality_flag_count' in TSV output 'targeted_matrix_summary'.",
+            "name": "quality_flag_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_matrix_summary'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix summary.",
+        "table_name": "targeted_matrix_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_summary.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_summary.tsv",
       "row_count": 1
@@ -245,10 +1769,103 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,peptide_sequence,protein_ref,source_transition_ids,retained_transition_ids,excluded_transition_ids,retained_transition_count,excluded_transition_count,detected_sample_count,total_intensity,mean_intensity,median_retention_time_minutes,quality_flag_count,flagged_sample_count]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/targeted_matrix_targets.tsv",
       "checksum_sha256": "d0bf04d8c914f5b58da7e8c42a7a4ed8416c9ea1b26c5b42278d64ac7b000536",
       "folder": "matrices",
       "legacy_relative_path": "targeted_matrix_targets.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'target_id' in TSV output 'targeted_matrix_targets'.",
+            "name": "target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'targeted_matrix_targets'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_ref' in TSV output 'targeted_matrix_targets'.",
+            "name": "protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_transition_ids' in TSV output 'targeted_matrix_targets'.",
+            "name": "source_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_ids' in TSV output 'targeted_matrix_targets'.",
+            "name": "retained_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_ids' in TSV output 'targeted_matrix_targets'.",
+            "name": "excluded_transition_ids",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'retained_transition_count' in TSV output 'targeted_matrix_targets'.",
+            "name": "retained_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_transition_count' in TSV output 'targeted_matrix_targets'.",
+            "name": "excluded_transition_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'detected_sample_count' in TSV output 'targeted_matrix_targets'.",
+            "name": "detected_sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'total_intensity' in TSV output 'targeted_matrix_targets'.",
+            "name": "total_intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'mean_intensity' in TSV output 'targeted_matrix_targets'.",
+            "name": "mean_intensity",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'median_retention_time_minutes' in TSV output 'targeted_matrix_targets'.",
+            "name": "median_retention_time_minutes",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'quality_flag_count' in TSV output 'targeted_matrix_targets'.",
+            "name": "quality_flag_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'flagged_sample_count' in TSV output 'targeted_matrix_targets'.",
+            "name": "flagged_sample_count",
+            "required": true,
+            "value_type": "integer"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted matrix targets.",
+        "table_name": "targeted_matrix_targets"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/targeted_matrix_targets.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "matrices/targeted_matrix_targets.tsv",
       "row_count": 2
@@ -256,10 +1873,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_validation_confirmed.tsv",
       "checksum_sha256": "573ea7b6cc30065306e03aa53df0dd8bbaa2f3223bab08bd87bf8aa2bc8b062a",
       "folder": "qc",
       "legacy_relative_path": "targeted_validation_confirmed.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'targeted_validation_confirmed'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_kind' in TSV output 'targeted_validation_confirmed'.",
+            "name": "candidate_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'display_label' in TSV output 'targeted_validation_confirmed'.",
+            "name": "display_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_protein_ref' in TSV output 'targeted_validation_confirmed'.",
+            "name": "target_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'targeted_validation_confirmed'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'priority_rank' in TSV output 'targeted_validation_confirmed'.",
+            "name": "priority_rank",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'discovery_effect_size' in TSV output 'targeted_validation_confirmed'.",
+            "name": "discovery_effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_direction' in TSV output 'targeted_validation_confirmed'.",
+            "name": "discovery_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_log2_effect' in TSV output 'targeted_validation_confirmed'.",
+            "name": "validation_log2_effect",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'validation_direction' in TSV output 'targeted_validation_confirmed'.",
+            "name": "validation_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'verdict' in TSV output 'targeted_validation_confirmed'.",
+            "name": "verdict",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_evidence_count' in TSV output 'targeted_validation_confirmed'.",
+            "name": "assay_evidence_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'confirmed_assay_count' in TSV output 'targeted_validation_confirmed'.",
+            "name": "confirmed_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'contradicted_assay_count' in TSV output 'targeted_validation_confirmed'.",
+            "name": "contradicted_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'inconclusive_assay_count' in TSV output 'targeted_validation_confirmed'.",
+            "name": "inconclusive_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'targeted_validation_confirmed'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_validation_confirmed'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted validation confirmed.",
+        "table_name": "targeted_validation_confirmed"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_validation_confirmed.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_validation_confirmed.tsv",
       "row_count": 1
@@ -267,10 +1995,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_validation_contradicted.tsv",
       "checksum_sha256": "91512f1d1c10687ad4df33b1337c935750624992c7f87e26117a89df3a470075",
       "folder": "qc",
       "legacy_relative_path": "targeted_validation_contradicted.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'targeted_validation_contradicted'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_kind' in TSV output 'targeted_validation_contradicted'.",
+            "name": "candidate_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'display_label' in TSV output 'targeted_validation_contradicted'.",
+            "name": "display_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_protein_ref' in TSV output 'targeted_validation_contradicted'.",
+            "name": "target_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'targeted_validation_contradicted'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'priority_rank' in TSV output 'targeted_validation_contradicted'.",
+            "name": "priority_rank",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'discovery_effect_size' in TSV output 'targeted_validation_contradicted'.",
+            "name": "discovery_effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_direction' in TSV output 'targeted_validation_contradicted'.",
+            "name": "discovery_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_log2_effect' in TSV output 'targeted_validation_contradicted'.",
+            "name": "validation_log2_effect",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'validation_direction' in TSV output 'targeted_validation_contradicted'.",
+            "name": "validation_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'verdict' in TSV output 'targeted_validation_contradicted'.",
+            "name": "verdict",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_evidence_count' in TSV output 'targeted_validation_contradicted'.",
+            "name": "assay_evidence_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'confirmed_assay_count' in TSV output 'targeted_validation_contradicted'.",
+            "name": "confirmed_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'contradicted_assay_count' in TSV output 'targeted_validation_contradicted'.",
+            "name": "contradicted_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'inconclusive_assay_count' in TSV output 'targeted_validation_contradicted'.",
+            "name": "inconclusive_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'targeted_validation_contradicted'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_validation_contradicted'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted validation contradicted.",
+        "table_name": "targeted_validation_contradicted"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_validation_contradicted.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_validation_contradicted.tsv",
       "row_count": 1
@@ -278,10 +2117,151 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,assay_entry_id,target_protein_ref,peptide_sequence,canonical_peptide,precursor_charge,uniqueness_class,matched_target_id,matched_target_count,case_condition,control_condition,case_reliable_sample_count,control_reliable_sample_count,case_mean_log2_intensity,control_mean_log2_intensity,validation_log2_effect,discovery_effect_size,discovery_direction,validation_direction,verdict,reason_codes,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_validation_evidence.tsv",
       "checksum_sha256": "f911f5e7bc5efe062f0e1ce9e8d7be4abd4c234386f98d61a49b3b70d8e1bcb7",
       "folder": "qc",
       "legacy_relative_path": "targeted_validation_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'targeted_validation_evidence'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_entry_id' in TSV output 'targeted_validation_evidence'.",
+            "name": "assay_entry_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_protein_ref' in TSV output 'targeted_validation_evidence'.",
+            "name": "target_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_sequence' in TSV output 'targeted_validation_evidence'.",
+            "name": "peptide_sequence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'canonical_peptide' in TSV output 'targeted_validation_evidence'.",
+            "name": "canonical_peptide",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'precursor_charge' in TSV output 'targeted_validation_evidence'.",
+            "name": "precursor_charge",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'uniqueness_class' in TSV output 'targeted_validation_evidence'.",
+            "name": "uniqueness_class",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'matched_target_id' in TSV output 'targeted_validation_evidence'.",
+            "name": "matched_target_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'matched_target_count' in TSV output 'targeted_validation_evidence'.",
+            "name": "matched_target_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'case_condition' in TSV output 'targeted_validation_evidence'.",
+            "name": "case_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'control_condition' in TSV output 'targeted_validation_evidence'.",
+            "name": "control_condition",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'case_reliable_sample_count' in TSV output 'targeted_validation_evidence'.",
+            "name": "case_reliable_sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'control_reliable_sample_count' in TSV output 'targeted_validation_evidence'.",
+            "name": "control_reliable_sample_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'case_mean_log2_intensity' in TSV output 'targeted_validation_evidence'.",
+            "name": "case_mean_log2_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'control_mean_log2_intensity' in TSV output 'targeted_validation_evidence'.",
+            "name": "control_mean_log2_intensity",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'validation_log2_effect' in TSV output 'targeted_validation_evidence'.",
+            "name": "validation_log2_effect",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_effect_size' in TSV output 'targeted_validation_evidence'.",
+            "name": "discovery_effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_direction' in TSV output 'targeted_validation_evidence'.",
+            "name": "discovery_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_direction' in TSV output 'targeted_validation_evidence'.",
+            "name": "validation_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'verdict' in TSV output 'targeted_validation_evidence'.",
+            "name": "verdict",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'targeted_validation_evidence'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_validation_evidence'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted validation evidence.",
+        "table_name": "targeted_validation_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_validation_evidence.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_validation_evidence.tsv",
       "row_count": 2
@@ -289,10 +2269,121 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_validation_inconclusive.tsv",
       "checksum_sha256": "75aa1749ed147d3b6af011d1c7597f1004cccc9000361ce34e29b9748fc37628",
       "folder": "qc",
       "legacy_relative_path": "targeted_validation_inconclusive.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'candidate_id' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "candidate_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'candidate_kind' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "candidate_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'display_label' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "display_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_protein_ref' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "target_protein_ref",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'site_key' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "site_key",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'priority_rank' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "priority_rank",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'discovery_effect_size' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "discovery_effect_size",
+            "required": true,
+            "value_type": "float"
+          },
+          {
+            "meaning": "Stable column 'discovery_direction' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "discovery_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_log2_effect' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "validation_log2_effect",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'validation_direction' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "validation_direction",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'verdict' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "verdict",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'assay_evidence_count' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "assay_evidence_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'confirmed_assay_count' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "confirmed_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'contradicted_assay_count' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "contradicted_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'inconclusive_assay_count' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "inconclusive_assay_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'reason_codes' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "reason_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'note' in TSV output 'targeted_validation_inconclusive'.",
+            "name": "note",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted validation inconclusive.",
+        "table_name": "targeted_validation_inconclusive"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_validation_inconclusive.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_validation_inconclusive.tsv",
       "row_count": 1
@@ -300,10 +2391,31 @@
     {
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
+      "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/targeted_validation_summary.tsv",
       "checksum_sha256": "a285af7c59e90f7141946ceb2163038478b8afca3fb641f6d93e8059c284fb28",
       "folder": "qc",
       "legacy_relative_path": "targeted_validation_summary.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'field' in TSV output 'targeted_validation_summary'.",
+            "name": "field",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'value' in TSV output 'targeted_validation_summary'.",
+            "name": "value",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for targeted validation summary.",
+        "table_name": "targeted_validation_summary"
+      },
+      "output_table_schema_sidecar_relative_path": "qc/targeted_validation_summary.tsv.schema.json",
       "producer_function": "run_targeted_validation_workflow",
       "relative_path": "qc/targeted_validation_summary.tsv",
       "row_count": 12
