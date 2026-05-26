@@ -15,7 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
-ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types
+ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
 ROOT_TARGET_GROUPS_test-all ?= check
@@ -46,7 +46,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist test-collection-gate \
-	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types
+	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types quality-circular-imports
 
 check: lock-check lint test-collection-gate test quality security docs api build sbom ## Run the full repository verification flow
 
@@ -77,6 +77,9 @@ quality-artifact-governance: root-check-env ## Enforce artifact roots and reposi
 
 quality-public-api-types: root-check-env ## Type-check curated public API modules with governed mypy and pyright configs
 	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.public_api_typecheck_targets --check
+
+quality-circular-imports: root-check-env ## Validate governed workspace package and package-family circular import scopes
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.dependencies.circular_import_scopes --check
 
 test-collection-gate: root-check-env ## Run workspace import checks and per-package pytest collection before feature tests
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.test_collection_gate
