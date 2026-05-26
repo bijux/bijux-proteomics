@@ -46,7 +46,7 @@ def _build_signature_snapshot(symbol_path: str) -> dict[str, object]:
     }
 
 
-def test_intelligence_core_signature_snapshot_matches_dia_support_owner() -> None:
+def test_intelligence_core_signature_snapshots_match_consumed_core_surfaces() -> None:
     expected = json.loads(_fixture_path().read_text(encoding="utf-8"))
 
     assert {

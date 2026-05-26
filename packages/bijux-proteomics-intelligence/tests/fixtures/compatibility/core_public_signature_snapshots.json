@@ -35,5 +35,19 @@
       "absent_expected_peptide_count"
     ],
     "signature": "(*, imported_precursor_count: 'int', expected_precursor_count: 'int', sample_resolved_precursor_count: 'int', expected_sample_resolved_precursor_count: 'int', transition_supported_precursor_count: 'int', expected_transition_precursor_count: 'int', protein_group_count: 'int', expected_protein_group_count: 'int', sample_resolved_protein_count: 'int', expected_sample_resolved_protein_count: 'int', ion_mobility_observed_count: 'int', ion_mobility_expected_count: 'int', library_matched_peptide_count: 'int', expected_library_peptide_count: 'int', absent_expected_peptide_count: 'int', sample_library_coverage_fraction: 'float | None' = None, condition_library_coverage_fraction: 'float | None' = None) -> 'DiaWorkflowScientificSupportReport'"
+  },
+  "bijux_proteomics.identification.build_review_ready_evidence_bundle": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "records"
+    ],
+    "signature": "(records: 'tuple[PsmRecord, ...]', *, threshold: 'float' = 0.05, score_orientation: 'str' = 'higher_better', ptm_site_keys_by_peptide: 'dict[str, tuple[str, ...]] | None' = None, quant_support_by_protein: 'dict[str, dict[str, float | None]] | None' = None) -> 'ReviewReadyEvidenceBundle'"
+  },
+  "bijux_proteomics.io.formats.parse_experimental_design_table": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "path"
+    ],
+    "signature": "(path: 'Path') -> 'ExperimentalDesignReport'"
   }
 }
