@@ -62,6 +62,9 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
         for entry in manifest.artifacts
     }
     assert entries["tmt_validation_summary.tsv"].folder is WorkflowArtifactFolder.QC
+    assert entries["tmt_validation_summary.tsv"].artifact_id == (
+        "artifact:qc:tsv_table:qc:tmt_validation_summary.tsv"
+    )
     assert entries["tmt_validation_summary.tsv"].artifact_kind is WorkflowArtifactKind.TSV_TABLE
     assert entries["tmt_validation_summary.tsv"].artifact_schema == "tsv[placeholder]"
     assert entries["tmt_validation_summary.tsv"].artifact_schema_version == "2026-05-26"
@@ -80,6 +83,9 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
     assert payload["layout_name"] == "workflow_artifact_layout"
     assert payload["producer_function"] == "test_workflow_surface"
     assert payload["artifacts"][0]["checksum_sha256"]
+    assert len({entry.artifact_id for entry in manifest.artifacts}) == len(
+        manifest.artifacts
+    )
 
 
 def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
@@ -222,4 +228,38 @@ def test_validate_workflow_artifact_manifest_rejects_missing_artifact(
     (tmp_path / "reports" / "advanced_targeted_workflow_manifest.json").unlink()
 
     with pytest.raises(ScientificEvidenceError, match="missing file"):
+        validate_workflow_artifact_manifest(tmp_path)
+
+
+def test_validate_workflow_artifact_manifest_rejects_duplicate_artifact_ids(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "advanced_targeted_workflow_manifest.json").write_text(
+        json.dumps({"status": "ok"}) + "\n",
+        encoding="utf-8",
+    )
+    synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+    manifest = load_workflow_artifact_manifest(tmp_path)
+    duplicated = manifest.artifacts[0].artifact_id
+    drifted_manifest = manifest.model_copy(
+        update={
+            "artifacts": (
+                manifest.artifacts[0],
+                manifest.artifacts[1].model_copy(update={"artifact_id": duplicated}),
+            )
+        }
+    )
+    (tmp_path / "manifest.json").write_text(
+        drifted_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(InvalidWorkflowError, match="duplicate artifact_id"):
         validate_workflow_artifact_manifest(tmp_path)

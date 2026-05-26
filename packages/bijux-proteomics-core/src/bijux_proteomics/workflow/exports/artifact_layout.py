@@ -19,6 +19,7 @@ from bijux_proteomics._output_tables import (
     validate_output_table_text,
 )
 from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
+from bijux_proteomics.domain.semantic_ids import build_artifact_id
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -48,6 +49,7 @@ class WorkflowArtifactLayoutEntry(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    artifact_id: str = Field(..., min_length=1)
     legacy_relative_path: str = Field(..., min_length=1)
     relative_path: str = Field(..., min_length=1)
     canonical_relative_path: str = Field(..., min_length=1)
@@ -131,7 +133,14 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
     """Validate manifest-listed workflow artifacts against current on-disk content."""
 
     manifest = load_workflow_artifact_manifest(output_dir)
+    seen_artifact_ids: set[str] = set()
     for artifact in manifest.artifacts:
+        if artifact.artifact_id in seen_artifact_ids:
+            raise InvalidWorkflowError(
+                "workflow artifact manifest contains duplicate artifact_id "
+                f"{artifact.artifact_id!r}"
+            )
+        seen_artifact_ids.add(artifact.artifact_id)
         artifact_path = output_dir / artifact.relative_path
         if not artifact_path.is_file():
             raise ScientificEvidenceError(
@@ -306,6 +315,11 @@ def _build_layout_entry(
             output_table_schema=output_table_schema,
         )
     return WorkflowArtifactLayoutEntry(
+        artifact_id=build_artifact_id(
+            canonical_relative_path,
+            folder=folder.value,
+            artifact_kind=artifact_kind.value,
+        ),
         legacy_relative_path=legacy_relative_path,
         relative_path=canonical_relative_path,
         canonical_relative_path=canonical_relative_path,
