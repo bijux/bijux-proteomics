@@ -341,6 +341,35 @@ def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None
     assert workflow.ProteomicsStudyQcKind.ARCHIVED_RESULT.value == "archived_result"
 
 
+def test_workflow_package_exports_advanced_workflow_family_surface(
+    tmp_path: Path,
+) -> None:
+    contract = workflow.build_advanced_workflow_family_contract(
+        workflow_name="advanced_targeted",
+        config=workflow.TargetedValidationWorkflowConfig(
+            result_tsv_path=tmp_path / "results.tsv",
+            design_tsv_path=tmp_path / "design.tsv",
+            output_dir=tmp_path / "advanced_targeted",
+            case_condition="case",
+            control_condition="control",
+        ),
+        primary_input_fields=("result_tsv_path",),
+        design_input_fields=("design_tsv_path",),
+        comparison_input_fields=("case_condition", "control_condition"),
+        artifacts=workflow.AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json="advanced_targeted_workflow_manifest.json",
+            base_workflow_manifest_json="targeted_assay_qc_workflow_manifest.json",
+            summary_tsv="advanced_targeted_summary.tsv",
+            rejected_evidence_tsv="rejected_evidence.tsv",
+        ),
+        note="advanced targeted workflow contract",
+    )
+
+    assert hasattr(workflow, "build_advanced_workflow_family_contract")
+    assert hasattr(workflow, "validate_advanced_workflow_family_contract")
+    assert workflow.validate_advanced_workflow_family_contract(contract) == ()
+
+
 def test_workflow_package_exports_advanced_maxquant_surface(tmp_path: Path) -> None:
     report = workflow.run_advanced_maxquant_workflow(
         workflow.AdvancedMaxquantWorkflowConfig(

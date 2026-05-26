@@ -50,13 +50,23 @@ def test_major_workflow_reports_subclass_standardized_result_types() -> None:
 
 
 def test_major_workflow_reports_expose_standardized_result_fields() -> None:
-    for report_type in (
+    advanced_family_reports = (
         AdvancedDiannWorkflowReport,
         AdvancedFragpipeWorkflowReport,
         AdvancedMaxquantWorkflowReport,
         AdvancedPtmWorkflowReport,
         TargetedValidationWorkflowReport,
         AdvancedTmtWorkflowReport,
+    )
+    for report_type in advanced_family_reports:
+        fields = report_type.model_fields
+        assert "manifest" in fields
+        assert "family_protocol" in fields
+        assert "artifacts" in fields
+        assert "warnings" in fields
+        assert "rejected_evidence" in fields
+
+    for report_type in (
         DiscoveryToAssayReport,
         MultiStudyComparisonReport,
         OrchestratorWorkflowResult,
