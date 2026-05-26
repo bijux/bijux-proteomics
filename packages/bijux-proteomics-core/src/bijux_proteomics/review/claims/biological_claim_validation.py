@@ -9,8 +9,9 @@ import csv
 from enum import StrEnum
 from io import StringIO
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
 from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import FinalClaimEvidenceTier
@@ -86,7 +87,17 @@ class BiologicalClaimCandidate(JsonModel):
     regulator_signal_surface: str | None = None
     regulator_score: float | None = Field(default=None, ge=0.0, le=1.0)
     source_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> BiologicalClaimCandidate:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class BiologicalClaimValidationPolicy(JsonModel):
@@ -129,7 +140,17 @@ class BiologicalClaimValidationEntry(JsonModel):
         default_factory=tuple
     )
     source_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
     validation_note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> BiologicalClaimValidationEntry:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class BiologicalClaimValidationSummary(JsonModel):
@@ -201,6 +222,8 @@ def build_biological_claim_validation_report(
             regulator_score=candidate.regulator_score,
             reason_codes=tuple(sorted(reasons, key=lambda value: value.value)),
             source_ids=tuple(sort_strings(candidate.source_ids)),
+            source_row_refs=candidate.source_row_refs,
+            derived_no_source_reason=candidate.derived_no_source_reason,
             validation_note=_build_validation_note(candidate, status, reasons),
         )
         if status is BiologicalClaimStatus.SUPPORTED:
@@ -428,6 +451,8 @@ def _render_claim_rows(
             "regulator_score",
             "reason_codes",
             "source_ids",
+            "source_row_refs",
+            "derived_no_source_reason",
             "validation_note",
         )
     )
@@ -456,6 +481,10 @@ def _render_claim_rows(
                 "" if entry.regulator_score is None else entry.regulator_score,
                 ";".join(reason.value for reason in entry.reason_codes),
                 ";".join(entry.source_ids),
+                ";".join(entry.source_row_refs),
+                ""
+                if entry.derived_no_source_reason is None
+                else entry.derived_no_source_reason,
                 entry.validation_note,
             )
         )

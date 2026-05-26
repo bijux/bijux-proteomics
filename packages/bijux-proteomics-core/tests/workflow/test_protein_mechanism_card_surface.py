@@ -114,6 +114,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                     corrected_log2_fold_change=1.5,
                 ),
                 claim_ids=("ptm-claim-P04637-S15",),
+                source_row_refs=("ptm.tsv:2",),
             ),
         ),
         narrative_claims=(
@@ -123,6 +124,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                 site_key="P04637:S15:Phospho",
                 claim_kind=PtmEvidenceCardClaimKind.DIFFERENTIAL_SITE,
                 text="P04637 S15 phosphorylation rises in treatment.",
+                source_row_refs=("ptm.tsv:2",),
             ),
         ),
         summary=PtmEvidenceCardSummary(
@@ -244,12 +246,15 @@ def test_build_protein_mechanism_card_report_summarizes_graph_backed_abundance_p
     assert p04637_card.abundance_change.adjusted_p_value is not None
     assert p04637_card.ptms[0].site_key == "P04637:S15:Phospho"
     assert p04637_card.ptms[0].mechanism_class is PtmMechanismClass.SITE_SPECIFIC
+    assert p04637_card.source_row_refs
+    assert p04637_card.derived_no_source_reason is None
     assert any(domain.label == "cell_cycle_core" for domain in p04637_card.domains)
     assert any(entry.entry_id == "custom:response" for entry in q9y243_card.pathways)
     assert any(entry.entry_id == "custom:triad" for entry in q9y243_card.complexes)
     assert p04637_card.peptide_support.graph_support_edge_count >= 2
     assert p04637_card.evidence_tier.value == "high_confidence"
     assert "ptm_site_keys" in render_protein_mechanism_card_tsv(mechanism_report)
+    assert "source_row_refs" in render_protein_mechanism_card_tsv(mechanism_report)
     assert mechanism_report.summary.ptm_annotated_card_count == 1
     assert mechanism_report.summary.domain_annotated_card_count >= 1
     assert mechanism_report.summary.pathway_annotated_card_count >= 1

@@ -13,8 +13,9 @@ from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_protein_mechanism_card_id
 from bijux_proteomics.ptm import PtmEvidenceCardReport, PtmMechanismClass
 from bijux_proteomics.review import (
@@ -117,8 +118,18 @@ class ProteinMechanismCard(JsonModel):
     evidence_tier: FinalClaimEvidenceTier
     confidence_tier: EvidenceGraphConfidenceTier
     downgrade_reasons: tuple[EvidenceGraphDowngradeReason, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
     evidence_rationale: str = Field(..., min_length=1)
     warning_codes: tuple[ProteinEvidenceCardWarningCode, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> ProteinMechanismCard:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class ProteinMechanismCardSummary(JsonModel):
@@ -179,6 +190,13 @@ def build_protein_mechanism_card_report(
             graph_report.graph,
             protein_id=protein_card.protein_group_id,
         )
+        source_row_lineage = (
+            SourceRowLineage.from_source_row_refs(protein_card.graph_source_row_refs)
+            if protein_card.graph_source_row_refs
+            else SourceRowLineage.from_derived_reason(
+                "protein mechanism cards inherit governed protein evidence but the upstream protein card did not preserve concrete source-row refs"
+            )
+        )
         pathways, complexes = _split_pathway_entries(protein_card.pathways)
         cards.append(
             ProteinMechanismCard(
@@ -227,6 +245,8 @@ def build_protein_mechanism_card_report(
                 evidence_tier=final_entry.evidence_tier,
                 confidence_tier=final_entry.confidence_tier,
                 downgrade_reasons=final_entry.downgrade_reasons,
+                source_row_refs=source_row_lineage.source_row_refs,
+                derived_no_source_reason=source_row_lineage.derived_no_source_reason,
                 evidence_rationale=final_entry.rationale,
                 warning_codes=tuple(
                     sorted(
@@ -332,6 +352,8 @@ def render_protein_mechanism_card_tsv(report: ProteinMechanismCardReport) -> str
             "confidence_tier",
             "evidence_tier",
             "downgrade_reasons",
+            "source_row_refs",
+            "derived_no_source_reason",
             "warning_codes",
             "evidence_rationale",
         )
@@ -374,6 +396,10 @@ def render_protein_mechanism_card_tsv(report: ProteinMechanismCardReport) -> str
                 card.confidence_tier.value,
                 card.evidence_tier.value,
                 ";".join(reason.value for reason in card.downgrade_reasons),
+                ";".join(card.source_row_refs),
+                ""
+                if card.derived_no_source_reason is None
+                else card.derived_no_source_reason,
                 ";".join(code.value for code in card.warning_codes),
                 card.evidence_rationale,
             )

@@ -37,6 +37,7 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 evidence_tier=FinalClaimEvidenceTier.HIGH_CONFIDENCE,
                 confidence_tier=EvidenceGraphConfidenceTier.HIGH,
                 source_ids=("protein-mechanism-card:P11111", "statistical_result:P11111"),
+                source_row_refs=("protein_stats.tsv:4", "protein_matrix.tsv:4"),
                 note="strong protein decrease",
             ),
             BiologicalClaimCandidate(
@@ -52,6 +53,9 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 pathway_confidence_status="high_confidence",
                 pathway_delta=0.64,
                 source_ids=("pathway-activity:R-HSA-1",),
+                derived_no_source_reason=(
+                    "pathway activity claims aggregate governed pathway activity comparisons rather than preserving one direct input row"
+                ),
                 note="directional pathway activation",
             ),
             BiologicalClaimCandidate(
@@ -67,6 +71,9 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 regulator_signal_surface="site_regulation",
                 regulator_score=0.77,
                 source_ids=("regulator-inference:MAPK14",),
+                derived_no_source_reason=(
+                    "regulator activity claims aggregate governed upstream-target evidence and downstream signal surfaces rather than preserving one direct input row"
+                ),
                 note="substrate direction supports kinase activity",
             ),
             BiologicalClaimCandidate(
@@ -86,6 +93,7 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 evidence_tier=FinalClaimEvidenceTier.WEAK,
                 confidence_tier=EvidenceGraphConfidenceTier.LOW,
                 source_ids=("protein-mechanism-card:P22222",),
+                source_row_refs=("protein_stats.tsv:7",),
                 note="weak protein decrease",
             ),
             BiologicalClaimCandidate(
@@ -101,6 +109,9 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 pathway_confidence_status="low_confidence",
                 pathway_delta=0.08,
                 source_ids=("pathway-activity:R-HSA-2",),
+                derived_no_source_reason=(
+                    "pathway activity claims aggregate governed pathway activity comparisons rather than preserving one direct input row"
+                ),
                 note="weak pathway change",
             ),
             BiologicalClaimCandidate(
@@ -116,6 +127,9 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 regulator_signal_surface="protein_abundance",
                 regulator_score=0.72,
                 source_ids=("regulator-inference:MAPK1",),
+                derived_no_source_reason=(
+                    "regulator activity claims aggregate governed upstream-target evidence and downstream signal surfaces rather than preserving one direct input row"
+                ),
                 note="kinase should not validate from abundance only",
             ),
         ),
@@ -149,6 +163,11 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
     assert "kinase_requires_site_surface" in {
         reason.value for reason in rejected_by_id["regulator-claim:MAPK1"].reason_codes
     }
+    supported_by_id = {entry.claim_id: entry for entry in report.supported_claims}
+    assert supported_by_id["protein-claim:P11111"].source_row_refs
+    assert (
+        supported_by_id["pathway-claim:R-HSA-1"].derived_no_source_reason is not None
+    )
 
 
 def test_biological_claim_validation_rejects_non_significant_protein_claims() -> None:
@@ -170,6 +189,7 @@ def test_biological_claim_validation_rejects_non_significant_protein_claims() ->
                 evidence_tier=FinalClaimEvidenceTier.MODERATE,
                 confidence_tier=EvidenceGraphConfidenceTier.MODERATE,
                 source_ids=("protein-mechanism-card:P33333",),
+                source_row_refs=("protein_stats.tsv:12",),
                 note="nominal but not significant",
             ),
         )
@@ -181,3 +201,4 @@ def test_biological_claim_validation_rejects_non_significant_protein_claims() ->
     assert "not_significant" in {
         reason.value for reason in report.rejected_claims[0].reason_codes
     }
+    assert report.rejected_claims[0].source_row_refs == ("protein_stats.tsv:12",)

@@ -110,6 +110,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                     status="corrected",
                     corrected_log2_fold_change=1.5,
                 ),
+                source_row_refs=("ptm.tsv:2",),
             ),
             PtmEvidenceCard(
                 card_id="ptm-card-Q9Y243-Y77",
@@ -156,6 +157,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                     mode=PtmProteinCorrectionMode.NONE,
                     status="not_corrected",
                 ),
+                source_row_refs=("ptm.tsv:3",),
             ),
         ),
         narrative_claims=(
@@ -165,6 +167,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                 site_key="P04637:S15:Phospho",
                 claim_kind=PtmEvidenceCardClaimKind.DIFFERENTIAL_SITE,
                 text="P04637 S15 phosphorylation rises in treatment.",
+                source_row_refs=("ptm.tsv:2",),
             ),
             PtmEvidenceCardClaim(
                 claim_id="ptm-claim-Q9Y243-Y77",
@@ -172,6 +175,7 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                 site_key="Q9Y243:Y77:Phospho",
                 claim_kind=PtmEvidenceCardClaimKind.DIFFERENTIAL_SITE,
                 text="Q9Y243 Y77 phosphorylation falls in treatment.",
+                source_row_refs=("ptm.tsv:3",),
             ),
         ),
         summary=PtmEvidenceCardSummary(

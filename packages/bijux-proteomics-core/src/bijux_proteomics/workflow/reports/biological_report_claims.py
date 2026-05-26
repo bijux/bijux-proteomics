@@ -593,6 +593,8 @@ def _build_biological_protein_claim_candidates(
                     card.graph_claim_node_id,
                     card.protein_card_id,
                 ),
+                source_row_refs=card.source_row_refs,
+                derived_no_source_reason=card.derived_no_source_reason,
                 note=(
                     "protein abundance claims require robust quantitative support, "
                     "not just nominal differential direction"
@@ -640,6 +642,9 @@ def _build_biological_pathway_claim_candidates(
                 source_ids=(
                     f"pathway-activity:{entry.pathway_id}",
                     f"pathway-activity-comparison:{entry.pathway_id}:{entry.condition_a}:{entry.condition_b}",
+                ),
+                derived_no_source_reason=(
+                    "pathway activity claims aggregate governed pathway activity comparisons rather than preserving one direct input row"
                 ),
                 note=(
                     "pathway activation claims require explicit directional activity "
@@ -714,6 +719,9 @@ def _build_biological_regulator_claim_candidates(
                 source_ids=(
                     f"regulator-inference:{entry.regulator}",
                     f"regulator-surface:{entry.signal_surface.value}",
+                ),
+                derived_no_source_reason=(
+                    "regulator activity claims aggregate governed upstream-target evidence and downstream signal surfaces rather than preserving one direct input row"
                 ),
                 note=(
                     "regulator claims require directional downstream support on the "
