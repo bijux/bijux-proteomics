@@ -68,7 +68,7 @@ def test_cross_package_function_signature_report_covers_dia_and_shared_functions
     )
     assert (
         hash_entry.signature_text
-        == "(payload: 'dict[str, Any]', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
+        == "(payload: 'Mapping[str, Any]', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
     )
     assert hash_entry.consumer_distributions == (
         "bijux-proteomics-core",

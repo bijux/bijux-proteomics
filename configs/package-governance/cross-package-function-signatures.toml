@@ -447,6 +447,17 @@ consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.identification.diann_import"
+function_name = "build_diann_import_report"
+signature_text = "(result_tsv_path: 'Path', *, config_path: 'Path | None' = None) -> 'DiaNnBundleImportReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.identification.search_adapters"
 function_name = "build_search_adapter_conformance_report"
 signature_text = "(normalization_report: 'SearchAdapterNormalizationReport') -> 'SearchAdapterConformanceReport'"
@@ -495,10 +506,13 @@ provider_module = "bijux_proteomics.io.formats"
 function_name = "parse_experimental_design_table"
 signature_text = "(path: 'Path') -> 'ExperimentalDesignReport'"
 consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
-consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.plans"]
+consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_runtime.workflows.advanced_diann", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.plans"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-intelligence"
 consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-runtime"
 consumer_module = "bijux_proteomics_runtime.workflows.benchmark_runs"
@@ -555,9 +569,42 @@ consumer_module = "bijux_proteomics_runtime.workflows.runs"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.lab.planning"
+function_name = "build_targeted_platform_support_matrix"
+signature_text = "(payloads: 'tuple[TargetedPlatformAssumptionInput, ...]') -> 'TargetedPlatformSupportMatrixReport'"
+consumer_distributions = ["bijux-proteomics-intelligence"]
+consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-intelligence"
+consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.lab.planning"
+function_name = "evaluate_targeted_workflow_boundary"
+signature_text = "(payload: 'TargetedWorkflowBoundaryInput') -> 'TargetedWorkflowBoundaryReport'"
+consumer_distributions = ["bijux-proteomics-intelligence"]
+consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-intelligence"
+consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.lab.qc_benchmarks"
+function_name = "build_workflow_minimum_control_report"
+signature_text = "() -> 'WorkflowMinimumControlReport'"
+consumer_distributions = ["bijux-proteomics-intelligence"]
+consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-intelligence"
+consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.ptm"
 function_name = "build_ptm_motif_windows"
-signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, protein_sequences: 'dict[str, str]', flank_size: 'int' = 7) -> 'tuple[PtmMotifWindow, ...]'"
+signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, protein_sequences: 'Mapping[str, str]', flank_size: 'int' = 7) -> 'tuple[PtmMotifWindow, ...]'"
 consumer_distributions = ["bijux-proteomics-runtime"]
 consumer_modules = ["bijux_proteomics_runtime.workflows.runs"]
 [[entry.import_site]]
@@ -593,7 +640,7 @@ consumer_module = "bijux_proteomics_runtime.workflows.runs"
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.ptm"
 function_name = "map_ptm_evidence_to_protein_sites"
-signature_text = "(records: 'tuple[PtmEvidenceRecord, ...]', *, protein_sequences: 'dict[str, str]', registry: 'ModificationRegistryDocument | None' = None) -> 'tuple[PtmProteinSiteMapping, ...]'"
+signature_text = "(records: 'tuple[PtmEvidenceRecord, ...]', *, protein_sequences: 'Mapping[str, str]', registry: 'ModificationRegistryDocument | None' = None) -> 'tuple[PtmProteinSiteMapping, ...]'"
 consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
 consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_runtime.workflows.runs"]
 [[entry.import_site]]
@@ -632,7 +679,7 @@ consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.ptm.benchmarks"
 function_name = "build_ptm_family_credibility_track_report"
-signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, feature_records: 'tuple[Ms1FeatureRecord, ...]', protein_sequences: 'dict[str, str]') -> 'PtmFamilyCredibilityTrackReport'"
+signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, feature_records: 'tuple[Ms1FeatureRecord, ...]', protein_sequences: 'Mapping[str, str]') -> 'PtmFamilyCredibilityTrackReport'"
 consumer_distributions = ["bijux-proteomics-intelligence"]
 consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
 [[entry.import_site]]
@@ -654,7 +701,7 @@ consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.ptm.review"
 function_name = "build_phospho_specific_review_fixture_report"
-signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, feature_records: 'tuple[Ms1FeatureRecord, ...]', protein_sequences: 'dict[str, str]') -> 'PtmPhosphoReviewFixtureReport'"
+signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, feature_records: 'tuple[Ms1FeatureRecord, ...]', protein_sequences: 'Mapping[str, str]') -> 'PtmPhosphoReviewFixtureReport'"
 consumer_distributions = ["bijux-proteomics-intelligence"]
 consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
 [[entry.import_site]]
@@ -925,36 +972,25 @@ consumer_module = "bijux_proteomics_runtime.workflows.runs"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
-provider_module = "bijux_proteomics.study.laboratory_plans"
-function_name = "build_targeted_platform_support_matrix"
-signature_text = "(payloads: 'tuple[TargetedPlatformAssumptionInput, ...]') -> 'TargetedPlatformSupportMatrixReport'"
-consumer_distributions = ["bijux-proteomics-intelligence"]
-consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
+provider_module = "bijux_proteomics.study"
+function_name = "build_experiment_design_validity_report"
+signature_text = "(design: 'ExperimentDesign | tuple[ExperimentalDesignEntry, ...]', *, condition_a: 'str | None' = None, condition_b: 'str | None' = None, batch_field: 'str | None' = None, pairing_field: 'str | None' = None, require_complete_plex_channels: 'bool' = False, timepoint_field: 'str | None' = None, ordered_timepoints: 'tuple[str, ...]' = ()) -> 'ExperimentDesignValidityReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
 [[entry.import_site]]
-consumer_distribution = "bijux-proteomics-intelligence"
-consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
-provider_module = "bijux_proteomics.study.laboratory_plans"
-function_name = "evaluate_targeted_workflow_boundary"
-signature_text = "(payload: 'TargetedWorkflowBoundaryInput') -> 'TargetedWorkflowBoundaryReport'"
-consumer_distributions = ["bijux-proteomics-intelligence"]
-consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
+provider_module = "bijux_proteomics.study"
+function_name = "build_experiment_feasibility_report"
+signature_text = "(design: 'ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...]', *, condition_a: 'str | None' = None, condition_b: 'str | None' = None, batch_field: 'str | None' = None, pairing_field: 'str | None' = None, timepoint_field: 'str | None' = None, ordered_timepoints: 'tuple[str, ...]' = (), minimum_statistical_units_per_condition: 'int' = 2) -> 'ExperimentFeasibilityReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
 [[entry.import_site]]
-consumer_distribution = "bijux-proteomics-intelligence"
-consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
-
-[[entry]]
-provider_distribution = "bijux-proteomics-core"
-provider_module = "bijux_proteomics.study.qc_benchmarks"
-function_name = "build_workflow_minimum_control_report"
-signature_text = "() -> 'WorkflowMinimumControlReport'"
-consumer_distributions = ["bijux-proteomics-intelligence"]
-consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
-[[entry.import_site]]
-consumer_distribution = "bijux-proteomics-intelligence"
-consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
@@ -970,6 +1006,34 @@ consumer_module = "bijux_proteomics_runtime.diff.completed_runs"
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.workflow"
+function_name = "build_result_manifest_from_artifacts"
+signature_text = "(*, biological_report_dir: 'Path | None' = None, ptm_report_dir: 'Path | None' = None, run_qc_assessment_tsv_paths: 'tuple[Path, ...]' = (), lab_action_packet_tsv_paths: 'tuple[Path, ...]' = (), input_paths: 'tuple[Path, ...]' = (), commands: 'tuple[str, ...]') -> 'ResultManifestReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann_archive", "bijux_proteomics_runtime.workflows.architecture_demo", "bijux_proteomics_runtime.workflows.package_smoke"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann_archive"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.architecture_demo"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.package_smoke"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow"
+function_name = "build_workflow_output_validation_report"
+signature_text = "(output_dir: 'Path') -> 'WorkflowOutputValidationReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.architecture_demo"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.architecture_demo"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow"
 function_name = "load_result_archive"
 signature_text = "(path: 'Path') -> 'ProteomicsStudyResult'"
 consumer_distributions = ["bijux-proteomics-runtime"]
@@ -977,6 +1041,28 @@ consumer_modules = ["bijux_proteomics_runtime.rehydrate.loading"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-runtime"
 consumer_module = "bijux_proteomics_runtime.rehydrate.loading"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow"
+function_name = "run_scale_demo"
+signature_text = "(config: 'ScaleDemoConfig') -> 'ScaleDemoReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.package_smoke"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.package_smoke"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow"
+function_name = "run_surprising_demo"
+signature_text = "(config: 'SurprisingDemoConfig') -> 'SurprisingDemoReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.architecture_demo"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.architecture_demo"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
@@ -991,6 +1077,39 @@ consumer_module = "bijux_proteomics_lab.planning.assays"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-lab"
 consumer_module = "bijux_proteomics_lab.readiness.stages"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow.pipelines.advanced_diann"
+function_name = "build_advanced_diann_workflow_report_from_bundle"
+signature_text = "(base_report: 'DiannBiologicalWorkflowBundle', config: 'AdvancedDiannWorkflowConfig') -> 'AdvancedDiannWorkflowReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow.pipelines.diann_biological_workflow"
+function_name = "build_diann_biological_workflow_bundle_from_reports"
+signature_text = "(import_report: 'DiaNnBundleImportReport', quant_matrix_bundle: 'DiannQuantMatrixBundle', design_entries: 'ExperimentDesign | tuple[ExperimentalDesignEntry, ...]', *, proteins_fasta_path: 'Path', protocol_context_tsv_path: 'Path | None' = None, include_decoys: 'bool' = False, max_q_value: 'float | None' = 0.01, normalization_method: 'NormalizationMethod' = <NormalizationMethod.MEDIAN: 'median'>, condition_a: 'str | None' = None, condition_b: 'str | None' = None, annotation_tsv_path: 'Path | None' = None, context_annotation_tsv_path: 'Path | None' = None, go_annotation_tsv_path: 'Path | None' = None, pathway_membership_tsv_path: 'Path | None' = None, complex_membership_tsv_path: 'Path | None' = None, selection_policy: 'BiologicalResultSelectionPolicy | None' = None, volcano_policy: 'VolcanoReviewPolicy | None' = None) -> 'DiannBiologicalWorkflowBundle'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow.pipelines.diann_biological_workflow"
+function_name = "build_diann_quant_matrix_bundle"
+signature_text = "(import_report: 'DiaNnBundleImportReport', *, include_decoys: 'bool' = False, max_q_value: 'float | None' = 0.01, peptide_rollup_method: 'DiaPeptideRollupMethod' = <DiaPeptideRollupMethod.MAX: 'max'>, target_kind: 'DiaProteinMatrixTargetKind' = <DiaProteinMatrixTargetKind.PROTEIN_GROUP: 'protein_group'>, shared_peptide_policy: 'DiaSharedPeptidePolicy' = <DiaSharedPeptidePolicy.INCLUDE: 'include'>, protein_rollup_method: 'DiaProteinRollupMethod' = <DiaProteinRollupMethod.SUM: 'sum'>) -> 'DiannQuantMatrixBundle'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-foundation"
@@ -1018,10 +1137,10 @@ provider_module = "bijux_proteomics_foundation"
 function_name = "hash_model"
 signature_text = "(model: 'JsonModel', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev"]
-consumer_modules = ["bijux_proteomics.study.qc", "bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
+consumer_modules = ["bijux_proteomics.lab.qc", "bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.study.qc"
+consumer_module = "bijux_proteomics.lab.qc"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-dev"
 consumer_module = "bijux_proteomics_dev.governance.contracts.serialization_compatibility"
@@ -1030,9 +1149,9 @@ consumer_module = "bijux_proteomics_dev.governance.contracts.serialization_compa
 provider_distribution = "bijux-proteomics-foundation"
 provider_module = "bijux_proteomics_foundation"
 function_name = "hash_payload"
-signature_text = "(payload: 'dict[str, Any]', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
+signature_text = "(payload: 'Mapping[str, Any]', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-consumer_modules = ["bijux_proteomics.sequences.theoretical_digest", "bijux_proteomics_dev.release.governance.cross_package_smoke", "bijux_proteomics_intelligence.candidates.fingerprints", "bijux_proteomics_intelligence.judgment.policies", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_runtime.artifacts.steps", "bijux_proteomics_runtime.handoff.archive", "bijux_proteomics_runtime.resume.execution", "bijux_proteomics_runtime.runs.checkpoints", "bijux_proteomics_runtime.runs.contracts", "bijux_proteomics_runtime.runs.replay", "bijux_proteomics_runtime.streaming.execution", "bijux_proteomics_runtime.support.primitives.fingerprints", "bijux_proteomics_runtime.support.primitives.identifiers"]
+consumer_modules = ["bijux_proteomics.sequences.theoretical_digest", "bijux_proteomics_dev.release.governance.cross_package_smoke", "bijux_proteomics_intelligence.candidates.fingerprints", "bijux_proteomics_intelligence.judgment.policies", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_runtime.artifacts.steps", "bijux_proteomics_runtime.handoff.archive", "bijux_proteomics_runtime.resume.execution", "bijux_proteomics_runtime.runs.checkpoints", "bijux_proteomics_runtime.runs.contracts", "bijux_proteomics_runtime.runs.replay", "bijux_proteomics_runtime.streaming.execution", "bijux_proteomics_runtime.support.primitives.fingerprints", "bijux_proteomics_runtime.support.primitives.identifiers", "bijux_proteomics_runtime.workflows.advanced_diann"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
 consumer_module = "bijux_proteomics.sequences.theoretical_digest"
@@ -1075,6 +1194,9 @@ consumer_module = "bijux_proteomics_runtime.support.primitives.fingerprints"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-runtime"
 consumer_module = "bijux_proteomics_runtime.support.primitives.identifiers"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-foundation"
@@ -1100,7 +1222,7 @@ consumer_module = "bijux_proteomics_runtime.support.primitives.hashing"
 provider_distribution = "bijux-proteomics-foundation"
 provider_module = "bijux_proteomics_foundation"
 function_name = "to_canonical_json"
-signature_text = "(model: 'JsonModel | dict[str, Any]') -> 'str'"
+signature_text = "(model: 'JsonModel | Mapping[str, Any]') -> 'str'"
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-runtime"]
 consumer_modules = ["bijux_proteomics_dev.governance.contracts.serialization_compatibility", "bijux_proteomics_dev.release.governance.cross_package_smoke", "bijux_proteomics_runtime.support.primitives.fingerprints"]
 [[entry.import_site]]
@@ -1142,7 +1264,7 @@ consumer_module = "bijux_proteomics.tabular"
 provider_distribution = "bijux-proteomics-foundation"
 provider_module = "bijux_proteomics_foundation.compatibility"
 function_name = "compatibility_module_dir"
-signature_text = "(module_globals: 'dict[str, object]', surface: 'ImportMigrationSurface') -> 'list[str]'"
+signature_text = "(module_globals: 'Mapping[str, object]', surface: 'ImportMigrationSurface') -> 'list[str]'"
 consumer_distributions = ["bijux-proteomics-core"]
 consumer_modules = ["bijux_proteomics.scientific_tables", "bijux_proteomics.tabular"]
 [[entry.import_site]]
@@ -1207,6 +1329,17 @@ consumer_module = "bijux_proteomics.domain.validation"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-foundation"
+provider_module = "bijux_proteomics_foundation.outcomes.optional_dependencies"
+function_name = "import_optional_module"
+signature_text = "(module_name: 'str', *, dependency_name: 'str', feature_name: 'str', install_hint: 'str') -> 'Any'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.sequences.digestion"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.sequences.digestion"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-foundation"
 provider_module = "bijux_proteomics_foundation.public_api"
 function_name = "list_foundation_root_api_entries"
 signature_text = "() -> 'tuple[FoundationRootApiEntry, ...]'"
@@ -1228,15 +1361,21 @@ consumer_distribution = "bijux-proteomics-runtime"
 consumer_module = "bijux_proteomics_runtime.support.artifact_formats"
 
 [[entry]]
-provider_distribution = "bijux-proteomics-intelligence"
-provider_module = "bijux_proteomics_intelligence.belief_audit"
-function_name = "build_belief_audit"
-signature_text = "(claims: 'tuple[EvidenceClaim, ...] | list[EvidenceClaim]', evidence_graph: 'EvidenceGraph') -> 'BeliefAuditReport'"
-consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+provider_distribution = "bijux-proteomics-foundation"
+provider_module = "bijux_proteomics_foundation.testing.generated_file_markers"
+function_name = "detect_generated_file_marker"
+signature_text = "(path: 'Path') -> 'GeneratedFileMarker | None'"
+consumer_distributions = ["bijux-proteomics-dev"]
+consumer_modules = ["bijux_proteomics_dev.governance.package_shape.internal_orphan_modules", "bijux_proteomics_dev.quality.artifacts.generated_file_markers", "bijux_proteomics_dev.release.governance.generated_governance_freshness"]
 [[entry.import_site]]
-consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.surprising_demo"
+consumer_distribution = "bijux-proteomics-dev"
+consumer_module = "bijux_proteomics_dev.governance.package_shape.internal_orphan_modules"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-dev"
+consumer_module = "bijux_proteomics_dev.quality.artifacts.generated_file_markers"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-dev"
+consumer_module = "bijux_proteomics_dev.release.governance.generated_governance_freshness"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1244,10 +1383,10 @@ provider_module = "bijux_proteomics_intelligence.belief_audit"
 function_name = "render_belief_audit_tsv"
 signature_text = "(entries: 'tuple[BeliefAuditEntry, ...]') -> 'str'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.surprising_demo"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1329,24 +1468,24 @@ consumer_module = "bijux_proteomics_runtime.execution.validation"
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
 provider_module = "bijux_proteomics_intelligence.contradictions"
-function_name = "find_claim_contradictions"
-signature_text = "(claims: 'tuple[EvidenceClaim, ...] | list[EvidenceClaim]') -> 'ClaimContradictionReport'"
-consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
-[[entry.import_site]]
-consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.surprising_demo"
-
-[[entry]]
-provider_distribution = "bijux-proteomics-intelligence"
-provider_module = "bijux_proteomics_intelligence.contradictions"
 function_name = "render_claim_contradictions_tsv"
 signature_text = "(entries: 'tuple[ClaimContradictionEntry, ...]') -> 'str'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.surprising_demo"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-intelligence"
+provider_module = "bijux_proteomics_intelligence.falsifiers"
+function_name = "render_claim_falsifiers_tsv"
+signature_text = "(entries: 'tuple[ClaimFalsifierEntry, ...]') -> 'str'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1427,6 +1566,39 @@ consumer_module = "bijux_proteomics_dev.release.governance.workflow_consequence_
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-lab"
 consumer_module = "bijux_proteomics_lab.benchmarks.follow_up"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-intelligence"
+provider_module = "bijux_proteomics_intelligence.refusal"
+function_name = "render_claim_refusal_tsv"
+signature_text = "(entries: 'tuple[ClaimRefusalEntry, ...]') -> 'str'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-intelligence"
+provider_module = "bijux_proteomics_intelligence.reviews"
+function_name = "build_intelligence_report_contract"
+signature_text = "(claims: 'tuple[EvidenceClaim, ...] | list[EvidenceClaim]', evidence_graph: 'EvidenceGraph', *, refusal_thresholds: 'ClaimRefusalThresholds | None' = None) -> 'IntelligenceReportContract'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-intelligence"
+provider_module = "bijux_proteomics_intelligence.reviews"
+function_name = "validate_intelligence_report_contract"
+signature_text = "(contract: 'IntelligenceReportContract') -> 'None'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.workflow.pipelines.integrated_scientific_report"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.workflow.pipelines.integrated_scientific_report"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1665,10 +1837,10 @@ provider_module = "bijux_proteomics_knowledge.memory.integrity.graph"
 function_name = "build_evidence_graph"
 signature_text = "(bundle: 'EvidenceBundle', claims: 'list[EvidenceClaim] | None' = None, unresolved_questions: 'list[UnresolvedQuestion] | None' = None, liabilities: 'list[LiabilityNodeInput] | None' = None) -> 'EvidenceGraph'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.surprising_demo"]
+consumer_modules = ["bijux_proteomics.workflow.demo.surprising_demo"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.surprising_demo"
+consumer_module = "bijux_proteomics.workflow.demo.surprising_demo"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-knowledge"
@@ -1771,6 +1943,17 @@ consumer_module = "bijux_proteomics_lab.planning.assays"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-lab"
 consumer_module = "bijux_proteomics_lab.planning.next_cycle"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-knowledge"
+provider_module = "bijux_proteomics_knowledge.pathways.members"
+function_name = "resolve_pathway_members"
+signature_text = "(protein_ids: 'tuple[str, ...]', pathway_pack: 'AnnotationPack | tuple[PathwayMembershipRecord, ...]', *, policy: 'PathwayCoveragePolicy | None' = None) -> 'PathwayMembershipResolutionReport'"
+consumer_distributions = ["bijux-proteomics-core"]
+consumer_modules = ["bijux_proteomics.interpretation.pathway_activity"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-core"
+consumer_module = "bijux_proteomics.interpretation.pathway_activity"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-knowledge"
@@ -2095,16 +2278,16 @@ provider_module = "bijux_proteomics_lab.handoffs.ptm"
 function_name = "build_ptm_lab_validation_packet"
 signature_text = "(site_entries: 'tuple[PtmSiteEntry, ...]', *, occupancy_report: 'PtmOccupancyCounterpartEvidenceReport | None' = None, cooccurrence_report: 'PtmCooccurrenceCautionReport | None' = None) -> 'PtmLabValidationPacket'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.ptm.review"]
+consumer_modules = ["bijux_proteomics.ptm.cards.review"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.ptm.review"
+consumer_module = "bijux_proteomics.ptm.cards.review"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-lab"
 provider_module = "bijux_proteomics_lab.handoffs.serialization"
 function_name = "build_canonical_artifact_envelope"
-signature_text = "(model: 'JsonModel', *, artifact_kind: 'str', schema: 'SchemaMetadata') -> 'dict[str, object]'"
+signature_text = "(model: 'JsonModel', *, artifact_kind: 'str', schema: 'SchemaMetadata') -> 'CanonicalArtifactEnvelope'"
 consumer_distributions = ["bijux-proteomics-dev"]
 consumer_modules = ["bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
 [[entry.import_site]]
@@ -2115,7 +2298,7 @@ consumer_module = "bijux_proteomics_dev.governance.contracts.serialization_compa
 provider_distribution = "bijux-proteomics-lab"
 provider_module = "bijux_proteomics_lab.handoffs.serialization"
 function_name = "verify_canonical_artifact_envelope"
-signature_text = "(envelope: 'dict[str, object]') -> 'bool'"
+signature_text = "(envelope: 'CanonicalArtifactEnvelope') -> 'bool'"
 consumer_distributions = ["bijux-proteomics-dev"]
 consumer_modules = ["bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
 [[entry.import_site]]
@@ -2371,7 +2554,7 @@ consumer_module = "agentic_proteins.providers"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.providers.capabilities"
 function_name = "validate_runtime_capabilities"
-signature_text = "(config: 'dict[str, object]', allow_unknown: 'bool' = False) -> 'tuple[list[str], list[str]]'"
+signature_text = "(config: 'Mapping[str, object]', allow_unknown: 'bool' = False) -> 'tuple[list[str], list[str]]'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.providers", "agentic_proteins.providers.capabilities"]
 [[entry.import_site]]
@@ -2482,7 +2665,7 @@ consumer_module = "agentic_proteins.providers.selection"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs"
 function_name = "run_flow"
-signature_text = "(candidate: 'Candidate', run_context: 'RunContext', tool: 'Tool | None' = None) -> 'dict[str, Any]'"
+signature_text = "(candidate: 'Candidate', run_context: 'RunContext', tool: 'Tool | None' = None) -> 'RuntimeFlowResult'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.orchestration"]
 [[entry.import_site]]
@@ -2493,7 +2676,7 @@ consumer_module = "agentic_proteins.orchestration"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "compare_runs"
-signature_text = "(run_a: 'Path', run_b: 'Path') -> 'dict[str, Any]'"
+signature_text = "(run_a: 'Path', run_b: 'Path') -> 'RunComparisonReport'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2507,7 +2690,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "load_artifact"
-signature_text = "(workspace: 'RunWorkspace', artifact_id: 'str') -> 'dict[str, Any]'"
+signature_text = "(workspace: 'RunWorkspace', artifact_id: 'str') -> 'Mapping[str, Any]'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2549,7 +2732,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "selection_as_dict"
-signature_text = "(selection: 'CandidateSelection') -> 'dict[str, Any]'"
+signature_text = "(selection: 'CandidateSelection') -> 'CandidateSelectionSnapshot'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2563,7 +2746,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "validate_human_decision"
-signature_text = "(path: 'Path') -> 'tuple[bool, list[str], dict[str, Any]]'"
+signature_text = "(path: 'Path') -> 'HumanDecisionValidationReport'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2577,7 +2760,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "write_artifact"
-signature_text = "(workspace: 'RunWorkspace', kind: 'str', payload: 'dict[str, Any]', description: 'str' = '', tags: 'list[str] | None' = None) -> 'ArtifactMetadata'"
+signature_text = "(workspace: 'RunWorkspace', kind: 'str', payload: 'Mapping[str, Any]', description: 'str' = '', tags: 'list[str] | None' = None) -> 'ArtifactMetadata'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2591,7 +2774,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.artifacts"
 function_name = "write_failure_artifacts"
-signature_text = "(run_context: 'RunContext', failure_type: 'FailureType', details: 'dict[str, Any]') -> 'None'"
+signature_text = "(run_context: 'RunContext', failure_type: 'FailureType', details: 'Mapping[str, Any]') -> 'None'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution.artifacts", "agentic_proteins.orchestration.artifacts"]
 [[entry.import_site]]
@@ -2605,7 +2788,7 @@ consumer_module = "agentic_proteins.orchestration.artifacts"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.runs.manager"
 function_name = "run_flow"
-signature_text = "(candidate: 'Candidate', run_context: 'RunContext', tool: 'Tool | None' = None) -> 'dict[str, Any]'"
+signature_text = "(candidate: 'Candidate', run_context: 'RunContext', tool: 'Tool | None' = None) -> 'RuntimeFlowResult'"
 consumer_distributions = ["agentic-proteins"]
 consumer_modules = ["agentic_proteins.execution", "agentic_proteins.execution.manager", "agentic_proteins.orchestration.manager"]
 [[entry.import_site]]
@@ -2667,7 +2850,7 @@ consumer_module = "bijux_proteomics_intelligence.reviews.workflow_authority"
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.workflows"
 function_name = "build_proteomics_workflow_runtime_bundle"
-signature_text = "(*, proteins_path: 'Path', spectra_path: 'Path', identifications_path: 'Path | None' = None, features_path: 'Path | None' = None, design_path: 'Path | None' = None, sample_id: 'str | None' = None, search_adapter_kind: 'SearchAdapterKind' = <SearchAdapterKind.GENERIC: 'generic'>, scheduler: 'WorkflowSchedulerKind' = <WorkflowSchedulerKind.SLURM: 'slurm'>, default_container_image: 'str' = 'ghcr.io/bijux/proteomics-runtime:stable', artifacts_dir: 'Path | None' = None, completed_step_ids: 'tuple[str, ...]' = ()) -> 'ProteomicsWorkflowRuntimeBundle'"
+signature_text = "(*, proteins_path: 'Path', spectra_path: 'Path', identifications_path: 'Path | None' = None, features_path: 'Path | None' = None, design_path: 'Path | None' = None, sample_id: 'str | None' = None, search_adapter_kind: 'SearchAdapterKind' = <SearchAdapterKind.GENERIC: 'generic'>, scheduler: 'WorkflowSchedulerKind' = <WorkflowSchedulerKind.SLURM: 'slurm'>, default_container_image: 'str' = 'ghcr.io/bijux/proteomics-runtime:stable', artifacts_dir: 'Path | None' = None, completed_step_ids: 'tuple[str, ...]' = (), fdr_q_value_threshold: 'float' = 0.01) -> 'ProteomicsWorkflowRuntimeBundle'"
 consumer_distributions = ["bijux-proteomics-core"]
 consumer_modules = ["bijux_proteomics.interfaces.runtime_plans"]
 [[entry.import_site]]
