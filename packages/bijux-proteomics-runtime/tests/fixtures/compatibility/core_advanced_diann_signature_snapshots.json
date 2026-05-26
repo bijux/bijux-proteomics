@@ -1,0 +1,36 @@
+{
+  "bijux_proteomics.identification.diann_import.build_diann_import_report": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "result_tsv_path"
+    ],
+    "signature": "(result_tsv_path: 'Path', *, config_path: 'Path | None' = None) -> 'DiaNnBundleImportReport'"
+  },
+  "bijux_proteomics.workflow.pipelines.advanced_diann.build_advanced_diann_workflow_report_from_bundle": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "base_report",
+      "config"
+    ],
+    "signature": "(base_report: 'DiannBiologicalWorkflowBundle', config: 'AdvancedDiannWorkflowConfig') -> 'AdvancedDiannWorkflowReport'"
+  },
+  "bijux_proteomics.workflow.pipelines.diann_biological_workflow.build_diann_biological_workflow_bundle_from_reports": {
+    "required_keyword_only_parameters": [
+      "proteins_fasta_path"
+    ],
+    "required_parameters": [
+      "import_report",
+      "quant_matrix_bundle",
+      "design_entries",
+      "proteins_fasta_path"
+    ],
+    "signature": "(import_report: 'DiaNnBundleImportReport', quant_matrix_bundle: 'DiannQuantMatrixBundle', design_entries: 'ExperimentDesign | tuple[ExperimentalDesignEntry, ...]', *, proteins_fasta_path: 'Path', protocol_context_tsv_path: 'Path | None' = None, include_decoys: 'bool' = False, max_q_value: 'float | None' = 0.01, normalization_method: 'NormalizationMethod' = <NormalizationMethod.MEDIAN: 'median'>, condition_a: 'str | None' = None, condition_b: 'str | None' = None, annotation_tsv_path: 'Path | None' = None, context_annotation_tsv_path: 'Path | None' = None, go_annotation_tsv_path: 'Path | None' = None, pathway_membership_tsv_path: 'Path | None' = None, complex_membership_tsv_path: 'Path | None' = None, selection_policy: 'BiologicalResultSelectionPolicy | None' = None, volcano_policy: 'VolcanoReviewPolicy | None' = None) -> 'DiannBiologicalWorkflowBundle'"
+  },
+  "bijux_proteomics.workflow.pipelines.diann_biological_workflow.build_diann_quant_matrix_bundle": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "import_report"
+    ],
+    "signature": "(import_report: 'DiaNnBundleImportReport', *, include_decoys: 'bool' = False, max_q_value: 'float | None' = 0.01, peptide_rollup_method: 'DiaPeptideRollupMethod' = <DiaPeptideRollupMethod.MAX: 'max'>, target_kind: 'DiaProteinMatrixTargetKind' = <DiaProteinMatrixTargetKind.PROTEIN_GROUP: 'protein_group'>, shared_peptide_policy: 'DiaSharedPeptidePolicy' = <DiaSharedPeptidePolicy.INCLUDE: 'include'>, protein_rollup_method: 'DiaProteinRollupMethod' = <DiaProteinRollupMethod.SUM: 'sum'>) -> 'DiannQuantMatrixBundle'"
+  }
+}

@@ -57,3 +57,9 @@ def test_runtime_core_signature_snapshots_match_archive_and_smoke_surfaces() -> 
     _assert_signature_snapshot_fixture_matches(
         "core_archive_signature_snapshots.json"
     )
+
+
+def test_runtime_core_signature_snapshots_match_advanced_diann_surfaces() -> None:
+    _assert_signature_snapshot_fixture_matches(
+        "core_advanced_diann_signature_snapshots.json"
+    )
