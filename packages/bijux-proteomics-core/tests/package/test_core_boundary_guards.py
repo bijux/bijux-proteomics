@@ -25,6 +25,19 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
     "ptm/cards/review.py": {
         "bijux_proteomics_lab.handoffs.ptm",
     },
+    "workflow/demo/surprising_demo.py": {
+        "bijux_proteomics_intelligence.belief_audit",
+        "bijux_proteomics_intelligence.contradictions",
+        "bijux_proteomics_knowledge.memory.integrity.graph",
+        "bijux_proteomics_knowledge.memory.models.claims",
+        "bijux_proteomics_knowledge.memory.models.evidence",
+    },
+    "workflow/reports/biological_report_assembly.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
+    "workflow/reports/biological_result_graph.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
 }
 REMOVED_COMPATIBILITY_IMPORTS = {
     "bijux_proteomics.advanced_format_ingestion",
