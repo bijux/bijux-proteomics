@@ -15,7 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
-ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports && $(MAKE) quality-core-dependency-minimization
+ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports && $(MAKE) quality-core-dependency-minimization && $(MAKE) quality-optional-dependency-guards
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
 ROOT_TARGET_GROUPS_test-all ?= check
@@ -46,7 +46,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist test-collection-gate \
-	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types quality-circular-imports quality-core-dependency-minimization
+	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types quality-circular-imports quality-core-dependency-minimization quality-optional-dependency-guards
 
 check: lock-check lint test-collection-gate test quality security docs api build sbom ## Run the full repository verification flow
 
@@ -83,6 +83,9 @@ quality-circular-imports: root-check-env ## Validate governed workspace package 
 
 quality-core-dependency-minimization: root-check-env ## Validate that core default imports stay free of forbidden heavy dependencies
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.dependencies.core_dependency_minimization --check
+
+quality-optional-dependency-guards: root-check-env ## Validate graceful optional dependency failure and minimal-install smoke paths
+	@PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src:$(CURDIR)/packages/bijux-proteomics-foundation/src:$(CURDIR)/packages/bijux-proteomics-core/src:$(CURDIR)/packages/bijux-proteomics-knowledge/src:$(CURDIR)/packages/bijux-proteomics-intelligence/src:$(CURDIR)/packages/bijux-proteomics-lab/src:$(CURDIR)/packages/bijux-proteomics-runtime/src" "$(ROOT_CHECK_PYTHON)" -m pytest packages/bijux-proteomics-foundation/tests/outcomes/test_optional_dependency_surface.py packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py packages/bijux-proteomics-core/tests/package/test_optional_dependency_import_smoke.py packages/bijux-proteomics-runtime/tests/providers/test_runtime_provider_surface.py packages/bijux-proteomics-runtime/tests/package/test_optional_dependency_import_smoke.py -q -p no:cov --import-mode=importlib
 
 test-collection-gate: root-check-env ## Run workspace import checks and per-package pytest collection before feature tests
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.test_collection_gate
