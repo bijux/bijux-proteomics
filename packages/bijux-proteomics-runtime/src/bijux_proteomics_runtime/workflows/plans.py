@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 import hashlib
 from pathlib import Path
@@ -105,9 +106,11 @@ class WorkflowCacheMissReason(StrEnum):
 
     ENTRY_MISSING = "entry-missing"
     SCIENTIFIC_INPUTS_CHANGED = "scientific-inputs-changed"
+    PARAMETERS_CHANGED = "parameters-changed"
     TOOLCHAIN_CHANGED = "toolchain-changed"
     POLICY_CHANGED = "policy-changed"
     SCHEMA_CHANGED = "schema-changed"
+    DEPENDENCY_CHANGED = "dependency-changed"
     CACHE_LAYOUT_CHANGED = "cache-layout-changed"
 
 
@@ -544,9 +547,17 @@ class WorkflowCacheEntry(JsonModel):
 
     cache_key: str = Field(..., min_length=64, max_length=64)
     surface: str = Field(..., min_length=1)
+    producer_step_id: str = Field(..., min_length=1)
     source_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     source_hashes: tuple[str, ...] = Field(default_factory=tuple)
     scientific_inputs_sha256: str = Field(..., min_length=64, max_length=64)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    schema_sha256: str = Field(..., min_length=64, max_length=64)
+    parameter_assumptions: tuple[str, ...] = Field(default_factory=tuple)
+    parameter_sha256: str = Field(..., min_length=64, max_length=64)
+    dependency_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    dependency_cache_keys: tuple[str, ...] = Field(default_factory=tuple)
+    dependency_sha256: str = Field(..., min_length=64, max_length=64)
     cache_schema_version: str = Field(..., min_length=1)
     tool_versions: tuple[str, ...] = Field(default_factory=tuple)
     policy_assumptions: tuple[str, ...] = Field(default_factory=tuple)
@@ -587,6 +598,35 @@ class WorkflowCacheMissExplanationReport(JsonModel):
     entries: tuple[WorkflowCacheMissExplanationEntry, ...] = Field(
         default_factory=tuple
     )
+
+
+class WorkflowCacheReuseDisposition(StrEnum):
+    """Whether one cache-aware workflow step can be reused or must rerun."""
+
+    REUSED = "reused"
+    RERUN = "rerun"
+
+
+class WorkflowCacheReuseDecision(JsonModel):
+    """Reuse decision for one cache-aware workflow step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    surface: str = Field(..., min_length=1)
+    disposition: WorkflowCacheReuseDisposition
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class WorkflowCacheReusePlan(JsonModel):
+    """Deterministic rerun plan derived from cache keys and step dependencies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    reused_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    rerun_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    decisions: tuple[WorkflowCacheReuseDecision, ...] = Field(default_factory=tuple)
 
 
 class ArtifactRegistryEntry(JsonModel):
@@ -948,7 +988,22 @@ def _sanitize_identifier(value: str) -> str:
     )
 
 
-_WORKFLOW_CACHE_SCHEMA_VERSION = "1.0.0"
+_WORKFLOW_CACHE_SCHEMA_VERSION = "2.0.0"
+_DEFAULT_FDR_Q_VALUE_THRESHOLD = 0.01
+
+
+@dataclass(frozen=True)
+class _WorkflowCacheSurfaceSpec:
+    """One cache-aware workflow surface tied to a producer step."""
+
+    surface: str
+    producer_step_id: str
+    source_roles: tuple[WorkflowInputRole, ...]
+    expected_artifacts: tuple[WorkflowArtifactKind, ...]
+    schema_refs: tuple[str, ...]
+    parameter_assumptions: tuple[str, ...]
+    policy_assumptions: tuple[str, ...]
+    dependency_surfaces: tuple[str, ...] = ()
 
 
 def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
@@ -987,6 +1042,19 @@ def _artifact_relative_path(
         WorkflowArtifactKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
     }
     return mapping.get(artifact_kind, f"{artifact_kind.value}.json")
+
+
+def _format_policy_float(value: float) -> str:
+    return format(value, "g")
+
+
+def _cache_schema_refs(
+    artifacts: tuple[WorkflowArtifactKind, ...],
+) -> tuple[str, ...]:
+    return tuple(
+        _expected_artifact_document_kind(artifact_kind) or artifact_kind.value
+        for artifact_kind in artifacts
+    )
 
 
 def _artifact_path_for_kind(
@@ -1057,6 +1125,7 @@ def _build_runtime_policies(
     search_adapter_kind: SearchAdapterKind,
     default_container_image: str,
     streaming_threshold_bytes: int,
+    fdr_q_value_threshold: float,
     has_features: bool,
     has_design: bool,
 ) -> tuple[str, ...]:
@@ -1070,6 +1139,7 @@ def _build_runtime_policies(
         f"runtime:scheduler={scheduler.value}",
         f"runtime:container-image={default_container_image}",
         f"runtime:streaming-threshold-bytes={streaming_threshold_bytes}",
+        f"fdr:q-value-threshold={_format_policy_float(fdr_q_value_threshold)}",
         f"quant:features-enabled={'true' if has_features else 'false'}",
         f"design:table-attached={'true' if has_design else 'false'}",
     )
@@ -1092,8 +1162,9 @@ def _cache_policy_assumptions(
     prefixes_by_surface = {
         "digestion": ("digest:", "runtime:"),
         "search-normalization": ("search:", "runtime:"),
-        "spectra-parse": ("runtime:",),
+        "fdr-score": ("runtime:",),
         "quant-parse": ("quant:", "design:", "runtime:"),
+        "run-bundle": ("runtime:",),
     }
     prefixes = prefixes_by_surface.get(surface, ("runtime:",))
     return tuple(
@@ -1101,6 +1172,118 @@ def _cache_policy_assumptions(
         for policy in manifest.runtime_policies
         if any(policy.startswith(prefix) for prefix in prefixes)
     )
+
+
+def _cache_parameter_assumptions(
+    manifest: ProteomicsWorkflowManifest,
+    surface: str,
+) -> tuple[str, ...]:
+    prefixes_by_surface = {
+        "digestion": ("digest:",),
+        "search-normalization": ("search:",),
+        "fdr-score": ("fdr:",),
+        "quant-parse": ("quant:", "design:"),
+        "run-bundle": (),
+    }
+    prefixes = prefixes_by_surface.get(surface, ())
+    return tuple(
+        policy
+        for policy in manifest.runtime_policies
+        if any(policy.startswith(prefix) for prefix in prefixes)
+    )
+
+
+def _workflow_cache_surface_specs(
+    manifest: ProteomicsWorkflowManifest,
+) -> tuple[_WorkflowCacheSurfaceSpec, ...]:
+    step_by_kind = {step.kind: step for step in manifest.steps}
+    specs = [
+        _WorkflowCacheSurfaceSpec(
+            surface="digestion",
+            producer_step_id=step_by_kind[WorkflowStepKind.DIGEST_DATABASE].step_id,
+            source_roles=(WorkflowInputRole.PROTEINS,),
+            expected_artifacts=(
+                WorkflowArtifactKind.DIGEST_MANIFEST,
+                WorkflowArtifactKind.DIGEST_EXPORT,
+            ),
+            schema_refs=_cache_schema_refs(
+                (
+                    WorkflowArtifactKind.DIGEST_MANIFEST,
+                    WorkflowArtifactKind.DIGEST_EXPORT,
+                )
+            ),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "digestion"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "digestion"),
+        ),
+        _WorkflowCacheSurfaceSpec(
+            surface="search-normalization",
+            producer_step_id=step_by_kind[
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS
+            ].step_id,
+            source_roles=(
+                (WorkflowInputRole.IDENTIFICATIONS,)
+                if any(
+                    asset.role is WorkflowInputRole.IDENTIFICATIONS
+                    for asset in manifest.input_assets
+                )
+                else (WorkflowInputRole.SPECTRA,)
+            ),
+            expected_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
+            schema_refs=_cache_schema_refs(
+                (WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,)
+            ),
+            parameter_assumptions=_cache_parameter_assumptions(
+                manifest, "search-normalization"
+            ),
+            policy_assumptions=_cache_policy_assumptions(
+                manifest, "search-normalization"
+            ),
+        ),
+        _WorkflowCacheSurfaceSpec(
+            surface="fdr-score",
+            producer_step_id=step_by_kind[WorkflowStepKind.CALCULATE_FDR].step_id,
+            source_roles=(),
+            expected_artifacts=(WorkflowArtifactKind.FDR_REPORT,),
+            schema_refs=_cache_schema_refs((WorkflowArtifactKind.FDR_REPORT,)),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "fdr-score"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "fdr-score"),
+            dependency_surfaces=("search-normalization",),
+        ),
+    ]
+    if any(asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets):
+        quant_roles: list[WorkflowInputRole] = [WorkflowInputRole.FEATURES]
+        if any(asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets):
+            quant_roles.append(WorkflowInputRole.DESIGN)
+        specs.append(
+            _WorkflowCacheSurfaceSpec(
+                surface="quant-parse",
+                producer_step_id=step_by_kind[WorkflowStepKind.QUANTIFY_FEATURES].step_id,
+                source_roles=tuple(quant_roles),
+                expected_artifacts=(WorkflowArtifactKind.QUANT_REPORT,),
+                schema_refs=_cache_schema_refs((WorkflowArtifactKind.QUANT_REPORT,)),
+                parameter_assumptions=_cache_parameter_assumptions(
+                    manifest, "quant-parse"
+                ),
+                policy_assumptions=_cache_policy_assumptions(manifest, "quant-parse"),
+                dependency_surfaces=("search-normalization",),
+            )
+        )
+    bundle_dependency_surfaces = ["search-normalization", "fdr-score"]
+    if any(asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets):
+        bundle_dependency_surfaces.append("quant-parse")
+    specs.append(
+        _WorkflowCacheSurfaceSpec(
+            surface="run-bundle",
+            producer_step_id=step_by_kind[WorkflowStepKind.BUILD_RUN_BUNDLE].step_id,
+            source_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
+            expected_artifacts=(WorkflowArtifactKind.RUN_BUNDLE,),
+            schema_refs=_cache_schema_refs((WorkflowArtifactKind.RUN_BUNDLE,)),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "run-bundle"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "run-bundle"),
+            dependency_surfaces=tuple(bundle_dependency_surfaces),
+        )
+    )
+    return tuple(specs)
 
 
 def _build_step(
@@ -1141,6 +1324,7 @@ def build_proteomics_workflow_manifest(
     default_container_image: str = "ghcr.io/bijux/proteomics-runtime:stable",
     artifacts_dir: Path | None = None,
     streaming_threshold_bytes: int = 8 * 1024 * 1024,
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowManifest:
     """Build one workflow manifest over digest/search/FDR/quant/QC surfaces."""
     design_entry = _resolve_design_entry(
@@ -1299,6 +1483,8 @@ def build_proteomics_workflow_manifest(
                 "bijux-proteomics",
                 "fdr",
                 str(output_root / "identifications.normalized.jsonl"),
+                "--q-value-threshold",
+                _format_policy_float(fdr_q_value_threshold),
                 "--out",
                 str(output_root / "fdr.report.json"),
             ),
@@ -1365,10 +1551,12 @@ def build_proteomics_workflow_manifest(
                 str(spectra_path),
                 "--identifications",
                 str(identifications_path or (output_root / "search" / "results.tsv")),
+                "--fdr-threshold",
+                _format_policy_float(fdr_q_value_threshold),
                 "--out-dir",
                 str(output_root / "bundle"),
             ),
-            cacheable=False,
+            cacheable=True,
         )
     )
 
@@ -1390,6 +1578,7 @@ def build_proteomics_workflow_manifest(
             search_adapter_kind=search_adapter_kind,
             default_container_image=default_container_image,
             streaming_threshold_bytes=streaming_threshold_bytes,
+            fdr_q_value_threshold=fdr_q_value_threshold,
             has_features=features_path is not None,
             has_design=design_path is not None,
         ),
@@ -1894,6 +2083,7 @@ def instantiate_proteomics_workflow_template(
     design_path: Path | None = None,
     sample_id: str | None = None,
     artifacts_dir: Path | None = None,
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowManifest:
     """Instantiate a reusable workflow template into a concrete workflow manifest."""
     attached_roles = {
@@ -1927,6 +2117,7 @@ def instantiate_proteomics_workflow_template(
         scheduler=template.recommended_scheduler,
         default_container_image=template.default_container_image,
         artifacts_dir=artifacts_dir,
+        fdr_q_value_threshold=fdr_q_value_threshold,
     )
 
 
@@ -2227,70 +2418,56 @@ def build_workflow_runtime_cache(
 ) -> WorkflowCacheManifest:
     """Build deterministic cache keys for reusable workflow surfaces."""
     asset_by_role = {asset.role: asset for asset in manifest.input_assets}
+    entries_by_surface: dict[str, WorkflowCacheEntry] = {}
     entries: list[WorkflowCacheEntry] = []
-    cache_specs = [
-        (
-            "digestion",
-            (WorkflowInputRole.PROTEINS,),
-            (
-                WorkflowArtifactKind.DIGEST_MANIFEST,
-                WorkflowArtifactKind.DIGEST_EXPORT,
-            ),
-        ),
-        (
-            "search-normalization",
-            (
-                (WorkflowInputRole.IDENTIFICATIONS,)
-                if WorkflowInputRole.IDENTIFICATIONS in asset_by_role
-                else (WorkflowInputRole.SPECTRA,)
-            ),
-            (WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
-        ),
-        (
-            "spectra-parse",
-            (WorkflowInputRole.SPECTRA,),
-            (WorkflowArtifactKind.QC_REPORT,),
-        ),
-    ]
-    if WorkflowInputRole.FEATURES in asset_by_role:
-        cache_specs.append(
-            (
-                "quant-parse",
-                (WorkflowInputRole.FEATURES,),
-                (WorkflowArtifactKind.QUANT_REPORT,),
-            )
-        )
-    for surface, roles, artifacts in cache_specs:
-        source_hashes = tuple(asset_by_role[role].sha256 for role in roles)
+    for spec in _workflow_cache_surface_specs(manifest):
+        source_hashes = tuple(asset_by_role[role].sha256 for role in spec.source_roles)
         scientific_inputs_sha256 = _stable_sequence_sha256(source_hashes)
+        schema_sha256 = _stable_sequence_sha256(spec.schema_refs)
+        parameter_sha256 = _stable_sequence_sha256(spec.parameter_assumptions)
+        dependency_cache_keys = tuple(
+            entries_by_surface[surface].cache_key for surface in spec.dependency_surfaces
+        )
+        dependency_sha256 = _stable_sequence_sha256(dependency_cache_keys)
         tool_versions = _workflow_tool_versions(manifest)
-        policy_assumptions = _cache_policy_assumptions(manifest, surface)
+        policy_assumptions = spec.policy_assumptions
         cache_key = hashlib.sha256(
             "|".join(
                 (
                     manifest.workflow_id,
-                    surface,
+                    spec.surface,
                     cache_schema_version,
                     scientific_inputs_sha256,
+                    schema_sha256,
+                    parameter_sha256,
+                    dependency_sha256,
                     *tool_versions,
                     *policy_assumptions,
                 )
             ).encode("utf-8")
         ).hexdigest()
-        entries.append(
-            WorkflowCacheEntry(
-                cache_key=cache_key,
-                surface=surface,
-                source_roles=roles,
-                source_hashes=source_hashes,
-                scientific_inputs_sha256=scientific_inputs_sha256,
-                cache_schema_version=cache_schema_version,
-                tool_versions=tool_versions,
-                policy_assumptions=policy_assumptions,
-                expected_artifacts=artifacts,
-                cache_path=f"{manifest.artifacts_dir}/cache/{surface}-{cache_key[:12]}.json",
-            )
+        entry = WorkflowCacheEntry(
+            cache_key=cache_key,
+            surface=spec.surface,
+            producer_step_id=spec.producer_step_id,
+            source_roles=spec.source_roles,
+            source_hashes=source_hashes,
+            scientific_inputs_sha256=scientific_inputs_sha256,
+            schema_refs=spec.schema_refs,
+            schema_sha256=schema_sha256,
+            parameter_assumptions=spec.parameter_assumptions,
+            parameter_sha256=parameter_sha256,
+            dependency_surfaces=spec.dependency_surfaces,
+            dependency_cache_keys=dependency_cache_keys,
+            dependency_sha256=dependency_sha256,
+            cache_schema_version=cache_schema_version,
+            tool_versions=tool_versions,
+            policy_assumptions=policy_assumptions,
+            expected_artifacts=spec.expected_artifacts,
+            cache_path=f"{manifest.artifacts_dir}/cache/{spec.surface}-{cache_key[:12]}.json",
         )
+        entries.append(entry)
+        entries_by_surface[spec.surface] = entry
     payload = WorkflowCacheManifest(
         document_schema=_build_document_schema("workflow_cache_manifest"),
         workflow_id=manifest.workflow_id,
@@ -2336,14 +2513,27 @@ def build_workflow_cache_miss_explanation_report(
             detail = (
                 "scientifically relevant input hashes changed for this cache surface"
             )
+        elif observed_entry.parameter_sha256 != expected_entry.parameter_sha256:
+            reason = WorkflowCacheMissReason.PARAMETERS_CHANGED
+            detail = (
+                "semantic workflow parameters changed for this reusable cache surface"
+            )
         elif observed_entry.tool_versions != expected_entry.tool_versions:
             reason = WorkflowCacheMissReason.TOOLCHAIN_CHANGED
             detail = (
                 "recorded runtime toolchain identifiers changed for this cache surface"
             )
-        elif observed_entry.cache_schema_version != expected_entry.cache_schema_version:
+        elif (
+            observed_entry.cache_schema_version != expected_entry.cache_schema_version
+            or observed_entry.schema_sha256 != expected_entry.schema_sha256
+        ):
             reason = WorkflowCacheMissReason.SCHEMA_CHANGED
-            detail = "cache schema version changed for this reusable surface"
+            detail = "cache schema or governed output schema changed for this reusable surface"
+        elif observed_entry.dependency_sha256 != expected_entry.dependency_sha256:
+            reason = WorkflowCacheMissReason.DEPENDENCY_CHANGED
+            detail = (
+                "an upstream cache surface changed, so this dependent reusable surface must rerun"
+            )
         elif observed_entry.policy_assumptions != expected_entry.policy_assumptions:
             reason = WorkflowCacheMissReason.POLICY_CHANGED
             detail = (
@@ -2377,6 +2567,66 @@ def build_workflow_cache_miss_explanation_report(
                 payload.to_dict()
             )
         }
+    )
+
+
+def build_workflow_cache_reuse_plan(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    expected: WorkflowCacheManifest,
+    observed: WorkflowCacheManifest | None,
+) -> WorkflowCacheReusePlan:
+    """Plan which cache-aware workflow steps can be reused safely."""
+    miss_report = build_workflow_cache_miss_explanation_report(expected, observed)
+    miss_by_surface = {entry.surface: entry for entry in miss_report.entries}
+    surface_by_step_id = {
+        spec.producer_step_id: spec.surface for spec in _workflow_cache_surface_specs(manifest)
+    }
+    cacheable_steps = tuple(step for step in manifest.steps if step.cacheable)
+
+    reused_step_ids: list[str] = []
+    rerun_step_ids: list[str] = []
+    decisions: list[WorkflowCacheReuseDecision] = []
+
+    for step in cacheable_steps:
+        surface = surface_by_step_id[step.step_id]
+        reasons: list[str] = []
+        miss_entry = miss_by_surface.get(surface)
+        if miss_entry is not None:
+            reasons.append(miss_entry.reason.value)
+        if miss_entry is None:
+            for dependency_step_id in step.depends_on:
+                dependency_surface = surface_by_step_id.get(dependency_step_id)
+                if dependency_surface is None:
+                    continue
+                if dependency_step_id in rerun_step_ids:
+                    reasons.append(f"upstream:{dependency_surface}")
+        if reasons:
+            rerun_step_ids.append(step.step_id)
+            decisions.append(
+                WorkflowCacheReuseDecision(
+                    step_id=step.step_id,
+                    surface=surface,
+                    disposition=WorkflowCacheReuseDisposition.RERUN,
+                    reasons=tuple(dict.fromkeys(reasons)),
+                )
+            )
+            continue
+        reused_step_ids.append(step.step_id)
+        decisions.append(
+            WorkflowCacheReuseDecision(
+                step_id=step.step_id,
+                surface=surface,
+                disposition=WorkflowCacheReuseDisposition.REUSED,
+                reasons=(),
+            )
+        )
+
+    return WorkflowCacheReusePlan(
+        workflow_id=manifest.workflow_id,
+        reused_step_ids=tuple(reused_step_ids),
+        rerun_step_ids=tuple(rerun_step_ids),
+        decisions=tuple(decisions),
     )
 
 
@@ -2751,6 +3001,7 @@ def build_proteomics_workflow_runtime_bundle(
     default_container_image: str = "ghcr.io/bijux/proteomics-runtime:stable",
     artifacts_dir: Path | None = None,
     completed_step_ids: tuple[str, ...] = (),
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowRuntimeBundle:
     """Build the complete planning bundle for a proteomics workflow."""
     manifest = build_proteomics_workflow_manifest(
@@ -2764,6 +3015,7 @@ def build_proteomics_workflow_runtime_bundle(
         scheduler=scheduler,
         default_container_image=default_container_image,
         artifacts_dir=artifacts_dir,
+        fdr_q_value_threshold=fdr_q_value_threshold,
     )
     dag_plan = build_proteomics_dag_plan(manifest)
     container_steps = build_containerized_step_specs(manifest)

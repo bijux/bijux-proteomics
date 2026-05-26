@@ -170,6 +170,9 @@ _WORKFLOW_EXPORT_GROUPS = {
         "ExternalToolCapabilityIssue",
         "ExternalToolCapabilityReport",
         "ReproducibleWorkflowBlueprint",
+        "WorkflowCacheReuseDecision",
+        "WorkflowCacheReuseDisposition",
+        "WorkflowCacheReusePlan",
         "WorkflowArtifactKind",
         "WorkflowCacheMissReason",
         "WorkflowCheckpointStatus",
@@ -189,6 +192,7 @@ _WORKFLOW_EXPORT_GROUPS = {
         "WorkflowStepReplayDisposition",
         "WorkflowStreamingMode",
         "build_proteomics_workflow_runtime_bundle",
+        "build_workflow_cache_reuse_plan",
         "build_workflow_runtime_validation_report",
     ],
     "bijux_proteomics_runtime.workflows.reproducibility": [
