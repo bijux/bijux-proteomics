@@ -335,6 +335,7 @@ result = OperationResult.success(
 
 ## Documentation
 
+- [Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Public surfaces dossier](docs/PUBLIC-SURFACES.md)

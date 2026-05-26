@@ -16,12 +16,15 @@ def _runtime_docs() -> tuple[str, ...]:
         (RUNTIME_ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8"),
         (RUNTIME_ROOT / "docs" / "BOUNDARIES.md").read_text(encoding="utf-8"),
         (RUNTIME_ROOT / "docs" / "CONTRACTS.md").read_text(encoding="utf-8"),
+        (RUNTIME_ROOT / "docs" / "ADVANCED-DIANN-PYTHON-API.md").read_text(
+            encoding="utf-8"
+        ),
     )
 
 
 def test_runtime_docs_publish_live_charter_owner_modules_and_topology() -> None:
-    readme, architecture, boundaries, contracts = _runtime_docs()
-    combined = "\n".join((readme, architecture, boundaries, contracts))
+    readme, architecture, boundaries, contracts, tutorial = _runtime_docs()
+    combined = "\n".join((readme, architecture, boundaries, contracts, tutorial))
 
     assert "charter.py" in readme
     assert "Execution charter" in readme
@@ -37,8 +40,8 @@ def test_runtime_docs_publish_live_charter_owner_modules_and_topology() -> None:
 
 
 def test_runtime_docs_list_supported_execution_surfaces_limits_and_non_goals() -> None:
-    readme, architecture, boundaries, contracts = _runtime_docs()
-    combined = "\n".join((readme, architecture, boundaries, contracts))
+    readme, architecture, boundaries, contracts, tutorial = _runtime_docs()
+    combined = "\n".join((readme, architecture, boundaries, contracts, tutorial))
 
     assert 'launch_surface="local"' in combined
     assert 'launch_surface="container"' in combined
@@ -85,3 +88,12 @@ def test_runtime_docs_do_not_teach_broad_root_convenience_to_internal_consumers(
     )
     assert "from bijux_proteomics_runtime.api.app import AppConfig, create_app" in text
     assert "from bijux_proteomics_runtime.runs.manager import RunManager" in text
+
+
+def test_runtime_docs_publish_advanced_diann_python_api_tutorial() -> None:
+    readme, _, _, _, tutorial = _runtime_docs()
+
+    assert "[Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)" in readme
+    assert "run_resumable_advanced_diann_workflow" in tutorial
+    assert "archive_completed_advanced_diann_run" in tutorial
+    assert "load_completed_run" in tutorial
