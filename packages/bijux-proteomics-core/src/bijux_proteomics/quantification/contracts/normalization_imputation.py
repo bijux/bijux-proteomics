@@ -224,6 +224,7 @@ def build_normalization_strategy_comparison_report(
         NormalizationMethod.TIC,
         NormalizationMethod.MEDIAN,
         NormalizationMethod.QUANTILE,
+        NormalizationMethod.LOG2_MEDIAN_CENTERING,
         NormalizationMethod.VSN_LIKE,
     ),
 ) -> NormalizationStrategyComparisonReport:

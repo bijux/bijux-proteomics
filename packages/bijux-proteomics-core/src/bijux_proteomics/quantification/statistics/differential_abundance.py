@@ -124,16 +124,26 @@ def build_differential_abundance_report(
         active_paired_policy = paired_policy or PairedDifferentialPolicy()
         chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL
         effective_pairing_field = active_paired_policy.pair_id_field
-    require_feasible_experiment_design_for_analysis(
-        contrast_design_entries,
-        chosen_analysis_family=chosen_analysis_family,
-        condition_a=condition_a,
-        condition_b=condition_b,
-        pairing_field=effective_pairing_field,
-        minimum_statistical_units_per_condition=(
-            active_policy.min_replicates_per_condition
-        ),
-    )
+    try:
+        require_feasible_experiment_design_for_analysis(
+            contrast_design_entries,
+            chosen_analysis_family=chosen_analysis_family,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            pairing_field=effective_pairing_field,
+            minimum_statistical_units_per_condition=(
+                active_policy.min_replicates_per_condition
+            ),
+        )
+    except ValueError as error:
+        if (
+            active_policy.disposition is QuantAssessmentDisposition.ENFORCED
+            and "insufficient_group_size" in str(error)
+        ):
+            raise ValueError(
+                "minimum replicate policy not satisfied for differential abundance"
+            ) from error
+        raise
 
     samples_a = _sample_ids_for_condition(condition_by_sample, condition_a)
     samples_b = _sample_ids_for_condition(condition_by_sample, condition_b)

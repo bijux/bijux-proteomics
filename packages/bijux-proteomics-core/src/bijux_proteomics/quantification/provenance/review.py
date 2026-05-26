@@ -1086,11 +1086,15 @@ def build_quant_review_bundle(
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
 ) -> QuantReviewBundle:
     """Build a full quant review bundle from feature-level quant records."""
+    observed_sample_ids = {record.sample_id for record in records}
+    measured_design_entries = tuple(
+        entry for entry in design_entries if entry.sample_id in observed_sample_ids
+    )
     covariate_fields = tuple(
         sorted(
             {
                 field
-                for entry in design_entries
+                for entry in measured_design_entries
                 for field, value in entry.metadata.items()
                 if field != "timepoint" and value not in ("", None)
             }
@@ -1098,11 +1102,16 @@ def build_quant_review_bundle(
     )
     timepoint_field = (
         "timepoint"
-        if all(entry.metadata.get("timepoint") not in ("", None) for entry in design_entries)
+        if all(
+            entry.metadata.get("timepoint") not in ("", None)
+            for entry in measured_design_entries
+        )
         else None
     )
     pairing_field = (
-        "pair_id" if all(entry.pair_id not in (None, "") for entry in design_entries) else None
+        "pair_id"
+        if all(entry.pair_id not in (None, "") for entry in measured_design_entries)
+        else None
     )
     peptide_table = build_label_free_intensity_table(
         records,
@@ -1118,7 +1127,7 @@ def build_quant_review_bundle(
         peptide_table,
         normalized_table,
     )
-    conditions = tuple(sorted({entry.condition for entry in design_entries}))
+    conditions = tuple(sorted({entry.condition for entry in measured_design_entries}))
     imputed_table = impute_label_free_table(
         normalized_table,
         method=imputation_method,
@@ -1132,19 +1141,19 @@ def build_quant_review_bundle(
     )
     missingness_condition_summary = build_missingness_condition_summary_report(
         imputed_table,
-        design_entries=design_entries,
+        design_entries=measured_design_entries,
     )
     missingness_intensity_dependence = build_missingness_intensity_dependence_report(
         imputed_table
     )
     missingness = build_missingness_mechanism_profile_report(
         imputed_table,
-        design_entries=design_entries,
+        design_entries=measured_design_entries,
     )
     imputation_sensitivity = (
         build_imputation_sensitivity_report(
             normalized_table,
-            design_entries,
+            measured_design_entries,
             condition_a=conditions[0],
             condition_b=conditions[1],
         )
@@ -1152,36 +1161,41 @@ def build_quant_review_bundle(
         else None
     )
     design_matrix_report = build_quant_design_matrix_report(
-        design_entries,
+        measured_design_entries,
         batch_field="batch",
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
         timepoint_field=timepoint_field,
     )
-    differential_report = (
-        build_differential_abundance_report(
-            imputed_table,
-            design_entries,
-            condition_a=conditions[0],
-            condition_b=conditions[1],
-            test_type=(
-                DifferentialAbundanceTestType.PAIRED_T_TEST
-                if pairing_field is not None
-                else DifferentialAbundanceTestType.WELCH_T_TEST
-            ),
-            paired_policy=(
-                PairedDifferentialPolicy(pair_id_field=pairing_field)
-                if pairing_field is not None
-                else None
-            ),
-        )
-        if len(conditions) == 2
-        else None
-    )
+    differential_report = None
+    if len(conditions) == 2:
+        try:
+            differential_report = build_differential_abundance_report(
+                imputed_table,
+                measured_design_entries,
+                condition_a=conditions[0],
+                condition_b=conditions[1],
+                test_type=(
+                    DifferentialAbundanceTestType.PAIRED_T_TEST
+                    if pairing_field is not None
+                    else DifferentialAbundanceTestType.WELCH_T_TEST
+                ),
+                paired_policy=(
+                    PairedDifferentialPolicy(pair_id_field=pairing_field)
+                    if pairing_field is not None
+                    else None
+                ),
+            )
+        except ValueError as error:
+            if not (
+                timepoint_field is not None
+                and "different_analysis_family_required" in str(error)
+            ):
+                raise
     time_course_differential_report = (
         build_time_course_differential_report(
             imputed_table,
-            design_entries,
+            measured_design_entries,
             policy=TimeCourseTestingPolicy(
                 timepoint_field=timepoint_field,
                 batch_field="batch",
@@ -1192,16 +1206,20 @@ def build_quant_review_bundle(
         if timepoint_field is not None
         else None
     )
-    multi_condition_differential_report = (
-        build_multi_condition_differential_abundance_report(
-            imputed_table,
-            design_entries,
-            test_type=DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST,
-            design_matrix=design_matrix_report,
-        )
-        if len(conditions) > 2
-        else None
-    )
+    multi_condition_differential_report = None
+    if len(conditions) > 2:
+        try:
+            multi_condition_differential_report = (
+                build_multi_condition_differential_abundance_report(
+                    imputed_table,
+                    measured_design_entries,
+                    test_type=DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST,
+                    design_matrix=design_matrix_report,
+                )
+            )
+        except ValueError as error:
+            if "insufficient_group_size" not in str(error):
+                raise
     multi_contrast_consistency_report = (
         build_multi_contrast_consistency_report(
             multi_condition_differential_report,
@@ -1217,7 +1235,7 @@ def build_quant_review_bundle(
 
     limma_package = build_limma_compatible_quant_package(
         imputed_table,
-        design_entries,
+        measured_design_entries,
         batch_field="batch",
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
@@ -1225,7 +1243,7 @@ def build_quant_review_bundle(
     )
     msstats_input_report = build_msstats_compatible_input_report(
         records,
-        design_entries,
+        measured_design_entries,
     )
     design_model_fit_report = fit_quant_design_matrix_model(
         imputed_table,
@@ -1233,11 +1251,11 @@ def build_quant_review_bundle(
     )
     qc_report = build_replicate_and_batch_qc_report(
         imputed_table,
-        design_entries=design_entries,
+        design_entries=measured_design_entries,
     )
     artifact_bundle = build_quant_artifact_bundle(
         imputed_table,
-        design_entries=design_entries,
+        design_entries=measured_design_entries,
         imputation_report=imputation_report,
         imputation_sensitivity_report=imputation_sensitivity,
         missingness_entity_summary=missingness_entity_summary,
@@ -1273,12 +1291,19 @@ def build_quant_review_bundle(
     )
     da_report = None
     if len(conditions) == 2:
-        da_report = build_effect_size_first_differential_abundance_report(
-            imputed_table,
-            design_entries=design_entries,
-            condition_a=conditions[0],
-            condition_b=conditions[1],
-        )
+        try:
+            da_report = build_effect_size_first_differential_abundance_report(
+                imputed_table,
+                design_entries=design_entries,
+                condition_a=conditions[0],
+                condition_b=conditions[1],
+            )
+        except ValueError as error:
+            if not (
+                timepoint_field is not None
+                and "different_analysis_family_required" in str(error)
+            ):
+                raise
     caveats: list[str] = []
     if da_report is None and multi_condition_differential_report is None:
         caveats.append(
