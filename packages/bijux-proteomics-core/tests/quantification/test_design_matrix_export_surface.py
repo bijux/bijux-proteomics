@@ -88,7 +88,10 @@ def test_design_matrix_and_model_exports_render_stable_tsvs(tmp_path: Path) -> N
     coefficient_tsv = render_quant_design_model_coefficients_tsv(fit_report)
     contrast_tsv = render_quant_design_contrast_estimates_tsv(fit_report)
 
-    assert matrix_tsv.startswith("sample_id\tcondition\tbatch\tpair_id\tsex\tintercept")
+    assert matrix_tsv.startswith(
+        "sample_id\tcondition\tbatch\tpair_id\tanalysis_sample_id\tbiological_sample_id\t"
+        "run_ids\tsample_run_policy\tsex\ttechnical_replicate_ids\tintercept"
+    )
     assert "condition[treatment]" in matrix_tsv
     assert coefficient_tsv.startswith("entity_id\tcoefficient_name\testimate")
     assert "P001\tcondition[treatment]" in coefficient_tsv
