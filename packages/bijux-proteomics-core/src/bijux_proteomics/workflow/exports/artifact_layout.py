@@ -13,6 +13,11 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import (
+    OutputTableSchema,
+    infer_output_table_schema,
+    validate_output_table_text,
+)
 from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
 from bijux_proteomics_foundation import JsonModel
 
@@ -49,6 +54,7 @@ class WorkflowArtifactLayoutEntry(JsonModel):
     folder: WorkflowArtifactFolder
     artifact_kind: WorkflowArtifactKind
     artifact_schema: str = Field(..., min_length=1)
+    output_table_schema: OutputTableSchema | None = None
     row_count: int = Field(..., ge=0)
     checksum_sha256: str = Field(..., min_length=64, max_length=64)
     producer_function: str = Field(..., min_length=1)
@@ -102,6 +108,7 @@ def synchronize_workflow_artifact_layout(
         manifest.to_stable_json() + "\n",
         encoding="utf-8",
     )
+    validate_workflow_artifact_manifest(output_dir)
     return manifest
 
 
@@ -134,6 +141,11 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
                 "workflow artifact manifest kind mismatch for "
                 f"{artifact.relative_path}: expected {artifact.artifact_kind.value}, "
                 f"found {actual_kind.value}"
+            )
+        if actual_kind is WorkflowArtifactKind.TSV_TABLE:
+            _validate_tsv_artifact_schema(
+                artifact=artifact,
+                artifact_path=artifact_path,
             )
         actual_schema = _infer_artifact_schema(artifact_path, actual_kind)
         if actual_schema != artifact.artifact_schema:
@@ -279,6 +291,12 @@ def _build_layout_entry(
     producer_function: str,
 ) -> WorkflowArtifactLayoutEntry:
     artifact_kind = _classify_artifact_kind(canonical_path)
+    output_table_schema = None
+    if artifact_kind is WorkflowArtifactKind.TSV_TABLE:
+        output_table_schema = infer_output_table_schema(
+            canonical_path.read_text(encoding="utf-8"),
+            table_name=canonical_path.stem,
+        )
     return WorkflowArtifactLayoutEntry(
         legacy_relative_path=legacy_relative_path,
         relative_path=canonical_relative_path,
@@ -286,9 +304,33 @@ def _build_layout_entry(
         folder=folder,
         artifact_kind=artifact_kind,
         artifact_schema=_infer_artifact_schema(canonical_path, artifact_kind),
+        output_table_schema=output_table_schema,
         row_count=_count_artifact_rows(canonical_path, artifact_kind),
         checksum_sha256=_compute_sha256(canonical_path),
         producer_function=producer_function,
+    )
+
+
+def _validate_tsv_artifact_schema(
+    *,
+    artifact: WorkflowArtifactLayoutEntry,
+    artifact_path: Path,
+) -> None:
+    if artifact.output_table_schema is None:
+        raise InvalidWorkflowError(
+            "workflow artifact manifest is missing typed table schema for "
+            f"{artifact.relative_path}"
+        )
+    validation_report = validate_output_table_text(
+        artifact_path.read_text(encoding="utf-8"),
+        schema=artifact.output_table_schema,
+    )
+    if validation_report.valid:
+        return
+    first_issue = validation_report.issues[0]
+    raise InvalidWorkflowError(
+        "workflow artifact manifest table-schema mismatch for "
+        f"{artifact.relative_path}: {first_issue.message}"
     )
 
 

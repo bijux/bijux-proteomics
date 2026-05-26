@@ -56,6 +56,10 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
         if entry.legacy_relative_path == manifest.artifacts.summary_tsv
     )
     assert summary_entry.producer_function == "write_tmt_experiment_workflow_bundle"
+    assert summary_entry.output_table_schema is not None
+    assert tuple(
+        column.name for column in summary_entry.output_table_schema.columns
+    ) == ("field", "value")
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.reporter_import_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_reporter_rows_tsv).exists()
