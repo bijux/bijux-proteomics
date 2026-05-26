@@ -6,6 +6,13 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.advanced_diann": [
+        "AdvancedDiannRuntimeRunReport",
+        "AdvancedDiannRuntimeStage",
+        "AdvancedDiannRuntimeStageDecision",
+        "AdvancedDiannRuntimeStatus",
+        "run_resumable_advanced_diann_workflow",
+    ],
     "bijux_proteomics_runtime.artifacts": [
         "StepArtifact",
         "build_step_artifact",
