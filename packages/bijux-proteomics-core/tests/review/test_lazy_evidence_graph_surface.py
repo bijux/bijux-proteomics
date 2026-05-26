@@ -7,9 +7,12 @@ import pytest
 
 from bijux_proteomics.review import (
     export_proteomics_evidence_graph,
+    query_pathway_support_proteins,
     query_peptide_support_chain,
     query_protein_evidence_summary,
     query_ptm_site_evidence,
+    query_rejected_evidence_path,
+    query_sample_qc_reasons,
     render_proteomics_evidence_graph_edges_tsv,
     render_proteomics_evidence_graph_nodes_tsv,
 )
@@ -86,3 +89,24 @@ def test_lazy_graph_matches_eager_protein_peptide_and_ptm_queries(tmp_path) -> N
     assert lazy_protein == eager_protein
     assert lazy_peptide == eager_peptide
     assert lazy_ptm == eager_ptm
+
+
+def test_lazy_graph_matches_eager_pathway_and_qc_queries(tmp_path) -> None:
+    graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
+
+    eager_pathway = query_pathway_support_proteins(graph, pathway_id="R-HSA-199420")
+    lazy_pathway = query_pathway_support_proteins(lazy_graph, pathway_id="R-HSA-199420")
+    eager_qc = query_sample_qc_reasons(graph, sample_id="S1")
+    lazy_qc = query_sample_qc_reasons(lazy_graph, sample_id="S1")
+
+    assert lazy_pathway == eager_pathway
+    assert lazy_qc == eager_qc
+
+
+def test_lazy_graph_matches_eager_rejected_evidence_paths(tmp_path) -> None:
+    graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
+
+    eager_path = query_rejected_evidence_path(graph, node_id="psm:psm:1002")
+    lazy_path = query_rejected_evidence_path(lazy_graph, node_id="psm:psm:1002")
+
+    assert lazy_path == eager_path
