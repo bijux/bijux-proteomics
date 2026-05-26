@@ -11,6 +11,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.errors import (
     InvalidWorkflowError,
     SchemaError,
@@ -158,7 +159,7 @@ def write_result_archive_lab_action_packets(
     )
     packets = build_lab_action_packets_from_qc_assessment(entries)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    atomic_write_text(out_path, render_lab_action_packets_tsv(packets))
+    write_output_table_tsv(out_path, render_lab_action_packets_tsv(packets))
     return packets
 
 

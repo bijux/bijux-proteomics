@@ -771,6 +771,12 @@ def write_biological_result_report_bundle(
             "and sample exploration artifacts into one durable output directory"
         ),
     )
-export_biological_result_report_bundle = write_biological_result_report_bundle
+def export_biological_result_report_bundle(
+    report: BiologicalResultReportBundle,
+    output_dir: Path,
+) -> BiologicalResultReportExportManifest:
+    """Compatibility wrapper for the legacy biological report bundle exporter."""
+
+    return write_biological_result_report_bundle(report, output_dir)
 
 __all__ = ["export_biological_result_report_bundle", "write_biological_result_report_bundle", "render_biological_report_section_confidence_tsv", "render_biological_result_report_summary_tsv"]

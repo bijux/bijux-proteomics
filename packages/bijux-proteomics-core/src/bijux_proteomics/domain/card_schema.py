@@ -79,8 +79,8 @@ class StandardCardIndex(JsonModel):
     source_ids: dict[str, tuple[int, ...]] = Field(default_factory=dict)
 
 
-def render_standard_card_row(entry: StandardCardEntry) -> tuple[str, ...]:
-    """Render one shared card entry in the canonical TSV column order."""
+def build_standard_card_row(entry: StandardCardEntry) -> tuple[str, ...]:
+    """Build one shared card row in the canonical TSV column order."""
 
     return (
         entry.card_id,
@@ -95,6 +95,12 @@ def render_standard_card_row(entry: StandardCardEntry) -> tuple[str, ...]:
         ";".join(entry.warning_codes),
         ";".join(entry.source_ids),
     )
+
+
+def render_standard_card_row(entry: StandardCardEntry) -> tuple[str, ...]:
+    """Compatibility wrapper for the legacy shared-card row renderer name."""
+
+    return build_standard_card_row(entry)
 
 
 def load_standard_card_tsv(path: Path) -> tuple[StandardCardEntry, ...]:
@@ -205,6 +211,7 @@ __all__ = [
     "StandardCardIndex",
     "StandardCardKind",
     "StandardCardSubjectKind",
+    "build_standard_card_row",
     "find_standard_card_by_card_id",
     "find_standard_cards_by_source_id",
     "find_standard_cards_by_subject_id",

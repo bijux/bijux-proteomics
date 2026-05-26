@@ -28,7 +28,10 @@ ALLOWED_RENDER_SUFFIXES = (
 
 LEGACY_RENDER_WRAPPERS = {
     "_tabular.py": {"render_tsv_rows": "render_rows_tsv"},
-    "study/laboratory_plans.py": {
+    "domain/card_schema.py": {
+        "render_standard_card_row": "build_standard_card_row",
+    },
+    "lab/planning.py": {
         "render_lab_review_packet": "build_lab_review_packet_rendering",
     },
     "sequences/core.py": {"render_fasta_records": "render_records_fasta"},
@@ -38,31 +41,31 @@ LEGACY_BUNDLE_WRAPPERS = {
     "sequences/theoretical_digest.py": {
         "export_theoretical_digest_bundle": "write_theoretical_digest_bundle",
     },
-    "workflow/biological_report_rendering.py": {
+    "workflow/reports/biological_report_rendering.py": {
         "export_biological_result_report_bundle": "write_biological_result_report_bundle",
     },
-    "workflow/dda_biological_workflow.py": {
+    "workflow/pipelines/dda_biological_workflow.py": {
         "export_dda_biological_workflow_bundle": "write_dda_biological_workflow_bundle",
     },
-    "workflow/diann_biological_workflow.py": {
+    "workflow/pipelines/diann_biological_workflow.py": {
         "export_diann_biological_workflow_bundle": "write_diann_biological_workflow_bundle",
     },
-    "workflow/maxquant_biological_workflow.py": {
+    "workflow/pipelines/maxquant_biological_workflow.py": {
         "export_maxquant_biological_workflow_bundle": "write_maxquant_biological_workflow_bundle",
     },
-    "workflow/label_based_reporting.py": {
+    "workflow/pipelines/label_based_reporting.py": {
         "export_label_based_report_bundle": "write_label_based_report_bundle",
     },
-    "workflow/ptm_site_workflow.py": {
+    "workflow/pipelines/ptm_site_workflow.py": {
         "export_ptm_site_workflow_bundle": "write_ptm_site_workflow_bundle",
     },
-    "workflow/tmt_experiment_workflow.py": {
+    "workflow/pipelines/tmt_experiment_workflow.py": {
         "export_tmt_experiment_workflow_bundle": "write_tmt_experiment_workflow_bundle",
     },
     "workflow/pipelines/flagship_run.py": {
         "export_proteomics_run_bundle": "write_proteomics_run_bundle",
     },
-    "ptm/reporting.py": {"export_ptm_report_bundle": "write_ptm_report_bundle"},
+    "ptm/cards/reporting.py": {"export_ptm_report_bundle": "write_ptm_report_bundle"},
     "quantification/contracts/protein_rollup.py": {
         "export_label_free_provenance_bundle": "write_label_free_provenance_bundle",
     },
@@ -72,12 +75,12 @@ LEGACY_BUNDLE_WRAPPERS = {
     "identification/contracts/review.py": {
         "export_review_ready_evidence_bundle": "write_review_ready_evidence_bundle",
     },
-    "identification/confidence.py": {
+    "identification/fdr/confidence.py": {
         "export_psm_peptide_protein_trace_bundle": (
             "write_psm_peptide_protein_trace_bundle"
         ),
     },
-    "io/spectra.py": {
+    "io/spectra/spectrum_contracts.py": {
         "export_annotated_spectrum_bundle": "write_annotated_spectrum_bundle",
     },
     "benchmarks/public_case_studies.py": {
