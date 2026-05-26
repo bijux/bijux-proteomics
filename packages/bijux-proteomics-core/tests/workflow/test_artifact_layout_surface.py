@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+import bijux_proteomics._atomic_files as atomic_files
 from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
 from bijux_proteomics._output_tables import OutputTableSchema
 from bijux_proteomics.workflow import AdvancedDiannWorkflowConfig, run_advanced_diann_workflow
@@ -148,6 +149,33 @@ def test_index_workflow_artifact_manifest_resolves_entries_by_id_and_legacy_path
         )
         == artifact
     )
+
+
+def test_synchronize_workflow_artifact_layout_interruption_leaves_no_partial_manifest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    real_replace = atomic_files.os.replace
+
+    def interrupted_replace(source: Path, destination: Path) -> None:
+        if Path(destination).name == "manifest.json":
+            raise RuntimeError("interrupted while replacing manifest.json")
+        real_replace(source, destination)
+
+    monkeypatch.setattr(atomic_files.os, "replace", interrupted_replace)
+
+    with pytest.raises(RuntimeError, match="interrupted while replacing manifest.json"):
+        synchronize_workflow_artifact_layout(
+            tmp_path,
+            producer_function="test_workflow_surface",
+        )
+
+    assert not (tmp_path / "manifest.json").exists()
+    assert not tuple(tmp_path.glob(".*.bijux-write-*.tmp"))
 
 
 def test_validate_workflow_artifact_manifest_rejects_checksum_drift(

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_copy_file, atomic_write_text
 from bijux_proteomics._output_tables import (
     OutputTableSchema,
     infer_output_table_schema,
@@ -116,7 +117,7 @@ def synchronize_workflow_artifact_layout(
             continue
         folder = classify_workflow_artifact_name(path.name)
         canonical_relative_path = f"{folder.value}/{path.name}"
-        shutil.copyfile(path, output_dir / canonical_relative_path)
+        atomic_copy_file(path, output_dir / canonical_relative_path)
         canonical_path = output_dir / canonical_relative_path
         entries.append(
             _build_layout_entry(
@@ -131,10 +132,7 @@ def synchronize_workflow_artifact_layout(
         producer_function=producer_function,
         artifacts=tuple(entries),
     )
-    (output_dir / "manifest.json").write_text(
-        manifest.to_stable_json() + "\n",
-        encoding="utf-8",
-    )
+    atomic_write_text(output_dir / "manifest.json", manifest.to_stable_json() + "\n")
     validate_workflow_artifact_manifest(output_dir)
     return manifest
 
@@ -590,7 +588,7 @@ def _write_output_table_schema_sidecar(
     output_table_schema: OutputTableSchema,
 ) -> str:
     sidecar_path = canonical_path.with_name(f"{canonical_path.name}.schema.json")
-    sidecar_path.write_text(output_table_schema.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(sidecar_path, output_table_schema.to_stable_json() + "\n")
     return sidecar_path.relative_to(canonical_path.parents[1]).as_posix()
 
 
