@@ -30,6 +30,16 @@ from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     run_public_benchmark_descriptor,
 )
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.study_result import (
+    ProteomicsStudyConclusionEntry,
+    ProteomicsStudyConclusionKind,
+    ProteomicsStudyResult,
+    ProteomicsStudyResultSummary,
+    build_proteomics_study_result_from_biological_report_bundle,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -145,6 +155,7 @@ class WeakEvidenceBenchmarkReport(JsonModel):
         default_factory=tuple
     )
     sections: tuple[WeakEvidenceReportSection, ...] = Field(default_factory=tuple)
+    lfq_sparse_study_result: ProteomicsStudyResult | None = None
     lfq_sparse_report: PublicBenchmarkRunReport | None = None
     ptm_report: PublicBenchmarkRunReport | None = None
     tmt_report: AdvancedTmtWorkflowReport | None = None
@@ -247,6 +258,10 @@ def run_weak_evidence_benchmark(
     )
 
     refused_claims = _load_refused_claim_entries(lfq_sparse_report)
+    lfq_sparse_study_result = _build_refused_claim_study_result(
+        report=lfq_sparse_report,
+        refused_claims=refused_claims,
+    )
     refused_claim_count = len(refused_claims)
     blocked_contrast_count = _blocked_or_invalid_contrast_count(lfq_sparse_report)
     ambiguous_ptm_count = _verified_count(ptm_report, "ambiguous_site_count")
@@ -366,6 +381,7 @@ def run_weak_evidence_benchmark(
         summary=summary,
         refused_claims=refused_claims,
         sections=sections,
+        lfq_sparse_study_result=lfq_sparse_study_result,
         lfq_sparse_report=lfq_sparse_report,
         ptm_report=ptm_report,
         tmt_report=tmt_report,
@@ -519,6 +535,59 @@ def _load_refused_claim_entries(
             source_surface="workflow.pipelines.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
         )
         for row in rows
+    )
+
+
+def _build_refused_claim_study_result(
+    *,
+    report: PublicBenchmarkRunReport | None,
+    refused_claims: tuple[WeakEvidenceRefusedClaimEntry, ...],
+) -> ProteomicsStudyResult | None:
+    if (
+        report is None
+        or report.workflow_result is None
+        or report.workflow_result.report is None
+        or not refused_claims
+    ):
+        return None
+    workflow_report = report.workflow_result.report
+    if not isinstance(workflow_report, BiologicalResultReportBundle):
+        return None
+    study_result = build_proteomics_study_result_from_biological_report_bundle(
+        workflow_report
+    )
+    conclusions = list(study_result.biological_conclusions)
+    conclusions.extend(
+        ProteomicsStudyConclusionEntry(
+            conclusion_id=entry.claim_id,
+            kind=ProteomicsStudyConclusionKind.REFUSED_CLAIM,
+            subject_id=entry.subject_id,
+            subject_label=entry.subject_label,
+            status="refused",
+            score=None,
+            evidence_surface=entry.source_surface,
+            summary_text=entry.claim_text,
+        )
+        for entry in refused_claims
+    )
+    sorted_conclusions = tuple(
+        sorted(
+            conclusions,
+            key=lambda entry: (entry.kind.value, entry.subject_id, entry.conclusion_id),
+        )
+    )
+    return study_result.model_copy(
+        update={
+            "biological_conclusions": sorted_conclusions,
+            "summary": ProteomicsStudyResultSummary(
+                design_entry_count=study_result.summary.design_entry_count,
+                matrix_surface_count=study_result.summary.matrix_surface_count,
+                statistic_surface_count=study_result.summary.statistic_surface_count,
+                qc_surface_count=study_result.summary.qc_surface_count,
+                card_surface_count=study_result.summary.card_surface_count,
+                conclusion_count=len(sorted_conclusions),
+            ),
+        }
     )
 
 
