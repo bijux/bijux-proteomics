@@ -43,6 +43,10 @@ from bijux_proteomics.quantification.contracts import (
 from bijux_proteomics.quantification.matrix.design_matrix import (
     build_quant_design_matrix_report,
 )
+from bijux_proteomics.quantification.matrix import (
+    build_dense_label_free_quant_table_view,
+    missing_value_kind_to_code,
+)
 from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
     annotate_differential_abundance_report_imputation_dependence,
     build_no_impute_reference_table,
@@ -198,20 +202,34 @@ def build_differential_abundance_report(
             )
 
     lookup = _matrix_value_index(table)
+    dense_view = build_dense_label_free_quant_table_view(table)
+    sample_indexes_a = np.array(
+        [dense_view.sample_index[sample_id] for sample_id in samples_a],
+        dtype=int,
+    )
+    sample_indexes_b = np.array(
+        [dense_view.sample_index[sample_id] for sample_id in samples_b],
+        dtype=int,
+    )
     sample_weights = _sample_weight_lookup(sample_weights_report)
+    sample_weight_vector = np.array(
+        [1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0)) for sample_id in dense_view.sample_ids],
+        dtype=float,
+    )
     entries: list[DifferentialAbundanceEntry] = []
     for entity_id in table.entity_ids:
-        values_a, weights_a, counts_a = _collect_condition_values(
-            lookup,
-            entity_id,
-            samples_a,
-            sample_weights=sample_weights,
+        row_index = dense_view.entity_index[entity_id]
+        values_a, weights_a, counts_a = _collect_condition_values_vectorized(
+            dense_view.log2_abundance_matrix[row_index],
+            dense_view.missing_kind_codes[row_index],
+            sample_indexes_a,
+            sample_weight_vector=sample_weight_vector,
         )
-        values_b, weights_b, counts_b = _collect_condition_values(
-            lookup,
-            entity_id,
-            samples_b,
-            sample_weights=sample_weights,
+        values_b, weights_b, counts_b = _collect_condition_values_vectorized(
+            dense_view.log2_abundance_matrix[row_index],
+            dense_view.missing_kind_codes[row_index],
+            sample_indexes_b,
+            sample_weight_vector=sample_weight_vector,
         )
         mean_a = _weighted_or_unweighted_mean(values_a, weights_a)
         mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
@@ -700,6 +718,43 @@ def _collect_condition_values(
                 1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0))
             )
     return np.array(values, dtype=float), np.array(weights, dtype=float), counts
+
+
+def _collect_condition_values_vectorized(
+    entity_log2_abundance: np.ndarray,
+    entity_missing_kind_codes: np.ndarray,
+    sample_indexes: np.ndarray,
+    *,
+    sample_weight_vector: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, dict[MissingValueKind, int]]:
+    selected_log2_abundance = entity_log2_abundance[sample_indexes]
+    selected_missing_kind_codes = entity_missing_kind_codes[sample_indexes]
+    finite_mask = np.isfinite(selected_log2_abundance)
+    counts = {
+        MissingValueKind.ZERO: int(
+            np.sum(
+                selected_missing_kind_codes
+                == missing_value_kind_to_code(MissingValueKind.ZERO)
+            )
+        ),
+        MissingValueKind.NOT_OBSERVED: int(
+            np.sum(
+                selected_missing_kind_codes
+                == missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
+            )
+        ),
+        MissingValueKind.FILTERED: int(
+            np.sum(
+                selected_missing_kind_codes
+                == missing_value_kind_to_code(MissingValueKind.FILTERED)
+            )
+        ),
+    }
+    return (
+        selected_log2_abundance[finite_mask],
+        sample_weight_vector[sample_indexes][finite_mask],
+        counts,
+    )
 
 
 def _resolve_design_contrast(
