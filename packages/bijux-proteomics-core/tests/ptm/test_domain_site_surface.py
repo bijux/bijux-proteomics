@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm.contracts import (
     PtmSiteEntry,
@@ -12,6 +13,12 @@ from bijux_proteomics.ptm.contracts import (
 
 
 def test_ptm_site_and_rejection_convert_to_canonical_domain_records() -> None:
+    provenance = ImportedEvidenceProvenance(
+        source_engine="synthetic-ptm",
+        source_files=("ptm.tsv",),
+        source_row_numbers=(2,),
+        original_identifiers={"site_key": "P001:S15:Phospho"},
+    )
     site = PtmSiteEntry(
         site_key="P001:S15:Phospho",
         protein_ref="P001",
@@ -28,6 +35,7 @@ def test_ptm_site_and_rejection_convert_to_canonical_domain_records() -> None:
         candidate_positions=(15,),
         ambiguous=False,
         shared_peptide=False,
+        provenance=provenance,
     )
     rejected = RejectedPtmEvidenceRow(
         row_number=5,

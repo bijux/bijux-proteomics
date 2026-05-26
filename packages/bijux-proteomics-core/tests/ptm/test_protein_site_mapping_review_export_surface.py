@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import (
     PtmProteinSiteMapping,
@@ -66,6 +67,12 @@ def test_ptm_review_renderers_keep_ambiguity_and_coverage_explicit() -> None:
 
 
 def test_ptm_coordinate_validation_renderer_preserves_issue_ledgers() -> None:
+    provenance = ImportedEvidenceProvenance(
+        source_engine="synthetic-ptm",
+        source_files=("mapping.tsv",),
+        source_row_numbers=(2,),
+        original_identifiers={"spectrum_id": "scan=broken"},
+    )
     report = validate_ptm_site_coordinates(
         (
             PtmProteinSiteMapping(
@@ -85,6 +92,7 @@ def test_ptm_coordinate_validation_renderer_preserves_issue_ledgers() -> None:
                 candidate_protein_positions=(999,),
                 ambiguous=False,
                 shared_peptide=False,
+                provenance=provenance,
             ),
         ),
         protein_sequences=_protein_sequences(),

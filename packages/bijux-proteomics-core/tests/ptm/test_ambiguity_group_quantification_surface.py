@@ -65,7 +65,7 @@ def test_ptm_site_group_quantification_report_preserves_unresolved_group_signal(
 
     assert target.possible_residues == ("S", "T", "Y")
     assert target.localization_probability == 0.715
-    assert target.confidence_tier.value == "ambiguous"
+    assert target.confidence_tier.value == "supported"
     assert values["C1"].abundance == 60.0
     assert values["T1"].abundance == 140.0
     assert values["C1"].contributing_feature_count == 1

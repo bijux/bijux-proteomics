@@ -29,6 +29,7 @@ from bijux_proteomics.ptm.site_annotation_import import (
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.quantification.contracts import DifferentialAbundanceTestType
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -112,6 +113,7 @@ def test_ptm_regulator_enrichment_reports_exact_supporting_sites_from_real_annot
 def test_ptm_regulator_enrichment_separates_direction_and_preserves_site_ledgers() -> None:
     differential_report = PtmSiteDifferentialReport(
         normalization_method=NormalizationMethod.MEDIAN,
+        test_type=DifferentialAbundanceTestType.WELCH_T_TEST,
         condition_a="control",
         condition_b="treated",
         entries=(

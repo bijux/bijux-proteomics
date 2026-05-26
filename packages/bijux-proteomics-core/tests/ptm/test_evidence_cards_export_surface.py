@@ -159,6 +159,7 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
     assert "crosstalk_partner_site_keys" in cards_path.read_text()
     assert "ortholog_conservation_status" in cards_path.read_text()
     assert "identity_level" in cards_path.read_text()
-    assert "claim_id\tcard_id\tsite_key\tclaim_kind\ttext" == (
-        claims_path.read_text().splitlines()[0]
+    assert (
+        "claim_id\tcard_id\tsite_key\tclaim_kind\ttext\tsource_row_refs\tderived_no_source_reason"
+        == claims_path.read_text().splitlines()[0]
     )
