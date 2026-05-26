@@ -13,6 +13,8 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
 )
 from bijux_proteomics.interpretation.regulator_inference import (
     RegulatorEvidenceType,
+    RegulatorInferencePolicy,
+    RegulatorEvidenceRecord,
     RegulatorSignalSurface,
     build_regulator_inference_report,
     parse_regulator_evidence_table,
@@ -199,3 +201,60 @@ def test_regulator_inference_renderers_expose_supporting_targets_and_unresolved_
         "source_accession\treason"
     )
     assert "OrphanTF\ttranscription_factor_target\tgene_symbol\tUNSEEN" in unresolved_tsv
+
+
+def test_build_regulator_inference_report_downgrades_low_target_coverage() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+    )
+    protein_table = _build_fixture_table()
+    differential_report = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            protein_table,
+            design_entries,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+    evidence_records = (
+        RegulatorEvidenceRecord(
+            regulator="SparseTF",
+            evidence_type=RegulatorEvidenceType.TRANSCRIPTION_FACTOR_TARGET,
+            protein_ref="P04637",
+            source_name="custom",
+            source_accession="TF-01",
+        ),
+        RegulatorEvidenceRecord(
+            regulator="SparseTF",
+            evidence_type=RegulatorEvidenceType.TRANSCRIPTION_FACTOR_TARGET,
+            protein_ref="Q99999",
+            source_name="custom",
+            source_accession="TF-01",
+        ),
+    )
+
+    permissive = build_regulator_inference_report(
+        evidence_records,
+        differential_report,
+        policy=RegulatorInferencePolicy(
+            minimum_target_coverage_fraction=0.5,
+            low_coverage_score_cap=0.6,
+        ),
+    )
+    strict = build_regulator_inference_report(
+        evidence_records,
+        differential_report,
+        policy=RegulatorInferencePolicy(
+            minimum_target_coverage_fraction=0.75,
+            low_coverage_score_cap=0.4,
+        ),
+    )
+
+    permissive_entry = permissive.entries[0]
+    strict_entry = strict.entries[0]
+
+    assert permissive_entry.coverage_fraction == 0.5
+    assert strict_entry.coverage_fraction == 0.5
+    assert permissive_entry.score > strict_entry.score
+    assert strict_entry.score == 0.4
+    assert strict_entry.note.endswith("target coverage 0.5 was below minimum 0.75")
