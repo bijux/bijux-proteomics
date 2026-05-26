@@ -266,6 +266,7 @@ def test_workflow_package_exports_result_manifest_surface() -> None:
 
 def test_workflow_package_exports_result_archive_surface() -> None:
     assert hasattr(workflow, "load_result_archive")
+    assert hasattr(workflow, "write_result_archive_lab_action_packets")
     assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
 
 

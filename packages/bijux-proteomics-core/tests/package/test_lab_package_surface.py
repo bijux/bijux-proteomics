@@ -334,6 +334,9 @@ def test_lab_package_exports_lab_action_packet_surface() -> None:
     rendered = lab.render_lab_action_packets_tsv(packets)
 
     assert hasattr(lab, "build_lab_action_packets")
+    assert hasattr(lab, "build_lab_action_packets_from_qc_assessment")
+    assert hasattr(lab, "parse_lab_action_assessment_tsv")
+    assert hasattr(lab, "parse_lab_action_packet_tsv")
     assert hasattr(lab, "render_lab_action_packets_tsv")
     assert any(packet.problem == "low_identification_yield" for packet in packets)
     assert any(packet.problem == "condition_confounded_covariate" for packet in packets)
