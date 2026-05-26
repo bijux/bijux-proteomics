@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
@@ -15,6 +17,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import (
     ParsimonyReviewReport,
     ParsimonyVariant,
@@ -26,13 +29,19 @@ from bijux_proteomics.identification import (
     build_parsimony_review_report,
     export_psm_tsv,
     load_generic_psm_table_mapping,
+    normalize_psm_records,
     normalize_search_results_with_adapter,
+    parse_psm_tsv_chunked,
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
     render_parsimony_review_summary_tsv,
     select_best_psm_per_spectrum,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.tables import (
+    iter_delimited_row_chunks,
+    read_delimited_table_header,
+)
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     NormalizationMethod,
@@ -64,6 +73,13 @@ from bijux_proteomics.workflow.result_types import (
     render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
+
+
+@dataclass(frozen=True)
+class _DdaSearchNormalization:
+    source_columns: tuple[str, ...]
+    parse_report: object
+    normalized_records: tuple[PsmRecord, ...]
 
 
 class DdaPsmAcceptanceReason(StrEnum):
@@ -231,6 +247,7 @@ def build_dda_biological_workflow_bundle(
     complex_membership_tsv_path: Path | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
+    chunk_size_rows: int | None = None,
 ) -> DdaBiologicalWorkflowBundle:
     """Build a governed DDA search-result-to-biology workflow bundle."""
 
@@ -241,6 +258,7 @@ def build_dda_biological_workflow_bundle(
         adapter_kind=adapter_kind,
         dialect_id=dialect_id,
         generic_mapping_path=generic_mapping_path,
+        chunk_size_rows=chunk_size_rows,
     )
     best_spectrum_psms = tuple(
         select_best_psm_per_spectrum(normalization.normalized_records)
@@ -641,6 +659,7 @@ def _normalize_search_results(
     adapter_kind: SearchAdapterKind,
     dialect_id: str,
     generic_mapping_path: Path | None,
+    chunk_size_rows: int | None,
 ):
     if adapter_kind is SearchAdapterKind.GENERIC:
         if generic_mapping_path is None:
@@ -650,10 +669,34 @@ def _normalize_search_results(
         mapping = load_generic_psm_table_mapping(
             generic_mapping_path
         ).to_search_result_mapping()
+        if chunk_size_rows is not None:
+            header = read_delimited_table_header(source_path)
+            parse_report = parse_psm_tsv_chunked(
+                source_path,
+                mapping=mapping,
+                chunk_size_rows=chunk_size_rows,
+            )
+            return _DdaSearchNormalization(
+                source_columns=tuple(() if header is None else header.fieldnames),
+                parse_report=parse_report,
+                normalized_records=normalize_psm_records(
+                    _attach_generic_psm_provenance(
+                        source_path=source_path,
+                        parse_report=parse_report,
+                        mapping=mapping,
+                        adapter_kind=adapter_kind,
+                        chunk_size_rows=chunk_size_rows,
+                    )
+                ),
+            )
     else:
         if generic_mapping_path is not None:
             raise ValueError(
                 "generic_mapping_path is only supported with the generic search adapter"
+            )
+        if chunk_size_rows is not None:
+            raise ValueError(
+                "chunked DDA biology workflows currently support only the generic search adapter"
             )
         mapping = None
     return normalize_search_results_with_adapter(
@@ -662,6 +705,93 @@ def _normalize_search_results(
         dialect_id=dialect_id,
         mapping=mapping,
     )
+
+
+def _attach_generic_psm_provenance(
+    *,
+    source_path: Path,
+    parse_report,
+    mapping,
+    adapter_kind: SearchAdapterKind,
+    chunk_size_rows: int,
+) -> tuple[PsmRecord, ...]:
+    rejected_row_numbers = {
+        rejected.row_number for rejected in parse_report.rejected_rows
+    }
+    accepted_index = 0
+    enriched_records: list[PsmRecord] = []
+    for chunk in iter_delimited_row_chunks(source_path, chunk_size_rows=chunk_size_rows):
+        for row_offset, raw_fields in enumerate(chunk.rows):
+            row_number = chunk.row_number_start + row_offset
+            if row_number in rejected_row_numbers:
+                continue
+            record = parse_report.accepted_records[accepted_index]
+            accepted_index += 1
+            mapped_field_values = _mapped_generic_psm_field_values(
+                raw_fields,
+                mapping=mapping,
+            )
+            enriched_records.append(
+                record.model_copy(
+                    update={
+                        "provenance": ImportedEvidenceProvenance.from_single_row(
+                            source_engine=adapter_kind.value,
+                            source_file=str(source_path),
+                            source_row_number=row_number,
+                            original_identifiers=_build_generic_original_identifiers(
+                                mapped_field_values=mapped_field_values,
+                                raw_fields=raw_fields,
+                            ),
+                        )
+                    }
+                )
+            )
+    return tuple(enriched_records)
+
+
+def _mapped_generic_psm_field_values(
+    raw_fields: dict[str, str],
+    *,
+    mapping,
+) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for role_name, column_name in (
+        ("run_id", mapping.run_id),
+        ("spectrum_id", mapping.spectrum_id),
+        ("peptide", mapping.peptide),
+        ("modified_peptide", mapping.modified_peptide),
+        ("charge", mapping.charge),
+        ("score", mapping.score),
+        ("intensity", mapping.intensity),
+        ("q_value", mapping.q_value),
+        ("posterior_error_probability", mapping.posterior_error_probability),
+        ("protein_refs", mapping.protein_refs),
+        ("decoy_label", mapping.decoy_label),
+        ("contaminant_label", mapping.contaminant_label),
+    ):
+        if column_name is None or column_name not in raw_fields:
+            continue
+        values[role_name] = raw_fields[column_name]
+    return values
+
+
+def _build_generic_original_identifiers(
+    *,
+    mapped_field_values: dict[str, str],
+    raw_fields: dict[str, str],
+) -> dict[str, str]:
+    identifiers: dict[str, str] = {}
+    for key in ("run_id", "spectrum_id", "peptide", "modified_peptide", "protein_refs"):
+        value = mapped_field_values.get(key, "").strip()
+        if value:
+            identifiers[key] = value
+    if identifiers:
+        return identifiers
+    for key in ("ScanNr", "SpecId", "NativeID", "Precursor.Id", "EG.PrecursorId"):
+        value = raw_fields.get(key, "").strip()
+        if value:
+            identifiers[key] = value
+    return identifiers
 
 
 def _build_protein_group_discrepancies(

@@ -186,6 +186,7 @@ class LabelFreeWorkflowConfig(WorkflowBaseConfig):
     )
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM
     top_n: int = Field(default=3, ge=1)
+    chunk_size_rows: int | None = Field(default=None, ge=1)
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
     condition_b: str | None = None
@@ -215,6 +216,7 @@ class DdaWorkflowConfig(WorkflowBaseConfig):
     parsimony_variant: ParsimonyVariant = ParsimonyVariant.GREEDY_COVERAGE
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM
     top_n: int = Field(default=3, ge=1)
+    chunk_size_rows: int | None = Field(default=None, ge=1)
     minimum_shared_peptides: int = Field(default=1, ge=0)
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
@@ -486,6 +488,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
         mapping=config.mapping,
         aggregation_method=config.aggregation_method,
         top_n=config.top_n,
+        chunk_size_rows=config.chunk_size_rows,
         normalization_method=config.normalization_method,
         condition_a=config.condition_a,
         condition_b=config.condition_b,
@@ -537,6 +540,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         parsimony_variant=config.parsimony_variant,
         aggregation_method=config.aggregation_method,
         top_n=config.top_n,
+        chunk_size_rows=config.chunk_size_rows,
         minimum_shared_peptides=config.minimum_shared_peptides,
         normalization_method=config.normalization_method,
         condition_a=config.condition_a,

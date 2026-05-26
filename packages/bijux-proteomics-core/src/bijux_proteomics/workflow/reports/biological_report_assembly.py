@@ -154,6 +154,7 @@ from bijux_proteomics.quantification import (
     build_sample_exploration_report,
     normalize_label_free_table,
     parse_ms1_feature_table,
+    parse_ms1_feature_table_chunked,
     render_differential_abundance_tsv,
 )
 from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
@@ -304,6 +305,7 @@ def build_biological_result_report_bundle(
     volcano_policy: VolcanoReviewPolicy | None = None,
     run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
+    chunk_size_rows: int | None = None,
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle over one governed protein LFQ workflow."""
 
@@ -324,7 +326,15 @@ def build_biological_result_report_bundle(
         selection_policy,
         protocol_context_tsv_path=protocol_context_tsv_path,
     )
-    parse_report = parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
+    parse_report = (
+        parse_ms1_feature_table_chunked(
+            input_tsv_path,
+            mapping=active_mapping,
+            chunk_size_rows=chunk_size_rows,
+        )
+        if chunk_size_rows is not None
+        else parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
+    )
     quant_table = build_label_free_intensity_table(
         parse_report.accepted_records,
         entity_level=QuantEntityLevel.PROTEIN,
