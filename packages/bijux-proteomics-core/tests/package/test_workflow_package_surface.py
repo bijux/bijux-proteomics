@@ -102,6 +102,7 @@ def test_workflow_package_exports_standardized_result_types() -> None:
     assert hasattr(workflow, "ResultWarningEntry")
     assert hasattr(workflow, "build_result_warning")
     assert hasattr(workflow, "build_rejected_evidence_entry")
+    assert hasattr(workflow, "render_result_rejected_evidence_tsv")
 
 
 def test_workflow_package_exports_protein_mechanism_card_surface(tmp_path: Path) -> None:

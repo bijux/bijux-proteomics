@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 from typing import Iterable
 
 from pydantic import ConfigDict, Field, field_validator
@@ -56,6 +58,9 @@ class RejectedEvidenceEntry(JsonModel):
     reason_code: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
     related_artifact: str | None = None
+    source_file: str | None = None
+    row_number: int | None = Field(default=None, ge=1)
+    entity_type: str | None = None
     entity_id: str | None = None
 
     @field_validator("reason_code")
@@ -143,6 +148,9 @@ def build_rejected_evidence_entry(
     reason_code: str,
     message: str,
     related_artifact: str | None = None,
+    source_file: str | None = None,
+    row_number: int | None = None,
+    entity_type: str | None = None,
     entity_id: str | None = None,
 ) -> RejectedEvidenceEntry:
     """Build one standardized rejected-evidence entry."""
@@ -153,6 +161,9 @@ def build_rejected_evidence_entry(
         reason_code=reason_code,
         message=message,
         related_artifact=related_artifact,
+        source_file=source_file,
+        row_number=row_number,
+        entity_type=entity_type,
         entity_id=entity_id,
     )
 
@@ -163,6 +174,8 @@ def build_rejected_evidence_entries_from_issue_rows(
     source_surface: str,
     related_artifact: str | None = None,
     entity_prefix: str = "row",
+    source_file: str | None = None,
+    entity_type: str | None = None,
 ) -> tuple[RejectedEvidenceEntry, ...]:
     """Convert issue-bearing rejected rows into standardized rejected-evidence entries."""
 
@@ -179,6 +192,9 @@ def build_rejected_evidence_entries_from_issue_rows(
                     reason_code="rejected_row",
                     message="rejected workflow evidence row",
                     related_artifact=related_artifact,
+                    source_file=source_file,
+                    row_number=row_number,
+                    entity_type=entity_type,
                     entity_id=entity_id,
                 )
             )
@@ -196,6 +212,9 @@ def build_rejected_evidence_entries_from_issue_rows(
                     reason_code=reason_code,
                     message=message,
                     related_artifact=related_artifact,
+                    source_file=source_file,
+                    row_number=row_number,
+                    entity_type=entity_type,
                     entity_id=entity_id,
                 )
             )
@@ -210,6 +229,9 @@ def build_rejected_evidence_entries_from_reason_rows(
     message_field: str,
     entity_field: str,
     related_artifact: str | None = None,
+    source_file: str | None = None,
+    row_number_field: str | None = None,
+    entity_type: str | None = None,
 ) -> tuple[RejectedEvidenceEntry, ...]:
     """Convert reason-bearing rows into standardized rejected-evidence entries."""
 
@@ -220,10 +242,92 @@ def build_rejected_evidence_entries_from_reason_rows(
             reason_code=str(getattr(row, reason_field)),
             message=str(getattr(row, message_field)),
             related_artifact=related_artifact,
+            source_file=source_file,
+            row_number=(
+                None if row_number_field is None else int(getattr(row, row_number_field))
+            ),
+            entity_type=entity_type,
             entity_id=str(getattr(row, entity_field)),
         )
         for row in rows
     )
+
+
+def build_rejected_evidence_entries_from_table_rows(
+    rows: Iterable[object],
+    *,
+    source_surface: str,
+    related_artifact: str | None = None,
+) -> tuple[RejectedEvidenceEntry, ...]:
+    """Convert rejected-evidence table rows into standardized result entries."""
+
+    return tuple(
+        build_rejected_evidence_entry(
+            evidence_id=(
+                f"{source_surface}:{row.entity_type}:{row.entity_id}:{row.row_number}:{row.reason_code}"
+            ),
+            source_surface=source_surface,
+            reason_code=row.reason_code,
+            message=row.detail,
+            related_artifact=related_artifact,
+            source_file=row.source_file,
+            row_number=row.row_number,
+            entity_type=row.entity_type,
+            entity_id=row.entity_id,
+        )
+        for row in rows
+    )
+
+
+def render_result_rejected_evidence_tsv(
+    rows: tuple[RejectedEvidenceEntry, ...],
+) -> str:
+    """Render standardized workflow rejected evidence as one stable TSV surface."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "rejected_evidence_id",
+            "source_surface",
+            "source_file",
+            "row_number",
+            "entity_type",
+            "entity_id",
+            "reason_code",
+            "detail",
+            "related_artifact",
+        )
+    )
+    ordered_rows = tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.source_surface,
+                "" if row.source_file is None else row.source_file,
+                -1 if row.row_number is None else row.row_number,
+                "" if row.entity_type is None else row.entity_type,
+                "" if row.entity_id is None else row.entity_id,
+                row.reason_code,
+                row.evidence_id,
+            ),
+        )
+    )
+    for row in ordered_rows:
+        writer.writerow(
+            (
+                row.evidence_id,
+                row.source_surface,
+                "" if row.source_file is None else row.source_file,
+                "" if row.row_number is None else row.row_number,
+                "" if row.entity_type is None else row.entity_type,
+                "" if row.entity_id is None else row.entity_id,
+                row.reason_code,
+                row.message,
+                "" if row.related_artifact is None else row.related_artifact,
+            )
+        )
+    return handle.getvalue()
 
 
 def _resolve_row_entity_id(row: object, *, entity_prefix: str) -> str:
@@ -259,5 +363,7 @@ __all__ = [
     "build_rejected_evidence_entry",
     "build_rejected_evidence_entries_from_issue_rows",
     "build_rejected_evidence_entries_from_reason_rows",
+    "build_rejected_evidence_entries_from_table_rows",
+    "render_result_rejected_evidence_tsv",
     "build_result_warning",
 ]
