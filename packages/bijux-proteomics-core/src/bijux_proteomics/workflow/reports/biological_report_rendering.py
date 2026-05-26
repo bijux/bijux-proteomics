@@ -3,6 +3,7 @@
 """Biological report TSV rendering and artifact export."""
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -738,9 +739,9 @@ def write_biological_result_report_bundle(
         complex_entry_tsv=complex_entry_name,
         complex_unresolved_tsv=complex_unresolved_name,
     )
-    (output_dir / report_html_name).write_text(
+    atomic_write_text(
+        output_dir / report_html_name,
         _render_biological_result_report_html(report, artifacts),
-        encoding="utf-8",
     )
     synchronize_workflow_artifact_layout(
         output_dir,

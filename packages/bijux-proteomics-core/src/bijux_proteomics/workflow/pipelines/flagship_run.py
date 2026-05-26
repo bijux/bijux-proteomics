@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -468,13 +469,13 @@ def write_proteomics_run_bundle(
     )
     write_output_table_tsv((output_dir / enrichment_name), render_proteomics_run_enrichment_tsv(report))
     source_report_path = output_dir / biological_manifest.artifacts.report_html
-    (output_dir / report_name).write_text(
+    atomic_write_text(
+        output_dir / report_name,
         source_report_path.read_text(encoding="utf-8"),
-        encoding="utf-8",
     )
-    (output_dir / workflow_manifest_name).write_text(
+    atomic_write_text(
+        output_dir / workflow_manifest_name,
         workflow_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     return ProteomicsRunExportManifest(
         summary=report.summary,

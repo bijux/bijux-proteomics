@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -169,13 +170,13 @@ def build_integrated_scientific_report(
     )
     write_output_table_tsv((demo_output_dir / summary_name), render_integrated_scientific_report_summary_tsv(report))
     write_output_table_tsv((demo_output_dir / sentences_name), render_integrated_scientific_report_sentences_tsv(report))
-    (demo_output_dir / html_name).write_text(
+    atomic_write_text(
+        demo_output_dir / html_name,
         render_integrated_scientific_report_html(report),
-        encoding="utf-8",
     )
-    (demo_output_dir / json_name).write_text(
+    atomic_write_text(
+        demo_output_dir / json_name,
         report.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     return report
 

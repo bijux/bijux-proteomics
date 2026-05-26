@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -287,10 +288,13 @@ def build_trust_bundle(
             "source result tables"
         ),
     )
-    html_index_path.write_text(_render_html_index(report, output_dir=out_dir), encoding="utf-8")
-    (out_dir / "trust_bundle_manifest.json").write_text(
+    atomic_write_text(
+        html_index_path,
+        _render_html_index(report, output_dir=out_dir),
+    )
+    atomic_write_text(
+        out_dir / "trust_bundle_manifest.json",
         report.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     return report
 
@@ -353,7 +357,7 @@ def _write_benchmark_result_artifacts(
     write_output_table_tsv(failures_path, render_public_benchmark_suite_failures_tsv(suite))
     write_output_table_tsv(source_audit_path, _render_source_audits_tsv(suite))
     write_output_table_tsv(verified_count_path, _render_verified_counts_tsv(suite))
-    suite_json_path.write_text(suite.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(suite_json_path, suite.to_stable_json() + "\n")
 
     references = [
         TrustBundleArtifactReference(
@@ -389,7 +393,7 @@ def _write_benchmark_result_artifacts(
     ]
     for run in suite.runs:
         run_json_path = run_root / f"{run.dataset_id}.json"
-        run_json_path.write_text(run.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(run_json_path, run.to_stable_json() + "\n")
         references.append(
             TrustBundleArtifactReference(
                 dataset_id=run.dataset_id,
@@ -418,7 +422,7 @@ def _write_weak_evidence_result_artifacts(
         report_path = benchmark_dir / "report.json"
         write_output_table_tsv(summary_path, render_weak_evidence_benchmark_summary_tsv(report))
         write_output_table_tsv(criteria_path, render_weak_evidence_benchmark_criteria_tsv(report))
-        report_path.write_text(report.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(report_path, report.to_stable_json() + "\n")
         references.extend(
             (
                 TrustBundleArtifactReference(

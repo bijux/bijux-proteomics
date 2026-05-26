@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -328,9 +329,9 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         biological_output_dir,
     )
     biological_manifest_name = "biological_report_manifest.json"
-    (biological_output_dir / biological_manifest_name).write_text(
+    atomic_write_text(
+        biological_output_dir / biological_manifest_name,
         biological_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     claim_report = _build_demo_claims(biological_report)
     evidence_bundle = _build_demo_evidence_bundle(claim_report)
@@ -433,9 +434,9 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
             "audit, and report surfaces without requiring external files."
         ),
     )
-    (output_dir / artifacts.report_json).write_text(
+    atomic_write_text(
+        output_dir / artifacts.report_json,
         report.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     return report
 
