@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
+    load_annotation_pack,
+    render_annotation_pack_json,
 )
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
@@ -64,6 +68,29 @@ def test_resolve_drug_targets_renders_stable_tsv_rows() -> None:
         "P00533\tErlotinib\tdirect_target\ttrue\tDrugBank:DB00530",
         "Q15303\tErlotinib\tindirect_pathway_neighbor\tfalse\tDrugBank:DB00530",
     ]
+
+
+def test_resolve_drug_targets_round_trips_exported_annotation_pack(
+    tmp_path: Path,
+) -> None:
+    original_pack = _annotation_pack()
+    exported_path = tmp_path / "drug_annotation_pack.json"
+    exported_path.write_text(
+        render_annotation_pack_json(original_pack),
+        encoding="utf-8",
+    )
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    original_report = resolve_drug_targets(
+        ("EGFR", "ERBB2", "STAT3"),
+        original_pack,
+    )
+    reloaded_report = resolve_drug_targets(
+        ("EGFR", "ERBB2", "STAT3"),
+        reloaded_pack,
+    )
+
+    assert reloaded_report == original_report
 
 
 def _annotation_pack() -> AnnotationPack:
