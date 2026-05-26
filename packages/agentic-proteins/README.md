@@ -83,6 +83,18 @@ from agentic_proteins import cli
 from agentic_proteins.interfaces.cli import cli
 ```
 
+## Public APIs
+
+New integrations should prefer canonical runtime imports, but the compatibility
+surface remains executable:
+
+```python
+from agentic_proteins import cli as legacy_cli
+from bijux_proteomics_runtime import cli as canonical_cli
+
+assert legacy_cli is canonical_cli
+```
+
 ## Package identity
 
 - Distribution name: `agentic-proteins`
@@ -101,6 +113,12 @@ from agentic_proteins.interfaces.cli import cli
 - canonical runtime behavior belongs in `bijux-proteomics-runtime`
 - canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
 - new features should land in canonical packages before compat forwarding expands
+
+## What this package must not do
+
+- introduce package-local runtime semantics
+- fork canonical provider or workflow behavior
+- become a second owner for scientific or execution logic
 
 ## Contract checkpoints
 

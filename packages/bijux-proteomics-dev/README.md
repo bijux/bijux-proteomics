@@ -43,6 +43,23 @@ make quality
 make security
 ```
 
+## Public APIs
+
+The maintainer package exposes repository-governance helpers through explicit
+Python APIs:
+
+```python
+from bijux_proteomics_dev.governance.package_shape.package_tree_layout import (
+    build_package_tree_layout_report,
+)
+
+report = build_package_tree_layout_report()
+
+assert any(
+    entry.distribution_name == "bijux-proteomics-core" for entry in report.packages
+)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-dev`
@@ -54,6 +71,12 @@ make security
 This package owns maintainer automation and gate implementations for the monorepo.
 
 It does not define runtime product APIs or proteomics domain behavior.
+
+## What this package must not do
+
+- define scientific or runtime product semantics
+- replace package-owned contracts with generic governance prose
+- become a dumping ground for one-off scripts that do not express repository policy
 
 ## Contract checkpoints
 

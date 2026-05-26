@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import tomllib
+from typing import Any, cast
 
 REPO_ROOT = next(
     parent
@@ -10,15 +12,14 @@ REPO_ROOT = next(
 )
 
 
-def _real_package_names() -> tuple[str, ...]:
-    return (
-        "bijux-proteomics-foundation",
-        "bijux-proteomics-core",
-        "bijux-proteomics-runtime",
-        "bijux-proteomics-intelligence",
-        "bijux-proteomics-knowledge",
-        "bijux-proteomics-lab",
-    )
+def _workspace_metadata() -> dict[str, Any]:
+    with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
+        data = tomllib.load(handle)
+    return cast(dict[str, Any], data["tool"]["bijux_proteomics"])
+
+
+def _package_names() -> tuple[str, ...]:
+    return tuple(cast(list[str], _workspace_metadata()["packages"]))
 
 
 def _package_readme(package_name: str) -> Path:
@@ -43,10 +44,10 @@ def _python_blocks(section: str) -> tuple[str, ...]:
     )
 
 
-def test_real_package_readmes_expose_api_and_non_goal_sections() -> None:
+def test_package_readmes_expose_api_and_non_goal_sections() -> None:
     failures: list[str] = []
 
-    for package_name in _real_package_names():
+    for package_name in _package_names():
         path = _package_readme(package_name)
         text = path.read_text(encoding="utf-8")
         for heading in ("Public APIs", "What this package must not do"):
@@ -58,8 +59,8 @@ def test_real_package_readmes_expose_api_and_non_goal_sections() -> None:
     assert not failures, "package README API sections failed:\n" + "\n".join(failures)
 
 
-def test_real_package_readme_public_api_examples_execute(tmp_path: Path) -> None:
-    for package_name in _real_package_names():
+def test_package_readme_public_api_examples_execute(tmp_path: Path) -> None:
+    for package_name in _package_names():
         path = _package_readme(package_name)
         section = _section(path.read_text(encoding="utf-8"), "Public APIs")
         blocks = _python_blocks(section)
