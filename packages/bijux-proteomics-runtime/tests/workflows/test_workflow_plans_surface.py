@@ -217,6 +217,49 @@ def test_workflow_dag_rejects_cycles_before_parallel_execution() -> None:
         build_parallel_execution_plan(cyclic_manifest)
 
 
+def test_workflow_dag_rejects_protein_matrix_when_peptide_matrix_is_required() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    mutated_steps = []
+    for step in manifest.steps:
+        if step.kind is WorkflowStepKind.QUANTIFY_FEATURES:
+            mutated_steps.append(
+                step.model_copy(
+                    update={
+                        "output_data_types": (
+                            WorkflowDataType.PROTEIN_QUANT_MATRIX,
+                        )
+                    }
+                )
+            )
+            continue
+        mutated_steps.append(step)
+    mismatched_manifest = manifest.model_copy(update={"steps": tuple(mutated_steps)})
+    report = validate_proteomics_workflow_step_types(mismatched_manifest)
+
+    assert report.valid is False
+    assert any(
+        issue.code == "step_output_contract_mismatch"
+        and issue.step_id == f"{manifest.workflow_id}-quantify-features"
+        for issue in report.issues
+    )
+    assert any(
+        issue.code == "missing_input_type"
+        and issue.step_id == f"{manifest.workflow_id}-build-run-bundle"
+        for issue in report.issues
+    )
+    with pytest.raises(ValueError, match="workflow step type validation failed"):
+        build_proteomics_dag_plan(mismatched_manifest)
+
+
 def test_workflow_manifest_explanation_report_makes_configuration_choices_explicit() -> (
     None
 ):
