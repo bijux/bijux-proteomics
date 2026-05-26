@@ -8,6 +8,7 @@ from __future__ import annotations
 from itertools import combinations
 import numpy as np
 
+from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.matrix.core_matrix import (
     quant_matrix_to_dense_array,
@@ -95,6 +96,16 @@ def impute_label_free_table(
             quant_matrix_to_dense_array(table.to_quant_matrix()),
             transformation_step="imputation:none",
             metadata_updates={"imputation_method": method.value},
+        ).model_copy(
+            update={
+                "matrix_id": build_matrix_id(
+                    table.entity_level.value,
+                    table.measure_kind.value,
+                    aggregation_method=table.aggregation_method.value,
+                    normalization_method=table.normalization_method.value,
+                    imputation_method=method.value,
+                )
+            }
         )
         return table.model_copy(
             update={
@@ -667,6 +678,16 @@ def _rebuild_imputed_table(
         dense_matrix,
         transformation_step=f"imputation:{method.value}",
         metadata_updates={"imputation_method": method.value},
+    ).model_copy(
+        update={
+            "matrix_id": build_matrix_id(
+                table.entity_level.value,
+                table.measure_kind.value,
+                aggregation_method=table.aggregation_method.value,
+                normalization_method=table.normalization_method.value,
+                imputation_method=method.value,
+            )
+        }
     )
     return table.model_copy(
         update={

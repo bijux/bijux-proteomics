@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.domain.records import (
     MissingValueState as CanonicalMissingValueState,
     QuantEntityKind as CanonicalQuantEntityKind,
@@ -569,6 +570,16 @@ def _rebuild_table_from_matrix(
         matrix,
         transformation_step=f"normalization:{normalization_method.value}",
         metadata_updates={"normalization_method": normalization_method.value},
+    ).model_copy(
+        update={
+            "matrix_id": build_matrix_id(
+                table.entity_level.value,
+                table.measure_kind.value,
+                aggregation_method=table.aggregation_method.value,
+                normalization_method=normalization_method.value,
+                imputation_method=table.imputation_method.value,
+            )
+        }
     )
     return table.model_copy(
         update={

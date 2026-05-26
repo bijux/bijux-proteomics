@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.domain.records import (
     QuantMatrix as CanonicalQuantMatrix,
@@ -166,7 +167,13 @@ class LabelFreeQuantTable(JsonModel):
         )
 
         return build_numeric_quant_matrix(
-            matrix_id=f"{self.entity_level.value}_{self.measure_kind.value}_table",
+            matrix_id=build_matrix_id(
+                self.entity_level.value,
+                self.measure_kind.value,
+                aggregation_method=self.aggregation_method.value,
+                normalization_method=self.normalization_method.value,
+                imputation_method=self.imputation_method.value,
+            ),
             entity_kind=_canonical_entity_kind(self.entity_level),
             measure_kind=_canonical_measure_kind(self.measure_kind),
             entity_ids=self.entity_ids,

@@ -168,6 +168,7 @@ def test_label_free_intensity_table_binds_canonical_quant_matrix() -> None:
     matrix = table.to_quant_matrix()
 
     assert matrix.entity_kind is QuantEntityKind.PROTEIN
+    assert matrix.matrix_id == "matrix:protein:intensity:sum:none:none"
     assert matrix.entity_ids == table.entity_ids
     assert matrix.sample_ids == table.sample_ids
     assert matrix.values[0][0] is not None
@@ -196,8 +197,10 @@ def test_normalization_and_imputation_keep_canonical_quant_matrix_in_sync() -> N
     imputed_matrix = imputed.to_quant_matrix()
 
     assert normalized_matrix.metadata["normalization_method"] == "none"
+    assert normalized_matrix.matrix_id == "matrix:protein:intensity:sum:none:none"
     assert normalized_matrix.transformation_history[-1] == "normalization:none"
     assert imputed_matrix.metadata["imputation_method"] == "low_intensity"
+    assert imputed_matrix.matrix_id == "matrix:protein:intensity:sum:none:low_intensity"
     assert imputed_matrix.transformation_history[-1] == "imputation:low_intensity"
 
 
