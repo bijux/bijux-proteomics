@@ -1,0 +1,18 @@
+{
+  "cases": [
+    {
+      "algorithm_id": "digest",
+      "workload_unit": "proteins",
+      "generated_unit_count": 1600,
+      "baseline_seconds": 0.45,
+      "regression_threshold_ratio": 3.0
+    },
+    {
+      "algorithm_id": "peptide_index",
+      "workload_unit": "proteins",
+      "generated_unit_count": 1600,
+      "baseline_seconds": 1.15,
+      "regression_threshold_ratio": 3.0
+    }
+  ]
+}
