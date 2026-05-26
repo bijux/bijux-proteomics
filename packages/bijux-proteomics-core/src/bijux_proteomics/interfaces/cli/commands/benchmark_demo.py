@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.benchmark_demo import run_public_benchmark_runner_command, run_build_trust_bundle_command, run_surprising_demo_command, run_surprising_demo_query_command, run_surprising_demo_report_command, run_public_dataset_comparison_command, run_public_dataset_evidence_cards_command, run_public_case_study_command
+from bijux_proteomics.interfaces.python_api.benchmark_demo import run_public_benchmark_runner_command, run_build_trust_bundle_command, run_scale_demo_command, run_surprising_demo_command, run_surprising_demo_query_command, run_surprising_demo_report_command, run_public_dataset_comparison_command, run_public_dataset_evidence_cards_command, run_public_case_study_command
 
 @click.command("public-benchmark-runner")
 @click.argument(
@@ -108,6 +108,47 @@ def surprising_demo_command(
 ) -> None:
     'Run the shipped proteomics demo from local example data only.'
     return run_surprising_demo_command(output_dir, summary_tsv_out, findings_tsv_out, claims_tsv_out, contradictions_tsv_out, belief_audit_tsv_out, out_path)
+
+@click.command("demo-scale")
+@click.option(
+    "--out-dir",
+    "output_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path("artifacts/proteomics-scale-demo"),
+    show_default=True,
+)
+@click.option("--protein-count", type=int, default=180, show_default=True)
+@click.option("--peptides-per-protein", type=int, default=4, show_default=True)
+@click.option("--replicates-per-condition", type=int, default=6, show_default=True)
+@click.option("--pathway-count", type=int, default=18, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--stage-metrics-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--validation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def scale_demo_command(
+    output_dir: Path,
+    protein_count: int,
+    peptides_per_protein: int,
+    replicates_per_condition: int,
+    pathway_count: int,
+    summary_tsv_out: Path | None,
+    stage_metrics_tsv_out: Path | None,
+    validation_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    'Generate a local scale dataset and run owned parsing, quant, graph, and report validation.'
+    return run_scale_demo_command(output_dir, protein_count, peptides_per_protein, replicates_per_condition, pathway_count, summary_tsv_out, stage_metrics_tsv_out, validation_tsv_out, out_path)
 
 @click.command("demo-query")
 @click.option(
@@ -287,6 +328,7 @@ COMMANDS = (
     public_benchmark_runner_command,
     build_trust_bundle_command,
     surprising_demo_command,
+    scale_demo_command,
     surprising_demo_query_command,
     surprising_demo_report_command,
     public_dataset_comparison_command,
