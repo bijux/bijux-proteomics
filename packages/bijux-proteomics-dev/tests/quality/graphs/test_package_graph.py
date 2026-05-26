@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_dev.quality.graphs.package_graph import (
+    _detect_import_root,
     build_workspace_package_graph,
     load_workspace_packages,
 )
@@ -36,3 +37,11 @@ def test_workspace_package_graph_tracks_declared_dependencies() -> None:
     assert "bijux-proteomics-knowledge" not in graph.direct_dependencies_of(
         "bijux-proteomics-core"
     )
+
+
+def test_detect_import_root_ignores_testsupport_siblings(tmp_path: Path) -> None:
+    src_dir = tmp_path / "src"
+    (src_dir / "agentic_proteins").mkdir(parents=True)
+    (src_dir / "agentic_proteins_testsupport").mkdir()
+
+    assert _detect_import_root(src_dir) == "agentic_proteins"
