@@ -8,6 +8,7 @@ from __future__ import annotations
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignReport,
+    ExperimentalDesignRejectedRow,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -91,25 +93,38 @@ class MultiplexMetadataValidationReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+@dataclass(frozen=True)
+class _MultiplexMetadataRow:
+    multiplex_group: str
+    multiplex_channel: str
+    sample_id: str
+    condition: str | None
+    sample_role: str
+
+
 def build_multiplex_metadata_validation_report(
     design_report: ExperimentalDesignReport,
 ) -> MultiplexMetadataValidationReport:
     """Validate design-backed multiplex channel, sample, and condition mappings."""
 
-    multiplex_entries = _multiplex_entries(design_report.accepted_entries)
+    multiplex_entries = _multiplex_entries(design_report)
     channel_union = tuple(
-        sorted({entry.multiplex_channel or "" for entry in multiplex_entries})
+        sorted({entry.multiplex_channel for entry in multiplex_entries})
     )
-    entries_by_group_and_channel: dict[tuple[str, str], list[ExperimentalDesignEntry]] = {}
-    entries_by_group_and_sample: dict[tuple[str, str], list[ExperimentalDesignEntry]] = {}
+    entries_by_group_and_channel: dict[tuple[str, str], list[_MultiplexMetadataRow]] = {}
+    entries_by_group_and_sample: dict[tuple[str, str], list[_MultiplexMetadataRow]] = {}
     for entry in multiplex_entries:
-        group = entry.multiplex_group or ""
-        channel = entry.multiplex_channel or ""
-        entries_by_group_and_channel.setdefault((group, channel), []).append(entry)
-        entries_by_group_and_sample.setdefault((group, entry.sample_id), []).append(entry)
+        entries_by_group_and_channel.setdefault(
+            (entry.multiplex_group, entry.multiplex_channel),
+            [],
+        ).append(entry)
+        entries_by_group_and_sample.setdefault(
+            (entry.multiplex_group, entry.sample_id),
+            [],
+        ).append(entry)
 
     assignments: list[MultiplexChannelAssignmentEntry] = []
-    for multiplex_group in sorted({entry.multiplex_group or "" for entry in multiplex_entries}):
+    for multiplex_group in sorted({entry.multiplex_group for entry in multiplex_entries}):
         for multiplex_channel in channel_union:
             matches = entries_by_group_and_channel.get((multiplex_group, multiplex_channel), [])
             if not matches:
@@ -132,7 +147,7 @@ def build_multiplex_metadata_validation_report(
                     multiplex_channel=multiplex_channel,
                     sample_id=entry.sample_id,
                     condition=entry.condition,
-                    sample_role=entry.sample_role.value,
+                    sample_role=entry.sample_role,
                     assigned=True,
                     note=(
                         "design row provides an explicit multiplex channel to sample mapping"
@@ -170,15 +185,15 @@ def build_multiplex_metadata_validation_report(
 
     missing_conditions = tuple(
         MultiplexMissingConditionEntry(
-            multiplex_group=entry.multiplex_group or "",
-            multiplex_channel=entry.multiplex_channel or "",
+            multiplex_group=entry.multiplex_group,
+            multiplex_channel=entry.multiplex_channel,
             sample_id=entry.sample_id,
-            sample_role=entry.sample_role.value,
+            sample_role=entry.sample_role,
             note="design row leaves condition empty or placeholder-valued even though multiplex sample metadata requires it for biological comparison",
         )
         for entry in sorted(
             (entry for entry in multiplex_entries if _condition_missing(entry.condition)),
-            key=lambda item: (item.multiplex_group or "", item.multiplex_channel or ""),
+            key=lambda item: (item.multiplex_group, item.multiplex_channel),
         )
     )
     return MultiplexMetadataValidationReport(
@@ -205,12 +220,55 @@ def build_multiplex_metadata_validation_report(
 
 
 def _multiplex_entries(
-    accepted_entries: tuple[ExperimentalDesignEntry, ...],
-) -> tuple[ExperimentalDesignEntry, ...]:
-    return tuple(
-        entry
-        for entry in accepted_entries
+    design_report: ExperimentalDesignReport,
+) -> tuple[_MultiplexMetadataRow, ...]:
+    entries = [
+        _metadata_row_from_accepted_entry(entry)
+        for entry in design_report.accepted_entries
         if entry.multiplex_group and entry.multiplex_channel
+    ]
+    entries.extend(
+        row
+        for rejected_row in design_report.rejected_rows
+        for row in (_metadata_row_from_rejected_row(rejected_row),)
+        if row is not None
+    )
+    return tuple(entries)
+
+
+def _metadata_row_from_accepted_entry(
+    entry: ExperimentalDesignEntry,
+) -> _MultiplexMetadataRow:
+    assert entry.multiplex_group is not None
+    assert entry.multiplex_channel is not None
+    return _MultiplexMetadataRow(
+        multiplex_group=entry.multiplex_group,
+        multiplex_channel=entry.multiplex_channel,
+        sample_id=entry.sample_id,
+        condition=entry.condition,
+        sample_role=entry.sample_role.value,
+    )
+
+
+def _metadata_row_from_rejected_row(
+    rejected_row: ExperimentalDesignRejectedRow,
+) -> _MultiplexMetadataRow | None:
+    multiplex_group = (rejected_row.values.get("multiplex_group") or "").strip()
+    multiplex_channel = (rejected_row.values.get("multiplex_channel") or "").strip()
+    sample_id = (rejected_row.values.get("sample_id") or "").strip()
+    if not multiplex_group or not multiplex_channel or not sample_id:
+        return None
+    sample_role = (
+        rejected_row.values.get("sample_role")
+        or "sample"
+    ).strip() or "sample"
+    condition = rejected_row.values.get("condition")
+    return _MultiplexMetadataRow(
+        multiplex_group=multiplex_group,
+        multiplex_channel=multiplex_channel,
+        sample_id=sample_id,
+        condition=None if condition is None else condition.strip(),
+        sample_role=sample_role,
     )
 
 

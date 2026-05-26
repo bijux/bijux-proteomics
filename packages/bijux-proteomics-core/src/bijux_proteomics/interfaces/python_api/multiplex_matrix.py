@@ -18,8 +18,6 @@ def run_multiplex_validate_metadata_command(
 ) -> None:
     try:
         design_report = parse_experimental_design_table(design_path)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
         report = build_multiplex_metadata_validation_report(design_report)
     except click.ClickException:
         raise

@@ -370,7 +370,17 @@ def build_targeted_transition_coelution_report(
                 )
 
             reliability_reasons: list[str] = []
-            raw_score = raw_scores_by_group[(target_id, sample_id)]
+            raw_score = raw_scores_by_group.get(
+                (target_id, sample_id),
+                TargetedTransitionCoelutionScore(
+                    target_id=target_id,
+                    sample_id=sample_id,
+                    transition_count=0,
+                    passing_transition_count=0,
+                    apex_rt_spread=0.0,
+                    coelution_tier=TargetedTransitionCoelutionTier.MISSING,
+                ),
+            )
             target_coelution_tier = _coelution_tier(
                 transition_count=len(expected_transition_ids),
                 passing_transition_count=raw_score.passing_transition_count,

@@ -8,6 +8,13 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
+def _normalize_optional_field_name(value: str | None) -> str | None:
+    if value is None:
+        return None
+    return value or None
+
+
 def run_quantify_command(
     input_table: Path,
     measure: str,
@@ -74,6 +81,11 @@ def run_quantify_command(
         quant_entity_level = QuantEntityLevel(entity_level)
         quant_measure = QuantMeasureKind(measure)
         rollup_method = QuantRollupMethod(aggregation)
+        effective_batch_field = _normalize_optional_field_name(design_batch_field)
+        effective_pairing_field = _normalize_optional_field_name(design_pairing_field)
+        effective_timepoint_field = _normalize_optional_field_name(
+            design_timepoint_field
+        )
         design_entries: tuple[ExperimentalDesignEntry, ...] = ()
         if design_path is not None:
             design_report = parse_experimental_design_table(design_path)
@@ -134,13 +146,12 @@ def run_quantify_command(
         differential_multi_condition = None
         multi_contrast_consistency = None
         if design_path is not None:
-            effective_pairing_field = design_pairing_field
+            contrast_was_explicit = condition_a is not None or condition_b is not None
             if effective_pairing_field is None and all(
                 entry.pair_id not in (None, "") for entry in design_entries
             ):
                 effective_pairing_field = "pair_id"
             effective_covariates = tuple(dict.fromkeys(design_covariates))
-            effective_timepoint_field = design_timepoint_field
             if effective_timepoint_field is None and "timepoint" in effective_covariates:
                 effective_timepoint_field = "timepoint"
                 effective_covariates = tuple(
@@ -158,7 +169,7 @@ def run_quantify_command(
             )
             design_matrix = build_quant_design_matrix_report(
                 design_entries,
-                batch_field=design_batch_field,
+                batch_field=effective_batch_field,
                 covariate_fields=effective_covariates,
                 pairing_field=effective_pairing_field,
                 timepoint_field=effective_timepoint_field,
@@ -171,7 +182,7 @@ def run_quantify_command(
                 limma_package = build_limma_compatible_quant_package(
                     table,
                     design_entries,
-                    batch_field=design_batch_field,
+                    batch_field=effective_batch_field,
                     covariate_fields=effective_covariates,
                     pairing_field=effective_pairing_field,
                     timepoint_field=effective_timepoint_field,
@@ -183,7 +194,7 @@ def run_quantify_command(
             batch_effect = build_batch_effect_estimator_report(
                 table,
                 design_entries,
-                batch_field=design_batch_field or "batch",
+                batch_field=effective_batch_field or "batch",
             )
             replicate_qc = build_replicate_and_batch_qc_report(
                 table,
@@ -197,7 +208,7 @@ def run_quantify_command(
                     policy=TimeCourseTestingPolicy(
                         timepoint_field=effective_timepoint_field,
                         ordered_timepoints=declared_timepoint_order,
-                        batch_field=design_batch_field or None,
+                        batch_field=effective_batch_field,
                         pairing_field=effective_pairing_field,
                         covariate_fields=effective_covariates,
                     ),
@@ -254,19 +265,33 @@ def run_quantify_command(
                         if effective_pairing_field is not None
                         else None
                     )
-                    differential = build_differential_abundance_report(
-                        table,
-                        design_entries,
-                        condition_a=selected_contrast[0],
-                        condition_b=selected_contrast[1],
-                        test_type=(
-                            DifferentialAbundanceTestType.PAIRED_T_TEST
-                            if paired_policy is not None
-                            else DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST
-                        ),
-                        design_matrix=design_matrix,
-                        paired_policy=paired_policy,
-                    )
+                    try:
+                        differential = build_differential_abundance_report(
+                            table,
+                            design_entries,
+                            condition_a=selected_contrast[0],
+                            condition_b=selected_contrast[1],
+                            test_type=(
+                                DifferentialAbundanceTestType.PAIRED_T_TEST
+                                if paired_policy is not None
+                                else DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST
+                            ),
+                            design_matrix=design_matrix,
+                            paired_policy=paired_policy,
+                        )
+                    except ValueError:
+                        requires_differential_output = any(
+                            output is not None
+                            for output in (
+                                differential_tsv_out,
+                                broken_pairs_tsv_out,
+                                limma_results_path,
+                                msstats_results_path,
+                            )
+                        )
+                        if contrast_was_explicit or requires_differential_output:
+                            raise
+                        selected_contrast = None
                 elif len(conditions) > 2:
                     differential_multi_condition = (
                         build_multi_condition_differential_abundance_report(

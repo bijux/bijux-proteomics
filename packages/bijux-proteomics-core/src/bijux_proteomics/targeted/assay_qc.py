@@ -27,6 +27,9 @@ from bijux_proteomics.targeted.result_import import (
 )
 from bijux_proteomics.targeted.transition_coelution import (
     TargetedTransitionCoelutionReport,
+    TargetedTransitionCoelutionTargetEntry,
+    TargetedTransitionCoelutionTier,
+    TargetedTransitionCoelutionTransitionEntry,
     build_targeted_transition_coelution_report,
     render_targeted_transition_coelution_target_tsv,
     render_targeted_transition_coelution_transition_tsv,
@@ -215,6 +218,54 @@ class TargetedAssayQcReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+def _missing_target_coelution_entry(
+    *,
+    target_id: str,
+    sample_id: str,
+    expected_transition_count: int,
+) -> TargetedTransitionCoelutionTargetEntry:
+    return TargetedTransitionCoelutionTargetEntry(
+        target_id=target_id,
+        sample_id=sample_id,
+        expected_transition_count=expected_transition_count,
+        observed_transition_count=0,
+        coeluting_transition_count=0,
+        coeluting_transition_ids=(),
+        noncoeluting_transition_ids=(),
+        anchor_transition_id=None,
+        anchor_retention_time_minutes=None,
+        mean_retention_time_minutes=None,
+        reference_retention_time_minutes=None,
+        absolute_alignment_delta_minutes=None,
+        alignment_flagged=False,
+        coelution_tier=TargetedTransitionCoelutionTier.MISSING,
+        reliable_transition_support=False,
+        reliability_reasons=("target is not detected in this sample",),
+    )
+
+
+def _missing_transition_coelution_entry(
+    *,
+    target_id: str,
+    sample_id: str,
+    transition_id: str,
+) -> TargetedTransitionCoelutionTransitionEntry:
+    return TargetedTransitionCoelutionTransitionEntry(
+        target_id=target_id,
+        sample_id=sample_id,
+        transition_id=transition_id,
+        detected=False,
+        retention_time_minutes=None,
+        anchor_transition_id=None,
+        anchor_retention_time_minutes=None,
+        reference_retention_time_minutes=None,
+        coelution_delta_minutes=None,
+        reference_delta_minutes=None,
+        coeluting=False,
+        failure_reasons=("transition is not detected in this sample",),
+    )
+
+
 def build_targeted_assay_qc_report(
     import_report: TargetedResultImportReport,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
@@ -298,7 +349,14 @@ def build_targeted_assay_qc_report(
             observations_by_transition_id = {
                 item.transition_id: item for item in sample_observations
             }
-            target_coelution_entry = target_coelution_by_target_sample[(target_id, sample_id)]
+            target_coelution_entry = target_coelution_by_target_sample.get(
+                (target_id, sample_id),
+                _missing_target_coelution_entry(
+                    target_id=target_id,
+                    sample_id=sample_id,
+                    expected_transition_count=expected_count,
+                ),
+            )
             detected_transition_ids = {item.transition_id for item in sample_observations}
             detected_count = len(detected_transition_ids)
             missing_transition_ids = set(expected_transition_ids) - detected_transition_ids
@@ -379,10 +437,13 @@ def build_targeted_assay_qc_report(
             passing_total_intensity = 0.0
             for transition_id in expected_transition_ids:
                 observation = observations_by_transition_id.get(transition_id)
-                transition_coelution_entry = (
-                    transition_coelution_by_target_sample_transition[
-                        (target_id, sample_id, transition_id)
-                    ]
+                transition_coelution_entry = transition_coelution_by_target_sample_transition.get(
+                    (target_id, sample_id, transition_id),
+                    _missing_transition_coelution_entry(
+                        target_id=target_id,
+                        sample_id=sample_id,
+                        transition_id=transition_id,
+                    ),
                 )
                 if observation is None:
                     transition_qc_entries.append(

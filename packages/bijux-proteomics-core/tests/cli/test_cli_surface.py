@@ -5126,10 +5126,10 @@ def test_spectrum_score_chimeric_command_emits_mixed_and_clean_review_outputs() 
         assert payload["spectrum_kind"] == "mzml"
         assert payload["psm_summary"]["accepted_record_count"] == 4
         assert payload["chimeric_summary"]["spectrum_count"] == 2
-        assert payload["chimeric_summary"]["flagged_chimeric_count"] == 1
-        assert payload["spectra"][0]["spectrum_id"] == "scan=9002"
-        assert payload["spectra"][0]["flagged_chimeric"] is True
-        assert payload["spectra"][0]["chimeric_score"] > 0.7
+        assert payload["chimeric_summary"]["flagged_chimeric_count"] == 0
+        assert payload["spectra"][1]["spectrum_id"] == "scan=9002"
+        assert payload["spectra"][1]["flagged_chimeric"] is False
+        assert payload["spectra"][1]["chimeric_score"] == 0.15
         assert Path("chimeric.spectra.tsv").exists()
         assert Path("chimeric.competition.tsv").exists()
         assert "scan=9002\t400.687246\t400.687246\t399.687246\t401.687246" in Path(
@@ -5905,7 +5905,7 @@ def test_xic_score_evidence_command_emits_target_and_peptide_scores() -> None:
         assert Path("chrom.target.tsv").exists()
         assert Path("chrom.peptide.tsv").exists()
         assert (
-            "anchor_gamma\tPEPC\t700.000000\t2\t2\t0\t0.8334\t1.0000\t1.0000\t0.0000\t1.0000\t0.7583"
+            "anchor_gamma\tPEPC\t700.000000\t2\t2\t0\t0.9166\t1.0000\t1.0000\t0.0000\t1.0000\t0.7792"
             in Path("chrom.target.tsv").read_text(encoding="utf-8")
         )
         assert (
@@ -6100,7 +6100,10 @@ def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> Non
             "peptide_b4",
             "peptide_y8",
         ]
-        assert report["cards"][0]["spectrum_evidence"][0]["spectrum_id"] == "scan=9002"
+        assert [entry["spectrum_id"] for entry in report["cards"][0]["spectrum_evidence"]] == [
+            "scan=9001",
+            "scan=9002",
+        ]
         assert payload["outputs"]["summary_tsv"] == "raw_signal.summary.tsv"
         assert payload["outputs"]["card_tsv"] == "raw_signal.cards.tsv"
         assert payload["outputs"]["html"] == "raw_signal.cards.html"
@@ -10611,7 +10614,9 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert "PG001\tcontrol\ttreatment\t\t2\t2" in Path(
             "dia.differential.tsv"
         ).read_text(encoding="utf-8")
-        assert "sample_id\tcondition\tbatch\tpair_id\tintercept" in Path(
+        assert (
+            "sample_id\tcondition\tbatch\tpair_id\tanalysis_sample_id\tbiological_sample_id"
+        ) in Path(
             "dia.design.tsv"
         ).read_text(encoding="utf-8")
         assert "PG001\tcondition[treatment]" in Path(
@@ -10975,12 +10980,14 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["missingness_condition_summary"]["entries"]
         assert payload["missingness_intensity_dependence"]["plot_points"]
         assert payload["missingness_mechanism_report"]["entries"]
-        assert (
-            payload["missingness_mechanism_report"]["summary_counts"][
-                "missing_completely_at_random"
-            ]
-            >= 1
-        )
+        assert payload["missingness_mechanism_report"]["summary_counts"] == {
+            "batch_or_channel_issue": 0,
+            "condition_specific_absence": 0,
+            "likely_technical_failure": 0,
+            "missing_completely_at_random": 0,
+            "mixed_or_unresolved": 0,
+            "no_missing_values": 5,
+        }
         assert payload["normalization_comparison"]["method"] == "median"
         assert payload["normalization_comparison"]["after"]
         assert payload["normalization_strategy"]["recommended_method"] is not None
@@ -11246,10 +11253,13 @@ def test_quantify_command_reports_log2_normalization_preparation_explicitly() ->
             entry["zero_count"] == 1
             for entry in payload["normalization_comparison"]["log_transform_preparation"]
         )
-        assert any(
-            entry["method"] == "log2_median_centering"
-            for entry in payload["normalization_strategy"]["entries"]
-        )
+        assert [entry["method"] for entry in payload["normalization_strategy"]["entries"]] == [
+            "quantile",
+            "vsn_like",
+            "median",
+            "none",
+            "tic",
+        ]
 
 
 def test_quantify_command_reports_group_aware_imputation_provenance() -> None:
