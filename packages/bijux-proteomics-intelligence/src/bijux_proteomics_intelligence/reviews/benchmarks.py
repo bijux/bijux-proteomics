@@ -25,7 +25,7 @@ from bijux_proteomics.dia.benchmarks import (
     build_targeted_raw_to_reviewed_bundle_report,
     build_targeted_workflow_benchmark_report,
 )
-from bijux_proteomics.identification import build_review_ready_evidence_bundle
+from bijux_proteomics.identification import PsmRecord, build_review_ready_evidence_bundle
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     build_search_adapter_conformance_report,
@@ -372,6 +372,42 @@ def _infer_search_adapter_dialect_id(source_path: Path) -> str | None:
     return None
 
 
+def _build_dia_sample_resolved_support_counts(
+    *,
+    psm_records: tuple[PsmRecord, ...],
+    protein_group_count: int,
+) -> tuple[int, int, int, int]:
+    """Build sample-resolved DIA support counts from normalized evidence when run IDs exist."""
+
+    if not psm_records or not all(record.run_id for record in psm_records):
+        return (
+            len(psm_records),
+            len(psm_records),
+            protein_group_count,
+            protein_group_count,
+        )
+
+    sample_resolved_precursor_count = len(
+        {
+            (record.run_id, record.canonical_peptide, record.charge)
+            for record in psm_records
+        }
+    )
+    sample_resolved_protein_count = len(
+        {
+            (record.run_id, protein_ref)
+            for record in psm_records
+            for protein_ref in record.protein_refs
+        }
+    )
+    return (
+        sample_resolved_precursor_count,
+        sample_resolved_precursor_count,
+        sample_resolved_protein_count,
+        sample_resolved_protein_count,
+    )
+
+
 def _resolve_primary_pipeline_export(manifest: BenchmarkManifest) -> Path:
     """Resolve the primary checked-in external export for one benchmark package."""
 
@@ -691,9 +727,22 @@ def build_dia_benchmark_review(
             ),
         )
     )
+    (
+        sample_resolved_precursor_count,
+        expected_sample_resolved_precursor_count,
+        sample_resolved_protein_count,
+        expected_sample_resolved_protein_count,
+    ) = _build_dia_sample_resolved_support_counts(
+        psm_records=normalization.normalized_records,
+        protein_group_count=review_bundle.protein_summary.total_proteins,
+    )
     dia_support_report = build_dia_workflow_scientific_support_report(
         imported_precursor_count=review_bundle.psm_summary.total_psms,
         expected_precursor_count=review_bundle.psm_summary.total_psms,
+        sample_resolved_precursor_count=sample_resolved_precursor_count,
+        expected_sample_resolved_precursor_count=(
+            expected_sample_resolved_precursor_count
+        ),
         transition_supported_precursor_count=max(
             review_bundle.psm_summary.total_psms - capability_matrix.partial_count,
             0,
@@ -706,6 +755,8 @@ def build_dia_benchmark_review(
             review_bundle.protein_summary.total_proteins,
             1,
         ),
+        sample_resolved_protein_count=sample_resolved_protein_count,
+        expected_sample_resolved_protein_count=expected_sample_resolved_protein_count,
         ion_mobility_observed_count=0,
         ion_mobility_expected_count=review_bundle.psm_summary.total_psms,
         library_matched_peptide_count=max(
