@@ -29,10 +29,15 @@ from bijux_proteomics.targeted import (
     TargetedPanelSelectedPeptideInput,
     TargetedPanelTransitionInput,
     TargetedTransitionSelectionReport,
+    ValidationEvidenceCardReport,
+    ValidationEvidenceDiscoveryInput,
+    ValidationEvidenceOmittedCandidateInput,
+    ValidationEvidencePanelAssayInput,
     build_discovery_targeted_peptide_selection_report,
     build_targeted_assay_interference_report,
     build_targeted_panel_design_report,
     build_targeted_transition_selection_report,
+    build_validation_evidence_card_report,
     render_discovery_targeted_peptide_selection_rejected_tsv,
     render_discovery_targeted_peptide_selection_selected_tsv,
     render_targeted_panel_design_assay_tsv,
@@ -79,8 +84,19 @@ class DiscoveryAssayTargetInput(JsonModel):
     site_key: str | None = None
     priority_rank: int = Field(..., ge=1)
     final_score: float = Field(..., ge=0.0, le=1.0)
+    weighted_evidence_total: float | None = Field(default=None, ge=0.0, le=1.0)
     penalty_total: float = Field(..., ge=0.0)
+    uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
+    effect_size: float | None = None
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    support_count: int = Field(default=0, ge=0)
+    annotation_labels: tuple[str, ...] = Field(default_factory=tuple)
     rank_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
+    source_ids: tuple[str, ...] = Field(default_factory=tuple)
+    ranking_note: str = Field(
+        default="discovery-ranked biomarker candidate prepared for assay planning",
+        min_length=1,
+    )
     discovery_peptides: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -170,6 +186,7 @@ class DiscoveryToAssayReport(WorkflowResult):
     transition_selection_report: TargetedTransitionSelectionReport
     assay_interference_report: TargetedAssayInterferenceReport
     panel_design_report: TargetedPanelDesignReport
+    validation_candidate_cards: ValidationEvidenceCardReport
     target_entries: tuple[DiscoveryAssayTargetEntry, ...] = Field(default_factory=tuple)
     summary: DiscoveryToAssaySummary
     note: str = Field(..., min_length=1)
@@ -247,6 +264,11 @@ def design_assay_from_discovery(
         transition_selection_report=transition_selection_report,
         panel_design_report=panel_design_report,
     )
+    validation_candidate_cards = _build_validation_candidate_cards(
+        targets=targets,
+        target_entries=target_entries,
+        panel_design_report=panel_design_report,
+    )
     manifest = DiscoveryToAssayManifest()
     summary = DiscoveryToAssaySummary(
         target_count=len(target_entries),
@@ -282,6 +304,7 @@ def design_assay_from_discovery(
         transition_selection_report=transition_selection_report,
         assay_interference_report=assay_interference_report,
         panel_design_report=panel_design_report,
+        validation_candidate_cards=validation_candidate_cards,
         target_entries=target_entries,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_discovery_to_assay_warnings(summary, manifest),
@@ -292,8 +315,9 @@ def design_assay_from_discovery(
         summary=summary,
         note=(
             "discovery-to-assay design composes governed peptide selection, transition "
-            "selection, assay interference scoring, and panel design so no target is "
-            "promoted into an assay without an acceptable peptide"
+            "selection, assay interference scoring, panel design, and validation "
+            "candidate cards so no target is promoted into an assay without an "
+            "acceptable peptide"
         ),
     )
 
@@ -487,6 +511,93 @@ def _build_discovery_to_assay_rejected_evidence(
         )
         for entry in target_entries
         if entry.assay_feasibility is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
+    )
+
+
+def _rejected_evidence_reason_code(
+    feasibility: DiscoveryAssayFeasibilityStatus,
+) -> str:
+    if feasibility is DiscoveryAssayFeasibilityStatus.PEPTIDE_UNAVAILABLE:
+        return "missing_peptide"
+    if feasibility is DiscoveryAssayFeasibilityStatus.SITE_SPECIFIC_FOLLOW_UP_REQUIRED:
+        return "review-needs-assay-evidence"
+    return "partial_assay_coverage"
+
+
+def _build_validation_candidate_cards(
+    *,
+    targets: tuple[DiscoveryAssayTargetInput, ...],
+    target_entries: tuple[DiscoveryAssayTargetEntry, ...],
+    panel_design_report: TargetedPanelDesignReport,
+) -> ValidationEvidenceCardReport:
+    target_entry_by_id = {entry.candidate_id: entry for entry in target_entries}
+    return build_validation_evidence_card_report(
+        tuple(
+            ValidationEvidenceDiscoveryInput(
+                candidate_id=target.candidate_id,
+                candidate_kind=target.candidate_kind,
+                display_label=target.display_label,
+                target_protein_ref=target.target_protein_ref,
+                site_key=target.site_key,
+                priority_rank=target.priority_rank,
+                final_score=target.final_score,
+                weighted_evidence_total=(
+                    target.final_score
+                    if target.weighted_evidence_total is None
+                    else target.weighted_evidence_total
+                ),
+                penalty_total=target.penalty_total,
+                uncertainty=target.uncertainty,
+                effect_size=target.effect_size,
+                adjusted_p_value=target.adjusted_p_value,
+                support_count=target.support_count,
+                annotation_labels=target.annotation_labels,
+                rank_reason_codes=target.rank_reason_codes,
+                source_ids=target.source_ids,
+                ranking_note=target.ranking_note,
+            )
+            for target in targets
+        ),
+        panel_assays=tuple(
+            ValidationEvidencePanelAssayInput(
+                assay_entry_id=entry.assay_entry_id,
+                biomarker_candidate_id=entry.biomarker_candidate_id,
+                biomarker_candidate_kind=entry.biomarker_candidate_kind,
+                biomarker_display_label=entry.biomarker_display_label,
+                biomarker_priority_rank=entry.biomarker_priority_rank,
+                target_protein_ref=entry.target_protein_ref,
+                target_protein_group_id=entry.target_protein_group_id,
+                gene_symbol=entry.gene_symbol,
+                peptide_sequence=entry.peptide_sequence,
+                canonical_peptide=entry.canonical_peptide,
+                uniqueness_class=entry.uniqueness_class,
+                uniqueness_score=entry.uniqueness_score,
+                precursor_charge=entry.precursor_charge,
+                precursor_mz=entry.precursor_mz,
+                expected_retention_time_minutes=entry.expected_retention_time_minutes,
+                retention_window_start_minutes=entry.retention_window_start_minutes,
+                retention_window_end_minutes=entry.retention_window_end_minutes,
+                selected_transition_count=entry.selected_transition_count,
+                exported_transition_count=entry.exported_transition_count,
+                assay_interference_risk_tier=entry.assay_interference_risk_tier,
+                warning_codes=entry.warning_codes,
+                warning_note=entry.warning_note,
+                source_library_entry_id=entry.source_library_entry_id,
+            )
+            for entry in panel_design_report.assay_entries
+        ),
+        omitted_candidates=tuple(
+            ValidationEvidenceOmittedCandidateInput(
+                candidate_id=entry.candidate_id,
+                candidate_kind=entry.candidate_kind,
+                display_label=entry.display_label,
+                target_protein_ref=entry.target_protein_ref,
+                site_key=entry.site_key,
+                priority_rank=entry.priority_rank,
+                omission_reason=target_entry_by_id.get(entry.candidate_id, entry).note,
+            )
+            for entry in panel_design_report.omitted_candidates
+        ),
     )
 
 
