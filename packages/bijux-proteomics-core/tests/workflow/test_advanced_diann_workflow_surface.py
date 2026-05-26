@@ -14,6 +14,7 @@ from bijux_proteomics.workflow import (
     AdvancedDiannWorkflowConfig,
     load_workflow_artifact_manifest,
     run_advanced_diann_workflow,
+    validate_advanced_workflow_family_contract,
     validate_workflow_artifact_completeness,
     validate_workflow_artifact_inventory,
     validate_workflow_artifact_manifest,
@@ -60,6 +61,12 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
             condition_a="control",
             condition_b="treatment",
         )
+    )
+    assert report.manifest.family_protocol == report.family_protocol
+    assert validate_advanced_workflow_family_contract(report.family_protocol) == ()
+    assert (
+        report.family_protocol.artifacts.workflow_manifest_json
+        == "advanced_diann_workflow_manifest.json"
     )
 
     output_dir = tmp_path / "advanced_diann_review"

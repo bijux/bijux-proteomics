@@ -38,6 +38,11 @@ from bijux_proteomics.workflow.result_types import (
     render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -106,6 +111,7 @@ class AdvancedMaxquantWorkflowManifest(JsonModel):
     summary: AdvancedMaxquantWorkflowSummary
     artifacts: AdvancedMaxquantWorkflowArtifactPaths
     maxquant_workflow_manifest: MaxquantBiologicalWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -139,6 +145,7 @@ class AdvancedMaxquantWorkflowReport(BiologyResult):
     )
     summary: AdvancedMaxquantWorkflowSummary
     manifest: AdvancedMaxquantWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -225,6 +232,46 @@ def run_advanced_maxquant_workflow(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_maxquant_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_maxquant_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_maxquant",
+        config=config,
+        primary_input_fields=(
+            "evidence_txt_path",
+            "peptides_txt_path",
+            "protein_groups_txt_path",
+        ),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=(
+            "proteins_fasta_path",
+            "protocol_context_tsv_path",
+            "config_path",
+            "acceptance_policy",
+        ),
+        annotation_input_fields=(
+            "annotation_tsv_path",
+            "context_annotation_tsv_path",
+            "go_annotation_tsv_path",
+            "pathway_membership_tsv_path",
+            "complex_membership_tsv_path",
+        ),
+        comparison_input_fields=("condition_a", "condition_b"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=maxquant_manifest_path.name,
+            review_manifest_json=maxquant_manifest.artifacts.biological_manifest_json,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=rejected_evidence_name,
+            supported_claim_tsv=maxquant_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
+            rejected_claim_tsv=maxquant_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
+        ),
+        note=(
+            "advanced maxquant workflow follows the canonical advanced workflow "
+            "family through normalized config categories plus shared summary, "
+            "manifest, claim, and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedMaxquantWorkflowManifest(
         summary=summary,
         artifacts=AdvancedMaxquantWorkflowArtifactPaths(
@@ -238,13 +285,14 @@ def run_advanced_maxquant_workflow(
             rejected_claim_tsv=maxquant_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
         ),
         maxquant_workflow_manifest=maxquant_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced maxquant workflow preserves governed import, acceptance-filtered "
             "lfq biology, separate reverse and contaminant exclusions, peptide "
             "contribution review, and downstream biological claims in one directory"
         ),
     )
-    manifest_path = output_dir / "advanced_maxquant_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -258,6 +306,7 @@ def run_advanced_maxquant_workflow(
         peptide_contributions=peptide_contributions,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_maxquant_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_maxquant_rejected_evidence(

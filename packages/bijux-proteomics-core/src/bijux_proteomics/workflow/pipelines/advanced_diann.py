@@ -63,6 +63,11 @@ from bijux_proteomics.workflow.result_types import (
     build_result_warning,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -148,6 +153,7 @@ class AdvancedDiannWorkflowManifest(JsonModel):
     summary: AdvancedDiannWorkflowSummary
     artifacts: AdvancedDiannWorkflowArtifactPaths
     diann_workflow_manifest: DiannBiologicalWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -192,6 +198,7 @@ class AdvancedDiannWorkflowReport(BiologyResult):
     fragment_coelution_report: DiaFragmentCoelutionReport | None = None
     summary: AdvancedDiannWorkflowSummary
     manifest: AdvancedDiannWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -324,6 +331,43 @@ def build_advanced_diann_workflow_report_from_bundle(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_diann_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_diann_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_diann",
+        config=config,
+        primary_input_fields=("result_tsv_path",),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=(
+            "proteins_fasta_path",
+            "protocol_context_tsv_path",
+            "config_path",
+            "fragment_target_tsv_path",
+            "fragment_mzml_paths",
+        ),
+        annotation_input_fields=(
+            "annotation_tsv_path",
+            "context_annotation_tsv_path",
+            "go_annotation_tsv_path",
+            "pathway_membership_tsv_path",
+            "complex_membership_tsv_path",
+        ),
+        comparison_input_fields=("condition_a", "condition_b"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=diann_manifest_path.name,
+            review_manifest_json=diann_manifest.artifacts.biological_manifest_json,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=diann_manifest.artifacts.rejected_evidence_tsv,
+            supported_claim_tsv=diann_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
+            rejected_claim_tsv=diann_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
+        ),
+        note=(
+            "advanced dia-nn workflow follows the canonical advanced workflow family "
+            "through normalized config categories plus shared summary, manifest, "
+            "claim, and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedDiannWorkflowManifest(
         summary=summary,
         artifacts=AdvancedDiannWorkflowArtifactPaths(
@@ -343,13 +387,14 @@ def build_advanced_diann_workflow_report_from_bundle(
             fragment_coelution_fragments_tsv=fragment_fragments_name,
         ),
         diann_workflow_manifest=diann_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced dia-nn workflow output preserves governed import, matrices, qc, "
             "claims, graph-backed protein decisions, optional fragment coelution, "
             "and belief audit surfaces in one directory"
         ),
     )
-    manifest_path = output_dir / "advanced_diann_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -372,6 +417,7 @@ def build_advanced_diann_workflow_report_from_bundle(
         fragment_coelution_report=fragment_coelution_report,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_diann_warnings(
             report=base_report,

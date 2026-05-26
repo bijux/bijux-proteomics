@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.workflow import (
     AdvancedMaxquantWorkflowConfig,
     run_advanced_maxquant_workflow,
+    validate_advanced_workflow_family_contract,
 )
 
 
@@ -44,6 +45,12 @@ def test_run_advanced_maxquant_workflow_excludes_reverse_and_contaminants_from_b
             condition_a="control",
             condition_b="treatment",
         )
+    )
+    assert report.manifest.family_protocol == report.family_protocol
+    assert validate_advanced_workflow_family_contract(report.family_protocol) == ()
+    assert (
+        report.family_protocol.artifacts.workflow_manifest_json
+        == "advanced_maxquant_workflow_manifest.json"
     )
 
     output_dir = tmp_path / "advanced_maxquant_review"
