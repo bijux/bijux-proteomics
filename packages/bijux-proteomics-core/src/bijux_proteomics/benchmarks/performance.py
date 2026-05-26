@@ -205,6 +205,60 @@ def build_parser_memory_benchmark_report(
     )
 
 
+class CoreAlgorithmPerformanceBenchmarkInput(JsonModel):
+    """Observed runtime for one generated core-algorithm benchmark workload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    algorithm_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    observed_seconds: float = Field(..., gt=0.0)
+    baseline_seconds: float = Field(..., gt=0.0)
+    regression_threshold_ratio: float = Field(..., gt=1.0)
+
+
+class CoreAlgorithmPerformanceBenchmarkReport(JsonModel):
+    """Performance-baseline report for one core scientific algorithm."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    algorithm_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    observed_seconds: float = Field(..., gt=0.0)
+    baseline_seconds: float = Field(..., gt=0.0)
+    regression_threshold_ratio: float = Field(..., gt=1.0)
+    threshold_seconds: float = Field(..., gt=0.0)
+    slowdown_ratio: float = Field(..., gt=0.0)
+    units_per_second: float = Field(..., gt=0.0)
+    regression_detected: bool
+
+
+def build_core_algorithm_performance_benchmark_report(
+    payload: CoreAlgorithmPerformanceBenchmarkInput,
+) -> CoreAlgorithmPerformanceBenchmarkReport:
+    """Summarize one generated runtime against a governed regression threshold."""
+
+    threshold_seconds = round(
+        payload.baseline_seconds * payload.regression_threshold_ratio,
+        6,
+    )
+    slowdown_ratio = round(payload.observed_seconds / payload.baseline_seconds, 6)
+    return CoreAlgorithmPerformanceBenchmarkReport(
+        algorithm_id=payload.algorithm_id,
+        workload_unit=payload.workload_unit,
+        generated_unit_count=payload.generated_unit_count,
+        observed_seconds=payload.observed_seconds,
+        baseline_seconds=payload.baseline_seconds,
+        regression_threshold_ratio=payload.regression_threshold_ratio,
+        threshold_seconds=threshold_seconds,
+        slowdown_ratio=slowdown_ratio,
+        units_per_second=payload.generated_unit_count / payload.observed_seconds,
+        regression_detected=payload.observed_seconds > threshold_seconds,
+    )
+
+
 class EvidenceGraphScaleBenchmarkInput(JsonModel):
     """Stage timings for evidence-graph build/query/packet/export at scale."""
 
