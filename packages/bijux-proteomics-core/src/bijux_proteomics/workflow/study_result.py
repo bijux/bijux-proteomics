@@ -18,6 +18,18 @@ from bijux_proteomics.lab import LabActionPacket
 from bijux_proteomics.ptm import PtmReportBundle
 from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
 from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
+from bijux_proteomics.workflow.pipelines.advanced_diann import AdvancedDiannWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_fragpipe import (
+    AdvancedFragpipeWorkflowReport,
+)
+from bijux_proteomics.workflow.pipelines.advanced_maxquant import (
+    AdvancedMaxquantWorkflowReport,
+)
+from bijux_proteomics.workflow.pipelines.advanced_ptm import AdvancedPtmWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_targeted import (
+    TargetedValidationWorkflowReport,
+)
+from bijux_proteomics.workflow.pipelines.advanced_tmt import AdvancedTmtWorkflowReport
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import DdaBiologicalWorkflowBundle
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
@@ -50,6 +62,7 @@ class ProteomicsStudyKind(StrEnum):
     MAXQUANT = "maxquant"
     TMT = "tmt"
     PTM = "ptm"
+    TARGETED = "targeted"
 
 
 class ProteomicsStudyMatrixKind(StrEnum):
@@ -63,6 +76,7 @@ class ProteomicsStudyMatrixKind(StrEnum):
     REPORTER_CHANNEL = "reporter_channel"
     PROTEIN_RATIO = "protein_ratio"
     PTM_SITE = "ptm_site"
+    TARGETED_TARGET = "targeted_target"
 
 
 class ProteomicsStudyStatisticKind(StrEnum):
@@ -71,6 +85,7 @@ class ProteomicsStudyStatisticKind(StrEnum):
     DIFFERENTIAL_PROTEIN = "differential_protein"
     DIFFERENTIAL_LABEL_BASED = "differential_label_based"
     DIFFERENTIAL_PTM_SITE = "differential_ptm_site"
+    TARGETED_VALIDATION = "targeted_validation"
 
 
 class ProteomicsStudyQcKind(StrEnum):
@@ -88,6 +103,12 @@ class ProteomicsStudyQcKind(StrEnum):
     LABEL_BASED_SAMPLE_QC = "label_based_sample_qc"
     PTM_EVIDENCE_PARSING = "ptm_evidence_parsing"
     LAB_ACTION_PACKET = "lab_action_packet"
+    BELIEF_AUDIT = "belief_audit"
+    FRAGMENT_COHERENCE = "fragment_coherence"
+    PROTEIN_GROUP_DISCREPANCY = "protein_group_discrepancy"
+    PTM_AMBIGUITY_REVIEW = "ptm_ambiguity_review"
+    LABEL_BASED_SIGNAL_REVIEW = "label_based_signal_review"
+    TARGETED_ASSAY_QC = "targeted_assay_qc"
 
 
 class ProteomicsStudyCardKind(StrEnum):
@@ -96,6 +117,7 @@ class ProteomicsStudyCardKind(StrEnum):
     PROTEIN_EVIDENCE = "protein_evidence"
     PROTEIN_MECHANISM = "protein_mechanism"
     PTM_EVIDENCE = "ptm_evidence"
+    TARGETED_VALIDATION = "targeted_validation"
 
 
 class ProteomicsStudyConclusionKind(StrEnum):
@@ -345,12 +367,18 @@ class ProteomicsStudyResult(JsonModel):
 
 def build_proteomics_study_result(
     source: (
-        BiologicalResultReportBundle
+        AdvancedDiannWorkflowReport
+        | AdvancedFragpipeWorkflowReport
+        | AdvancedMaxquantWorkflowReport
+        | AdvancedPtmWorkflowReport
+        | AdvancedTmtWorkflowReport
+        | BiologicalResultReportBundle
         | DdaBiologicalWorkflowBundle
         | DiannBiologicalWorkflowBundle
         | MaxquantBiologicalWorkflowBundle
         | ProteomicsRunBundle
         | PtmSiteWorkflowBundle
+        | TargetedValidationWorkflowReport
         | TmtExperimentWorkflowBundle
     ),
 ) -> ProteomicsStudyResult:
@@ -358,12 +386,30 @@ def build_proteomics_study_result(
 
     if isinstance(source, ProteomicsRunBundle):
         return build_proteomics_study_result_from_run_bundle(source)
+    if isinstance(source, AdvancedDiannWorkflowReport):
+        return build_proteomics_study_result_from_advanced_diann_workflow_report(source)
+    if isinstance(source, AdvancedFragpipeWorkflowReport):
+        return build_proteomics_study_result_from_advanced_fragpipe_workflow_report(
+            source
+        )
+    if isinstance(source, AdvancedMaxquantWorkflowReport):
+        return build_proteomics_study_result_from_advanced_maxquant_workflow_report(
+            source
+        )
+    if isinstance(source, AdvancedPtmWorkflowReport):
+        return build_proteomics_study_result_from_advanced_ptm_workflow_report(source)
+    if isinstance(source, AdvancedTmtWorkflowReport):
+        return build_proteomics_study_result_from_advanced_tmt_workflow_report(source)
     if isinstance(source, DdaBiologicalWorkflowBundle):
         return build_proteomics_study_result_from_dda_workflow_bundle(source)
     if isinstance(source, DiannBiologicalWorkflowBundle):
         return build_proteomics_study_result_from_diann_workflow_bundle(source)
     if isinstance(source, MaxquantBiologicalWorkflowBundle):
         return build_proteomics_study_result_from_maxquant_workflow_bundle(source)
+    if isinstance(source, TargetedValidationWorkflowReport):
+        return build_proteomics_study_result_from_targeted_validation_workflow_report(
+            source
+        )
     if isinstance(source, TmtExperimentWorkflowBundle):
         return build_proteomics_study_result_from_tmt_workflow_bundle(source)
     if isinstance(source, PtmSiteWorkflowBundle):
@@ -617,6 +663,44 @@ def build_proteomics_study_result_from_diann_workflow_bundle(
     )
 
 
+def build_proteomics_study_result_from_advanced_diann_workflow_report(
+    report: AdvancedDiannWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced DIA-NN workflow report into a study result."""
+
+    study_result = build_proteomics_study_result_from_diann_workflow_bundle(
+        report.diann_workflow
+    )
+    return _copy_study_result(
+        study_result,
+        source_surface="AdvancedDiannWorkflowReport",
+        qc_surfaces=study_result.qc_surfaces
+        + (
+            ProteomicsStudyQcSurface(
+                surface_name="belief_audit",
+                kind=ProteomicsStudyQcKind.BELIEF_AUDIT,
+                issue_count=report.summary.downgraded_protein_count,
+                note="advanced dia-nn preserves belief-audit downgrade rows beside the base dia workflow result",
+            ),
+            ProteomicsStudyQcSurface(
+                surface_name="fragment_coelution_report",
+                kind=ProteomicsStudyQcKind.FRAGMENT_COHERENCE,
+                issue_count=0
+                if report.fragment_coelution_report is None
+                else report.summary.fragment_coelution_fragment_count,
+                note=(
+                    "advanced dia-nn preserves fragment-level coelution review when fragment evidence is supplied"
+                ),
+            ),
+        ),
+        note=(
+            "study result preserves the advanced dia-nn review surface through the "
+            "canonical dia study object without dropping base matrices, qc, claims, "
+            "belief audit, or fragment coherence review"
+        ),
+    )
+
+
 def build_proteomics_study_result_from_maxquant_workflow_bundle(
     bundle: MaxquantBiologicalWorkflowBundle,
 ) -> ProteomicsStudyResult:
@@ -688,6 +772,35 @@ def build_proteomics_study_result_from_maxquant_workflow_bundle(
         note=(
             "study result keeps maxquant acceptance, lfq, and downstream biology "
             "surfaces on one programmatic object"
+        ),
+    )
+
+
+def build_proteomics_study_result_from_advanced_maxquant_workflow_report(
+    report: AdvancedMaxquantWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced MaxQuant workflow report into a study result."""
+
+    study_result = build_proteomics_study_result_from_maxquant_workflow_bundle(
+        report.maxquant_workflow
+    )
+    return _copy_study_result(
+        study_result,
+        source_surface="AdvancedMaxquantWorkflowReport",
+        qc_surfaces=study_result.qc_surfaces
+        + (
+            ProteomicsStudyQcSurface(
+                surface_name="excluded_protein_groups",
+                kind=ProteomicsStudyQcKind.PROTEIN_GROUP_DISCREPANCY,
+                issue_count=report.summary.excluded_reverse_or_contaminant_count
+                + report.summary.additional_filtered_protein_group_count,
+                note="advanced maxquant preserves excluded and filtered protein-group review beside the base maxquant study object",
+            ),
+        ),
+        note=(
+            "study result preserves the advanced maxquant review surface through the "
+            "canonical maxquant study object without dropping excluded-group review "
+            "or downstream biological interpretation"
         ),
     )
 
@@ -774,6 +887,45 @@ def build_proteomics_study_result_from_tmt_workflow_bundle(
     )
 
 
+def build_proteomics_study_result_from_advanced_tmt_workflow_report(
+    report: AdvancedTmtWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced TMT workflow report into a study result."""
+
+    study_result = build_proteomics_study_result_from_tmt_workflow_bundle(
+        report.tmt_workflow
+    )
+    return _copy_study_result(
+        study_result,
+        source_surface="AdvancedTmtWorkflowReport",
+        qc_surfaces=study_result.qc_surfaces
+        + (
+            ProteomicsStudyQcSurface(
+                surface_name="compression_review",
+                kind=ProteomicsStudyQcKind.LABEL_BASED_SIGNAL_REVIEW,
+                issue_count=report.summary.excluded_protein_count
+                + report.summary.high_interference_peptide_count,
+                note="advanced tmt preserves interference-aware peptide and protein compression review beside the base label-based study object",
+            ),
+        ),
+        card_surfaces=study_result.card_surfaces
+        + (
+            ProteomicsStudyCardSurface(
+                surface_name="advanced_tmt_evidence_cards",
+                kind=ProteomicsStudyCardKind.PROTEIN_EVIDENCE,
+                card_count=report.summary.evidence_card_count,
+                warning_count=report.summary.excluded_protein_count,
+                note="advanced tmt preserves interference-aware evidence cards for each reviewed protein outcome",
+            ),
+        ),
+        note=(
+            "study result preserves the advanced tmt review surface through the "
+            "canonical label-based study object without dropping interference-aware "
+            "signal review or evidence-card summaries"
+        ),
+    )
+
+
 def build_proteomics_study_result_from_ptm_workflow_bundle(
     bundle: PtmSiteWorkflowBundle,
 ) -> ProteomicsStudyResult:
@@ -851,6 +1003,143 @@ def build_proteomics_study_result_from_ptm_workflow_bundle(
     )
 
 
+def build_proteomics_study_result_from_advanced_ptm_workflow_report(
+    report: AdvancedPtmWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced PTM workflow report into a study result."""
+
+    study_result = build_proteomics_study_result_from_ptm_workflow_bundle(
+        report.ptm_workflow
+    )
+    return _copy_study_result(
+        study_result,
+        source_surface="AdvancedPtmWorkflowReport",
+        qc_surfaces=study_result.qc_surfaces
+        + (
+            ProteomicsStudyQcSurface(
+                surface_name="exact_site_exclusion_audit",
+                kind=ProteomicsStudyQcKind.PTM_AMBIGUITY_REVIEW,
+                issue_count=report.summary.excluded_ambiguous_row_count,
+                note="advanced ptm preserves exact-site ambiguity exclusions beside the base ptm study object",
+            ),
+        ),
+        note=(
+            "study result preserves the advanced ptm review surface through the "
+            "canonical ptm study object without dropping exact-site ambiguity review "
+            "or occupancy counterpart context"
+        ),
+    )
+
+
+def build_proteomics_study_result_from_advanced_fragpipe_workflow_report(
+    report: AdvancedFragpipeWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced FragPipe workflow report into a study result."""
+
+    study_result = build_proteomics_study_result_from_dda_workflow_bundle(
+        report.fragpipe_workflow
+    )
+    return _copy_study_result(
+        study_result,
+        source_surface="AdvancedFragpipeWorkflowReport",
+        qc_surfaces=study_result.qc_surfaces
+        + (
+            ProteomicsStudyQcSurface(
+                surface_name="protein_group_discrepancies",
+                kind=ProteomicsStudyQcKind.PROTEIN_GROUP_DISCREPANCY,
+                issue_count=report.summary.protein_group_discrepancy_count,
+                note="advanced fragpipe preserves explicit source-versus-workflow protein-group discrepancy review beside the base dda study object",
+            ),
+        ),
+        note=(
+            "study result preserves the advanced fragpipe review surface through the "
+            "canonical dda study object without dropping peptide-evidence or "
+            "protein-group discrepancy review"
+        ),
+    )
+
+
+def build_proteomics_study_result_from_targeted_validation_workflow_report(
+    report: TargetedValidationWorkflowReport,
+) -> ProteomicsStudyResult:
+    """Normalize one advanced targeted-validation workflow report into a study result."""
+
+    sample_ids = tuple(sorted({item.sample_id for item in report.import_report.observations}))
+    design = _design_from_sample_metadata(
+        (
+            ProteomicsStudyDesignEntry(sample_id=sample_id)
+            for sample_id in sample_ids
+        ),
+        note=(
+            "targeted validation preserves sample identifiers directly from the "
+            "imported targeted observations even when the design-condition mapping "
+            "is not carried forward on the review report object"
+        ),
+    )
+    conclusions = tuple(
+        ProteomicsStudyConclusionEntry(
+            conclusion_id=entry.candidate_id,
+            kind=_conclusion_kind_from_targeted_verdict(entry.verdict.value),
+            subject_id=entry.candidate_id,
+            subject_label=entry.display_label,
+            status=entry.verdict.value,
+            score=None,
+            evidence_surface="advanced_targeted_evidence_cards",
+            summary_text=entry.note,
+        )
+        for entry in report.validation_report.entries
+    )
+    return _build_study_result(
+        study_kind=ProteomicsStudyKind.TARGETED,
+        source_surface="TargetedValidationWorkflowReport",
+        design=design,
+        matrix_surfaces=(
+            ProteomicsStudyMatrixSurface(
+                surface_name="targeted_target_matrix",
+                kind=ProteomicsStudyMatrixKind.TARGETED_TARGET,
+                entity_count=report.summary.matrix_target_count,
+                sample_count=len(sample_ids),
+                note="targeted validation preserves one precursor-target matrix over the imported assay observations",
+            ),
+        ),
+        statistic_surfaces=(
+            ProteomicsStudyStatisticSurface(
+                surface_name="targeted_validation_report",
+                kind=ProteomicsStudyStatisticKind.TARGETED_VALIDATION,
+                entity_count=report.summary.discovery_claim_count,
+                significant_entity_count=report.summary.confirmed_count
+                + report.summary.contradicted_count,
+                note="targeted validation preserves decisive confirmed and contradicted claim outcomes beside inconclusive follow-up results",
+            ),
+        ),
+        qc_surfaces=(
+            ProteomicsStudyQcSurface(
+                surface_name="targeted_assay_qc",
+                kind=ProteomicsStudyQcKind.TARGETED_ASSAY_QC,
+                issue_count=report.summary.unreliable_target_entry_count
+                + report.summary.flagged_coelution_target_entry_count
+                + report.summary.drift_flagged_fragment_ratio_observation_count,
+                note="targeted validation preserves assay reliability, coelution, and fragment-ratio drift review before candidate verdicts",
+            ),
+        ),
+        card_surfaces=(
+            ProteomicsStudyCardSurface(
+                surface_name="advanced_targeted_evidence_cards",
+                kind=ProteomicsStudyCardKind.TARGETED_VALIDATION,
+                card_count=report.summary.evidence_card_count,
+                warning_count=report.summary.inconclusive_count,
+                note="targeted validation preserves one candidate-level evidence card per reviewed biomarker candidate",
+            ),
+        ),
+        biological_conclusions=conclusions,
+        note=(
+            "study result preserves advanced targeted validation as one canonical "
+            "targeted study object with target-matrix, assay-qc, verdict, evidence-card, "
+            "and candidate-conclusion surfaces"
+        ),
+    )
+
+
 def _build_study_result(
     *,
     study_kind: ProteomicsStudyKind,
@@ -887,6 +1176,36 @@ def _build_study_result(
             conclusion_count=len(biological_conclusions),
         ),
         note=note,
+    )
+
+
+def _copy_study_result(
+    study_result: ProteomicsStudyResult,
+    *,
+    source_surface: str,
+    note: str,
+    qc_surfaces: tuple[ProteomicsStudyQcSurface, ...] | None = None,
+    card_surfaces: tuple[ProteomicsStudyCardSurface, ...] | None = None,
+) -> ProteomicsStudyResult:
+    stable_qc_surfaces = study_result.qc_surfaces if qc_surfaces is None else qc_surfaces
+    stable_card_surfaces = (
+        study_result.card_surfaces if card_surfaces is None else card_surfaces
+    )
+    return study_result.model_copy(
+        update={
+            "source_surface": source_surface,
+            "qc_surfaces": stable_qc_surfaces,
+            "card_surfaces": stable_card_surfaces,
+            "summary": ProteomicsStudyResultSummary(
+                design_entry_count=study_result.summary.design_entry_count,
+                matrix_surface_count=study_result.summary.matrix_surface_count,
+                statistic_surface_count=study_result.summary.statistic_surface_count,
+                qc_surface_count=len(stable_qc_surfaces),
+                card_surface_count=len(stable_card_surfaces),
+                conclusion_count=study_result.summary.conclusion_count,
+            ),
+            "note": note,
+        }
     )
 
 
@@ -1071,6 +1390,14 @@ def _design_from_sample_metadata(
     )
 
 
+def _conclusion_kind_from_targeted_verdict(verdict: str) -> ProteomicsStudyConclusionKind:
+    if verdict == "confirmed":
+        return ProteomicsStudyConclusionKind.SUPPORTED_CLAIM
+    if verdict == "contradicted":
+        return ProteomicsStudyConclusionKind.REJECTED_CLAIM
+    return ProteomicsStudyConclusionKind.REFUSED_CLAIM
+
+
 __all__ = [
     "ProteomicsStudyCardKind",
     "ProteomicsStudyCardSurface",
@@ -1088,11 +1415,17 @@ __all__ = [
     "ProteomicsStudyStatisticKind",
     "ProteomicsStudyStatisticSurface",
     "build_proteomics_study_result",
+    "build_proteomics_study_result_from_advanced_diann_workflow_report",
+    "build_proteomics_study_result_from_advanced_fragpipe_workflow_report",
+    "build_proteomics_study_result_from_advanced_maxquant_workflow_report",
+    "build_proteomics_study_result_from_advanced_ptm_workflow_report",
+    "build_proteomics_study_result_from_advanced_tmt_workflow_report",
     "build_proteomics_study_result_from_biological_report_bundle",
     "build_proteomics_study_result_from_dda_workflow_bundle",
     "build_proteomics_study_result_from_diann_workflow_bundle",
     "build_proteomics_study_result_from_maxquant_workflow_bundle",
     "build_proteomics_study_result_from_ptm_workflow_bundle",
     "build_proteomics_study_result_from_run_bundle",
+    "build_proteomics_study_result_from_targeted_validation_workflow_report",
     "build_proteomics_study_result_from_tmt_workflow_bundle",
 ]
