@@ -1780,7 +1780,16 @@ def build_proteomics_workflow_manifest(
             label="materialize a normalized run bundle for archival and downstream transport",
             depends_on=tuple(bundle_dependencies),
             consumes_roles=(WorkflowInputRole.SPECTRA,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.BUILD_RUN_BUNDLE,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(WorkflowArtifactKind.RUN_BUNDLE,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.BUILD_RUN_BUNDLE
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "bundle-run",
@@ -1836,6 +1845,12 @@ def build_proteomics_dag_plan(
     manifest: ProteomicsWorkflowManifest,
 ) -> ProteomicsDagPlan:
     """Project a workflow manifest into a DAG-shaped execution plan."""
+    type_validation = validate_proteomics_workflow_step_types(manifest)
+    if not type_validation.valid:
+        raise ValueError(
+            "workflow step type validation failed: "
+            + "; ".join(issue.message for issue in type_validation.issues)
+        )
     _validate_workflow_step_dependencies(manifest.steps)
     levels = _resolve_workflow_step_levels(manifest.steps)
     nodes = tuple(
@@ -1980,6 +1995,113 @@ def _resolve_dag_node_levels(nodes: tuple[WorkflowDagNode, ...]) -> dict[str, in
     )
     _validate_workflow_step_dependencies(projected_steps)
     return _resolve_workflow_step_levels(projected_steps)
+
+
+def validate_proteomics_workflow_step_types(
+    manifest: ProteomicsWorkflowManifest,
+) -> WorkflowStepTypeValidationReport:
+    """Validate that each workflow step receives and emits canonical data types."""
+
+    issues: list[WorkflowStepTypeValidationIssue] = []
+    available_input_types = {
+        asset.role: _workflow_input_data_type(asset.role) for asset in manifest.input_assets
+    }
+    produced_types_by_step: dict[str, tuple[WorkflowDataType, ...]] = {}
+    identifications_attached = any(
+        asset.role is WorkflowInputRole.IDENTIFICATIONS
+        for asset in manifest.input_assets
+    )
+    design_attached = any(
+        asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets
+    )
+    quant_attached = any(
+        asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets
+    )
+
+    for step in manifest.steps:
+        expected_input_types = _workflow_step_input_types(
+            step.kind,
+            identifications_attached=identifications_attached,
+            design_attached=design_attached,
+            quant_attached=quant_attached,
+        )
+        expected_output_types = _workflow_step_output_types(step.kind)
+        if step.input_data_types != expected_input_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="step_input_contract_mismatch",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} declares input types "
+                        f"{step.input_data_types!r} but canonical {step.kind.value} "
+                        f"requires {expected_input_types!r}"
+                    ),
+                )
+            )
+        if step.output_data_types != expected_output_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="step_output_contract_mismatch",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} declares output types "
+                        f"{step.output_data_types!r} but canonical {step.kind.value} "
+                        f"emits {expected_output_types!r}"
+                    ),
+                )
+            )
+        missing_roles = tuple(
+            role for role in step.consumes_roles if role not in available_input_types
+        )
+        if missing_roles:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="missing_input_role",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} consumes unattached input roles "
+                        f"{missing_roles!r}"
+                    ),
+                )
+            )
+        available_types = {
+            available_input_types[role]
+            for role in step.consumes_roles
+            if role in available_input_types
+        }
+        for dependency in step.depends_on:
+            available_types.update(produced_types_by_step.get(dependency, ()))
+        missing_types = tuple(
+            data_type
+            for data_type in step.input_data_types
+            if data_type not in available_types
+        )
+        if missing_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="missing_input_type",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} is missing required input "
+                        f"types {missing_types!r} before execution"
+                    ),
+                )
+            )
+        produced_types_by_step[step.step_id] = step.output_data_types
+
+    payload = WorkflowStepTypeValidationReport(
+        document_schema=_build_document_schema("workflow_step_type_validation_report"),
+        workflow_id=manifest.workflow_id,
+        valid=not issues,
+        issues=tuple(issues),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
 
 
 def validate_proteomics_dag_plan(
@@ -3502,8 +3624,20 @@ def build_workflow_runtime_validation_report(
     issues: list[WorkflowRuntimeValidationIssue] = []
     artifacts_root = Path(runtime_bundle.manifest.artifacts_dir)
     export_bundle = build_workflow_runtime_export_bundle(runtime_bundle)
+    step_type_validation = validate_proteomics_workflow_step_types(
+        runtime_bundle.manifest
+    )
     dag_validation = validate_proteomics_dag_plan(runtime_bundle.dag_plan)
 
+    if not step_type_validation.valid:
+        for issue in step_type_validation.issues:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code=f"step_type_{issue.code}",
+                    severity="error",
+                    message=issue.message,
+                )
+            )
     if not dag_validation.valid:
         for issue in dag_validation.issues:
             issues.append(
@@ -3638,6 +3772,7 @@ def build_workflow_runtime_validation_report(
         valid=not issues,
         checked_surfaces=(
             "manifest",
+            "step-types",
             "dag-plan",
             "deterministic-execution",
             "runtime-state",
