@@ -1,6 +1,7 @@
 {
   "artifacts": [
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:advanced_tmt_evidence_cards.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_id,representative_protein_ref,confidence_status,supporting_clean_peptide_count,flagged_peptide_count,excluded_peptide_count,compression_status,differential_log2_fold_change,adjusted_p_value,note]",
       "artifact_schema_version": "2026-05-26",
@@ -81,6 +82,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:advanced_tmt_peptide_confidence.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,protein_id,peptide_sequence,ratio,log2_ratio,isolation_interference_fraction,high_interference,disposition,note]",
       "artifact_schema_version": "2026-05-26",
@@ -167,6 +169,7 @@
       "row_count": 4
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:advanced_tmt_peptide_ratios.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,numerator_condition,numerator_role,control_channel,control_sample_id,control_condition,peptide_id,peptide_sequence,protein_refs,numerator_abundance,control_abundance,ratio,log2_ratio,missing_reason,note]",
       "artifact_schema_version": "2026-05-26",
@@ -289,6 +292,7 @@
       "row_count": 12
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:advanced_tmt_protein_compression.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_id,representative_protein_ref,clean_sample_peptide_count,flagged_sample_peptide_count,clean_median_abs_log2_ratio,flagged_median_abs_log2_ratio,protein_median_abs_log2_ratio,attenuation_delta,compression_status,note]",
       "artifact_schema_version": "2026-05-26",
@@ -369,6 +373,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:advanced_tmt_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -401,11 +406,12 @@
       "row_count": 14
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:advanced_tmt_workflow_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_tmt_workflow_manifest.json",
-      "checksum_sha256": "ac9de470cfdccb77e6dad7837aafbe91d21325e0958423390bf645e93812eee5",
+      "checksum_sha256": "216050bd3b8fedddb8ba6c427a75c3a10b8ed6f6a2969ec613ee140858133b14",
       "folder": "reports",
       "legacy_relative_path": "advanced_tmt_workflow_manifest.json",
       "output_table_schema": null,
@@ -415,6 +421,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:label_based_differential_balance.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,stage,total_abundance,median_abundance,interquartile_range]",
       "artifact_schema_version": "2026-05-26",
@@ -465,6 +472,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:label_based_differential_results.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,condition_a,condition_b,contrast_name,observations_a,observations_b,complete_pair_count,zero_values_a,zero_values_b,not_observed_values_a,not_observed_values_b,filtered_values_a,filtered_values_b,mean_log2_abundance_a,mean_log2_abundance_b,log2_fold_change,p_value,adjusted_p_value,standard_error,confidence_interval_low,confidence_interval_high,effect_size_cohens_d,no_impute_adjusted_p_value,no_impute_log2_fold_change,imputed_adjusted_p_value,imputed_log2_fold_change,imputation_significance_change_reason,imputation_dependent_hit,robustness_score,robustness_qc_status,robustness_reason_codes,robustness_note,uncertainty_note]",
       "artifact_schema_version": "2026-05-26",
@@ -683,6 +691,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:label_based_differential_volcano.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,protein_refs,log2_fold_change,raw_p_value,adjusted_p_value,negative_log10_adjusted_p_value,highlighted]",
       "artifact_schema_version": "2026-05-26",
@@ -745,6 +754,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:label_based_report_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
@@ -759,6 +769,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:label_based_report_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,sample_count,quality_entry_count,protein_ratio_count,differential_result_count,sample_qc_entry_count]",
       "artifact_schema_version": "2026-05-26",
@@ -815,6 +826,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:label_based_sample_qc.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,sample_id,condition,sample_role,multiplex_group,assay_axis,total_signal,before_balance_ratio,after_balance_ratio,missing_measurement_count,weak_measurement_count,abnormal_distribution_count,flagged,note]",
       "artifact_schema_version": "2026-05-26",
@@ -919,6 +931,82 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:rejected_evidence.tsv",
+      "artifact_kind": "tsv_table",
+      "artifact_schema": "tsv[rejected_evidence_id,source_surface,source_file,row_number,entity_type,entity_id,reason_code,detail,related_artifact]",
+      "artifact_schema_version": "2026-05-26",
+      "canonical_relative_path": "evidence/rejected_evidence.tsv",
+      "checksum_sha256": "3846b544bbc1a069bf1626a98f5d808c8c19170077960f3f35e37a7c041ec6df",
+      "folder": "evidence",
+      "legacy_relative_path": "rejected_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'rejected_evidence_id' in TSV output 'rejected_evidence'.",
+            "name": "rejected_evidence_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_surface' in TSV output 'rejected_evidence'.",
+            "name": "source_surface",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_file' in TSV output 'rejected_evidence'.",
+            "name": "source_file",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'row_number' in TSV output 'rejected_evidence'.",
+            "name": "row_number",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_type' in TSV output 'rejected_evidence'.",
+            "name": "entity_type",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'rejected_evidence'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason_code' in TSV output 'rejected_evidence'.",
+            "name": "reason_code",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detail' in TSV output 'rejected_evidence'.",
+            "name": "detail",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'related_artifact' in TSV output 'rejected_evidence'.",
+            "name": "related_artifact",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for rejected evidence.",
+        "table_name": "rejected_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/rejected_evidence.tsv.schema.json",
+      "producer_function": "run_advanced_tmt_workflow",
+      "relative_path": "evidence/rejected_evidence.tsv",
+      "row_count": 1
+    },
+    {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_channel_assignments.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,sample_role,assigned,note]",
       "artifact_schema_version": "2026-05-26",
@@ -981,6 +1069,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_channel_totals.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,total_intensity,observed_row_count,missing_row_count,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1055,6 +1144,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_duplicate_assignments.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[issue_kind,multiplex_group,multiplex_channel,sample_id,entry_count,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1111,11 +1201,12 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:tmt_experiment_workflow_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/tmt_experiment_workflow_manifest.json",
-      "checksum_sha256": "e0882ca7627cc9d7812f595afda1d7a00b2b51d437c78085cb9a9cc0d7232327",
+      "checksum_sha256": "63651c800d4a2f6559ae8f86c9c399178849e9067c10bfda65660fcede7132ed",
       "folder": "reports",
       "legacy_relative_path": "tmt_experiment_workflow_manifest.json",
       "output_table_schema": null,
@@ -1125,6 +1216,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_filtered_interference.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,modified_peptide,protein_refs,reporter_intensity,isolation_interference_fraction,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1217,6 +1309,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_interference_channel_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,observed_row_count,missing_interference_count,threshold_exceeded_count,mean_interference_fraction,max_interference_fraction,flagged,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1315,6 +1408,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_interference_observations.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,multiplex_channel,sample_id,condition,sample_role,channel_role,modified_peptide,protein_refs,reporter_intensity,isolation_interference_fraction,threshold_exceeded,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1413,6 +1507,7 @@
       "row_count": 12
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_interference_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,observed_channel_row_count,missing_interference_count,threshold_exceeded_count,filtered_channel_row_count,channel_summary_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1469,6 +1564,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_metadata_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,multiplex_channel_count,assigned_channel_count,missing_channel_assignment_count,duplicate_assignment_count,missing_condition_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1525,6 +1621,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:tmt_missing_conditions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,sample_role,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1575,6 +1672,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_normalization_distributions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[stage,multiplex_group,multiplex_channel,sample_id,condition,channel_role,total_abundance,median_abundance,interquartile_range,ratio_to_group_median,flagged,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1667,6 +1765,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:tmt_normalization_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[method,multiplex_group_count,channel_count,transform_count,before_flagged_channel_count,after_flagged_channel_count,reference_group_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1729,6 +1828,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_normalization_transforms.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,method,scale_factor,reference_sample_id,reference_channel,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1809,6 +1909,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_protein_ratios.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,numerator_channel,numerator_sample_id,numerator_condition,numerator_role,control_channel,control_sample_id,control_condition,protein_id,target_kind,protein_refs,numerator_abundance,control_abundance,ratio,log2_ratio,missing_reason,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1931,6 +2032,7 @@
       "row_count": 12
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:tmt_reporter_import_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -1963,6 +2065,7 @@
       "row_count": 7
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:tmt_reporter_rejected_rows.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,issue_codes,issue_messages,raw_fields]",
       "artifact_schema_version": "2026-05-26",
@@ -2007,6 +2110,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:tmt_reporter_rows.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_row_id,multiplex_group,modified_peptide,canonical_peptide,protein_refs,isolation_interference_fraction,channel_intensities]",
       "artifact_schema_version": "2026-05-26",
@@ -2069,6 +2173,7 @@
       "row_count": 4
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_validation_channels.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,condition,channel_role,source_column_present,observed_row_count,missing_row_count,total_intensity,present,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2155,6 +2260,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:tmt_validation_distributions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,channel_role,total_intensity,channel_median_total_intensity,ratio_to_channel_median,abnormal_distribution,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2229,6 +2335,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_validation_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group_count,expected_channel_count,missing_channel_count,abnormal_distribution_count,weak_channel_count]",
       "artifact_schema_version": "2026-05-26",
@@ -2279,6 +2386,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:tmt_validation_weak.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[multiplex_group,multiplex_channel,sample_id,channel_role,issue_kind,total_intensity_ratio_to_channel_max,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2341,6 +2449,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:tmt_workflow_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",

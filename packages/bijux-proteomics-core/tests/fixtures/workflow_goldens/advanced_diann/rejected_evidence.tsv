@@ -1,0 +1,2 @@
+rejected_evidence_id	source_surface	source_file	row_number	entity_type	entity_id	reason_code	detail	related_artifact
+diann_import:precursor:raw_bad_precursor:38:wrong_type	diann_import	diann_advanced_report.tsv	38	precursor	raw_bad_precursor	wrong_type	row has invalid float value for 'q_value'	rejected_evidence.tsv

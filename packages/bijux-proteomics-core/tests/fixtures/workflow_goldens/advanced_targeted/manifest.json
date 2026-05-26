@@ -1,6 +1,7 @@
 {
   "artifacts": [
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:advanced_targeted_evidence_cards.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,validation_verdict,assay_reliability_status,assay_entry_count,reliable_assay_count,unreliable_assay_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,coelution_issue_count,ratio_drift_issue_count,validation_log2_effect,discovery_effect_size,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
@@ -129,6 +130,7 @@
       "row_count": 3
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:advanced_targeted_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -161,11 +163,12 @@
       "row_count": 11
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:advanced_targeted_workflow_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_targeted_workflow_manifest.json",
-      "checksum_sha256": "5bc27f655ae759e3cf1fff057b19dbf1f8e0944b8fa369bae451e9fa1cfb5da5",
+      "checksum_sha256": "4ee625a3d9433b304dcfea8245083729f47c996ee60673c4957ba1b6e0b698fe",
       "folder": "reports",
       "legacy_relative_path": "advanced_targeted_workflow_manifest.json",
       "output_table_schema": null,
@@ -175,6 +178,82 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:rejected_evidence.tsv",
+      "artifact_kind": "tsv_table",
+      "artifact_schema": "tsv[rejected_evidence_id,source_surface,source_file,row_number,entity_type,entity_id,reason_code,detail,related_artifact]",
+      "artifact_schema_version": "2026-05-26",
+      "canonical_relative_path": "evidence/rejected_evidence.tsv",
+      "checksum_sha256": "9ebdde0805c65c2c1f342bdd9badfe9f5d40a82b2376e2085c9231463f60ed91",
+      "folder": "evidence",
+      "legacy_relative_path": "rejected_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'rejected_evidence_id' in TSV output 'rejected_evidence'.",
+            "name": "rejected_evidence_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_surface' in TSV output 'rejected_evidence'.",
+            "name": "source_surface",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_file' in TSV output 'rejected_evidence'.",
+            "name": "source_file",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'row_number' in TSV output 'rejected_evidence'.",
+            "name": "row_number",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_type' in TSV output 'rejected_evidence'.",
+            "name": "entity_type",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'rejected_evidence'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason_code' in TSV output 'rejected_evidence'.",
+            "name": "reason_code",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detail' in TSV output 'rejected_evidence'.",
+            "name": "detail",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'related_artifact' in TSV output 'rejected_evidence'.",
+            "name": "related_artifact",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for rejected evidence.",
+        "table_name": "rejected_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/rejected_evidence.tsv.schema.json",
+      "producer_function": "run_targeted_validation_workflow",
+      "relative_path": "evidence/rejected_evidence.tsv",
+      "row_count": 2
+    },
+    {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_coelution.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,expected_transition_count,observed_transition_count,coeluting_transition_count,coeluting_transition_ids,noncoeluting_transition_ids,anchor_transition_id,anchor_retention_time_minutes,mean_retention_time_minutes,reference_retention_time_minutes,absolute_alignment_delta_minutes,alignment_flagged,coelution_tier,reliable_transition_support,reliability_reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -291,6 +370,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_assay_qc_fragment_ratios.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,total_target_intensity,relative_share,reference_relative_share,absolute_share_delta,ratio_cv,drift_flag,unstable_transition_flagged,flagged]",
       "artifact_schema_version": "2026-05-26",
@@ -383,6 +463,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_replicate_cv.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,condition,replicate_count,detected_replicate_count,mean_intensity,coefficient_of_variation,flagged]",
       "artifact_schema_version": "2026-05-26",
@@ -445,6 +526,7 @@
       "row_count": 4
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_retention.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,observed_transition_count,mean_retention_time_minutes,reference_retention_time_minutes,absolute_delta_minutes,flagged]",
       "artifact_schema_version": "2026-05-26",
@@ -507,6 +589,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_name,target_count,sample_count,target_qc_entry_count,reliable_target_entry_count,transition_consistency_entry_count,coelution_target_entry_count,flagged_coelution_target_entry_count,transition_coelution_entry_count,coeluting_transition_entry_count,transition_qc_entry_count,passing_transition_qc_entry_count,fragment_ratio_entry_count,fragment_ratio_stability_fragment_entry_count,unstable_fragment_ratio_entry_count,drift_flagged_fragment_ratio_observation_count,retention_time_entry_count,flagged_retention_time_entry_count,replicate_cv_entry_count,flagged_replicate_cv_entry_count,unreliable_target_entry_count,unreliable_target_count,note]",
       "artifact_schema_version": "2026-05-26",
@@ -665,6 +748,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_targets.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,expected_transition_count,observed_transition_count,coeluting_transition_count,coeluting_transition_ids,passing_transition_count,passing_transition_ids,failing_transition_ids,passing_total_intensity,mean_retention_time_minutes,reference_retention_time_minutes,absolute_delta_minutes,quality_flag_count,condition_replicate_cv,condition_replicate_cv_flagged,reliability_score,reliable,reliability_reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -805,6 +889,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_transition_coelution.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,detected,retention_time_minutes,anchor_transition_id,anchor_retention_time_minutes,reference_retention_time_minutes,coelution_delta_minutes,reference_delta_minutes,coeluting,failure_reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -897,6 +982,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_transition_qc.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,transition_id,detected,intensity,quality_flag,relative_share,reference_relative_share,absolute_share_delta,ratio_cv,coeluting,coelution_flagged,reference_alignment_flagged,coelution_delta_minutes,reference_delta_minutes,quality_flagged,ratio_flagged,ratio_drift_flagged,ratio_unstable_transition_flagged,passed,failure_reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -1049,6 +1135,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_transitions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,detected_transition_count,expected_transition_count,consistency_fraction]",
       "artifact_schema_version": "2026-05-26",
@@ -1099,6 +1186,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_assay_qc_unreliable_targets.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,condition,flagged_transition_ids,quality_flags,reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -1155,6 +1243,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:qc:json_document:qc:targeted_assay_qc_workflow_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
@@ -1169,11 +1258,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:targeted_import_observations.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,transition_id,precursor_id,precursor_charge,peptide_sequence,sample_id,intensity,retention_time_minutes,quality_flag,protein_ref,fragment_label,precursor_mz,fragment_mz,source_engine,source_file,source_row_numbers,original_identifiers]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "inputs/targeted_import_observations.tsv",
-      "checksum_sha256": "cbec0a9c23861bd062f1cee3b0a63d0b1b80ca965a14a53539e2801555ad2009",
+      "checksum_sha256": "884c72a221177df4a015a2a13c779685ebd1a786603180285316a803b4cb20b2",
       "folder": "inputs",
       "legacy_relative_path": "targeted_import_observations.tsv",
       "output_table_schema": {
@@ -1291,6 +1381,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:targeted_import_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,source_name,observation_count,precursor_count,quality_flag_count,retention_time_count,sample_count,transition_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1359,6 +1450,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_excluded_transitions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,retention_time_minutes,quality_flag,exclusion_reason]",
       "artifact_schema_version": "2026-05-26",
@@ -1421,6 +1513,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_flagged_targets.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,peptide_sequence,protein_ref,quality_flag_count,flagged_sample_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1471,6 +1564,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_missingness.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,observed_transition_count,retained_transition_count,excluded_transition_count,missing,missing_reason]",
       "artifact_schema_version": "2026-05-26",
@@ -1533,6 +1627,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_retained_transitions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,transition_id,intensity,retention_time_minutes,quality_flag]",
       "artifact_schema_version": "2026-05-26",
@@ -1589,6 +1684,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_samples.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,sample_id,source_transition_ids,retained_transition_ids,excluded_transition_ids,observed_transition_count,retained_transition_count,excluded_transition_count,intensity,retention_time_minutes,quality_flags,missing_reason,detected]",
       "artifact_schema_version": "2026-05-26",
@@ -1687,6 +1783,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_name,target_count,sample_count,observed_cell_count,missing_cell_count,zero_passing_cell_count,retained_transition_count,excluded_transition_count,quality_flag_count,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1767,6 +1864,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:targeted_matrix_targets.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[target_id,peptide_sequence,protein_ref,source_transition_ids,retained_transition_ids,excluded_transition_ids,retained_transition_count,excluded_transition_count,detected_sample_count,total_intensity,mean_intensity,median_retention_time_minutes,quality_flag_count,flagged_sample_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1871,6 +1969,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_validation_confirmed.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
@@ -1993,6 +2092,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_validation_contradicted.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2115,6 +2215,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_validation_evidence.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,assay_entry_id,target_protein_ref,peptide_sequence,canonical_peptide,precursor_charge,uniqueness_class,matched_target_id,matched_target_count,case_condition,control_condition,case_reliable_sample_count,control_reliable_sample_count,case_mean_log2_intensity,control_mean_log2_intensity,validation_log2_effect,discovery_effect_size,discovery_direction,validation_direction,verdict,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2267,6 +2368,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_validation_inconclusive.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,site_key,priority_rank,discovery_effect_size,discovery_direction,validation_log2_effect,validation_direction,verdict,assay_evidence_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
@@ -2389,6 +2491,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:targeted_validation_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",

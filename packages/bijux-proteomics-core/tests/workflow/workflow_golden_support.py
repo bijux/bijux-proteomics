@@ -16,7 +16,7 @@ WORKFLOW_GOLDEN_TARGETS: dict[str, tuple[str, ...]] = {
         "manifest.json",
         "advanced_diann_summary.tsv",
         "advanced_diann_accepted_proteins.tsv",
-        "diann_import_rejected_evidence.tsv",
+        "rejected_evidence.tsv",
     ),
     "advanced_maxquant": (
         "manifest.json",

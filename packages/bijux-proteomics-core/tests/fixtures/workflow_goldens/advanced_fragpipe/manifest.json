@@ -1,6 +1,7 @@
 {
   "artifacts": [
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:advanced_fragpipe_peptide_evidence.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[peptide_sequence,protein_refs,psm_count,run_count,best_q_value,total_intensity]",
       "artifact_schema_version": "2026-05-26",
@@ -57,6 +58,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:advanced_fragpipe_protein_group_discrepancies.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_ref,status,discrepancy_reason,source_table_present,inferred_by_workflow,quantified_by_workflow,significant_in_workflow]",
       "artifact_schema_version": "2026-05-26",
@@ -119,6 +121,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:advanced_fragpipe_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -151,11 +154,12 @@
       "row_count": 10
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:advanced_fragpipe_workflow_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/advanced_fragpipe_workflow_manifest.json",
-      "checksum_sha256": "ee65201eee82dc59790820074260a72ba5e231585221da28af68defc8f2b7320",
+      "checksum_sha256": "714848908e2cd534894a0cbfa18370141c04910f0d81e4f0ea113b3793241044",
       "folder": "reports",
       "legacy_relative_path": "advanced_fragpipe_workflow_manifest.json",
       "output_table_schema": null,
@@ -165,6 +169,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_annotation_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[input_entry_count,mapped_entry_count,unmapped_entry_count,distinct_protein_ref_count,fasta_annotation_count,custom_annotation_count,merged_annotation_count,gene_annotated_count,description_annotated_count,organism_annotated_count]",
       "artifact_schema_version": "2026-05-26",
@@ -245,6 +250,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_annotation_unmapped.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,source_row_id,input_protein_ref,protein_ref,accession_aliases,input_metadata,reason]",
       "artifact_schema_version": "2026-05-26",
@@ -307,6 +313,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_annotations.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,source_row_id,input_protein_ref,protein_ref,accession_namespace,source_identifier,accession_aliases,gene_symbol,description,organism,annotation_identifier,annotation_source,custom_annotation,annotation_status,unmapped_reason,input_metadata]",
       "artifact_schema_version": "2026-05-26",
@@ -423,6 +430,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:biological_claim_validation_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -455,6 +463,7 @@
       "row_count": 7
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_cohort_interaction_candidates.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field_name,left_subgroup_value,right_subgroup_value,entity_id,candidate_kind,left_log2_fold_change,right_log2_fold_change,left_adjusted_p_value,right_adjusted_p_value,interaction_delta,left_robustness_score,right_robustness_score,note]",
       "artifact_schema_version": "2026-05-26",
@@ -553,6 +562,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_cohort_strata.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field_name,subgroup_value,condition_a,condition_b,samples_a,samples_b,sample_count_a,sample_count_b,total_sample_count,status,note]",
       "artifact_schema_version": "2026-05-26",
@@ -639,6 +649,7 @@
       "row_count": 3
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_cohort_stratification_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -671,6 +682,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_cohort_subgroup_effects.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field_name,subgroup_value,entity_id,condition_a,condition_b,sample_count_a,sample_count_b,log2_fold_change,adjusted_p_value,robustness_score,imputation_dependent_hit,robustness_note,uncertainty_note]",
       "artifact_schema_version": "2026-05-26",
@@ -769,11 +781,12 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_activity_condition_comparisons.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,condition_a,condition_b,condition_a_confidence_status,condition_b_confidence_status,comparison_confidence_status,mean_activity_score_a,mean_activity_score_b,activity_score_delta,condition_a_limiting_member_ids,condition_b_limiting_member_ids]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/biological_complex_activity_condition_comparisons.tsv",
-      "checksum_sha256": "2e420ae04c9647ed663699829dfe780660d4b45162f05264a3413cd51b212da1",
+      "checksum_sha256": "b8136915ce9f7ad3acb3e85b2611b3afae125ef956db19d8c2f6dd3fb9377174",
       "folder": "biology",
       "legacy_relative_path": "biological_complex_activity_condition_comparisons.tsv",
       "output_table_schema": {
@@ -873,11 +886,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_activity_conditions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,condition,sample_count,scored_sample_count,high_confidence_sample_count,low_confidence_sample_count,confidence_status,mean_activity_score,limiting_member_ids]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/biological_complex_activity_conditions.tsv",
-      "checksum_sha256": "96c6c402e9e9e6f60c05b59e81c1decd3a32c2d55b0850079ca5d5c70270b7a4",
+      "checksum_sha256": "20d2639be7bb86010ba1e7af44724e16d7e86f48a2f60b19f55273e2dacf7c05",
       "folder": "biology",
       "legacy_relative_path": "biological_complex_activity_conditions.tsv",
       "output_table_schema": {
@@ -965,6 +979,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_complex_activity_matrix.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,C1,C2,C3,T1,T2,T3]",
       "artifact_schema_version": "2026-05-26",
@@ -1045,6 +1060,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_activity_members.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,sample_id,condition,batch,member_kind,member_id,resolved_protein_refs,observed_protein_refs,resolved_protein_count,observed_protein_count,missing_protein_count,member_activity_score,observed]",
       "artifact_schema_version": "2026-05-26",
@@ -1161,11 +1177,12 @@
       "row_count": 18
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_complex_activity_samples.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,sample_id,condition,batch,activity_score,total_member_count,observed_member_count,missing_member_count,observed_fraction,minimum_observed_member_count,confidence_status,confidence_reason,observed_member_ids,missing_member_ids,limiting_member_ids]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/biological_complex_activity_samples.tsv",
-      "checksum_sha256": "51adcf106a9da96f2496a6ccc379356dc7bc3ba4e5ce8c323fe36cd37842c0b6",
+      "checksum_sha256": "48c859fdebb8250f5be0d14febaa2ed96afa87e96fa0a136186cdedfa7ef8599",
       "folder": "matrices",
       "legacy_relative_path": "biological_complex_activity_samples.tsv",
       "output_table_schema": {
@@ -1289,6 +1306,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_complex_activity_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_level,measure_kind,aggregation_method,normalization_method,complex_count,sample_count,sample_score_count,scored_sample_count,high_confidence_sample_score_count,low_confidence_sample_score_count,sample_entries_with_missing_members,member_contribution_count,unresolved_member_count,condition_count,condition_comparison_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1399,6 +1417,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_activity_unresolved.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,member_kind,member_id,reason]",
       "artifact_schema_version": "2026-05-26",
@@ -1461,6 +1480,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_entries.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[complex_id,complex_name,source_name,source_accession,member_kind,foreground_overlap_count,background_member_count,foreground_size,background_size,expected_overlap_count,enrichment_ratio,p_value,adjusted_p_value,foreground_member_ids,background_member_ids]",
       "artifact_schema_version": "2026-05-26",
@@ -1571,6 +1591,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_complex_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[foreground_size,background_size,evaluated_entry_count,protein_entry_count,gene_entry_count,unresolved_foreground_count,unresolved_background_count,enriched_entry_count]",
       "artifact_schema_version": "2026-05-26",
@@ -1639,6 +1660,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_complex_unresolved.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[set_role,protein_ref,reason]",
       "artifact_schema_version": "2026-05-26",
@@ -1677,6 +1699,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_differential.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,condition_a,condition_b,contrast_name,observations_a,observations_b,complete_pair_count,zero_values_a,zero_values_b,not_observed_values_a,not_observed_values_b,filtered_values_a,filtered_values_b,mean_log2_abundance_a,mean_log2_abundance_b,log2_fold_change,p_value,adjusted_p_value,standard_error,confidence_interval_low,confidence_interval_high,effect_size_cohens_d,no_impute_adjusted_p_value,no_impute_log2_fold_change,imputed_adjusted_p_value,imputed_log2_fold_change,imputation_significance_change_reason,imputation_dependent_hit,robustness_score,robustness_qc_status,robustness_reason_codes,robustness_note,uncertainty_note]",
       "artifact_schema_version": "2026-05-26",
@@ -1895,6 +1918,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_enrichment_foreground_background_entries.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[set_role,protein_ref,source_row_id]",
       "artifact_schema_version": "2026-05-26",
@@ -1933,6 +1957,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_enrichment_foreground_background_issues.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[code,severity,message]",
       "artifact_schema_version": "2026-05-26",
@@ -1971,6 +1996,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_enrichment_foreground_background_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[foreground_source_kind,background_source_kind,foreground_policy_name,background_policy_name,foreground_size,background_size,issue_count,blocking_issue_count,valid_for_enrichment]",
       "artifact_schema_version": "2026-05-26",
@@ -2045,11 +2071,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_evidence_aware_ranking.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[candidate_id,entity_kind,display_label,priority_rank,final_score,weighted_evidence_total,penalty_total,uncertainty,effect_size,adjusted_p_value,abundance_value,support_count,annotation_label,effect_score,significance_score,abundance_score,support_score,qc_score,annotation_score,reproducibility_score,confidence_score,penalty_codes,source_ids,ranking_note]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "stats/biological_evidence_aware_ranking.tsv",
-      "checksum_sha256": "586b42fbab989b798c9531727f72f53637421916814c4e9ff02a3ccec5175496",
+      "checksum_sha256": "9e5ef82d860641b918ca8e955939be2d2befe8b93af5c7378fb4c44209c6e731",
       "folder": "stats",
       "legacy_relative_path": "biological_evidence_aware_ranking.tsv",
       "output_table_schema": {
@@ -2209,6 +2236,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:biological_evidence_graph_edges.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_node_id,target_node_id,relation,source_row_ref,confidence,evidence_type,reason,support_count]",
       "artifact_schema_version": "2026-05-26",
@@ -2277,6 +2305,7 @@
       "row_count": 81
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:biological_evidence_graph_nodes.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[node_id,entity_type,entity_ref,label,claim_state,trust_class,contradiction_ids,context_refs]",
       "artifact_schema_version": "2026-05-26",
@@ -2345,11 +2374,12 @@
       "row_count": 57
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:biological_experiment_confidence_components.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[component,score,tier,reason_codes,message]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/biological_experiment_confidence_components.tsv",
-      "checksum_sha256": "1628e0f8f19aec460ba75b80ef435a560d19a308d650fc41889320d8cd4ee597",
+      "checksum_sha256": "fff4cf838e9d4b085cd4ea9aee853c497428f62279a04649bb0f1e98bb5d6b33",
       "folder": "qc",
       "legacy_relative_path": "biological_experiment_confidence_components.tsv",
       "output_table_schema": {
@@ -2395,11 +2425,12 @@
       "row_count": 7
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:biological_experiment_confidence_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "qc/biological_experiment_confidence_summary.tsv",
-      "checksum_sha256": "9164e405a984303fe8ee849371d496f449272492b2665dbae63c1b837d60d092",
+      "checksum_sha256": "af3ff4010349c2d5000437708390dd43747a73418418712d49992b751cbcb4e2",
       "folder": "qc",
       "legacy_relative_path": "biological_experiment_confidence_summary.tsv",
       "output_table_schema": {
@@ -2427,6 +2458,7 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_go_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[foreground_size,background_size,evaluated_term_count,foreground_annotated_count,background_annotated_count,unannotated_foreground_count,unannotated_background_count,enriched_term_count]",
       "artifact_schema_version": "2026-05-26",
@@ -2495,6 +2527,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_go_terms.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[go_term_id,go_term_name,go_aspect,foreground_overlap_count,background_term_count,foreground_size,background_size,expected_overlap_count,enrichment_ratio,p_value,adjusted_p_value,foreground_protein_refs,background_protein_refs]",
       "artifact_schema_version": "2026-05-26",
@@ -2593,6 +2626,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_go_unannotated.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[set_role,protein_ref]",
       "artifact_schema_version": "2026-05-26",
@@ -2625,6 +2659,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_heatmap_columns.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[column_index,sample_id,condition,replicate,fraction,batch,instrument,search_engine,missing_value_policy,normalization_factor]",
       "artifact_schema_version": "2026-05-26",
@@ -2705,6 +2740,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_heatmap_matrix.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,C1,C2,C3,T1,T2,T3]",
       "artifact_schema_version": "2026-05-26",
@@ -2767,6 +2803,7 @@
       "row_count": 3
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:biological_heatmap_rows.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,protein_refs,member_peptides,observed_sample_count,missing_sample_count,filled_missing_sample_count,observed_fraction,missing_value_policy,mean_log2_abundance,variance_log2_abundance]",
       "artifact_schema_version": "2026-05-26",
@@ -2847,6 +2884,7 @@
       "row_count": 3
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_heatmap_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_level,measure_kind,aggregation_method,sample_count,input_entity_count,output_entity_count,filtered_entity_id_count,filtered_protein_ref_count,filtered_observed_fraction_count,filtered_missing_policy_count,truncated_entity_count,z_scored,missing_value_policy]",
       "artifact_schema_version": "2026-05-26",
@@ -2945,11 +2983,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_hypotheses.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[hypothesis_id,hypothesis_kind,subject_id,subject_label,claim,supporting_protein_refs,supporting_site_keys,supporting_pathway_ids,opposing_evidence,evidence_node_ids,confidence_score,confidence_tier,next_experiment_suggestion,source_ids,note]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/biological_hypotheses.tsv",
-      "checksum_sha256": "58a9c15a552dbe226bad972e806f0c3e17e7b1f51ce1e47f749c197e6bfb4dda",
+      "checksum_sha256": "cd3c989f7cc68ecd8dc484fe380654f36d1128b7b6c2aaa4787e1972db3bb409",
       "folder": "biology",
       "legacy_relative_path": "biological_hypotheses.tsv",
       "output_table_schema": {
@@ -3055,6 +3094,7 @@
       "row_count": 4
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_hypothesis_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -3087,11 +3127,12 @@
       "row_count": 8
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_activity_condition_comparisons.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,condition_a,condition_b,condition_a_confidence_status,condition_b_confidence_status,comparison_confidence_status,mean_activity_score_a,mean_activity_score_b,activity_score_delta]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/biological_pathway_activity_condition_comparisons.tsv",
-      "checksum_sha256": "50f9d1756149d6f5bf329dd4b48370c91b9451e82cf59e41312c87a838cee4b2",
+      "checksum_sha256": "f5062f1013e70a77f348b079d4cec425b8b3a743831045b25a38739e8ba93a08",
       "folder": "biology",
       "legacy_relative_path": "biological_pathway_activity_condition_comparisons.tsv",
       "output_table_schema": {
@@ -3179,11 +3220,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_activity_conditions.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,condition,sample_count,scored_sample_count,high_confidence_sample_count,low_confidence_sample_count,confidence_status,mean_activity_score]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "biology/biological_pathway_activity_conditions.tsv",
-      "checksum_sha256": "4006894cc09313a18db8a15966f09344b4a4ae2917da279943a2cf310e20489b",
+      "checksum_sha256": "b48c9b77bbb51d7d09fae7165ca786f80547cbec81f8a9dbc31776994dd48c11",
       "folder": "biology",
       "legacy_relative_path": "biological_pathway_activity_conditions.tsv",
       "output_table_schema": {
@@ -3265,6 +3307,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_pathway_activity_matrix.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,C1,C2,C3,T1,T2,T3]",
       "artifact_schema_version": "2026-05-26",
@@ -3345,6 +3388,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_activity_members.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,sample_id,condition,batch,member_kind,member_id,resolved_protein_refs,observed_protein_refs,resolved_protein_count,observed_protein_count,missing_protein_count,member_activity_score,observed]",
       "artifact_schema_version": "2026-05-26",
@@ -3461,11 +3505,12 @@
       "row_count": 18
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_pathway_activity_samples.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,sample_id,condition,batch,activity_score,total_member_count,observed_member_count,missing_member_count,observed_fraction,minimum_observed_member_count,confidence_status,confidence_reason,observed_member_ids,missing_member_ids]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/biological_pathway_activity_samples.tsv",
-      "checksum_sha256": "5e97068686b78106b717609347a51f09cd596d2ad586a7587d2611ffabb55873",
+      "checksum_sha256": "017f583ad0e419adeb57755a1bd17f4e7b512acbc63c4d396812e4bdbdf77cf9",
       "folder": "matrices",
       "legacy_relative_path": "biological_pathway_activity_samples.tsv",
       "output_table_schema": {
@@ -3583,6 +3628,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_pathway_activity_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_level,measure_kind,aggregation_method,normalization_method,pathway_count,sample_count,sample_score_count,scored_sample_count,high_confidence_sample_score_count,low_confidence_sample_score_count,sample_entries_with_missing_members,member_contribution_count,unresolved_member_count,condition_count,condition_comparison_count]",
       "artifact_schema_version": "2026-05-26",
@@ -3693,6 +3739,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_activity_unresolved.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,member_kind,member_id,reason]",
       "artifact_schema_version": "2026-05-26",
@@ -3755,6 +3802,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_entries.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[pathway_id,pathway_name,source_name,source_accession,member_kind,foreground_overlap_count,background_member_count,foreground_size,background_size,expected_overlap_count,enrichment_ratio,p_value,adjusted_p_value,foreground_member_ids,background_member_ids]",
       "artifact_schema_version": "2026-05-26",
@@ -3865,6 +3913,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_pathway_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[foreground_size,background_size,evaluated_entry_count,protein_entry_count,gene_entry_count,unresolved_foreground_count,unresolved_background_count,enriched_entry_count]",
       "artifact_schema_version": "2026-05-26",
@@ -3933,6 +3982,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:biological_pathway_unresolved.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[set_role,protein_ref,reason]",
       "artifact_schema_version": "2026-05-26",
@@ -3971,6 +4021,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:biological_protein_card_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -4003,11 +4054,12 @@
       "row_count": 11
     },
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:biological_protein_cards.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[card_id,graph_claim_node_id,graph_subject_node_id,graph_subject_node_kind,graph_support_node_ids,graph_source_row_refs,protein_group_id,representative_protein_ref,protein_refs,identity_level,identity_reason,gene_symbol,annotation_status,peptides,peptide_count,unique_peptide_count,shared_peptide_count,coverage_fraction,covered_residue_count,residue_count,observed_sample_count,missing_sample_count,condition_a,condition_b,log2_fold_change,adjusted_p_value,significant,evidence_tier,warning_codes,pathway_ids,context_ids,functional_regions,proteogenomic_support_class,proteogenomic_support_reason,proteogenomic_reference_only_peptides,proteogenomic_variant_only_peptides,proteogenomic_shared_peptides,proteogenomic_ambiguous_peptides,proteogenomic_variant_protein_refs,ptm_sites]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/biological_protein_cards.tsv",
-      "checksum_sha256": "60daee6e3a707f81d0c5fe009761f0330aa88a3d9a0f1a5a1240f5470cdceb06",
+      "checksum_sha256": "3aa8ae0614fbc82a858ad5223819f09aec98b71acf545c41bf961411d444d10d",
       "folder": "cards",
       "legacy_relative_path": "biological_protein_cards.tsv",
       "output_table_schema": {
@@ -4263,6 +4315,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:biological_protein_mechanism_card_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -4295,11 +4348,12 @@
       "row_count": 10
     },
     {
+      "artifact_id": "artifact:cards:tsv_table:cards:biological_protein_mechanism_cards.tsv",
       "artifact_kind": "tsv_table",
-      "artifact_schema": "tsv[card_id,protein_card_id,graph_claim_node_id,protein_group_id,representative_protein_ref,gene_symbol,identity_level,condition_a,condition_b,direction,significant,log2_fold_change,adjusted_p_value,peptide_count,unique_peptide_count,shared_peptide_count,coverage_fraction,quantifying_peptide_count,quant_value_count,graph_support_edge_count,ptm_site_keys,ptm_mechanism_classes,domain_labels,pathway_ids,complex_ids,confidence_tier,evidence_tier,downgrade_reasons,warning_codes,evidence_rationale]",
+      "artifact_schema": "tsv[card_id,protein_card_id,graph_claim_node_id,protein_group_id,representative_protein_ref,gene_symbol,identity_level,condition_a,condition_b,direction,significant,log2_fold_change,adjusted_p_value,peptide_count,unique_peptide_count,shared_peptide_count,coverage_fraction,quantifying_peptide_count,quant_value_count,graph_support_edge_count,ptm_site_keys,ptm_mechanism_classes,domain_labels,pathway_ids,complex_ids,confidence_tier,evidence_tier,downgrade_reasons,source_row_refs,derived_no_source_reason,warning_codes,evidence_rationale]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/biological_protein_mechanism_cards.tsv",
-      "checksum_sha256": "ddf54d46d1aa182fde0dd044fbff1ad68d47df79471f60b98fa99bc5da564e60",
+      "checksum_sha256": "a8132bb17c7756f8f735b733de177793b94f123d851d6bdae672ba5aa2c8bf3d",
       "folder": "cards",
       "legacy_relative_path": "biological_protein_mechanism_cards.tsv",
       "output_table_schema": {
@@ -4473,6 +4527,18 @@
             "value_type": "text"
           },
           {
+            "meaning": "Stable column 'source_row_refs' in TSV output 'biological_protein_mechanism_cards'.",
+            "name": "source_row_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'derived_no_source_reason' in TSV output 'biological_protein_mechanism_cards'.",
+            "name": "derived_no_source_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
             "meaning": "Stable column 'warning_codes' in TSV output 'biological_protein_mechanism_cards'.",
             "name": "warning_codes",
             "required": true,
@@ -4495,11 +4561,12 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:biological_rejected_claims.tsv",
       "artifact_kind": "tsv_table",
-      "artifact_schema": "tsv[claim_id,claim_kind,status,subject_id,subject_label,claim_text,condition_a,condition_b,asserted_direction,adjusted_p_value,effect_size,robustness_score,imputation_dependent,evidence_tier,confidence_tier,pathway_confidence_status,pathway_delta,regulator_evidence_type,regulator_signal_surface,regulator_score,reason_codes,source_ids,validation_note]",
+      "artifact_schema": "tsv[claim_id,claim_kind,status,subject_id,subject_label,claim_text,condition_a,condition_b,asserted_direction,adjusted_p_value,effect_size,robustness_score,imputation_dependent,evidence_tier,confidence_tier,pathway_confidence_status,pathway_delta,regulator_evidence_type,regulator_signal_surface,regulator_score,reason_codes,source_ids,source_row_refs,derived_no_source_reason,validation_note]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/biological_rejected_claims.tsv",
-      "checksum_sha256": "47805e6577d38f728975b92b49f4ef5afaf49c91cbd250b3a0836936a1d04cd4",
+      "checksum_sha256": "0b0ce760aa2dfcdf246da35fede50704cc23f88ecbac092229de5898459dedfb",
       "folder": "evidence",
       "legacy_relative_path": "biological_rejected_claims.tsv",
       "output_table_schema": {
@@ -4637,6 +4704,18 @@
             "value_type": "text"
           },
           {
+            "meaning": "Stable column 'source_row_refs' in TSV output 'biological_rejected_claims'.",
+            "name": "source_row_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'derived_no_source_reason' in TSV output 'biological_rejected_claims'.",
+            "name": "derived_no_source_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
             "meaning": "Stable column 'validation_note' in TSV output 'biological_rejected_claims'.",
             "name": "validation_note",
             "required": true,
@@ -4653,6 +4732,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:biological_rejected_hypothesis_candidates.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[hypothesis_id,hypothesis_kind,subject_id,subject_label,claim,rejection_reason,supporting_protein_refs,supporting_site_keys,supporting_pathway_ids,source_ids,rejection_note]",
       "artifact_schema_version": "2026-05-26",
@@ -4739,11 +4819,12 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:reports:text_document:reports:biological_report.html",
       "artifact_kind": "text_document",
       "artifact_schema": "text[html]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/biological_report.html",
-      "checksum_sha256": "0013ab8892f8351bbeb65fc040a35215ac8be5a324f7f2e1331a13c7a90e2025",
+      "checksum_sha256": "2bd20df90fd8e32291cd83b0940475f3d9569374b5b6c22508d549024435dc53",
       "folder": "reports",
       "legacy_relative_path": "biological_report.html",
       "output_table_schema": null,
@@ -4753,11 +4834,12 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:biological_report_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/biological_report_manifest.json",
-      "checksum_sha256": "a6f736c6f2fad0d082e0c0044c58e3b93c90ef209dda5b2c638baf31bf7cb827",
+      "checksum_sha256": "3db709222123551a4550a6ccb5dff767105d502c1a98431dd174213ee2f67e71",
       "folder": "reports",
       "legacy_relative_path": "biological_report_manifest.json",
       "output_table_schema": null,
@@ -4767,6 +4849,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:qc:tsv_table:qc:biological_report_section_confidence.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[section_key,section_title,confidence_label,rationale]",
       "artifact_schema_version": "2026-05-26",
@@ -4811,11 +4894,12 @@
       "row_count": 14
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:biological_report_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "reports/biological_report_summary.tsv",
-      "checksum_sha256": "b475d4ca86c1059331915560b5e819bee9854e83d00743d494dce93ede6acfbd",
+      "checksum_sha256": "c0d746a1fc3aab6896aee590701501888787b55602cb613c63b0900e1cd2d593",
       "folder": "reports",
       "legacy_relative_path": "biological_report_summary.tsv",
       "output_table_schema": {
@@ -4843,6 +4927,7 @@
       "row_count": 30
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_sample_clusters.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[merge_order,member_sample_ids,left_sample_ids,right_sample_ids,member_conditions,member_batches,member_count,average_linkage_distance]",
       "artifact_schema_version": "2026-05-26",
@@ -4911,6 +4996,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_sample_distances.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id_a,sample_id_b,condition_a,condition_b,batch_a,batch_b,euclidean_distance,same_condition,same_batch]",
       "artifact_schema_version": "2026-05-26",
@@ -4985,6 +5071,7 @@
       "row_count": 15
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_sample_exploration_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_level,measure_kind,aggregation_method,normalization_method,sample_count,feature_count,pairwise_correlation_count,pairwise_distance_count,cluster_merge_count,outlier_sample_count,clustered_by_condition]",
       "artifact_schema_version": "2026-05-26",
@@ -5071,6 +5158,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_sample_pca_scores.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[sample_id,condition,batch,pc1,pc2,distance_from_global_centroid,distance_from_condition_centroid,global_centroid_outlier,condition_centroid_outlier,outlier_reasons,outlier]",
       "artifact_schema_version": "2026-05-26",
@@ -5157,6 +5245,7 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:biological_sample_pca_variance.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[component_index,component_label,explained_variance_ratio,cumulative_explained_variance_ratio]",
       "artifact_schema_version": "2026-05-26",
@@ -5201,11 +5290,12 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:biological_supported_claims.tsv",
       "artifact_kind": "tsv_table",
-      "artifact_schema": "tsv[claim_id,claim_kind,status,subject_id,subject_label,claim_text,condition_a,condition_b,asserted_direction,adjusted_p_value,effect_size,robustness_score,imputation_dependent,evidence_tier,confidence_tier,pathway_confidence_status,pathway_delta,regulator_evidence_type,regulator_signal_surface,regulator_score,reason_codes,source_ids,validation_note]",
+      "artifact_schema": "tsv[claim_id,claim_kind,status,subject_id,subject_label,claim_text,condition_a,condition_b,asserted_direction,adjusted_p_value,effect_size,robustness_score,imputation_dependent,evidence_tier,confidence_tier,pathway_confidence_status,pathway_delta,regulator_evidence_type,regulator_signal_surface,regulator_score,reason_codes,source_ids,source_row_refs,derived_no_source_reason,validation_note]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "evidence/biological_supported_claims.tsv",
-      "checksum_sha256": "5c0c9ce7cfbf7a3f8aa70a965b6184c1502366feb319b65de736e3b094967a7b",
+      "checksum_sha256": "68c35e2a71c8a31b0b5226fd8175b63dacd02cb3333cb3b50060b330ba7f8a7e",
       "folder": "evidence",
       "legacy_relative_path": "biological_supported_claims.tsv",
       "output_table_schema": {
@@ -5343,6 +5433,18 @@
             "value_type": "text"
           },
           {
+            "meaning": "Stable column 'source_row_refs' in TSV output 'biological_supported_claims'.",
+            "name": "source_row_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'derived_no_source_reason' in TSV output 'biological_supported_claims'.",
+            "name": "derived_no_source_reason",
+            "required": true,
+            "value_type": "text"
+          },
+          {
             "meaning": "Stable column 'validation_note' in TSV output 'biological_supported_claims'.",
             "name": "validation_note",
             "required": true,
@@ -5359,6 +5461,7 @@
       "row_count": 4
     },
     {
+      "artifact_id": "artifact:stats:text_document:stats:biological_volcano.html",
       "artifact_kind": "text_document",
       "artifact_schema": "text[html]",
       "artifact_schema_version": "2026-05-25",
@@ -5373,6 +5476,7 @@
       "row_count": 2
     },
     {
+      "artifact_id": "artifact:stats:json_document:stats:biological_volcano.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
@@ -5387,6 +5491,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:stats:text_document:stats:biological_volcano.svg",
       "artifact_kind": "text_document",
       "artifact_schema": "text[svg]",
       "artifact_schema_version": "2026-05-25",
@@ -5401,6 +5506,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:stats:tsv_table:stats:biological_volcano.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,label,secondary_label,log2_fold_change,raw_p_value,adjusted_p_value,negative_log10_adjusted_p_value,highlighted,top_labeled]",
       "artifact_schema_version": "2026-05-26",
@@ -5475,6 +5581,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:dda_biological_filtered_psms.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[run_id,spectrum_id,canonical_peptide,charge,score,intensity,q_value,protein_refs,target_decoy_label,target_decoy_contaminant_class,contaminant_flag,filter_reasons]",
       "artifact_schema_version": "2026-05-26",
@@ -5567,6 +5674,7 @@
       "row_count": 3
     },
     {
+      "artifact_id": "artifact:inputs:tsv_table:inputs:dda_biological_parse_rejected.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[row_number,issue_codes,issue_messages,raw_fields]",
       "artifact_schema_version": "2026-05-26",
@@ -5611,6 +5719,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:biology:tsv_table:biology:dda_biological_psms.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[run_id,spectrum_id,peptide_sequence,peptide,modified_peptide,canonical_peptide,charge,score,intensity,q_value,posterior_error_probability,local_fdr,error_rate_provenance,protein_refs,target_decoy_label,target_decoy_contaminant_class,contaminant_flag,source_engine,source_file,source_row_numbers,original_identifiers]",
       "artifact_schema_version": "2026-05-26",
@@ -5757,6 +5866,7 @@
       "row_count": 30
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:dda_biological_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[field,value]",
       "artifact_schema_version": "2026-05-26",
@@ -5789,6 +5899,7 @@
       "row_count": 16
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:dda_parsimony_ambiguities.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[subject_id,kind,candidate_proteins,first_difference_rank,strategy_assignments,note]",
       "artifact_schema_version": "2026-05-26",
@@ -5845,6 +5956,7 @@
       "row_count": 0
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:dda_parsimony_proteins.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[variant,selection_rank,protein_ref,source_group_id,group_protein_refs,covered_peptides,newly_explained_peptides,unresolved_shared_peptides,best_score,best_q_value,target_decoy_label]",
       "artifact_schema_version": "2026-05-26",
@@ -5931,6 +6043,7 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:reports:tsv_table:reports:dda_parsimony_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[metric,value]",
       "artifact_schema_version": "2026-05-26",
@@ -5963,6 +6076,7 @@
       "row_count": 10
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:dda_protein_lfq_matrix.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,target_kind,protein_refs,peptide_count,unique_peptide_count,shared_peptide_count,pairwise_ratio_count,connected_component_count,contributing_peptides,C1,C2,C3,T1,T2,T3]",
       "artifact_schema_version": "2026-05-26",
@@ -6073,11 +6187,12 @@
       "row_count": 5
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:dda_protein_lfq_missingness.tsv",
       "artifact_kind": "tsv_table",
-      "artifact_schema": "tsv[sample_id,observed_count,zero_count,not_observed_count,filtered_count]",
+      "artifact_schema": "tsv[sample_id,observed_count,zero_count,not_observed_count,filtered_count,imputed_count,censored_count,excluded_count,not_applicable_count]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "matrices/dda_protein_lfq_missingness.tsv",
-      "checksum_sha256": "5d0ce4b2bbff97c04f299159e662e31d99e9cf2901da943da3b5b7a99a039329",
+      "checksum_sha256": "d6d2231591f66d85140ae6690af071a7dd8bfff6d6737488ed5b6b3778632d69",
       "folder": "matrices",
       "legacy_relative_path": "dda_protein_lfq_missingness.tsv",
       "output_table_schema": {
@@ -6111,6 +6226,30 @@
             "name": "filtered_count",
             "required": true,
             "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'imputed_count' in TSV output 'dda_protein_lfq_missingness'.",
+            "name": "imputed_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'censored_count' in TSV output 'dda_protein_lfq_missingness'.",
+            "name": "censored_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'excluded_count' in TSV output 'dda_protein_lfq_missingness'.",
+            "name": "excluded_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'not_applicable_count' in TSV output 'dda_protein_lfq_missingness'.",
+            "name": "not_applicable_count",
+            "required": true,
+            "value_type": "integer"
           }
         ],
         "schema_version": "2026-05-26",
@@ -6123,6 +6262,118 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:matrices:tsv_table:matrices:dda_protein_lfq_missingness_mask.tsv",
+      "artifact_kind": "tsv_table",
+      "artifact_schema": "tsv[entity_id,target_kind,protein_refs,peptide_count,unique_peptide_count,shared_peptide_count,pairwise_ratio_count,connected_component_count,contributing_peptides,C1,C2,C3,T1,T2,T3]",
+      "artifact_schema_version": "2026-05-26",
+      "canonical_relative_path": "matrices/dda_protein_lfq_missingness_mask.tsv",
+      "checksum_sha256": "f17d1e8c89718fe4f18eadcd99b59c2e92df5b2e78ace3a32ebbdecfb9af5f1c",
+      "folder": "matrices",
+      "legacy_relative_path": "dda_protein_lfq_missingness_mask.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'target_kind' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "target_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'protein_refs' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "protein_refs",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'peptide_count' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'unique_peptide_count' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "unique_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'shared_peptide_count' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "shared_peptide_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'pairwise_ratio_count' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "pairwise_ratio_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'connected_component_count' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "connected_component_count",
+            "required": true,
+            "value_type": "integer"
+          },
+          {
+            "meaning": "Stable column 'contributing_peptides' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "contributing_peptides",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C1' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "C1",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C2' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "C2",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'C3' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "C3",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'T1' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "T1",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'T2' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "T2",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'T3' in TSV output 'dda_protein_lfq_missingness_mask'.",
+            "name": "T3",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for dda protein lfq missingness mask.",
+        "table_name": "dda_protein_lfq_missingness_mask"
+      },
+      "output_table_schema_sidecar_relative_path": "matrices/dda_protein_lfq_missingness_mask.tsv.schema.json",
+      "producer_function": "run_advanced_fragpipe_workflow",
+      "relative_path": "matrices/dda_protein_lfq_missingness_mask.tsv",
+      "row_count": 5
+    },
+    {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:dda_protein_lfq_pairwise.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[entity_id,target_kind,sample_a,sample_b,shared_peptide_count,median_log2_ratio,median_ratio,contributing_peptides]",
       "artifact_schema_version": "2026-05-26",
@@ -6191,6 +6442,7 @@
       "row_count": 75
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:dda_protein_lfq_summary.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[source_kind,grouping_mode,target_kind,separate_charge_states,aggregation_method,unique_only,minimum_shared_peptides,peptide_row_count,protein_row_count,sample_count,fully_connected_row_count,disconnected_row_count,disconnected_component_entry_count,total_pairwise_ratio_count,observed_cell_count,missing_cell_count,note]",
       "artifact_schema_version": "2026-05-26",
@@ -6313,6 +6565,7 @@
       "row_count": 1
     },
     {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:dda_source_protein_discrepancies.tsv",
       "artifact_kind": "tsv_table",
       "artifact_schema": "tsv[protein_ref,status,source_table_present,inferred_by_workflow,quantified_by_workflow,significant_in_workflow]",
       "artifact_schema_version": "2026-05-26",
@@ -6369,11 +6622,12 @@
       "row_count": 6
     },
     {
+      "artifact_id": "artifact:reports:json_document:reports:fragpipe_biological_report_manifest.json",
       "artifact_kind": "json_document",
       "artifact_schema": "json[object]",
       "artifact_schema_version": "2026-05-25",
       "canonical_relative_path": "reports/fragpipe_biological_report_manifest.json",
-      "checksum_sha256": "8954265227b116501e14d7212e74e1f12028b79a03b9e640fdf7c9947b86b7b4",
+      "checksum_sha256": "b2bebd3b6225631c558a4befec74790c2af2b88f84e312dc72e50bdfdaf61d42",
       "folder": "reports",
       "legacy_relative_path": "fragpipe_biological_report_manifest.json",
       "output_table_schema": null,
@@ -6381,6 +6635,81 @@
       "producer_function": "run_advanced_fragpipe_workflow",
       "relative_path": "reports/fragpipe_biological_report_manifest.json",
       "row_count": 1
+    },
+    {
+      "artifact_id": "artifact:evidence:tsv_table:evidence:rejected_evidence.tsv",
+      "artifact_kind": "tsv_table",
+      "artifact_schema": "tsv[rejected_evidence_id,source_surface,source_file,row_number,entity_type,entity_id,reason_code,detail,related_artifact]",
+      "artifact_schema_version": "2026-05-26",
+      "canonical_relative_path": "evidence/rejected_evidence.tsv",
+      "checksum_sha256": "cffd9e967d3aef312b7a9d3391bc4b5b018d2c426fc080714a57f7f0f05fa27e",
+      "folder": "evidence",
+      "legacy_relative_path": "rejected_evidence.tsv",
+      "output_table_schema": {
+        "columns": [
+          {
+            "meaning": "Stable column 'rejected_evidence_id' in TSV output 'rejected_evidence'.",
+            "name": "rejected_evidence_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_surface' in TSV output 'rejected_evidence'.",
+            "name": "source_surface",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_file' in TSV output 'rejected_evidence'.",
+            "name": "source_file",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'row_number' in TSV output 'rejected_evidence'.",
+            "name": "row_number",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_type' in TSV output 'rejected_evidence'.",
+            "name": "entity_type",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'entity_id' in TSV output 'rejected_evidence'.",
+            "name": "entity_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'reason_code' in TSV output 'rejected_evidence'.",
+            "name": "reason_code",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'detail' in TSV output 'rejected_evidence'.",
+            "name": "detail",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'related_artifact' in TSV output 'rejected_evidence'.",
+            "name": "related_artifact",
+            "required": true,
+            "value_type": "text"
+          }
+        ],
+        "schema_version": "2026-05-26",
+        "table_meaning": "Stable TSV output for rejected evidence.",
+        "table_name": "rejected_evidence"
+      },
+      "output_table_schema_sidecar_relative_path": "evidence/rejected_evidence.tsv.schema.json",
+      "producer_function": "run_advanced_fragpipe_workflow",
+      "relative_path": "evidence/rejected_evidence.tsv",
+      "row_count": 9
     }
   ],
   "folder_names": [
