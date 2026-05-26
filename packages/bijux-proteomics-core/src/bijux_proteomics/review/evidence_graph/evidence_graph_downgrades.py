@@ -84,6 +84,10 @@ def build_evidence_graph_final_result_table(
     entries: list[EvidenceGraphFinalResultEntry] = []
     for confidence_entry in confidence_report.entries:
         reasons = _downgrade_reasons_for_entry(graph, confidence_entry)
+        effective_confidence_tier = _apply_confidence_downgrades(
+            confidence_entry.confidence_tier,
+            reasons,
+        )
         evidence_tier = _evidence_tier(confidence_entry.confidence_tier, reasons)
         source_rows = set(confidence_entry.source_row_refs)
         source_rows.update(
@@ -97,7 +101,7 @@ def build_evidence_graph_final_result_table(
                 subject_node_ref=confidence_entry.subject_node_ref,
                 subject_node_kind=confidence_entry.subject_node_kind,
                 propagated_score=confidence_entry.propagated_score,
-                confidence_tier=confidence_entry.confidence_tier,
+                confidence_tier=effective_confidence_tier,
                 evidence_tier=evidence_tier,
                 downgrade_reasons=reasons,
                 source_row_refs=tuple(sorted(source_rows)),
@@ -275,6 +279,8 @@ def _claim_level_downgrade_reasons(
     )
     if any(quant_value.trust_class == "imputed" for quant_value in quant_values):
         reasons.add(EvidenceGraphDowngradeReason.IMPUTATION_DEPENDENCE)
+    if any(_quant_value_has_poor_run_qc(graph, quant_value) for quant_value in quant_values):
+        reasons.add(EvidenceGraphDowngradeReason.POOR_RUN_QC)
     claim_node = _require_node_by_id(graph, claim_node_id)
     if claim_node.trust_class in {"single_run_only", "exploratory"}:
         reasons.add(EvidenceGraphDowngradeReason.POOR_REPRODUCIBILITY)
@@ -352,6 +358,60 @@ def _peptide_has_poor_run_qc(graph: ProteomicsEvidenceGraph, peptide_node_id: st
             ):
                 return True
     return False
+
+
+def _quant_value_has_poor_run_qc(
+    graph: ProteomicsEvidenceGraph,
+    quant_value: ProteomicsEvidenceNode,
+) -> bool:
+    run_refs = [
+        context.entity_ref
+        for context in quant_value.context_refs
+        if context.entity_type is ProteomicsEvidenceNodeKind.RUN
+    ]
+    sample_refs = [
+        context.entity_ref
+        for context in quant_value.context_refs
+        if context.entity_type is ProteomicsEvidenceNodeKind.SAMPLE
+    ]
+    if not run_refs:
+        run_refs = [
+            run.entity_ref
+            for sample_ref in sample_refs
+            for sample in (_require_node_by_ref(graph, ProteomicsEvidenceNodeKind.SAMPLE, sample_ref),)
+            for run in _target_nodes_for_relation(
+                graph,
+                sample.node_id,
+                ProteomicsEvidenceEdgeKind.SAMPLE_CONTAINS_RUN,
+            )
+        ]
+    for run_ref in run_refs:
+        run = _require_node_by_ref(graph, ProteomicsEvidenceNodeKind.RUN, run_ref)
+        qc_decisions = _target_nodes_for_relation(
+            graph,
+            run.node_id,
+            ProteomicsEvidenceEdgeKind.RUN_GOVERNED_BY_QC_DECISION,
+        )
+        if any(
+            qc.claim_state in {"caution", "fail", "failed", "rejected"}
+            or qc.trust_class == "low"
+            for qc in qc_decisions
+        ):
+            return True
+    return False
+
+
+def _apply_confidence_downgrades(
+    confidence_tier: EvidenceGraphConfidenceTier,
+    reasons: tuple[EvidenceGraphDowngradeReason, ...],
+) -> EvidenceGraphConfidenceTier:
+    if EvidenceGraphDowngradeReason.POOR_RUN_QC not in reasons:
+        return confidence_tier
+    if confidence_tier is EvidenceGraphConfidenceTier.HIGH:
+        return EvidenceGraphConfidenceTier.MODERATE
+    if confidence_tier is EvidenceGraphConfidenceTier.MODERATE:
+        return EvidenceGraphConfidenceTier.LOW
+    return confidence_tier
 
 
 def _evidence_tier(
@@ -454,6 +514,20 @@ def _require_node_by_id(
         if node.node_id == node_id:
             return node
     raise ValueError(f"graph node is missing by node_id: {node_id}")
+
+
+def _require_node_by_ref(
+    graph: ProteomicsEvidenceGraph,
+    entity_type: ProteomicsEvidenceNodeKind,
+    entity_ref: str,
+) -> ProteomicsEvidenceNode:
+    for node in graph.nodes:
+        if node.entity_type is entity_type and node.entity_ref == entity_ref:
+            return node
+    raise ValueError(
+        "graph node is missing by entity_ref: "
+        f"{entity_type.value}:{entity_ref}"
+    )
 
 
 def _dict_rows_to_tsv(rows: list[dict[str, object]]) -> str:

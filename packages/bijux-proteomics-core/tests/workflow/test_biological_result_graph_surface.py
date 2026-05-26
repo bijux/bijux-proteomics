@@ -166,3 +166,8 @@ def test_build_biological_result_graph_report_routes_lab_run_qc_feedback_into_gr
         f"sample:{design_entries[0].sample_id}",
         f"run:{design_entries[0].spectra_file}",
     }
+    assert all(
+        "poor_run_qc" in {reason.value for reason in entry.downgrade_reasons}
+        for entry in qc_report.final_results.entries
+    )
+    assert all(entry.confidence_tier.value != "high" for entry in qc_report.final_results.entries)
