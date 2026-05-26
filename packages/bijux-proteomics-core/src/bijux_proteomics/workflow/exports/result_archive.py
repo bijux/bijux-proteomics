@@ -10,9 +10,17 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics.domain.errors import (
     InvalidWorkflowError,
     SchemaError,
+)
+from bijux_proteomics.lab import (
+    LabActionPacket,
+    build_lab_action_packets_from_qc_assessment,
+    parse_lab_action_assessment_tsv,
+    parse_lab_action_packet_tsv,
+    render_lab_action_packets_tsv,
 )
 from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceContextRef,
@@ -81,15 +89,25 @@ def load_result_archive(path: Path) -> ProteomicsStudyResult:
             "result archive rehydration requires at least one biological or PTM source report"
         )
     run_qc_paths = _resolve_run_qc_paths(manifest=manifest, manifest_path=manifest_path)
+    lab_action_packet_paths = _resolve_lab_action_packet_paths(
+        manifest=manifest,
+        manifest_path=manifest_path,
+    )
     bundle = build_interactive_result_bundle_from_artifacts(
         biological_report_dir=biological_report_dir,
         ptm_report_dir=ptm_report_dir,
         run_qc_assessment_tsv_paths=run_qc_paths,
     )
+    archived_lab_action_packets = _load_archived_lab_action_packets(
+        lab_action_packet_paths
+    )
     study_kind = _derive_archived_study_kind(bundle)
     matrix_surfaces = _build_matrix_surfaces(bundle)
     statistic_surfaces = _build_statistic_surfaces(bundle)
-    qc_surfaces = _build_qc_surfaces(bundle)
+    qc_surfaces = _build_qc_surfaces(
+        bundle,
+        archived_lab_action_packets=archived_lab_action_packets,
+    )
     card_surfaces = _build_card_surfaces(bundle)
     conclusions = _build_conclusions(
         manifest=manifest,
@@ -105,6 +123,7 @@ def load_result_archive(path: Path) -> ProteomicsStudyResult:
         qc_surfaces=qc_surfaces,
         card_surfaces=card_surfaces,
         biological_conclusions=conclusions,
+        archived_lab_action_packets=archived_lab_action_packets,
         interactive_result_bundle=bundle,
         archive_manifest=manifest,
         archived_evidence_graph=_build_archived_evidence_graph(bundle),
@@ -119,10 +138,28 @@ def load_result_archive(path: Path) -> ProteomicsStudyResult:
         note=(
             "result archive rehydration rebuilds a study result from the preserved result "
             "manifest, exported report directories, archived cards, claims, QC entries, "
-            "plot and matrix artifacts, and the interactive evidence bundle without "
+            "lab action packets, plot and matrix artifacts, and the interactive evidence bundle without "
             "rerunning an analytical workflow"
         ),
     )
+
+
+def write_result_archive_lab_action_packets(
+    *,
+    out_path: Path,
+    run_qc_assessment_tsv_paths: tuple[Path, ...],
+) -> tuple[LabActionPacket, ...]:
+    """Write archived lab action packets for failed run or sample QC ledgers."""
+
+    entries = tuple(
+        entry
+        for path in run_qc_assessment_tsv_paths
+        for entry in parse_lab_action_assessment_tsv(path)
+    )
+    packets = build_lab_action_packets_from_qc_assessment(entries)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write_text(out_path, render_lab_action_packets_tsv(packets))
+    return packets
 
 
 def _resolve_manifest_path(path: Path) -> Path:
@@ -159,6 +196,18 @@ def _resolve_run_qc_paths(
         if input_entry.input_kind is ResultManifestInputKind.RUN_QC_ASSESSMENT:
             paths.append(_resolve_archive_path(manifest_path.parent, input_entry.path))
     return tuple(paths)
+
+
+def _resolve_lab_action_packet_paths(
+    *,
+    manifest: ResultManifestReport,
+    manifest_path: Path,
+) -> tuple[Path, ...]:
+    return tuple(
+        _resolve_archive_path(manifest_path.parent, entry.path)
+        for entry in manifest.inputs
+        if entry.input_kind is ResultManifestInputKind.LAB_ACTION_PACKET
+    )
 
 
 def _resolve_archive_path(base_dir: Path, archived_path: str) -> Path:
@@ -285,19 +334,52 @@ def _build_statistic_surfaces(
 
 def _build_qc_surfaces(
     bundle: InteractiveResultBundle,
+    *,
+    archived_lab_action_packets: tuple[LabActionPacket, ...],
 ) -> tuple[ProteomicsStudyQcSurface, ...]:
-    if not bundle.qc_entries:
-        return ()
-    issue_count = sum(
-        1 for entry in bundle.qc_entries if entry.status.lower() not in {"pass", "ok"}
-    )
-    return (
-        ProteomicsStudyQcSurface(
-            surface_name="archived_result_qc",
-            kind=ProteomicsStudyQcKind.ARCHIVED_RESULT,
-            issue_count=issue_count,
-            note="archived QC entries were grouped from preserved experiment-confidence and run-QC surfaces",
-        ),
+    surfaces: list[ProteomicsStudyQcSurface] = []
+    if bundle.qc_entries:
+        issue_count = sum(
+            1 for entry in bundle.qc_entries if entry.status.lower() not in {"pass", "ok"}
+        )
+        surfaces.append(
+            ProteomicsStudyQcSurface(
+                surface_name="archived_result_qc",
+                kind=ProteomicsStudyQcKind.ARCHIVED_RESULT,
+                issue_count=issue_count,
+                note="archived QC entries were grouped from preserved experiment-confidence and run-QC surfaces",
+            )
+        )
+    if archived_lab_action_packets:
+        surfaces.append(
+            ProteomicsStudyQcSurface(
+                surface_name="archived_lab_action_packets",
+                kind=ProteomicsStudyQcKind.LAB_ACTION_PACKET,
+                issue_count=len(archived_lab_action_packets),
+                note="archived lab action packets preserve failed run or sample troubleshooting across result handoff",
+            )
+        )
+    return tuple(surfaces)
+
+
+def _load_archived_lab_action_packets(
+    paths: tuple[Path, ...],
+) -> tuple[LabActionPacket, ...]:
+    packets = [
+        packet
+        for path in paths
+        for packet in parse_lab_action_packet_tsv(path)
+    ]
+    return tuple(
+        sorted(
+            packets,
+            key=lambda packet: (
+                packet.entity_type,
+                packet.entity_id,
+                packet.problem,
+                packet.severity,
+            ),
+        )
     )
 
 
@@ -653,4 +735,5 @@ def _parse_optional_float(value: str | None) -> float | None:
 
 __all__ = [
     "load_result_archive",
+    "write_result_archive_lab_action_packets",
 ]

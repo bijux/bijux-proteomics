@@ -14,6 +14,7 @@ from bijux_proteomics.domain.errors import (
     ScientificEvidenceError,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.lab import LabActionPacket
 from bijux_proteomics.ptm import PtmReportBundle
 from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
 from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
@@ -86,6 +87,7 @@ class ProteomicsStudyQcKind(StrEnum):
     TMT_METADATA_VALIDATION = "tmt_metadata_validation"
     LABEL_BASED_SAMPLE_QC = "label_based_sample_qc"
     PTM_EVIDENCE_PARSING = "ptm_evidence_parsing"
+    LAB_ACTION_PACKET = "lab_action_packet"
 
 
 class ProteomicsStudyCardKind(StrEnum):
@@ -230,6 +232,7 @@ class ProteomicsStudyResult(JsonModel):
     biological_conclusions: tuple[ProteomicsStudyConclusionEntry, ...] = Field(
         default_factory=tuple
     )
+    archived_lab_action_packets: tuple[LabActionPacket, ...] = Field(default_factory=tuple)
     biological_report: BiologicalResultReportBundle | None = None
     label_based_report: LabelBasedReportBundle | None = None
     ptm_report: PtmReportBundle | None = None
@@ -308,6 +311,27 @@ class ProteomicsStudyResult(JsonModel):
                 return pathway
         raise ScientificEvidenceError(
             f"archived pathway is missing from result archive: {pathway_id}"
+        )
+
+    def query_archived_lab_action_packets(
+        self,
+        *,
+        entity_id: str,
+        entity_type: str | None = None,
+    ) -> tuple[LabActionPacket, ...]:
+        """Return archived lab action packets for one failed run or sample."""
+
+        packets = tuple(
+            packet
+            for packet in self.archived_lab_action_packets
+            if packet.entity_id == entity_id
+            and (entity_type is None or packet.entity_type == entity_type)
+        )
+        if packets:
+            return packets
+        target = entity_id if entity_type is None else f"{entity_type}:{entity_id}"
+        raise ScientificEvidenceError(
+            f"archived lab action packet is missing from result archive: {target}"
         )
 
     def _require_interactive_result_bundle(self) -> InteractiveResultBundle:
