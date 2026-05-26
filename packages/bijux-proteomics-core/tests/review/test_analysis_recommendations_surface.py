@@ -45,8 +45,8 @@ def test_analysis_recommendation_engine_ties_each_action_to_detected_condition(
     (ptm_dir / "ptm_evidence_cards.tsv").write_text(
         "\n".join(
             (
-                "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
-                "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1",
+                "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason",
+                "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1\tptm_localization.tsv:4\t",
             )
         )
         + "\n",

@@ -76,8 +76,8 @@ def _write_biological_artifacts(path: Path) -> None:
     (path / "biological_rejected_claims.tsv").write_text(
         "\n".join(
             (
-                "claim_id\tclaim_kind\tstatus\tsubject_id\tsubject_label\tclaim_text\tcondition_a\tcondition_b\tasserted_direction\tadjusted_p_value\teffect_size\trobustness_score\timputation_dependent\tevidence_tier\tconfidence_tier\tpathway_confidence_status\tpathway_delta\tregulator_evidence_type\tregulator_signal_surface\tregulator_score\treason_codes\tsource_ids\tvalidation_note",
-                "claim-pathway-1\tpathway_activity_change\trejected\tPWY-001\tCell Cycle\tCell Cycle is activated in treated samples\tcontrol\ttreated\tupregulated\t0.02\t\t\tfalse\tmoderate\thigh\tlow_confidence\t0.2\t\t\t\tlow_pathway_confidence;missing_directional_delta\tpathway-row-1;protein-card-p11111\trejected from final narrative because the claim failed one or more required evidence checks",
+                "claim_id\tclaim_kind\tstatus\tsubject_id\tsubject_label\tclaim_text\tcondition_a\tcondition_b\tasserted_direction\tadjusted_p_value\teffect_size\trobustness_score\timputation_dependent\tevidence_tier\tconfidence_tier\tpathway_confidence_status\tpathway_delta\tregulator_evidence_type\tregulator_signal_surface\tregulator_score\treason_codes\tsource_ids\tsource_row_refs\tderived_no_source_reason\tvalidation_note",
+                "claim-pathway-1\tpathway_activity_change\trejected\tPWY-001\tCell Cycle\tCell Cycle is activated in treated samples\tcontrol\ttreated\tupregulated\t0.02\t\t\tfalse\tmoderate\thigh\tlow_confidence\t0.2\t\t\t\tlow_pathway_confidence;missing_directional_delta\tpathway-row-1;protein-card-p11111\t\tpathway activity claims aggregate governed pathway activity comparisons rather than preserving one direct input row\trejected from final narrative because the claim failed one or more required evidence checks",
             )
         )
         + "\n",
@@ -90,8 +90,8 @@ def _write_ptm_artifacts(path: Path) -> None:
     (path / "ptm_evidence_cards.tsv").write_text(
         "\n".join(
             (
-                "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
-                "ptm-card-p11111\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t0.7\thigh_confidence\t4\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5",
+                "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason",
+                "ptm-card-p11111\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t0.7\thigh_confidence\t4\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5\tptm_localization.tsv:4\t",
             )
         )
         + "\n",

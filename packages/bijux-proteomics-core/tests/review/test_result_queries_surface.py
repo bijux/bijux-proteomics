@@ -215,8 +215,8 @@ def test_result_query_engine_answers_ptm_downgrade_with_parent_graph_anchor(
     (ptm_dir / "ptm_evidence_cards.tsv").write_text(
         "\n".join(
             (
-                "card_id\tsite_key\tprotein_ref\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
-                "ptm-card-p11111\tP11111:S5:Phospho\tP11111\t0.02\t1.5\t0.8\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5",
+                "card_id\tsite_key\tprotein_ref\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason",
+                "ptm-card-p11111\tP11111:S5:Phospho\tP11111\t0.02\t1.5\t0.8\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5\tptm_localization.tsv:4\t",
             )
         )
         + "\n",
