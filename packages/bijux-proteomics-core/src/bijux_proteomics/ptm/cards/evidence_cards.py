@@ -13,8 +13,9 @@ from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import (
     build_ptm_card_id,
     build_ptm_claim_id,
@@ -320,6 +321,16 @@ class PtmEvidenceCard(JsonModel):
     protein_correction: PtmEvidenceCardProteinCorrection
     warnings: tuple[PtmEvidenceCardWarning, ...] = Field(default_factory=tuple)
     claim_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> PtmEvidenceCard:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class PtmEvidenceCardClaimKind(StrEnum):
@@ -338,6 +349,16 @@ class PtmEvidenceCardClaim(JsonModel):
     site_key: str = Field(..., min_length=1)
     claim_kind: PtmEvidenceCardClaimKind
     text: str = Field(..., min_length=1)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    derived_no_source_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_source_row_lineage(self) -> PtmEvidenceCardClaim:
+        SourceRowLineage(
+            source_row_refs=self.source_row_refs,
+            derived_no_source_reason=self.derived_no_source_reason,
+        )
+        return self
 
 
 class PtmEvidenceCardSummary(JsonModel):
@@ -453,6 +474,7 @@ def build_ptm_evidence_card_report(
         "site_key",
     ):
         site_entry = site_entry_by_key[differential_entry.site_key]
+        source_row_lineage = _build_source_row_lineage_for_site(records, site_entry)
         peptide_evidence = _build_peptide_evidence(records, site_entry)
         identity_entry = identity_entries_by_site.get(differential_entry.site_key)
         localization = _build_localization_evidence(
@@ -563,6 +585,8 @@ def build_ptm_evidence_card_report(
                 ),
                 warnings=warnings,
                 claim_ids=(claim_id,),
+                source_row_refs=source_row_lineage.source_row_refs,
+                derived_no_source_reason=source_row_lineage.derived_no_source_reason,
             )
         )
         narrative_claims.append(
@@ -576,6 +600,8 @@ def build_ptm_evidence_card_report(
                     motif_evidence=motif_evidence,
                     regulators=regulators,
                 ),
+                source_row_refs=source_row_lineage.source_row_refs,
+                derived_no_source_reason=source_row_lineage.derived_no_source_reason,
             )
         )
 
@@ -719,6 +745,8 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "crosstalk_shared_pathways",
             "warning_codes",
             "claim_ids",
+            "source_row_refs",
+            "derived_no_source_reason",
         )
     )
     for entry in report.cards:
@@ -810,6 +838,10 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 ),
                 ";".join(warning.code.value for warning in entry.warnings),
                 ";".join(entry.claim_ids),
+                ";".join(entry.source_row_refs),
+                ""
+                if entry.derived_no_source_reason is None
+                else entry.derived_no_source_reason,
             )
         )
     return buffer.getvalue()
@@ -827,6 +859,8 @@ def render_ptm_evidence_claim_tsv(report: PtmEvidenceCardReport) -> str:
             "site_key",
             "claim_kind",
             "text",
+            "source_row_refs",
+            "derived_no_source_reason",
         )
     )
     for entry in report.narrative_claims:
@@ -837,6 +871,10 @@ def render_ptm_evidence_claim_tsv(report: PtmEvidenceCardReport) -> str:
                 entry.site_key,
                 entry.claim_kind.value,
                 entry.text,
+                ";".join(entry.source_row_refs),
+                ""
+                if entry.derived_no_source_reason is None
+                else entry.derived_no_source_reason,
             )
         )
     return buffer.getvalue()
@@ -884,10 +922,7 @@ def _build_peptide_evidence(
             q_value=record.q_value,
             protein_refs=record.protein_refs,
         )
-        for record in records
-        if site_entry.protein_ref in record.protein_refs
-        and record.localized_peptide in site_entry.localized_peptides
-        and site_entry.modification_name in record.modification_names
+        for record in _matching_records_for_site(records, site_entry)
     )
     return tuple(
         sort_rows_by_fields(
@@ -896,6 +931,36 @@ def _build_peptide_evidence(
             "sample_id",
             "localized_peptide",
         )
+    )
+
+
+def _build_source_row_lineage_for_site(
+    records: tuple[PtmEvidenceRecord, ...],
+    site_entry: PtmSiteEntry,
+) -> SourceRowLineage:
+    matching_records = _matching_records_for_site(records, site_entry)
+    if matching_records:
+        return SourceRowLineage.from_imported_provenances(
+            tuple(record.provenance for record in matching_records)
+        )
+    return SourceRowLineage.from_imported_provenances(
+        (site_entry.provenance,),
+        derived_no_source_reason=(
+            "ptm evidence cards summarize governed site-level differential evidence but exact source-row pairs were not retained after site aggregation"
+        ),
+    )
+
+
+def _matching_records_for_site(
+    records: tuple[PtmEvidenceRecord, ...],
+    site_entry: PtmSiteEntry,
+) -> tuple[PtmEvidenceRecord, ...]:
+    return tuple(
+        record
+        for record in records
+        if site_entry.protein_ref in record.protein_refs
+        and record.localized_peptide in site_entry.localized_peptides
+        and site_entry.modification_name in record.modification_names
     )
 
 

@@ -185,6 +185,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
         regulator.regulator == "AKT1" for regulator in annotated.regulator_evidence
     )
     assert annotated.claim_ids
+    assert annotated.source_row_refs
+    assert annotated.derived_no_source_reason is None
     assert annotated.identity_level.value in {
         "protein_level",
         "gene_level",
@@ -202,6 +204,8 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
     assert low_localization.mechanism_classification.mechanism_class.value == "unsupported"
     assert low_localization.ortholog_conservation is not None
     assert low_localization.ortholog_conservation.status.value == "unmapped"
+    assert all(claim.source_row_refs for claim in report.narrative_claims)
+    assert all(claim.derived_no_source_reason is None for claim in report.narrative_claims)
 
 
 def test_ptm_evidence_cards_do_not_call_exact_isoform_without_unique_peptide() -> None:
