@@ -20,6 +20,7 @@ from bijux_proteomics.workflow import (
     TmtWorkflowConfig,
     WorkflowMode,
     run_proteomics_workflow,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -136,6 +137,14 @@ def test_run_proteomics_workflow_exports_label_free_bundle_assets(
         / result.export_manifest.artifacts.protein_card_tsv
     ).exists()
     assert result.outputs["manifest_json"].endswith("biological_report_manifest.json")
+    layout_manifest = validate_workflow_artifact_manifest(tmp_path / "biological_report")
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "field"
 
 
 def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> None:
@@ -156,6 +165,14 @@ def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> No
     assert (tmp_path / "tmt_report" / "tmt_workflow_manifest.json").exists()
     assert (tmp_path / "tmt_report" / "label_based_report_manifest.json").exists()
     assert result.outputs["workflow_manifest_json"].endswith("tmt_workflow_manifest.json")
+    layout_manifest = validate_workflow_artifact_manifest(tmp_path / "tmt_report")
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "field"
 
 
 def test_run_proteomics_workflow_exports_targeted_matrix_assets(
@@ -255,3 +272,11 @@ def test_run_proteomics_workflow_exports_targeted_validation_assets(
     assert result.outputs["workflow_manifest_json"].endswith(
         "advanced_targeted_workflow_manifest.json"
     )
+    layout_manifest = validate_workflow_artifact_manifest(tmp_path / "targeted_validation")
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "field"
