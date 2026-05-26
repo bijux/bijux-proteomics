@@ -10,8 +10,10 @@ import pytest
 
 from bijux_proteomics.workflow import (
     IntegratedScientificReportSectionKey,
+    IntegratedScientificResultExampleKind,
     IntegratedScientificSentenceRole,
     build_integrated_scientific_report,
+    render_integrated_scientific_report_examples_tsv,
     render_integrated_scientific_report_sentences_tsv,
 )
 
@@ -31,14 +33,26 @@ def test_build_integrated_scientific_report_preserves_required_sections_and_link
         report.summary.scientific_claim_count
         == report.summary.linked_scientific_claim_count
     )
+    assert report.summary.result_example_count == 5
+    assert {example.example_kind for example in report.result_examples} == {
+        IntegratedScientificResultExampleKind.STRONG,
+        IntegratedScientificResultExampleKind.WEAK,
+        IntegratedScientificResultExampleKind.REJECTED,
+        IntegratedScientificResultExampleKind.CONTRADICTORY,
+        IntegratedScientificResultExampleKind.VALIDATION_NEEDED,
+    }
 
     scientific_claim_sentences = tuple(
         sentence
         for sentence in report.sentences
         if sentence.role is IntegratedScientificSentenceRole.SCIENTIFIC_CLAIM
     )
+    examples_by_kind = {
+        example.example_kind: example for example in report.result_examples
+    }
     assert scientific_claim_sentences
     assert all(sentence.linked_ids for sentence in scientific_claim_sentences)
+    assert all(example.linked_ids for example in report.result_examples)
 
     sentence_by_id = {sentence.sentence_id: sentence for sentence in report.sentences}
     accepted_sentence = sentence_by_id["accepted-results-1"]
@@ -61,8 +75,21 @@ def test_build_integrated_scientific_report_preserves_required_sections_and_link
         row_ref.startswith("study_design:")
         for row_ref in experiment_design_sentence.source_row_refs
     )
+    assert len(examples_by_kind[IntegratedScientificResultExampleKind.CONTRADICTORY].linked_ids) == 2
+    assert examples_by_kind[
+        IntegratedScientificResultExampleKind.VALIDATION_NEEDED
+    ].linked_ids == ("targeted-evidence-card:protein:P001",)
 
     html = (output_dir / report.artifacts.report_html).read_text(encoding="utf-8")
+    assert "Why This Matters" in html
+    for title in (
+        "Strong supported result",
+        "Weak or downgraded result",
+        "Rejected claim",
+        "Contradictory evidence",
+        "Validation-needed case",
+    ):
+        assert title in html
     for title in (
         "Experiment Design",
         "Data Quality",
@@ -77,10 +104,14 @@ def test_build_integrated_scientific_report_preserves_required_sections_and_link
         assert title in html
 
     sentence_tsv = render_integrated_scientific_report_sentences_tsv(report)
+    examples_tsv = render_integrated_scientific_report_examples_tsv(report)
     assert "linked_ids" in sentence_tsv
     assert "scientific_claim" in sentence_tsv
+    assert "example_kind" in examples_tsv
+    assert "contradictory" in examples_tsv
     assert (output_dir / report.artifacts.summary_tsv).exists()
     assert (output_dir / report.artifacts.sentences_tsv).exists()
+    assert (output_dir / report.artifacts.examples_tsv).exists()
     assert (output_dir / report.artifacts.report_html).exists()
     assert (output_dir / report.artifacts.report_json).exists()
 
