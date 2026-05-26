@@ -17,6 +17,11 @@ _WORKFLOW_EXPORT_GROUPS = {
         "AdvancedDiannRuntimeComparisonReport",
         "compare_advanced_diann_runtime_outputs",
     ],
+    "bijux_proteomics_runtime.workflows.failure_reports": [
+        "WorkflowFailureReport",
+        "build_workflow_failure_report",
+        "write_workflow_failure_report",
+    ],
     "bijux_proteomics_runtime.workflows.advanced_diann": [
         "AdvancedDiannRuntimeRunReport",
         "AdvancedDiannRuntimeStage",
