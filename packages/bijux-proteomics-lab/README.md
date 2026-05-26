@@ -102,6 +102,58 @@ from bijux_proteomics_lab.reconciliation.follow_up import (
 )
 ```
 
+## Public APIs
+
+The stable root API stays focused on planning and execution readiness:
+
+- `plan_experiment_batches(...)` for dependency-aware batch planning
+- `build_advisory_assay_plan(...)` for non-executable scientific follow-up guidance
+- `build_executable_assay_plan(...)` for execution-ready batch instructions
+
+Minimal executable example:
+
+```python
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.reviews import ReviewGate
+from bijux_proteomics_lab import build_advisory_assay_plan
+
+program = create_program_spec(
+    program_id="prog-readme",
+    name="binder rescue",
+    objective="recover binding while preserving folding",
+    target_id="protein:p11111",
+    target_name="PTM1",
+    sequence="MPEPTIDEK",
+    organism="human",
+    mechanism="stabilize productive packing",
+).model_copy(
+    update={
+        "assay_panel": [
+            AssayRequirement(
+                assay_id="primary-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            )
+        ],
+        "review_gates": [
+            ReviewGate(
+                gate_id="pre-synthesis",
+                name="Pre-synthesis review",
+                required_roles=["scientist"],
+                decision_inputs=["evidence_bundle"],
+            )
+        ],
+    }
+)
+plan = build_advisory_assay_plan(program)
+
+assert plan.program_id == "prog-readme"
+assert plan.recommendations[0].assay_id == "primary-binding"
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-lab`
@@ -119,6 +171,12 @@ prove whether an operational story is supportable.
 
 It does not own analytical recommendation logic, core scientific semantics, or
 execution orchestration or runtime policy.
+
+## What this package must not do
+
+- it must not decide analytical ranking or recommendation posture
+- it must not redefine core scientific semantics or runtime orchestration rules
+- it must not hide blocked work inside optimistic handoff packets or free-form operator notes
 
 ## Consequence chain route
 
