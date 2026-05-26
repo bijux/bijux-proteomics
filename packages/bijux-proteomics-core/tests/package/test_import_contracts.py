@@ -179,6 +179,8 @@ def test_io_subpackage_import_contract() -> None:
     assert hasattr(formats, "detect_proteomics_format")
     assert hasattr(spectra, "SpectrumModel")
     assert hasattr(spectra, "score_chimeric_spectra")
+    assert hasattr(tables, "DelimitedLookupJoinSpec")
+    assert hasattr(tables, "iter_streaming_lookup_join")
     assert hasattr(tables, "parse_transition_table")
     assert hasattr(tables, "parse_xic_target_table")
     assert hasattr(raw, "parse_mzml")

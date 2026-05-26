@@ -55,6 +55,8 @@ def test_io_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(formats, "parse_mzml")
     assert hasattr(spectra, "SpectrumModel")
     assert hasattr(spectra, "score_chimeric_spectra")
+    assert hasattr(tables, "DelimitedLookupJoinSpec")
+    assert hasattr(tables, "iter_streaming_lookup_join")
     assert hasattr(tables, "parse_target_panel_table")
     assert hasattr(tables, "parse_xic_target_table")
     assert hasattr(raw, "parse_mzml")
