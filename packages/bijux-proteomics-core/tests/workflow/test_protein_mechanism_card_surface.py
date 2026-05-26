@@ -39,6 +39,11 @@ from bijux_proteomics.quantification.contracts import (
     QuantRollupMethod,
     QuantValue,
 )
+from bijux_proteomics.review import (
+    EvidenceGraphConfidenceTier,
+    EvidenceGraphDowngradeReason,
+    FinalClaimEvidenceTier,
+)
 from bijux_proteomics.sequences import ProteinIdentityLevel
 from bijux_proteomics.workflow import (
     build_biological_result_report_bundle_from_quant_table,
@@ -480,3 +485,136 @@ def test_build_protein_mechanism_card_report_downgrades_card_confidence_from_lab
     assert qc_card.confidence_tier.value == "moderate"
     assert "poor_run_qc" in {reason.value for reason in qc_card.downgrade_reasons}
     assert qc_card.evidence_tier.value == "moderate"
+
+
+def test_build_protein_mechanism_card_report_propagates_severe_contradiction_downgrades(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    values: list[QuantValue] = []
+    abundances = {
+        "PG001": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+        "PG002": {
+            "C1": 1800.0,
+            "C2": 1750.0,
+            "C3": 1850.0,
+            "T1": 200.0,
+            "T2": 220.0,
+            "T3": 210.0,
+        },
+        "PG003": {
+            "C1": 150.0,
+            "C2": 160.0,
+            "C3": 140.0,
+            "T1": 1400.0,
+            "T2": 1450.0,
+            "T3": 1500.0,
+        },
+    }
+    for entity_id, entity_values in abundances.items():
+        for sample_id, abundance in entity_values.items():
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                    source_feature_count=1,
+                )
+            )
+    quant_table = LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        normalization_method=NormalizationMethod.NONE,
+        sample_ids=("C1", "C2", "C3", "T1", "T2", "T3"),
+        entity_ids=("PG001", "PG002", "PG003"),
+        values=tuple(values),
+        entity_protein_refs={
+            "PG001": ("P04637",),
+            "PG002": ("Q9Y243",),
+            "PG003": ("O14920",),
+        },
+        entity_member_peptides={
+            "PG001": ("PEPAAA",),
+            "PG002": ("PEPDDD",),
+            "PG003": ("PEPCCC",),
+        },
+    )
+    fasta_path = tmp_path / "contradiction_confidence.fasta"
+    fasta_path.write_text(
+        (
+            ">sp|P04637|SIGA_HUMAN Signaling protein A\nMPEPAAAK\n"
+            ">sp|Q9Y243|SIGB_HUMAN Signaling protein B\nMPEPDDDK\n"
+            ">sp|O14920|SIGC_HUMAN Signaling protein C\nMPEPCCCK\n"
+        ),
+        encoding="utf-8",
+    )
+    clean_bundle = build_biological_result_report_bundle_from_quant_table(
+        quant_table,
+        design_entries,
+        proteins_fasta_path=fasta_path,
+        condition_a="control",
+        condition_b="treatment",
+    )
+    contradictory_entries = tuple(
+        entry
+        if entry.subject_node_ref != "PG001"
+        else entry.model_copy(
+            update={
+                "confidence_tier": EvidenceGraphConfidenceTier.LOW,
+                "evidence_tier": FinalClaimEvidenceTier.WEAK,
+                "downgrade_reasons": (
+                    EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION,
+                ),
+                "rationale": (
+                    "graph confidence starts at high and downgrades to weak because "
+                    "severe_contradiction"
+                ),
+            }
+        )
+        for entry in clean_bundle.graph_report.final_results.entries
+    )
+    contradictory_graph_report = clean_bundle.graph_report.model_copy(
+        update={
+            "final_results": clean_bundle.graph_report.final_results.model_copy(
+                update={"entries": contradictory_entries}
+            )
+        }
+    )
+
+    clean_card = next(
+        card
+        for card in build_protein_mechanism_card_report(
+            clean_bundle.graph_report,
+            clean_bundle.protein_cards,
+        ).cards
+        if card.representative_protein_ref == "P04637"
+    )
+    contradictory_card = next(
+        card
+        for card in build_protein_mechanism_card_report(
+            contradictory_graph_report,
+            clean_bundle.protein_cards,
+        ).cards
+        if card.representative_protein_ref == "P04637"
+    )
+
+    assert clean_card.confidence_tier.value == "high"
+    assert clean_card.evidence_tier.value == "high_confidence"
+    assert contradictory_card.confidence_tier.value == "low"
+    assert contradictory_card.evidence_tier.value == "weak"
+    assert "severe_contradiction" in {
+        reason.value for reason in contradictory_card.downgrade_reasons
+    }
