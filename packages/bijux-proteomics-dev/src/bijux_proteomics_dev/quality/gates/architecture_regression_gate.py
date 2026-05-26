@@ -9,8 +9,17 @@ from pathlib import Path
 import subprocess  # nosec B404
 import sys
 
+from bijux_proteomics_dev.governance.package_shape.public_api_snapshots import (
+    CANONICAL_PUBLIC_API_PACKAGES,
+)
+from bijux_proteomics_dev.governance.dependencies.internal_architecture_map import (
+    build_internal_architecture_map_report,
+    evaluate_internal_architecture_violations,
+    is_internal_architecture_map_up_to_date,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    import_root,
     workspace_src_parents,
 )
 
@@ -37,13 +46,14 @@ def default_architecture_regression_targets() -> tuple[ArchitectureRegressionTar
 
     return (
         ArchitectureRegressionTarget(
-            surface="imports-and-collection",
+            surface="canonical-root-imports",
             command=(
                 sys.executable,
                 "-m",
-                "bijux_proteomics_dev.release.governance.test_collection_gate",
+                "bijux_proteomics_dev.quality.gates.architecture_regression_gate",
+                "--canonical-root-imports",
             ),
-            rationale="prove workspace imports and pytest collection remain intact after package-tree hardening",
+            rationale="prove canonical product-package roots still import after package-tree hardening",
         ),
         ArchitectureRegressionTarget(
             surface="public-api-snapshots",
@@ -60,10 +70,10 @@ def default_architecture_regression_targets() -> tuple[ArchitectureRegressionTar
             command=(
                 sys.executable,
                 "-m",
-                "bijux_proteomics_dev.governance.dependencies.internal_architecture_map",
-                "--check",
+                "bijux_proteomics_dev.quality.gates.architecture_regression_gate",
+                "--canonical-internal-architecture-map",
             ),
-            rationale="prove the generated internal architecture map still matches live package and module dependencies",
+            rationale="prove the generated internal architecture map still matches live canonical package and module dependencies",
         ),
         ArchitectureRegressionTarget(
             surface="canonical-package-tree",
@@ -76,20 +86,20 @@ def default_architecture_regression_targets() -> tuple[ArchitectureRegressionTar
             rationale="prove top-level package roots and owner families still match the canonical tree contract",
         ),
         ArchitectureRegressionTarget(
-            surface="runtime-output-snapshots",
+            surface="runtime-architecture-demo",
             command=(
                 sys.executable,
                 "-m",
                 "pytest",
-                "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
+                "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_architecture_demo_surface.py",
                 "-q",
                 "-p",
                 "no:cov",
                 "--import-mode=importlib",
             ),
-            rationale="prove checked runtime flagship run bundle snapshots still match live builders",
+            rationale="prove the shipped runtime architecture demo still rehydrates a real completed run after architecture changes",
             required_paths=(
-                "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
+                "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_architecture_demo_surface.py",
             ),
         ),
         ArchitectureRegressionTarget(
@@ -166,11 +176,11 @@ def validate_architecture_regression_targets(repo_root: Path) -> list[str]:
 
     failures: list[str] = []
     expected_surfaces = {
-        "imports-and-collection",
+        "canonical-root-imports",
         "public-api-snapshots",
         "internal-architecture-map",
         "canonical-package-tree",
-        "runtime-output-snapshots",
+        "runtime-architecture-demo",
         "workflow-output-validation",
         "shipped-demo-cli",
     }
@@ -214,6 +224,56 @@ def run_architecture_regression_gate(repo_root: Path, *, execute: bool = False) 
     return 1
 
 
+def run_canonical_root_imports(
+    repo_root: Path,
+    *,
+    python_executable: str | None = None,
+) -> int:
+    """Run root import checks for the six canonical product packages."""
+
+    executable = python_executable or sys.executable
+    failures: list[str] = []
+    for package_name in CANONICAL_PUBLIC_API_PACKAGES:
+        module_name = import_root(package_name)
+        import_command = (
+            executable,
+            "-c",
+            f"import {module_name}",
+        )
+        ok, detail = _run_subprocess(import_command, cwd=repo_root)
+        if not ok:
+            failures.append(f"[import] {package_name} -> {module_name}: {detail}")
+    if not failures:
+        print("canonical root import checks passed")
+        return 0
+    print("canonical root import checks failed")
+    for failure in failures:
+        print(failure)
+    return 1
+
+
+def run_canonical_internal_architecture_map() -> int:
+    """Validate the internal architecture map without broader workspace cycle discovery."""
+
+    report = build_internal_architecture_map_report()
+    failures = [
+        violation.detail
+        for violation in evaluate_internal_architecture_violations(
+            report,
+            workspace_cycles=(),
+        )
+    ]
+    if not is_internal_architecture_map_up_to_date(report):
+        failures.append("internal architecture map is stale; regenerate it")
+    if not failures:
+        print("canonical internal architecture map checks passed")
+        return 0
+    print("canonical internal architecture map checks failed")
+    for failure in failures:
+        print(failure)
+    return 1
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run the curated post-refactor architecture regression gate."
@@ -223,11 +283,25 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Validate the target list without executing the gate commands.",
     )
+    parser.add_argument(
+        "--canonical-root-imports",
+        action="store_true",
+        help="Run only the canonical product-package root import checks.",
+    )
+    parser.add_argument(
+        "--canonical-internal-architecture-map",
+        action="store_true",
+        help="Run only the canonical internal architecture map validation path.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = _parse_args()
+    if args.canonical_root_imports:
+        return run_canonical_root_imports(REPO_ROOT)
+    if args.canonical_internal_architecture_map:
+        return run_canonical_internal_architecture_map()
     return run_architecture_regression_gate(
         REPO_ROOT,
         execute=not args.validate_only,

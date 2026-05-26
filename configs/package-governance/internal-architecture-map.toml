@@ -46,17 +46,17 @@ rationale = "lab consumes core science, intelligence judgment, knowledge evidenc
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
 rationale = "runtime depends on core scientific seams, foundation contracts, and governed downstream review surfaces when it assembles replayable cross-package workflow evidence."
 
 [[package]]
 distribution_name = "proteomics"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
 rationale = "proteomics stays as the short install and import alias for canonical core surfaces."
 
 [[package]]
 distribution_name = "proteomics-core"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
 rationale = "proteomics-core stays as the short alias for the canonical core distribution."
 
 [[package]]
@@ -66,22 +66,22 @@ rationale = "proteomics-foundation stays as the short alias for the canonical fo
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
 rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution."
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
 rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution."
 
 [[package]]
 distribution_name = "proteomics-lab"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-lab"]
 rationale = "proteomics-lab stays as the short alias for the canonical lab distribution."
 
 [[package]]
 distribution_name = "proteomics-runtime"
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-runtime"]
 rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution."
 
 [[module_family]]
