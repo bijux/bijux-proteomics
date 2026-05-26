@@ -15,6 +15,10 @@ from bijux_proteomics.identification.diann_import import (
     build_diann_import_report,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import (
+    build_experiment_design_validity_report,
+    build_experiment_feasibility_report,
+)
 from bijux_proteomics.workflow.pipelines.advanced_diann import (
     AdvancedDiannWorkflowConfig,
     AdvancedDiannWorkflowReport,
@@ -91,12 +95,128 @@ class AdvancedDiannRuntimeRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class AdvancedDiannDryRunStatus(StrEnum):
+    """Validation outcome for advanced DIA-NN workflow dry-run planning."""
+
+    READY = "ready"
+    INVALID = "invalid"
+
+
+class AdvancedDiannDryRunIssue(JsonModel):
+    """One blocking or advisory dry-run issue for advanced DIA-NN planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    input_name: str | None = None
+    path: str | None = None
+    condition_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class AdvancedDiannDryRunInputCheck(JsonModel):
+    """Presence and role check for one advanced DIA-NN dry-run input."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_name: str = Field(..., min_length=1)
+    path: str | None = None
+    required: bool
+    exists: bool
+    note: str = Field(..., min_length=1)
+
+
+class AdvancedDiannDryRunStagePlan(JsonModel):
+    """One expected runtime stage in advanced DIA-NN dry-run planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stage: AdvancedDiannRuntimeStage
+    description: str = Field(..., min_length=1)
+    checkpoint_path: str = Field(..., min_length=1)
+    schema_name: str = Field(..., min_length=1)
+
+
+class AdvancedDiannDryRunOutputPlan(JsonModel):
+    """One planned durable output path for advanced DIA-NN dry-run planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    relative_path: str = Field(..., min_length=1)
+    stage: AdvancedDiannRuntimeStage
+    required: bool
+    note: str = Field(..., min_length=1)
+
+
+class AdvancedDiannDryRunReport(JsonModel):
+    """Algorithm-free advanced DIA-NN workflow validation and planning report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: AdvancedDiannDryRunStatus
+    output_dir: str = Field(..., min_length=1)
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...] = Field(default_factory=tuple)
+    issues: tuple[AdvancedDiannDryRunIssue, ...] = Field(default_factory=tuple)
+    stage_plan: tuple[AdvancedDiannDryRunStagePlan, ...] = Field(default_factory=tuple)
+    output_plan: tuple[AdvancedDiannDryRunOutputPlan, ...] = Field(default_factory=tuple)
+    supported_contrasts: tuple[str, ...] = Field(default_factory=tuple)
+    invalid_contrasts: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 _STAGE_ORDER = (
     AdvancedDiannRuntimeStage.IMPORT,
     AdvancedDiannRuntimeStage.MATRICES,
     AdvancedDiannRuntimeStage.BIOLOGY,
     AdvancedDiannRuntimeStage.REVIEW,
 )
+
+_PLANNED_REVIEW_OUTPUTS = (
+    ("diann_biological_report_manifest.json", AdvancedDiannRuntimeStage.REVIEW, True, "governed base biological workflow manifest"),
+    ("advanced_diann_graph_final_results.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "graph-backed final result review table"),
+    ("advanced_diann_accepted_proteins.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "accepted protein decision table"),
+    ("advanced_diann_downgraded_proteins.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "downgraded protein decision table"),
+    ("advanced_diann_belief_audit_summary.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "belief audit summary table"),
+    ("advanced_diann_belief_audit.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "belief audit detail table"),
+    ("advanced_diann_summary.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "advanced dia-nn workflow summary table"),
+    ("advanced_diann_workflow_manifest.json", AdvancedDiannRuntimeStage.REVIEW, True, "advanced dia-nn top-level workflow manifest"),
+)
+_PLANNED_FRAGMENT_OUTPUTS = (
+    ("advanced_diann_fragment_coelution_runs.tsv", AdvancedDiannRuntimeStage.REVIEW, False, "optional fragment coelution run summary"),
+    ("advanced_diann_fragment_coelution_fragments.tsv", AdvancedDiannRuntimeStage.REVIEW, False, "optional fragment coelution fragment evidence"),
+)
+
+
+def dry_run_resumable_advanced_diann_workflow(
+    config: AdvancedDiannWorkflowConfig,
+) -> AdvancedDiannDryRunReport:
+    """Validate advanced DIA-NN inputs and plan runtime stages without running algorithms."""
+
+    workflow_id = _advanced_diann_runtime_workflow_id(config)
+    input_checks = _build_dry_run_input_checks(config)
+    issues = _build_dry_run_issues(config, input_checks=input_checks)
+    issue_codes = {issue.code for issue in issues}
+    return AdvancedDiannDryRunReport(
+        workflow_id=workflow_id,
+        status=(
+            AdvancedDiannDryRunStatus.READY
+            if not issues
+            else AdvancedDiannDryRunStatus.INVALID
+        ),
+        output_dir=str(config.output_dir),
+        input_checks=input_checks,
+        issues=issues,
+        stage_plan=_build_dry_run_stage_plan(config),
+        output_plan=_build_dry_run_output_plan(config),
+        supported_contrasts=_dry_run_supported_contrasts(config, issue_codes=issue_codes),
+        invalid_contrasts=_dry_run_invalid_contrasts(config, issue_codes=issue_codes),
+        note=(
+            "advanced dia-nn dry run validates input presence, design and contrast "
+            "feasibility, expected runtime stages, and planned durable outputs "
+            "without running import, matrix, biology, or review algorithms"
+        ),
+    )
 
 
 def run_resumable_advanced_diann_workflow(
@@ -403,6 +523,281 @@ def _write_advanced_diann_failure_report(
         reason_codes=reason_codes,
     )
     return report, write_workflow_failure_report(config.output_dir, report)
+
+
+def _build_dry_run_input_checks(
+    config: AdvancedDiannWorkflowConfig,
+) -> tuple[AdvancedDiannDryRunInputCheck, ...]:
+    checks: list[AdvancedDiannDryRunInputCheck] = []
+    for input_name, path, required, note in (
+        ("result_tsv_path", config.result_tsv_path, True, "required DIA-NN report table"),
+        ("design_tsv_path", config.design_tsv_path, True, "required experimental design table"),
+        ("proteins_fasta_path", config.proteins_fasta_path, True, "required protein FASTA database"),
+        ("protocol_context_tsv_path", config.protocol_context_tsv_path, False, "optional protocol context table"),
+        ("config_path", config.config_path, False, "optional DIA-NN configuration snapshot"),
+        ("annotation_tsv_path", config.annotation_tsv_path, False, "optional annotation table"),
+        ("context_annotation_tsv_path", config.context_annotation_tsv_path, False, "optional context annotation table"),
+        ("go_annotation_tsv_path", config.go_annotation_tsv_path, False, "optional gene ontology annotation table"),
+        ("pathway_membership_tsv_path", config.pathway_membership_tsv_path, False, "optional pathway membership table"),
+        ("complex_membership_tsv_path", config.complex_membership_tsv_path, False, "optional complex membership table"),
+        ("fragment_target_tsv_path", config.fragment_target_tsv_path, False, "optional fragment target table"),
+    ):
+        exists = path is not None and path.exists()
+        checks.append(
+            AdvancedDiannDryRunInputCheck(
+                input_name=input_name,
+                path=None if path is None else str(path),
+                required=required,
+                exists=exists,
+                note=note,
+            )
+        )
+    for index, path in enumerate(config.fragment_mzml_paths, start=1):
+        checks.append(
+            AdvancedDiannDryRunInputCheck(
+                input_name=f"fragment_mzml_paths[{index}]",
+                path=str(path),
+                required=False,
+                exists=path.exists(),
+                note="optional mzML trace used for fragment coelution review",
+            )
+        )
+    return tuple(checks)
+
+
+def _build_dry_run_issues(
+    config: AdvancedDiannWorkflowConfig,
+    *,
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...],
+) -> tuple[AdvancedDiannDryRunIssue, ...]:
+    issues: list[AdvancedDiannDryRunIssue] = []
+    issues.extend(_missing_input_file_issues(input_checks))
+    issues.extend(_fragment_input_issues(config, input_checks=input_checks))
+    issues.extend(_design_and_contrast_issues(config, input_checks=input_checks))
+    return tuple(issues)
+
+
+def _missing_input_file_issues(
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...],
+) -> tuple[AdvancedDiannDryRunIssue, ...]:
+    issues = []
+    for check in input_checks:
+        if check.required and not check.exists:
+            issues.append(
+                AdvancedDiannDryRunIssue(
+                    code="missing_input_file",
+                    message=f"required workflow input {check.input_name} is missing",
+                    input_name=check.input_name,
+                    path=check.path,
+                )
+            )
+        if not check.required and check.path is not None and not check.exists:
+            issues.append(
+                AdvancedDiannDryRunIssue(
+                    code="missing_optional_input_file",
+                    message=f"optional workflow input {check.input_name} was provided but is missing",
+                    input_name=check.input_name,
+                    path=check.path,
+                )
+            )
+    return tuple(issues)
+
+
+def _fragment_input_issues(
+    config: AdvancedDiannWorkflowConfig,
+    *,
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...],
+) -> tuple[AdvancedDiannDryRunIssue, ...]:
+    issues: list[AdvancedDiannDryRunIssue] = []
+    if config.fragment_mzml_paths and config.fragment_target_tsv_path is None:
+        issues.append(
+            AdvancedDiannDryRunIssue(
+                code="missing_fragment_targets",
+                message="fragment_target_tsv_path is required when fragment_mzml_paths are provided",
+                input_name="fragment_target_tsv_path",
+            )
+        )
+    if not config.fragment_mzml_paths and config.fragment_target_tsv_path is not None:
+        issues.append(
+            AdvancedDiannDryRunIssue(
+                code="missing_fragment_traces",
+                message="fragment_mzml_paths are required when fragment_target_tsv_path is provided",
+                input_name="fragment_mzml_paths",
+                path=str(config.fragment_target_tsv_path),
+            )
+        )
+    missing_fragment_paths = tuple(
+        check.path
+        for check in input_checks
+        if check.input_name.startswith("fragment_mzml_paths[") and not check.exists and check.path
+    )
+    if missing_fragment_paths:
+        issues.append(
+            AdvancedDiannDryRunIssue(
+                code="missing_fragment_trace_file",
+                message="one or more fragment mzML trace files are missing",
+                input_name="fragment_mzml_paths",
+                path=";".join(missing_fragment_paths),
+            )
+        )
+    return tuple(issues)
+
+
+def _design_and_contrast_issues(
+    config: AdvancedDiannWorkflowConfig,
+    *,
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...],
+) -> tuple[AdvancedDiannDryRunIssue, ...]:
+    required_inputs_present = {
+        check.input_name: check.exists
+        for check in input_checks
+        if check.required
+    }
+    if not required_inputs_present.get("design_tsv_path", False):
+        return ()
+
+    design_report = parse_experimental_design_table(config.design_tsv_path)
+    issues: list[AdvancedDiannDryRunIssue] = []
+    for rejected_row in design_report.rejected_rows:
+        for issue in rejected_row.issues:
+            issues.append(
+                AdvancedDiannDryRunIssue(
+                    code=issue.code,
+                    message=issue.message,
+                    input_name="design_tsv_path",
+                    path=str(config.design_tsv_path),
+                )
+            )
+    if design_report.rejected_rows:
+        return tuple(issues)
+
+    validity_report = build_experiment_design_validity_report(
+        tuple(design_report.accepted_entries),
+        condition_a=config.condition_a,
+        condition_b=config.condition_b,
+    )
+    for issue in validity_report.issues:
+        issues.append(
+            AdvancedDiannDryRunIssue(
+                code=issue.code,
+                message=issue.message,
+                input_name="design_tsv_path",
+                path=str(config.design_tsv_path),
+                condition_ids=issue.condition_ids,
+            )
+        )
+    return tuple(issues)
+
+
+def _build_dry_run_stage_plan(
+    config: AdvancedDiannWorkflowConfig,
+) -> tuple[AdvancedDiannDryRunStagePlan, ...]:
+    runtime_dir = config.output_dir / "checkpoints" / "advanced_diann_runtime"
+    return tuple(
+        AdvancedDiannDryRunStagePlan(
+            stage=stage,
+            description=_stage_description(stage),
+            checkpoint_path=str(_stage_payload_path(runtime_dir, stage)),
+            schema_name=_stage_schema_name(stage),
+        )
+        for stage in _STAGE_ORDER
+    )
+
+
+def _build_dry_run_output_plan(
+    config: AdvancedDiannWorkflowConfig,
+) -> tuple[AdvancedDiannDryRunOutputPlan, ...]:
+    planned_outputs = [
+        AdvancedDiannDryRunOutputPlan(
+            relative_path="checkpoints/advanced_diann_runtime/workflow_resume_state.json",
+            stage=AdvancedDiannRuntimeStage.REVIEW,
+            required=True,
+            note="resume state ledger persisted after each completed runtime stage",
+        )
+    ]
+    planned_outputs.extend(
+        AdvancedDiannDryRunOutputPlan(
+            relative_path=f"checkpoints/advanced_diann_runtime/{stage.value}.json",
+            stage=stage,
+            required=True,
+            note=f"persisted {stage.value} checkpoint payload for runtime reuse",
+        )
+        for stage in _STAGE_ORDER
+    )
+    planned_outputs.extend(
+        AdvancedDiannDryRunOutputPlan(
+            relative_path=relative_path,
+            stage=stage,
+            required=required,
+            note=note,
+        )
+        for relative_path, stage, required, note in _PLANNED_REVIEW_OUTPUTS
+    )
+    if config.fragment_mzml_paths or config.fragment_target_tsv_path is not None:
+        planned_outputs.extend(
+            AdvancedDiannDryRunOutputPlan(
+                relative_path=relative_path,
+                stage=stage,
+                required=required,
+                note=note,
+            )
+            for relative_path, stage, required, note in _PLANNED_FRAGMENT_OUTPUTS
+        )
+    return tuple(planned_outputs)
+
+
+def _dry_run_supported_contrasts(
+    config: AdvancedDiannWorkflowConfig,
+    *,
+    issue_codes: set[str],
+) -> tuple[str, ...]:
+    if not config.design_tsv_path.exists():
+        return ()
+    design_report = parse_experimental_design_table(config.design_tsv_path)
+    if design_report.rejected_rows:
+        return ()
+    if any(code.startswith("invalid_contrast_") for code in issue_codes):
+        return ()
+    feasibility_report = build_experiment_feasibility_report(
+        tuple(design_report.accepted_entries),
+        condition_a=config.condition_a,
+        condition_b=config.condition_b,
+    )
+    return tuple(
+        f"{entry.condition_a}_vs_{entry.condition_b}"
+        for entry in feasibility_report.valid_contrasts
+    )
+
+
+def _dry_run_invalid_contrasts(
+    config: AdvancedDiannWorkflowConfig,
+    *,
+    issue_codes: set[str],
+) -> tuple[str, ...]:
+    if not config.design_tsv_path.exists():
+        return ()
+    design_report = parse_experimental_design_table(config.design_tsv_path)
+    if design_report.rejected_rows:
+        return ()
+    feasibility_report = build_experiment_feasibility_report(
+        tuple(design_report.accepted_entries),
+        condition_a=config.condition_a,
+        condition_b=config.condition_b,
+    )
+    invalid_contrasts = [
+        f"{entry.condition_a}_vs_{entry.condition_b}: {entry.message}"
+        for entry in feasibility_report.invalid_contrasts
+    ]
+    invalid_contrast_issues = [
+        issue
+        for issue in feasibility_report.validity_report.issues
+        if issue.code.startswith("invalid_contrast_")
+    ]
+    invalid_contrasts.extend(
+        f"{'/'.join(issue.condition_ids) or 'requested_contrast'}: {issue.message}"
+        for issue in invalid_contrast_issues
+    )
+    return tuple(dict.fromkeys(invalid_contrasts))
 
 
 def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, object]:
