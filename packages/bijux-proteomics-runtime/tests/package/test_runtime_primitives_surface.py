@@ -132,15 +132,21 @@ def test_runtime_surface_area_exposes_workflow_dag_planning() -> None:
 
 def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> None:
     from bijux_proteomics_runtime.workflows import (
+        AdvancedDiannDryRunReport,
+        AdvancedDiannDryRunStatus,
         AdvancedDiannRuntimeRunReport,
         AdvancedDiannRuntimeStage,
         AdvancedDiannRuntimeStatus,
+        dry_run_resumable_advanced_diann_workflow,
         run_resumable_advanced_diann_workflow,
     )
 
+    assert AdvancedDiannDryRunReport is not None
+    assert AdvancedDiannDryRunStatus.READY.value == "ready"
     assert AdvancedDiannRuntimeRunReport is not None
     assert AdvancedDiannRuntimeStage.MATRICES.value == "advanced-diann-matrices"
     assert AdvancedDiannRuntimeStatus.COMPLETED.value == "completed"
+    assert callable(dry_run_resumable_advanced_diann_workflow)
     assert callable(run_resumable_advanced_diann_workflow)
 
 
