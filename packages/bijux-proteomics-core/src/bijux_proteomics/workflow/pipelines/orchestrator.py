@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics.dia import (
     DiaPeptideRollupMethod,
     DiaProteinMatrixTargetKind,
@@ -496,7 +497,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_biological_result_report_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "biological_report_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "manifest_json": str(manifest_path),
@@ -558,7 +559,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
             else "dda_biological_report_manifest.json"
         )
         manifest_path = config.output_dir / manifest_name
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "manifest_json": str(manifest_path),
@@ -608,7 +609,7 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_diann_biological_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "diann_biological_report_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "manifest_json": str(manifest_path),
@@ -658,7 +659,7 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_maxquant_biological_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "maxquant_biological_report_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "manifest_json": str(manifest_path),
@@ -699,7 +700,7 @@ def _run_tmt_workflow(config: TmtWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_tmt_experiment_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "tmt_workflow_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "workflow_manifest_json": str(manifest_path),
@@ -744,7 +745,7 @@ def _run_silac_workflow(config: SilacWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_label_based_report_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "label_based_report_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "manifest_json": str(manifest_path),
@@ -808,7 +809,7 @@ def _run_ptm_workflow(config: PtmWorkflowConfig) -> WorkflowResult:
     if config.output_dir is not None:
         manifest = write_ptm_site_workflow_bundle(report, config.output_dir)
         manifest_path = config.output_dir / "ptm_site_workflow_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "workflow_manifest_json": str(manifest_path),
@@ -850,7 +851,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
                 config.output_dir,
             )
             manifest_path = config.output_dir / "targeted_matrix_workflow_manifest.json"
-            manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+            atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
             outputs = {
                 "output_dir": str(config.output_dir),
                 "workflow_manifest_json": str(manifest_path),
@@ -951,7 +952,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             config.output_dir,
         )
         manifest_path = config.output_dir / "targeted_assay_qc_workflow_manifest.json"
-        manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
         outputs = {
             "output_dir": str(config.output_dir),
             "workflow_manifest_json": str(manifest_path),

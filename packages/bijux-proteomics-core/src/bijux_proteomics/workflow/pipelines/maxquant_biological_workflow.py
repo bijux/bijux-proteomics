@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -572,9 +573,9 @@ def write_maxquant_biological_workflow_bundle(
         report.biological_report,
         output_dir,
     )
-    (output_dir / biological_manifest_name).write_text(
+    atomic_write_text(
+        output_dir / biological_manifest_name,
         biological_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     synchronize_workflow_artifact_layout(
         output_dir,

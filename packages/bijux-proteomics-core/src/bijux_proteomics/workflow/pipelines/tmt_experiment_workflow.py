@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -395,9 +396,9 @@ def write_tmt_experiment_workflow_bundle(
         report.report,
         output_dir,
     )
-    (output_dir / report_manifest_name).write_text(
+    atomic_write_text(
+        output_dir / report_manifest_name,
         label_based_report_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     synchronize_workflow_artifact_layout(
         output_dir,

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -243,9 +244,9 @@ def run_advanced_tmt_workflow(
     )
     workflow_manifest = write_tmt_experiment_workflow_bundle(base_report, output_dir)
     workflow_manifest_path = output_dir / "tmt_experiment_workflow_manifest.json"
-    workflow_manifest_path.write_text(
+    atomic_write_text(
+        workflow_manifest_path,
         workflow_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
 
     ratio_report = _require_tmt_ratio_report(base_report)
@@ -383,7 +384,7 @@ def run_advanced_tmt_workflow(
         ),
     )
     manifest_path = output_dir / "advanced_tmt_workflow_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
         producer_function="run_advanced_tmt_workflow",

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -231,7 +232,7 @@ def run_advanced_diann_workflow(
     )
     diann_manifest = write_diann_biological_workflow_bundle(base_report, output_dir)
     diann_manifest_path = output_dir / "diann_biological_report_manifest.json"
-    diann_manifest_path.write_text(diann_manifest.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(diann_manifest_path, diann_manifest.to_stable_json() + "\n")
 
     graph_final_results = build_evidence_graph_final_result_table(
         base_report.biological_report.graph_report.graph
@@ -340,7 +341,7 @@ def run_advanced_diann_workflow(
         ),
     )
     manifest_path = output_dir / "advanced_diann_workflow_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
         producer_function="run_advanced_diann_workflow",

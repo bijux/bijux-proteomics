@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -336,9 +337,9 @@ def write_ptm_site_workflow_bundle(
     write_output_table_tsv((output_dir / rejected_name), render_result_rejected_evidence_tsv(rejected_evidence_entries))
     write_output_table_tsv((output_dir / parse_rejected_name), render_ptm_site_workflow_rejected_evidence_tsv(report))
     ptm_report_manifest = write_ptm_report_bundle(report.report, output_dir)
-    (output_dir / ptm_report_manifest_name).write_text(
+    atomic_write_text(
+        output_dir / ptm_report_manifest_name,
         ptm_report_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
     synchronize_workflow_artifact_layout(
         output_dir,

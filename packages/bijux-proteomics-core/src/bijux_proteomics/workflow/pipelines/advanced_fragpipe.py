@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -202,9 +203,9 @@ def run_advanced_fragpipe_workflow(
     )
     fragpipe_manifest = write_dda_biological_workflow_bundle(base_report, output_dir)
     fragpipe_manifest_path = output_dir / "fragpipe_biological_report_manifest.json"
-    fragpipe_manifest_path.write_text(
+    atomic_write_text(
+        fragpipe_manifest_path,
         fragpipe_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
 
     peptide_evidence = _build_peptide_evidence(base_report.accepted_psms)
@@ -265,7 +266,7 @@ def run_advanced_fragpipe_workflow(
         ),
     )
     manifest_path = output_dir / "advanced_fragpipe_workflow_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
         producer_function="run_advanced_fragpipe_workflow",
