@@ -49,6 +49,16 @@ class IntegratedScientificSentenceRole(StrEnum):
     SCIENTIFIC_CLAIM = "scientific_claim"
 
 
+class IntegratedScientificResultExampleKind(StrEnum):
+    """Stable visitor-facing example kinds carried by the integrated report."""
+
+    STRONG = "strong"
+    WEAK = "weak"
+    REJECTED = "rejected"
+    CONTRADICTORY = "contradictory"
+    VALIDATION_NEEDED = "validation_needed"
+
+
 class IntegratedScientificReportSentence(JsonModel):
     """One sentence-level report entry with explicit scientific linking."""
 
@@ -75,6 +85,21 @@ class IntegratedScientificReportSection(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class IntegratedScientificResultExample(JsonModel):
+    """One visitor-facing result example showing why the report matters."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    example_id: str = Field(..., min_length=1)
+    example_kind: IntegratedScientificResultExampleKind
+    title: str = Field(..., min_length=1)
+    explanation: str = Field(..., min_length=1)
+    linked_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class IntegratedScientificReportSummary(JsonModel):
     """Compact summary over one integrated scientific report."""
 
@@ -84,6 +109,7 @@ class IntegratedScientificReportSummary(JsonModel):
     sentence_count: int = Field(..., ge=0)
     scientific_claim_count: int = Field(..., ge=0)
     linked_scientific_claim_count: int = Field(..., ge=0)
+    result_example_count: int = Field(..., ge=0)
 
 
 class IntegratedScientificReportArtifactPaths(JsonModel):
@@ -93,6 +119,7 @@ class IntegratedScientificReportArtifactPaths(JsonModel):
 
     summary_tsv: str = Field(..., min_length=1)
     sentences_tsv: str = Field(..., min_length=1)
+    examples_tsv: str = Field(..., min_length=1)
     report_html: str = Field(..., min_length=1)
     report_json: str = Field(..., min_length=1)
 
@@ -108,6 +135,9 @@ class IntegratedScientificReport(JsonModel):
         default_factory=tuple
     )
     sentences: tuple[IntegratedScientificReportSentence, ...] = Field(
+        default_factory=tuple
+    )
+    result_examples: tuple[IntegratedScientificResultExample, ...] = Field(
         default_factory=tuple
     )
     summary: IntegratedScientificReportSummary
@@ -138,6 +168,7 @@ def build_integrated_scientific_report(
     validate_intelligence_report_contract(source_report.intelligence_report_contract)
     context = _load_integrated_report_context(demo_output_dir)
     sections, sentences = _build_sections_and_sentences(source_report, context=context)
+    result_examples = _build_result_examples(source_report, context=context)
     _validate_scientific_claim_links(sentences)
     summary = IntegratedScientificReportSummary(
         section_count=len(sections),
@@ -151,14 +182,17 @@ def build_integrated_scientific_report(
             and bool(sentence.linked_ids)
             for sentence in sentences
         ),
+        result_example_count=len(result_examples),
     )
     summary_name = "integrated_scientific_report_summary.tsv"
     sentences_name = "integrated_scientific_report_sentences.tsv"
+    examples_name = "integrated_scientific_report_examples.tsv"
     html_name = "integrated_scientific_report.html"
     json_name = "integrated_scientific_report.json"
     artifacts = IntegratedScientificReportArtifactPaths(
         summary_tsv=summary_name,
         sentences_tsv=sentences_name,
+        examples_tsv=examples_name,
         report_html=html_name,
         report_json=json_name,
     )
@@ -167,6 +201,7 @@ def build_integrated_scientific_report(
         source_report_json="surprising_demo_report.json",
         sections=sections,
         sentences=sentences,
+        result_examples=result_examples,
         summary=summary,
         artifacts=artifacts,
         note=(
@@ -176,6 +211,7 @@ def build_integrated_scientific_report(
     )
     write_output_table_tsv((demo_output_dir / summary_name), render_integrated_scientific_report_summary_tsv(report))
     write_output_table_tsv((demo_output_dir / sentences_name), render_integrated_scientific_report_sentences_tsv(report))
+    write_output_table_tsv((demo_output_dir / examples_name), render_integrated_scientific_report_examples_tsv(report))
     atomic_write_text(
         demo_output_dir / html_name,
         render_integrated_scientific_report_html(report),
@@ -203,6 +239,7 @@ def render_integrated_scientific_report_summary_tsv(
             "linked_scientific_claim_count",
             report.summary.linked_scientific_claim_count,
         ),
+        ("result_example_count", report.summary.result_example_count),
         ("note", report.note),
     ):
         writer.writerow((field, value))
@@ -244,6 +281,41 @@ def render_integrated_scientific_report_sentences_tsv(
     return buffer.getvalue()
 
 
+def render_integrated_scientific_report_examples_tsv(
+    report: IntegratedScientificReport,
+) -> str:
+    """Render visitor-facing result examples as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "example_id",
+            "example_kind",
+            "title",
+            "explanation",
+            "linked_ids",
+            "source_row_refs",
+            "artifact_paths",
+            "note",
+        )
+    )
+    for example in report.result_examples:
+        writer.writerow(
+            (
+                example.example_id,
+                example.example_kind.value,
+                example.title,
+                example.explanation,
+                ";".join(example.linked_ids),
+                ";".join(example.source_row_refs),
+                ";".join(example.artifact_paths),
+                example.note,
+            )
+        )
+    return buffer.getvalue()
+
+
 def render_integrated_scientific_report_html(
     report: IntegratedScientificReport,
 ) -> str:
@@ -265,6 +337,35 @@ def render_integrated_scientific_report_html(
             "evidence graph exports, cards, claims, QC ledgers, and belief audit.</p>"
         ),
     ]
+    lines.extend(('<section id="why-this-matters">', "<h2>Why This Matters</h2>"))
+    for example in report.result_examples:
+        lines.extend(
+            (
+                f'<article id="{escape(example.example_id)}">',
+                f"<h3>{escape(example.title)}</h3>",
+                f"<p>{escape(example.explanation)}</p>",
+            )
+        )
+        if example.linked_ids or example.source_row_refs or example.artifact_paths:
+            lines.append("<ul>")
+            if example.linked_ids:
+                lines.append(
+                    "<li><strong>Linked claims/cards:</strong> "
+                    f"{escape('; '.join(example.linked_ids))}</li>"
+                )
+            if example.source_row_refs:
+                lines.append(
+                    "<li><strong>Source rows:</strong> "
+                    f"{escape('; '.join(example.source_row_refs))}</li>"
+                )
+            if example.artifact_paths:
+                lines.append(
+                    "<li><strong>Artifacts:</strong> "
+                    f"{escape('; '.join(example.artifact_paths))}</li>"
+                )
+            lines.append("</ul>")
+        lines.append("</article>")
+    lines.append("</section>")
     for section in report.sections:
         lines.extend(
             (
@@ -631,6 +732,112 @@ def _build_sections_and_sentences(
     return sections, sentences
 
 
+def _build_result_examples(
+    source_report: SurprisingDemoReport,
+    *,
+    context: _IntegratedReportContext,
+) -> tuple[IntegratedScientificResultExample, ...]:
+    contract = source_report.intelligence_report_contract
+    if not contract.contradiction_report.entries:
+        raise ValueError(
+            "integrated scientific report requires at least one contradiction example"
+        )
+    supported = _top_supported_claim_entries(source_report)[0]
+    weak_card = next(
+        row
+        for row in context.protein_cards
+        if row["representative_protein_ref"] == "Q9DEC1"
+    )
+    rejected = _rejected_claim_entries(source_report)[0]
+    contradiction = contract.contradiction_report.entries[0]
+    contradiction_claims = {
+        entry.claim.claim_id: entry.claim for entry in contract.claim_entries
+    }
+    validation_card = next(
+        row
+        for row in context.targeted_evidence_cards
+        if row["candidate_id"] == "protein:P001"
+    )
+    return (
+        IntegratedScientificResultExample(
+            example_id="why-this-matters:strong",
+            example_kind=IntegratedScientificResultExampleKind.STRONG,
+            title="Strong supported result",
+            explanation=(
+                "The demo preserves a strong result for "
+                f"{supported.claim.subject}: {supported.claim.statement}"
+            ),
+            linked_ids=(supported.claim.claim_id,),
+            source_row_refs=(f"demo_claims:{supported.claim.claim_id}",),
+            artifact_paths=("surprising_demo_report.json", "demo_claims.tsv"),
+            note="strong example is anchored to a supported typed claim",
+        ),
+        IntegratedScientificResultExample(
+            example_id="why-this-matters:weak",
+            example_kind=IntegratedScientificResultExampleKind.WEAK,
+            title="Weak or downgraded result",
+            explanation=(
+                "The demo also shows a weak outcome: protein Q9DEC1 is kept visible "
+                "but downgraded because its evidence card is not significant and its "
+                "support remains sparse."
+            ),
+            linked_ids=(weak_card["card_id"],),
+            source_row_refs=(
+                f"biological_protein_cards:{weak_card['card_id']}",
+            ),
+            artifact_paths=("biological_review/biological_protein_cards.tsv",),
+            note="weak example is anchored to the downgraded protein evidence card",
+        ),
+        IntegratedScientificResultExample(
+            example_id="why-this-matters:rejected",
+            example_kind=IntegratedScientificResultExampleKind.REJECTED,
+            title="Rejected claim",
+            explanation=(
+                "Rejected claims stay explicit instead of disappearing from the report: "
+                f"{rejected.claim.statement}"
+            ),
+            linked_ids=(rejected.claim.claim_id,),
+            source_row_refs=(f"demo_claims:{rejected.claim.claim_id}",),
+            artifact_paths=("surprising_demo_report.json", "demo_claims.tsv"),
+            note="rejected example is anchored to the first non-supported claim entry",
+        ),
+        IntegratedScientificResultExample(
+            example_id="why-this-matters:contradictory",
+            example_kind=IntegratedScientificResultExampleKind.CONTRADICTORY,
+            title="Contradictory evidence",
+            explanation=(
+                "Contradictory evidence remains challengeable and visible: "
+                f"{contradiction_claims[contradiction.claim_a].subject} carries both "
+                f"{contradiction.claim_a} and {contradiction.claim_b}, which the report "
+                "flags as a direct contradiction instead of flattening into one answer."
+            ),
+            linked_ids=(contradiction.claim_a, contradiction.claim_b),
+            source_row_refs=(
+                f"demo_claims:{contradiction.claim_a}",
+                f"demo_claims:{contradiction.claim_b}",
+            ),
+            artifact_paths=("demo_claims.tsv", "demo_claim_contradictions.tsv"),
+            note="contradictory example is anchored to the typed contradiction pair",
+        ),
+        IntegratedScientificResultExample(
+            example_id="why-this-matters:validation-needed",
+            example_kind=IntegratedScientificResultExampleKind.VALIDATION_NEEDED,
+            title="Validation-needed case",
+            explanation=(
+                "Validation-needed candidates are preserved with their assay caveats: "
+                "protein:P001 remains unresolved because the targeted evidence card keeps "
+                "coelution and ratio-drift concerns visible."
+            ),
+            linked_ids=(_targeted_evidence_card_id(validation_card),),
+            source_row_refs=(
+                f"advanced_targeted_evidence_cards:{validation_card['candidate_id']}",
+            ),
+            artifact_paths=("targeted_validation/advanced_targeted_evidence_cards.tsv",),
+            note="validation-needed example is anchored to the targeted evidence card",
+        ),
+    )
+
+
 def _validate_scientific_claim_links(
     sentences: tuple[IntegratedScientificReportSentence, ...],
 ) -> None:
@@ -703,12 +910,15 @@ def _targeted_evidence_card_id(row: dict[str, str]) -> str:
 __all__ = [
     "IntegratedScientificReport",
     "IntegratedScientificReportArtifactPaths",
+    "IntegratedScientificResultExample",
+    "IntegratedScientificResultExampleKind",
     "IntegratedScientificReportSection",
     "IntegratedScientificReportSectionKey",
     "IntegratedScientificReportSentence",
     "IntegratedScientificSentenceRole",
     "IntegratedScientificReportSummary",
     "build_integrated_scientific_report",
+    "render_integrated_scientific_report_examples_tsv",
     "render_integrated_scientific_report_html",
     "render_integrated_scientific_report_sentences_tsv",
     "render_integrated_scientific_report_summary_tsv",
