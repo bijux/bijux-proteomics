@@ -1,0 +1,40 @@
+[policy]
+name = "generated-file-marker-surfaces"
+
+[[surface]]
+path_glob = "configs/package-governance/**/*.toml"
+marker_kind = "generated_header"
+excluded_paths = [
+  "configs/package-governance/benchmark-artifacts.toml",
+  "configs/package-governance/benchmark-owners.toml",
+  "configs/package-governance/bundle-verification-profiles.toml",
+  "configs/package-governance/circular-import-scopes.toml",
+  "configs/package-governance/core-dependency-minimization.toml",
+  "configs/package-governance/generated-file-marker-surfaces.toml",
+  "configs/package-governance/high-value-artifact-schemas.toml",
+  "configs/package-governance/knowledge-references-root-api.toml",
+  "configs/package-governance/public-api-typecheck-targets.toml",
+  "configs/package-governance/release-families.toml",
+  "configs/package-governance/scientific-concept-owners.toml",
+  "configs/package-governance/scientific-release-workflows.toml",
+]
+
+[[surface]]
+path_glob = ".github/workflows/*.yml"
+marker_kind = "ssot_notice"
+excluded_paths = [
+  ".github/workflows/automerge-pr.yml",
+  ".github/workflows/bijux-std.yml",
+]
+
+[[surface]]
+path_glob = ".github/*.yml"
+marker_kind = "ssot_notice"
+excluded_paths = [
+  ".github/dependabot.yml",
+]
+
+[[surface]]
+path_glob = ".bijux/shared/bijux-gh/workflows/*.yml"
+marker_kind = "ssot_notice"
+excluded_paths = []
