@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 from .imports import *  # noqa: F401,F403
@@ -16,14 +17,14 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
     else:
         rendered = json.dumps(payload, indent=2, sort_keys=True)
     if out_path is not None:
-        out_path.write_text(rendered + "\n")
+        atomic_write_text(out_path, rendered + "\n")
     click.echo(rendered)
 
 def _write_text_output(path: Path, text: str) -> None:
     if path.suffix.lower() == ".tsv":
         write_output_table_tsv(path, text)
         return
-    path.write_text(text, encoding="utf-8")
+    atomic_write_text(path, text)
 
 def _read_identifier_lines(path: Path | None) -> tuple[str, ...]:
     if path is None:

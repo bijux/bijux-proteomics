@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._tabular import DelimitedColumnValueType
 from bijux_proteomics_foundation import JsonModel
 
@@ -189,7 +190,7 @@ def write_output_table_tsv(
     report = validate_output_table_text(text, schema=schema)
     if not report.valid:
         raise OutputTableValidationError(report)
-    path.write_text(text, encoding="utf-8")
+    atomic_write_text(path, text)
     return schema
 
 

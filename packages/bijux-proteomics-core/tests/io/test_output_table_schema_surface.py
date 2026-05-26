@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+import bijux_proteomics._atomic_files as atomic_files
 from bijux_proteomics._output_tables import (
     OutputTableValidationError,
     infer_output_table_schema,
@@ -70,3 +71,26 @@ def test_write_output_table_tsv_validates_before_writing(tmp_path: Path) -> None
             output_path,
             "protein_ref\tpeptide_count\nP11111\t3\tunexpected\n",
         )
+
+
+def test_write_output_table_tsv_replace_failure_preserves_previous_table(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_path = tmp_path / "protein_support.tsv"
+    original_text = "protein_ref\tpeptide_count\nP11111\t3\n"
+    output_path.write_text(original_text, encoding="utf-8")
+
+    def interrupted_replace(source: Path, destination: Path) -> None:
+        raise RuntimeError(f"interrupted before replacing {destination}")
+
+    monkeypatch.setattr(atomic_files.os, "replace", interrupted_replace)
+
+    with pytest.raises(RuntimeError, match="interrupted before replacing"):
+        write_output_table_tsv(
+            output_path,
+            "protein_ref\tpeptide_count\nP11111\t9\n",
+        )
+
+    assert output_path.read_text(encoding="utf-8") == original_text
+    assert not tuple(tmp_path.glob(".*.bijux-write-*.tmp"))
