@@ -12,6 +12,7 @@ excluded_paths = [
   "configs/package-governance/core-dependency-minimization.toml",
   "configs/package-governance/generated-file-marker-surfaces.toml",
   "configs/package-governance/high-value-artifact-schemas.toml",
+  "configs/package-governance/internal-orphan-module-allowlist.toml",
   "configs/package-governance/knowledge-references-root-api.toml",
   "configs/package-governance/public-api-typecheck-targets.toml",
   "configs/package-governance/release-families.toml",

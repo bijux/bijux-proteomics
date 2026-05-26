@@ -40,6 +40,11 @@ def test_generated_file_marker_policy_manifest_covers_governed_generated_familie
         ".github/*.yml",
         ".bijux/shared/bijux-gh/workflows/*.yml",
     )
+    config_surface = policy.surfaces[0]
+    assert (
+        "configs/package-governance/internal-orphan-module-allowlist.toml"
+        in config_surface.excluded_paths
+    )
 
 
 def test_generated_file_marker_policy_rejects_missing_marker_headers(
