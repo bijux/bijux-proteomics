@@ -376,7 +376,7 @@ def parse_custom_protease_rule(
         )
     if not has_residue_rule and not has_regex_rule:
         raise ValueError(
-            "custom protease rule must define either residue cleavage keys or regex cleavage keys"
+            "custom protease rule must define exactly one cleavage direction using residue cleavage keys or regex cleavage keys"
         )
 
     if has_regex_rule:

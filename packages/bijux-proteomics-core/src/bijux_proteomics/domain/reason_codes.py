@@ -385,6 +385,7 @@ _QC_REASON_CODES = frozenset(
         "internal_standard_missing",
         "limited_retention_coverage",
         "median_abs_mass_error_ppm",
+        "median_spectrum_count",
         "missed_cleavage_rate",
         "non_specific_fraction",
         "outlier_run_count",
