@@ -38,6 +38,12 @@ from bijux_proteomics_runtime.resume import (
     write_workflow_resume_state,
 )
 from bijux_proteomics_runtime.support.workspace import write_text_atomic
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
+from bijux_proteomics_runtime.workflows.failure_reports import (
+    WorkflowFailureReport,
+    build_workflow_failure_report,
+    write_workflow_failure_report,
+)
 
 
 class AdvancedDiannRuntimeStage(StrEnum):
@@ -54,6 +60,7 @@ class AdvancedDiannRuntimeStatus(StrEnum):
 
     COMPLETED = "completed"
     INTERRUPTED = "interrupted"
+    FAILED = "failed"
 
 
 class AdvancedDiannRuntimeStageDecision(JsonModel):
@@ -77,8 +84,10 @@ class AdvancedDiannRuntimeRunReport(JsonModel):
     reused_stage_ids: tuple[str, ...] = Field(default_factory=tuple)
     rerun_stage_ids: tuple[str, ...] = Field(default_factory=tuple)
     resume_state_path: str = Field(..., min_length=1)
+    failure_report_path: str | None = None
     decisions: tuple[AdvancedDiannRuntimeStageDecision, ...] = Field(default_factory=tuple)
     advanced_report: AdvancedDiannWorkflowReport | None = None
+    failure_report: WorkflowFailureReport | None = None
     note: str = Field(..., min_length=1)
 
 
@@ -97,9 +106,40 @@ def run_resumable_advanced_diann_workflow(
 ) -> AdvancedDiannRuntimeRunReport:
     """Run advanced DIA-NN through a resumable runtime stage boundary."""
 
+    config.output_dir.mkdir(parents=True, exist_ok=True)
     runtime_dir = config.output_dir / "checkpoints" / "advanced_diann_runtime"
     runtime_dir.mkdir(parents=True, exist_ok=True)
     workflow_id = _advanced_diann_runtime_workflow_id(config)
+    try:
+        design_entries = _load_valid_design_entries(config)
+    except _AdvancedDiannExpectedFailure as exc:
+        failure_report, failure_report_path = _write_advanced_diann_failure_report(
+            config=config,
+            workflow_id=workflow_id,
+            stage_id="advanced-diann-input-validation",
+            failure_type=FailureType.INPUT_INVALID,
+            message=exc.message,
+            reason_codes=exc.reason_codes,
+        )
+        return AdvancedDiannRuntimeRunReport(
+            workflow_id=workflow_id,
+            status=AdvancedDiannRuntimeStatus.FAILED,
+            completed_stage_ids=(),
+            reused_stage_ids=(),
+            rerun_stage_ids=(),
+            resume_state_path=str(runtime_dir / "workflow_resume_state.json"),
+            failure_report_path=str(failure_report_path),
+            decisions=(),
+            advanced_report=None,
+            failure_report=failure_report,
+            note=(
+                "runtime wrote a structured advanced dia-nn failure report for "
+                "invalid workflow input design"
+            ),
+        )
+    failure_report_path = config.output_dir / "failure_report.json"
+    if failure_report_path.exists():
+        failure_report_path.unlink()
 
     persisted_state = (
         load_workflow_resume_state(runtime_dir)
@@ -229,11 +269,7 @@ def run_resumable_advanced_diann_workflow(
             base_bundle = build_diann_biological_workflow_bundle_from_reports(
                 import_report,
                 quant_matrix_bundle,
-                tuple(
-                    parse_experimental_design_table(
-                        config.design_tsv_path
-                    ).accepted_entries
-                ),
+                design_entries,
                 proteins_fasta_path=config.proteins_fasta_path,
                 protocol_context_tsv_path=config.protocol_context_tsv_path,
                 include_decoys=config.include_decoys,
@@ -307,13 +343,66 @@ def run_resumable_advanced_diann_workflow(
         reused_stage_ids=reused_stage_ids,
         rerun_stage_ids=tuple(rerun_stage_ids),
         resume_state_path=str(runtime_dir / "workflow_resume_state.json"),
+        failure_report_path=None,
         decisions=tuple(decisions),
         advanced_report=advanced_report,
+        failure_report=None,
         note=(
             "runtime completed the advanced dia-nn workflow with resumable import, "
             "matrix, biology, and final review stages"
         ),
     )
+
+
+class _AdvancedDiannExpectedFailure(Exception):
+    """Internal signal for expected advanced DIA-NN workflow failures."""
+
+    def __init__(self, *, message: str, reason_codes: tuple[str, ...]) -> None:
+        super().__init__(message)
+        self.message = message
+        self.reason_codes = reason_codes
+
+
+def _load_valid_design_entries(
+    config: AdvancedDiannWorkflowConfig,
+) -> tuple[object, ...]:
+    report = parse_experimental_design_table(config.design_tsv_path)
+    if report.rejected_rows:
+        reason_codes = tuple(
+            dict.fromkeys(
+                issue.code
+                for row in report.rejected_rows
+                for issue in row.issues
+            )
+        )
+        raise _AdvancedDiannExpectedFailure(
+            message=(
+                "advanced dia-nn workflow design table contains rejected rows and "
+                "cannot proceed"
+            ),
+            reason_codes=reason_codes,
+        )
+    return tuple(report.accepted_entries)
+
+
+def _write_advanced_diann_failure_report(
+    *,
+    config: AdvancedDiannWorkflowConfig,
+    workflow_id: str,
+    stage_id: str,
+    failure_type: FailureType,
+    message: str,
+    reason_codes: tuple[str, ...],
+) -> tuple[WorkflowFailureReport, Path]:
+    report = build_workflow_failure_report(
+        workflow_id=workflow_id,
+        workflow_name="advanced_diann",
+        stage_id=stage_id,
+        failure_type=failure_type.value,
+        message=message,
+        reason_codes=reason_codes,
+    )
+    return report, write_workflow_failure_report(config.output_dir, report)
 
 
 def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, object]:
