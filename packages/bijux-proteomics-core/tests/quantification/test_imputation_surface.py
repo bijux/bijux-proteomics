@@ -142,6 +142,8 @@ def test_low_intensity_imputation_fills_missing_abundances_and_preserves_ledger(
     )
     assert report.method is ImputationMethod.LOW_INTENSITY
     assert report.imputed_value_count == 2
+    assert lookup[("PEPB", "s2")].missing_value_kind is MissingValueKind.IMPUTED
+    assert lookup[("PEPC", "s2")].missing_value_kind is MissingValueKind.IMPUTED
     assert by_cell[("PEPB", "s2")].original_missing_value_kind is (
         MissingValueKind.NOT_OBSERVED
     )

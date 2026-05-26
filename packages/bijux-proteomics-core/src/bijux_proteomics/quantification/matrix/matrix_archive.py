@@ -208,11 +208,13 @@ def _is_missing(state: MissingValueState) -> bool:
     return state in {
         MissingValueState.NOT_OBSERVED,
         MissingValueState.FILTERED,
+        MissingValueState.CENSORED,
+        MissingValueState.EXCLUDED,
     }
 
 
 def _is_imputed(*, value: float | None, state: MissingValueState) -> bool:
-    return value is not None and _is_missing(state)
+    return value is not None and state is MissingValueState.IMPUTED
 
 
 def _render_metadata_map(metadata: dict[str, str]) -> str:

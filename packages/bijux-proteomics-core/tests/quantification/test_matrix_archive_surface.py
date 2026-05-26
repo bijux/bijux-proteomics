@@ -107,8 +107,8 @@ def test_matrix_archive_preserves_masks_metadata_and_transformation_history(
         sample_ids=("sample-a", "sample-b"),
         values=((10.5, None), (9.1, 7.4)),
         missing_value_states=(
-            (MissingValueState.OBSERVED, MissingValueState.NOT_OBSERVED),
-            (MissingValueState.ZERO, MissingValueState.FILTERED),
+            (MissingValueState.OBSERVED, MissingValueState.CENSORED),
+            (MissingValueState.ZERO, MissingValueState.IMPUTED),
         ),
         support_counts=((3, 0), (2, 1)),
         row_metadata=(
@@ -140,7 +140,7 @@ def test_matrix_archive_preserves_masks_metadata_and_transformation_history(
     loaded = load_matrix_archive(archive_path)
 
     assert archive_path.exists()
-    assert archive.missing_mask == ((False, True), (False, True))
+    assert archive.missing_mask == ((False, True), (False, False))
     assert archive.imputation_mask == ((False, False), (False, True))
     assert loaded == archive
     assert loaded.to_quant_matrix() == matrix
@@ -233,15 +233,20 @@ def test_matrix_archive_generated_masks_and_cell_ledger_match_matrix_semantics(
 
         expected_missing_mask = tuple(
             tuple(
-                state in {MissingValueState.NOT_OBSERVED, MissingValueState.FILTERED}
+                state
+                in {
+                    MissingValueState.NOT_OBSERVED,
+                    MissingValueState.FILTERED,
+                    MissingValueState.CENSORED,
+                    MissingValueState.EXCLUDED,
+                }
                 for state in row
             )
             for row in matrix.missing_value_states
         )
         expected_imputation_mask = tuple(
             tuple(
-                value is not None
-                and state in {MissingValueState.NOT_OBSERVED, MissingValueState.FILTERED}
+                value is not None and state is MissingValueState.IMPUTED
                 for value, state in zip(value_row, state_row, strict=False)
             )
             for value_row, state_row in zip(

@@ -660,6 +660,7 @@ def _rebuild_imputed_table(
             value.model_copy(
                 update={
                     "abundance": max(fill_value, 0.0),
+                    "missing_value_kind": MissingValueKind.IMPUTED,
                     "value_provenance": (
                         None
                         if value.value_provenance is None
