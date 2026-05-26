@@ -15,6 +15,13 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.card_schema import (
+    StandardCardEntry,
+    StandardCardKind,
+    StandardCardSubjectKind,
+    render_standard_card_row,
+)
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.domain.semantic_ids import build_protein_card_id
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.protein_coverage import (
@@ -554,6 +561,16 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
     writer.writerow(
         (
             "card_id",
+            "card_kind",
+            "subject_kind",
+            "subject_id",
+            "subject_label",
+            "claim",
+            "evidence_for",
+            "evidence_against",
+            "confidence",
+            "warning_codes",
+            "source_ids",
             "graph_claim_node_id",
             "graph_subject_node_id",
             "graph_subject_node_kind",
@@ -581,7 +598,6 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
             "adjusted_p_value",
             "significant",
             "evidence_tier",
-            "warning_codes",
             "pathway_ids",
             "context_ids",
             "functional_regions",
@@ -596,9 +612,10 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
         )
     )
     for card in report.cards:
+        standard_card = _build_standard_card_entry(card)
         writer.writerow(
             (
-                card.card_id,
+                *render_standard_card_row(standard_card),
                 card.graph_claim_node_id,
                 card.graph_subject_node_id,
                 card.graph_subject_node_kind.value,
@@ -628,7 +645,6 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
                 else card.differential_result.adjusted_p_value,
                 str(card.significant).lower(),
                 card.evidence_tier.value,
-                ";".join(warning.code.value for warning in card.warnings),
                 ";".join(entry.entry_id for entry in card.pathways),
                 ";".join(
                     f"{entry.context_kind.value}:{entry.context_id}"
@@ -1333,6 +1349,43 @@ def _graph_support_node_ids(report: ProteinEvidenceSummaryReport) -> tuple[str, 
 
 def _build_card_id(entity_id: str) -> str:
     return build_protein_card_id(entity_id)
+
+
+def _build_standard_card_entry(card: ProteinEvidenceCard) -> StandardCardEntry:
+    return StandardCardEntry(
+        card_id=card.card_id,
+        card_kind=StandardCardKind.PROTEIN,
+        subject_kind=StandardCardSubjectKind.PROTEIN,
+        subject_id=card.representative_protein_ref,
+        subject_label=card.annotation.gene_symbol or card.representative_protein_ref,
+        claim=(
+            f"Protein {card.representative_protein_ref} has log2 fold change "
+            f"{card.differential_result.log2_fold_change:g} between "
+            f"{card.differential_result.condition_a} and {card.differential_result.condition_b}."
+        ),
+        evidence_for=(
+            f"{card.unique_peptide_count} unique peptides and "
+            f"{card.coverage.coverage_fraction:.0%} sequence coverage support this protein."
+        ),
+        evidence_against=(
+            "no explicit weakening evidence was preserved on this protein card."
+            if not card.warnings
+            else "warnings remained attached: "
+            + ", ".join(warning.code.value for warning in card.warnings)
+            + "."
+        ),
+        confidence=_standard_card_confidence(card.evidence_tier),
+        warning_codes=tuple(warning.code.value for warning in card.warnings),
+        source_ids=card.graph_source_row_refs,
+    )
+
+
+def _standard_card_confidence(tier: ProteinEvidenceCardTier):
+    if tier is ProteinEvidenceCardTier.HIGH_SUPPORT:
+        return ConfidenceTier.HIGH
+    if tier is ProteinEvidenceCardTier.MODERATE_SUPPORT:
+        return ConfidenceTier.MODERATE
+    return ConfidenceTier.LOW
 
 
 __all__ = [
