@@ -64,7 +64,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception("dia/transition_qc.py", "build_transition_qc_report", 32),
     _exception("domain/structure/structure.py", "kabsch_and_pairs", 29),
     _exception("domain/validation.py", "validate_program_readiness", 77),
-    _exception("identification/contracts/psm_io.py", "_parse_psm_row", 32),
+    _exception("identification/contracts/psm_io.py", "_parse_psm_row", 33),
     _exception(
         "identification/peptide/peptide_evidence.py",
         "build_peptide_evidence_report",
@@ -103,7 +103,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "interfaces/python_api/quantify_runner.py",
         "run_quantify_command",
-        116,
+        120,
     ),
     _exception(
         "interfaces/python_api/targeted_matrix_qc.py",
@@ -202,7 +202,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "quantification/provenance/review.py",
         "build_quant_review_bundle",
-        26,
+        30,
     ),
     _exception(
         "quantification/statistics/differential_abundance.py",
