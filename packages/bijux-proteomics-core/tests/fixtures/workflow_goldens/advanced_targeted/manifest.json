@@ -3,14 +3,80 @@
     {
       "artifact_id": "artifact:cards:tsv_table:cards:advanced_targeted_evidence_cards.tsv",
       "artifact_kind": "tsv_table",
-      "artifact_schema": "tsv[candidate_id,candidate_kind,display_label,target_protein_ref,validation_verdict,assay_reliability_status,assay_entry_count,reliable_assay_count,unreliable_assay_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,coelution_issue_count,ratio_drift_issue_count,validation_log2_effect,discovery_effect_size,reason_codes,note]",
+      "artifact_schema": "tsv[card_id,card_kind,subject_kind,subject_id,subject_label,claim,evidence_for,evidence_against,confidence,warning_codes,source_ids,candidate_id,candidate_kind,display_label,target_protein_ref,validation_verdict,assay_reliability_status,assay_entry_count,reliable_assay_count,unreliable_assay_count,confirmed_assay_count,contradicted_assay_count,inconclusive_assay_count,coelution_issue_count,ratio_drift_issue_count,validation_log2_effect,discovery_effect_size,reason_codes,note]",
       "artifact_schema_version": "2026-05-26",
       "canonical_relative_path": "cards/advanced_targeted_evidence_cards.tsv",
-      "checksum_sha256": "1befcb4aa023a2e9a9de1e59c8e866827a1bceec930a707e49e07eaef2526ad0",
+      "checksum_sha256": "a3f40adf4cdc229734ccb24e35c2cc357fee853ce2f9b416f30026ba00275ffe",
       "folder": "cards",
       "legacy_relative_path": "advanced_targeted_evidence_cards.tsv",
       "output_table_schema": {
         "columns": [
+          {
+            "meaning": "Stable column 'card_id' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "card_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'card_kind' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "card_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'subject_kind' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "subject_kind",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'subject_id' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "subject_id",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'subject_label' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "subject_label",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'claim' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "claim",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'evidence_for' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "evidence_for",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'evidence_against' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "evidence_against",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'confidence' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "confidence",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'warning_codes' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "warning_codes",
+            "required": true,
+            "value_type": "text"
+          },
+          {
+            "meaning": "Stable column 'source_ids' in TSV output 'advanced_targeted_evidence_cards'.",
+            "name": "source_ids",
+            "required": true,
+            "value_type": "text"
+          },
           {
             "meaning": "Stable column 'candidate_id' in TSV output 'advanced_targeted_evidence_cards'.",
             "name": "candidate_id",
