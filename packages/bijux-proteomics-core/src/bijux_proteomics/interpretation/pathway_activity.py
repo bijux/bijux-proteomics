@@ -169,6 +169,7 @@ class PathwayActivityPolicy(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     minimum_observed_member_count: int = Field(default=2, ge=1)
+    minimum_knowledge_coverage_fraction: float = Field(default=0.5, ge=0.0, le=1.0)
 
 
 class PathwayActivityReport(JsonModel):
@@ -224,6 +225,21 @@ def build_pathway_activity_report(
         available_protein_refs=available_protein_refs,
         gene_annotations=gene_annotations,
     )
+    from bijux_proteomics_knowledge.pathways.members import (
+        PathwayCoveragePolicy,
+        resolve_pathway_members,
+    )
+
+    coverage_report = resolve_pathway_members(
+        tuple(sorted(available_protein_refs)),
+        pathway_records,
+        policy=PathwayCoveragePolicy(
+            minimum_coverage_fraction=active_policy.minimum_knowledge_coverage_fraction
+        ),
+    )
+    coverage_by_pathway_id = {
+        entry.pathway_id: entry for entry in coverage_report.confidence_entries
+    }
 
     unresolved_members: list[UnresolvedPathwayActivityMemberEntry] = []
     member_contributions: list[PathwayMemberContributionEntry] = []
@@ -231,6 +247,7 @@ def build_pathway_activity_report(
     for pathway_id in sorted(pathway_groups):
         records = pathway_groups[pathway_id]
         first = records[0]
+        pathway_coverage = coverage_by_pathway_id.get(pathway_id)
         member_specs = _build_member_specs(
             records,
             available_protein_refs=available_protein_refs,
@@ -316,11 +333,29 @@ def build_pathway_activity_report(
                         minimum_observed_member_count=(
                             active_policy.minimum_observed_member_count
                         ),
+                        pathway_coverage_status=(
+                            None
+                            if pathway_coverage is None
+                            else pathway_coverage.confidence_status.value
+                        ),
                     ),
                     confidence_reason=_confidence_reason(
                         observed_member_count=observed_member_count,
                         minimum_observed_member_count=(
                             active_policy.minimum_observed_member_count
+                        ),
+                        pathway_coverage_status=(
+                            None
+                            if pathway_coverage is None
+                            else pathway_coverage.confidence_status.value
+                        ),
+                        pathway_coverage_fraction=(
+                            None
+                            if pathway_coverage is None
+                            else pathway_coverage.coverage_fraction
+                        ),
+                        minimum_knowledge_coverage_fraction=(
+                            active_policy.minimum_knowledge_coverage_fraction
                         ),
                     ),
                     observed_member_ids=tuple(observed_member_ids),
@@ -827,10 +862,13 @@ def _sample_confidence_status(
     *,
     observed_member_count: int,
     minimum_observed_member_count: int,
+    pathway_coverage_status: str | None,
 ) -> PathwayActivityConfidenceStatus:
-    if observed_member_count >= minimum_observed_member_count:
-        return PathwayActivityConfidenceStatus.HIGH_CONFIDENCE
-    return PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+    if observed_member_count < minimum_observed_member_count:
+        return PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+    if pathway_coverage_status == "low_confidence":
+        return PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+    return PathwayActivityConfidenceStatus.HIGH_CONFIDENCE
 
 
 def _aggregate_confidence_status(
@@ -845,13 +883,26 @@ def _confidence_reason(
     *,
     observed_member_count: int,
     minimum_observed_member_count: int,
+    pathway_coverage_status: str | None,
+    pathway_coverage_fraction: float | None,
+    minimum_knowledge_coverage_fraction: float,
 ) -> str | None:
-    if observed_member_count >= minimum_observed_member_count:
+    reasons: list[str] = []
+    if observed_member_count < minimum_observed_member_count:
+        reasons.append(
+            "observed member count "
+            f"{observed_member_count} was below minimum {minimum_observed_member_count}"
+        )
+    if pathway_coverage_status == "low_confidence":
+        assert pathway_coverage_fraction is not None
+        reasons.append(
+            "pathway knowledge coverage "
+            f"{pathway_coverage_fraction:g} was below minimum "
+            f"{minimum_knowledge_coverage_fraction:g}"
+        )
+    if not reasons:
         return None
-    return (
-        "observed member count "
-        f"{observed_member_count} was below minimum {minimum_observed_member_count}"
-    )
+    return "; ".join(reasons)
 
 
 def _build_condition_scores(
