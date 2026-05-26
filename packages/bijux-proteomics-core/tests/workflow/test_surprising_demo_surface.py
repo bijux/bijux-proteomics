@@ -85,3 +85,11 @@ def test_run_surprising_demo_preserves_required_findings_and_outputs(
     assert report.claim_report
     assert report.intelligence_report_contract.claim_entries
     assert report.belief_audit_report.entries
+    assert report.summary.contradiction_count >= 1
+    contradiction_ids = {
+        claim_entry.claim.claim_id
+        for claim_entry in report.intelligence_report_contract.claim_entries
+        if claim_entry.contradictions
+    }
+    assert "protein-claim:p11111" in contradiction_ids
+    assert "protein-claim:p11111-contradiction" in contradiction_ids
