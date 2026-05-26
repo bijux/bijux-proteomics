@@ -442,9 +442,14 @@ class WorkflowDagNode(JsonModel):
     node_id: str = Field(..., min_length=1)
     label: str = Field(..., min_length=1)
     step_kind: WorkflowStepKind
+    scientific_surface: WorkflowScientificSurface
+    execution_layer: int = Field(..., ge=0)
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
+    consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
+    blocking: bool = True
+    cacheable: bool = False
 
 
 class WorkflowDagEdge(JsonModel):
@@ -465,8 +470,30 @@ class ProteomicsDagPlan(JsonModel):
 
     document_schema: DocumentSchema
     workflow_id: str = Field(..., min_length=1)
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     nodes: tuple[WorkflowDagNode, ...] = Field(default_factory=tuple)
     edges: tuple[WorkflowDagEdge, ...] = Field(default_factory=tuple)
+
+
+class WorkflowDagValidationIssue(JsonModel):
+    """One structural issue discovered while projecting a workflow DAG."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowDagValidationReport(JsonModel):
+    """Validation report over a typed workflow DAG projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    valid: bool
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[WorkflowDagValidationIssue, ...] = Field(default_factory=tuple)
 
 
 class WorkflowContainerMount(JsonModel):
@@ -1599,14 +1626,21 @@ def build_proteomics_dag_plan(
     manifest: ProteomicsWorkflowManifest,
 ) -> ProteomicsDagPlan:
     """Project a workflow manifest into a DAG-shaped execution plan."""
+    _validate_workflow_step_dependencies(manifest.steps)
+    levels = _resolve_workflow_step_levels(manifest.steps)
     nodes = tuple(
         WorkflowDagNode(
             node_id=step.step_id,
             label=step.label,
             step_kind=step.kind,
+            scientific_surface=_workflow_scientific_surface(step.kind),
+            execution_layer=levels[step.step_id],
             depends_on=step.depends_on,
+            consumes_roles=step.consumes_roles,
             artifact_kinds=step.produces_artifacts,
             command_preview=step.command_preview,
+            blocking=step.blocking,
+            cacheable=step.cacheable,
         )
         for step in manifest.steps
     )
@@ -1623,8 +1657,180 @@ def build_proteomics_dag_plan(
     payload = ProteomicsDagPlan(
         document_schema=_build_document_schema("proteomics_dag_plan"),
         workflow_id=manifest.workflow_id,
+        ordered_step_ids=tuple(
+            step_id
+            for step_id, _level in sorted(
+                levels.items(),
+                key=lambda item: (item[1], item[0]),
+            )
+        ),
         nodes=nodes,
         edges=edges,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def _workflow_scientific_surface(
+    step_kind: WorkflowStepKind,
+) -> WorkflowScientificSurface:
+    mapping = {
+        WorkflowStepKind.VALIDATE_INPUTS: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.DIGEST_DATABASE: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.RUN_SEARCH_ENGINE: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.CALCULATE_FDR: WorkflowScientificSurface.CONFIDENCE_SCORING,
+        WorkflowStepKind.QUANTIFY_FEATURES: WorkflowScientificSurface.QUANTIFICATION,
+        WorkflowStepKind.RUN_QC: WorkflowScientificSurface.QUALITY_CONTROL,
+        WorkflowStepKind.BUILD_RUN_BUNDLE: WorkflowScientificSurface.EVIDENCE_SYNTHESIS,
+    }
+    return mapping[step_kind]
+
+
+def _validate_workflow_step_dependencies(
+    steps: tuple[WorkflowExecutionStep, ...],
+) -> None:
+    step_ids = tuple(step.step_id for step in steps)
+    duplicate_ids = tuple(
+        step_id for step_id in dict.fromkeys(step_ids) if step_ids.count(step_id) > 1
+    )
+    if duplicate_ids:
+        raise ValueError(
+            "workflow steps contain duplicate step identifiers: "
+            f"{', '.join(duplicate_ids)}"
+        )
+    known_step_ids = set(step_ids)
+    for step in steps:
+        if step.step_id in step.depends_on:
+            raise ValueError(
+                f"workflow step {step.step_id} cannot depend on itself in the workflow dag"
+            )
+        missing_dependencies = tuple(
+            dependency
+            for dependency in step.depends_on
+            if dependency not in known_step_ids
+        )
+        if missing_dependencies:
+            raise ValueError(
+                f"workflow step {step.step_id} depends on unknown steps "
+                f"{', '.join(missing_dependencies)}"
+            )
+
+
+def _resolve_workflow_step_levels(
+    steps: tuple[WorkflowExecutionStep, ...],
+) -> dict[str, int]:
+    step_by_id = {step.step_id: step for step in steps}
+    unresolved = set(step_by_id)
+    levels: dict[str, int] = {}
+    while unresolved:
+        progressed = False
+        for step_id in sorted(unresolved):
+            step = step_by_id[step_id]
+            if all(dependency in levels for dependency in step.depends_on):
+                levels[step_id] = (
+                    0
+                    if not step.depends_on
+                    else max(levels[dependency] for dependency in step.depends_on) + 1
+                )
+                unresolved.remove(step_id)
+                progressed = True
+        if not progressed:
+            cycle_nodes = ", ".join(sorted(unresolved))
+            raise ValueError(
+                "workflow steps contain a cycle and cannot be projected into a "
+                f"deterministic dag: {cycle_nodes}"
+            )
+    return levels
+
+
+def _resolve_dag_node_levels(nodes: tuple[WorkflowDagNode, ...]) -> dict[str, int]:
+    projected_steps = tuple(
+        WorkflowExecutionStep(
+            step_id=node.node_id,
+            kind=node.step_kind,
+            label=node.label,
+            depends_on=node.depends_on,
+            consumes_roles=node.consumes_roles,
+            produces_artifacts=node.artifact_kinds,
+            command_preview=node.command_preview,
+            cacheable=node.cacheable,
+            blocking=node.blocking,
+        )
+        for node in nodes
+    )
+    _validate_workflow_step_dependencies(projected_steps)
+    return _resolve_workflow_step_levels(projected_steps)
+
+
+def validate_proteomics_dag_plan(
+    dag_plan: ProteomicsDagPlan,
+) -> WorkflowDagValidationReport:
+    """Validate one typed workflow DAG projection for missing or cyclic structure."""
+
+    issues: list[WorkflowDagValidationIssue] = []
+    node_ids = {node.node_id for node in dag_plan.nodes}
+    if len(node_ids) != len(dag_plan.nodes):
+        issues.append(
+            WorkflowDagValidationIssue(
+                code="duplicate_node_id",
+                message="workflow dag contains duplicate node identifiers",
+            )
+        )
+    for node in dag_plan.nodes:
+        missing_dependencies = tuple(
+            dependency for dependency in node.depends_on if dependency not in node_ids
+        )
+        if missing_dependencies:
+            issues.append(
+                WorkflowDagValidationIssue(
+                    code="missing_dependency",
+                    message=(
+                        f"workflow dag node {node.node_id} depends on missing nodes "
+                        f"{missing_dependencies!r}"
+                    ),
+                )
+            )
+        for dependency in node.depends_on:
+            source = next(
+                (
+                    edge
+                    for edge in dag_plan.edges
+                    if edge.source_node_id == dependency
+                    and edge.target_node_id == node.node_id
+                ),
+                None,
+            )
+            if source is None:
+                issues.append(
+                    WorkflowDagValidationIssue(
+                        code="missing_edge",
+                        message=(
+                            f"workflow dag dependency {dependency}->{node.node_id} "
+                            "is not represented by an edge"
+                        ),
+                    )
+                )
+    try:
+        _resolve_dag_node_levels(dag_plan.nodes)
+    except ValueError as exc:
+        issues.append(
+            WorkflowDagValidationIssue(
+                code="cyclic_dependency",
+                message=str(exc),
+            )
+        )
+    payload = WorkflowDagValidationReport(
+        document_schema=_build_document_schema("workflow_dag_validation_report"),
+        workflow_id=dag_plan.workflow_id,
+        valid=not issues,
+        ordered_step_ids=dag_plan.ordered_step_ids,
+        issues=tuple(issues),
     )
     return payload.model_copy(
         update={
@@ -1639,16 +1845,6 @@ def build_reproducible_workflow_blueprint(
     manifest: ProteomicsWorkflowManifest,
 ) -> ReproducibleWorkflowBlueprint:
     """Project a runtime manifest onto scientific workflow surfaces."""
-    surface_by_kind = {
-        WorkflowStepKind.VALIDATE_INPUTS: WorkflowScientificSurface.SEQUENCE_INTAKE,
-        WorkflowStepKind.DIGEST_DATABASE: WorkflowScientificSurface.SEQUENCE_INTAKE,
-        WorkflowStepKind.RUN_SEARCH_ENGINE: WorkflowScientificSurface.SEARCH_INGESTION,
-        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: WorkflowScientificSurface.SEARCH_INGESTION,
-        WorkflowStepKind.CALCULATE_FDR: WorkflowScientificSurface.CONFIDENCE_SCORING,
-        WorkflowStepKind.QUANTIFY_FEATURES: WorkflowScientificSurface.QUANTIFICATION,
-        WorkflowStepKind.RUN_QC: WorkflowScientificSurface.QUALITY_CONTROL,
-        WorkflowStepKind.BUILD_RUN_BUNDLE: WorkflowScientificSurface.EVIDENCE_SYNTHESIS,
-    }
     note_by_surface = {
         WorkflowScientificSurface.SEQUENCE_INTAKE: "sequence and raw-input intake stays explicit before search interpretation begins",
         WorkflowScientificSurface.SEARCH_INGESTION: "search evidence is normalized before any confidence interpretation is attached",
@@ -1661,10 +1857,10 @@ def build_reproducible_workflow_blueprint(
         WorkflowBlueprintStepMapping(
             step_id=step.step_id,
             step_kind=step.kind,
-            scientific_surface=surface_by_kind[step.kind],
+            scientific_surface=_workflow_scientific_surface(step.kind),
             required_input_roles=step.consumes_roles,
             produced_artifact_kinds=step.produces_artifacts,
-            note=note_by_surface[surface_by_kind[step.kind]],
+            note=note_by_surface[_workflow_scientific_surface(step.kind)],
         )
         for step in manifest.steps
     )
