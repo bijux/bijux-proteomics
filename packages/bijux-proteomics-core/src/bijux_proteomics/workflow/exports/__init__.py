@@ -8,6 +8,7 @@ _EXPORT_MODULES = (
     "bijux_proteomics.workflow.exports.artifact_layout",
     "bijux_proteomics.workflow.exports.interactive_result_bundle",
     "bijux_proteomics.workflow.exports.interactive_result_comparison",
+    "bijux_proteomics.workflow.exports.output_validation",
     "bijux_proteomics.workflow.exports.result_archive",
     "bijux_proteomics.workflow.exports.result_manifest",
     "bijux_proteomics.workflow.exports.result_search_index",
