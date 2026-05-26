@@ -185,6 +185,50 @@ def test_workflow_package_exports_proteomics_study_result_surface() -> None:
     assert tmt_study.summary.statistic_surface_count == 1
 
 
+def test_workflow_package_exports_advanced_study_result_builder_surface() -> None:
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_advanced_diann_workflow_report",
+    )
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_advanced_fragpipe_workflow_report",
+    )
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_advanced_maxquant_workflow_report",
+    )
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_advanced_ptm_workflow_report",
+    )
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_advanced_tmt_workflow_report",
+    )
+    assert hasattr(
+        workflow,
+        "build_proteomics_study_result_from_targeted_validation_workflow_report",
+    )
+    assert workflow.ProteomicsStudyKind.TARGETED.value == "targeted"
+    assert (
+        workflow.ProteomicsStudyMatrixKind.TARGETED_TARGET.value
+        == "targeted_target"
+    )
+    assert (
+        workflow.ProteomicsStudyStatisticKind.TARGETED_VALIDATION.value
+        == "targeted_validation"
+    )
+    assert (
+        workflow.ProteomicsStudyQcKind.TARGETED_ASSAY_QC.value
+        == "targeted_assay_qc"
+    )
+    assert (
+        workflow.ProteomicsStudyCardKind.TARGETED_VALIDATION.value
+        == "targeted_validation"
+    )
+
+
 def test_workflow_package_exports_result_manifest_surface() -> None:
     report = workflow.ResultManifestReport(
         document_schema=DocumentSchema(
