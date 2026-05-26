@@ -14,6 +14,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import build_multiplex_metadata_validation_report
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
@@ -931,7 +932,7 @@ def _assess_pathway_signal(
     effect_size = _coerce_float(row.get("activity_score_delta"))
     observed_direction = _direction_from_effect_size(effect_size)
     comparison_confidence_status = row.get("comparison_confidence_status", "")
-    significant = comparison_confidence_status == "high_confidence"
+    significant = coerce_confidence_tier(comparison_confidence_status) is ConfidenceTier.HIGH
     return _finalize_directional_signal_assessment(
         signal,
         source_surface="biological_pathway_activity_condition_comparisons.tsv",

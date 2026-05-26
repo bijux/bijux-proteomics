@@ -51,9 +51,9 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.warning_card_count >= 1
     assert report.summary.experiment_confidence_score > 0.0
     assert report.summary.experiment_confidence_tier in {
-        "high_confidence",
-        "moderate_confidence",
-        "low_confidence",
+        "high",
+        "moderate",
+        "low",
     }
     assert report.experiment_confidence_report.summary.component_count == 7
     assert report.experiment_confidence_report.summary.overall_tier.value == (
@@ -134,7 +134,7 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.pathway_activity_report.summary.pathway_count >= 1
     assert report.pathway_activity_report.summary.condition_comparison_count >= 1
     assert any(
-        entry.comparison_confidence_status.value in {"high_confidence", "low_confidence"}
+        entry.comparison_confidence_status.value in {"high", "low"}
         for entry in report.pathway_activity_report.condition_comparisons
     )
     assert report.complex_activity_report is not None

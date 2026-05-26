@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain import SourceRowLineage
+from bijux_proteomics.domain import ConfidenceTier, SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
 from bijux_proteomics.interpretation.complex_activity import (
     ComplexActivityConfidenceStatus,
@@ -45,12 +45,7 @@ class MechanismCardKind(StrEnum):
     BIOMARKER_CANDIDATE = "biomarker_candidate"
 
 
-class MechanismCardConfidence(StrEnum):
-    """Stable confidence classes for integrated mechanism cards."""
-
-    HIGH = "high"
-    MODERATE = "moderate"
-    LOW = "low"
+MechanismCardConfidence = ConfidenceTier
 
 
 class MechanismCard(JsonModel):
@@ -537,7 +532,7 @@ def _build_compartment_signal_cards(
                 f"{_format_float(enrichment.enrichment_ratio)} with overlap {enrichment.foreground_overlap_count}/{enrichment.background_member_count}"
             )
         evidence_against = []
-        if entry.comparison_confidence_status.value == "low_confidence":
+        if entry.comparison_confidence_status.value == "low":
             evidence_against.append("compartment activity comparison remained low confidence")
         if unknown_foreground:
             evidence_against.append(
@@ -550,7 +545,7 @@ def _build_compartment_signal_cards(
             missing_evidence.append("compartment enrichment companion evidence")
         if unknown_foreground:
             missing_evidence.append("complete foreground compartment annotation")
-        if entry.comparison_confidence_status.value == "low_confidence":
+        if entry.comparison_confidence_status.value == "low":
             missing_evidence.append("additional localized proteins with high-confidence scores")
         if not missing_evidence:
             missing_evidence.append("orthogonal localization validation")
@@ -559,7 +554,7 @@ def _build_compartment_signal_cards(
             confidence_score -= 0.15
         if unknown_foreground:
             confidence_score -= 0.15
-        if entry.comparison_confidence_status.value == "low_confidence":
+        if entry.comparison_confidence_status.value == "low":
             confidence_score -= 0.25
         cards.append(
             MechanismCard(

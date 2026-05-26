@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain import SourceRowLineage
+from bijux_proteomics.domain import SourceRowLineage, coerce_confidence_tier
 from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
 from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import FinalClaimEvidenceTier
@@ -357,7 +357,7 @@ def _validate_pathway_claim(
         reasons.add(BiologicalClaimValidationReason.MISSING_DIRECTIONAL_DELTA)
     elif abs(candidate.pathway_delta) < policy.min_pathway_activity_delta:
         reasons.add(BiologicalClaimValidationReason.MISSING_DIRECTIONAL_DELTA)
-    if candidate.pathway_confidence_status != "high_confidence":
+    if coerce_confidence_tier(candidate.pathway_confidence_status) is not EvidenceGraphConfidenceTier.HIGH:
         reasons.add(BiologicalClaimValidationReason.LOW_PATHWAY_CONFIDENCE)
     if not reasons:
         reasons.add(BiologicalClaimValidationReason.PATHWAY_DIRECTIONAL_ACTIVITY)

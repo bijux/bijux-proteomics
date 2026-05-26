@@ -12,6 +12,7 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics.domain import coerce_confidence_tier
 from bijux_proteomics.domain.semantic_ids import (
     build_pathway_claim_id,
     build_protein_claim_id,
@@ -786,15 +787,19 @@ def _evidence_tier_score(evidence_tier) -> float:
 
 
 def _confidence_tier_score(confidence_tier: str | None) -> float:
-    if confidence_tier == "high":
+    normalized = coerce_confidence_tier(confidence_tier)
+    if normalized is None:
+        return 0.55
+    if normalized.value == "high":
         return 0.9
-    if confidence_tier == "moderate":
+    if normalized.value == "moderate":
         return 0.7
     return 0.55
 
 
 def _pathway_confidence_score(confidence_status: str | None) -> float:
-    if confidence_status == "high_confidence":
+    normalized = coerce_confidence_tier(confidence_status)
+    if normalized is not None and normalized.value == "high":
         return 0.85
     return 0.55
 
@@ -842,7 +847,7 @@ def _pathway_hypothesis_opposing_evidence(
     opposing_evidence = {
         (
             "low_confidence_pathway_comparison"
-            if comparison.comparison_confidence_status.value != "high_confidence"
+            if comparison.comparison_confidence_status.value != "high"
             else ""
         ),
         *(

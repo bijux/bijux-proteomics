@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.review.claims.result_queries import (
     _ResultArtifactContext,
     _empty_to_none,
@@ -626,7 +627,7 @@ def _explain_pathway_result(
             )
         )
     opposing = list[ResultExplanationPoint]()
-    if comparison.comparison_confidence_status != "high_confidence":
+    if coerce_confidence_tier(comparison.comparison_confidence_status) is not ConfidenceTier.HIGH:
         opposing.append(
             _make_point(
                 request.explanation_id,
