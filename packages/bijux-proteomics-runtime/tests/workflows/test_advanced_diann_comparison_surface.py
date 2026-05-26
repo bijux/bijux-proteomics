@@ -137,6 +137,8 @@ def test_compare_advanced_diann_runtime_outputs_is_equivalent_for_matching_runs(
 
     report = compare_advanced_diann_runtime_outputs(left, right)
 
+    assert left.run_id == right.run_id
+    assert left.run_identity == right.run_identity
     assert report.equivalent is True
     assert report.parameter_changes == ()
     assert report.changed_proteins == ()
