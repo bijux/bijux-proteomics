@@ -74,6 +74,12 @@ def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
     assert "bijux_proteomics_runtime.runs.RunManager" in PUBLIC_ENTRYPOINTS
 
 
+def test_runtime_runs_surface_exports_runtime_flow_result() -> None:
+    from bijux_proteomics_runtime.runs import RuntimeFlowResult
+
+    assert RuntimeFlowResult is not None
+
+
 def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
     assert (
         "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path"

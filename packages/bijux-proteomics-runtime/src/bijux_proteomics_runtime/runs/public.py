@@ -27,6 +27,7 @@ _RUN_EXPORT_GROUPS = {
     "bijux_proteomics_runtime.runs.lifecycle": ["RunLifecycleState"],
     "bijux_proteomics_runtime.runs.output": [
         "ErrorDetail",
+        "RuntimeFlowResult",
         "RunOutput",
         "RunStatus",
         "VersionInfo",
