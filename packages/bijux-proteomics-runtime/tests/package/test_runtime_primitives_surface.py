@@ -144,6 +144,22 @@ def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> No
     assert callable(run_resumable_advanced_diann_workflow)
 
 
+def test_runtime_surface_area_exposes_advanced_diann_comparison() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        AdvancedDiannClaimComparisonState,
+        AdvancedDiannProteinComparisonState,
+        AdvancedDiannRejectedRowComparisonState,
+        AdvancedDiannRuntimeComparisonReport,
+        compare_advanced_diann_runtime_outputs,
+    )
+
+    assert AdvancedDiannRuntimeComparisonReport is not None
+    assert AdvancedDiannClaimComparisonState.SUPPORTED.value == "supported"
+    assert AdvancedDiannProteinComparisonState.ACCEPTED.value == "accepted"
+    assert AdvancedDiannRejectedRowComparisonState.REJECTED.value == "rejected"
+    assert callable(compare_advanced_diann_runtime_outputs)
+
+
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
     from bijux_proteomics_runtime.support.primitives.surface_area import (
         EXTENSION_POINTS,
