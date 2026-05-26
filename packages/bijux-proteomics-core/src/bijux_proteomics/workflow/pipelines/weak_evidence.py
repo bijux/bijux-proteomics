@@ -40,6 +40,12 @@ class WeakEvidenceBenchmarkStatus(StrEnum):
     FAILED = "failed"
 
 
+class WeakEvidenceReportSectionKey(StrEnum):
+    """Section keys preserved on the weak-evidence benchmark report."""
+
+    REFUSED_CLAIMS = "refused_claims"
+
+
 class WeakEvidenceCriterionId(StrEnum):
     """Required negative-pressure checks for the weak-evidence benchmark."""
 
@@ -81,6 +87,31 @@ class WeakEvidenceBenchmarkSummary(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class WeakEvidenceRefusedClaimEntry(JsonModel):
+    """One refused-claim row preserved from the weak-evidence benchmark fixture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(..., min_length=1)
+    subject_id: str = Field(..., min_length=1)
+    subject_label: str = Field(..., min_length=1)
+    claim_text: str = Field(..., min_length=1)
+    reason_codes: tuple[str, ...] = Field(default_factory=tuple)
+    validation_note: str = Field(..., min_length=1)
+    source_surface: str = Field(..., min_length=1)
+
+
+class WeakEvidenceReportSection(JsonModel):
+    """One stable section emitted by the weak-evidence benchmark report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    section_key: WeakEvidenceReportSectionKey
+    title: str = Field(..., min_length=1)
+    claim_ids: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class WeakEvidenceBenchmarkDescriptor(JsonModel):
     """Descriptor for one weak-evidence benchmark execution."""
 
@@ -110,6 +141,10 @@ class WeakEvidenceBenchmarkReport(JsonModel):
     output_root: Path
     criteria: tuple[WeakEvidenceBenchmarkCriterion, ...] = Field(default_factory=tuple)
     summary: WeakEvidenceBenchmarkSummary
+    refused_claims: tuple[WeakEvidenceRefusedClaimEntry, ...] = Field(
+        default_factory=tuple
+    )
+    sections: tuple[WeakEvidenceReportSection, ...] = Field(default_factory=tuple)
     lfq_sparse_report: PublicBenchmarkRunReport | None = None
     ptm_report: PublicBenchmarkRunReport | None = None
     tmt_report: AdvancedTmtWorkflowReport | None = None
@@ -211,7 +246,8 @@ def run_weak_evidence_benchmark(
         else build_qc_promotion_block_report(descriptor.qc_promotion_observations)
     )
 
-    refused_claim_count = _refused_claim_count(lfq_sparse_report)
+    refused_claims = _load_refused_claim_entries(lfq_sparse_report)
+    refused_claim_count = len(refused_claims)
     blocked_contrast_count = _blocked_or_invalid_contrast_count(lfq_sparse_report)
     ambiguous_ptm_count = _verified_count(ptm_report, "ambiguous_site_count")
     downgraded_protein_count = (
@@ -311,12 +347,25 @@ def run_weak_evidence_benchmark(
             "positive or accepted."
         ),
     )
+    sections = (
+        WeakEvidenceReportSection(
+            section_key=WeakEvidenceReportSectionKey.REFUSED_CLAIMS,
+            title="Refused Claims",
+            claim_ids=tuple(entry.claim_id for entry in refused_claims),
+            note=(
+                "The refused-claims section is loaded from weak-evidence rejected claim rows "
+                "so sparse or unresolved biology remains explicit in the final benchmark report."
+            ),
+        ),
+    )
 
     return WeakEvidenceBenchmarkReport(
         benchmark_id=descriptor.benchmark_id,
         output_root=descriptor.output_root,
         criteria=criteria,
         summary=summary,
+        refused_claims=refused_claims,
+        sections=sections,
         lfq_sparse_report=lfq_sparse_report,
         ptm_report=ptm_report,
         tmt_report=tmt_report,
@@ -447,6 +496,32 @@ def _refused_claim_count(report: PublicBenchmarkRunReport | None) -> int:
     return _count_tsv_rows(path)
 
 
+def _load_refused_claim_entries(
+    report: PublicBenchmarkRunReport | None,
+) -> tuple[WeakEvidenceRefusedClaimEntry, ...]:
+    if report is None:
+        return ()
+    path = Path(report.output_dir) / "biological_rejected_claims.tsv"
+    if not path.exists():
+        return ()
+    with path.open(newline="", encoding="utf-8") as handle:
+        rows = tuple(dict(row) for row in csv.DictReader(handle, delimiter="\t"))
+    return tuple(
+        WeakEvidenceRefusedClaimEntry(
+            claim_id=row["claim_id"],
+            subject_id=row["subject_id"],
+            subject_label=row["subject_label"],
+            claim_text=row["claim_text"],
+            reason_codes=tuple(
+                reason for reason in row.get("reason_codes", "").split(";") if reason
+            ),
+            validation_note=row["validation_note"],
+            source_surface="workflow.pipelines.public_benchmark_runner:lfq_sparse_contrast_benchmark_dataset",
+        )
+        for row in rows
+    )
+
+
 def _blocked_or_invalid_contrast_count(report: PublicBenchmarkRunReport | None) -> int:
     if report is None:
         return 0
@@ -466,6 +541,9 @@ __all__ = [
     "WeakEvidenceBenchmarkCriterion",
     "WeakEvidenceBenchmarkDescriptor",
     "WeakEvidenceBenchmarkReport",
+    "WeakEvidenceRefusedClaimEntry",
+    "WeakEvidenceReportSection",
+    "WeakEvidenceReportSectionKey",
     "WeakEvidenceBenchmarkStatus",
     "WeakEvidenceBenchmarkSummary",
     "WeakEvidenceCriterionId",
