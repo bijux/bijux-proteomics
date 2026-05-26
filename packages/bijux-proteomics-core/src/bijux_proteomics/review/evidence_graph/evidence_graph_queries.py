@@ -11,14 +11,19 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
+from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
+    LazyProteomicsEvidenceGraph,
+)
 from bijux_proteomics_foundation import JsonModel
+
+EvidenceGraphQuerySurface = ProteomicsEvidenceGraph | LazyProteomicsEvidenceGraph
 
 
 class EvidenceGraphPathStep(JsonModel):
@@ -110,7 +115,7 @@ class SampleQcReasonReport(JsonModel):
 
 
 def query_protein_evidence_summary(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     protein_id: str,
 ) -> ProteinEvidenceSummaryReport:
@@ -194,7 +199,7 @@ def render_protein_evidence_summary_tsv(report: ProteinEvidenceSummaryReport) ->
 
 
 def query_peptide_support_chain(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     peptide_id: str,
 ) -> PeptideSupportChainReport:
@@ -246,7 +251,7 @@ def render_peptide_support_chain_tsv(report: PeptideSupportChainReport) -> str:
 
 
 def query_ptm_site_evidence(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     ptm_site_id: str,
 ) -> PtmSiteEvidenceReport:
@@ -349,7 +354,7 @@ def render_ptm_site_evidence_tsv(report: PtmSiteEvidenceReport) -> str:
 
 
 def query_rejected_evidence_path(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     node_id: str,
     max_depth: int = 2,
@@ -389,7 +394,7 @@ def render_rejected_evidence_path_tsv(report: RejectedEvidencePathReport) -> str
 
 
 def query_pathway_support_proteins(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     pathway_id: str,
 ) -> PathwaySupportProteinReport:
@@ -426,7 +431,7 @@ def render_pathway_support_proteins_tsv(report: PathwaySupportProteinReport) -> 
 
 
 def query_sample_qc_reasons(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     sample_id: str,
 ) -> SampleQcReasonReport:
@@ -493,7 +498,7 @@ def _source_node_from_nodes(
 
 
 def _target_node(
-    graph: ProteomicsEvidenceGraph | None = None,
+    graph: EvidenceGraphQuerySurface | None = None,
     edge: ProteomicsEvidenceEdge | None = None,
     *,
     graph_nodes: tuple[ProteomicsEvidenceNode, ...] | None = None,
@@ -508,18 +513,22 @@ def _target_node(
     return node_by_id[edge.target_node_id]
 
 
-def _source_node(graph: ProteomicsEvidenceGraph, edge: ProteomicsEvidenceEdge) -> ProteomicsEvidenceNode:
+def _source_node(
+    graph: EvidenceGraphQuerySurface,
+    edge: ProteomicsEvidenceEdge,
+) -> ProteomicsEvidenceNode:
     return _require_node_by_id(graph, edge.source_node_id)
 
 
 def _target_node_for_edge(
-    graph: ProteomicsEvidenceGraph, edge: ProteomicsEvidenceEdge
+    graph: EvidenceGraphQuerySurface,
+    edge: ProteomicsEvidenceEdge,
 ) -> ProteomicsEvidenceNode:
     return _require_node_by_id(graph, edge.target_node_id)
 
 
 def _source_nodes_for_relation(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     edges: tuple[ProteomicsEvidenceEdge, ...],
     relation: ProteomicsEvidenceEdgeKind,
 ) -> tuple[ProteomicsEvidenceNode, ...]:
@@ -529,7 +538,7 @@ def _source_nodes_for_relation(
 
 
 def _target_nodes_for_relation(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     edges: tuple[ProteomicsEvidenceEdge, ...],
     relation: ProteomicsEvidenceEdgeKind,
 ) -> tuple[ProteomicsEvidenceNode, ...]:
@@ -539,7 +548,7 @@ def _target_nodes_for_relation(
 
 
 def _walk_edges(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     *,
     seed_node_id: str,
     relation_filter: set[ProteomicsEvidenceEdgeKind] | None,
@@ -578,9 +587,11 @@ def _walk_edges(
 
 
 def _adjacent_edges(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     node_id: str,
 ) -> tuple[ProteomicsEvidenceEdge, ...]:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.adjacent_edges(node_id)
     return tuple(
         edge
         for edge in graph.edges
@@ -589,24 +600,30 @@ def _adjacent_edges(
 
 
 def _incoming_edges(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     node_id: str,
 ) -> tuple[ProteomicsEvidenceEdge, ...]:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.incoming_edges(node_id)
     return tuple(edge for edge in graph.edges if edge.target_node_id == node_id)
 
 
 def _outgoing_edges(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     node_id: str,
 ) -> tuple[ProteomicsEvidenceEdge, ...]:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.outgoing_edges(node_id)
     return tuple(edge for edge in graph.edges if edge.source_node_id == node_id)
 
 
 def _require_node(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     kind: ProteomicsEvidenceNodeKind,
     entity_ref: str,
 ) -> ProteomicsEvidenceNode:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.require_node(kind, entity_ref)
     for node in graph.nodes:
         if node.entity_type is kind and node.entity_ref == entity_ref:
             return node
@@ -614,9 +631,11 @@ def _require_node(
 
 
 def _require_node_by_id(
-    graph: ProteomicsEvidenceGraph,
+    graph: EvidenceGraphQuerySurface,
     node_id: str,
 ) -> ProteomicsEvidenceNode:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.require_node_by_id(node_id)
     for node in graph.nodes:
         if node.node_id == node_id:
             return node

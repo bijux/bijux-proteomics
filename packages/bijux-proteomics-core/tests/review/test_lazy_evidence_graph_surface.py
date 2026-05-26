@@ -7,6 +7,9 @@ import pytest
 
 from bijux_proteomics.review import (
     export_proteomics_evidence_graph,
+    query_peptide_support_chain,
+    query_protein_evidence_summary,
+    query_ptm_site_evidence,
     render_proteomics_evidence_graph_edges_tsv,
     render_proteomics_evidence_graph_nodes_tsv,
 )
@@ -17,9 +20,7 @@ from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
 from .test_evidence_graph_query_engine_surface import build_review_query_fixture_graph
 
 
-def test_load_lazy_proteomics_evidence_graph_preserves_summary_and_node_lookup(
-    tmp_path,
-) -> None:
+def _write_lazy_graph_artifacts(tmp_path):
     graph = build_review_query_fixture_graph()
     bundle = export_proteomics_evidence_graph(graph)
     nodes_path = tmp_path / "evidence_graph_nodes.tsv"
@@ -32,8 +33,13 @@ def test_load_lazy_proteomics_evidence_graph_preserves_summary_and_node_lookup(
         render_proteomics_evidence_graph_edges_tsv(bundle),
         encoding="utf-8",
     )
+    return graph, load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
 
-    lazy_graph = load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
+
+def test_load_lazy_proteomics_evidence_graph_preserves_summary_and_node_lookup(
+    tmp_path,
+) -> None:
+    graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
 
     assert lazy_graph.summary == graph.summary
     assert lazy_graph.require_node_by_id("protein:P11111").entity_ref == "P11111"
@@ -65,3 +71,18 @@ def test_load_lazy_proteomics_evidence_graph_rejects_missing_edge_endpoints(
         match="edge target node is missing from lazy graph artifacts: protein:P11111",
     ):
         load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
+
+
+def test_lazy_graph_matches_eager_protein_peptide_and_ptm_queries(tmp_path) -> None:
+    graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
+
+    eager_protein = query_protein_evidence_summary(graph, protein_id="P11111")
+    lazy_protein = query_protein_evidence_summary(lazy_graph, protein_id="P11111")
+    eager_peptide = query_peptide_support_chain(graph, peptide_id="PEPTIDE")
+    lazy_peptide = query_peptide_support_chain(lazy_graph, peptide_id="PEPTIDE")
+    eager_ptm = query_ptm_site_evidence(graph, ptm_site_id="P11111:S3:Phospho")
+    lazy_ptm = query_ptm_site_evidence(lazy_graph, ptm_site_id="P11111:S3:Phospho")
+
+    assert lazy_protein == eager_protein
+    assert lazy_peptide == eager_peptide
+    assert lazy_ptm == eager_ptm
