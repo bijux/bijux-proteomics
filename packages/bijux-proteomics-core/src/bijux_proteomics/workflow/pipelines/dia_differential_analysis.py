@@ -39,6 +39,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
+    render_label_free_quant_missingness_matrix_tsv,
 )
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
@@ -737,6 +738,12 @@ def render_dia_differential_matrix_tsv(table: LabelFreeQuantTable) -> str:
     return handle.getvalue()
 
 
+def render_dia_differential_missingness_tsv(table: LabelFreeQuantTable) -> str:
+    """Render one DIA differential missingness mask beside the wide matrix."""
+
+    return render_label_free_quant_missingness_matrix_tsv(table)
+
+
 def render_dia_differential_results_tsv(
     report: DiaDifferentialAnalysisReport,
 ) -> str:
@@ -847,6 +854,14 @@ def export_dia_differential_matrix_tsv(table: LabelFreeQuantTable, path: Path) -
     """Write one DIA differential matrix to a stable TSV artifact."""
 
     write_output_table_tsv(path, render_dia_differential_matrix_tsv(table))
+
+
+def export_dia_differential_missingness_tsv(
+    table: LabelFreeQuantTable, path: Path
+) -> None:
+    """Write one DIA differential missingness mask to a stable TSV artifact."""
+
+    write_output_table_tsv(path, render_dia_differential_missingness_tsv(table))
 
 
 def export_dia_differential_results_tsv(

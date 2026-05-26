@@ -41,6 +41,7 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     DifferentialReplicatePolicy,
     ImputationMethod,
+    MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
     NormalizationMethod,
     QuantAssessmentDisposition,
@@ -97,6 +98,7 @@ class LabelBasedDifferentialMatrixValue(JsonModel):
 
     sample_id: str = Field(..., min_length=1)
     abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind = MissingValueKind.OBSERVED
     source_feature_count: int = Field(..., ge=0)
 
 
@@ -530,6 +532,30 @@ def render_label_based_differential_matrix_tsv(
     return handle.getvalue()
 
 
+def render_label_based_differential_missingness_tsv(
+    report: LabelBasedDifferentialInputReport,
+) -> str:
+    """Render one labeled differential missingness mask beside the wide matrix."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("entity_id", "protein_refs", "member_peptides", *report.sample_ids))
+    for row in report.rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        writer.writerow(
+            (
+                row.entity_id,
+                ";".join(row.protein_refs),
+                ";".join(row.member_peptides),
+                *[
+                    value_lookup[sample_id].missing_value_kind.value
+                    for sample_id in report.sample_ids
+                ],
+            )
+        )
+    return handle.getvalue()
+
+
 def render_label_based_differential_results_tsv(
     report: LabelBasedDifferentialAnalysisReport,
 ) -> str:
@@ -617,6 +643,15 @@ def export_label_based_differential_matrix_tsv(
     write_output_table_tsv(path, render_label_based_differential_matrix_tsv(report))
 
 
+def export_label_based_differential_missingness_tsv(
+    report: LabelBasedDifferentialInputReport,
+    path: Path,
+) -> None:
+    """Write one labeled differential missingness mask to a stable TSV artifact."""
+
+    write_output_table_tsv(path, render_label_based_differential_missingness_tsv(report))
+
+
 def export_label_based_differential_results_tsv(
     report: LabelBasedDifferentialAnalysisReport,
     path: Path,
@@ -661,6 +696,7 @@ def _build_input_report_from_protein_matrix(
                 LabelBasedDifferentialMatrixValue(
                     sample_id=value.sample_id,
                     abundance=value.abundance,
+                    missing_value_kind=value.missing_value_kind,
                     source_feature_count=value.contributing_peptide_count,
                 )
                 for value in row.values
@@ -720,6 +756,11 @@ def _build_input_report_from_silac_ratio_report(
                             LabelBasedDifferentialMatrixValue(
                                 sample_id=entry.sample_id,
                                 abundance=entry.ratio,
+                                missing_value_kind=(
+                                    MissingValueKind.ZERO
+                                    if entry.ratio == 0.0
+                                    else MissingValueKind.OBSERVED
+                                ),
                                 source_feature_count=len(
                                     entry.contributing_peptide_ids
                                 ),
@@ -1226,6 +1267,7 @@ def _fill_missing_matrix_values(
             LabelBasedDifferentialMatrixValue(
                 sample_id=sample_id,
                 abundance=None,
+                missing_value_kind=MissingValueKind.NOT_OBSERVED,
                 source_feature_count=0,
             ),
         )
