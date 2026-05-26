@@ -12,6 +12,8 @@ from bijux_proteomics.review import (
     build_evidence_graph_final_result_table,
 )
 
+from .test_evidence_graph_contradiction_surface import build_contradiction_fixture_graph
+
 
 def build_downgrade_fixture_graph() -> ProteomicsEvidenceGraph:
     builder = ProteomicsEvidenceGraphBuilder()
@@ -135,6 +137,39 @@ def test_build_evidence_graph_final_result_table_preserves_final_result_provenan
         "psm.tsv:50",
         "quant_stats.tsv:50",
     )
+
+
+def test_build_evidence_graph_final_result_table_downgrades_fail_contradictions_to_low_confidence() -> None:
+    report = build_evidence_graph_final_result_table(build_contradiction_fixture_graph())
+
+    by_claim = {entry.claim_node_ref: entry for entry in report.entries}
+    protein_entry = by_claim["protein:treatment_vs_control:P11111"]
+    pathway_entry = by_claim["pathway:treatment_vs_control:R-HSA-199420"]
+
+    assert protein_entry.confidence_tier.value == "low"
+    assert protein_entry.evidence_tier.value == "weak"
+    assert [reason.value for reason in protein_entry.downgrade_reasons] == [
+        "severe_contradiction"
+    ]
+
+    assert pathway_entry.confidence_tier.value == "low"
+    assert pathway_entry.evidence_tier.value == "weak"
+    assert [reason.value for reason in pathway_entry.downgrade_reasons] == [
+        "severe_contradiction"
+    ]
+
+
+def test_build_evidence_graph_final_result_table_marks_caution_contradictions_without_hiding_claims() -> None:
+    report = build_evidence_graph_final_result_table(build_contradiction_fixture_graph())
+
+    by_claim = {entry.claim_node_ref: entry for entry in report.entries}
+    ptm_entry = by_claim["ptm:treatment_vs_control:P11111:S3:Phospho"]
+
+    assert ptm_entry.confidence_tier.value == "moderate"
+    assert ptm_entry.evidence_tier.value == "weak"
+    assert [reason.value for reason in ptm_entry.downgrade_reasons] == [
+        "contradiction_caution"
+    ]
 
 
 def _add_clean_protein_claim(
