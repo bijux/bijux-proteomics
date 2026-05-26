@@ -347,6 +347,6 @@ def test_validate_workflow_artifact_manifest_rejects_missing_advanced_diann_reje
 
     with pytest.raises(
         ScientificEvidenceError,
-        match="missing diann_import_rejected_evidence.tsv declared at manifest.artifacts.rejected_evidence_tsv",
+        match="missing rejected_evidence.tsv declared at manifest.artifacts.rejected_evidence_tsv",
     ):
         validate_workflow_artifact_manifest(output_dir)

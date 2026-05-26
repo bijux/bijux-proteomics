@@ -58,7 +58,7 @@ from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
     artifact_name_map,
-    build_rejected_evidence_entry,
+    build_rejected_evidence_entries_from_table_rows,
     build_result_warning,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
@@ -127,6 +127,7 @@ class AdvancedDiannWorkflowArtifactPaths(JsonModel):
     diann_workflow_manifest_json: str = Field(..., min_length=1)
     biological_report_manifest_json: str = Field(..., min_length=1)
     rejected_evidence_tsv: str = Field(..., min_length=1)
+    import_rejected_evidence_tsv: str = Field(..., min_length=1)
     supported_claim_tsv: str | None = None
     rejected_claim_tsv: str | None = None
     graph_final_results_tsv: str = Field(..., min_length=1)
@@ -319,7 +320,8 @@ def run_advanced_diann_workflow(
             summary_tsv=summary_name,
             diann_workflow_manifest_json=diann_manifest_path.name,
             biological_report_manifest_json=diann_manifest.artifacts.biological_manifest_json,
-            rejected_evidence_tsv=diann_manifest.artifacts.import_rejected_evidence_tsv,
+            rejected_evidence_tsv=diann_manifest.artifacts.rejected_evidence_tsv,
+            import_rejected_evidence_tsv=diann_manifest.artifacts.import_rejected_evidence_tsv,
             supported_claim_tsv=diann_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
             rejected_claim_tsv=diann_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
             graph_final_results_tsv=final_results_name,
@@ -453,18 +455,10 @@ def _build_advanced_diann_rejected_evidence(
     report: DiannBiologicalWorkflowBundle,
     manifest: AdvancedDiannWorkflowManifest,
 ) -> tuple:
-    return tuple(
-        build_rejected_evidence_entry(
-            evidence_id=(
-                f"advanced_diann:{row.entity_type}:{row.entity_id}:{row.row_number}:{row.reason_code}"
-            ),
-            source_surface="advanced_diann_workflow",
-            reason_code=row.reason_code,
-            message=row.detail,
-            related_artifact=manifest.artifacts.rejected_evidence_tsv,
-            entity_id=row.entity_id,
-        )
-        for row in report.import_report.rejected_evidence_rows
+    return build_rejected_evidence_entries_from_table_rows(
+        report.import_report.rejected_evidence_rows,
+        source_surface="diann_import",
+        related_artifact=manifest.artifacts.rejected_evidence_tsv,
     )
 
 

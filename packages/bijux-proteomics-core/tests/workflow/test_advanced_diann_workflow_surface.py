@@ -64,6 +64,7 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     ).read_text(encoding="utf-8")
 
     assert report.summary.rejected_evidence_count == 1
+    assert report.manifest.artifacts.rejected_evidence_tsv == "rejected_evidence.tsv"
     assert report.summary.accepted_protein_count >= 1
     assert report.summary.downgraded_protein_count >= 1
     assert report.summary.belief_audit_entry_count >= 1
@@ -71,6 +72,10 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     assert "Q99999" in downgraded_tsv
     assert "shared_peptide_only" in downgraded_tsv
     assert "raw_bad_precursor" in rejected_evidence_tsv
+    assert rejected_evidence_tsv.splitlines()[0] == (
+        "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
+        "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
+    )
     assert "audit_id\tsubject_kind\tsubject_id" in belief_audit_tsv
     assert (output_dir / "manifest.json").exists()
     assert (output_dir / "inputs").is_dir()
