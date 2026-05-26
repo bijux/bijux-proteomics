@@ -123,6 +123,18 @@ class DiannBiologicalWorkflowBundle(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class DiannQuantMatrixBundle(JsonModel):
+    """Owned DIA-NN matrix stage bundle shared by runtime and workflow surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    import_report: DiaNnBundleImportReport
+    precursor_matrix_report: DiaPrecursorMatrixReport
+    peptide_matrix_report: DiaPeptideMatrixReport
+    protein_matrix_report: DiaProteinMatrixReport
+    note: str = Field(..., min_length=1)
+
+
 class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     """Relative artifact paths written into one DIA-NN biology output directory."""
 
@@ -205,11 +217,52 @@ def build_diann_biological_workflow_bundle(
 ) -> DiannBiologicalWorkflowBundle:
     """Build one governed DIA-NN-to-biology workflow bundle."""
 
-    experiment_design = coerce_experiment_design(design_entries)
     import_report = build_diann_import_report(
         result_tsv_path,
         config_path=config_path,
     )
+    quant_matrix_bundle = build_diann_quant_matrix_bundle(
+        import_report,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        peptide_rollup_method=peptide_rollup_method,
+        target_kind=target_kind,
+        shared_peptide_policy=shared_peptide_policy,
+        protein_rollup_method=protein_rollup_method,
+    )
+    return build_diann_biological_workflow_bundle_from_reports(
+        quant_matrix_bundle.import_report,
+        quant_matrix_bundle,
+        design_entries,
+        proteins_fasta_path=proteins_fasta_path,
+        protocol_context_tsv_path=protocol_context_tsv_path,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        normalization_method=normalization_method,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        annotation_tsv_path=annotation_tsv_path,
+        context_annotation_tsv_path=context_annotation_tsv_path,
+        go_annotation_tsv_path=go_annotation_tsv_path,
+        pathway_membership_tsv_path=pathway_membership_tsv_path,
+        complex_membership_tsv_path=complex_membership_tsv_path,
+        selection_policy=selection_policy,
+        volcano_policy=volcano_policy,
+    )
+
+
+def build_diann_quant_matrix_bundle(
+    import_report: DiaNnBundleImportReport,
+    *,
+    include_decoys: bool = False,
+    max_q_value: float | None = 0.01,
+    peptide_rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+    target_kind: DiaProteinMatrixTargetKind = DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+    shared_peptide_policy: DiaSharedPeptidePolicy = DiaSharedPeptidePolicy.INCLUDE,
+    protein_rollup_method: DiaProteinRollupMethod = DiaProteinRollupMethod.SUM,
+) -> DiannQuantMatrixBundle:
+    """Build the governed DIA-NN precursor, peptide, and protein matrix stage."""
+
     precursor_matrix_report = build_dia_precursor_matrix_report(
         import_report.precursor_rows,
         source_name="DIA-NN",
@@ -228,8 +281,43 @@ def build_diann_biological_workflow_bundle(
         shared_peptide_policy=shared_peptide_policy,
         rollup_method=protein_rollup_method,
     )
+    return DiannQuantMatrixBundle(
+        import_report=import_report,
+        precursor_matrix_report=precursor_matrix_report,
+        peptide_matrix_report=peptide_matrix_report,
+        protein_matrix_report=protein_matrix_report,
+        note=(
+            "dia-nn matrix bundle preserves import-owned precursor rows together with "
+            "governed precursor, peptide, and protein rollup stages for downstream runtime reuse"
+        ),
+    )
+
+
+def build_diann_biological_workflow_bundle_from_reports(
+    import_report: DiaNnBundleImportReport,
+    quant_matrix_bundle: DiannQuantMatrixBundle,
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    *,
+    proteins_fasta_path: Path,
+    protocol_context_tsv_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = 0.01,
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    annotation_tsv_path: Path | None = None,
+    context_annotation_tsv_path: Path | None = None,
+    go_annotation_tsv_path: Path | None = None,
+    pathway_membership_tsv_path: Path | None = None,
+    complex_membership_tsv_path: Path | None = None,
+    selection_policy: BiologicalResultSelectionPolicy | None = None,
+    volcano_policy: VolcanoReviewPolicy | None = None,
+) -> DiannBiologicalWorkflowBundle:
+    """Build the governed DIA-NN biology bundle from persisted import and matrix stages."""
+
+    experiment_design = coerce_experiment_design(design_entries)
     differential_input = build_dia_differential_input_report(
-        protein_matrix_report,
+        quant_matrix_bundle.protein_matrix_report,
         source_kind=DiaDifferentialSourceKind.DIANN,
         note=(
             "dia differential input preserves one protein-level sample matrix over governed DIA-NN rollup evidence"
@@ -266,9 +354,9 @@ def build_diann_biological_workflow_bundle(
     )
     return DiannBiologicalWorkflowBundle(
         import_report=import_report,
-        precursor_matrix_report=precursor_matrix_report,
-        peptide_matrix_report=peptide_matrix_report,
-        protein_matrix_report=protein_matrix_report,
+        precursor_matrix_report=quant_matrix_bundle.precursor_matrix_report,
+        peptide_matrix_report=quant_matrix_bundle.peptide_matrix_report,
+        protein_matrix_report=quant_matrix_bundle.protein_matrix_report,
         run_qc_report=run_qc_report,
         differential_analysis_report=differential_analysis_report,
         biological_report=biological_report,
@@ -277,9 +365,9 @@ def build_diann_biological_workflow_bundle(
             rejected_precursor_count=import_report.summary.rejected_precursor_count,
             rejected_evidence_count=len(import_report.rejected_evidence_rows),
             imported_protein_group_row_count=import_report.summary.protein_group_row_count,
-            filtered_q_value_row_count=precursor_matrix_report.summary.excluded_q_value_count,
-            precursor_matrix_row_count=precursor_matrix_report.summary.precursor_row_count,
-            protein_matrix_row_count=protein_matrix_report.summary.protein_row_count,
+            filtered_q_value_row_count=quant_matrix_bundle.precursor_matrix_report.summary.excluded_q_value_count,
+            precursor_matrix_row_count=quant_matrix_bundle.precursor_matrix_report.summary.precursor_row_count,
+            protein_matrix_row_count=quant_matrix_bundle.protein_matrix_report.summary.protein_row_count,
             run_count=run_qc_report.summary.run_count,
             flagged_run_count=run_qc_report.summary.flagged_run_count,
             significant_protein_count=biological_report.summary.significant_protein_count,
