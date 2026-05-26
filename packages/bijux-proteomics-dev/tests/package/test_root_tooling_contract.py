@@ -90,6 +90,8 @@ def test_root_make_declares_documented_repository_extensions() -> None:
     assert "quality-public-api-types:" in root_make
     assert "quality-circular-imports:" in root_make
     assert "quality-core-dependency-minimization:" in root_make
+    assert "quality-optional-dependency-guards:" in root_make
     assert "$(MAKE) quality-public-api-types" in root_make
     assert "$(MAKE) quality-circular-imports" in root_make
     assert "$(MAKE) quality-core-dependency-minimization" in root_make
+    assert "$(MAKE) quality-optional-dependency-guards" in root_make
