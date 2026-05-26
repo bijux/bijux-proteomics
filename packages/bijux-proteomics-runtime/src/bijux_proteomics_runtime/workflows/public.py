@@ -19,6 +19,12 @@ if TYPE_CHECKING:
         build_flagship_workflow_failure_taxonomy,
         build_minimum_real_workflow_proof_bar,
     )
+    from bijux_proteomics_runtime.workflows.architecture_demo import (
+        RuntimeArchitectureDemoArtifacts,
+        RuntimeArchitectureDemoConfig,
+        RuntimeArchitectureDemoWorkflowReport,
+        run_runtime_architecture_demo,
+    )
     from bijux_proteomics_runtime.workflows.advanced_diann import (
         AdvancedDiannDryRunInputCheck,
         AdvancedDiannDryRunIssue,
@@ -275,6 +281,12 @@ if TYPE_CHECKING:
     )
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.architecture_demo": [
+        "RuntimeArchitectureDemoArtifacts",
+        "RuntimeArchitectureDemoConfig",
+        "RuntimeArchitectureDemoWorkflowReport",
+        "run_runtime_architecture_demo",
+    ],
     "bijux_proteomics_runtime.workflows.advanced_diann_comparison": [
         "AdvancedDiannClaimChangeEntry",
         "AdvancedDiannClaimComparisonState",
@@ -624,6 +636,9 @@ __all__ = (
     "QuantRuntimeWorkflowRunReport",
     "ReproducibleWorkflowBlueprint",
     "RuntimeArtifactStabilityEntry",
+    "RuntimeArchitectureDemoArtifacts",
+    "RuntimeArchitectureDemoConfig",
+    "RuntimeArchitectureDemoWorkflowReport",
     "RuntimeBlackBoxRerunGate",
     "RuntimeBlackBoxRerunIssue",
     "RuntimeBlackBoxVerificationRoute",
@@ -769,6 +784,7 @@ __all__ = (
     "run_benchmark_sequence_path",
     "run_benchmark_targeted_generalization_review_path",
     "run_benchmark_targeted_review_path",
+    "run_runtime_architecture_demo",
     "run_multiplex_workflow_end_to_end",
     "run_ptm_workflow_end_to_end",
     "run_quant_workflow_end_to_end",
