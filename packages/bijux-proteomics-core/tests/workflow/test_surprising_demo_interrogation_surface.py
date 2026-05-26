@@ -36,7 +36,7 @@ def test_build_surprising_demo_interrogation_report_answers_all_shipped_examples
     protein_answer = answers_by_kind[SurprisingDemoQueryKind.WHY_PROTEIN_CHANGED]
     assert protein_answer.subject_id == "P11111"
     assert "statistical_result:protein:control_vs_treated:P11111" in protein_answer.evidence_ids
-    assert "biological_protein_cards:protein-card-p11111" in protein_answer.source_row_refs
+    assert "biological_protein_cards:protein-card:P11111" in protein_answer.source_row_refs
     assert "evidence_tier:high_support" in protein_answer.confidence_reasons
 
     site_answer = answers_by_kind[SurprisingDemoQueryKind.WHY_SITE_AMBIGUOUS]
