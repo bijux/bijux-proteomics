@@ -42,6 +42,7 @@ class ResultManifestInputKind(StrEnum):
     SOURCE_REPORT_DIRECTORY = "source_report_directory"
     SOURCE_REPORT_MANIFEST = "source_report_manifest"
     RUN_QC_ASSESSMENT = "run_qc_assessment"
+    LAB_ACTION_PACKET = "lab_action_packet"
     ADDITIONAL_INPUT = "additional_input"
 
 
@@ -181,6 +182,7 @@ def build_result_manifest_from_artifacts(
     biological_report_dir: Path | None = None,
     ptm_report_dir: Path | None = None,
     run_qc_assessment_tsv_paths: tuple[Path, ...] = (),
+    lab_action_packet_tsv_paths: tuple[Path, ...] = (),
     input_paths: tuple[Path, ...] = (),
     commands: tuple[str, ...],
 ) -> ResultManifestReport:
@@ -236,6 +238,7 @@ def build_result_manifest_from_artifacts(
     inputs = _build_input_entries(
         source_contexts=source_contexts,
         run_qc_assessment_tsv_paths=run_qc_assessment_tsv_paths,
+        lab_action_packet_tsv_paths=lab_action_packet_tsv_paths,
         input_paths=input_paths,
     )
     command_entries = _build_command_entries(commands)
@@ -279,7 +282,8 @@ def build_result_manifest_from_artifacts(
         note=(
             "machine-readable result manifests preserve explicit source report manifests, "
             "file-level completeness, entity counts, caller-supplied command lineage, "
-            "and major QC or confidence warnings so downstream tools can verify one result package automatically"
+            "archived lab action packets, and major QC or confidence warnings so "
+            "downstream tools can verify one result package automatically"
         ),
     )
     payload = report.to_dict()
@@ -460,6 +464,7 @@ def _build_input_entries(
     *,
     source_contexts: tuple[_SourceArtifactContext, ...],
     run_qc_assessment_tsv_paths: tuple[Path, ...],
+    lab_action_packet_tsv_paths: tuple[Path, ...],
     input_paths: tuple[Path, ...],
 ) -> tuple[ResultManifestInput, ...]:
     entries: list[ResultManifestInput] = []
@@ -494,6 +499,17 @@ def _build_input_entries(
                 sha256=_hash_file(path),
                 byte_size=path.stat().st_size,
                 note="explicit QC assessment input contributes major warning extraction",
+            )
+        )
+    for index, path in enumerate(lab_action_packet_tsv_paths, start=1):
+        entries.append(
+            ResultManifestInput(
+                input_id=f"input:lab_action_packet:{index}",
+                input_kind=ResultManifestInputKind.LAB_ACTION_PACKET,
+                path=str(path),
+                sha256=_hash_file(path),
+                byte_size=path.stat().st_size,
+                note="archived lab action packet preserves failed run or sample troubleshooting across archive handoff",
             )
         )
     for index, path in enumerate(input_paths, start=1):
