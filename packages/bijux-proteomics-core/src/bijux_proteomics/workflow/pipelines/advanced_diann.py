@@ -200,13 +200,9 @@ def run_advanced_diann_workflow(
 ) -> AdvancedDiannWorkflowReport:
     """Run the advanced DIA-NN workflow and write one durable review directory."""
 
-    _validate_fragment_inputs(config)
-    output_dir = config.output_dir
-    output_dir.mkdir(parents=True, exist_ok=True)
     design_entries = tuple(
         parse_experimental_design_table(config.design_tsv_path).accepted_entries
     )
-
     base_report = build_diann_biological_workflow_bundle(
         config.result_tsv_path,
         design_entries,
@@ -230,6 +226,19 @@ def run_advanced_diann_workflow(
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
     )
+    return build_advanced_diann_workflow_report_from_bundle(base_report, config)
+
+
+def build_advanced_diann_workflow_report_from_bundle(
+    base_report: DiannBiologicalWorkflowBundle,
+    config: AdvancedDiannWorkflowConfig,
+) -> AdvancedDiannWorkflowReport:
+    """Materialize the advanced DIA-NN review directory from a governed base bundle."""
+
+    _validate_fragment_inputs(config)
+    output_dir = config.output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     diann_manifest = write_diann_biological_workflow_bundle(base_report, output_dir)
     diann_manifest_path = output_dir / "diann_biological_report_manifest.json"
     atomic_write_text(diann_manifest_path, diann_manifest.to_stable_json() + "\n")

@@ -8,12 +8,19 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.domain.errors import ScientificEvidenceError
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow import (
     AdvancedDiannWorkflowConfig,
     load_workflow_artifact_manifest,
     run_advanced_diann_workflow,
     validate_workflow_artifact_completeness,
     validate_workflow_artifact_manifest,
+)
+from bijux_proteomics.workflow.pipelines.advanced_diann import (
+    build_advanced_diann_workflow_report_from_bundle,
+)
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
+    build_diann_biological_workflow_bundle,
 )
 
 
@@ -155,6 +162,39 @@ def test_run_advanced_diann_workflow_exports_fragment_coelution_when_fragment_ev
     assert (
         output_dir / report.manifest.artifacts.fragment_coelution_fragments_tsv
     ).exists()
+
+
+def test_advanced_diann_workflow_builds_from_a_precomputed_biological_bundle(
+    tmp_path: Path,
+) -> None:
+    config = AdvancedDiannWorkflowConfig(
+        result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+        design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
+        proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+        output_dir=tmp_path / "advanced_diann_precomputed_bundle",
+        condition_a="control",
+        condition_b="treatment",
+    )
+    base_bundle = build_diann_biological_workflow_bundle(
+        config.result_tsv_path,
+        tuple(parse_experimental_design_table(config.design_tsv_path).accepted_entries),
+        proteins_fasta_path=config.proteins_fasta_path,
+        include_decoys=config.include_decoys,
+        max_q_value=config.max_q_value,
+        peptide_rollup_method=config.peptide_rollup_method,
+        target_kind=config.target_kind,
+        shared_peptide_policy=config.shared_peptide_policy,
+        protein_rollup_method=config.protein_rollup_method,
+        normalization_method=config.normalization_method,
+        condition_a=config.condition_a,
+        condition_b=config.condition_b,
+    )
+
+    report = build_advanced_diann_workflow_report_from_bundle(base_bundle, config)
+
+    assert report.summary.accepted_protein_count >= 1
+    assert report.summary.downgraded_protein_count >= 1
+    assert (config.output_dir / report.manifest.artifacts.summary_tsv).exists()
 
 
 def test_advanced_diann_workflow_completeness_requires_declared_belief_audit_artifact(
