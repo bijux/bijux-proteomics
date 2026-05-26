@@ -1222,8 +1222,8 @@ def test_belief_audit_command_emits_challengeable_conclusion_outputs() -> None:
         (ptm_dir / "ptm_evidence_cards.tsv").write_text(
             "\n".join(
                 (
-                    "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
-                    "ptm-card-p11111\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t0.7\thigh_confidence\t4\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5",
+                    "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason",
+                    "ptm-card-p11111\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t0.7\thigh_confidence\t4\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\tptm-claim:P11111-S5\tptm_localization.tsv:4\t",
                 )
             )
             + "\n",
@@ -1308,8 +1308,8 @@ def test_analysis_recommendations_command_emits_condition_tied_actions() -> None
         (ptm_dir / "ptm_evidence_cards.tsv").write_text(
             "\n".join(
                 (
-                    "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids",
-                    "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1",
+                    "card_id\tsite_key\tprotein_ref\tcondition_a\tcondition_b\tadjusted_p_value\tlog2_fold_change\tcorrected_log2_fold_change\tlocalization_tier\tobserved_sample_count\tprotein_correction_status\tmechanism_reason_codes\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason",
+                    "ptm-card-1\tP11111:S5:Phospho\tP11111\tcontrol\ttreated\t0.03\t1.5\t\tmedium_confidence\t4\tnot_requested\tcontext_supported\t\tptm-claim-1\tptm_localization.tsv:4\t",
                 )
             )
             + "\n",
@@ -9231,8 +9231,8 @@ def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candid
         ptm_report_dir = Path("ptm_report")
         ptm_report_dir.mkdir()
         ptm_report_dir.joinpath("ptm_evidence_cards.tsv").write_text(
-            "card_id\tsite_key\tprotein_ref\tresidue\tposition\tmodification_name\tidentity_level\tlocalization_tier\tmechanism_class\tpeptide_spectrum_count\tobserved_sample_count\tcentered_windows\tortholog_conservation_status\tfunctional_regions\tregulators\twarning_codes\n"
-            "ptm-card:1\tP33333:S21:phosphorylation\tP33333\tS\t21\tphosphorylation\tprotein_level\thigh\tsite_specific\t7\t4\tRXXS\tconserved\tactivation_loop\tKINASE_A\t\n",
+            "card_id\tsite_key\tprotein_ref\tresidue\tposition\tmodification_name\tidentity_level\tlocalization_tier\tmechanism_class\tpeptide_spectrum_count\tobserved_sample_count\tcentered_windows\tortholog_conservation_status\tfunctional_regions\tregulators\twarning_codes\tclaim_ids\tsource_row_refs\tderived_no_source_reason\n"
+            "ptm-card:1\tP33333:S21:phosphorylation\tP33333\tS\t21\tphosphorylation\tprotein_level\thigh\tsite_specific\t7\t4\tRXXS\tconserved\tactivation_loop\tKINASE_A\t\tptm-claim:1\tptm_localization.tsv:7\t\n",
             encoding="utf-8",
         )
         ptm_report_dir.joinpath("ptm_differential.tsv").write_text(
