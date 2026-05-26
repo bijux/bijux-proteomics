@@ -26,6 +26,14 @@ class SemanticIdNamespace(StrEnum):
     PROTEIN_CARD = "protein-card"
     PROTEIN_MECHANISM_CARD = "protein-mechanism-card"
     PTM_CARD = "ptm-card"
+    PATHWAY_SHIFT_CARD = "pathway-shift-card"
+    KINASE_CANDIDATE_CARD = "kinase-candidate-card"
+    COMPLEX_CHANGE_CARD = "complex-change-card"
+    COMPARTMENT_SIGNAL_CARD = "compartment-signal-card"
+    BIOMARKER_CANDIDATE_CARD = "biomarker-candidate-card"
+    CROSS_STUDY_PROTEIN_CARD = "cross-study-protein-card"
+    CROSS_STUDY_PATHWAY_CARD = "cross-study-pathway-card"
+    RAW_SIGNAL_CARD = "raw-signal-card"
     MATRIX = "matrix"
     ARTIFACT = "artifact"
 
@@ -180,6 +188,45 @@ def build_ptm_card_id(
     )
 
 
+def build_mechanism_card_id(
+    mechanism_kind: str,
+    subject_id: str,
+) -> str:
+    """Build the canonical mechanism-card identifier for workflow cards."""
+
+    namespace = {
+        "pathway_shift": SemanticIdNamespace.PATHWAY_SHIFT_CARD,
+        "kinase_candidate": SemanticIdNamespace.KINASE_CANDIDATE_CARD,
+        "complex_change": SemanticIdNamespace.COMPLEX_CHANGE_CARD,
+        "compartment_signal": SemanticIdNamespace.COMPARTMENT_SIGNAL_CARD,
+        "biomarker_candidate": SemanticIdNamespace.BIOMARKER_CANDIDATE_CARD,
+    }.get(str(getattr(mechanism_kind, "value", mechanism_kind)).strip())
+    if namespace is None:
+        raise ValueError(f"unsupported mechanism card kind {mechanism_kind!r}")
+    return _compose_id(namespace, subject_id)
+
+
+def build_cross_study_card_id(
+    subject_kind: str,
+    subject_id: str,
+) -> str:
+    """Build the canonical cross-study evidence-card identifier."""
+
+    namespace = {
+        "protein": SemanticIdNamespace.CROSS_STUDY_PROTEIN_CARD,
+        "pathway": SemanticIdNamespace.CROSS_STUDY_PATHWAY_CARD,
+    }.get(str(getattr(subject_kind, "value", subject_kind)).strip())
+    if namespace is None:
+        raise ValueError(f"unsupported cross-study subject kind {subject_kind!r}")
+    return _compose_id(namespace, subject_id)
+
+
+def build_raw_signal_card_id(precursor_id: str) -> str:
+    """Build the canonical raw-signal evidence-card identifier."""
+
+    return _compose_id(SemanticIdNamespace.RAW_SIGNAL_CARD, precursor_id)
+
+
 def build_matrix_id(
     entity_kind: str,
     measure_kind: str,
@@ -260,6 +307,8 @@ def _normalize_component(value: object, *, lowercase: bool) -> str:
 __all__ = [
     "SemanticIdNamespace",
     "build_artifact_id",
+    "build_cross_study_card_id",
+    "build_mechanism_card_id",
     "build_matrix_id",
     "build_pathway_claim_id",
     "build_peptide_id",
@@ -270,6 +319,7 @@ __all__ = [
     "build_psm_id",
     "build_ptm_card_id",
     "build_ptm_claim_id",
+    "build_raw_signal_card_id",
     "build_regulator_claim_id",
     "build_site_id",
     "classify_semantic_id",

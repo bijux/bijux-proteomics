@@ -8,10 +8,10 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
-import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
 from bijux_proteomics.interpretation.complex_activity import (
     ComplexActivityConfidenceStatus,
 )
@@ -297,7 +297,10 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
             confidence_score -= 0.25
         cards.append(
             MechanismCard(
-                card_id=f"pathway-shift-{_stable_token(entry.pathway_id)}",
+                card_id=build_mechanism_card_id(
+                    MechanismCardKind.PATHWAY_SHIFT,
+                    entry.pathway_id,
+                ),
                 mechanism_kind=MechanismCardKind.PATHWAY_SHIFT,
                 subject_id=entry.pathway_id,
                 subject_label=entry.pathway_name or entry.pathway_id,
@@ -368,7 +371,10 @@ def _build_kinase_candidate_cards(
             confidence_score -= 0.15
         cards.append(
             MechanismCard(
-                card_id=f"kinase-candidate-{_stable_token(entry.regulator)}",
+                card_id=build_mechanism_card_id(
+                    MechanismCardKind.KINASE_CANDIDATE,
+                    entry.regulator,
+                ),
                 mechanism_kind=MechanismCardKind.KINASE_CANDIDATE,
                 subject_id=entry.regulator,
                 subject_label=entry.regulator,
@@ -447,7 +453,10 @@ def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[M
             confidence_score -= 0.25
         cards.append(
             MechanismCard(
-                card_id=f"complex-change-{_stable_token(entry.complex_id)}",
+                card_id=build_mechanism_card_id(
+                    MechanismCardKind.COMPLEX_CHANGE,
+                    entry.complex_id,
+                ),
                 mechanism_kind=MechanismCardKind.COMPLEX_CHANGE,
                 subject_id=entry.complex_id,
                 subject_label=entry.complex_name or entry.complex_id,
@@ -528,7 +537,10 @@ def _build_compartment_signal_cards(
             confidence_score -= 0.25
         cards.append(
             MechanismCard(
-                card_id=f"compartment-signal-{_stable_token(entry.set_id)}",
+                card_id=build_mechanism_card_id(
+                    MechanismCardKind.COMPARTMENT_SIGNAL,
+                    entry.set_id,
+                ),
                 mechanism_kind=MechanismCardKind.COMPARTMENT_SIGNAL,
                 subject_id=entry.set_id,
                 subject_label=entry.set_name or entry.set_id,
@@ -598,7 +610,10 @@ def _build_biomarker_candidate_cards(
             missing_evidence.append("targeted validation assay confirmation")
         cards.append(
             MechanismCard(
-                card_id=f"biomarker-candidate-{_stable_token(entry.candidate_id)}",
+                card_id=build_mechanism_card_id(
+                    MechanismCardKind.BIOMARKER_CANDIDATE,
+                    entry.candidate_id,
+                ),
                 mechanism_kind=MechanismCardKind.BIOMARKER_CANDIDATE,
                 subject_id=entry.candidate_id,
                 subject_label=entry.display_label,
@@ -701,13 +716,6 @@ def _format_float(value: float | None) -> str:
     if value is None:
         return "na"
     return f"{value:.3f}"
-
-
-def _stable_token(value: str) -> str:
-    token = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-    return token or "unspecified"
-
-
 __all__ = [
     "MechanismCard",
     "MechanismCardConfidence",

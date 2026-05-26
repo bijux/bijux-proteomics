@@ -9,10 +9,10 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import build_cross_study_card_id
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,
@@ -795,12 +795,7 @@ def _pathway_card_status(
 
 
 def _card_id(subject_kind: CrossStudyEvidenceSubjectKind, subject_id: str) -> str:
-    return f"{subject_kind.value}_evidence_{_stable_token(subject_id)}"
-
-
-def _stable_token(value: str) -> str:
-    token = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
-    return token or "unspecified"
+    return build_cross_study_card_id(subject_kind, subject_id)
 
 
 def _format_float(value: float | None) -> str:

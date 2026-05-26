@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import build_raw_signal_card_id
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     parse_psm_tsv,
@@ -300,7 +301,7 @@ def build_raw_signal_evidence_card_report(
         )
         cards.append(
             RawSignalEvidenceCard(
-                card_id=f"raw_signal_card:{precursor_id}",
+                card_id=build_raw_signal_card_id(precursor_id),
                 precursor_id=precursor_id,
                 peptide_ref=spec.peptide_ref,
                 display_name=spec.display_name,
