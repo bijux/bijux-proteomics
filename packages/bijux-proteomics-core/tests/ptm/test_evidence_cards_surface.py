@@ -155,7 +155,7 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
 
     assert report.summary.card_count == 3
     assert report.summary.narrative_claim_count == 3
-    assert all(card.card_id.startswith("ptm-card-") for card in report.cards)
+    assert all(card.card_id.startswith("ptm-card:") for card in report.cards)
     assert all(card.claim_ids for card in report.cards)
     claim_card_ids = {claim.card_id for claim in report.narrative_claims}
     assert claim_card_ids == {card.card_id for card in report.cards}

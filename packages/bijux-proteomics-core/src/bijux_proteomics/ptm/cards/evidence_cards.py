@@ -15,6 +15,11 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import (
+    build_ptm_card_id,
+    build_ptm_claim_id,
+    build_site_id,
+)
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord, PtmSiteEntry
@@ -485,8 +490,14 @@ def build_ptm_evidence_card_report(
             differential_entry=differential_entry,
             site_entry=site_entry,
         )
-        card_id = _build_card_id(differential_entry)
-        claim_id = _build_claim_id(card_id)
+        site_id = build_site_id(
+            differential_entry.protein_ref,
+            differential_entry.residue,
+            differential_entry.position,
+            differential_entry.modification_name,
+        )
+        card_id = _build_card_id(differential_entry, site_id=site_id)
+        claim_id = _build_claim_id(differential_entry, site_id=site_id)
         cards.append(
             PtmEvidenceCard(
                 card_id=card_id,
@@ -1209,15 +1220,28 @@ def _build_card_warnings(
     return tuple(warnings)
 
 
-def _build_card_id(differential_entry: PtmSiteDifferentialEntry) -> str:
-    slug = _slugify(
-        f"{differential_entry.site_key}-{differential_entry.condition_a}-vs-{differential_entry.condition_b}"
+def _build_card_id(
+    differential_entry: PtmSiteDifferentialEntry,
+    *,
+    site_id: str,
+) -> str:
+    return build_ptm_card_id(
+        site_id,
+        differential_entry.condition_a,
+        differential_entry.condition_b,
     )
-    return f"ptm-card-{slug}"
 
 
-def _build_claim_id(card_id: str) -> str:
-    return f"{card_id}-claim"
+def _build_claim_id(
+    differential_entry: PtmSiteDifferentialEntry,
+    *,
+    site_id: str,
+) -> str:
+    return build_ptm_claim_id(
+        site_id,
+        differential_entry.condition_a,
+        differential_entry.condition_b,
+    )
 
 
 def _build_claim_text(
