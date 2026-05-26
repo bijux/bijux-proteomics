@@ -3288,6 +3288,17 @@ def build_workflow_runtime_validation_report(
     issues: list[WorkflowRuntimeValidationIssue] = []
     artifacts_root = Path(runtime_bundle.manifest.artifacts_dir)
     export_bundle = build_workflow_runtime_export_bundle(runtime_bundle)
+    dag_validation = validate_proteomics_dag_plan(runtime_bundle.dag_plan)
+
+    if not dag_validation.valid:
+        for issue in dag_validation.issues:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code=f"dag_{issue.code}",
+                    severity="error",
+                    message=issue.message,
+                )
+            )
 
     if runtime_bundle.deterministic_execution.manifest_sha256 != _stable_model_sha256(
         runtime_bundle.manifest
@@ -3413,6 +3424,7 @@ def build_workflow_runtime_validation_report(
         valid=not issues,
         checked_surfaces=(
             "manifest",
+            "dag-plan",
             "deterministic-execution",
             "runtime-state",
             "run-directory-layout",
