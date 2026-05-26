@@ -42,6 +42,10 @@ def test_generated_file_marker_policy_manifest_covers_governed_generated_familie
     )
     config_surface = policy.surfaces[0]
     assert (
+        "configs/package-governance/canonical-package-tree-layout.toml"
+        in config_surface.excluded_paths
+    )
+    assert (
         "configs/package-governance/internal-orphan-module-allowlist.toml"
         in config_surface.excluded_paths
     )
