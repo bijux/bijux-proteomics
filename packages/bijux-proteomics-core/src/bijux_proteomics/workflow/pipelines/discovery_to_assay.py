@@ -40,6 +40,10 @@ from bijux_proteomics.targeted import (
     build_validation_evidence_card_report,
     render_discovery_targeted_peptide_selection_rejected_tsv,
     render_discovery_targeted_peptide_selection_selected_tsv,
+    render_validation_evidence_card_assay_tsv,
+    render_validation_evidence_card_summary_tsv,
+    render_validation_evidence_card_tsv,
+    render_validation_evidence_card_warning_tsv,
     render_targeted_panel_design_assay_tsv,
     render_targeted_panel_design_omitted_candidate_tsv,
     render_targeted_panel_design_panel_tsv,
@@ -164,6 +168,18 @@ class DiscoveryToAssayArtifactPaths(JsonModel):
     assay_tsv: str = "discovery_to_assay_assays.tsv"
     panel_tsv: str = "discovery_to_assay_panel.tsv"
     omitted_targets_tsv: str = "discovery_to_assay_omitted_targets.tsv"
+    validation_candidate_summary_tsv: str = (
+        "discovery_to_assay_validation_candidate_summary.tsv"
+    )
+    validation_candidate_cards_tsv: str = (
+        "discovery_to_assay_validation_candidate_cards.tsv"
+    )
+    validation_candidate_assays_tsv: str = (
+        "discovery_to_assay_validation_candidate_assays.tsv"
+    )
+    validation_candidate_warnings_tsv: str = (
+        "discovery_to_assay_validation_candidate_warnings.tsv"
+    )
 
 
 class DiscoveryToAssayManifest(JsonModel):
@@ -460,6 +476,38 @@ def render_discovery_to_assay_omitted_targets_tsv(report: DiscoveryToAssayReport
     """Render omitted-target rows from the composed workflow report."""
 
     return render_targeted_panel_design_omitted_candidate_tsv(report.panel_design_report)
+
+
+def render_discovery_to_assay_validation_candidate_summary_tsv(
+    report: DiscoveryToAssayReport,
+) -> str:
+    """Render validation-candidate summary rows from the composed workflow report."""
+
+    return render_validation_evidence_card_summary_tsv(report.validation_candidate_cards)
+
+
+def render_discovery_to_assay_validation_candidate_cards_tsv(
+    report: DiscoveryToAssayReport,
+) -> str:
+    """Render validation-candidate card rows from the composed workflow report."""
+
+    return render_validation_evidence_card_tsv(report.validation_candidate_cards)
+
+
+def render_discovery_to_assay_validation_candidate_assays_tsv(
+    report: DiscoveryToAssayReport,
+) -> str:
+    """Render validation-candidate assay rows from the composed workflow report."""
+
+    return render_validation_evidence_card_assay_tsv(report.validation_candidate_cards)
+
+
+def render_discovery_to_assay_validation_candidate_warnings_tsv(
+    report: DiscoveryToAssayReport,
+) -> str:
+    """Render validation-candidate warning rows from the composed workflow report."""
+
+    return render_validation_evidence_card_warning_tsv(report.validation_candidate_cards)
 
 
 def _build_discovery_to_assay_warnings(
@@ -892,4 +940,8 @@ __all__ = [
     "render_discovery_to_assay_selected_transitions_tsv",
     "render_discovery_to_assay_summary_tsv",
     "render_discovery_to_assay_targets_tsv",
+    "render_discovery_to_assay_validation_candidate_assays_tsv",
+    "render_discovery_to_assay_validation_candidate_cards_tsv",
+    "render_discovery_to_assay_validation_candidate_summary_tsv",
+    "render_discovery_to_assay_validation_candidate_warnings_tsv",
 ]
