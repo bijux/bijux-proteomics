@@ -27,6 +27,20 @@
       "generated_unit_count": 1200,
       "baseline_seconds": 1.25,
       "regression_threshold_ratio": 3.0
+    },
+    {
+      "algorithm_id": "enrichment",
+      "workload_unit": "membership_rows",
+      "generated_unit_count": 120000,
+      "baseline_seconds": 0.35,
+      "regression_threshold_ratio": 3.0
+    },
+    {
+      "algorithm_id": "graph_query",
+      "workload_unit": "protein_queries",
+      "generated_unit_count": 2000,
+      "baseline_seconds": 0.07,
+      "regression_threshold_ratio": 4.0
     }
   ]
 }

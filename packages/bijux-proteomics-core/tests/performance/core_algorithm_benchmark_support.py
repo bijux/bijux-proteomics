@@ -19,6 +19,14 @@ from bijux_proteomics.identification import (
     TargetDecoyLabel,
     build_psm_target_decoy_fdr_report,
 )
+from bijux_proteomics.interpretation.pathway_enrichment import (
+    PathwayMemberKind,
+    PathwayMembershipRecord,
+    build_pathway_enrichment_report,
+)
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -37,6 +45,15 @@ from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
 )
 from bijux_proteomics.quantification.rollup.protein_lfq import (
     build_protein_lfq_report_from_peptides,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
+    ProteomicsEvidenceEdgeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_queries import (
+    query_protein_evidence_summary,
+)
+from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
+    load_lazy_proteomics_evidence_graph,
 )
 from bijux_proteomics.sequences import (
     build_peptide_uniqueness_index,
@@ -116,6 +133,43 @@ def benchmark_matrix_rollup_runtime() -> CoreAlgorithmPerformanceBenchmarkReport
     report = build_protein_lfq_report_from_peptides(peptide_matrix)
     observed_seconds = time.perf_counter() - started_at
     assert report.summary.protein_row_count == case.generated_unit_count
+    return _build_report(case, observed_seconds=observed_seconds)
+
+
+def benchmark_enrichment_runtime() -> CoreAlgorithmPerformanceBenchmarkReport:
+    """Benchmark pathway enrichment over a generated protein-membership corpus."""
+
+    case = CORE_ALGORITHM_BENCHMARK_CASES["enrichment"]
+    foreground, background, pathway_records = _build_generated_pathway_workload(
+        pathway_count=400,
+        members_per_pathway=300,
+        background_protein_count=2_200,
+        foreground_protein_count=440,
+    )
+    started_at = time.perf_counter()
+    report = build_pathway_enrichment_report(foreground, background, pathway_records)
+    observed_seconds = time.perf_counter() - started_at
+    assert len(pathway_records) == case.generated_unit_count
+    assert report.summary.evaluated_entry_count > 0
+    return _build_report(case, observed_seconds=observed_seconds)
+
+
+def benchmark_graph_query_runtime(tmp_path: Path) -> CoreAlgorithmPerformanceBenchmarkReport:
+    """Benchmark repeated lazy evidence-graph protein-summary queries."""
+
+    case = CORE_ALGORITHM_BENCHMARK_CASES["graph_query"]
+    nodes_path, edges_path = _write_generated_lazy_graph_artifacts(
+        tmp_path / "lazy_graph",
+        protein_node_count=5_000,
+    )
+    graph = load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
+    started_at = time.perf_counter()
+    for query_index in range(case.generated_unit_count):
+        query_protein_evidence_summary(
+            graph,
+            protein_id=f"P{(query_index * 7) % 5_000:05d}",
+        )
+    observed_seconds = time.perf_counter() - started_at
     return _build_report(case, observed_seconds=observed_seconds)
 
 
@@ -276,6 +330,99 @@ def _build_generated_peptide_matrix_report(
         ),
         note="generated benchmark peptide matrix",
     )
+
+
+def _build_generated_pathway_workload(
+    *,
+    pathway_count: int,
+    members_per_pathway: int,
+    background_protein_count: int,
+    foreground_protein_count: int,
+) -> tuple[
+    tuple[ProteinReferenceEntry, ...],
+    tuple[ProteinReferenceEntry, ...],
+    tuple[PathwayMembershipRecord, ...],
+]:
+    background = tuple(
+        ProteinReferenceEntry(
+            row_number=index + 2,
+            input_protein_ref=f"P{index:05d}",
+            protein_ref=f"P{index:05d}",
+        )
+        for index in range(background_protein_count)
+    )
+    foreground = background[:foreground_protein_count]
+    pathway_records: list[PathwayMembershipRecord] = []
+    for pathway_index in range(pathway_count):
+        for member_offset in range(members_per_pathway):
+            protein_ref = f"P{(pathway_index * 17 + member_offset) % background_protein_count:05d}"
+            pathway_records.append(
+                PathwayMembershipRecord(
+                    pathway_id=f"path:{pathway_index:03d}",
+                    pathway_name=f"Pathway {pathway_index}",
+                    source_name="generated",
+                    source_accession=f"PW{pathway_index:03d}",
+                    member_kind=PathwayMemberKind.PROTEIN,
+                    member_id=protein_ref,
+                )
+            )
+    return foreground, background, tuple(pathway_records)
+
+
+def _write_generated_lazy_graph_artifacts(
+    path: Path,
+    *,
+    protein_node_count: int,
+) -> tuple[Path, Path]:
+    path.mkdir(parents=True, exist_ok=True)
+    nodes_path = path / "evidence_graph_nodes.tsv"
+    edges_path = path / "evidence_graph_edges.tsv"
+    node_rows = [
+        "node_id\tentity_type\tentity_ref\tlabel\tclaim_state\ttrust_class\tcontradiction_ids\tcontext_refs"
+    ]
+    edge_rows = [
+        "source_node_id\ttarget_node_id\trelation\tsource_row_ref\tconfidence\tevidence_type\treason\tsupport_count"
+    ]
+    for index in range(protein_node_count):
+        peptide = _amino_acid_token(index) + "K"
+        protein = f"P{index:05d}"
+        protein_group = f"PG{index:05d}"
+        quant_value = f"Q{index:05d}"
+        node_rows.extend(
+            (
+                f"peptide:{peptide}\tpeptide\t{peptide}\t{peptide}\tobserved\tunreviewed\t\t",
+                f"protein:{protein}\tprotein\t{protein}\t{protein}\tobserved\tunreviewed\t\t",
+                f"protein_group:{protein_group}\tprotein_group\t{protein_group}\t{protein_group}\tobserved\tunreviewed\t\t",
+                f"quant_value:{quant_value}\tquant_value\t{quant_value}\t{quant_value}\tobserved\tunreviewed\t\t",
+            )
+        )
+        edge_rows.extend(
+            (
+                (
+                    f"peptide:{peptide}\tprotein:{protein}\t"
+                    f"{ProteomicsEvidenceEdgeKind.PEPTIDE_MAPS_TO_PROTEIN.value}\t"
+                    f"digest.tsv:{index + 1}\t1.0\tsequence_mapping\tmaps to protein\t1"
+                ),
+                (
+                    f"peptide:{peptide}\tprotein:{protein}\t"
+                    f"{ProteomicsEvidenceEdgeKind.PEPTIDE_QUANTIFIES_PROTEIN.value}\t"
+                    f"quant.tsv:{index + 1}\t0.9\tquantification\tquantifies protein\t1"
+                ),
+                (
+                    f"protein:{protein}\tprotein_group:{protein_group}\t"
+                    f"{ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_GROUP.value}\t"
+                    f"group.tsv:{index + 1}\t1.0\tannotation\tbelongs to group\t1"
+                ),
+                (
+                    f"protein:{protein}\tquant_value:{quant_value}\t"
+                    f"{ProteomicsEvidenceEdgeKind.PROTEIN_QUANTIFIED_BY_QUANT_VALUE.value}\t"
+                    f"protein_matrix.tsv:{index + 1}\t0.95\tquantification\tquantified by value\t1"
+                ),
+            )
+        )
+    nodes_path.write_text("\n".join(node_rows) + "\n", encoding="utf-8")
+    edges_path.write_text("\n".join(edge_rows) + "\n", encoding="utf-8")
+    return nodes_path, edges_path
 
 
 def _benchmark_fixture(name: str) -> Path:
