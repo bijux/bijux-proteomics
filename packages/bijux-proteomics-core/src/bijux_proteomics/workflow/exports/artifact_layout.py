@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
+from io import StringIO
 import shutil
 from enum import StrEnum
 from pathlib import Path
@@ -102,6 +104,34 @@ class WorkflowArtifactExpectation(JsonModel):
     canonical_relative_path: str = Field(..., min_length=1)
 
 
+class WorkflowArtifactInventoryEntry(JsonModel):
+    """One inventory row over a produced workflow artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    legacy_relative_path: str = Field(..., min_length=1)
+    canonical_relative_path: str = Field(..., min_length=1)
+    folder: WorkflowArtifactFolder
+    artifact_kind: WorkflowArtifactKind
+    row_count: int = Field(..., ge=0)
+
+
+class WorkflowArtifactInventorySummary(JsonModel):
+    """Aggregate inventory counts over one workflow output directory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_count: int = Field(..., ge=0)
+    tsv_artifact_count: int = Field(..., ge=0)
+    total_tsv_row_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+WORKFLOW_ARTIFACT_INVENTORY_NAME = "artifact_inventory.tsv"
+WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME = "artifact_inventory_summary.tsv"
+
+
 def synchronize_workflow_artifact_layout(
     output_dir: Path,
     *,
@@ -113,7 +143,11 @@ def synchronize_workflow_artifact_layout(
     _prepare_managed_directories(output_dir)
     entries: list[WorkflowArtifactLayoutEntry] = []
     for path in sorted(output_dir.iterdir(), key=lambda entry: entry.name):
-        if not path.is_file() or path.name == "manifest.json":
+        if not path.is_file() or path.name in {
+            "manifest.json",
+            WORKFLOW_ARTIFACT_INVENTORY_NAME,
+            WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
+        }:
             continue
         folder = classify_workflow_artifact_name(path.name)
         canonical_relative_path = f"{folder.value}/{path.name}"
@@ -128,6 +162,16 @@ def synchronize_workflow_artifact_layout(
                 producer_function=producer_function,
             )
         )
+    inventory_entries = build_workflow_artifact_inventory_entries(tuple(entries))
+    inventory_summary = build_workflow_artifact_inventory_summary(inventory_entries)
+    entries.extend(
+        _write_inventory_artifacts(
+            output_dir=output_dir,
+            inventory_entries=inventory_entries,
+            inventory_summary=inventory_summary,
+            producer_function=producer_function,
+        )
+    )
     manifest = WorkflowArtifactLayoutManifest(
         producer_function=producer_function,
         artifacts=tuple(entries),
@@ -257,6 +301,10 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
         output_dir=output_dir,
         manifest=manifest,
         artifact_index=artifact_index,
+    )
+    validate_workflow_artifact_inventory(
+        output_dir=output_dir,
+        manifest=manifest,
     )
     return manifest
 
@@ -462,6 +510,218 @@ def validate_workflow_artifact_completeness(
     return manifest
 
 
+def build_workflow_artifact_inventory_entries(
+    artifacts: tuple[WorkflowArtifactLayoutEntry, ...],
+) -> tuple[WorkflowArtifactInventoryEntry, ...]:
+    """Build inventory rows over manifest-managed workflow artifacts."""
+
+    return tuple(
+        WorkflowArtifactInventoryEntry(
+            artifact_id=artifact.artifact_id,
+            legacy_relative_path=artifact.legacy_relative_path,
+            canonical_relative_path=artifact.canonical_relative_path,
+            folder=artifact.folder,
+            artifact_kind=artifact.artifact_kind,
+            row_count=artifact.row_count,
+        )
+        for artifact in artifacts
+        if artifact.legacy_relative_path
+        not in {
+            WORKFLOW_ARTIFACT_INVENTORY_NAME,
+            WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
+        }
+    )
+
+
+def build_workflow_artifact_inventory_summary(
+    inventory_entries: tuple[WorkflowArtifactInventoryEntry, ...],
+) -> WorkflowArtifactInventorySummary:
+    """Summarize artifact and TSV row-count coverage for one workflow run."""
+
+    tsv_entries = tuple(
+        entry
+        for entry in inventory_entries
+        if entry.artifact_kind is WorkflowArtifactKind.TSV_TABLE
+    )
+    return WorkflowArtifactInventorySummary(
+        artifact_count=len(inventory_entries),
+        tsv_artifact_count=len(tsv_entries),
+        total_tsv_row_count=sum(entry.row_count for entry in tsv_entries),
+        note=(
+            "artifact inventory summarizes produced workflow artifacts together with "
+            "their governed TSV row counts"
+        ),
+    )
+
+
+def render_workflow_artifact_inventory_tsv(
+    inventory_entries: tuple[WorkflowArtifactInventoryEntry, ...],
+) -> str:
+    """Render one workflow artifact inventory as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "artifact_id",
+            "legacy_relative_path",
+            "canonical_relative_path",
+            "folder",
+            "artifact_kind",
+            "row_count",
+        )
+    )
+    for entry in inventory_entries:
+        writer.writerow(
+            (
+                entry.artifact_id,
+                entry.legacy_relative_path,
+                entry.canonical_relative_path,
+                entry.folder.value,
+                entry.artifact_kind.value,
+                entry.row_count,
+            )
+        )
+    return handle.getvalue()
+
+
+def render_workflow_artifact_inventory_summary_tsv(
+    summary: WorkflowArtifactInventorySummary,
+) -> str:
+    """Render aggregate workflow artifact inventory counts as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("field", "value"))
+    for field_name, value in (
+        ("artifact_count", summary.artifact_count),
+        ("tsv_artifact_count", summary.tsv_artifact_count),
+        ("total_tsv_row_count", summary.total_tsv_row_count),
+        ("note", summary.note),
+    ):
+        writer.writerow((field_name, value))
+    return handle.getvalue()
+
+
+def validate_workflow_artifact_inventory(
+    *,
+    output_dir: Path,
+    manifest: WorkflowArtifactLayoutManifest | None = None,
+) -> None:
+    """Validate emitted inventory rows and counts against managed artifacts."""
+
+    if manifest is None:
+        manifest = load_workflow_artifact_manifest(output_dir)
+    inventory_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_NAME
+    summary_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
+    canonical_inventory_path = output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_NAME
+    canonical_summary_path = output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
+    for path in (
+        inventory_path,
+        summary_path,
+        canonical_inventory_path,
+        canonical_summary_path,
+    ):
+        if not path.is_file():
+            raise ScientificEvidenceError(
+                f"workflow artifact inventory is missing required file {path.name}"
+            )
+    expected_entries = build_workflow_artifact_inventory_entries(manifest.artifacts)
+    expected_by_legacy_path = {
+        entry.legacy_relative_path: entry for entry in expected_entries
+    }
+    observed_rows = tuple(
+        csv.DictReader(
+            inventory_path.read_text(encoding="utf-8").splitlines(),
+            delimiter="\t",
+        )
+    )
+    if len(observed_rows) != len(expected_entries):
+        raise InvalidWorkflowError(
+            "workflow artifact inventory row-count mismatch: expected "
+            f"{len(expected_entries)} rows, found {len(observed_rows)}"
+        )
+    for row in observed_rows:
+        legacy_relative_path = row["legacy_relative_path"]
+        expected = expected_by_legacy_path.get(legacy_relative_path)
+        if expected is None:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory lists unexpected artifact "
+                f"{legacy_relative_path!r}"
+            )
+        if row["artifact_id"] != expected.artifact_id:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory artifact id mismatch for "
+                f"{legacy_relative_path}: expected {expected.artifact_id!r}, "
+                f"found {row['artifact_id']!r}"
+            )
+        if row["canonical_relative_path"] != expected.canonical_relative_path:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory canonical path mismatch for "
+                f"{legacy_relative_path}: expected "
+                f"{expected.canonical_relative_path!r}, found "
+                f"{row['canonical_relative_path']!r}"
+            )
+        if row["folder"] != expected.folder.value:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory folder mismatch for "
+                f"{legacy_relative_path}: expected {expected.folder.value!r}, "
+                f"found {row['folder']!r}"
+            )
+        if row["artifact_kind"] != expected.artifact_kind.value:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory kind mismatch for "
+                f"{legacy_relative_path}: expected {expected.artifact_kind.value!r}, "
+                f"found {row['artifact_kind']!r}"
+            )
+        observed_row_count = int(row["row_count"])
+        if observed_row_count != expected.row_count:
+            raise InvalidWorkflowError(
+                "workflow artifact inventory row count mismatch for "
+                f"{legacy_relative_path}: expected {expected.row_count}, found "
+                f"{observed_row_count}"
+            )
+        if expected.artifact_kind is WorkflowArtifactKind.TSV_TABLE:
+            actual_row_count = _count_artifact_rows(
+                output_dir / expected.legacy_relative_path,
+                WorkflowArtifactKind.TSV_TABLE,
+            )
+            if actual_row_count != observed_row_count:
+                raise InvalidWorkflowError(
+                    "workflow artifact inventory does not match actual TSV rows for "
+                    f"{legacy_relative_path}: expected {actual_row_count}, found "
+                    f"{observed_row_count}"
+                )
+    expected_summary = build_workflow_artifact_inventory_summary(expected_entries)
+    observed_summary = {
+        row["field"]: row["value"]
+        for row in csv.DictReader(
+            summary_path.read_text(encoding="utf-8").splitlines(),
+            delimiter="\t",
+        )
+    }
+    if int(observed_summary["artifact_count"]) != expected_summary.artifact_count:
+        raise InvalidWorkflowError("workflow artifact inventory summary artifact_count mismatch")
+    if int(observed_summary["tsv_artifact_count"]) != expected_summary.tsv_artifact_count:
+        raise InvalidWorkflowError("workflow artifact inventory summary tsv_artifact_count mismatch")
+    if int(observed_summary["total_tsv_row_count"]) != expected_summary.total_tsv_row_count:
+        raise InvalidWorkflowError("workflow artifact inventory summary total_tsv_row_count mismatch")
+    if observed_summary["note"] != expected_summary.note:
+        raise InvalidWorkflowError("workflow artifact inventory summary note mismatch")
+    if inventory_path.read_text(encoding="utf-8") != canonical_inventory_path.read_text(
+        encoding="utf-8"
+    ):
+        raise InvalidWorkflowError(
+            "workflow artifact inventory root and canonical copies differ"
+        )
+    if summary_path.read_text(encoding="utf-8") != canonical_summary_path.read_text(
+        encoding="utf-8"
+    ):
+        raise InvalidWorkflowError(
+            "workflow artifact inventory summary root and canonical copies differ"
+        )
+
+
 def _collect_workflow_artifact_expectations(
     *,
     output_dir: Path,
@@ -482,6 +742,48 @@ def _collect_workflow_artifact_expectations(
             )
         )
     return tuple(expectations)
+
+
+def _write_inventory_artifacts(
+    *,
+    output_dir: Path,
+    inventory_entries: tuple[WorkflowArtifactInventoryEntry, ...],
+    inventory_summary: WorkflowArtifactInventorySummary,
+    producer_function: str,
+) -> tuple[WorkflowArtifactLayoutEntry, ...]:
+    inventory_text = render_workflow_artifact_inventory_tsv(inventory_entries)
+    summary_text = render_workflow_artifact_inventory_summary_tsv(inventory_summary)
+    inventory_root_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_NAME
+    summary_root_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
+    atomic_write_text(inventory_root_path, inventory_text)
+    atomic_write_text(summary_root_path, summary_text)
+    inventory_canonical_relative_path = (
+        f"{WorkflowArtifactFolder.REPORTS.value}/{WORKFLOW_ARTIFACT_INVENTORY_NAME}"
+    )
+    summary_canonical_relative_path = (
+        f"{WorkflowArtifactFolder.REPORTS.value}/"
+        f"{WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME}"
+    )
+    inventory_canonical_path = output_dir / inventory_canonical_relative_path
+    summary_canonical_path = output_dir / summary_canonical_relative_path
+    atomic_copy_file(inventory_root_path, inventory_canonical_path)
+    atomic_copy_file(summary_root_path, summary_canonical_path)
+    return (
+        _build_layout_entry(
+            canonical_path=inventory_canonical_path,
+            legacy_relative_path=WORKFLOW_ARTIFACT_INVENTORY_NAME,
+            canonical_relative_path=inventory_canonical_relative_path,
+            folder=WorkflowArtifactFolder.REPORTS,
+            producer_function=producer_function,
+        ),
+        _build_layout_entry(
+            canonical_path=summary_canonical_path,
+            legacy_relative_path=WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
+            canonical_relative_path=summary_canonical_relative_path,
+            folder=WorkflowArtifactFolder.REPORTS,
+            producer_function=producer_function,
+        ),
+    )
 
 
 def _collect_manifest_declared_artifacts(
@@ -647,17 +949,26 @@ def _compute_sha256(path: Path) -> str:
 
 __all__ = [
     "WorkflowArtifactFolder",
+    "WorkflowArtifactInventoryEntry",
+    "WorkflowArtifactInventorySummary",
     "WorkflowArtifactKind",
     "WorkflowArtifactExpectation",
     "WorkflowArtifactLayoutEntry",
     "WorkflowArtifactLayoutIndex",
     "WorkflowArtifactLayoutManifest",
+    "WORKFLOW_ARTIFACT_INVENTORY_NAME",
+    "WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME",
+    "build_workflow_artifact_inventory_entries",
+    "build_workflow_artifact_inventory_summary",
     "classify_workflow_artifact_name",
     "find_workflow_artifact_by_id",
     "find_workflow_artifact_by_legacy_path",
     "index_workflow_artifact_manifest",
     "load_workflow_artifact_manifest",
+    "render_workflow_artifact_inventory_summary_tsv",
+    "render_workflow_artifact_inventory_tsv",
     "synchronize_workflow_artifact_layout",
+    "validate_workflow_artifact_inventory",
     "validate_workflow_artifact_completeness",
     "validate_workflow_artifact_manifest",
 ]
