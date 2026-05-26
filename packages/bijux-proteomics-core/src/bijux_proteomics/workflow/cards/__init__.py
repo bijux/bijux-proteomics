@@ -6,6 +6,7 @@ from importlib import import_module
 
 _CARD_EXPORT_MODULES = (
     "bijux_proteomics.workflow.cards.cross_study_evidence_cards",
+    "bijux_proteomics.workflow.cards.pathway_evidence_cards",
     "bijux_proteomics.workflow.cards.protein_evidence_cards",
     "bijux_proteomics.workflow.cards.protein_mechanism_cards",
 )

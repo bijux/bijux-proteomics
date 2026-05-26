@@ -60,6 +60,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / "reports").is_dir()
     assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / "cards" / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / "cards" / manifest.artifacts.pathway_card_tsv).exists()
     assert (output_dir / "evidence" / manifest.artifacts.supported_claim_tsv).exists()
     assert (output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv).exists()
     layout_manifest = validate_workflow_artifact_manifest(output_dir)
@@ -86,6 +87,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.pathway_card_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_mechanism_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_mechanism_card_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_graph_nodes_tsv).exists()
@@ -186,6 +188,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
         output_dir / manifest.artifacts.pathway_activity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "comparison_confidence_status" in (
+        output_dir / manifest.artifacts.pathway_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_kind" in (
+        output_dir / manifest.artifacts.pathway_card_tsv
     ).read_text(encoding="utf-8")
     assert "member_kind\tmember_id\tresolved_protein_refs" in (
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv

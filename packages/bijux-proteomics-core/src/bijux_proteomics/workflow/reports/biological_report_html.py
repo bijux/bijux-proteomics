@@ -24,6 +24,7 @@ def _render_biological_result_report_html(
         ("Differential proteins", artifacts.differential_tsv),
         ("Protein card summary", artifacts.protein_card_summary_tsv),
         ("Protein cards", artifacts.protein_card_tsv),
+        ("Pathway cards", artifacts.pathway_card_tsv),
         ("Protein mechanism card summary", artifacts.protein_mechanism_card_summary_tsv),
         ("Protein mechanism cards", artifacts.protein_mechanism_card_tsv),
         (

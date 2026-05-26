@@ -111,6 +111,9 @@ from bijux_proteomics.workflow.cohort_stratification import (
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
     render_protein_evidence_card_summary_tsv, render_protein_evidence_card_tsv,
 )
+from bijux_proteomics.workflow.cards.pathway_evidence_cards import (
+    render_pathway_evidence_card_tsv,
+)
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     render_protein_mechanism_card_summary_tsv, render_protein_mechanism_card_tsv,
 )
@@ -247,6 +250,7 @@ def write_biological_result_report_bundle(
     differential_name = "biological_differential.tsv"
     protein_card_summary_name = "biological_protein_card_summary.tsv"
     protein_card_name = "biological_protein_cards.tsv"
+    pathway_card_name = None
     protein_mechanism_card_summary_name = "biological_protein_mechanism_card_summary.tsv"
     protein_mechanism_card_name = "biological_protein_mechanism_cards.tsv"
     evidence_graph_nodes_name = "biological_evidence_graph_nodes.tsv"
@@ -510,6 +514,7 @@ def write_biological_result_report_bundle(
         compartment_activity_unresolved_name = None
         compartment_unknown_name = None
     if report.pathway_activity_report is not None:
+        pathway_card_name = "biological_pathway_cards.tsv"
         pathway_activity_summary_name = "biological_pathway_activity_summary.tsv"
         pathway_activity_matrix_name = "biological_pathway_activity_matrix.tsv"
         pathway_activity_sample_name = "biological_pathway_activity_samples.tsv"
@@ -522,6 +527,7 @@ def write_biological_result_report_bundle(
             "biological_pathway_activity_unresolved.tsv"
         )
         write_output_table_tsv((output_dir / pathway_activity_summary_name), render_pathway_activity_summary_tsv(report.pathway_activity_report))
+        write_output_table_tsv((output_dir / pathway_card_name), render_pathway_evidence_card_tsv(report.pathway_activity_report))
         write_output_table_tsv((output_dir / pathway_activity_matrix_name), render_pathway_activity_matrix_tsv(report.pathway_activity_report))
         write_output_table_tsv((output_dir / pathway_activity_sample_name), render_pathway_activity_sample_score_tsv(report.pathway_activity_report))
         write_output_table_tsv((output_dir / pathway_activity_condition_name), render_pathway_activity_condition_score_tsv(report.pathway_activity_report))
@@ -633,6 +639,7 @@ def write_biological_result_report_bundle(
         differential_tsv=differential_name,
         protein_card_summary_tsv=protein_card_summary_name,
         protein_card_tsv=protein_card_name,
+        pathway_card_tsv=pathway_card_name,
         protein_mechanism_card_summary_tsv=protein_mechanism_card_summary_name,
         protein_mechanism_card_tsv=protein_mechanism_card_name,
         evidence_graph_nodes_tsv=evidence_graph_nodes_name,

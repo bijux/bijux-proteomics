@@ -27,6 +27,7 @@ _WORKFLOW_EXPORT_MODULES = (
     "bijux_proteomics.workflow.cross_study_protein_harmonization",
     "bijux_proteomics.workflow.cross_species_effect_comparison",
     "bijux_proteomics.workflow.discovery_to_assay",
+    "bijux_proteomics.workflow.cards.pathway_evidence_cards",
     "bijux_proteomics.workflow.pipelines.dda_biological_workflow",
     "bijux_proteomics.workflow.diann_benchmarks",
     "bijux_proteomics.workflow.pipelines.diann_biological_workflow",

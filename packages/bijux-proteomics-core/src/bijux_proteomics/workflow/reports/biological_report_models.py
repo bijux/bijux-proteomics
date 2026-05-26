@@ -408,6 +408,7 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     differential_tsv: str = Field(..., min_length=1)
     protein_card_summary_tsv: str = Field(..., min_length=1)
     protein_card_tsv: str = Field(..., min_length=1)
+    pathway_card_tsv: str | None = None
     protein_mechanism_card_summary_tsv: str = Field(..., min_length=1)
     protein_mechanism_card_tsv: str = Field(..., min_length=1)
     evidence_graph_nodes_tsv: str = Field(..., min_length=1)
