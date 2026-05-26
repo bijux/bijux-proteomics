@@ -831,6 +831,19 @@ def _build_pairwise_ratio_rows(
     sample_ids: tuple[str, ...],
     minimum_shared_peptides: int,
 ) -> list[ProteinLfqPairwiseRatio]:
+    return _build_pairwise_ratio_rows_vectorized(
+        peptide_rows,
+        sample_ids=sample_ids,
+        minimum_shared_peptides=minimum_shared_peptides,
+    )
+
+
+def _build_pairwise_ratio_rows_pure(
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
+    *,
+    sample_ids: tuple[str, ...],
+    minimum_shared_peptides: int,
+) -> list[ProteinLfqPairwiseRatio]:
     ratios_by_pair: dict[tuple[str, str], list[tuple[float, str]]] = defaultdict(list)
     for row, _ in peptide_rows:
         sample_abundances = {
@@ -873,7 +886,61 @@ def _build_pairwise_ratio_rows(
     return pairwise_ratios
 
 
+def _build_pairwise_ratio_rows_vectorized(
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
+    *,
+    sample_ids: tuple[str, ...],
+    minimum_shared_peptides: int,
+) -> list[ProteinLfqPairwiseRatio]:
+    peptide_ids, log2_matrix, observed_mask = _build_peptide_log2_observation_matrix(
+        peptide_rows,
+        sample_ids=sample_ids,
+    )
+    pairwise_ratios: list[ProteinLfqPairwiseRatio] = []
+    for sample_a_index, sample_a in enumerate(sample_ids):
+        for sample_b_index in range(sample_a_index + 1, len(sample_ids)):
+            sample_b = sample_ids[sample_b_index]
+            shared_mask = observed_mask[:, sample_a_index] & observed_mask[:, sample_b_index]
+            shared_count = int(np.sum(shared_mask))
+            if shared_count < minimum_shared_peptides:
+                continue
+            shared_ratios = (
+                log2_matrix[shared_mask, sample_b_index]
+                - log2_matrix[shared_mask, sample_a_index]
+            )
+            median_log2_ratio = float(np.median(shared_ratios))
+            contributing_peptides = tuple(
+                sorted(
+                    peptide_id
+                    for peptide_id, include in zip(peptide_ids, shared_mask, strict=True)
+                    if include
+                )
+            )
+            pairwise_ratios.append(
+                ProteinLfqPairwiseRatio(
+                    sample_a=sample_a,
+                    sample_b=sample_b,
+                    shared_peptide_count=shared_count,
+                    median_log2_ratio=median_log2_ratio,
+                    median_ratio=float(2.0**median_log2_ratio),
+                    contributing_peptides=contributing_peptides,
+                )
+            )
+    return pairwise_ratios
+
+
 def _observed_log2_intensities_by_sample(
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
+    *,
+    sample_ids: tuple[str, ...],
+) -> dict[str, tuple[float, ...]]:
+    return _observed_log2_intensities_by_sample_vectorized(
+        peptide_rows,
+        sample_ids=sample_ids,
+    )
+
+
+def _observed_log2_intensities_by_sample_pure(
     peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
     *,
     sample_ids: tuple[str, ...],
@@ -890,6 +957,45 @@ def _observed_log2_intensities_by_sample(
     return {
         sample_id: tuple(values) for sample_id, values in observed.items() if values
     }
+
+
+def _observed_log2_intensities_by_sample_vectorized(
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
+    *,
+    sample_ids: tuple[str, ...],
+) -> dict[str, tuple[float, ...]]:
+    _peptide_ids, log2_matrix, observed_mask = _build_peptide_log2_observation_matrix(
+        peptide_rows,
+        sample_ids=sample_ids,
+    )
+    return {
+        sample_id: tuple(log2_matrix[observed_mask[:, sample_index], sample_index].tolist())
+        for sample_index, sample_id in enumerate(sample_ids)
+        if np.any(observed_mask[:, sample_index])
+    }
+
+
+def _build_peptide_log2_observation_matrix(
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
+    *,
+    sample_ids: tuple[str, ...],
+) -> tuple[tuple[str, ...], np.ndarray, np.ndarray]:
+    sample_index = {sample_id: index for index, sample_id in enumerate(sample_ids)}
+    peptide_ids: list[str] = []
+    log2_matrix = np.full((len(peptide_rows), len(sample_ids)), np.nan, dtype=float)
+    observed_mask = np.zeros((len(peptide_rows), len(sample_ids)), dtype=bool)
+    for row_index, (row, _) in enumerate(peptide_rows):
+        peptide_ids.append(row.entity_id)
+        for value in row.values:
+            column_index = sample_index[value.sample_id]
+            if (
+                value.abundance is not None
+                and value.abundance > 0.0
+                and value.missing_value_kind is MissingValueKind.OBSERVED
+            ):
+                observed_mask[row_index, column_index] = True
+                log2_matrix[row_index, column_index] = math.log2(float(value.abundance))
+    return tuple(peptide_ids), log2_matrix, observed_mask
 
 
 def _connected_components(
