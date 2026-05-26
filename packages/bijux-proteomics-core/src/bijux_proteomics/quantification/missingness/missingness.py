@@ -37,6 +37,10 @@ from bijux_proteomics.quantification.contracts import (
     _matrix_value_index,
     coerce_label_free_quant_table,
 )
+from bijux_proteomics.quantification.matrix import (
+    build_dense_label_free_quant_table_view,
+    missing_value_kind_to_code,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -59,6 +63,23 @@ _MISSING_VALUE_KINDS = (
     MissingValueKind.CENSORED,
     MissingValueKind.EXCLUDED,
     MissingValueKind.NOT_APPLICABLE,
+)
+_OBSERVED_VALUE_CODES = np.array(
+    [
+        missing_value_kind_to_code(MissingValueKind.OBSERVED),
+        missing_value_kind_to_code(MissingValueKind.ZERO),
+        missing_value_kind_to_code(MissingValueKind.IMPUTED),
+    ],
+    dtype=np.int8,
+)
+_MISSING_BURDEN_CODES = np.array(
+    [
+        missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED),
+        missing_value_kind_to_code(MissingValueKind.FILTERED),
+        missing_value_kind_to_code(MissingValueKind.CENSORED),
+        missing_value_kind_to_code(MissingValueKind.EXCLUDED),
+    ],
+    dtype=np.int8,
 )
 
 
@@ -104,6 +125,14 @@ def build_missingness_entity_summary_report(
     *,
     policy: MissingValueSummaryPolicy | None = None,
 ) -> MissingnessEntitySummaryReport:
+    return _build_missingness_entity_summary_report_vectorized(table, policy=policy)
+
+
+def _build_missingness_entity_summary_report_pure(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessEntitySummaryReport:
     """Summarize missingness per quantified entity across all samples."""
     active_policy = policy or MissingValueSummaryPolicy()
     lookup = _matrix_value_index(table)
@@ -141,7 +170,70 @@ def build_missingness_entity_summary_report(
     )
 
 
+def _build_missingness_entity_summary_report_vectorized(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessEntitySummaryReport:
+    active_policy = policy or MissingValueSummaryPolicy()
+    dense_view = build_dense_label_free_quant_table_view(table)
+    missing_kind_codes = _apply_missing_value_summary_policy_codes(
+        dense_view.missing_kind_codes,
+        policy=active_policy,
+    )
+    counts_by_kind = {
+        kind: np.sum(
+            missing_kind_codes == missing_value_kind_to_code(kind),
+            axis=1,
+        )
+        for kind in _MISSING_VALUE_KINDS
+    }
+    missing_counts = np.sum(
+        np.isin(missing_kind_codes, _MISSING_BURDEN_CODES),
+        axis=1,
+    )
+    sample_count = len(table.sample_ids)
+    entries = tuple(
+        MissingnessEntitySummaryEntry(
+            entity_id=entity_id,
+            observed_sample_count=int(counts_by_kind[MissingValueKind.OBSERVED][row_index]),
+            zero_sample_count=int(counts_by_kind[MissingValueKind.ZERO][row_index]),
+            not_observed_sample_count=int(
+                counts_by_kind[MissingValueKind.NOT_OBSERVED][row_index]
+            ),
+            filtered_sample_count=int(counts_by_kind[MissingValueKind.FILTERED][row_index]),
+            imputed_sample_count=int(counts_by_kind[MissingValueKind.IMPUTED][row_index]),
+            censored_sample_count=int(counts_by_kind[MissingValueKind.CENSORED][row_index]),
+            excluded_sample_count=int(counts_by_kind[MissingValueKind.EXCLUDED][row_index]),
+            not_applicable_sample_count=int(
+                counts_by_kind[MissingValueKind.NOT_APPLICABLE][row_index]
+            ),
+            missing_fraction=float(missing_counts[row_index] / sample_count)
+            if sample_count
+            else 0.0,
+        )
+        for row_index, entity_id in enumerate(table.entity_ids)
+    )
+    return MissingnessEntitySummaryReport(
+        entity_level=table.entity_level,
+        entries=entries,
+    )
+
+
 def build_missingness_condition_summary_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessConditionSummaryReport:
+    return _build_missingness_condition_summary_report_vectorized(
+        table,
+        design_entries=design_entries,
+        policy=policy,
+    )
+
+
+def _build_missingness_condition_summary_report_pure(
     table: LabelFreeQuantTable,
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -231,7 +323,111 @@ def build_missingness_condition_summary_report(
     )
 
 
+def _build_missingness_condition_summary_report_vectorized(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessConditionSummaryReport:
+    active_policy = policy or MissingValueSummaryPolicy()
+    dense_view = build_dense_label_free_quant_table_view(table)
+    missing_kind_codes = _apply_missing_value_summary_policy_codes(
+        dense_view.missing_kind_codes,
+        policy=active_policy,
+    )
+    sample_ids_by_condition: dict[str, list[str]] = {}
+    for entry in design_entries:
+        sample_ids_by_condition.setdefault(entry.condition, []).append(entry.sample_id)
+    sample_indexes_by_condition = {
+        condition: np.array(
+            [dense_view.sample_index[sample_id] for sample_id in sample_ids],
+            dtype=int,
+        )
+        for condition, sample_ids in sample_ids_by_condition.items()
+    }
+    observed_like_mask = np.isin(missing_kind_codes, _OBSERVED_VALUE_CODES)
+    missing_burden_mask = np.isin(missing_kind_codes, _MISSING_BURDEN_CODES)
+    observed_conditions_by_entity: dict[str, np.ndarray] = {}
+    missing_conditions_by_entity: dict[str, np.ndarray] = {}
+    for condition, sample_indexes in sample_indexes_by_condition.items():
+        observed_conditions_by_entity[condition] = np.any(
+            observed_like_mask[:, sample_indexes],
+            axis=1,
+        )
+        missing_conditions_by_entity[condition] = np.all(
+            missing_burden_mask[:, sample_indexes],
+            axis=1,
+        )
+
+    counts_by_kind = {
+        kind: missing_kind_codes == missing_value_kind_to_code(kind)
+        for kind in _MISSING_VALUE_KINDS
+    }
+    entries: list[MissingnessConditionSummaryEntry] = []
+    for condition, sample_ids in sorted(sample_ids_by_condition.items()):
+        sample_indexes = sample_indexes_by_condition[condition]
+        total_values = len(table.entity_ids) * len(sample_ids)
+        observed_count = int(np.sum(counts_by_kind[MissingValueKind.OBSERVED][:, sample_indexes]))
+        zero_count = int(np.sum(counts_by_kind[MissingValueKind.ZERO][:, sample_indexes]))
+        not_observed_count = int(
+            np.sum(counts_by_kind[MissingValueKind.NOT_OBSERVED][:, sample_indexes])
+        )
+        filtered_count = int(np.sum(counts_by_kind[MissingValueKind.FILTERED][:, sample_indexes]))
+        imputed_count = int(np.sum(counts_by_kind[MissingValueKind.IMPUTED][:, sample_indexes]))
+        censored_count = int(np.sum(counts_by_kind[MissingValueKind.CENSORED][:, sample_indexes]))
+        excluded_count = int(np.sum(counts_by_kind[MissingValueKind.EXCLUDED][:, sample_indexes]))
+        not_applicable_count = int(
+            np.sum(counts_by_kind[MissingValueKind.NOT_APPLICABLE][:, sample_indexes])
+        )
+        missing_count = int(np.sum(missing_burden_mask[:, sample_indexes]))
+        condition_specific_absence = tuple(
+            sorted(
+                entity_id
+                for row_index, entity_id in enumerate(table.entity_ids)
+                if missing_conditions_by_entity[condition][row_index]
+                and any(
+                    observed_conditions_by_entity[other_condition][row_index]
+                    for other_condition in sample_indexes_by_condition
+                    if other_condition != condition
+                )
+            )
+        )
+        entries.append(
+            MissingnessConditionSummaryEntry(
+                condition=condition,
+                sample_ids=tuple(sample_ids),
+                observed_value_count=observed_count,
+                zero_value_count=zero_count,
+                not_observed_value_count=not_observed_count,
+                filtered_value_count=filtered_count,
+                imputed_value_count=imputed_count,
+                censored_value_count=censored_count,
+                excluded_value_count=excluded_count,
+                not_applicable_value_count=not_applicable_count,
+                missing_fraction=float(missing_count / total_values) if total_values else 0.0,
+                condition_specific_absence_entity_ids=condition_specific_absence,
+            )
+        )
+    return MissingnessConditionSummaryReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+    )
+
+
 def build_missingness_intensity_dependence_report(
+    table: LabelFreeQuantTable,
+    *,
+    bin_count: int = 4,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessIntensityDependenceReport:
+    return _build_missingness_intensity_dependence_report_vectorized(
+        table,
+        bin_count=bin_count,
+        policy=policy,
+    )
+
+
+def _build_missingness_intensity_dependence_report_pure(
     table: LabelFreeQuantTable,
     *,
     bin_count: int = 4,
@@ -332,7 +528,106 @@ def build_missingness_intensity_dependence_report(
     )
 
 
+def _build_missingness_intensity_dependence_report_vectorized(
+    table: LabelFreeQuantTable,
+    *,
+    bin_count: int = 4,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessIntensityDependenceReport:
+    active_policy = policy or MissingValueSummaryPolicy()
+    dense_view = build_dense_label_free_quant_table_view(table)
+    missing_kind_codes = _apply_missing_value_summary_policy_codes(
+        dense_view.missing_kind_codes,
+        policy=active_policy,
+    )
+    observed_like_mask = np.isin(missing_kind_codes, _OBSERVED_VALUE_CODES)
+    missing_burden_mask = np.isin(missing_kind_codes, _MISSING_BURDEN_CODES)
+    observed_abundance = np.where(
+        observed_like_mask,
+        dense_view.abundance_matrix,
+        np.nan,
+    )
+    has_observed = np.any(~np.isnan(observed_abundance), axis=1)
+    logged_observed_abundance = np.where(
+        np.isnan(observed_abundance),
+        np.nan,
+        np.log2(observed_abundance + 1.0),
+    )
+    observed_counts = np.sum(~np.isnan(logged_observed_abundance), axis=1)
+    mean_log2_observed = np.divide(
+        np.nansum(logged_observed_abundance, axis=1),
+        observed_counts,
+        out=np.full(len(table.entity_ids), np.nan, dtype=float),
+        where=observed_counts > 0,
+    )
+    missing_fraction = (
+        np.sum(missing_burden_mask, axis=1) / len(table.sample_ids)
+        if table.sample_ids
+        else np.zeros(len(table.entity_ids), dtype=float)
+    )
+    points = tuple(
+        MissingnessIntensityPoint(
+            entity_id=entity_id,
+            mean_log2_observed_abundance=float(mean_log2_observed[row_index]),
+            missing_fraction=float(missing_fraction[row_index]),
+        )
+        for row_index, entity_id in enumerate(table.entity_ids)
+        if has_observed[row_index]
+    )
+    ordered_points = tuple(
+        sorted(points, key=lambda point: point.mean_log2_observed_abundance)
+    )
+    bins: list[MissingnessIntensityBinEntry] = []
+    if ordered_points:
+        active_bin_count = max(1, min(bin_count, len(ordered_points)))
+        groups = np.array_split(np.array(ordered_points, dtype=object), active_bin_count)
+        for group in groups:
+            bucket = [point for point in group.tolist() if point is not None]
+            if not bucket:
+                continue
+            bins.append(
+                MissingnessIntensityBinEntry(
+                    lower_log2_abundance=bucket[0].mean_log2_observed_abundance,
+                    upper_log2_abundance=bucket[-1].mean_log2_observed_abundance,
+                    entity_count=len(bucket),
+                    mean_missing_fraction=float(
+                        np.mean(np.array([point.missing_fraction for point in bucket], dtype=float))
+                    ),
+                )
+            )
+    trend_correlation: float | None = None
+    if len(ordered_points) >= 2:
+        x = np.array(
+            [point.mean_log2_observed_abundance for point in ordered_points],
+            dtype=float,
+        )
+        y = np.array([point.missing_fraction for point in ordered_points], dtype=float)
+        if np.std(x) > 0.0 and np.std(y) > 0.0:
+            correlation = float(np.corrcoef(x, y)[0, 1])
+            trend_correlation = correlation if math.isfinite(correlation) else None
+    detected = (
+        trend_correlation is not None
+        and trend_correlation <= -0.5
+        and any(point.missing_fraction > 0.0 for point in ordered_points)
+    )
+    return MissingnessIntensityDependenceReport(
+        entity_level=table.entity_level,
+        plot_points=ordered_points,
+        bins=tuple(bins),
+        trend_correlation=trend_correlation,
+        intensity_dependent_missingness_detected=detected,
+    )
+
+
 def summarize_missing_values(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingValueSummaryReport:
+    return _summarize_missing_values_vectorized(table, policy=policy)
+
+
+def _summarize_missing_values_pure(
     table: LabelFreeQuantTable,
     *,
     policy: MissingValueSummaryPolicy | None = None,
@@ -386,6 +681,67 @@ def summarize_missing_values(
         entries=tuple(entries),
         included_entity_ids=tuple(included_entity_ids),
         excluded_entity_ids=tuple(excluded_entity_ids),
+    )
+
+
+def _summarize_missing_values_vectorized(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingValueSummaryReport:
+    active_policy = policy or MissingValueSummaryPolicy()
+    dense_view = build_dense_label_free_quant_table_view(table)
+    missing_kind_codes = _apply_missing_value_summary_policy_codes(
+        dense_view.missing_kind_codes,
+        policy=active_policy,
+    )
+    observed_like_mask = np.isin(missing_kind_codes, _OBSERVED_VALUE_CODES)
+    observed_sample_counts = np.sum(observed_like_mask, axis=1)
+    included_mask = (
+        observed_sample_counts >= active_policy.min_observed_samples_per_entity
+    )
+    included_entity_ids = tuple(
+        entity_id
+        for row_index, entity_id in enumerate(table.entity_ids)
+        if included_mask[row_index]
+    )
+    excluded_entity_ids = tuple(
+        entity_id
+        for row_index, entity_id in enumerate(table.entity_ids)
+        if not included_mask[row_index]
+    )
+    included_codes = missing_kind_codes[included_mask, :]
+    counts_by_kind = {
+        kind: np.sum(
+            included_codes == missing_value_kind_to_code(kind),
+            axis=0,
+        )
+        for kind in _MISSING_VALUE_KINDS
+    }
+    entries = tuple(
+        MissingValueSummaryEntry(
+            sample_id=sample_id,
+            observed_count=int(counts_by_kind[MissingValueKind.OBSERVED][column_index]),
+            zero_count=int(counts_by_kind[MissingValueKind.ZERO][column_index]),
+            not_observed_count=int(
+                counts_by_kind[MissingValueKind.NOT_OBSERVED][column_index]
+            ),
+            filtered_count=int(counts_by_kind[MissingValueKind.FILTERED][column_index]),
+            imputed_count=int(counts_by_kind[MissingValueKind.IMPUTED][column_index]),
+            censored_count=int(counts_by_kind[MissingValueKind.CENSORED][column_index]),
+            excluded_count=int(counts_by_kind[MissingValueKind.EXCLUDED][column_index]),
+            not_applicable_count=int(
+                counts_by_kind[MissingValueKind.NOT_APPLICABLE][column_index]
+            ),
+        )
+        for column_index, sample_id in enumerate(table.sample_ids)
+    )
+    return MissingValueSummaryReport(
+        entity_level=table.entity_level,
+        policy=active_policy,
+        entries=entries,
+        included_entity_ids=included_entity_ids,
+        excluded_entity_ids=excluded_entity_ids,
     )
 
 
@@ -687,6 +1043,23 @@ def _apply_missing_value_summary_policy(
     ):
         return MissingValueKind.NOT_OBSERVED
     return kind
+
+
+def _apply_missing_value_summary_policy_codes(
+    missing_kind_codes: np.ndarray,
+    *,
+    policy: MissingValueSummaryPolicy,
+) -> np.ndarray:
+    adjusted = missing_kind_codes.copy()
+    if policy.zero_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED:
+        adjusted[adjusted == missing_value_kind_to_code(MissingValueKind.ZERO)] = (
+            missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
+        )
+    if policy.filtered_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED:
+        adjusted[adjusted == missing_value_kind_to_code(MissingValueKind.FILTERED)] = (
+            missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
+        )
+    return adjusted
 
 
 def _failed_sample_ids(
