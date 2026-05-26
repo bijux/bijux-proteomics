@@ -59,3 +59,25 @@ def test_refusal_policy_solves_explicit_do_not_recommend_suite() -> None:
         result.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
         for result in report.results
     )
+
+
+def test_flagship_policy_keeps_dia_vendor_gap_visible_on_borderline_case() -> None:
+    report = run_benchmark_decision_corpus(
+        build_lab_burden_aware_decision_corpus(),
+        build_flagship_benchmark_decision_policy(),
+    )
+
+    dia_result = next(
+        result
+        for result in report.results
+        if result.scenario_id == "borderline-dia-burden-still-confuses-current-policy"
+    )
+
+    assert dia_result.selected_option_id == "dia_borderline_path"
+    assert dia_result.disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    assert dia_result.solved is False
+    assert "vendor and library comparison gaps remain open" in dia_result.downgrade_chain
+    assert (
+        "operational burden remains too high for a justified recommendation"
+        in dia_result.blocker_set
+    )
