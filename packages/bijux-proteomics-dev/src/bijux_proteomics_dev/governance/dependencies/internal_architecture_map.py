@@ -29,6 +29,7 @@ __all__ = [
     "InternalArchitectureViolation",
     "build_internal_architecture_map_report",
     "evaluate_internal_architecture_violations",
+    "is_internal_architecture_map_up_to_date",
     "run",
 ]
 
@@ -238,7 +239,8 @@ def evaluate_internal_architecture_violations(
     report = report or build_internal_architecture_map_report()
     violations: list[InternalArchitectureViolation] = []
 
-    package_edges = package_edges or cross_package_dependency_edges()
+    if package_edges is None:
+        package_edges = cross_package_dependency_edges()
     actual_outbound: dict[str, set[str]] = {
         entry.distribution_name: set() for entry in report.package_entries
     }
@@ -265,12 +267,13 @@ def evaluate_internal_architecture_violations(
         for entry in report.module_family_entries
     }
     distributions = sorted({entry.distribution_name for entry in report.module_family_entries})
-    module_edges = module_edges or tuple(
-        edge
-        for distribution_name in distributions
-        for edge in module_dependency_edges(distribution_name)
-        if edge.internal
-    )
+    if module_edges is None:
+        module_edges = tuple(
+            edge
+            for distribution_name in distributions
+            for edge in module_dependency_edges(distribution_name)
+            if edge.internal
+        )
 
     for distribution_name in distributions:
         classify = _classifier_for_distribution(report.module_family_entries, distribution_name)
@@ -321,7 +324,8 @@ def evaluate_internal_architecture_violations(
                     )
                 )
 
-    workspace_cycles = workspace_cycles or find_workspace_dependency_cycles(REPO_ROOT)
+    if workspace_cycles is None:
+        workspace_cycles = find_workspace_dependency_cycles(REPO_ROOT)
     if len(workspace_cycles) > report.cycle_guard.max_workspace_cycle_count:
         for cycle in workspace_cycles:
             violations.append(
@@ -371,7 +375,9 @@ def _toml_text(report: InternalArchitectureMapReport) -> str:
     return "\n".join(lines)
 
 
-def _is_up_to_date(report: InternalArchitectureMapReport) -> bool:
+def is_internal_architecture_map_up_to_date(
+    report: InternalArchitectureMapReport,
+) -> bool:
     if not INTERNAL_ARCHITECTURE_MAP_PATH.exists():
         return False
     return INTERNAL_ARCHITECTURE_MAP_PATH.read_text(encoding="utf-8") == _toml_text(
@@ -387,7 +393,7 @@ def run(check: bool = False) -> int:
             print(failure.detail)
         return 1
     if check:
-        if _is_up_to_date(report):
+        if is_internal_architecture_map_up_to_date(report):
             print("internal architecture map is up to date")
             return 0
         print("internal architecture map is stale; regenerate it")
