@@ -61,6 +61,7 @@ from bijux_proteomics.interfaces.python_api.peptide_matrix_building import run_p
 )
 @click.option("--missing-reason-column", default="missing_reason", show_default=True)
 @click.option("--protein-separator", default=";", show_default=True)
+@click.option("--chunk-size-rows", type=int, default=None)
 @click.option(
     "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
@@ -114,6 +115,7 @@ def peptide_matrix_command(
     retention_time_column: str | None,
     missing_reason_column: str | None,
     protein_separator: str,
+    chunk_size_rows: int | None,
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
@@ -122,7 +124,7 @@ def peptide_matrix_command(
     out_path: Path | None,
 ) -> None:
     'Build one peptide-by-sample intensity matrix from feature, precursor, or PSM evidence.'
-    return run_peptide_matrix_command(input_table, input_kind, grouping_mode, separate_charge_states, aggregation, top_n, sample_column, feature_id_column, precursor_id_column, run_column, spectrum_id_column, peptide_column, modified_peptide_column, intensity_column, protein_refs_column, charge_column, score_column, q_value_column, decoy_label_column, contaminant_label_column, mz_column, retention_time_column, missing_reason_column, protein_separator, summary_tsv_out, matrix_tsv_out, missingness_tsv_out, missingness_mask_tsv_out, aggregation_table_tsv_out, out_path)
+    return run_peptide_matrix_command(input_table, input_kind, grouping_mode, separate_charge_states, aggregation, top_n, sample_column, feature_id_column, precursor_id_column, run_column, spectrum_id_column, peptide_column, modified_peptide_column, intensity_column, protein_refs_column, charge_column, score_column, q_value_column, decoy_label_column, contaminant_label_column, mz_column, retention_time_column, missing_reason_column, protein_separator, chunk_size_rows, summary_tsv_out, matrix_tsv_out, missingness_tsv_out, missingness_mask_tsv_out, aggregation_table_tsv_out, out_path)
 
 COMMANDS = (
     peptide_matrix_command,

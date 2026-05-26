@@ -7,6 +7,11 @@
 from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.identification import parse_psm_tsv_chunked
+from bijux_proteomics.quantification import (
+    parse_ms1_feature_table_chunked,
+    parse_precursor_intensity_table_chunked,
+)
 
 def run_peptide_matrix_command(
     input_table: Path,
@@ -33,6 +38,7 @@ def run_peptide_matrix_command(
     retention_time_column: str | None,
     missing_reason_column: str | None,
     protein_separator: str,
+    chunk_size_rows: int | None,
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
@@ -56,7 +62,15 @@ def run_peptide_matrix_command(
                 missing_reason=missing_reason_column,
                 protein_separator=protein_separator,
             )
-            parse_report = parse_ms1_feature_table(input_table, mapping=feature_mapping)
+            parse_report = (
+                parse_ms1_feature_table_chunked(
+                    input_table,
+                    mapping=feature_mapping,
+                    chunk_size_rows=chunk_size_rows,
+                )
+                if chunk_size_rows is not None
+                else parse_ms1_feature_table(input_table, mapping=feature_mapping)
+            )
             report = build_peptide_intensity_matrix_from_features(
                 parse_report.accepted_records,
                 grouping_mode=grouping,
@@ -83,9 +97,17 @@ def run_peptide_matrix_command(
                 missing_reason=missing_reason_column,
                 protein_separator=protein_separator,
             )
-            precursor_parse_report = parse_precursor_intensity_table(
-                input_table,
-                mapping=precursor_mapping,
+            precursor_parse_report = (
+                parse_precursor_intensity_table_chunked(
+                    input_table,
+                    mapping=precursor_mapping,
+                    chunk_size_rows=chunk_size_rows,
+                )
+                if chunk_size_rows is not None
+                else parse_precursor_intensity_table(
+                    input_table,
+                    mapping=precursor_mapping,
+                )
             )
             report = build_peptide_intensity_matrix_from_precursors(
                 precursor_parse_report.accepted_records,
@@ -117,7 +139,15 @@ def run_peptide_matrix_command(
                 protein_separator=protein_separator,
                 intensity_column=intensity_column,
             )
-            psm_parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
+            psm_parse_report = (
+                parse_psm_tsv_chunked(
+                    input_table,
+                    mapping=psm_mapping,
+                    chunk_size_rows=chunk_size_rows,
+                )
+                if chunk_size_rows is not None
+                else parse_psm_tsv(input_table, mapping=psm_mapping)
+            )
             report = build_peptide_intensity_matrix_from_psms(
                 psm_parse_report.accepted_records,
                 grouping_mode=grouping,
