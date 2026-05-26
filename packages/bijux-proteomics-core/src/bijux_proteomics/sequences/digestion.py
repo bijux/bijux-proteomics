@@ -16,6 +16,9 @@ from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import calculate_monoisotopic_peptide_mass
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation.outcomes.optional_dependencies import (
+    import_optional_module,
+)
 
 
 class ProteaseCleavageMode(StrEnum):
@@ -761,13 +764,18 @@ def export_peptides_jsonl(peptides: tuple[DigestedPeptide, ...], path: Path) -> 
 
 def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
     """Write an optional Parquet export for digested peptides."""
-    try:
-        import pyarrow as pa  # type: ignore[import-not-found]
-        import pyarrow.parquet as pq  # type: ignore[import-not-found]
-    except ImportError as exc:
-        raise RuntimeError(
-            "Parquet export requires optional dependency 'pyarrow'"
-        ) from exc
+    pa = import_optional_module(
+        "pyarrow",
+        dependency_name="pyarrow",
+        feature_name="parquet peptide export",
+        install_hint="pip install bijux-proteomics-core[parquet]",
+    )
+    pq = import_optional_module(
+        "pyarrow.parquet",
+        dependency_name="pyarrow",
+        feature_name="parquet peptide export",
+        install_hint="pip install bijux-proteomics-core[parquet]",
+    )
 
     rows = []
     for peptide in peptides:
