@@ -503,7 +503,7 @@ def test_io_package_exports_raw_signal_evidence_card_owner_surface() -> None:
         "peptide_b4",
         "peptide_y8",
     )
-    assert "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE" in rendered
+    assert "raw-signal-card:prec_peptide\tprec_peptide\tPEPTIDE" in rendered
 
 
 def test_io_package_exports_precursor_isotope_fit_owner_surface() -> None:

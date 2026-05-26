@@ -8,6 +8,8 @@ import pytest
 from bijux_proteomics.domain.semantic_ids import (
     SemanticIdNamespace,
     build_artifact_id,
+    build_cross_study_card_id,
+    build_mechanism_card_id,
     build_matrix_id,
     build_pathway_claim_id,
     build_peptide_id,
@@ -18,6 +20,7 @@ from bijux_proteomics.domain.semantic_ids import (
     build_psm_id,
     build_ptm_card_id,
     build_ptm_claim_id,
+    build_raw_signal_card_id,
     build_regulator_claim_id,
     build_site_id,
     classify_semantic_id,
@@ -48,6 +51,15 @@ def test_scientific_semantic_ids_are_deterministic_for_core_output_families() ->
     assert build_protein_card_id("P04637") == "protein-card:P04637"
     assert build_protein_mechanism_card_id("P04637") == (
         "protein-mechanism-card:P04637"
+    )
+    assert build_mechanism_card_id("pathway_shift", "reactome:stress_response") == (
+        "pathway-shift-card:reactome:stress_response"
+    )
+    assert build_cross_study_card_id("protein", "P04637") == (
+        "cross-study-protein-card:P04637"
+    )
+    assert build_raw_signal_card_id("prec_peptide") == (
+        "raw-signal-card:prec_peptide"
     )
     assert build_matrix_id(
         "protein",
@@ -93,6 +105,10 @@ def test_scientific_semantic_ids_are_unique_within_scope() -> None:
         folder="cards",
         artifact_kind="tsv_table",
     )
+    assert build_cross_study_card_id("protein", "P04637") != build_cross_study_card_id(
+        "pathway",
+        "P04637",
+    )
 
 
 def test_scientific_semantic_ids_classify_and_validate_namespaces() -> None:
@@ -114,3 +130,6 @@ def test_scientific_semantic_ids_reject_blank_or_invalid_components() -> None:
 
     with pytest.raises(ValueError, match="must be positive"):
         build_psm_id("scan=1", "PEPTIDEK", 0)
+
+    with pytest.raises(ValueError, match="unsupported mechanism card kind"):
+        build_mechanism_card_id("unsupported", "P04637")

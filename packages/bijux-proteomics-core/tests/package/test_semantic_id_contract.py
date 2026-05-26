@@ -59,6 +59,27 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("build_artifact_id",),
         ("artifact:",),
     ),
+    (
+        "workflow/mechanisms.py",
+        ("build_mechanism_card_id",),
+        (
+            "pathway-shift-",
+            "kinase-candidate-",
+            "complex-change-",
+            "compartment-signal-",
+            "biomarker-candidate-",
+        ),
+    ),
+    (
+        "workflow/cards/cross_study_evidence_cards.py",
+        ("build_cross_study_card_id",),
+        (),
+    ),
+    (
+        "io/raw/raw_signal_evidence_cards.py",
+        ("build_raw_signal_card_id",),
+        ("raw_signal_card:",),
+    ),
 )
 
 

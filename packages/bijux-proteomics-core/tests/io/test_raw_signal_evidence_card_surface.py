@@ -59,6 +59,19 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_precursor_isotope_fit_
     }
 
 
+def test_extract_mzml_raw_signal_evidence_cards_use_semantic_card_ids() -> None:
+    report = extract_mzml_raw_signal_evidence_cards(
+        (
+            _format_fixture("raw_signal_card_reference.mzml"),
+            _format_fixture("raw_signal_card_shifted.mzml"),
+        ),
+        _format_fixture("raw_signal_card_targets.tsv"),
+        selected_precursor_ids=("prec_peptide",),
+    )
+
+    assert report.cards[0].card_id == "raw-signal-card:prec_peptide"
+
+
 def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warnings() -> None:
     report = extract_mzml_raw_signal_evidence_cards(
         (
@@ -80,7 +93,7 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warni
     assert report.summary.warning_card_count == 1
     card = report.cards[0]
 
-    assert card.card_id == "raw_signal_card:prec_peptide"
+    assert card.card_id == "raw-signal-card:prec_peptide"
     assert card.precursor_id == "prec_peptide"
     assert card.peptide_ref == "PEPTIDE"
     assert card.chromatographic_target_ids == ("prec_peptide_ms1",)
@@ -146,7 +159,7 @@ def test_render_raw_signal_evidence_cards_keep_all_review_sections_visible() -> 
     )
     assert summary_tsv.splitlines()[1] == "1\t1\t1\t1\t1\t0"
     assert (
-        "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor\t400.687246\t"
+        "raw-signal-card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor\t400.687246\t"
         "prec_peptide_ms1\t2\t1\t0\t2\t1\t2\t2\t"
         "chimeric_spectrum|chromatographic_peak_concern|retention_time_alignment_outside_tolerance|weak_fragment_support"
         in card_tsv

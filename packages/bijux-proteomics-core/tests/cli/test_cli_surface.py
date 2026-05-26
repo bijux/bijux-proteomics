@@ -6026,7 +6026,7 @@ def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> Non
             encoding="utf-8"
         )
         assert (
-            "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor"
+            "raw-signal-card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor"
             in Path("raw_signal.cards.tsv").read_text(encoding="utf-8")
         )
         assert "retention_time_alignment_outside_tolerance" in Path(

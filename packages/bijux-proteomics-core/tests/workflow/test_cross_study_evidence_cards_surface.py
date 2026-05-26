@@ -201,6 +201,7 @@ def test_cross_study_evidence_cards_preserve_conflicting_protein_and_failed_data
 
     assert report.summary.card_count == 1
     card = report.cards[0]
+    assert card.card_id == "cross-study-protein-card:harmonized_protein_001"
     assert card.final_status is CrossStudyEvidenceCardStatus.CONFLICTING_DATASETS
     assert card.positive_dataset_ids == ("study_a",)
     assert card.negative_dataset_ids == ("study_b",)
@@ -308,6 +309,10 @@ def test_cross_study_evidence_cards_preserve_shared_pathway_signal_and_coverage_
 
     assert report.summary.card_count == 1
     card = report.cards[0]
+    assert (
+        card.card_id
+        == "cross-study-pathway-card:enrichment_pathway_r_hsa_123_reactome_stress_response_protein"
+    )
     assert card.subject_id == "reactome:stress_response"
     assert card.final_status is CrossStudyEvidenceCardStatus.CONSISTENT_REPLICATION
     assert card.significant_dataset_ids == ("study_a", "study_b")

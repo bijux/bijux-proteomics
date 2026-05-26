@@ -67,6 +67,11 @@ def test_build_mechanism_cards_emits_all_required_card_classes_with_complete_evi
     assert "evidence_for" in card_tsv
     assert "evidence_against" in card_tsv
     assert "missing_evidence" in card_tsv
+    assert any(card.card_id.startswith("pathway-shift-card:") for card in report.cards)
+    assert any(card.card_id.startswith("kinase-candidate-card:") for card in report.cards)
+    assert any(card.card_id.startswith("complex-change-card:") for card in report.cards)
+    assert any(card.card_id.startswith("compartment-signal-card:") for card in report.cards)
+    assert any(card.card_id.startswith("biomarker-candidate-card:") for card in report.cards)
     assert "MAPK14" in card_tsv
     assert "custom:response" in card_tsv
 
