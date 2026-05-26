@@ -1265,6 +1265,9 @@ def test_workflow_package_exports_weak_evidence_surface(tmp_path: Path) -> None:
     assert hasattr(workflow, "render_weak_evidence_benchmark_summary_tsv")
     assert report.summary.failed_qc_block_count >= 1
     assert report.summary.refused_claim_count >= 1
+    assert report.refused_claims
+    assert report.lfq_sparse_study_result is not None
+    assert report.sections[0].section_key.value == "refused_claims"
     assert report.summary.status.value == "passed"
 
 
