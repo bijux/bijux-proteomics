@@ -35,10 +35,11 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`proteomics-lab` is the install and import alias for bijux-proteomics-lab.
+`proteomics-lab` is the compatibility alias for the canonical lab owner
+`bijux-proteomics-lab`.
 
-Use this package when you want the canonical lab package under a shorter
-distribution and import name without changing follow-up ownership.
+Use this package when you want a shorter distribution and import name for assay
+planning and handoff behavior without creating a second owner.
 
 ## Installation
 
@@ -46,23 +47,130 @@ distribution and import name without changing follow-up ownership.
 pip install proteomics-lab
 ```
 
-## Quick Start
+## Public APIs
+
+The alias forwards the canonical lab planning surface through `proteomics_lab`:
 
 ```python
-from proteomics_lab import plan_experiment_batches
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.reviews import ReviewGate
+from proteomics_lab import build_advisory_assay_plan
+
+program = create_program_spec(
+    program_id="prog-readme",
+    name="binder rescue",
+    objective="recover binding while preserving folding",
+    target_id="protein:p11111",
+    target_name="PTM1",
+    sequence="MPEPTIDEK",
+    organism="human",
+    mechanism="stabilize productive packing",
+).model_copy(
+    update={
+        "assay_panel": [
+            AssayRequirement(
+                assay_id="primary-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            )
+        ],
+        "review_gates": [
+            ReviewGate(
+                gate_id="pre-synthesis",
+                name="Pre-synthesis review",
+                required_roles=["scientist"],
+                decision_inputs=["evidence_bundle"],
+            )
+        ],
+    }
+)
+plan = build_advisory_assay_plan(program)
+
+assert plan.program_id == "prog-readme"
+assert plan.recommendations[0].assay_id == "primary-binding"
 ```
 
-## Route To Canonical Docs
+## Package identity
+
+- Distribution name: `proteomics-lab`
+- Import root: `proteomics_lab`
+- Canonical owner package: `bijux-proteomics-lab`
+- Canonical owner import root: `bijux_proteomics_lab`
+
+## Package boundaries
+
+- this package owns compatibility naming for the lab surface
+- assay planning, handoffs, and execution-adjacent lab policy remain owned by
+  `bijux-proteomics-lab`
+- new lab behavior must land in the canonical owner before alias exports change
+
+## What this package must not do
+
+- define a second assay-planning or handoff owner
+- drift away from canonical lab behavior
+- become an independent release surface for lab semantics
+
+## Contract checkpoints
+
+- alias exports must keep forwarding to canonical lab behavior
+- docs must keep the canonical lab owner explicit
+- compatibility changes must stay covered by alias-package tests
+
+## Choose this package when
+
+- you need a shorter import and distribution name for lab entrypoints
+- migration constraints prefer `proteomics_lab`
+- packaging or compatibility work needs a named alias for the lab owner
+
+## Route elsewhere when
+
+- the change alters assay-planning, handoff, or lab-policy semantics
+- the work adds behavior not already owned by the canonical package
+- the alias would stop being forwarding-only
+
+## Verification route
+
+- run alias compatibility tests before changing lab imports or metadata
+- review `docs/ARCHITECTURE.md`, `docs/BOUNDARIES.md`, and `docs/CONTRACTS.md`
+  when alias claims or routing language change
+- validate the canonical lab README and tests when behavior changes are
+  proposed
+
+## Review questions
+
+- does the change preserve this package as an alias only
+- is the canonical lab owner still explicit in docs and behavior
+- would the same outcome remain correct if consumers imported the canonical
+  package directly
+
+## Escalation route
+
+- route lab behavior changes to `bijux-proteomics-lab`
+- stop and review boundaries when package-local assay semantics start appearing
+- escalate before release when routing or metadata drift could confuse the lab
+  owner
+
+## Consumer impact signals
+
+- import-path or package-name changes are high-impact because downstream
+  operational tooling may depend on them directly
+- alias documentation changes should still be reviewed against the canonical
+  lab owner
+- wording-only clarifications carry lower release risk than routing or behavior
+  changes
+
+## Explicit non-goals
+
+- this package does not own core scientific semantics
+- this package does not create a second assay-planning or handoff owner
+- this package does not replace the canonical lab release surface
+
+## Documentation
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- [Lab package handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-
-## Boundary
-
-This package is a naming alias only. It does not define a second lab owner or
-experimental follow-up surface.
-
-## Changelog
-
+- [Canonical lab package docs](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [Changelog](CHANGELOG.md)
