@@ -15,6 +15,8 @@ def _real_package_names() -> tuple[str, ...]:
         "bijux-proteomics-foundation",
         "bijux-proteomics-core",
         "bijux-proteomics-runtime",
+        "bijux-proteomics-intelligence",
+        "bijux-proteomics-knowledge",
     )
 
 

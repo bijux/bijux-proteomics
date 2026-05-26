@@ -129,6 +129,43 @@ summary = build_run_interpretation_summary(...)
 report = interpret_differential_abundance(...)
 ```
 
+## Public APIs
+
+The public package root deliberately exports owner modules instead of a broad
+symbol bucket:
+
+- `falsifiers` for challenge surfaces over typed claims
+- `refusal` for refusal thresholds and unsupported-claim gating
+- `belief_audit` for top-claim confidence and audit summaries
+- `reviews` for typed report-contract assembly over supported workflows
+
+Minimal executable example:
+
+```python
+from bijux_proteomics_intelligence import falsifiers
+from bijux_proteomics_knowledge import EvidenceClaim
+
+claim = EvidenceClaim(
+    claim_id="protein-claim:p11111",
+    target_id="protein:p11111",
+    statement="Protein PTM1 increased in treated vs control.",
+    subject="P11111",
+    relation="protein_abundance_change",
+    object="up",
+    direction="up",
+    claim_type="biomarker",
+    evidence_ids=["evidence:1"],
+    status="supported",
+    polarity="supporting",
+    resolution_state="open",
+    evidence_state="supported",
+)
+report = falsifiers.generate_falsifiers(claim)
+
+assert report.summary.claim_count == 1
+assert report.entries[0].claim_id == claim.claim_id
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-intelligence`
@@ -157,6 +194,12 @@ It can decide:
 
 It does not own scientific truth, evidence curation, workflow stage law,
 runtime transport, or lab scheduling.
+
+## What this package must not do
+
+- it must not redefine scientific truth or evidence provenance that belongs in core or knowledge
+- it must not absorb runtime execution transport or lab scheduling into analytical judgment
+- it must not widen the package root into a convenience bucket that hides the real owner modules
 
 ## Consequence chain route
 
