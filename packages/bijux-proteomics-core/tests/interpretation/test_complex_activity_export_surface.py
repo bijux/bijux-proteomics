@@ -119,4 +119,4 @@ def test_render_complex_activity_ledgers() -> None:
     assert "condition_a_confidence_status" in comparison_tsv.splitlines()[0]
     assert "member_kind\tmember_id\tresolved_protein_refs" in contribution_tsv
     assert "Q99999" in unresolved_tsv
-    assert "low_confidence" in condition_tsv or "low_confidence" in sample_tsv
+    assert "\tlow\t" in condition_tsv or "\tlow\t" in sample_tsv

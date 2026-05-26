@@ -123,13 +123,13 @@ def test_build_compartment_biology_report_preserves_unknown_localization_and_act
     assert nucleus_scores["T1"].activity_score is not None
     assert nucleus_scores["C1"].activity_score is not None
     assert nucleus_scores["T1"].activity_score > nucleus_scores["C1"].activity_score
-    assert nucleus_scores["T1"].confidence_status.value == "high_confidence"
+    assert nucleus_scores["T1"].confidence_status.value == "high"
     cytosol_scores = {
         entry.sample_id: entry
         for entry in report.activity_report.sample_scores
         if entry.set_id == "GO:0005829"
     }
-    assert cytosol_scores["C1"].confidence_status.value == "low_confidence"
+    assert cytosol_scores["C1"].confidence_status.value == "low"
     assert cytosol_scores["C1"].confidence_reason == (
         "observed member count 1 was below minimum 2"
     )

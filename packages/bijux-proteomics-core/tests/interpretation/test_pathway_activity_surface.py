@@ -125,7 +125,7 @@ def test_build_pathway_activity_report_scores_pathways_with_member_coverage() ->
     assert response_scores["C1"].activity_score is not None
     assert response_scores["T1"].activity_score > response_scores["C1"].activity_score
     assert response_scores["T1"].observed_member_count == 3
-    assert response_scores["T1"].confidence_status.value == "high_confidence"
+    assert response_scores["T1"].confidence_status.value == "high"
     sparse_scores = {
         entry.sample_id: entry
         for entry in report.sample_scores
@@ -133,7 +133,7 @@ def test_build_pathway_activity_report_scores_pathways_with_member_coverage() ->
     }
     assert sparse_scores["C1"].observed_member_count == 1
     assert sparse_scores["C1"].missing_member_count == 1
-    assert sparse_scores["C1"].confidence_status.value == "low_confidence"
+    assert sparse_scores["C1"].confidence_status.value == "low"
     assert sparse_scores["C1"].confidence_reason == (
         "observed member count 1 was below minimum 2"
     )
@@ -147,4 +147,3 @@ def test_build_pathway_activity_report_scores_pathways_with_member_coverage() ->
         and "not present in the quantification table" in entry.reason
         for entry in report.unresolved_members
     )
-

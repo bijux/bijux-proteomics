@@ -10,13 +10,13 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 import csv
 from collections import Counter, defaultdict
 from difflib import SequenceMatcher
-from enum import StrEnum
 from io import StringIO
 import json
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignReport,
@@ -28,12 +28,7 @@ from bijux_proteomics.study.design.experiment_design import (
 from bijux_proteomics_foundation import JsonModel
 
 
-class SampleSheetRepairConfidence(StrEnum):
-    """Confidence tier for one advisory repair suggestion."""
-
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
+SampleSheetRepairConfidence = ConfidenceTier
 
 
 class SampleSheetRepairSuggestion(JsonModel):

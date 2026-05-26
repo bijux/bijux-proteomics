@@ -11,6 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
     BiologicalContextRecord,
@@ -31,11 +32,7 @@ from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
 
-class DiseasePhenotypeConfidenceStatus(StrEnum):
-    """Confidence classification for one disease or phenotype term result."""
-
-    HIGH_CONFIDENCE = "high_confidence"
-    LOW_CONFIDENCE = "low_confidence"
+DiseasePhenotypeConfidenceStatus = ConfidenceTier
 
 
 class DiseasePhenotypeAnnotationScope(StrEnum):

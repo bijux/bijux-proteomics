@@ -78,7 +78,7 @@ def test_protein_set_condition_scores_preserve_mean_activity_by_condition() -> N
     )
     assert (
         condition_scores[("activation", "control")].confidence_status.value
-        == "low_confidence"
+        == "low"
     )
     assert condition_scores[("activation", "treatment")].mean_activity_score is not None
     assert condition_scores[("activation", "control")].mean_activity_score is not None

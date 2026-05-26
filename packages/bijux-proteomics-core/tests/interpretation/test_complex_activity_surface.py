@@ -125,7 +125,7 @@ def test_build_complex_activity_report_scores_complexes_with_limiting_members() 
     assert triad_scores["C1"].activity_score is not None
     assert triad_scores["T1"].activity_score > triad_scores["C1"].activity_score
     assert triad_scores["T1"].observed_member_count == 3
-    assert triad_scores["T1"].confidence_status.value == "high_confidence"
+    assert triad_scores["T1"].confidence_status.value == "high"
     assert triad_scores["T1"].limiting_member_ids
     sparse_scores = {
         entry.sample_id: entry
@@ -134,7 +134,7 @@ def test_build_complex_activity_report_scores_complexes_with_limiting_members() 
     }
     assert sparse_scores["C1"].observed_member_count == 1
     assert sparse_scores["C1"].missing_member_count == 1
-    assert sparse_scores["C1"].confidence_status.value == "low_confidence"
+    assert sparse_scores["C1"].confidence_status.value == "low"
     assert sparse_scores["C1"].confidence_reason == (
         "observed member count 1 was below minimum 2"
     )

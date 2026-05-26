@@ -8,7 +8,6 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable
 import csv
-from enum import StrEnum
 from io import StringIO
 import json
 import math
@@ -18,6 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationMethod,
@@ -34,11 +34,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
 
 
-class ProteinSetScoreConfidenceStatus(StrEnum):
-    """Confidence classification for scored protein-set activity entries."""
-
-    HIGH_CONFIDENCE = "high_confidence"
-    LOW_CONFIDENCE = "low_confidence"
+ProteinSetScoreConfidenceStatus = ConfidenceTier
 
 
 class ProteinSetColumnMapping(JsonModel):

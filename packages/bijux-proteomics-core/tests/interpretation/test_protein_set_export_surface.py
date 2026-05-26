@@ -89,7 +89,7 @@ def test_protein_set_renderers_emit_summary_matrix_condition_and_unresolved_ledg
     assert "activation\tActivation program\t\tcurated\t" in matrix_tsv
     assert "sample_id\tcondition\tbatch\tactivity_score" in sample_tsv
     assert "confidence_status" in sample_tsv.splitlines()[0]
-    assert "low_confidence" in sample_tsv
+    assert "\tlow\t" in sample_tsv
     assert "confidence_status" in condition_tsv.splitlines()[0]
     assert "condition_a_confidence_status" in comparison_tsv.splitlines()[0]
     assert "P999" in unresolved_tsv

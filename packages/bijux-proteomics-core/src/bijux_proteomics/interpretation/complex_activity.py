@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 import csv
-from enum import StrEnum
 from io import StringIO
 import math
 from typing import TYPE_CHECKING
@@ -15,6 +14,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation.complex_enrichment import (
     ComplexMemberKind,
     ComplexMembershipRecord,
@@ -39,11 +39,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
 
 
-class ComplexActivityConfidenceStatus(StrEnum):
-    """Confidence classification for one complex activity estimate."""
-
-    HIGH_CONFIDENCE = "high_confidence"
-    LOW_CONFIDENCE = "low_confidence"
+ComplexActivityConfidenceStatus = ConfidenceTier
 
 
 class ComplexSampleScoreEntry(JsonModel):

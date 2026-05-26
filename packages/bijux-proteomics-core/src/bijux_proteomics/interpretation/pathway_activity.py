@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from collections import defaultdict
 import csv
-from enum import StrEnum
 from io import StringIO
 import math
 
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
     PathwayMembershipRecord,
@@ -40,11 +40,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
 
 
-class PathwayActivityConfidenceStatus(StrEnum):
-    """Confidence classification for one pathway activity estimate."""
-
-    HIGH_CONFIDENCE = "high_confidence"
-    LOW_CONFIDENCE = "low_confidence"
+PathwayActivityConfidenceStatus = ConfidenceTier
 
 
 class PathwaySampleScoreEntry(JsonModel):

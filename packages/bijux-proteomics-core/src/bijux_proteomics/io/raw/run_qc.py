@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import csv
 import io
-from math import floor
 from enum import StrEnum
+from math import floor
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.formats import MzmlChromatogramReport
 from bijux_proteomics.io.spectra import SpectrumDistributionRow, SpectrumModel
 from bijux_proteomics.io.spectra.spectrum_entropy import score_spectrum_entropy
@@ -37,12 +38,7 @@ class SpectrumQcTimeBin(JsonModel):
     ms2_spectrum_count: int = Field(..., ge=0)
 
 
-class SpectrumQualityTier(StrEnum):
-    """Reviewer-facing quality tier for one parsed spectrum."""
-
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
+SpectrumQualityTier = ConfidenceTier
 
 
 class FlaggedSpectrumIssueKind(StrEnum):
