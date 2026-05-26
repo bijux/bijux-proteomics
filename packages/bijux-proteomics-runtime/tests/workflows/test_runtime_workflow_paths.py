@@ -32,6 +32,7 @@ def test_runtime_smoke_workflows_cover_review_and_handoff_paths() -> None:
         "review",
         "lab_handoff",
         "package_smoke",
+        "architecture_demo",
     )
     assert workflows["sequence_to_digest"].steps[0].operation_name == (
         "run_reviewable_sequence_path"
@@ -42,6 +43,9 @@ def test_runtime_smoke_workflows_cover_review_and_handoff_paths() -> None:
     )
     assert workflows["package_smoke"].steps[0].operation_name == (
         "run_runtime_package_smoke_workflow"
+    )
+    assert workflows["architecture_demo"].steps[0].operation_name == (
+        "run_runtime_architecture_demo"
     )
 
 
