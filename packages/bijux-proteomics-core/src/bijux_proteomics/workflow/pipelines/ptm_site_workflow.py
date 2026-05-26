@@ -38,6 +38,10 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.result_types import (
+    build_rejected_evidence_entries_from_issue_rows,
+    render_result_rejected_evidence_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -83,6 +87,7 @@ class PtmSiteWorkflowArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     accepted_evidence_tsv: str = Field(..., min_length=1)
     rejected_evidence_tsv: str = Field(..., min_length=1)
+    parse_rejected_evidence_tsv: str = Field(..., min_length=1)
     ptm_report_manifest_json: str = Field(..., min_length=1)
 
 
@@ -315,12 +320,21 @@ def write_ptm_site_workflow_bundle(
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_name = "ptm_site_workflow_summary.tsv"
     accepted_name = "ptm_site_workflow_accepted_evidence.tsv"
-    rejected_name = "ptm_site_workflow_rejected_evidence.tsv"
+    rejected_name = "rejected_evidence.tsv"
+    parse_rejected_name = "ptm_site_workflow_rejected_evidence.tsv"
     ptm_report_manifest_name = "ptm_report_manifest.json"
+    rejected_evidence_entries = build_rejected_evidence_entries_from_issue_rows(
+        report.evidence_parse_report.rejected_rows,
+        source_surface="ptm_import",
+        related_artifact=rejected_name,
+        entity_prefix="ptm_row",
+        entity_type="ptm_evidence_row",
+    )
 
     write_output_table_tsv((output_dir / summary_name), render_ptm_site_workflow_summary_tsv(report))
     write_output_table_tsv((output_dir / accepted_name), render_ptm_site_workflow_accepted_evidence_tsv(report))
-    write_output_table_tsv((output_dir / rejected_name), render_ptm_site_workflow_rejected_evidence_tsv(report))
+    write_output_table_tsv((output_dir / rejected_name), render_result_rejected_evidence_tsv(rejected_evidence_entries))
+    write_output_table_tsv((output_dir / parse_rejected_name), render_ptm_site_workflow_rejected_evidence_tsv(report))
     ptm_report_manifest = write_ptm_report_bundle(report.report, output_dir)
     (output_dir / ptm_report_manifest_name).write_text(
         ptm_report_manifest.to_stable_json() + "\n",
@@ -336,6 +350,7 @@ def write_ptm_site_workflow_bundle(
             summary_tsv=summary_name,
             accepted_evidence_tsv=accepted_name,
             rejected_evidence_tsv=rejected_name,
+            parse_rejected_evidence_tsv=parse_rejected_name,
             ptm_report_manifest_json=ptm_report_manifest_name,
         ),
         ptm_report_manifest=ptm_report_manifest,

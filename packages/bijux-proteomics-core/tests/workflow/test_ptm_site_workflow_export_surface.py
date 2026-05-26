@@ -55,6 +55,7 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.rejected_evidence_tsv).exists()
+    assert (output_dir / manifest.artifacts.parse_rejected_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.ptm_report_manifest_json).exists()
     assert "accepted_evidence_count" in (
         output_dir / manifest.artifacts.summary_tsv
@@ -62,8 +63,14 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     assert "localized_peptide" in (
         output_dir / manifest.artifacts.accepted_evidence_tsv
     ).read_text(encoding="utf-8")
-    assert "row_number\tissue_codes\tissue_messages\traw_fields" == (
+    assert (
+        "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
+        "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
+    ) == (
         output_dir / manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
+    assert "row_number\tissue_codes\tissue_messages\traw_fields" == (
+        output_dir / manifest.artifacts.parse_rejected_evidence_tsv
     ).read_text(encoding="utf-8").splitlines()[0]
     assert (output_dir / manifest.ptm_report_manifest.artifacts.peptide_tsv).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.site_tsv).exists()

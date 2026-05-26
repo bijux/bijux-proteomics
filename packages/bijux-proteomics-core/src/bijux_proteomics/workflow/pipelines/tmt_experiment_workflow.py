@@ -47,6 +47,10 @@ from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     write_label_based_report_bundle,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.result_types import (
+    build_rejected_evidence_entries_from_issue_rows,
+    render_result_rejected_evidence_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -92,6 +96,7 @@ class TmtExperimentWorkflowArtifactPaths(JsonModel):
     reporter_import_summary_tsv: str = Field(..., min_length=1)
     accepted_reporter_rows_tsv: str = Field(..., min_length=1)
     rejected_reporter_rows_tsv: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     metadata_summary_tsv: str = Field(..., min_length=1)
     channel_assignments_tsv: str = Field(..., min_length=1)
     duplicate_assignments_tsv: str = Field(..., min_length=1)
@@ -328,6 +333,7 @@ def write_tmt_experiment_workflow_bundle(
     import_summary_name = "tmt_reporter_import_summary.tsv"
     accepted_rows_name = "tmt_reporter_rows.tsv"
     rejected_rows_name = "tmt_reporter_rejected_rows.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     metadata_summary_name = "tmt_metadata_summary.tsv"
     channel_assignments_name = "tmt_channel_assignments.tsv"
     duplicate_assignments_name = "tmt_duplicate_assignments.tsv"
@@ -337,11 +343,22 @@ def write_tmt_experiment_workflow_bundle(
     filtered_interference_name = "tmt_filtered_interference.tsv"
     interference_channel_summary_name = "tmt_interference_channel_summary.tsv"
     report_manifest_name = "label_based_report_manifest.json"
+    rejected_evidence_entries = build_rejected_evidence_entries_from_issue_rows(
+        _source_report(report).rejected_rows,
+        source_surface="tmt_import",
+        related_artifact=rejected_evidence_name,
+        entity_prefix="reporter_row",
+        entity_type="reporter_row",
+    )
 
     write_output_table_tsv((output_dir / summary_name), render_tmt_experiment_workflow_summary_tsv(report))
     write_output_table_tsv((output_dir / import_summary_name), render_tmt_workflow_import_summary_tsv(report))
     write_output_table_tsv((output_dir / accepted_rows_name), render_tmt_workflow_accepted_reporter_rows_tsv(report))
     write_output_table_tsv((output_dir / rejected_rows_name), render_tmt_workflow_rejected_reporter_rows_tsv(report))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(rejected_evidence_entries),
+    )
     export_multiplex_metadata_summary_tsv(
         report.metadata_validation_report,
         output_dir / metadata_summary_name,
@@ -394,6 +411,7 @@ def write_tmt_experiment_workflow_bundle(
             reporter_import_summary_tsv=import_summary_name,
             accepted_reporter_rows_tsv=accepted_rows_name,
             rejected_reporter_rows_tsv=rejected_rows_name,
+            rejected_evidence_tsv=rejected_evidence_name,
             metadata_summary_tsv=metadata_summary_name,
             channel_assignments_tsv=channel_assignments_name,
             duplicate_assignments_tsv=duplicate_assignments_name,

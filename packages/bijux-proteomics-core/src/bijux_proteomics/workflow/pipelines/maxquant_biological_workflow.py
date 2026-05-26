@@ -47,6 +47,10 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.result_types import (
+    build_rejected_evidence_entry,
+    render_result_rejected_evidence_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -160,6 +164,7 @@ class MaxquantBiologicalWorkflowArtifactPaths(JsonModel):
     protein_groups_tsv: str = Field(..., min_length=1)
     accepted_protein_groups_tsv: str = Field(..., min_length=1)
     filtered_protein_groups_tsv: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     enrichment_foreground_tsv: str = Field(..., min_length=1)
     lfq_summary_tsv: str = Field(..., min_length=1)
     lfq_matrix_tsv: str = Field(..., min_length=1)
@@ -526,11 +531,27 @@ def write_maxquant_biological_workflow_bundle(
     protein_groups_name = "maxquant_protein_groups.tsv"
     accepted_groups_name = "maxquant_accepted_protein_groups.tsv"
     filtered_groups_name = "maxquant_filtered_protein_groups.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     foreground_name = "maxquant_biological_foreground.tsv"
     lfq_summary_name = "maxquant_lfq_summary.tsv"
     lfq_matrix_name = "maxquant_lfq_matrix.tsv"
     lfq_missingness_name = "maxquant_lfq_missingness.tsv"
     biological_manifest_name = "biological_report_manifest.json"
+    rejected_evidence_entries = tuple(
+        build_rejected_evidence_entry(
+            evidence_id=f"maxquant_biology:{row.entity_id}:{reason.value}",
+            source_surface="maxquant_biology",
+            reason_code=reason.value,
+            message=(
+                f"filtered maxquant protein group due to {reason.value.replace('_', ' ')}"
+            ),
+            related_artifact=rejected_evidence_name,
+            entity_type="protein_group",
+            entity_id=row.entity_id,
+        )
+        for row in report.filtered_protein_groups
+        for reason in row.reasons
+    )
 
     write_output_table_tsv((output_dir / summary_name), render_maxquant_biological_workflow_summary_tsv(report))
     write_output_table_tsv((output_dir / import_summary_name), render_maxquant_summary_tsv(report.import_report.summary))
@@ -539,6 +560,10 @@ def write_maxquant_biological_workflow_bundle(
     write_output_table_tsv((output_dir / protein_groups_name), render_maxquant_protein_group_tsv(report.import_report.protein_group_rows))
     write_output_table_tsv((output_dir / accepted_groups_name), render_maxquant_protein_group_tsv(report.accepted_protein_groups))
     write_output_table_tsv((output_dir / filtered_groups_name), render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(rejected_evidence_entries),
+    )
     write_output_table_tsv((output_dir / foreground_name), render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries))
     write_output_table_tsv((output_dir / lfq_summary_name), render_maxquant_lfq_summary_tsv(report))
     write_output_table_tsv((output_dir / lfq_matrix_name), render_maxquant_lfq_matrix_tsv(report.lfq_table))
@@ -565,6 +590,7 @@ def write_maxquant_biological_workflow_bundle(
             protein_groups_tsv=protein_groups_name,
             accepted_protein_groups_tsv=accepted_groups_name,
             filtered_protein_groups_tsv=filtered_groups_name,
+            rejected_evidence_tsv=rejected_evidence_name,
             enrichment_foreground_tsv=foreground_name,
             lfq_summary_tsv=lfq_summary_name,
             lfq_matrix_tsv=lfq_matrix_name,

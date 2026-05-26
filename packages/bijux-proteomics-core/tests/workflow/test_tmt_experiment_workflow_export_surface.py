@@ -72,6 +72,7 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     assert (output_dir / manifest.artifacts.reporter_import_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_reporter_rows_tsv).exists()
     assert (output_dir / manifest.artifacts.rejected_reporter_rows_tsv).exists()
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.metadata_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.channel_assignments_tsv).exists()
     assert (output_dir / manifest.artifacts.duplicate_assignments_tsv).exists()
@@ -92,6 +93,12 @@ def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets
     ).read_text(encoding="utf-8")
     assert "row_number\tissue_codes\tissue_messages\traw_fields" == (
         output_dir / manifest.artifacts.rejected_reporter_rows_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
+    assert (
+        "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
+        "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
+    ) == (
+        output_dir / manifest.artifacts.rejected_evidence_tsv
     ).read_text(encoding="utf-8").splitlines()[0]
     assert "assigned_channel_count" in (
         output_dir / manifest.artifacts.metadata_summary_tsv

@@ -59,6 +59,7 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert (output_dir / manifest.artifacts.protein_groups_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_protein_groups_tsv).exists()
     assert (output_dir / manifest.artifacts.filtered_protein_groups_tsv).exists()
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.enrichment_foreground_tsv).exists()
     assert (output_dir / manifest.artifacts.lfq_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.lfq_missingness_tsv).exists()
@@ -88,6 +89,12 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert "entity_id" in (
         output_dir / manifest.artifacts.filtered_protein_groups_tsv
     ).read_text(encoding="utf-8")
+    assert (
+        "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
+        "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
+    ) == (
+        output_dir / manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
     foreground_tsv = (
         output_dir / manifest.artifacts.enrichment_foreground_tsv
     ).read_text(encoding="utf-8")

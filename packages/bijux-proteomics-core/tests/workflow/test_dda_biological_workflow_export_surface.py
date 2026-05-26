@@ -48,6 +48,7 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     assert (output_dir / manifest.artifacts.accepted_psm_tsv).exists()
     assert (output_dir / manifest.artifacts.filtered_psm_tsv).exists()
     assert (output_dir / manifest.artifacts.parse_rejected_tsv).exists()
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.parsimony_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_lfq_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_lfq_missingness_tsv).exists()
@@ -60,6 +61,12 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     assert "filter_reasons" in (
         output_dir / manifest.artifacts.filtered_psm_tsv
     ).read_text(encoding="utf-8")
+    assert (
+        "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
+        "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
+    ) == (
+        output_dir / manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
     assert "selected_protein_count" in (
         output_dir / manifest.artifacts.parsimony_summary_tsv
     ).read_text(encoding="utf-8")

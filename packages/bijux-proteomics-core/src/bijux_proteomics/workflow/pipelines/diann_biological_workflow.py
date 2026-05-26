@@ -76,6 +76,10 @@ from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
     render_dia_normalization_balance_plot_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.result_types import (
+    build_rejected_evidence_entries_from_table_rows,
+    render_result_rejected_evidence_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -127,6 +131,7 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     import_summary_tsv: str = Field(..., min_length=1)
     import_rejected_rows_tsv: str = Field(..., min_length=1)
     import_rejected_evidence_tsv: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     precursor_summary_tsv: str = Field(..., min_length=1)
     precursor_quantity_matrix_tsv: str = Field(..., min_length=1)
     precursor_q_value_matrix_tsv: str = Field(..., min_length=1)
@@ -332,6 +337,7 @@ def write_diann_biological_workflow_bundle(
     import_summary_name = "diann_import_summary.tsv"
     import_rejected_rows_name = "diann_import_rejected_rows.tsv"
     import_rejected_evidence_name = "diann_import_rejected_evidence.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     precursor_summary_name = "diann_precursor_matrix_summary.tsv"
     precursor_matrix_name = "diann_precursor_quantity_matrix.tsv"
     precursor_q_value_name = "diann_precursor_q_values.tsv"
@@ -361,6 +367,16 @@ def write_diann_biological_workflow_bundle(
     write_output_table_tsv((output_dir / import_summary_name), render_diann_summary_tsv(report.import_report.summary))
     write_output_table_tsv((output_dir / import_rejected_rows_name), render_diann_rejected_row_tsv(report.import_report.rejected_rows))
     write_output_table_tsv((output_dir / import_rejected_evidence_name), render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(
+            build_rejected_evidence_entries_from_table_rows(
+                report.import_report.rejected_evidence_rows,
+                source_surface="diann_import",
+                related_artifact=rejected_evidence_name,
+            )
+        ),
+    )
     write_output_table_tsv((output_dir / precursor_summary_name), render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / precursor_matrix_name), render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report))
     write_output_table_tsv((output_dir / precursor_q_value_name), render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report))
@@ -413,6 +429,7 @@ def write_diann_biological_workflow_bundle(
             import_summary_tsv=import_summary_name,
             import_rejected_rows_tsv=import_rejected_rows_name,
             import_rejected_evidence_tsv=import_rejected_evidence_name,
+            rejected_evidence_tsv=rejected_evidence_name,
             precursor_summary_tsv=precursor_summary_name,
             precursor_quantity_matrix_tsv=precursor_matrix_name,
             precursor_q_value_matrix_tsv=precursor_q_value_name,

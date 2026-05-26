@@ -57,6 +57,11 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.result_types import (
+    build_rejected_evidence_entries_from_issue_rows,
+    build_rejected_evidence_entry,
+    render_result_rejected_evidence_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -176,6 +181,7 @@ class DdaBiologicalWorkflowArtifactPaths(JsonModel):
     accepted_psm_tsv: str = Field(..., min_length=1)
     filtered_psm_tsv: str = Field(..., min_length=1)
     parse_rejected_tsv: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     parsimony_summary_tsv: str = Field(..., min_length=1)
     parsimony_proteins_tsv: str = Field(..., min_length=1)
     parsimony_ambiguities_tsv: str = Field(..., min_length=1)
@@ -507,6 +513,7 @@ def write_dda_biological_workflow_bundle(
     accepted_name = "dda_biological_psms.tsv"
     filtered_name = "dda_biological_filtered_psms.tsv"
     rejected_name = "dda_biological_parse_rejected.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     parsimony_summary_name = "dda_parsimony_summary.tsv"
     parsimony_proteins_name = "dda_parsimony_proteins.tsv"
     parsimony_ambiguities_name = "dda_parsimony_ambiguities.tsv"
@@ -517,11 +524,16 @@ def write_dda_biological_workflow_bundle(
     protein_lfq_missingness_mask_name = "dda_protein_lfq_missingness_mask.tsv"
     protein_discrepancy_name = "dda_source_protein_discrepancies.tsv"
     biological_manifest_name = "biological_report_manifest.json"
+    rejected_evidence_entries = _build_dda_workflow_rejected_evidence(report)
 
     write_output_table_tsv((output_dir / summary_name), render_dda_biological_workflow_summary_tsv(report))
     export_psm_tsv(report.accepted_psms, output_dir / accepted_name)
     write_output_table_tsv((output_dir / filtered_name), render_filtered_dda_psms_tsv(report.filtered_psms))
     write_output_table_tsv((output_dir / rejected_name), render_rejected_psm_rows_tsv(report.parse_rejected_rows))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(rejected_evidence_entries),
+    )
     write_output_table_tsv((output_dir / parsimony_summary_name), render_parsimony_review_summary_tsv(report.parsimony_review))
     write_output_table_tsv((output_dir / parsimony_proteins_name), render_parsimony_review_proteins_tsv(report.parsimony_review))
     write_output_table_tsv((output_dir / parsimony_ambiguities_name), render_parsimony_review_ambiguities_tsv(report.parsimony_review))
@@ -551,6 +563,7 @@ def write_dda_biological_workflow_bundle(
             accepted_psm_tsv=accepted_name,
             filtered_psm_tsv=filtered_name,
             parse_rejected_tsv=rejected_name,
+            rejected_evidence_tsv=rejected_evidence_name,
             parsimony_summary_tsv=parsimony_summary_name,
             parsimony_proteins_tsv=parsimony_proteins_name,
             parsimony_ambiguities_tsv=parsimony_ambiguities_name,
@@ -581,6 +594,44 @@ def export_dda_biological_workflow_bundle(
     """Compatibility wrapper for the legacy DDA workflow bundle export name."""
 
     return write_dda_biological_workflow_bundle(report, output_dir)
+
+
+def _build_dda_workflow_rejected_evidence(
+    report: DdaBiologicalWorkflowBundle,
+) -> tuple:
+    parse_rejections = build_rejected_evidence_entries_from_issue_rows(
+        report.parse_rejected_rows,
+        source_surface="dda_import",
+        related_artifact="rejected_evidence.tsv",
+        entity_prefix="psm",
+        entity_type="psm",
+    )
+    filtered_rejections = tuple(
+        build_rejected_evidence_entry(
+            evidence_id=(
+                f"dda_biology:{row.spectrum_id}:{row.canonical_peptide}:{row.charge}:{reason.value}"
+            ),
+            source_surface="dda_biology",
+            reason_code=_rejected_reason_code_for_dda_filter(reason),
+            message=f"filtered dda psm due to {reason.value.replace('_', ' ')}",
+            related_artifact="rejected_evidence.tsv",
+            entity_type="psm",
+            entity_id=row.spectrum_id,
+        )
+        for row in report.filtered_psms
+        for reason in row.reasons
+    )
+    return parse_rejections + filtered_rejections
+
+
+def _rejected_reason_code_for_dda_filter(reason: DdaPsmAcceptanceReason) -> str:
+    if reason is DdaPsmAcceptanceReason.Q_VALUE_ABOVE_THRESHOLD:
+        return "q_value_above_threshold"
+    if reason is DdaPsmAcceptanceReason.CONTAMINANT:
+        return "contaminant"
+    if reason is DdaPsmAcceptanceReason.MISSING_PROTEIN_REFS:
+        return "missing_protein_refs"
+    return "rejected_psm_row"
 
 
 def _normalize_search_results(
