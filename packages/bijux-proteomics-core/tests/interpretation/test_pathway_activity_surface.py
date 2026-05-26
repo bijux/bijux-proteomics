@@ -147,3 +147,65 @@ def test_build_pathway_activity_report_scores_pathways_with_member_coverage() ->
         and "not present in the quantification table" in entry.reason
         for entry in report.unresolved_members
     )
+
+
+def test_build_pathway_activity_report_downgrades_low_knowledge_coverage() -> None:
+    design_entries = parse_experimental_design_table(
+        _workflow_fixture("biological_report.design.tsv")
+    ).accepted_entries
+    pathway_records = (
+        PathwayMembershipRecord(
+            pathway_id="custom:coverage",
+            pathway_name="Coverage-sensitive pathway",
+            source_name="custom",
+            source_accession="BIO-03",
+            member_kind=PathwayMemberKind.PROTEIN,
+            member_id="P04637",
+        ),
+        PathwayMembershipRecord(
+            pathway_id="custom:coverage",
+            pathway_name="Coverage-sensitive pathway",
+            source_name="custom",
+            source_accession="BIO-03",
+            member_kind=PathwayMemberKind.PROTEIN,
+            member_id="O14920",
+        ),
+        PathwayMembershipRecord(
+            pathway_id="custom:coverage",
+            pathway_name="Coverage-sensitive pathway",
+            source_name="custom",
+            source_accession="BIO-03",
+            member_kind=PathwayMemberKind.PROTEIN,
+            member_id="Q99999",
+        ),
+        PathwayMembershipRecord(
+            pathway_id="custom:coverage",
+            pathway_name="Coverage-sensitive pathway",
+            source_name="custom",
+            source_accession="BIO-03",
+            member_kind=PathwayMemberKind.PROTEIN,
+            member_id="Q88888",
+        ),
+    )
+
+    report = build_pathway_activity_report(
+        _build_fixture_table(),
+        pathway_records,
+        design_entries=design_entries,
+        policy=PathwayActivityPolicy(
+            minimum_observed_member_count=2,
+            minimum_knowledge_coverage_fraction=0.75,
+        ),
+    )
+
+    score = next(
+        entry
+        for entry in report.sample_scores
+        if entry.pathway_id == "custom:coverage" and entry.sample_id == "T1"
+    )
+
+    assert score.observed_member_count == 2
+    assert score.confidence_status.value == "low"
+    assert score.confidence_reason == (
+        "pathway knowledge coverage 0.5 was below minimum 0.75"
+    )
