@@ -141,8 +141,25 @@ def normalize_label_free_table(
         )
 
     matrix, _ = _table_matrix(table)
-    sample_ids = list(table.sample_ids)
+    normalized_matrix, normalization_factors = _normalize_intensity_matrix_vectorized(
+        matrix,
+        table.sample_ids,
+        method=method,
+    )
+    return _rebuild_table_from_matrix(
+        table,
+        normalized_matrix,
+        normalization_method=method,
+        normalization_factors=normalization_factors,
+    )
 
+
+def _normalize_intensity_matrix_pure(
+    matrix: np.ndarray,
+    sample_ids: tuple[str, ...],
+    *,
+    method: NormalizationMethod,
+) -> tuple[np.ndarray, dict[str, float]]:
     if method is NormalizationMethod.TIC:
         totals = np.nansum(matrix, axis=0)
         global_total = (
@@ -155,12 +172,7 @@ def normalize_label_free_table(
         scaled = matrix.copy()
         for index, sample_id in enumerate(sample_ids):
             scaled[:, index] = scaled[:, index] * factors[sample_id]
-        return _rebuild_table_from_matrix(
-            table,
-            scaled,
-            normalization_method=method,
-            normalization_factors=factors,
-        )
+        return scaled, factors
 
     if method is NormalizationMethod.MEDIAN:
         medians = np.array(
@@ -186,12 +198,7 @@ def normalize_label_free_table(
         scaled = matrix.copy()
         for index, sample_id in enumerate(sample_ids):
             scaled[:, index] = scaled[:, index] * factors[sample_id]
-        return _rebuild_table_from_matrix(
-            table,
-            scaled,
-            normalization_method=method,
-            normalization_factors=factors,
-        )
+        return scaled, factors
 
     if method is NormalizationMethod.QUANTILE:
         quantile_matrix = matrix.copy()
@@ -206,12 +213,7 @@ def normalize_label_free_table(
             original_indexes.append(finite_indexes[order])
         max_length = max((column.size for column in sorted_columns), default=0)
         if max_length == 0:
-            return _rebuild_table_from_matrix(
-                table,
-                quantile_matrix,
-                normalization_method=method,
-                normalization_factors=dict.fromkeys(sample_ids, 1.0),
-            )
+            return quantile_matrix, dict.fromkeys(sample_ids, 1.0)
         rank_matrix = np.full((max_length, len(sample_ids)), np.nan, dtype=float)
         for index, column in enumerate(sorted_columns):
             rank_matrix[: column.size, index] = column
@@ -220,76 +222,20 @@ def normalize_label_free_table(
         for index, ordered_rows in enumerate(original_indexes):
             for rank, row_index in enumerate(ordered_rows):
                 normalized[row_index, index] = rank_means[rank]
-        return _rebuild_table_from_matrix(
-            table,
-            normalized,
-            normalization_method=method,
-            normalization_factors=dict.fromkeys(sample_ids, 1.0),
-        )
+        return normalized, dict.fromkeys(sample_ids, 1.0)
 
-    if method is NormalizationMethod.LOG2_MEDIAN_CENTERING:
-        prepared = _prepare_nonpositive_values_for_log_transform(
-            matrix,
-            method=method,
-        )
-        log_matrix = prepared["log_matrix"]
-        sample_medians = np.array(
-            [
-                np.nanmedian(log_matrix[:, index])
-                if np.any(~np.isnan(log_matrix[:, index]))
-                else np.nan
-                for index in range(log_matrix.shape[1])
-            ],
-            dtype=float,
-        )
-        global_median = (
-            float(np.nanmedian(sample_medians))
-            if np.any(~np.isnan(sample_medians))
-            else 0.0
-        )
-        shifts = np.array(
-            [
-                (
-                    global_median - float(sample_medians[index])
-                    if math.isfinite(float(sample_medians[index]))
-                    else 0.0
-                )
-                for index in range(sample_medians.size)
-            ],
-            dtype=float,
-        )
-        normalized_log = log_matrix.copy()
-        for index, shift in enumerate(shifts):
-            normalized_log[:, index] = normalized_log[:, index] + shift
-        normalized = _restore_log_normalized_values(
-            matrix,
-            normalized_log,
-        )
-        factors = {
-            sample_id: float(np.power(2.0, shifts[index]))
-            for index, sample_id in enumerate(sample_ids)
-        }
-        return _rebuild_table_from_matrix(
-            table,
-            normalized,
-            normalization_method=method,
-            normalization_factors=factors,
-        )
-
-    if method is NormalizationMethod.VSN_LIKE:
+    if method in (
+        NormalizationMethod.LOG2_MEDIAN_CENTERING,
+        NormalizationMethod.VSN_LIKE,
+    ):
         prepared = _prepare_nonpositive_values_for_log_transform(
             matrix,
             method=method,
         )
         log_matrix = prepared["log_matrix"]
         pseudocount = prepared["pseudocount"]
-        if pseudocount is None:
-            return _rebuild_table_from_matrix(
-                table,
-                matrix.copy(),
-                normalization_method=method,
-                normalization_factors=dict.fromkeys(sample_ids, 1.0),
-            )
+        if method is NormalizationMethod.VSN_LIKE and pseudocount is None:
+            return matrix.copy(), dict.fromkeys(sample_ids, 1.0)
         sample_medians = np.array(
             [
                 np.nanmedian(log_matrix[:, index])
@@ -327,12 +273,88 @@ def normalize_label_free_table(
             sample_id: float(np.power(2.0, shifts[index]))
             for index, sample_id in enumerate(sample_ids)
         }
-        return _rebuild_table_from_matrix(
-            table,
-            normalized,
-            normalization_method=method,
-            normalization_factors=factors,
+        return normalized, factors
+
+    raise ValueError(f"unsupported normalization method: {method.value}")
+
+
+def _normalize_intensity_matrix_vectorized(
+    matrix: np.ndarray,
+    sample_ids: tuple[str, ...],
+    *,
+    method: NormalizationMethod,
+) -> tuple[np.ndarray, dict[str, float]]:
+    sample_ids_array = np.array(sample_ids, dtype=object)
+    if method is NormalizationMethod.TIC:
+        totals = np.nansum(matrix, axis=0)
+        positive_totals = totals[totals > 0]
+        global_total = float(np.nanmean(positive_totals)) if positive_totals.size else 1.0
+        factor_array = np.where(totals > 0, global_total / totals, 1.0)
+        scaled = matrix * factor_array[np.newaxis, :]
+        return scaled, _normalization_factors_from_array(sample_ids_array, factor_array)
+
+    if method is NormalizationMethod.MEDIAN:
+        medians = _nanmedian_by_column(matrix)
+        finite_medians = medians[np.isfinite(medians)]
+        global_median = float(np.nanmedian(finite_medians)) if finite_medians.size else 1.0
+        factor_array = np.where(
+            np.isfinite(medians) & (medians > 0.0),
+            global_median / medians,
+            1.0,
         )
+        scaled = matrix * factor_array[np.newaxis, :]
+        return scaled, _normalization_factors_from_array(sample_ids_array, factor_array)
+
+    if method is NormalizationMethod.QUANTILE:
+        sorted_columns: list[np.ndarray] = []
+        ordered_row_indexes: list[np.ndarray] = []
+        for column_index in range(matrix.shape[1]):
+            column = matrix[:, column_index]
+            finite_row_indexes = np.flatnonzero(~np.isnan(column))
+            finite_values = column[finite_row_indexes]
+            order = np.argsort(finite_values)
+            sorted_columns.append(finite_values[order])
+            ordered_row_indexes.append(finite_row_indexes[order])
+        max_length = max((column.size for column in sorted_columns), default=0)
+        if max_length == 0:
+            return matrix.copy(), dict.fromkeys(sample_ids, 1.0)
+        rank_matrix = np.full((max_length, matrix.shape[1]), np.nan, dtype=float)
+        for column_index, ordered_values in enumerate(sorted_columns):
+            rank_matrix[: ordered_values.size, column_index] = ordered_values
+        rank_means = np.nanmean(rank_matrix, axis=1)
+        normalized = matrix.copy()
+        for column_index, ordered_rows in enumerate(ordered_row_indexes):
+            normalized[ordered_rows, column_index] = rank_means[: ordered_rows.size]
+        return normalized, dict.fromkeys(sample_ids, 1.0)
+
+    if method in (
+        NormalizationMethod.LOG2_MEDIAN_CENTERING,
+        NormalizationMethod.VSN_LIKE,
+    ):
+        prepared = _prepare_nonpositive_values_for_log_transform(
+            matrix,
+            method=method,
+        )
+        log_matrix = prepared["log_matrix"]
+        pseudocount = prepared["pseudocount"]
+        if method is NormalizationMethod.VSN_LIKE and pseudocount is None:
+            return matrix.copy(), dict.fromkeys(sample_ids, 1.0)
+        sample_medians = _nanmedian_by_column(log_matrix)
+        finite_medians = sample_medians[np.isfinite(sample_medians)]
+        global_median = float(np.nanmedian(finite_medians)) if finite_medians.size else 0.0
+        shifts = np.where(
+            np.isfinite(sample_medians),
+            global_median - sample_medians,
+            0.0,
+        )
+        normalized_log = log_matrix + shifts[np.newaxis, :]
+        normalized = _restore_log_normalized_values(
+            matrix,
+            normalized_log,
+            pseudocount=pseudocount,
+        )
+        factor_array = np.power(2.0, shifts)
+        return normalized, _normalization_factors_from_array(sample_ids_array, factor_array)
 
     raise ValueError(f"unsupported normalization method: {method.value}")
 
@@ -461,6 +483,26 @@ def _minimum_positive_pseudocount(matrix: np.ndarray) -> float | None:
     if finite_positive.size == 0:
         return None
     return max(float(np.min(finite_positive)) / 2.0, 1e-6)
+
+
+def _nanmedian_by_column(matrix: np.ndarray) -> np.ndarray:
+    medians = np.full(matrix.shape[1], np.nan, dtype=float)
+    for column_index in range(matrix.shape[1]):
+        column = matrix[:, column_index]
+        finite_mask = ~np.isnan(column)
+        if np.any(finite_mask):
+            medians[column_index] = float(np.nanmedian(column))
+    return medians
+
+
+def _normalization_factors_from_array(
+    sample_ids: np.ndarray,
+    factor_array: np.ndarray,
+) -> dict[str, float]:
+    return {
+        str(sample_id): float(factor)
+        for sample_id, factor in zip(sample_ids, factor_array, strict=True)
+    }
 
 
 def _prepare_nonpositive_values_for_log_transform(
