@@ -57,3 +57,25 @@ def test_advanced_diann_dry_run_reports_expected_stages_and_output_plan(
     )
     assert report.supported_contrasts == ("control_vs_treatment",)
     assert not output_dir.exists()
+
+
+def test_advanced_diann_dry_run_detects_missing_required_files(tmp_path: Path) -> None:
+    missing_root = tmp_path / "missing"
+    report = dry_run_resumable_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=missing_root / "report.tsv",
+            design_tsv_path=missing_root / "design.tsv",
+            proteins_fasta_path=missing_root / "reference.fasta",
+            output_dir=tmp_path / "advanced_diann_missing_inputs",
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert report.status is AdvancedDiannDryRunStatus.INVALID
+    assert {issue.code for issue in report.issues} == {"missing_input_file"}
+    assert {issue.input_name for issue in report.issues} == {
+        "result_tsv_path",
+        "design_tsv_path",
+        "proteins_fasta_path",
+    }
