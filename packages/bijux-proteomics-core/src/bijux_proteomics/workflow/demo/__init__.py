@@ -5,6 +5,7 @@ from __future__ import annotations
 from importlib import import_module
 
 _DEMO_EXPORT_MODULES = (
+    "bijux_proteomics.workflow.demo.scale_demo",
     "bijux_proteomics.workflow.demo.surprising_demo",
     "bijux_proteomics.workflow.demo.surprising_demo_interrogation",
 )

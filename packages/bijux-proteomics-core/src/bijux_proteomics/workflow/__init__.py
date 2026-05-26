@@ -48,6 +48,7 @@ _WORKFLOW_EXPORT_MODULES = (
     "bijux_proteomics.workflow.public_benchmark_subset",
     "bijux_proteomics.workflow.public_benchmark_runner",
     "bijux_proteomics.workflow.public_dataset_comparison",
+    "bijux_proteomics.workflow.scale_demo",
     "bijux_proteomics.workflow.study_result",
     "bijux_proteomics.workflow.surprising_demo",
     "bijux_proteomics.workflow.surprising_demo_interrogation",
