@@ -80,6 +80,9 @@ bijux-proteomics --help
 For end-to-end workflow execution and reviewable runs, start from
 `bijux-proteomics-runtime` instead.
 
+For one minimal non-developer CLI path over the shipped local dataset, start
+with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md).
+
 Import-driven usage starts from the core domain package:
 
 ```python
@@ -668,6 +671,7 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`docs/PTM_WORKFLOWS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PTM_WORKFLOWS.md) for localized PTM evidence parsing, site aggregation, ambiguity reporting, site FDR, motif windows, enrichment export, and occupancy estimation
 - [`docs/SEARCH_ADAPTERS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SEARCH_ADAPTERS.md) for engine-specific table normalization and adapter provenance workflows
 - [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
+- [`docs/SHIPPED-DEMO-CLI.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SHIPPED-DEMO-CLI.md) for the minimal shipped-demo CLI path from run to governed result validation and query
 - [`docs/QC_OPERATOR_GUIDE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/QC_OPERATOR_GUIDE.md) for threshold interpretation, advisory versus enforced QC findings, and failed-run diagnosis
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
@@ -679,4 +683,5 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/)
+- [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md)
 - [Release and versioning](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/release-and-versioning/)
