@@ -1457,7 +1457,7 @@ def test_workflow_package_exports_public_dataset_comparison_surface(
     assert report.summary.descriptor_count == 11
     assert report.summary.passed_dataset_count == 8
     assert report.summary.failed_dataset_count == 3
-    assert report.summary.successful_study_count == 7
+    assert report.summary.successful_study_count == 8
     assert report.summary.effect_support_study_count == 6
     assert report.summary.meta_analysis_entry_count == 6
     assert "failure_entry_count" in workflow.render_public_dataset_combined_summary_tsv(
