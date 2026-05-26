@@ -505,6 +505,12 @@ def test_workflow_package_exports_targeted_validation_workflow_surface(
     assert hasattr(workflow, "render_advanced_targeted_evidence_cards_tsv")
     assert report.summary.confirmed_count == 1
     assert report.summary.evidence_card_count == 1
+    assert "card_id" in workflow.render_advanced_targeted_evidence_cards_tsv(
+        report.evidence_cards
+    )
+    assert "confidence" in workflow.render_advanced_targeted_evidence_cards_tsv(
+        report.evidence_cards
+    )
     assert "assay_reliability_status" in workflow.render_advanced_targeted_evidence_cards_tsv(
         report.evidence_cards
     )

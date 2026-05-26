@@ -14,6 +14,14 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.card_schema import (
+    StandardCardEntry,
+    StandardCardKind,
+    StandardCardSubjectKind,
+    render_standard_card_row,
+)
+from bijux_proteomics.domain.confidence import ConfidenceTier
+from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
 from bijux_proteomics.io import parse_experimental_design_table
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.targeted import (
@@ -405,6 +413,17 @@ def render_advanced_targeted_evidence_cards_tsv(
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(
         (
+            "card_id",
+            "card_kind",
+            "subject_kind",
+            "subject_id",
+            "subject_label",
+            "claim",
+            "evidence_for",
+            "evidence_against",
+            "confidence",
+            "warning_codes",
+            "source_ids",
             "candidate_id",
             "candidate_kind",
             "display_label",
@@ -426,8 +445,10 @@ def render_advanced_targeted_evidence_cards_tsv(
         )
     )
     for entry in sort_rows_by_fields(entries, "candidate_id"):
+        standard_card = _build_standard_card_entry(entry)
         writer.writerow(
             (
+                *render_standard_card_row(standard_card),
                 entry.candidate_id,
                 entry.candidate_kind.value,
                 entry.display_label,
@@ -449,6 +470,58 @@ def render_advanced_targeted_evidence_cards_tsv(
             )
         )
     return handle.getvalue()
+
+
+def _build_standard_card_entry(
+    entry: AdvancedTargetedEvidenceCardEntry,
+) -> StandardCardEntry:
+    return StandardCardEntry(
+        card_id=build_mechanism_card_id("biomarker_candidate", entry.candidate_id),
+        card_kind=StandardCardKind.BIOMARKER,
+        subject_kind=StandardCardSubjectKind.BIOMARKER_CANDIDATE,
+        subject_id=entry.candidate_id,
+        subject_label=entry.display_label,
+        claim=(
+            f"Biomarker candidate {entry.display_label} ended with validation verdict "
+            f"{entry.validation_verdict.value}."
+        ),
+        evidence_for=(
+            f"{entry.confirmed_assay_count} confirming assays from {entry.assay_entry_count} assay entries; "
+            f"assay reliability is {entry.assay_reliability_status.value}."
+        ),
+        evidence_against=(
+            "no explicit weakening evidence was preserved on this biomarker card."
+            if not entry.reason_codes
+            else "reason codes remained attached: "
+            + ", ".join(reason.value for reason in entry.reason_codes)
+            + "."
+        ),
+        confidence=_standard_card_confidence(entry),
+        warning_codes=tuple(reason.value for reason in entry.reason_codes),
+        source_ids=tuple(
+            part
+            for part in (
+                entry.candidate_id,
+                entry.target_protein_ref,
+            )
+            if part
+        ),
+    )
+
+
+def _standard_card_confidence(
+    entry: AdvancedTargetedEvidenceCardEntry,
+) -> ConfidenceTier:
+    if (
+        entry.validation_verdict is TargetedValidationVerdict.CONFIRMED
+        and entry.assay_reliability_status is AdvancedTargetedAssayReliabilityStatus.RELIABLE
+    ):
+        return ConfidenceTier.HIGH
+    if entry.validation_verdict is TargetedValidationVerdict.INCONCLUSIVE:
+        return ConfidenceTier.MODERATE
+    if entry.assay_reliability_status is AdvancedTargetedAssayReliabilityStatus.MIXED:
+        return ConfidenceTier.MODERATE
+    return ConfidenceTier.LOW
 
 
 def _build_advanced_targeted_warnings(
