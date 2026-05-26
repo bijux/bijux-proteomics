@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
@@ -27,6 +28,12 @@ from bijux_proteomics.review import (
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
+if TYPE_CHECKING:
+    from bijux_proteomics_lab.handoffs.qc_feedback import (
+        LabRunQcFeedbackEntry,
+        LabRunQcFeedbackReport,
+    )
+
 
 class BiologicalResultGraphReport(JsonModel):
     """Review-graph bundle that anchors final biological protein claims."""
@@ -46,6 +53,7 @@ def build_biological_result_graph_report(
     *,
     max_adjusted_p_value: float,
     min_absolute_log2_fold_change: float,
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None,
 ) -> BiologicalResultGraphReport:
     """Build one canonical review graph for graph-backed biological final reports."""
 
@@ -53,6 +61,9 @@ def build_biological_result_graph_report(
     design_entries = experiment_design.entries
     builder = ProteomicsEvidenceGraphBuilder()
     sample_conditions = {sample.sample_id: sample.condition for sample in experiment_design.samples}
+    run_nodes_by_id = {}
+    run_sample_ids_by_id = {}
+    run_ids_by_sample: dict[str, list[str]] = {}
     for entry in experiment_design.runs:
         sample = builder.add_sample(
             entry.sample_id,
@@ -70,12 +81,22 @@ def build_biological_result_graph_report(
                 ),
             ),
         )
+        run_nodes_by_id[entry.spectra_file] = run
+        run_sample_ids_by_id[entry.spectra_file] = entry.sample_id
+        run_ids_by_sample.setdefault(entry.sample_id, []).append(entry.spectra_file)
         builder.add_sample_contains_run(
             sample.node_id,
             run.node_id,
             source_row_ref=f"design:{entry.sample_id}",
             confidence=1.0,
             reason=f"design entry assigns spectra file {entry.spectra_file} to sample {entry.sample_id}",
+        )
+    if lab_run_qc_feedback_report is not None:
+        _attach_lab_run_qc_feedback(
+            builder,
+            run_nodes_by_id=run_nodes_by_id,
+            run_sample_ids_by_id=run_sample_ids_by_id,
+            feedback_report=lab_run_qc_feedback_report,
         )
 
     peptide_membership_counts = Counter(
@@ -151,6 +172,13 @@ def build_biological_result_graph_report(
             )
 
         for value in sorted(values_by_entity.get(entity_id, ()), key=lambda item: item.sample_id):
+            run_contexts = tuple(
+                ProteomicsEvidenceContextRef(
+                    entity_type=ProteomicsEvidenceNodeKind.RUN,
+                    entity_ref=run_id,
+                )
+                for run_id in sorted(run_ids_by_sample.get(value.sample_id, ()))
+            )
             quant_node = builder.add_quant_value(
                 f"quant:{value.sample_id}:{entity_id}",
                 label=f"quant {value.sample_id} {entity_id}",
@@ -164,7 +192,8 @@ def build_biological_result_graph_report(
                         entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
                         entity_ref=entity_id,
                     ),
-                ),
+                )
+                + run_contexts,
             )
             builder.add_protein_quantified_by_quant_value(
                 protein.node_id,
@@ -202,6 +231,70 @@ def build_biological_result_graph_report(
             "results so the final report claim surface is generated from graph-owned entries"
         ),
     )
+
+
+def _attach_lab_run_qc_feedback(
+    builder: ProteomicsEvidenceGraphBuilder,
+    *,
+    run_nodes_by_id: dict[str, object],
+    run_sample_ids_by_id: dict[str, str],
+    feedback_report: LabRunQcFeedbackReport,
+) -> None:
+    for entry in feedback_report.entries:
+        run = run_nodes_by_id.get(entry.run_id)
+        if run is None:
+            raise ValueError(
+                f"lab run qc feedback references an unknown workflow run: {entry.run_id}"
+            )
+        expected_sample_id = run_sample_ids_by_id[entry.run_id]
+        if entry.sample_id != expected_sample_id:
+            raise ValueError(
+                "lab run qc feedback sample does not match the workflow design for "
+                f"run {entry.run_id}: expected {expected_sample_id}, got {entry.sample_id}"
+            )
+        decision = builder.add_qc_decision(
+            f"lab:{entry.run_id}",
+            label=f"lab qc decision {entry.run_id}",
+            claim_state=_qc_claim_state(entry),
+            trust_class=_qc_trust_class(entry),
+            context_refs=(
+                ProteomicsEvidenceContextRef(
+                    entity_type=ProteomicsEvidenceNodeKind.RUN,
+                    entity_ref=entry.run_id,
+                ),
+                ProteomicsEvidenceContextRef(
+                    entity_type=ProteomicsEvidenceNodeKind.SAMPLE,
+                    entity_ref=entry.sample_id,
+                ),
+            ),
+        )
+        builder.add_run_governed_by_qc_decision(
+            run.node_id,
+            decision.node_id,
+            source_row_ref=entry.source_refs[0] if entry.source_refs else f"lab_qc:{entry.run_id}",
+            confidence=max(0.05, min(0.99, entry.composite_quality)),
+            reason=entry.note,
+        )
+
+
+def _qc_claim_state(entry: LabRunQcFeedbackEntry) -> str:
+    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackStatus
+
+    if entry.status is LabRunQcFeedbackStatus.FAILED:
+        return "failed"
+    if entry.status is LabRunQcFeedbackStatus.CAUTION:
+        return "caution"
+    return "passed"
+
+
+def _qc_trust_class(entry: LabRunQcFeedbackEntry) -> str:
+    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackStatus
+
+    if entry.status is LabRunQcFeedbackStatus.FAILED:
+        return "low"
+    if entry.status is LabRunQcFeedbackStatus.CAUTION:
+        return "medium"
+    return "high"
 
 
 def _protein_label(entity_id: str, quant_table: LabelFreeQuantTable) -> str:

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import csv
 from enum import StrEnum
 from html import escape
@@ -250,6 +252,9 @@ from bijux_proteomics.workflow.cohort_stratification import (
 )
 from bijux_proteomics_foundation import JsonModel
 
+if TYPE_CHECKING:
+    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
+
 from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_claim_validation_report,
     _build_biological_evidence_aware_ranking_report,
@@ -303,6 +308,7 @@ def build_biological_result_report_bundle(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None,
     run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
     chunk_size_rows: int | None = None,
@@ -362,6 +368,7 @@ def build_biological_result_report_bundle(
         condition_b=condition_b,
         selection_policy=active_selection_policy,
         volcano_policy=volcano_policy,
+        lab_run_qc_feedback_report=lab_run_qc_feedback_report,
         run_qc_reports=run_qc_reports,
         run_qc_assessments=run_qc_assessments,
     )
@@ -389,6 +396,7 @@ def build_biological_result_report_bundle_from_quant_table(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None,
     run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
 ) -> BiologicalResultReportBundle:
@@ -728,6 +736,7 @@ def build_biological_result_report_bundle_from_quant_table(
             design_entries,
             max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
             min_absolute_log2_fold_change=active_selection_policy.min_absolute_log2_fold_change,
+            lab_run_qc_feedback_report=lab_run_qc_feedback_report,
         ),
         normalized_table,
         differential_report,
