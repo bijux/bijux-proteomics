@@ -238,6 +238,15 @@ class RegulatorInferenceSummary(JsonModel):
     high_scoring_entry_count: int = Field(..., ge=0)
 
 
+class RegulatorInferencePolicy(JsonModel):
+    """Confidence policy for regulator inference coverage and scoring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    minimum_target_coverage_fraction: float = Field(default=0.5, ge=0.0, le=1.0)
+    low_coverage_score_cap: float = Field(default=0.49, ge=0.0, le=1.0)
+
+
 class RegulatorInferenceReport(JsonModel):
     """Owned upstream regulator inference report over explicit evidence rows."""
 
@@ -596,9 +605,11 @@ def build_regulator_inference_report(
     annotation_report: ProteinAnnotationMappingReport | None = None,
     pathway_activity_report: PathwayActivityReport | None = None,
     site_signal_entries: tuple[RegulatorSiteSignalEntry, ...] = (),
+    policy: RegulatorInferencePolicy | None = None,
 ) -> RegulatorInferenceReport:
     """Infer upstream regulator support from explicit user-supplied evidence rows."""
 
+    active_policy = policy or RegulatorInferencePolicy()
     differential_by_protein_ref = _protein_signal_lookup(
         differential_report,
         protein_refs_by_entity=protein_refs_by_entity,
@@ -642,6 +653,7 @@ def build_regulator_inference_report(
                 source_accession=source_accession,
                 records=records,
                 site_signal_lookup=site_signal_lookup,
+                policy=active_policy,
             )
         elif evidence_type is RegulatorEvidenceType.PATHWAY:
             entry, unresolved = _build_pathway_activity_entry(
@@ -652,6 +664,7 @@ def build_regulator_inference_report(
                 records=records,
                 pathway_lookup=pathway_lookup,
                 pathway_support_proteins=pathway_support_proteins,
+                policy=active_policy,
             )
         else:
             entry, unresolved = _build_protein_abundance_entry(
@@ -662,6 +675,7 @@ def build_regulator_inference_report(
                 records=records,
                 differential_by_protein_ref=differential_by_protein_ref,
                 gene_symbol_to_protein_refs=gene_symbol_to_protein_refs,
+                policy=active_policy,
             )
         entries.append(entry)
         unresolved_targets.extend(unresolved)
@@ -874,6 +888,7 @@ def _build_site_regulation_entry(
     source_accession: str | None,
     records: list[RegulatorEvidenceRecord],
     site_signal_lookup: dict[str, RegulatorSiteSignalEntry],
+    policy: RegulatorInferencePolicy,
 ) -> tuple[RegulatorInferenceEntry, list[UnresolvedRegulatorTargetEntry]]:
     values: list[float] = []
     significance: list[float] = []
@@ -917,6 +932,7 @@ def _build_site_regulation_entry(
             supporting_pathway_ids=set(),
             signal_values=values,
             significance_scores=significance,
+            policy=policy,
         ),
         unresolved,
     )
@@ -931,6 +947,7 @@ def _build_protein_abundance_entry(
     records: list[RegulatorEvidenceRecord],
     differential_by_protein_ref: dict[str, tuple[float, float | None]],
     gene_symbol_to_protein_refs: dict[str, tuple[str, ...]],
+    policy: RegulatorInferencePolicy,
 ) -> tuple[RegulatorInferenceEntry, list[UnresolvedRegulatorTargetEntry]]:
     values: list[float] = []
     significance: list[float] = []
@@ -1001,6 +1018,7 @@ def _build_protein_abundance_entry(
             supporting_pathway_ids=set(),
             signal_values=values,
             significance_scores=significance,
+            policy=policy,
         ),
         unresolved,
     )
@@ -1015,6 +1033,7 @@ def _build_pathway_activity_entry(
     records: list[RegulatorEvidenceRecord],
     pathway_lookup: dict[str, tuple[float | None, PathwayActivityConfidenceStatus]],
     pathway_support_proteins: dict[str, tuple[str, ...]],
+    policy: RegulatorInferencePolicy,
 ) -> tuple[RegulatorInferenceEntry, list[UnresolvedRegulatorTargetEntry]]:
     values: list[float] = []
     significance: list[float] = []
@@ -1058,6 +1077,7 @@ def _build_pathway_activity_entry(
             supporting_pathway_ids=supporting_pathway_ids,
             signal_values=values,
             significance_scores=significance,
+            policy=policy,
         ),
         unresolved,
     )
@@ -1077,6 +1097,7 @@ def _build_inference_entry(
     supporting_pathway_ids: set[str],
     signal_values: list[float],
     significance_scores: list[float],
+    policy: RegulatorInferencePolicy,
 ) -> RegulatorInferenceEntry:
     coverage_fraction = 0.0 if target_count == 0 else matched_target_count / target_count
     direction = _resolve_direction(signal_values)
@@ -1094,12 +1115,16 @@ def _build_inference_entry(
         significance_scores=significance_scores,
         direction=direction,
     )
+    if coverage_fraction < policy.minimum_target_coverage_fraction:
+        score = min(score, policy.low_coverage_score_cap)
     note = _build_inference_note(
         evidence_type=evidence_type,
         signal_surface=signal_surface,
         target_count=target_count,
         matched_target_count=matched_target_count,
         direction=direction,
+        coverage_fraction=coverage_fraction,
+        policy=policy,
     )
     return RegulatorInferenceEntry(
         regulator=regulator,
@@ -1246,20 +1271,42 @@ def _build_inference_note(
     target_count: int,
     matched_target_count: int,
     direction: RegulatorInferenceDirection,
+    coverage_fraction: float,
+    policy: RegulatorInferencePolicy,
 ) -> str:
+    coverage_note = _build_low_coverage_note(
+        coverage_fraction=coverage_fraction,
+        policy=policy,
+    )
     if matched_target_count == 0:
-        return (
+        note = (
             f"{evidence_type.value} evidence did not resolve onto the supplied "
             f"{signal_surface.value} surface"
         )
+        return note if coverage_note is None else f"{note}; {coverage_note}"
     if direction is RegulatorInferenceDirection.MIXED:
-        return (
+        note = (
             f"{matched_target_count} of {target_count} explicit {evidence_type.value} "
             "targets were observed with conflicting directions"
         )
-    return (
+        return note if coverage_note is None else f"{note}; {coverage_note}"
+    note = (
         f"{matched_target_count} of {target_count} explicit {evidence_type.value} "
         f"targets were observed on the {signal_surface.value} surface"
+    )
+    return note if coverage_note is None else f"{note}; {coverage_note}"
+
+
+def _build_low_coverage_note(
+    *,
+    coverage_fraction: float,
+    policy: RegulatorInferencePolicy,
+) -> str | None:
+    if coverage_fraction >= policy.minimum_target_coverage_fraction:
+        return None
+    return (
+        "target coverage "
+        f"{coverage_fraction:g} was below minimum {policy.minimum_target_coverage_fraction:g}"
     )
 
 
@@ -1339,6 +1386,7 @@ __all__ = [
     "RegulatorEvidenceType",
     "RegulatorInferenceDirection",
     "RegulatorInferenceEntry",
+    "RegulatorInferencePolicy",
     "RegulatorInferenceReport",
     "RegulatorInferenceSummary",
     "RegulatorSignalSurface",
