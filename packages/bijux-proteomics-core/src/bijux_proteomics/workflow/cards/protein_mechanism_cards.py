@@ -15,6 +15,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import build_protein_mechanism_card_id
 from bijux_proteomics.ptm import PtmEvidenceCardReport, PtmMechanismClass
 from bijux_proteomics.review import (
     EvidenceGraphConfidenceTier,
@@ -399,7 +400,7 @@ def export_protein_mechanism_card_tsv(
 
 
 def _build_card_id(card: ProteinEvidenceCard) -> str:
-    return f"protein-mechanism-card-{card.protein_group_id}"
+    return build_protein_mechanism_card_id(card.protein_group_id)
 
 
 def _group_ptm_cards_by_protein(

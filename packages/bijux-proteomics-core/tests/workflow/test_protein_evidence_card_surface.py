@@ -256,7 +256,7 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
 
     assert report.summary.protein_result_count == len(bundle.differential_report.entries)
     assert len(report.cards) == bundle.summary.protein_count
-    assert all(card.card_id.startswith("protein-card-") for card in report.cards)
+    assert all(card.card_id.startswith("protein-card:") for card in report.cards)
     assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.cards)
     assert all(card.graph_subject_node_id.startswith("protein:") for card in report.cards)
     assert all(card.peptide_count == len(card.peptides) for card in report.cards)

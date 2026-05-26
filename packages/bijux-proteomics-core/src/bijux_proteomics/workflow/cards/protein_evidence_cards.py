@@ -12,10 +12,10 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.semantic_ids import build_protein_card_id
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.protein_coverage import (
     build_protein_coverage_report,
@@ -1332,8 +1332,7 @@ def _graph_support_node_ids(report: ProteinEvidenceSummaryReport) -> tuple[str, 
 
 
 def _build_card_id(entity_id: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", entity_id.lower()).strip("-")
-    return f"protein-card-{slug or 'result'}"
+    return build_protein_card_id(entity_id)
 
 
 __all__ = [

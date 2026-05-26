@@ -12,6 +12,11 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics.domain.semantic_ids import (
+    build_pathway_claim_id,
+    build_protein_claim_id,
+    build_regulator_claim_id,
+)
 from bijux_proteomics.interpretation import (
     BiologicalContextKind,
     BiologicalContextImportReport,
@@ -563,7 +568,7 @@ def _build_biological_protein_claim_candidates(
         direction_label = "increased" if direction is BiologicalClaimDirection.UP else "decreased"
         candidates.append(
             BiologicalClaimCandidate(
-                claim_id=f"protein-claim:{card.protein_group_id}",
+                claim_id=build_protein_claim_id(card.protein_group_id),
                 claim_kind=BiologicalClaimKind.PROTEIN_ABUNDANCE_CHANGE,
                 subject_id=card.protein_group_id,
                 subject_label=card.gene_symbol or card.representative_protein_ref,
@@ -613,9 +618,10 @@ def _build_biological_pathway_claim_candidates(
         verb = "activated" if direction is BiologicalClaimDirection.UP else "suppressed"
         candidates.append(
             BiologicalClaimCandidate(
-                claim_id=(
-                    "pathway-claim:"
-                    f"{entry.pathway_id}:{entry.condition_a}:{entry.condition_b}"
+                claim_id=build_pathway_claim_id(
+                    entry.pathway_id,
+                    entry.condition_a,
+                    entry.condition_b,
                 ),
                 claim_kind=BiologicalClaimKind.PATHWAY_ACTIVITY_CHANGE,
                 subject_id=entry.pathway_id,
@@ -680,9 +686,10 @@ def _build_biological_regulator_claim_candidates(
             )
         candidates.append(
             BiologicalClaimCandidate(
-                claim_id=(
-                    "regulator-claim:"
-                    f"{entry.regulator}:{entry.evidence_type.value}:{entry.signal_surface.value}"
+                claim_id=build_regulator_claim_id(
+                    entry.regulator,
+                    entry.evidence_type.value,
+                    entry.signal_surface.value,
                 ),
                 claim_kind=BiologicalClaimKind.REGULATOR_ACTIVITY,
                 subject_id=entry.regulator,

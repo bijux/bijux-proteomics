@@ -113,9 +113,9 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.protein_cards.summary.protein_result_count == 5
     assert report.protein_mechanism_cards.summary.card_count == 5
     assert report.protein_mechanism_cards.summary.card_count == report.summary.protein_count
-    assert any(card.card_id.startswith("protein-card-") for card in report.protein_cards.cards)
+    assert any(card.card_id.startswith("protein-card:") for card in report.protein_cards.cards)
     assert any(
-        card.card_id.startswith("protein-mechanism-card-")
+        card.card_id.startswith("protein-mechanism-card:")
         for card in report.protein_mechanism_cards.cards
     )
     assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.protein_cards.cards)
