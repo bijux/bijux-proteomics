@@ -198,6 +198,7 @@ class _BiologicalContextPackRow(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     protein_ref: str = Field(..., min_length=1)
+    context_kind: str | None = None
     context_id: str = Field(..., min_length=1)
     context_name: str | None = None
     source_name: str | None = None
@@ -269,7 +270,7 @@ def render_annotation_pack_json(pack: AnnotationPack) -> str:
             for record in pack.drug_targets
         ],
         "disease_terms": [
-            _serialize_biological_context_row(record)
+            _serialize_disease_term_row(record)
             for record in pack.disease_terms
         ],
         "kinase_substrates": [
@@ -308,10 +309,8 @@ def load_annotation_pack(path: Path) -> AnnotationPack:
         context_kind=BiologicalContextKind.DRUG_TARGET,
         rejected_rows=rejected_rows,
     )
-    disease_terms = _load_biological_context_table(
+    disease_terms = _load_disease_terms(
         raw_document.disease_terms,
-        table_name=AnnotationPackTableName.DISEASE_TERMS,
-        context_kind=BiologicalContextKind.DISEASE_TERM,
         rejected_rows=rejected_rows,
     )
     kinase_substrates = _load_kinase_substrates(
@@ -418,6 +417,12 @@ def _serialize_biological_context_row(
         "evidence": record.evidence,
         "metadata": dict(record.metadata),
     }
+
+
+def _serialize_disease_term_row(record: BiologicalContextRecord) -> dict[str, object]:
+    payload = _serialize_biological_context_row(record)
+    payload["context_kind"] = record.context_kind.value
+    return payload
 
 
 def _serialize_kinase_substrate_row(
@@ -608,6 +613,21 @@ def _load_biological_context_table(
         )
         if row is None:
             continue
+        if row.context_kind is not None:
+            normalized_context_kind = row.context_kind.strip().casefold()
+            if normalized_context_kind != context_kind.value:
+                rejected_rows.append(
+                    AnnotationPackRejectedRow(
+                        table_name=table_name,
+                        row_number=row_number,
+                        values=_stringify_mapping(raw_row),
+                        reason=(
+                            f"context_kind {row.context_kind!r} was not valid for "
+                            f"{table_name.value}"
+                        ),
+                    )
+                )
+                continue
         protein_ref = canonicalize_protein_reference(row.protein_ref)
         record_key = (
             protein_ref,
@@ -620,6 +640,68 @@ def _load_biological_context_table(
             rejected_rows.append(
                 AnnotationPackRejectedRow(
                     table_name=table_name,
+                    row_number=row_number,
+                    values=_stringify_mapping(raw_row),
+                    reason=(
+                        f"duplicate {context_kind.value} annotation for "
+                        f"{protein_ref} and {row.context_id}"
+                    ),
+                )
+            )
+            continue
+        seen_records.add(record_key)
+        accepted.append(
+            BiologicalContextRecord(
+                protein_ref=protein_ref,
+                context_kind=context_kind,
+                context_id=row.context_id,
+                context_name=row.context_name,
+                source_name=row.source_name,
+                source_accession=row.source_accession,
+                evidence=row.evidence,
+                metadata=row.metadata,
+            )
+        )
+    return tuple(accepted)
+
+
+def _load_disease_terms(
+    raw_rows: list[object],
+    *,
+    rejected_rows: list[AnnotationPackRejectedRow],
+) -> tuple[BiologicalContextRecord, ...]:
+    accepted: list[BiologicalContextRecord] = []
+    seen_records: set[tuple[str, str, str, str | None, str | None]] = set()
+    for row_number, raw_row in enumerate(raw_rows, start=1):
+        row = _validate_row(
+            table_name=AnnotationPackTableName.DISEASE_TERMS,
+            row_number=row_number,
+            raw_row=raw_row,
+            row_model=_BiologicalContextPackRow,
+            rejected_rows=rejected_rows,
+        )
+        if row is None:
+            continue
+        context_kind = _normalize_disease_context_kind(
+            row.context_kind,
+            row_number=row_number,
+            raw_row=raw_row,
+            rejected_rows=rejected_rows,
+        )
+        if context_kind is None:
+            continue
+        protein_ref = canonicalize_protein_reference(row.protein_ref)
+        record_key = (
+            protein_ref,
+            context_kind.value,
+            row.context_id,
+            row.source_name,
+            row.source_accession,
+        )
+        if record_key in seen_records:
+            rejected_rows.append(
+                AnnotationPackRejectedRow(
+                    table_name=AnnotationPackTableName.DISEASE_TERMS,
                     row_number=row_number,
                     values=_stringify_mapping(raw_row),
                     reason=(
@@ -781,6 +863,34 @@ def _stringify_mapping(raw_row: object) -> dict[str, str]:
         str(key): _stringify_scalar(value)
         for key, value in raw_row.items()
     }
+
+
+def _normalize_disease_context_kind(
+    raw_context_kind: str | None,
+    *,
+    row_number: int,
+    raw_row: object,
+    rejected_rows: list[AnnotationPackRejectedRow],
+) -> BiologicalContextKind | None:
+    if raw_context_kind is None:
+        return BiologicalContextKind.DISEASE_TERM
+    normalized_context_kind = raw_context_kind.strip().casefold()
+    if normalized_context_kind == BiologicalContextKind.DISEASE_TERM.value:
+        return BiologicalContextKind.DISEASE_TERM
+    if normalized_context_kind == BiologicalContextKind.PHENOTYPE_TERM.value:
+        return BiologicalContextKind.PHENOTYPE_TERM
+    rejected_rows.append(
+        AnnotationPackRejectedRow(
+            table_name=AnnotationPackTableName.DISEASE_TERMS,
+            row_number=row_number,
+            values=_stringify_mapping(raw_row),
+            reason=(
+                f"context_kind {raw_context_kind!r} was not valid for "
+                f"{AnnotationPackTableName.DISEASE_TERMS.value}"
+            ),
+        )
+    )
+    return None
 
 
 def _stringify_scalar(value: object) -> str:

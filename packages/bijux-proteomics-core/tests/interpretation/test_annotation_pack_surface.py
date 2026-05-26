@@ -80,7 +80,14 @@ def test_load_annotation_pack_normalizes_supported_tables(tmp_path: Path) -> Non
                     "protein_ref": "P04637",
                     "context_id": "DOID:162",
                     "context_name": "cancer",
-                }
+                },
+                {
+                    "protein_ref": "P02340",
+                    "context_kind": "phenotype_term",
+                    "context_id": "HP:0001250",
+                    "context_name": "seizures",
+                    "source_name": "HPO",
+                },
             ],
             "kinase_substrates": [
                 {
@@ -112,7 +119,7 @@ def test_load_annotation_pack_normalizes_supported_tables(tmp_path: Path) -> Non
     assert pack.summary.complex_count == 1
     assert pack.summary.compartment_count == 1
     assert pack.summary.drug_target_count == 1
-    assert pack.summary.disease_term_count == 1
+    assert pack.summary.disease_term_count == 2
     assert pack.summary.kinase_substrate_count == 1
     assert pack.summary.ortholog_count == 1
     assert pack.metadata == {"curator": "team-bijux"}
@@ -123,6 +130,7 @@ def test_load_annotation_pack_normalizes_supported_tables(tmp_path: Path) -> Non
     assert pack.compartments[0].context_kind is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
     assert pack.drug_targets[0].context_kind is BiologicalContextKind.DRUG_TARGET
     assert pack.disease_terms[0].context_kind is BiologicalContextKind.DISEASE_TERM
+    assert pack.disease_terms[1].context_kind is BiologicalContextKind.PHENOTYPE_TERM
     assert pack.kinase_substrates[0].evidence_type is RegulatorEvidenceType.KINASE_SUBSTRATE
     assert pack.kinase_substrates[0].site_key == "P04637:S15"
     assert pack.orthologs[0].source_protein_ref == "P04637"
@@ -152,6 +160,13 @@ def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path)
             "compartments": [
                 {
                     "protein_ref": "P04637",
+                }
+            ],
+            "drug_targets": [
+                {
+                    "protein_ref": "P04637",
+                    "context_kind": "phenotype_term",
+                    "context_id": "drugbank:DB0001",
                 }
             ],
             "kinase_substrates": [
@@ -191,6 +206,9 @@ def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path)
     )
     assert rejected[(AnnotationPackTableName.COMPARTMENTS, 1)] == (
         "context_id: Field required"
+    )
+    assert rejected[(AnnotationPackTableName.DRUG_TARGETS, 1)] == (
+        "context_kind 'phenotype_term' was not valid for drug_targets"
     )
     assert rejected[(AnnotationPackTableName.KINASE_SUBSTRATES, 1)] == (
         "site_key: Input should be a valid string"
@@ -259,6 +277,13 @@ def test_render_annotation_pack_json_round_trips_loaded_pack(tmp_path: Path) -> 
                     "context_id": "DOID:162",
                     "context_name": "cancer",
                     "source_name": "Disease Ontology",
+                },
+                {
+                    "protein_ref": "P02340",
+                    "context_kind": "phenotype_term",
+                    "context_id": "HP:0001250",
+                    "context_name": "seizures",
+                    "source_name": "HPO",
                 }
             ],
             "kinase_substrates": [
