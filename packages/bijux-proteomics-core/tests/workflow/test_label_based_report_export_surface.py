@@ -10,6 +10,7 @@ from bijux_proteomics.workflow import (
     build_silac_label_based_report_bundle,
     build_tmt_label_based_report_bundle,
     export_label_based_report_bundle,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -52,6 +53,23 @@ def test_tmt_label_based_report_export_writes_quality_ratio_and_differential_led
     assert (output_dir / "qc" / manifest.artifacts.tmt_validation_summary_tsv).exists()
     assert (output_dir / "matrices" / manifest.artifacts.tmt_channel_totals_tsv).exists()
     assert (output_dir / "stats" / manifest.artifacts.differential_results_tsv).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "source_kind"
+    differential_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.differential_results_tsv
+    )
+    assert differential_entry.output_table_schema is not None
+    assert "adjusted_p_value" in {
+        column.name for column in differential_entry.output_table_schema.columns
+    }
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
     assert (output_dir / manifest.artifacts.tmt_channel_totals_tsv).exists()
@@ -94,6 +112,14 @@ def test_silac_label_based_report_export_writes_quality_ratio_and_differential_l
 
     assert manifest.source_kind.value == "silac"
     assert (output_dir / "manifest.json").exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "source_kind"
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
     assert (output_dir / manifest.artifacts.silac_ratio_summary_tsv).exists()

@@ -19,6 +19,7 @@ from bijux_proteomics.ptm import (
 )
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.workflow import validate_workflow_artifact_manifest
 
 
 def _ptm_fixture(name: str) -> Path:
@@ -115,6 +116,23 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.evidence_card_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_claim_tsv).exists()
     assert (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "accepted_evidence_count"
+    differential_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == manifest.artifacts.differential_tsv
+    )
+    assert differential_entry.output_table_schema is not None
+    assert "corrected_log2_fold_change" in {
+        column.name for column in differential_entry.output_table_schema.columns
+    }
     assert "S[Phospho]PEPTIDEK" in (
         output_dir / manifest.artifacts.peptide_tsv
     ).read_text()
