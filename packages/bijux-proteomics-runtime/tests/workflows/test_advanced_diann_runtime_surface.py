@@ -12,6 +12,7 @@ from bijux_proteomics.workflow import (
 from bijux_proteomics_runtime.workflows import (
     AdvancedDiannRuntimeStage,
     AdvancedDiannRuntimeStatus,
+    WorkflowFailureReport,
     run_resumable_advanced_diann_workflow,
 )
 
@@ -116,3 +117,36 @@ def test_resumable_advanced_diann_runtime_matches_core_advanced_diann_summary(
     assert runtime_report.advanced_report is not None
     assert runtime_report.advanced_report.summary == core_report.summary
     assert runtime_report.advanced_report.manifest.artifacts == core_report.manifest.artifacts
+
+
+def test_resumable_advanced_diann_runtime_writes_failure_report_for_invalid_design(
+    tmp_path: Path,
+) -> None:
+    invalid_design_path = tmp_path / "invalid.design.tsv"
+    invalid_design_path.write_text(
+        "sample_id\tcondition\treplicate\tfraction\tspectra_file\n"
+        "S1\t\t1\t1\trun1.raw\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "advanced_diann_invalid_design"
+
+    report = run_resumable_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=invalid_design_path,
+            proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+            output_dir=output_dir,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    assert report.status is AdvancedDiannRuntimeStatus.FAILED
+    assert report.advanced_report is None
+    assert report.failure_report is not None
+    assert report.failure_report.reason_codes == ("missing_design_value",)
+    assert report.failure_report.stage_id == "advanced-diann-input-validation"
+    assert report.failure_report_path == str(output_dir / "failure_report.json")
+    persisted = WorkflowFailureReport.load_json(output_dir / "failure_report.json")
+    assert persisted.reason_codes == ("missing_design_value",)
+    assert persisted.failure_type == "input_invalid"
