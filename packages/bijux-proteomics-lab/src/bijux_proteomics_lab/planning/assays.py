@@ -815,7 +815,25 @@ def plan_experiment_batches(
     bundle: EvidenceBundle | None = None,
     dependencies: list[AssayDependency] | None = None,
 ) -> ExperimentPlan:
-    """Build dependency-aware batches grouped by blocking status and assay family."""
+    """Build dependency-aware batches grouped by blocking status and assay family.
+
+    Inputs:
+    ``program`` defines the governed assay panel, ``bundle`` optionally supplies
+    current evidence coverage, and ``dependencies`` optionally constrain assay
+    execution order.
+
+    Outputs:
+    Returns one ``ExperimentPlan`` with prioritized batches, review-gate queues,
+    and open evidence gaps.
+
+    Failure Modes:
+    Propagates dependency ordering errors if the supplied assay dependencies
+    cannot produce a valid execution order.
+
+    Scientific Caveats:
+    The plan prioritizes governed assay needs only; it does not confirm sample
+    inventory, reagent readiness, or experimental success likelihood.
+    """
     dependencies = dependencies or []
     batches: list[ExperimentBatch] = []
     grouped: dict[tuple[bool, AssayFamily], list[AssayRequirement]] = {}
@@ -867,7 +885,24 @@ def build_advisory_assay_plan(
     program: ProgramSpec,
     bundle: EvidenceBundle | None = None,
 ) -> AdvisoryAssayPlan:
-    """Build a scientific assay-priority plan that is not execution-ready."""
+    """Build a scientific assay-priority plan that is not execution-ready.
+
+    Inputs:
+    ``program`` defines the assay panel and ``bundle`` optionally supplies the
+    current evidence state used to identify open gaps.
+
+    Outputs:
+    Returns one ``AdvisoryAssayPlan`` with recommended assays and mapped
+    wet-lab actions for unresolved evidence needs.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The advisory plan is intentionally non-executable guidance; it does not
+    schedule batches or prove that follow-up assays are operationally feasible.
+    """
     required_kinds = [need.value for need in program.evidence_needs]
     open_gaps = evidence_gaps(bundle, required_kinds) if bundle else required_kinds
     recommendations = [
@@ -909,7 +944,26 @@ def build_executable_assay_plan(
     batch_id: BatchId,
     available_sample_kinds: list[str] | None = None,
 ) -> ExecutableAssayPlan:
-    """Convert one planned batch into execution-ready lab instructions."""
+    """Convert one planned batch into execution-ready lab instructions.
+
+    Inputs:
+    ``plan`` supplies the governed experiment batches, ``batch_id`` selects the
+    batch to realize, and ``available_sample_kinds`` optionally declares the
+    currently available sample inventory.
+
+    Outputs:
+    Returns one ``ExecutableAssayPlan`` with instruction rows, blocking reasons,
+    and a ready-for-execution flag.
+
+    Failure Modes:
+    Raises ``ValueError`` if ``batch_id`` does not exist in the supplied
+    experiment plan.
+
+    Scientific Caveats:
+    Execution readiness is based on governed plan structure, review gates, and
+    declared sample kinds only; it does not guarantee assay performance or data
+    quality.
+    """
     batch = next(
         (candidate for candidate in plan.batches if candidate.batch_id == batch_id),
         None,
