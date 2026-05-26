@@ -272,6 +272,7 @@ def test_interpretation_package_exports_pathway_activity_surface() -> None:
     )
 
     assert hasattr(interpretation, "build_pathway_activity_report")
+    assert hasattr(interpretation, "PathwayActivityPolicy")
     assert hasattr(interpretation, "render_pathway_activity_matrix_tsv")
     assert report.summary.pathway_count == 1
     assert "pathway_id" in interpretation.render_pathway_activity_matrix_tsv(report)
@@ -620,6 +621,7 @@ def test_interpretation_package_exports_regulator_inference_surface() -> None:
     )
 
     assert hasattr(interpretation, "build_regulator_inference_report")
+    assert hasattr(interpretation, "RegulatorInferencePolicy")
     assert hasattr(interpretation, "render_regulator_inference_tsv")
     rendered = interpretation.render_regulator_inference_tsv(report)
     assert "signal_surface" in rendered.splitlines()[0]
