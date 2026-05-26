@@ -31,6 +31,8 @@ from bijux_proteomics.workflow import (
     render_discovery_to_assay_omitted_targets_tsv,
     render_discovery_to_assay_panel_tsv,
     render_discovery_to_assay_rejected_peptides_tsv,
+    render_discovery_to_assay_validation_candidate_cards_tsv,
+    render_discovery_to_assay_validation_candidate_summary_tsv,
 )
 
 
@@ -221,6 +223,10 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
         "protein:P404",
         "ptm_site:P00001:S15",
     }
+    assert {entry.reason_code for entry in report.rejected_evidence} == {
+        "missing_peptide",
+        "review-needs-assay-evidence",
+    }
 
     assert (
         targets["protein:P00001"].assay_feasibility
@@ -243,6 +249,23 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
     )
     assert targets["ptm_site:P00001:S15"].acceptable_peptide_count == 1
     assert targets["ptm_site:P00001:S15"].retained_assay_count == 0
+
+    cards = {entry.candidate_id: entry for entry in report.validation_candidate_cards.cards}
+    assert report.validation_candidate_cards.summary.candidate_count == 3
+    assert report.validation_candidate_cards.summary.ready_for_targeted_validation_count == 1
+    assert report.validation_candidate_cards.summary.blocked_by_assay_design_count == 2
+    assert cards["protein:P00001"].final_status.value == "ready_for_targeted_validation"
+    assert cards["protein:P404"].final_status.value == "blocked_by_assay_design"
+    assert cards["protein:P404"].omitted_reason == targets["protein:P404"].note
+    assert "no acceptable peptide survived" in cards["protein:P404"].omitted_reason
+    assert cards["ptm_site:P00001:S15"].final_status.value == "blocked_by_assay_design"
+    assert "blocked_by_assay_design" in render_discovery_to_assay_validation_candidate_cards_tsv(
+        report
+    )
+    assert (
+        "ready_for_targeted_validation_count\t1"
+        in render_discovery_to_assay_validation_candidate_summary_tsv(report)
+    )
 
     assert {
         entry.biomarker_candidate_id for entry in report.panel_design_report.assay_entries
