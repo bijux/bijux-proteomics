@@ -63,6 +63,7 @@ def test_runtime_source_tree_respects_complexity_ceiling() -> None:
         RUNTIME_SRC_ROOT,
         ceiling=COMPLEXITY_CEILING,
         exceptions=RUNTIME_COMPLEXITY_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()

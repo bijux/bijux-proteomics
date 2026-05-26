@@ -33,6 +33,7 @@ def test_intelligence_source_tree_respects_complexity_ceiling() -> None:
         INTELLIGENCE_SRC_ROOT,
         ceiling=COMPLEXITY_CEILING,
         exceptions=INTELLIGENCE_COMPLEXITY_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()

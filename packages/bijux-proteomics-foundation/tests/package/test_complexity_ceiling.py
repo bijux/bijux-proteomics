@@ -19,6 +19,7 @@ def test_foundation_source_tree_respects_complexity_ceiling() -> None:
     report = build_source_tree_complexity_report(
         FOUNDATION_SRC_ROOT,
         ceiling=COMPLEXITY_CEILING,
+        exclude_marked_generated=True,
     )
 
     assert report.approved_over_ceiling == ()

@@ -49,6 +49,7 @@ def test_source_tree_complexity_report_classifies_approved_and_unexpected_functi
     )
 
     assert report.scanned_function_count == 3
+    assert report.skipped_marked_generated_count == 0
     assert tuple(
         (item.relative_path, item.qualified_name, item.complexity)
         for item in report.approved_over_ceiling
@@ -106,3 +107,34 @@ def test_source_tree_complexity_report_flags_stale_and_exceeded_exceptions(
         (item.relative_path, item.qualified_name)
         for item in report.stale_exceptions
     ) == (("module.py", "Example.no_longer_complex"),)
+
+
+def test_source_tree_complexity_report_can_skip_marked_generated_files(
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "src"
+    source_root.mkdir()
+    (source_root / "generated_complex.py").write_text(
+        "# Generated generated-complexity fixture.\n"
+        "# Regenerate with: ./.venv/bin/python -m repo.generated.complexity\n\n"
+        "def generated(x, y, z):\n"
+        "    if x:\n"
+        "        return 1\n"
+        "    if y:\n"
+        "        return 2\n"
+        "    if z:\n"
+        "        return 3\n"
+        "    return 4\n",
+        encoding="utf-8",
+    )
+
+    report = build_source_tree_complexity_report(
+        source_root,
+        ceiling=2,
+        exclude_marked_generated=True,
+    )
+
+    assert report.scanned_function_count == 0
+    assert report.skipped_marked_generated_count == 1
+    assert report.approved_over_ceiling == ()
+    assert report.unexpected_over_ceiling == ()

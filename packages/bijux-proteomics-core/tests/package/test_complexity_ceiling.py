@@ -290,6 +290,7 @@ def test_core_source_tree_respects_complexity_ceiling() -> None:
         CORE_SRC_ROOT,
         ceiling=COMPLEXITY_CEILING,
         exceptions=CORE_COMPLEXITY_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()

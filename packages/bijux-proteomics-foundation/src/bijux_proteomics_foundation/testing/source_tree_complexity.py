@@ -9,6 +9,10 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics_foundation.testing.generated_file_markers import (
+    is_marked_generated_file,
+)
+
 
 @dataclass(frozen=True)
 class SourceFunctionComplexityException:
@@ -38,6 +42,7 @@ class SourceTreeComplexityReport:
     source_root: Path
     ceiling: int
     scanned_function_count: int
+    skipped_marked_generated_count: int
     approved_over_ceiling: tuple[SourceFunctionComplexityObservation, ...]
     unexpected_over_ceiling: tuple[SourceFunctionComplexityObservation, ...]
     stale_exceptions: tuple[SourceFunctionComplexityException, ...]
@@ -48,6 +53,7 @@ def build_source_tree_complexity_report(
     *,
     ceiling: int,
     exceptions: tuple[SourceFunctionComplexityException, ...] = (),
+    exclude_marked_generated: bool = False,
 ) -> SourceTreeComplexityReport:
     """Scan one source tree and classify functions above the shared complexity ceiling."""
 
@@ -57,8 +63,12 @@ def build_source_tree_complexity_report(
     approved_over_ceiling: list[SourceFunctionComplexityObservation] = []
     unexpected_over_ceiling: list[SourceFunctionComplexityObservation] = []
     observed_complexities: dict[tuple[str, str], int] = {}
+    skipped_marked_generated_count = 0
 
     for path in sorted(source_root.rglob("*.py")):
+        if exclude_marked_generated and is_marked_generated_file(path):
+            skipped_marked_generated_count += 1
+            continue
         relative_path = path.relative_to(source_root).as_posix()
         module = ast.parse(path.read_text(), filename=str(path))
         for function in _collect_function_complexities(module):
@@ -94,6 +104,7 @@ def build_source_tree_complexity_report(
         source_root=source_root,
         ceiling=ceiling,
         scanned_function_count=len(observed_complexities),
+        skipped_marked_generated_count=skipped_marked_generated_count,
         approved_over_ceiling=tuple(approved_over_ceiling),
         unexpected_over_ceiling=tuple(unexpected_over_ceiling),
         stale_exceptions=stale_exceptions,

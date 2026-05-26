@@ -48,6 +48,7 @@ def test_knowledge_source_tree_respects_complexity_ceiling() -> None:
         KNOWLEDGE_SRC_ROOT,
         ceiling=COMPLEXITY_CEILING,
         exceptions=KNOWLEDGE_COMPLEXITY_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()
