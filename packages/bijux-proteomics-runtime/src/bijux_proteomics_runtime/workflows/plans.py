@@ -1556,7 +1556,13 @@ def build_proteomics_workflow_manifest(
             WorkflowStepKind.VALIDATE_INPUTS,
             label="validate workflow inputs and detect supported proteomics formats",
             consumes_roles=tuple(asset.role for asset in input_assets),
+            input_data_types=tuple(
+                _workflow_input_data_type(asset.role) for asset in input_assets
+            ),
             produces_artifacts=(),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.VALIDATE_INPUTS
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "validate",
@@ -1572,9 +1578,18 @@ def build_proteomics_workflow_manifest(
             label="digest the target-decoy protein database into reproducible peptide space",
             depends_on=(validate_step_id,),
             consumes_roles=(WorkflowInputRole.PROTEINS,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.DIGEST_DATABASE,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(
                 WorkflowArtifactKind.DIGEST_MANIFEST,
                 WorkflowArtifactKind.DIGEST_EXPORT,
+            ),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.DIGEST_DATABASE
             ),
             command_preview=(
                 "bijux-proteomics",
@@ -1599,9 +1614,18 @@ def build_proteomics_workflow_manifest(
                 label="submit the search engine against spectra and the digested database",
                 depends_on=(validate_step_id, digest_step_id),
                 consumes_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
+                input_data_types=_workflow_step_input_types(
+                    WorkflowStepKind.RUN_SEARCH_ENGINE,
+                    identifications_attached=identifications_path is not None,
+                    design_attached=design_path is not None,
+                    quant_attached=features_path is not None,
+                ),
                 produces_artifacts=(
                     WorkflowArtifactKind.SEARCH_JOB,
                     WorkflowArtifactKind.SEARCH_RESULTS,
+                ),
+                output_data_types=_workflow_step_output_types(
+                    WorkflowStepKind.RUN_SEARCH_ENGINE
                 ),
                 command_preview=(
                     "search-runner",
@@ -1631,7 +1655,16 @@ def build_proteomics_workflow_manifest(
                 if identifications_path is not None
                 else (WorkflowInputRole.SPECTRA,)
             ),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "search-adapter",
@@ -1650,7 +1683,16 @@ def build_proteomics_workflow_manifest(
             label="score normalized PSMs through target-decoy FDR and q-value assignment",
             depends_on=(normalize_step_id,),
             consumes_roles=(),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.CALCULATE_FDR,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(WorkflowArtifactKind.FDR_REPORT,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.CALCULATE_FDR
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "fdr",
@@ -1670,8 +1712,24 @@ def build_proteomics_workflow_manifest(
                 WorkflowStepKind.QUANTIFY_FEATURES,
                 label="roll MS1 features into normalized quantification tables",
                 depends_on=(validate_step_id, normalize_step_id),
-                consumes_roles=(WorkflowInputRole.FEATURES,),
+                consumes_roles=(
+                    (
+                        WorkflowInputRole.FEATURES,
+                        WorkflowInputRole.DESIGN,
+                    )
+                    if design_path is not None
+                    else (WorkflowInputRole.FEATURES,)
+                ),
+                input_data_types=_workflow_step_input_types(
+                    WorkflowStepKind.QUANTIFY_FEATURES,
+                    identifications_attached=identifications_path is not None,
+                    design_attached=design_path is not None,
+                    quant_attached=features_path is not None,
+                ),
                 produces_artifacts=(WorkflowArtifactKind.QUANT_REPORT,),
+                output_data_types=_workflow_step_output_types(
+                    WorkflowStepKind.QUANTIFY_FEATURES
+                ),
                 command_preview=(
                     "bijux-proteomics",
                     "quantify",
@@ -1691,7 +1749,14 @@ def build_proteomics_workflow_manifest(
             label="build thresholded QC diagnostics over spectra, identifications, and FASTA context",
             depends_on=(normalize_step_id,),
             consumes_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.RUN_QC,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(WorkflowArtifactKind.QC_REPORT,),
+            output_data_types=_workflow_step_output_types(WorkflowStepKind.RUN_QC),
             command_preview=(
                 "bijux-proteomics",
                 "qc",
