@@ -43,6 +43,11 @@ from bijux_proteomics.sequences import ProteinIdentityLevel
 from bijux_proteomics.workflow import (
     build_biological_result_report_bundle_from_quant_table,
 )
+from bijux_proteomics_lab.handoffs.qc_feedback import (
+    LabRunQcObservation,
+    build_lab_run_qc_feedback_report,
+)
+from bijux_proteomics_lab.outcomes.observations import AssayObservationRecord, QcState
 from bijux_proteomics.workflow.protein_mechanism_cards import (
     ProteinMechanismDirection,
     build_protein_mechanism_card_report,
@@ -349,3 +354,129 @@ def test_build_protein_mechanism_card_report_keeps_shared_peptide_only_results_d
     }
     assert unique_card.evidence_tier is not shared_card.evidence_tier
     assert mechanism_report.summary.weak_evidence_card_count >= 1
+
+
+def test_build_protein_mechanism_card_report_downgrades_card_confidence_from_lab_run_qc(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    values: list[QuantValue] = []
+    abundances = {
+        "PG001": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+        "PG002": {
+            "C1": 1800.0,
+            "C2": 1750.0,
+            "C3": 1850.0,
+            "T1": 200.0,
+            "T2": 220.0,
+            "T3": 210.0,
+        },
+        "PG003": {
+            "C1": 150.0,
+            "C2": 160.0,
+            "C3": 140.0,
+            "T1": 1400.0,
+            "T2": 1450.0,
+            "T3": 1500.0,
+        },
+    }
+    for entity_id, entity_values in abundances.items():
+        for sample_id, abundance in entity_values.items():
+            values.append(
+                QuantValue(
+                    sample_id=sample_id,
+                    entity_id=entity_id,
+                    abundance=abundance,
+                    missing_value_kind=MissingValueKind.OBSERVED,
+                    source_feature_count=1,
+                )
+            )
+    quant_table = LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        normalization_method=NormalizationMethod.NONE,
+        sample_ids=("C1", "C2", "C3", "T1", "T2", "T3"),
+        entity_ids=("PG001", "PG002", "PG003"),
+        values=tuple(values),
+        entity_protein_refs={
+            "PG001": ("P04637",),
+            "PG002": ("Q9Y243",),
+            "PG003": ("O14920",),
+        },
+        entity_member_peptides={
+            "PG001": ("PEPAAA",),
+            "PG002": ("PEPDDD",),
+            "PG003": ("PEPCCC",),
+        },
+    )
+    fasta_path = tmp_path / "lab_qc_confidence.fasta"
+    fasta_path.write_text(
+        (
+            ">sp|P04637|SIGA_HUMAN Signaling protein A\nMPEPAAAK\n"
+            ">sp|Q9Y243|SIGB_HUMAN Signaling protein B\nMPEPDDDK\n"
+            ">sp|O14920|SIGC_HUMAN Signaling protein C\nMPEPCCCK\n"
+        ),
+        encoding="utf-8",
+    )
+    clean_bundle = build_biological_result_report_bundle_from_quant_table(
+        quant_table,
+        design_entries,
+        proteins_fasta_path=fasta_path,
+        condition_a="control",
+        condition_b="treatment",
+    )
+    feedback = build_lab_run_qc_feedback_report(
+        (
+            LabRunQcObservation(
+                run_id=design_entries[0].spectra_file,
+                sample_id=design_entries[0].sample_id,
+                observation=AssayObservationRecord(
+                    assay_id="assay_cv_screen",
+                    metric="coefficient_of_variation",
+                    value=0.35,
+                    replicate_values=[0.33, 0.35, 0.37],
+                    qc_state=QcState.FAILED,
+                    qc_passed=False,
+                    dispersion=0.35,
+                    normalization_method="median",
+                    interpretation_confidence=0.75,
+                ),
+            ),
+        )
+    )
+    qc_bundle = build_biological_result_report_bundle_from_quant_table(
+        quant_table,
+        design_entries,
+        proteins_fasta_path=fasta_path,
+        condition_a="control",
+        condition_b="treatment",
+        lab_run_qc_feedback_report=feedback,
+    )
+
+    clean_card = next(
+        card
+        for card in clean_bundle.protein_mechanism_cards.cards
+        if card.representative_protein_ref == "P04637"
+    )
+    qc_card = next(
+        card
+        for card in qc_bundle.protein_mechanism_cards.cards
+        if card.representative_protein_ref == "P04637"
+    )
+
+    assert clean_card.confidence_tier.value == "high"
+    assert qc_card.confidence_tier.value == "moderate"
+    assert "poor_run_qc" in {reason.value for reason in qc_card.downgrade_reasons}
+    assert qc_card.evidence_tier.value == "moderate"
