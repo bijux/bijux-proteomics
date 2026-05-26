@@ -79,6 +79,8 @@ def test_benchmarks_package_import_contract() -> None:
     assert hasattr(module, "build_flagship_weak_evidence_benchmark_descriptor")
     assert hasattr(module, "run_weak_evidence_benchmark")
     assert hasattr(module, "render_weak_evidence_benchmark_summary_tsv")
+    assert hasattr(module, "CoreAlgorithmPerformanceBenchmarkInput")
+    assert hasattr(module, "build_core_algorithm_performance_benchmark_report")
 
 
 def test_core_cli_import_contract() -> None:
