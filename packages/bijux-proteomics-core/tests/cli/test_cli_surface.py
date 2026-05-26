@@ -716,6 +716,51 @@ def test_result_manifest_command_emits_completeness_and_warning_ledgers() -> Non
         )
 
 
+def test_validate_result_command_emits_manifest_from_demo_root() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        demo = runner.invoke(
+            cli,
+            [
+                "demo",
+                "--out-dir",
+                "proteomics_demo_validate",
+            ],
+        )
+        assert demo.exit_code == 0
+
+        result = runner.invoke(
+            cli,
+            [
+                "validate-result",
+                "proteomics_demo_validate",
+                "--summary-tsv-out",
+                "validate_result.summary.tsv",
+                "--file-tsv-out",
+                "validate_result.files.tsv",
+                "--warning-tsv-out",
+                "validate_result.warnings.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        summary = payload["report"]["summary"]
+        assert summary["missing_required_file_count"] == 0
+        assert summary["source_report_count"] == 2
+        assert summary["warning_count"] >= 1
+        assert Path("proteomics_demo_validate/result_manifest.json").exists()
+        assert "missing_required_file_count" in Path(
+            "validate_result.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "artifact_key" in Path("validate_result.files.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "warning_code" in Path("validate_result.warnings.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

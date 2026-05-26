@@ -7,7 +7,13 @@
 from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.results_query import run_result_search_command, run_interactive_result_comparison_command, run_interactive_result_bundle_command, run_result_manifest_command
+from bijux_proteomics.interfaces.python_api.results_query import (
+    run_interactive_result_bundle_command,
+    run_interactive_result_comparison_command,
+    run_result_manifest_command,
+    run_result_search_command,
+    run_validate_result_command,
+)
 
 @click.command("result-search")
 @click.option(
@@ -195,9 +201,56 @@ def result_manifest_command(
     'Emit a machine-readable completeness manifest over exported result directories.'
     return run_result_manifest_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, input_paths, commands, summary_tsv_out, input_tsv_out, command_tsv_out, file_tsv_out, warning_tsv_out, manifest_json_out, out_path)
 
+@click.command("validate-result")
+@click.argument(
+    "result_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
+@click.option(
+    "--command",
+    "commands",
+    multiple=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--input-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--command-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--file-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--warning-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--manifest-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def validate_result_command(
+    result_root: Path,
+    commands: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    input_tsv_out: Path | None,
+    command_tsv_out: Path | None,
+    file_tsv_out: Path | None,
+    warning_tsv_out: Path | None,
+    manifest_json_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    'Validate one governed result root and emit a stable completeness manifest.'
+    return run_validate_result_command(
+        result_root,
+        commands,
+        summary_tsv_out,
+        input_tsv_out,
+        command_tsv_out,
+        file_tsv_out,
+        warning_tsv_out,
+        manifest_json_out,
+        out_path,
+    )
+
 COMMANDS = (
     result_search_command,
     interactive_result_comparison_command,
     interactive_result_bundle_command,
     result_manifest_command,
+    validate_result_command,
 )
