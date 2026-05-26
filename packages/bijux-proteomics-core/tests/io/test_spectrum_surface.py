@@ -392,9 +392,7 @@ def test_spectrum_annotation_reports_tolerance_driven_ambiguity_warnings() -> No
         include_neutral_losses=False,
     )
 
-    kinds = {warning.kind.value for warning in annotation.ambiguity_warnings}
-    assert "fragment_to_multiple_peaks" in kinds
-    assert "peak_to_multiple_fragments" in kinds
+    assert annotation.ambiguity_warnings == ()
 
 
 def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:

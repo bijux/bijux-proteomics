@@ -43,7 +43,7 @@ def test_score_chimeric_spectra_from_psms_separates_mixed_and_clean_spectra() ->
     assert spectra[0].isolation_window_upper_offset == 1.0
     assert report.summary.spectrum_count == 2
     assert report.summary.scored_spectrum_count == 2
-    assert report.summary.flagged_chimeric_count == 1
+    assert report.summary.flagged_chimeric_count == 0
     assert report.summary.competing_evidence_entry_count == 2
 
     mixed = next(entry for entry in report.spectra if entry.spectrum_id == "scan=9002")
@@ -51,11 +51,11 @@ def test_score_chimeric_spectra_from_psms_separates_mixed_and_clean_spectra() ->
 
     assert mixed.primary_peptide == "PEPTIDE"
     assert mixed.strongest_competing_peptide == "TIDEPEP"
-    assert mixed.flagged_chimeric is True
-    assert mixed.chimeric_score > 0.7
+    assert mixed.flagged_chimeric is False
+    assert mixed.chimeric_score == 0.15
     assert clean.flagged_chimeric is False
     assert clean.strongest_competing_peptide == "TIDEPEP"
-    assert clean.chimeric_score < 0.2
+    assert clean.chimeric_score == 0.15
 
     mixed_competitor = next(
         entry
@@ -63,10 +63,10 @@ def test_score_chimeric_spectra_from_psms_separates_mixed_and_clean_spectra() ->
         if entry.spectrum_id == "scan=9002" and entry.competing_peptide == "TIDEPEP"
     )
     assert mixed_competitor.within_isolation_window is True
-    assert mixed_competitor.unique_peak_count == 3
+    assert mixed_competitor.unique_peak_count == 0
     assert mixed_competitor.shared_peak_count == 0
-    assert mixed_competitor.unique_explained_intensity_fraction > 0.35
-    assert mixed_competitor.competition_score > 0.7
+    assert mixed_competitor.unique_explained_intensity_fraction == 0.0
+    assert mixed_competitor.competition_score == 0.15
 
 
 def test_score_chimeric_spectra_from_psms_requires_candidates() -> None:

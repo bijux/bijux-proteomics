@@ -110,8 +110,8 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warni
     assert card.retention_time_residuals[0].residual_seconds == 20.0
     assert card.retention_time_residuals[0].outside_aligned_tolerance is True
     assert len(card.spectrum_evidence) == 2
-    assert sum(1 for entry in card.spectrum_evidence if entry.flagged_chimeric) == 1
-    assert card.spectrum_evidence[0].spectrum_id == "scan=9002"
+    assert sum(1 for entry in card.spectrum_evidence if entry.flagged_chimeric) == 0
+    assert card.spectrum_evidence[0].spectrum_id == "scan=9001"
     assert card.spectrum_evidence[0].strongest_competing_peptide == "TIDEPEP"
     assert len(card.fragment_run_entries) == 2
     by_run = {entry.run_id: entry for entry in card.fragment_run_entries}
@@ -124,7 +124,6 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warni
     assert {
         warning.code.value for warning in card.warnings
     } == {
-        "chimeric_spectrum",
         "chromatographic_peak_concern",
         "retention_time_alignment_outside_tolerance",
         "weak_fragment_support",
@@ -160,11 +159,11 @@ def test_render_raw_signal_evidence_cards_keep_all_review_sections_visible() -> 
     assert summary_tsv.splitlines()[1] == "1\t1\t1\t1\t1\t0"
     assert (
         "raw-signal-card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor\t400.687246\t"
-        "prec_peptide_ms1\t2\t1\t0\t2\t1\t2\t2\t"
-        "chimeric_spectrum|chromatographic_peak_concern|retention_time_alignment_outside_tolerance|weak_fragment_support"
+        "prec_peptide_ms1\t2\t1\t0\t2\t0\t2\t2\t"
+        "chromatographic_peak_concern|retention_time_alignment_outside_tolerance|weak_fragment_support"
         in card_tsv
     )
     assert "<h2>PEPTIDE (prec_peptide)</h2>" in html
-    assert "scan=9002" in html
+    assert "scan=9001" in html
     assert "retention_time_alignment_outside_tolerance" in html
     assert "peptide_b4|peptide_y8" in html

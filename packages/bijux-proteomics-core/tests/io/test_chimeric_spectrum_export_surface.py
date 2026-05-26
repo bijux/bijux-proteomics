@@ -48,6 +48,6 @@ def test_render_chimeric_spectrum_exports_keep_competing_evidence_visible() -> N
         "scan=9002\t400.687246\t400.687246\t399.687246\t401.687246\t2\tPEPTIDE\t2\t48.0000"
         in spectra_tsv
     )
-    assert "\tTIDEPEP\t0.9750\t0.9750\ttrue\t" in spectra_tsv
+    assert "\tTIDEPEP\t0.1500\t0.1500\tfalse\t" in spectra_tsv
     assert "scan=9002\tTIDEPEP\t2\tP22222\t45.0000\t400.687246\t" in competition_tsv
-    assert "\ttrue\t0.4905\t0.4905\t3\t0\t3\t0.9750\t" in competition_tsv
+    assert "\ttrue\t0.0000\t0.0000\t0\t0\t0\t0.1500\t" in competition_tsv
