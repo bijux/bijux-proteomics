@@ -13,6 +13,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowCacheMissReason,
     WorkflowCacheReuseDisposition,
     WorkflowCheckpointStatus,
+    WorkflowDagValidationReport,
     WorkflowDiffCategory,
     WorkflowDiffReport,
     WorkflowExecutionMode,
@@ -33,6 +34,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_large_file_streaming_policy,
     build_parallel_execution_plan,
     build_proteomics_artifact_inventory,
+    build_proteomics_dag_plan,
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_proteomics_workflow_template,
@@ -54,6 +56,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_workflow_step_provenance_report,
     import_workflow_runtime_archive_bundle,
     instantiate_proteomics_workflow_template,
+    validate_proteomics_dag_plan,
 )
 
 
@@ -360,6 +363,7 @@ def test_deterministic_execution_contract_is_repeatable_for_same_manifest() -> N
 
     repeated = build_deterministic_execution_contract(
         bundle.manifest,
+        dag_plan=bundle.dag_plan,
         container_steps=bundle.container_steps,
         parallel_plan=bundle.parallel_plan,
         hpc_job=bundle.hpc_job,
@@ -369,9 +373,7 @@ def test_deterministic_execution_contract_is_repeatable_for_same_manifest() -> N
         repeated.execution_fingerprint
         == bundle.deterministic_execution.execution_fingerprint
     )
-    assert repeated.ordered_step_ids == tuple(
-        step.step_id for step in bundle.manifest.steps
-    )
+    assert repeated.ordered_step_ids == bundle.dag_plan.ordered_step_ids
 
 
 def test_runtime_state_manifest_links_result_bindings_to_runtime_paths() -> None:
@@ -579,7 +581,34 @@ def test_runtime_validation_report_confirms_bundle_integrity() -> None:
 
     assert report.valid is True
     assert report.export_bundle_sha256
+    assert "dag-plan" in report.checked_surfaces
     assert "artifact-inventory" in report.checked_surfaces
+
+
+def test_runtime_bundle_exposes_validated_dag_and_parallel_layers() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    direct_dag = build_proteomics_dag_plan(bundle.manifest)
+    validation = validate_proteomics_dag_plan(bundle.dag_plan)
+
+    assert isinstance(validation, WorkflowDagValidationReport)
+    assert validation.valid is True
+    assert bundle.dag_plan.ordered_step_ids == direct_dag.ordered_step_ids
+    assert bundle.parallel_plan.groups[0].step_ids == (
+        f"{bundle.manifest.workflow_id}-validate-inputs",
+    )
+    assert (
+        bundle.deterministic_execution.ordered_step_ids
+        == bundle.dag_plan.ordered_step_ids
+    )
 
 
 def test_large_file_policy_and_parallel_groups_are_explicit() -> None:

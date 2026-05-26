@@ -5,9 +5,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.workflows.plans import (
     ExternalToolCapabilityReport,
+    WorkflowDagValidationReport,
     WorkflowExecutionMode,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
@@ -16,9 +19,12 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowStepProvenanceReport,
     WorkflowStepReplayDisposition,
     build_external_tool_capability_report,
+    build_parallel_execution_plan,
+    build_proteomics_dag_plan,
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_reproducible_workflow_blueprint,
+    validate_proteomics_dag_plan,
     build_workflow_manifest_explanation_report,
     build_workflow_replay_proof_report,
     build_workflow_runtime_export_bundle,
@@ -93,6 +99,82 @@ def test_reproducible_workflow_blueprint_connects_sequence_search_fdr_quant_qc_a
     assert WorkflowScientificSurface.QUANTIFICATION in surfaces
     assert WorkflowScientificSurface.QUALITY_CONTROL in surfaces
     assert WorkflowScientificSurface.EVIDENCE_SYNTHESIS in surfaces
+
+
+def test_workflow_dag_projection_makes_execution_order_and_surfaces_explicit() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    dag_plan = build_proteomics_dag_plan(manifest)
+    validation = validate_proteomics_dag_plan(dag_plan)
+    node_by_id = {node.node_id: node for node in dag_plan.nodes}
+
+    assert isinstance(validation, WorkflowDagValidationReport)
+    assert validation.valid is True
+    assert dag_plan.ordered_step_ids == (
+        f"{manifest.workflow_id}-validate-inputs",
+        f"{manifest.workflow_id}-digest-database",
+        f"{manifest.workflow_id}-normalize-identifications",
+        f"{manifest.workflow_id}-calculate-fdr",
+        f"{manifest.workflow_id}-quantify-features",
+        f"{manifest.workflow_id}-run-qc",
+        f"{manifest.workflow_id}-build-run-bundle",
+    )
+    assert (
+        node_by_id[f"{manifest.workflow_id}-validate-inputs"].scientific_surface
+        is WorkflowScientificSurface.SEQUENCE_INTAKE
+    )
+    assert (
+        node_by_id[f"{manifest.workflow_id}-normalize-identifications"].execution_layer
+        == 1
+    )
+    assert node_by_id[f"{manifest.workflow_id}-quantify-features"].consumes_roles == (
+        WorkflowInputRole.FEATURES,
+    )
+    assert any(
+        edge.source_node_id == f"{manifest.workflow_id}-calculate-fdr"
+        and edge.target_node_id == f"{manifest.workflow_id}-build-run-bundle"
+        for edge in dag_plan.edges
+    )
+
+
+def test_workflow_dag_rejects_cycles_before_parallel_execution() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    mutated_steps = []
+    for step in manifest.steps:
+        if step.kind is WorkflowStepKind.VALIDATE_INPUTS:
+            mutated_steps.append(
+                step.model_copy(
+                    update={
+                        "depends_on": (
+                            f"{manifest.workflow_id}-build-run-bundle",
+                        )
+                    }
+                )
+            )
+            continue
+        mutated_steps.append(step)
+    cyclic_manifest = manifest.model_copy(update={"steps": tuple(mutated_steps)})
+
+    with pytest.raises(ValueError, match="cannot be projected into a deterministic dag"):
+        build_proteomics_dag_plan(cyclic_manifest)
+    with pytest.raises(ValueError, match="cannot be projected into a deterministic dag"):
+        build_parallel_execution_plan(cyclic_manifest)
 
 
 def test_workflow_manifest_explanation_report_makes_configuration_choices_explicit() -> (
