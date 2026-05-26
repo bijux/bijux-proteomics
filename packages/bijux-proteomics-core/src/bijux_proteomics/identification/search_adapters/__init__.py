@@ -20,6 +20,7 @@ from bijux_proteomics.identification.contracts import (
     normalize_psm_records,
     normalize_psm_score_orientation,
     parse_psm_tsv,
+    parse_psm_tsv_chunked,
     select_best_psm_per_spectrum,
 )
 from bijux_proteomics.identification.search_adapters.comparison import (
@@ -206,6 +207,7 @@ __all__ = [
     "normalize_psm_score_orientation",
     "normalize_search_results_with_adapter",
     "parse_psm_tsv",
+    "parse_psm_tsv_chunked",
     "parse_search_parameter_file",
     "search_adapter_dialect_registry",
     "search_adapter_registry",

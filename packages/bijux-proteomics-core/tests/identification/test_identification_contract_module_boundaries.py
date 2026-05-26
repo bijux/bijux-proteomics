@@ -23,6 +23,7 @@ _MODULE_EXPORTS = {
     ),
     "psm_io": (
         "parse_psm_tsv",
+        "parse_psm_tsv_chunked",
         "export_psm_tsv",
         "sort_psm_records",
     ),
@@ -70,6 +71,7 @@ _MODULE_EXPORTS = {
 _FACADE_EXPORTS = (
     "PsmRecord",
     "parse_psm_tsv",
+    "parse_psm_tsv_chunked",
     "rollup_peptide_evidence",
     "calculate_basic_target_decoy_fdr",
     "calculate_grouped_fdr",

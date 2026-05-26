@@ -39,6 +39,7 @@ __all__ = [
     'parse_target_decoy_label',
     'validate_target_decoy_accession_collisions',
     'parse_psm_tsv',
+    'parse_psm_tsv_chunked',
     'normalize_psm_records',
     'export_psm_jsonl',
     'export_psm_tsv',

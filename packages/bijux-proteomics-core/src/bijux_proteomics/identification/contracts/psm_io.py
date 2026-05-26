@@ -32,13 +32,11 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.io.tables import (
+    iter_delimited_row_chunks,
+    read_delimited_table_header,
 )
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
     build_peptide_uniqueness_index,
@@ -242,34 +240,70 @@ def parse_psm_tsv(
     decoy_policy: TargetDecoyLabelPolicy | None = None,
 ) -> PsmParseReport:
     """Parse a generic peptide-spectrum match TSV into stable records."""
+
+    return _parse_psm_tsv_impl(
+        path,
+        mapping=mapping,
+        decoy_policy=decoy_policy,
+        chunk_size_rows=None,
+    )
+
+
+def parse_psm_tsv_chunked(
+    path: Path,
+    *,
+    mapping: SearchResultColumnMapping,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+    chunk_size_rows: int,
+) -> PsmParseReport:
+    """Parse a generic peptide-spectrum match TSV in stable row chunks."""
+
+    return _parse_psm_tsv_impl(
+        path,
+        mapping=mapping,
+        decoy_policy=decoy_policy,
+        chunk_size_rows=chunk_size_rows,
+    )
+
+
+def _parse_psm_tsv_impl(
+    path: Path,
+    *,
+    mapping: SearchResultColumnMapping,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+    chunk_size_rows: int | None,
+) -> PsmParseReport:
+    """Parse a generic peptide-spectrum match TSV under one optional chunking policy."""
+
     active_policy = decoy_policy or TargetDecoyLabelPolicy()
+    header = read_delimited_table_header(path)
+    if header is None:
+        raise ValueError("PSM TSV must include at least one data row")
+    missing_columns = _required_psm_columns(mapping) - set(header.fieldnames)
+    if missing_columns:
+        first_missing = sorted(missing_columns)[0]
+        raise ValueError(f"missing required PSM column {first_missing!r}")
     accepted_records: list[PsmRecord] = []
     rejected_rows: list[RejectedPsmRow] = []
-    validation_report = validate_scientific_table(
-        path,
-        schema=build_psm_table_schema(mapping),
+    row_chunks = (
+        iter_delimited_row_chunks(path, chunk_size_rows=chunk_size_rows)
+        if chunk_size_rows is not None
+        else iter_delimited_row_chunks(path, chunk_size_rows=100_000)
     )
-    header_issues = _scientific_header_validation_issues(validation_report.rejected_rows)
-    if header_issues:
-        raise ValueError(_scientific_header_error_message(header_issues[0], path))
-
-    rejected_rows.extend(
-        _rejected_psm_rows_from_scientific_validation(validation_report.rejected_rows)
-    )
-
-    for row in validation_report.accepted_rows:
-        normalized_row = row.raw_values
-        try:
-            accepted_records.append(
-                _parse_psm_row(
-                    normalized_row,
-                    row_number=row.row_number,
-                    mapping=mapping,
-                    decoy_policy=active_policy,
+    for chunk in row_chunks:
+        for row_offset, normalized_row in enumerate(chunk.rows):
+            row_number = chunk.row_number_start + row_offset
+            try:
+                accepted_records.append(
+                    _parse_psm_row(
+                        normalized_row,
+                        row_number=row_number,
+                        mapping=mapping,
+                        decoy_policy=active_policy,
+                    )
                 )
-            )
-        except ValueError as exc:
-            rejected_rows.append(RejectedPsmRow.model_validate_json(str(exc)))
+            except ValueError as exc:
+                rejected_rows.append(RejectedPsmRow.model_validate_json(str(exc)))
 
     return PsmParseReport(
         total_rows=len(accepted_records) + len(rejected_rows),
@@ -277,6 +311,15 @@ def parse_psm_tsv(
         rejected_rows=tuple(rejected_rows),
         column_mapping=mapping,
     )
+
+
+def _required_psm_columns(mapping: SearchResultColumnMapping) -> set[str]:
+    return {
+        mapping.spectrum_id,
+        mapping.peptide,
+        mapping.charge,
+        mapping.score,
+    }
 
 
 def normalize_psm_records(records: tuple[PsmRecord, ...]) -> tuple[PsmRecord, ...]:
@@ -370,101 +413,6 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
     write_output_table_tsv(path, content)
 
 
-def _scientific_header_validation_issues(
-    rejected_rows: tuple[ScientificTableRejectedRow, ...],
-) -> tuple[ScientificTableValidationIssue, ...]:
-    if not rejected_rows:
-        return ()
-    first_row = rejected_rows[0]
-    issues = getattr(first_row, "issues", ())
-    if getattr(first_row, "row_number", None) != 1 or not issues:
-        return ()
-    first_issue = issues[0]
-    if first_issue.code not in {"missing_column", "missing_header", "empty_table"}:
-        return ()
-    return tuple(issues)
-
-
-def _scientific_header_error_message(
-    issue: ScientificTableValidationIssue,
-    path: Path,
-) -> str:
-    code = issue.code
-    column = issue.column
-    if code == "missing_header":
-        return "PSM TSV must include a header row"
-    if code == "empty_table":
-        return "PSM TSV must include at least one data row"
-    if code == "missing_column" and isinstance(column, str):
-        return f"missing required PSM column {column!r}"
-    if issue.message:
-        return issue.message
-    return f"unable to parse PSM table {path}"
-
-
-def _rejected_psm_rows_from_scientific_validation(
-    rejected_rows: tuple[ScientificTableRejectedRow, ...],
-) -> list[RejectedPsmRow]:
-    translated: list[RejectedPsmRow] = []
-    for row in rejected_rows:
-        if row.row_number == 1 and row.issues and row.issues[0].code in {
-            "missing_column",
-            "missing_header",
-            "empty_table",
-        }:
-            continue
-        translated.append(
-            RejectedPsmRow(
-                row_number=row.row_number,
-                raw_fields=row.raw_values,
-                issues=tuple(
-                    _psm_issue_from_scientific_issue(issue) for issue in row.issues
-                ),
-            )
-        )
-    return translated
-
-
-def _psm_issue_from_scientific_issue(
-    issue: ScientificTableValidationIssue,
-) -> SearchResultValidationIssue:
-    if issue.code == "missing_value":
-        if issue.column == "spectrum_id":
-            return _row_issue(
-                "missing_spectrum_id", "missing spectrum identifier", issue.row_number
-            )
-        if issue.column == "peptide":
-            return _row_issue(
-                "missing_peptide", "missing peptide sequence", issue.row_number
-            )
-        if issue.column == "charge":
-            return _row_issue("invalid_charge", "invalid charge value", issue.row_number)
-        if issue.column == "score":
-            return _row_issue("invalid_score", "invalid score value", issue.row_number)
-    if issue.code == "wrong_type":
-        if issue.column == "charge":
-            return _row_issue("invalid_charge", "invalid charge value", issue.row_number)
-        if issue.column == "score":
-            return _row_issue("invalid_score", "invalid score value", issue.row_number)
-        if issue.column == "intensity":
-            return _row_issue(
-                "invalid_intensity", "invalid intensity value", issue.row_number
-            )
-        if issue.column == "q_value":
-            return _row_issue("invalid_q_value", "invalid q-value", issue.row_number)
-    if issue.code == "negative_intensity":
-        return _row_issue("invalid_intensity", "invalid intensity value", issue.row_number)
-    if issue.code == "invalid_q_value":
-        return _row_issue("invalid_q_value", "invalid q-value", issue.row_number)
-    if issue.code == "duplicate_identifier":
-        return _row_issue(
-            "duplicate_spectrum_id",
-            issue.message,
-            issue.row_number,
-        )
-    return _row_issue(issue.code, issue.message, issue.row_number)
-
-
 def sort_psm_records(
     records: tuple[PsmRecord, ...],
     *,
@@ -545,6 +493,7 @@ def select_best_psm_per_spectrum(
 
 __all__ = [
     'parse_psm_tsv',
+    'parse_psm_tsv_chunked',
     'normalize_psm_records',
     'export_psm_jsonl',
     'export_psm_tsv',
