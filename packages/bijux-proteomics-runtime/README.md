@@ -100,6 +100,27 @@ The package root remains a stable external entrypoint surface, but runtime
 maintainers and in-repo consumers should import the exact owner modules above
 instead of widening `bijux_proteomics_runtime` into a convenience bucket.
 
+## Public APIs
+
+The stable root API stays intentionally small:
+
+- `AppConfig` for runtime app configuration
+- `create_app(...)` for the canonical FastAPI assembly path
+- `RunManager` for execution coordination
+- `api.cli:cli` for the supported operator command surface
+
+Minimal executable example:
+
+```python
+from bijux_proteomics_runtime import AppConfig, create_app
+
+app = create_app(AppConfig(base_dir=TMP_PATH, docs_enabled=False))
+
+assert app.state.base_dir == TMP_PATH
+assert app.docs_url is None
+assert any(route.path == "/health" for route in app.routes)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-runtime`
@@ -116,6 +137,12 @@ This package owns runtime execution behavior and orchestration interfaces.
 
 Domain meaning, evidence semantics, scoring policy, and lab planning semantics
 remain in their dedicated lower-layer packages.
+
+## What this package must not do
+
+- it must not redefine scientific workflow truth, evidence truth, or recommendation policy
+- it must not absorb knowledge curation or lab execution semantics into runtime transport
+- it must not pretend container orchestration, scheduler policy, or external-engine provenance are runtime-owned science
 
 ## Execution charter
 

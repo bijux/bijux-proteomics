@@ -14,6 +14,7 @@ def _real_package_names() -> tuple[str, ...]:
     return (
         "bijux-proteomics-foundation",
         "bijux-proteomics-core",
+        "bijux-proteomics-runtime",
     )
 
 
