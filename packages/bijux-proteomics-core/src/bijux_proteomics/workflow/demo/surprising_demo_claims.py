@@ -37,19 +37,21 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
 def build_surprising_demo_claims(
     biological_report: BiologicalResultReportBundle,
 ) -> tuple[EvidenceClaim, ...]:
-    """Build the shipped surprising demo claim set."""
+    """Build the shipped surprising demo claim set, including one contradiction case."""
 
     claim_validation_report = biological_report.claim_validation_report
     if claim_validation_report is None:
         raise ValueError("surprising demo biological report did not produce claim validation")
 
-    return tuple(
+    base_claims = tuple(
         _build_demo_claim(entry)
         for entry in (
             claim_validation_report.supported_claims
             + claim_validation_report.rejected_claims
         )
     )
+    contradictory_claim = _build_demo_contradictory_claim(base_claims)
+    return (*base_claims, contradictory_claim)
 
 
 def build_surprising_demo_evidence_bundle(
@@ -138,6 +140,51 @@ def _build_demo_claim(entry: BiologicalClaimValidationEntry) -> EvidenceClaim:
         confidence=0.88 if entry.status is BiologicalClaimStatus.SUPPORTED else 0.52,
         decision_impact="demo_review",
     )
+
+
+def _build_demo_contradictory_claim(
+    claims: tuple[EvidenceClaim, ...],
+) -> EvidenceClaim:
+    anchor = next(
+        (
+            claim
+            for claim in claims
+            if claim.claim_id == "protein-claim:p11111" and claim.status is ClaimStatus.SUPPORTED
+        ),
+        None,
+    )
+    if anchor is None:
+        raise ValueError("surprising demo requires the supported P11111 claim as a contradiction anchor")
+    return EvidenceClaim(
+        claim_id="protein-claim:p11111-contradiction",
+        target_id=anchor.target_id,
+        statement="Protein PTM1 decreased in treated vs control despite the primary abundance signal.",
+        subject=anchor.subject,
+        relation=anchor.relation,
+        object="down",
+        condition=anchor.condition,
+        direction="down",
+        magnitude=anchor.magnitude,
+        claim_type=anchor.claim_type,
+        evidence_ids=["demo-contradiction-evidence:p11111-down"],
+        contradicting_evidence_ids=list(anchor.evidence_ids),
+        assumptions=[
+            "design_valid=true",
+            "qc_status=passed",
+            "peptide_support_count=1",
+            "contradiction_probe=true",
+        ],
+        resolution_assays=["orthogonal_protein_rerun"],
+        status=ClaimStatus.DISPUTED,
+        polarity=ClaimPolarity.SUPPORTING,
+        resolution_state=ClaimResolutionState.OPEN,
+        evidence_state=ClaimEvidenceState.CONFLICTED,
+        confidence=0.41,
+        contradiction_group="p11111-direction",
+        decision_impact="contradictory_context",
+    )
+
+
 def _demo_claim_assumptions(
     entry: BiologicalClaimValidationEntry,
 ) -> list[str]:
