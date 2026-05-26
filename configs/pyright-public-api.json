@@ -1,0 +1,50 @@
+{
+  "include": [
+    "../packages/bijux-proteomics-core/src/bijux_proteomics/public_api.py",
+    "../packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/public_api.py",
+    "../packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/public_api.py",
+    "../packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/public_api.py",
+    "../packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/public_api.py",
+    "../packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/public.py",
+    "../packages/bijux-proteomics-lab/src/bijux_proteomics_lab/public_api.py",
+    "../packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/public_api.py",
+    "../packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/public.py",
+    "../packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/public.py",
+    "../packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/public.py",
+    "../packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/public.py"
+  ],
+  "exclude": [
+    "artifacts",
+    "build",
+    "dist",
+    "docs",
+    "site"
+  ],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "strict",
+  "venvPath": "../artifacts/root",
+  "venv": "check-venv",
+  "executionEnvironments": [
+    {
+      "root": "..",
+      "extraPaths": [
+        "../packages/agentic-proteins/src",
+        "../packages/bijux-proteomics-dev/src",
+        "../packages/bijux-proteomics-foundation/src",
+        "../packages/bijux-proteomics-core/src",
+        "../packages/bijux-proteomics-runtime/src",
+        "../packages/bijux-proteomics-intelligence/src",
+        "../packages/bijux-proteomics-knowledge/src",
+        "../packages/bijux-proteomics-lab/src",
+        "../packages/bijux-proteomics/src",
+        "../packages/proteomics/src",
+        "../packages/proteomics-core/src",
+        "../packages/proteomics-foundation/src",
+        "../packages/proteomics-runtime/src",
+        "../packages/proteomics-intelligence/src",
+        "../packages/proteomics-knowledge/src",
+        "../packages/proteomics-lab/src"
+      ]
+    }
+  ]
+}
