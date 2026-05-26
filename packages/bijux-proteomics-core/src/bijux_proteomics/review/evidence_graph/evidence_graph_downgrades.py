@@ -18,6 +18,11 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
+from bijux_proteomics.review.evidence_graph.evidence_graph_contradictions import (
+    EvidenceGraphContradictionReport,
+    EvidenceGraphContradictionSeverity,
+    detect_evidence_graph_contradictions,
+)
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
     EvidenceGraphConfidenceEntry,
     EvidenceGraphConfidenceTier,
@@ -31,10 +36,12 @@ class EvidenceGraphDowngradeReason(StrEnum):
 
     SHARED_PEPTIDE_ONLY = "shared_peptide_only"
     CONTAMINANT_OVERLAP = "contaminant_overlap"
+    CONTRADICTION_CAUTION = "contradiction_caution"
     POOR_RUN_QC = "poor_run_qc"
     IMPUTATION_DEPENDENCE = "imputation_dependence"
     LOW_LOCALIZATION = "low_localization"
     POOR_REPRODUCIBILITY = "poor_reproducibility"
+    SEVERE_CONTRADICTION = "severe_contradiction"
 
 
 class FinalClaimEvidenceTier(StrEnum):
@@ -81,9 +88,14 @@ def build_evidence_graph_final_result_table(
     """Build final result rows with graph-derived evidence tiers and downgrade reasons."""
 
     confidence_report = propagate_evidence_graph_confidence(graph)
+    contradiction_report = detect_evidence_graph_contradictions(graph)
     entries: list[EvidenceGraphFinalResultEntry] = []
     for confidence_entry in confidence_report.entries:
-        reasons = _downgrade_reasons_for_entry(graph, confidence_entry)
+        reasons = _downgrade_reasons_for_entry(
+            graph,
+            confidence_entry,
+            contradiction_report=contradiction_report,
+        )
         effective_confidence_tier = _apply_confidence_downgrades(
             confidence_entry.confidence_tier,
             reasons,
@@ -161,6 +173,8 @@ def render_evidence_graph_final_results_tsv(
 def _downgrade_reasons_for_entry(
     graph: ProteomicsEvidenceGraph,
     entry: EvidenceGraphConfidenceEntry,
+    *,
+    contradiction_report: EvidenceGraphContradictionReport,
 ) -> tuple[EvidenceGraphDowngradeReason, ...]:
     subject = _require_node_by_id(graph, entry.subject_node_id)
     reasons: set[EvidenceGraphDowngradeReason] = set()
@@ -174,7 +188,13 @@ def _downgrade_reasons_for_entry(
     else:
         raise ValueError(f"unsupported final-result subject kind: {subject.entity_type.value}")
 
-    reasons.update(_claim_level_downgrade_reasons(graph, entry.claim_node_id))
+    reasons.update(
+        _claim_level_downgrade_reasons(
+            graph,
+            entry.claim_node_id,
+            contradiction_report=contradiction_report,
+        )
+    )
     return tuple(sorted(reasons, key=lambda value: value.value))
 
 
@@ -270,6 +290,8 @@ def _pathway_downgrade_reasons(
 def _claim_level_downgrade_reasons(
     graph: ProteomicsEvidenceGraph,
     claim_node_id: str,
+    *,
+    contradiction_report: EvidenceGraphContradictionReport,
 ) -> set[EvidenceGraphDowngradeReason]:
     reasons: set[EvidenceGraphDowngradeReason] = set()
     quant_values = _source_nodes_for_relation(
@@ -284,6 +306,13 @@ def _claim_level_downgrade_reasons(
     claim_node = _require_node_by_id(graph, claim_node_id)
     if claim_node.trust_class in {"single_run_only", "exploratory"}:
         reasons.add(EvidenceGraphDowngradeReason.POOR_REPRODUCIBILITY)
+    for contradiction in contradiction_report.entries:
+        if contradiction.claim_node_id != claim_node_id:
+            continue
+        if contradiction.severity is EvidenceGraphContradictionSeverity.FAIL:
+            reasons.add(EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION)
+        else:
+            reasons.add(EvidenceGraphDowngradeReason.CONTRADICTION_CAUTION)
     return reasons
 
 
@@ -405,13 +434,24 @@ def _apply_confidence_downgrades(
     confidence_tier: EvidenceGraphConfidenceTier,
     reasons: tuple[EvidenceGraphDowngradeReason, ...],
 ) -> EvidenceGraphConfidenceTier:
-    if EvidenceGraphDowngradeReason.POOR_RUN_QC not in reasons:
-        return confidence_tier
-    if confidence_tier is EvidenceGraphConfidenceTier.HIGH:
-        return EvidenceGraphConfidenceTier.MODERATE
-    if confidence_tier is EvidenceGraphConfidenceTier.MODERATE:
-        return EvidenceGraphConfidenceTier.LOW
-    return confidence_tier
+    effective_tier = confidence_tier
+    if EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION in reasons:
+        if effective_tier in {
+            EvidenceGraphConfidenceTier.HIGH,
+            EvidenceGraphConfidenceTier.MODERATE,
+        }:
+            effective_tier = EvidenceGraphConfidenceTier.LOW
+    elif (
+        EvidenceGraphDowngradeReason.CONTRADICTION_CAUTION in reasons
+        and effective_tier is EvidenceGraphConfidenceTier.HIGH
+    ):
+        effective_tier = EvidenceGraphConfidenceTier.MODERATE
+    if EvidenceGraphDowngradeReason.POOR_RUN_QC in reasons:
+        if effective_tier is EvidenceGraphConfidenceTier.HIGH:
+            effective_tier = EvidenceGraphConfidenceTier.MODERATE
+        elif effective_tier is EvidenceGraphConfidenceTier.MODERATE:
+            effective_tier = EvidenceGraphConfidenceTier.LOW
+    return effective_tier
 
 
 def _evidence_tier(
@@ -420,6 +460,8 @@ def _evidence_tier(
 ) -> FinalClaimEvidenceTier:
     if EvidenceGraphDowngradeReason.SHARED_PEPTIDE_ONLY in reasons:
         return FinalClaimEvidenceTier.AMBIGUOUS
+    if EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION in reasons:
+        return FinalClaimEvidenceTier.WEAK
 
     if confidence_tier is EvidenceGraphConfidenceTier.HIGH:
         tier = FinalClaimEvidenceTier.HIGH_CONFIDENCE
@@ -427,6 +469,12 @@ def _evidence_tier(
         tier = FinalClaimEvidenceTier.MODERATE
     else:
         tier = FinalClaimEvidenceTier.WEAK
+
+    if EvidenceGraphDowngradeReason.CONTRADICTION_CAUTION in reasons:
+        if tier is FinalClaimEvidenceTier.HIGH_CONFIDENCE:
+            tier = FinalClaimEvidenceTier.MODERATE
+        elif tier is FinalClaimEvidenceTier.MODERATE:
+            tier = FinalClaimEvidenceTier.WEAK
 
     degrade_steps = sum(
         reason
