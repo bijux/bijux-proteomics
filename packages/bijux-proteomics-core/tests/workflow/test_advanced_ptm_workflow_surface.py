@@ -69,6 +69,9 @@ def test_run_advanced_ptm_workflow_keeps_ambiguous_signal_out_of_exact_site_matr
     differential_tsv = (
         output_dir / report.manifest.artifacts.differential_tsv
     ).read_text(encoding="utf-8")
+    rejected_evidence_tsv = (
+        output_dir / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
 
     assert report.summary.exact_site_row_count == 3
     assert report.summary.ambiguous_group_row_count == 2
@@ -86,6 +89,7 @@ def test_run_advanced_ptm_workflow_keeps_ambiguous_signal_out_of_exact_site_matr
     assert "P11111:S17:Phospho\tP11111:Phospho:17|18|19" in excluded_tsv
     assert "counterpart_status" in occupancy_tsv
     assert "corrected_log2_fold_change" in differential_tsv
+    assert "rejected_evidence_id\tsource_surface" in rejected_evidence_tsv
     assert report.manifest.artifacts.motif_term_tsv is not None
     assert report.manifest.artifacts.regulator_enrichment_tsv is not None
     assert report.manifest.artifacts.evidence_card_tsv is not None
@@ -120,6 +124,7 @@ def test_run_advanced_ptm_workflow_keeps_exclusion_audit_separate_from_group_qua
         "P11111:S17:Phospho",
         "P22222:S4:Phospho",
     )
+    assert report.manifest.artifacts.rejected_evidence_tsv == "rejected_evidence.tsv"
     assert report.manifest.artifacts.regulator_enrichment_tsv is None
     assert report.manifest.artifacts.ambiguity_group_summary_tsv is not None
     assert report.manifest.artifacts.ambiguity_group_matrix_tsv is not None

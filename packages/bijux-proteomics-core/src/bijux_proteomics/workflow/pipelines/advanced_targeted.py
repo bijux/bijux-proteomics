@@ -47,6 +47,7 @@ from bijux_proteomics.workflow.result_types import (
     artifact_name_map,
     build_rejected_evidence_entry,
     build_result_warning,
+    render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
@@ -108,6 +109,7 @@ class AdvancedTargetedWorkflowArtifactPaths(JsonModel):
 
     summary_tsv: str = Field(..., min_length=1)
     targeted_assay_qc_workflow_manifest_json: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     import_summary_tsv: str = Field(..., min_length=1)
     observations_tsv: str = Field(..., min_length=1)
     matrix_summary_tsv: str = Field(..., min_length=1)
@@ -239,6 +241,7 @@ def run_targeted_validation_workflow(
     inconclusive_name = "targeted_validation_inconclusive.tsv"
     validation_evidence_name = "targeted_validation_evidence.tsv"
     evidence_card_name = "advanced_targeted_evidence_cards.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_targeted_summary.tsv"
 
     write_output_table_tsv((output_dir / validation_summary_name), render_targeted_result_validation_summary_tsv(validation_report))
@@ -256,6 +259,16 @@ def run_targeted_validation_workflow(
         ))
     write_output_table_tsv((output_dir / validation_evidence_name), render_targeted_result_validation_evidence_tsv(validation_report))
     write_output_table_tsv((output_dir / evidence_card_name), render_advanced_targeted_evidence_cards_tsv(evidence_cards))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(
+            _build_advanced_targeted_rejected_evidence(
+                import_report=import_report,
+                evidence_cards=evidence_cards,
+                related_artifact=rejected_evidence_name,
+            )
+        ),
+    )
 
     summary = AdvancedTargetedWorkflowSummary(
         observation_count=import_report.summary.observation_count,
@@ -281,6 +294,7 @@ def run_targeted_validation_workflow(
         artifacts=AdvancedTargetedWorkflowArtifactPaths(
             summary_tsv=summary_name,
             targeted_assay_qc_workflow_manifest_json=assay_qc_manifest_path.name,
+            rejected_evidence_tsv=rejected_evidence_name,
             import_summary_tsv=assay_qc_manifest.artifacts.import_summary_tsv,
             observations_tsv=assay_qc_manifest.artifacts.observations_tsv,
             matrix_summary_tsv=assay_qc_manifest.artifacts.matrix_summary_tsv,
@@ -341,7 +355,7 @@ def run_targeted_validation_workflow(
         rejected_evidence=_build_advanced_targeted_rejected_evidence(
             import_report=import_report,
             evidence_cards=evidence_cards,
-            manifest=manifest,
+            related_artifact=manifest.artifacts.rejected_evidence_tsv,
         ),
         note=(
             "advanced targeted validation composes transition import, target matrix, "
@@ -489,22 +503,27 @@ def _build_advanced_targeted_rejected_evidence(
     *,
     import_report: TargetedResultImportReport,
     evidence_cards: tuple[AdvancedTargetedEvidenceCardEntry, ...],
-    manifest: AdvancedTargetedWorkflowManifest,
+    related_artifact: str,
 ) -> tuple:
     del import_report
     return tuple(
         build_rejected_evidence_entry(
             evidence_id=f"advanced_targeted:{card.candidate_id}",
             source_surface="advanced_targeted_workflow",
-            reason_code=card.validation_verdict.value,
+            reason_code=(
+                "contradicted"
+                if card.validation_verdict is TargetedValidationVerdict.CONTRADICTED
+                else "inconclusive"
+            ),
             message=card.note,
-            related_artifact=manifest.artifacts.evidence_cards_tsv,
+            related_artifact=related_artifact,
+            entity_type="claim",
             entity_id=card.candidate_id,
         )
         for card in evidence_cards
-        if card.assay_reliability_status
+        if card.validation_verdict is not TargetedValidationVerdict.CONFIRMED
+        or card.assay_reliability_status
         is AdvancedTargetedAssayReliabilityStatus.UNRELIABLE
-        or card.validation_verdict is TargetedValidationVerdict.CONTRADICTED
     )
 
 

@@ -193,6 +193,9 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
     evidence_card_tsv = (
         output_dir / report.manifest.artifacts.evidence_cards_tsv
     ).read_text(encoding="utf-8")
+    rejected_evidence_tsv = (
+        output_dir / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
 
     assert report.summary.confirmed_count == 1
     assert report.summary.contradicted_count == 1
@@ -213,6 +216,8 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
     assert "confirmed" in evidence_card_tsv
     assert "contradicted" in evidence_card_tsv
     assert "inconclusive" in evidence_card_tsv
+    assert "protein:P22222" in rejected_evidence_tsv
+    assert "ptm_site:P33333:S21" in rejected_evidence_tsv
     assert (
         output_dir / report.manifest.artifacts.targeted_assay_qc_workflow_manifest_json
     ).exists()

@@ -55,6 +55,9 @@ def test_run_advanced_tmt_workflow_excludes_proteins_supported_only_by_high_inte
     evidence_card_tsv = (
         output_dir / report.manifest.artifacts.evidence_card_tsv
     ).read_text(encoding="utf-8")
+    rejected_evidence_tsv = (
+        output_dir / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
     summary_tsv = (
         output_dir / report.manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
@@ -75,6 +78,7 @@ def test_run_advanced_tmt_workflow_excludes_proteins_supported_only_by_high_inte
     assert "P002\tDPEPTIDE" in peptide_confidence_tsv
     assert "excluded_due_to_interference" in peptide_confidence_tsv
     assert "P002\tP002\texcluded_due_to_interference" in evidence_card_tsv
+    assert "excluded_due_to_interference" in rejected_evidence_tsv
     assert "excluded_protein_count\t1" in summary_tsv
     assert (output_dir / report.manifest.artifacts.filtered_interference_tsv).exists()
     assert (output_dir / report.manifest.artifacts.differential_results_tsv).exists()
@@ -107,6 +111,9 @@ def test_run_advanced_tmt_workflow_downgrades_mixed_support_and_flags_possible_c
     evidence_card_tsv = (
         output_dir / report.manifest.artifacts.evidence_card_tsv
     ).read_text(encoding="utf-8")
+    rejected_evidence_tsv = (
+        output_dir / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
 
     assert report.summary.downgraded_protein_count == 1
     assert report.summary.excluded_protein_count == 0
@@ -131,3 +138,4 @@ def test_run_advanced_tmt_workflow_downgrades_mixed_support_and_flags_possible_c
     assert "downgraded_by_interference" in peptide_confidence_tsv
     assert "possible_interference_compression" in compression_tsv
     assert "P001\tP001\tdowngraded_by_interference" in evidence_card_tsv
+    assert "row_number" in rejected_evidence_tsv

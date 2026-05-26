@@ -37,6 +37,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_issue_rows,
     build_rejected_evidence_entry,
     build_result_warning,
+    render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
@@ -121,6 +122,7 @@ class AdvancedTmtWorkflowArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     tmt_workflow_manifest_json: str = Field(..., min_length=1)
     label_based_report_manifest_json: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     reporter_import_summary_tsv: str = Field(..., min_length=1)
     normalization_summary_tsv: str = Field(..., min_length=1)
     validation_summary_tsv: str = Field(..., min_length=1)
@@ -270,12 +272,23 @@ def run_advanced_tmt_workflow(
     peptide_confidence_name = "advanced_tmt_peptide_confidence.tsv"
     protein_compression_name = "advanced_tmt_protein_compression.tsv"
     evidence_card_name = "advanced_tmt_evidence_cards.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_tmt_summary.tsv"
 
     write_output_table_tsv((output_dir / peptide_ratio_name), render_tmt_peptide_ratio_tsv(ratio_report))
     write_output_table_tsv((output_dir / peptide_confidence_name), render_advanced_tmt_peptide_confidence_tsv(peptide_confidence_entries))
     write_output_table_tsv((output_dir / protein_compression_name), render_advanced_tmt_protein_compression_tsv(protein_compression_entries))
     write_output_table_tsv((output_dir / evidence_card_name), render_advanced_tmt_evidence_cards_tsv(evidence_cards))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(
+            _build_advanced_tmt_rejected_evidence(
+                report=base_report,
+                evidence_cards=evidence_cards,
+                related_artifact=rejected_evidence_name,
+            )
+        ),
+    )
 
     summary = AdvancedTmtWorkflowSummary(
         accepted_input_row_count=base_report.summary.accepted_input_row_count,
@@ -336,6 +349,7 @@ def run_advanced_tmt_workflow(
             summary_tsv=summary_name,
             tmt_workflow_manifest_json=workflow_manifest_path.name,
             label_based_report_manifest_json=workflow_manifest.artifacts.label_based_report_manifest_json,
+            rejected_evidence_tsv=rejected_evidence_name,
             reporter_import_summary_tsv=workflow_manifest.artifacts.reporter_import_summary_tsv,
             normalization_summary_tsv=_required_artifact_name(
                 label_manifest.artifacts.tmt_normalization_summary_tsv,
@@ -388,7 +402,7 @@ def run_advanced_tmt_workflow(
         rejected_evidence=_build_advanced_tmt_rejected_evidence(
             report=base_report,
             evidence_cards=evidence_cards,
-            manifest=manifest,
+            related_artifact=manifest.artifacts.rejected_evidence_tsv,
         ),
         note=(
             "advanced tmt workflow composes governed reporter import, channel validation, "
@@ -620,7 +634,7 @@ def _build_advanced_tmt_rejected_evidence(
     *,
     report: TmtExperimentWorkflowBundle,
     evidence_cards: tuple[AdvancedTmtEvidenceCard, ...],
-    manifest: AdvancedTmtWorkflowManifest,
+    related_artifact: str,
 ) -> tuple:
     matrix_report = report.report.tmt_matrix_report
     if matrix_report is None:
@@ -629,8 +643,9 @@ def _build_advanced_tmt_rejected_evidence(
         build_rejected_evidence_entries_from_issue_rows(
             matrix_report.source_report.rejected_rows,
             source_surface="advanced_tmt_workflow",
-            related_artifact=manifest.tmt_workflow_manifest.artifacts.rejected_reporter_rows_tsv,
+            related_artifact=related_artifact,
             entity_prefix="reporter_row",
+            entity_type="reporter_row",
         )
         + tuple(
             build_rejected_evidence_entry(
@@ -638,7 +653,8 @@ def _build_advanced_tmt_rejected_evidence(
                 source_surface="advanced_tmt_workflow",
                 reason_code=card.confidence_status.value,
                 message=card.note,
-                related_artifact=manifest.artifacts.evidence_card_tsv,
+                related_artifact=related_artifact,
+                entity_type="protein",
                 entity_id=card.protein_id,
             )
             for card in evidence_cards

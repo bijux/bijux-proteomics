@@ -109,6 +109,7 @@ class AdvancedPtmWorkflowArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     ptm_workflow_manifest_json: str = Field(..., min_length=1)
     ptm_report_manifest_json: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     site_mapping_tsv: str = Field(..., min_length=1)
     localization_tsv: str = Field(..., min_length=1)
     exact_site_matrix_tsv: str = Field(..., min_length=1)
@@ -257,6 +258,7 @@ def run_advanced_ptm_workflow(
             summary_tsv=summary_name,
             ptm_workflow_manifest_json=workflow_manifest_path.name,
             ptm_report_manifest_json=workflow_manifest.artifacts.ptm_report_manifest_json,
+            rejected_evidence_tsv=workflow_manifest.artifacts.rejected_evidence_tsv,
             site_mapping_tsv=report_manifest.artifacts.site_tsv,
             localization_tsv=report_manifest.artifacts.localization_tsv,
             exact_site_matrix_tsv=_required_artifact_name(
@@ -359,7 +361,7 @@ def _build_advanced_ptm_warnings(
                     f"advanced PTM rejected {summary.rejected_evidence_count} evidence rows "
                     "during localization parsing"
                 ),
-                related_artifact=manifest.ptm_workflow_manifest.artifacts.rejected_evidence_tsv,
+                related_artifact=manifest.artifacts.rejected_evidence_tsv,
             )
         )
     if summary.excluded_ambiguous_row_count > 0:
@@ -399,8 +401,9 @@ def _build_advanced_ptm_rejected_evidence(
     return build_rejected_evidence_entries_from_issue_rows(
         report.evidence_parse_report.rejected_rows,
         source_surface="advanced_ptm_workflow",
-        related_artifact=manifest.ptm_workflow_manifest.artifacts.rejected_evidence_tsv,
+        related_artifact=manifest.artifacts.rejected_evidence_tsv,
         entity_prefix="ptm_evidence_row",
+        entity_type="ptm_evidence_row",
     )
 
 
