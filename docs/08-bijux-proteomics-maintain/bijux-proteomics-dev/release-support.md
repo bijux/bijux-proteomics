@@ -39,7 +39,6 @@ This page should make release support feel like a pre-publication proof chain. T
 ## First Proof Check
 
 - `src/bijux_proteomics_dev/release/versioning/version_resolver.py`
-- `src/bijux_proteomics_dev/release/versioning/changelog_version.py`
 - `src/bijux_proteomics_dev/release/governance/publication_guard.py`
 - `src/bijux_proteomics_dev/release/governance/repository_truth.py`
 - `src/bijux_proteomics_dev/release/governance/workflow_lab_consequence.py`
