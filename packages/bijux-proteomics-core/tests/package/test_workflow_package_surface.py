@@ -293,6 +293,31 @@ def test_workflow_package_exports_artifact_layout_surface() -> None:
     assert hasattr(workflow, "validate_workflow_artifact_manifest")
 
 
+def test_workflow_package_exports_output_validation_surface(tmp_path: Path) -> None:
+    output_dir = tmp_path / "advanced_diann_output_validation_package_surface"
+    workflow.run_advanced_diann_workflow(
+        workflow.AdvancedDiannWorkflowConfig(
+            result_tsv_path=_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_fixture("diann_advanced_reference.fasta"),
+            output_dir=output_dir,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    validation = workflow.build_workflow_output_validation_report(output_dir)
+
+    assert hasattr(workflow, "build_workflow_output_validation_report")
+    assert workflow.WorkflowOutputValidationStatus.VALID.value == "valid"
+    assert (
+        workflow.WorkflowOutputValidationIssueCode.MISSING_REQUIRED_ARTIFACT.value
+        == "missing_required_artifact"
+    )
+    assert validation.issue_count == 0
+    assert validation.artifact_count >= 1
+
+
 def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None:
     report = workflow.run_advanced_diann_workflow(
         workflow.AdvancedDiannWorkflowConfig(
