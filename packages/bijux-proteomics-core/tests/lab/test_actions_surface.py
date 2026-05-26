@@ -17,6 +17,9 @@ from bijux_proteomics.lab import (
     RunFailureClass,
     SampleSwapSuspicionEntry,
     build_lab_action_packets,
+    build_lab_action_packets_from_qc_assessment,
+    parse_lab_action_assessment_tsv,
+    parse_lab_action_packet_tsv,
     render_lab_action_packets_tsv,
 )
 
@@ -137,3 +140,56 @@ def test_render_lab_action_packets_tsv_is_stable() -> None:
         "entity_type\tentity_id\tproblem\tevidence_rows\trecommended_action\tseverity\n"
     )
     assert "run\trun-01\tlow_identification_yield\t" in rendered
+
+
+def test_build_lab_action_packets_from_qc_assessment_preserves_failed_run_handoff(
+    tmp_path,
+) -> None:
+    assessment_path = tmp_path / "run_qc.tsv"
+    assessment_path.write_text(
+        "\n".join(
+            (
+                "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key\tseverity\tdisposition\tenforced_violation\tmessage",
+                "run\tt2.mzml\tfail\tidentification_rate_low\tidentification_rate\tfailed\tblock\ttrue\tidentification rate fell below enforced threshold",
+                "sample\tT2\tcaution\tmissing_internal_standard\tinternal_standard\twarning\treview\tfalse\tinternal standard drift exceeded acceptance policy",
+                "run\tpass-run\tpass\t\tidentification_rate\tok\taccept\tfalse\tpass",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    entries = parse_lab_action_assessment_tsv(assessment_path)
+    packets = build_lab_action_packets_from_qc_assessment(entries)
+
+    assert len(entries) == 3
+    assert [packet.entity_id for packet in packets] == ["t2.mzml", "T2"]
+    run_packet = next(packet for packet in packets if packet.entity_id == "t2.mzml")
+    sample_packet = next(packet for packet in packets if packet.entity_id == "T2")
+
+    assert run_packet.problem == "identification_rate_low"
+    assert run_packet.severity == "high"
+    assert "metric_key=identification_rate" in run_packet.evidence_rows
+    assert "identification depth" in run_packet.recommended_action
+    assert sample_packet.problem == "missing_internal_standard"
+    assert sample_packet.severity == "medium"
+    assert "sample-level interpretation" in sample_packet.recommended_action
+
+
+def test_parse_lab_action_packet_tsv_round_trips_rendered_packets(tmp_path) -> None:
+    packets = (
+        LabActionPacket(
+            entity_type="run",
+            entity_id="t2.mzml",
+            problem="identification_rate_low",
+            evidence_rows=("scope=run", "entity_id=t2.mzml"),
+            recommended_action="review precursor isolation, fragmentation yield, and search-ready identification depth before accepting or rerunning this QC-failed run",
+            severity="high",
+        ),
+    )
+    path = tmp_path / "lab_action_packets.tsv"
+    path.write_text(render_lab_action_packets_tsv(packets), encoding="utf-8")
+
+    parsed = parse_lab_action_packet_tsv(path)
+
+    assert parsed == packets
