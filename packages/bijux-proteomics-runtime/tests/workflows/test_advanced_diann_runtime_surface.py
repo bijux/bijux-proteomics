@@ -114,6 +114,8 @@ def test_resumable_advanced_diann_runtime_matches_core_advanced_diann_summary(
     runtime_report = run_resumable_advanced_diann_workflow(runtime_config)
 
     assert runtime_report.status is AdvancedDiannRuntimeStatus.COMPLETED
+    assert runtime_report.workflow_id == runtime_report.run_id
+    assert runtime_report.run_identity.run_id == runtime_report.run_id
     assert runtime_report.advanced_report is not None
     assert runtime_report.advanced_report.summary == core_report.summary
     assert runtime_report.advanced_report.manifest.artifacts == core_report.manifest.artifacts

@@ -40,6 +40,8 @@ def test_advanced_diann_dry_run_reports_expected_stages_and_output_plan(
     )
 
     assert report.status is AdvancedDiannDryRunStatus.READY
+    assert report.workflow_id == report.run_id
+    assert report.run_identity.run_id == report.run_id
     assert report.issues == ()
     assert tuple(entry.stage for entry in report.stage_plan) == (
         AdvancedDiannRuntimeStage.IMPORT,
