@@ -85,6 +85,24 @@ class WorkflowArtifactKind(StrEnum):
     CHECKPOINT = "checkpoint"
 
 
+class WorkflowDataType(StrEnum):
+    """Stable scientific data types exchanged across runtime workflow steps."""
+
+    PROTEIN_FASTA_DOCUMENT = "protein_fasta_document"
+    SPECTRA_DOCUMENT = "spectra_document"
+    SEARCH_RESULT_TABLE = "search_result_table"
+    MS1_FEATURE_TABLE = "ms1_feature_table"
+    EXPERIMENTAL_DESIGN_TABLE = "experimental_design_table"
+    VALIDATED_INPUT_INVENTORY = "validated_input_inventory"
+    DIGESTED_PEPTIDE_SPACE = "digested_peptide_space"
+    NORMALIZED_IDENTIFICATION_ROWS = "normalized_identification_rows"
+    FDR_SCORED_IDENTIFICATION_ROWS = "fdr_scored_identification_rows"
+    PEPTIDE_QUANT_MATRIX = "peptide_quant_matrix"
+    PROTEIN_QUANT_MATRIX = "protein_quant_matrix"
+    QC_SUMMARY_REPORT = "qc_summary_report"
+    NORMALIZED_RUN_BUNDLE = "normalized_run_bundle"
+
+
 class WorkflowCheckpointStatus(StrEnum):
     """Stable status values for checkpointed workflow steps."""
 
@@ -406,7 +424,9 @@ class WorkflowExecutionStep(JsonModel):
     label: str = Field(..., min_length=1)
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
     consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     produces_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
     cacheable: bool = False
     blocking: bool = True
@@ -446,7 +466,9 @@ class WorkflowDagNode(JsonModel):
     execution_layer: int = Field(..., ge=0)
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
     consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
     blocking: bool = True
     cacheable: bool = False
@@ -494,6 +516,27 @@ class WorkflowDagValidationReport(JsonModel):
     valid: bool
     ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     issues: tuple[WorkflowDagValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class WorkflowStepTypeValidationIssue(JsonModel):
+    """One step input/output typing issue detected during workflow planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    step_id: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowStepTypeValidationReport(JsonModel):
+    """Validation report over runtime workflow step data-type contracts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    valid: bool
+    issues: tuple[WorkflowStepTypeValidationIssue, ...] = Field(default_factory=tuple)
 
 
 class WorkflowContainerMount(JsonModel):
@@ -1040,6 +1083,104 @@ def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
     return detected.value
 
 
+def _workflow_input_data_type(role: WorkflowInputRole) -> WorkflowDataType:
+    mapping = {
+        WorkflowInputRole.PROTEINS: WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+        WorkflowInputRole.SPECTRA: WorkflowDataType.SPECTRA_DOCUMENT,
+        WorkflowInputRole.IDENTIFICATIONS: WorkflowDataType.SEARCH_RESULT_TABLE,
+        WorkflowInputRole.FEATURES: WorkflowDataType.MS1_FEATURE_TABLE,
+        WorkflowInputRole.DESIGN: WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE,
+    }
+    return mapping[role]
+
+
+def _workflow_step_output_types(
+    step_kind: WorkflowStepKind,
+) -> tuple[WorkflowDataType, ...]:
+    mapping = {
+        WorkflowStepKind.VALIDATE_INPUTS: (
+            WorkflowDataType.VALIDATED_INPUT_INVENTORY,
+        ),
+        WorkflowStepKind.DIGEST_DATABASE: (
+            WorkflowDataType.DIGESTED_PEPTIDE_SPACE,
+        ),
+        WorkflowStepKind.RUN_SEARCH_ENGINE: (
+            WorkflowDataType.SEARCH_RESULT_TABLE,
+        ),
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: (
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        ),
+        WorkflowStepKind.CALCULATE_FDR: (
+            WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
+        ),
+        WorkflowStepKind.QUANTIFY_FEATURES: (
+            WorkflowDataType.PEPTIDE_QUANT_MATRIX,
+        ),
+        WorkflowStepKind.RUN_QC: (
+            WorkflowDataType.QC_SUMMARY_REPORT,
+        ),
+        WorkflowStepKind.BUILD_RUN_BUNDLE: (
+            WorkflowDataType.NORMALIZED_RUN_BUNDLE,
+        ),
+    }
+    return mapping[step_kind]
+
+
+def _workflow_step_input_types(
+    step_kind: WorkflowStepKind,
+    *,
+    identifications_attached: bool,
+    design_attached: bool,
+    quant_attached: bool,
+) -> tuple[WorkflowDataType, ...]:
+    if step_kind is WorkflowStepKind.VALIDATE_INPUTS:
+        inputs = [
+            WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+            WorkflowDataType.SPECTRA_DOCUMENT,
+        ]
+        if identifications_attached:
+            inputs.append(WorkflowDataType.SEARCH_RESULT_TABLE)
+        if quant_attached:
+            inputs.append(WorkflowDataType.MS1_FEATURE_TABLE)
+        if design_attached:
+            inputs.append(WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE)
+        return tuple(inputs)
+    if step_kind is WorkflowStepKind.DIGEST_DATABASE:
+        return (WorkflowDataType.PROTEIN_FASTA_DOCUMENT,)
+    if step_kind is WorkflowStepKind.RUN_SEARCH_ENGINE:
+        return (
+            WorkflowDataType.SPECTRA_DOCUMENT,
+            WorkflowDataType.DIGESTED_PEPTIDE_SPACE,
+        )
+    if step_kind is WorkflowStepKind.NORMALIZE_IDENTIFICATIONS:
+        return (WorkflowDataType.SEARCH_RESULT_TABLE,)
+    if step_kind is WorkflowStepKind.CALCULATE_FDR:
+        return (WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,)
+    if step_kind is WorkflowStepKind.QUANTIFY_FEATURES:
+        inputs = [
+            WorkflowDataType.MS1_FEATURE_TABLE,
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        ]
+        if design_attached:
+            inputs.append(WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE)
+        return tuple(inputs)
+    if step_kind is WorkflowStepKind.RUN_QC:
+        return (
+            WorkflowDataType.SPECTRA_DOCUMENT,
+            WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        )
+    inputs = [
+        WorkflowDataType.SPECTRA_DOCUMENT,
+        WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
+        WorkflowDataType.QC_SUMMARY_REPORT,
+    ]
+    if quant_attached:
+        inputs.append(WorkflowDataType.PEPTIDE_QUANT_MATRIX)
+    return tuple(inputs)
+
+
 def _expected_artifact_document_kind(
     artifact_kind: WorkflowArtifactKind,
 ) -> str | None:
@@ -1320,7 +1461,9 @@ def _build_step(
     label: str,
     depends_on: tuple[str, ...] = (),
     consumes_roles: tuple[WorkflowInputRole, ...] = (),
+    input_data_types: tuple[WorkflowDataType, ...] = (),
     produces_artifacts: tuple[WorkflowArtifactKind, ...] = (),
+    output_data_types: tuple[WorkflowDataType, ...] = (),
     command_preview: tuple[str, ...] = (),
     cacheable: bool = False,
     blocking: bool = True,
@@ -1331,7 +1474,9 @@ def _build_step(
         label=label,
         depends_on=depends_on,
         consumes_roles=consumes_roles,
+        input_data_types=input_data_types,
         produces_artifacts=produces_artifacts,
+        output_data_types=output_data_types,
         command_preview=command_preview,
         cacheable=cacheable,
         blocking=blocking,
@@ -1637,7 +1782,9 @@ def build_proteomics_dag_plan(
             execution_layer=levels[step.step_id],
             depends_on=step.depends_on,
             consumes_roles=step.consumes_roles,
+            input_data_types=step.input_data_types,
             artifact_kinds=step.produces_artifacts,
+            output_data_types=step.output_data_types,
             command_preview=step.command_preview,
             blocking=step.blocking,
             cacheable=step.cacheable,
@@ -1757,7 +1904,9 @@ def _resolve_dag_node_levels(nodes: tuple[WorkflowDagNode, ...]) -> dict[str, in
             label=node.label,
             depends_on=node.depends_on,
             consumes_roles=node.consumes_roles,
+            input_data_types=node.input_data_types,
             produces_artifacts=node.artifact_kinds,
+            output_data_types=node.output_data_types,
             command_preview=node.command_preview,
             cacheable=node.cacheable,
             blocking=node.blocking,
