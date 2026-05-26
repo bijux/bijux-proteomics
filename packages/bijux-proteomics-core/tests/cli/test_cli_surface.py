@@ -11420,7 +11420,10 @@ def test_quantify_command_requires_explicit_timepoint_order_for_unordered_labels
         )
 
         assert result.exit_code != 0
-        assert "unordered timepoint labels require an explicit order file" in result.output
+        assert (
+            "time-course differential analysis is not supportable because "
+            "missing_timepoint_order" in result.output
+        )
 
 
 def test_quantify_command_emits_time_course_differential_outputs() -> None:

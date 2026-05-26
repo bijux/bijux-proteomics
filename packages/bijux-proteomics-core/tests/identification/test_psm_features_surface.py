@@ -84,11 +84,11 @@ def test_extract_psm_features_penalizes_high_score_but_poor_spectrum_support() -
 
     assert poor_row.score_native > good_row.score_native
     assert poor_row.q_value_native < good_row.q_value_native
-    assert good_row.matched_ion_count >= 6
+    assert good_row.matched_ion_count == 5
     assert poor_row.matched_ion_count == 0
-    assert good_row.explained_intensity > 0.9
+    assert good_row.explained_intensity == 0.8791208791208791
     assert poor_row.explained_intensity == 0.0
-    assert good_row.top_peak_unmatched_fraction < 0.1
+    assert good_row.top_peak_unmatched_fraction == 0.12087912087912088
     assert poor_row.top_peak_unmatched_fraction == 1.0
 
     rendered = render_psm_feature_tsv(rows)

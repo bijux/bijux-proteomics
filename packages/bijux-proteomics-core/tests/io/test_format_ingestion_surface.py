@@ -175,7 +175,7 @@ def test_design_table_parser_rejects_partial_multiplex_semantics() -> None:
     assert not report.accepted_entries
     assert len(report.rejected_rows) == 1
     assert (
-        "multiplex_group and multiplex_channel"
+        "row must provide 'multiplex_group' and 'multiplex_channel' together"
         in report.rejected_rows[0].issues[0].message
     )
 

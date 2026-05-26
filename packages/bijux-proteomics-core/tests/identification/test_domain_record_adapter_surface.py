@@ -6,12 +6,14 @@ from __future__ import annotations
 from bijux_proteomics.domain import TargetDecoyState
 from bijux_proteomics.identification import (
     PeptideEvidenceEntry,
-    ProteinEvidenceEntry,
     ProteinGroupEntry,
     PsmRecord,
     RejectedPsmRow,
     SearchResultValidationIssue,
     TargetDecoyLabel,
+)
+from bijux_proteomics.identification.contracts.evidence import (
+    ProteinEvidenceEntry,
 )
 
 
