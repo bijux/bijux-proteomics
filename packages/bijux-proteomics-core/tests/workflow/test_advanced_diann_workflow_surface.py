@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,12 @@ from bijux_proteomics.workflow import (
     load_workflow_artifact_manifest,
     run_advanced_diann_workflow,
     validate_workflow_artifact_completeness,
+    validate_workflow_artifact_inventory,
     validate_workflow_artifact_manifest,
+)
+from bijux_proteomics.workflow.artifact_layout import (
+    WORKFLOW_ARTIFACT_INVENTORY_NAME,
+    WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
 )
 from bijux_proteomics.workflow.pipelines.advanced_diann import (
     build_advanced_diann_workflow_report_from_bundle,
@@ -102,7 +108,12 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     assert report.manifest.artifacts.rejected_claim_tsv is not None
     assert (output_dir / report.manifest.artifacts.supported_claim_tsv).exists()
     assert (output_dir / report.manifest.artifacts.rejected_claim_tsv).exists()
+    assert (output_dir / WORKFLOW_ARTIFACT_INVENTORY_NAME).exists()
+    assert (output_dir / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).exists()
+    assert (output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_NAME).exists()
+    assert (output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).exists()
     layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    validate_workflow_artifact_inventory(output_dir=output_dir, manifest=layout_manifest)
     summary_entry = next(
         entry
         for entry in layout_manifest.artifacts
@@ -132,6 +143,40 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     assert evidence_entry.output_table_schema_sidecar_relative_path == (
         f"evidence/{report.manifest.artifacts.accepted_proteins_tsv}.schema.json"
     )
+    inventory_rows = tuple(
+        csv.DictReader(
+            (output_dir / WORKFLOW_ARTIFACT_INVENTORY_NAME).read_text(
+                encoding="utf-8"
+            ).splitlines(),
+            delimiter="\t",
+        )
+    )
+    summary_row_count = len(
+        (
+            output_dir / report.manifest.artifacts.summary_tsv
+        ).read_text(encoding="utf-8").splitlines()
+    ) - 1
+    inventory_by_legacy_path = {
+        row["legacy_relative_path"]: row for row in inventory_rows
+    }
+    assert inventory_by_legacy_path[report.manifest.artifacts.summary_tsv]["row_count"] == str(
+        summary_row_count
+    )
+    assert inventory_by_legacy_path[report.manifest.artifacts.accepted_proteins_tsv][
+        "row_count"
+    ] == str(report.summary.accepted_protein_count)
+    inventory_summary = {
+        row["field"]: row["value"]
+        for row in csv.DictReader(
+            (output_dir / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).read_text(
+                encoding="utf-8"
+            ).splitlines(),
+            delimiter="\t",
+        )
+    }
+    assert int(inventory_summary["artifact_count"]) == len(layout_manifest.artifacts) - 2
+    assert int(inventory_summary["tsv_artifact_count"]) >= 10
+    assert int(inventory_summary["total_tsv_row_count"]) >= report.summary.accepted_protein_count
 
 
 def test_run_advanced_diann_workflow_exports_fragment_coelution_when_fragment_evidence_is_supplied(
