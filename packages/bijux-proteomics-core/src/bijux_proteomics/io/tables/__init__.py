@@ -8,6 +8,7 @@ from __future__ import annotations
 from importlib import import_module
 
 _TABLE_EXPORT_MODULES = (
+    "bijux_proteomics.io.tables.chunked_rows",
     "bijux_proteomics.io.tables.streaming_joins",
     "bijux_proteomics.io.tables.stable_outputs",
     "bijux_proteomics.io.tables.target_panel",

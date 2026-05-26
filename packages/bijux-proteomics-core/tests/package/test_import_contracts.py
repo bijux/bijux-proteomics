@@ -183,6 +183,7 @@ def test_io_subpackage_import_contract() -> None:
     assert hasattr(spectra, "score_chimeric_spectra")
     assert hasattr(tables, "DelimitedLookupJoinSpec")
     assert hasattr(tables, "iter_streaming_lookup_join")
+    assert hasattr(tables, "iter_delimited_row_chunks")
     assert hasattr(tables, "parse_transition_table")
     assert hasattr(tables, "parse_xic_target_table")
     assert hasattr(raw, "parse_mzml")
