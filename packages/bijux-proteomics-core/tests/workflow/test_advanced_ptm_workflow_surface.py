@@ -15,6 +15,9 @@ from bijux_proteomics.workflow.advanced_ptm import (
     AdvancedPtmWorkflowConfig,
     run_advanced_ptm_workflow,
 )
+from bijux_proteomics.workflow.advanced_workflow_family import (
+    validate_advanced_workflow_family_contract,
+)
 
 
 def _ptm_fixture(name: str) -> Path:
@@ -51,6 +54,12 @@ def test_run_advanced_ptm_workflow_keeps_ambiguous_signal_out_of_exact_site_matr
             ),
             evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
         )
+    )
+    assert report.manifest.family_protocol == report.family_protocol
+    assert validate_advanced_workflow_family_contract(report.family_protocol) == ()
+    assert (
+        report.family_protocol.artifacts.workflow_manifest_json
+        == "advanced_ptm_workflow_manifest.json"
     )
 
     output_dir = tmp_path / "advanced_ptm_review"

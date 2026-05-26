@@ -47,6 +47,11 @@ from bijux_proteomics.workflow.result_types import (
     build_result_warning,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -134,6 +139,7 @@ class AdvancedPtmWorkflowManifest(JsonModel):
     summary: AdvancedPtmWorkflowSummary
     artifacts: AdvancedPtmWorkflowArtifactPaths
     ptm_workflow_manifest: PtmSiteWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -149,6 +155,7 @@ class AdvancedPtmWorkflowReport(BiologyResult):
     occupancy_counterpart_report: PtmOccupancyCounterpartEvidenceReport
     summary: AdvancedPtmWorkflowSummary
     manifest: AdvancedPtmWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -253,6 +260,40 @@ def run_advanced_ptm_workflow(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_ptm_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_ptm_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_ptm",
+        config=config,
+        primary_input_fields=("evidence_tsv_path", "feature_tsv_path"),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=(
+            "proteins_fasta_path",
+            "mapping",
+            "fragment_support_json_path",
+            "protein_correction_mode",
+            "batch_field",
+            "covariate_fields",
+            "pairing_field",
+        ),
+        annotation_input_fields=(
+            "annotation_tsv_path",
+            "annotation_target_species",
+        ),
+        comparison_input_fields=("condition_a", "condition_b"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=workflow_manifest_path.name,
+            review_manifest_json=workflow_manifest.artifacts.ptm_report_manifest_json,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=workflow_manifest.artifacts.rejected_evidence_tsv,
+        ),
+        note=(
+            "advanced ptm workflow follows the canonical advanced workflow family "
+            "through normalized config categories plus shared summary, manifest, "
+            "and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedPtmWorkflowManifest(
         summary=summary,
         artifacts=AdvancedPtmWorkflowArtifactPaths(
@@ -278,6 +319,7 @@ def run_advanced_ptm_workflow(
             evidence_claim_tsv=report_manifest.artifacts.evidence_claim_tsv,
         ),
         ptm_workflow_manifest=workflow_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced ptm workflow preserves one exact-site matrix for resolved "
             "sites, one ambiguity-group matrix for unresolved localization, one "
@@ -285,7 +327,7 @@ def run_advanced_ptm_workflow(
             "governed ptm report bundle"
         ),
     )
-    manifest_path = output_dir / "advanced_ptm_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -300,6 +342,7 @@ def run_advanced_ptm_workflow(
         occupancy_counterpart_report=occupancy_counterpart_report,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_ptm_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_ptm_rejected_evidence(

@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.workflow import (
     AdvancedFragpipeWorkflowConfig,
     run_advanced_fragpipe_workflow,
+    validate_advanced_workflow_family_contract,
 )
 
 
@@ -33,6 +34,12 @@ def test_run_advanced_fragpipe_workflow_exports_exact_discrepancy_reasons(
             condition_a="control",
             condition_b="treatment",
         )
+    )
+    assert report.manifest.family_protocol == report.family_protocol
+    assert validate_advanced_workflow_family_contract(report.family_protocol) == ()
+    assert (
+        report.family_protocol.artifacts.workflow_manifest_json
+        == "advanced_fragpipe_workflow_manifest.json"
     )
 
     output_dir = tmp_path / "advanced_fragpipe_review"

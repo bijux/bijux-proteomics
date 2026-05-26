@@ -40,6 +40,11 @@ from bijux_proteomics.workflow.result_types import (
     render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -121,6 +126,7 @@ class AdvancedFragpipeWorkflowManifest(JsonModel):
     summary: AdvancedFragpipeWorkflowSummary
     artifacts: AdvancedFragpipeWorkflowArtifactPaths
     fragpipe_workflow_manifest: DdaBiologicalWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -166,6 +172,7 @@ class AdvancedFragpipeWorkflowReport(BiologyResult):
     )
     summary: AdvancedFragpipeWorkflowSummary
     manifest: AdvancedFragpipeWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -246,6 +253,41 @@ def run_advanced_fragpipe_workflow(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_fragpipe_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_fragpipe_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_fragpipe",
+        config=config,
+        primary_input_fields=("psm_tsv_path",),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=(
+            "proteins_fasta_path",
+            "protocol_context_tsv_path",
+            "philosopher_protein_tsv_path",
+            "acceptance_policy",
+        ),
+        annotation_input_fields=(
+            "annotation_tsv_path",
+            "go_annotation_tsv_path",
+            "pathway_membership_tsv_path",
+            "complex_membership_tsv_path",
+        ),
+        comparison_input_fields=("condition_a", "condition_b"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=fragpipe_manifest_path.name,
+            review_manifest_json=fragpipe_manifest.artifacts.biological_manifest_json,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=rejected_evidence_name,
+            supported_claim_tsv=fragpipe_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
+            rejected_claim_tsv=fragpipe_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
+        ),
+        note=(
+            "advanced fragpipe workflow follows the canonical advanced workflow "
+            "family through normalized config categories plus shared summary, "
+            "manifest, claim, and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedFragpipeWorkflowManifest(
         summary=summary,
         artifacts=AdvancedFragpipeWorkflowArtifactPaths(
@@ -259,13 +301,14 @@ def run_advanced_fragpipe_workflow(
             rejected_claim_tsv=fragpipe_manifest.biological_report_manifest.artifacts.rejected_claim_tsv,
         ),
         fragpipe_workflow_manifest=fragpipe_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced fragpipe workflow preserves governed fragpipe psm import, "
             "psm fdr filtering, peptide evidence, protein grouping, protein lfq, "
             "and exact discrepancy reasoning against an optional philosopher summary"
         ),
     )
-    manifest_path = output_dir / "advanced_fragpipe_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -279,6 +322,7 @@ def run_advanced_fragpipe_workflow(
         discrepancy_reasons=discrepancy_reasons,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_fragpipe_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_fragpipe_rejected_evidence(
