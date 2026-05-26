@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from io import StringIO
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -35,6 +36,22 @@ class LabActionPacket(JsonModel):
     evidence_rows: tuple[str, ...] = Field(default_factory=tuple)
     recommended_action: str = Field(..., min_length=1)
     severity: str = Field(..., pattern="^(low|medium|high)$")
+
+
+class LabActionAssessmentEntry(JsonModel):
+    """One archived QC assessment row that can drive a lab action packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope: str = Field(..., min_length=1)
+    entity_id: str = Field(..., min_length=1)
+    qc_status: str = Field(..., min_length=1)
+    status_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
+    metric_key: str | None = None
+    severity: str | None = None
+    disposition: str | None = None
+    enforced_violation: bool | None = None
+    message: str = Field(..., min_length=1)
 
 
 def build_lab_action_packets(
@@ -87,6 +104,86 @@ def render_lab_action_packets_tsv(packets: tuple[LabActionPacket, ...]) -> str:
     return buffer.getvalue()
 
 
+def parse_lab_action_packet_tsv(path: Path) -> tuple[LabActionPacket, ...]:
+    """Parse archived lab action packet rows from a stable TSV surface."""
+
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("lab action packet TSV must include a header row")
+        return tuple(
+            LabActionPacket(
+                entity_type=(row.get("entity_type") or "").strip(),
+                entity_id=(row.get("entity_id") or "").strip(),
+                problem=(row.get("problem") or "").strip(),
+                evidence_rows=_split_semicolon_field(row.get("evidence_rows")),
+                recommended_action=(row.get("recommended_action") or "").strip(),
+                severity=(row.get("severity") or "").strip(),
+            )
+            for row in reader
+        )
+
+
+def parse_lab_action_assessment_tsv(path: Path) -> tuple[LabActionAssessmentEntry, ...]:
+    """Parse archived QC assessment rows that can be projected into action packets."""
+
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("lab action assessment TSV must include a header row")
+        return tuple(
+            LabActionAssessmentEntry(
+                scope=(row.get("scope") or "").strip(),
+                entity_id=(row.get("entity_id") or "").strip(),
+                qc_status=(row.get("qc_status") or "").strip(),
+                status_reason_codes=_split_semicolon_field(
+                    row.get("status_reason_codes")
+                ),
+                metric_key=_optional_value(row.get("metric_key")),
+                severity=_optional_value(row.get("severity")),
+                disposition=_optional_value(row.get("disposition")),
+                enforced_violation=_optional_bool(row.get("enforced_violation")),
+                message=(row.get("message") or "").strip() or "QC assessment failed",
+            )
+            for row in reader
+        )
+
+
+def build_lab_action_packets_from_qc_assessment(
+    entries: tuple[LabActionAssessmentEntry, ...],
+) -> tuple[LabActionPacket, ...]:
+    """Build archived lab action packets from failed run or sample QC assessment rows."""
+
+    packets: list[LabActionPacket] = []
+    for entry in entries:
+        status = entry.qc_status.strip().lower()
+        if status in {"pass", "ok"}:
+            continue
+        if not _is_actionable_assessment_status(status):
+            continue
+        packets.append(
+            LabActionPacket(
+                entity_type=entry.scope.strip().lower(),
+                entity_id=entry.entity_id,
+                problem=_assessment_problem(entry),
+                evidence_rows=_assessment_evidence_rows(entry),
+                recommended_action=_assessment_recommended_action(entry),
+                severity=_assessment_packet_severity(entry),
+            )
+        )
+    return tuple(
+        sorted(
+            packets,
+            key=lambda packet: (
+                packet.entity_type,
+                packet.entity_id,
+                packet.problem,
+                packet.severity,
+            ),
+        )
+    )
+
+
 def _packets_for_row(row: object) -> tuple[LabActionPacket, ...]:
     if isinstance(row, RunDiagnosisEntry):
         return _packets_for_run_diagnosis(row)
@@ -103,6 +200,109 @@ def _packets_for_row(row: object) -> tuple[LabActionPacket, ...]:
     if isinstance(row, CohortBalanceEntry):
         return _packets_for_cohort(row)
     return ()
+
+
+def _split_semicolon_field(value: str | None) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    return tuple(token.strip() for token in value.split(";") if token.strip())
+
+
+def _optional_value(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
+def _optional_bool(value: str | None) -> bool | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    if normalized in {"true", "1", "yes"}:
+        return True
+    if normalized in {"false", "0", "no"}:
+        return False
+    return None
+
+
+def _is_actionable_assessment_status(status: str) -> bool:
+    return status in {"fail", "failed", "block", "blocked", "caution", "warn", "warning"}
+
+
+def _assessment_problem(entry: LabActionAssessmentEntry) -> str:
+    if entry.status_reason_codes:
+        return entry.status_reason_codes[0]
+    return "qc_failure"
+
+
+def _assessment_evidence_rows(
+    entry: LabActionAssessmentEntry,
+) -> tuple[str, ...]:
+    rows = [
+        f"scope={entry.scope}",
+        f"entity_id={entry.entity_id}",
+        f"qc_status={entry.qc_status}",
+    ]
+    rows.extend(
+        f"reason_code={reason_code}" for reason_code in entry.status_reason_codes
+    )
+    if entry.metric_key is not None:
+        rows.append(f"metric_key={entry.metric_key}")
+    if entry.severity is not None:
+        rows.append(f"severity={entry.severity}")
+    if entry.disposition is not None:
+        rows.append(f"disposition={entry.disposition}")
+    if entry.enforced_violation is not None:
+        rows.append(
+            f"enforced_violation={str(entry.enforced_violation).lower()}"
+        )
+    rows.append(f"message={entry.message}")
+    return tuple(rows)
+
+
+def _assessment_packet_severity(entry: LabActionAssessmentEntry) -> str:
+    status = entry.qc_status.strip().lower()
+    severity = (entry.severity or "").strip().lower()
+    if status in {"fail", "failed", "block", "blocked"}:
+        return "high"
+    if severity in {"failed", "critical", "high"}:
+        return "high"
+    if entry.enforced_violation is True:
+        return "high"
+    if status in {"caution", "warn", "warning"}:
+        return "medium"
+    return "low"
+
+
+def _assessment_recommended_action(entry: LabActionAssessmentEntry) -> str:
+    reason_codes = set(entry.status_reason_codes)
+    scope = entry.scope.strip().lower()
+    if "identification_rate_low" in reason_codes:
+        return (
+            "review precursor isolation, fragmentation yield, and search-ready "
+            "identification depth before accepting or rerunning this QC-failed "
+            f"{scope}"
+        )
+    if "chromatography_instability" in reason_codes:
+        return (
+            "inspect column performance, gradient delivery, and retention-time "
+            f"stability before accepting this QC-failed {scope}"
+        )
+    if "intensity_instability" in reason_codes:
+        return (
+            "check spray stability, ion transmission, and loading consistency "
+            f"before using this QC-failed {scope} quantitatively"
+        )
+    if scope == "sample":
+        return (
+            "hold sample-level interpretation and review upstream preparation and "
+            "QC evidence before accepting this sample"
+        )
+    return (
+        "exclude this QC-failed run from biological interpretation until the "
+        "preserved failure reasons have been reviewed and resolved"
+    )
 
 
 def _packets_for_run_diagnosis(row: RunDiagnosisEntry) -> tuple[LabActionPacket, ...]:
@@ -353,7 +553,11 @@ def _packets_for_cohort(row: CohortBalanceEntry) -> tuple[LabActionPacket, ...]:
 
 
 __all__ = [
+    "LabActionAssessmentEntry",
     "LabActionPacket",
     "build_lab_action_packets",
+    "build_lab_action_packets_from_qc_assessment",
+    "parse_lab_action_assessment_tsv",
+    "parse_lab_action_packet_tsv",
     "render_lab_action_packets_tsv",
 ]
