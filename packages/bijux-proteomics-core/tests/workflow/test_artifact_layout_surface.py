@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -16,10 +17,13 @@ from bijux_proteomics.workflow.artifact_layout import (
     find_workflow_artifact_by_id,
     find_workflow_artifact_by_legacy_path,
     index_workflow_artifact_manifest,
+    WORKFLOW_ARTIFACT_INVENTORY_NAME,
+    WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
     WorkflowArtifactFolder,
     WorkflowArtifactKind,
     load_workflow_artifact_manifest,
     synchronize_workflow_artifact_layout,
+    validate_workflow_artifact_inventory,
     validate_workflow_artifact_manifest,
 )
 
@@ -58,7 +62,11 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
     assert (tmp_path / "cards").is_dir()
     assert (tmp_path / "reports").is_dir()
     assert (tmp_path / "manifest.json").exists()
+    assert (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_NAME).exists()
+    assert (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).exists()
     assert (tmp_path / "reports" / "biological_report_summary.tsv").exists()
+    assert (tmp_path / "reports" / WORKFLOW_ARTIFACT_INVENTORY_NAME).exists()
+    assert (tmp_path / "reports" / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).exists()
     assert (tmp_path / "qc" / "tmt_validation_summary.tsv").exists()
     assert (tmp_path / "cards" / "ptm_evidence_cards.tsv").exists()
     assert (tmp_path / "stats" / "label_based_differential_results.tsv").exists()
@@ -88,6 +96,7 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
     assert entries["tmt_validation_summary.tsv"].row_count == 0
     assert entries["tmt_validation_summary.tsv"].producer_function == "test_workflow_surface"
     assert entries["ptm_evidence_cards.tsv"].folder is WorkflowArtifactFolder.CARDS
+    assert entries[WORKFLOW_ARTIFACT_INVENTORY_NAME].folder is WorkflowArtifactFolder.REPORTS
     payload = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
     assert payload["layout_name"] == "workflow_artifact_layout"
     assert payload["producer_function"] == "test_workflow_surface"
@@ -124,6 +133,101 @@ def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
     assert (
         tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
     ).exists()
+
+
+def test_synchronize_workflow_artifact_layout_emits_inventory_with_matching_tsv_row_counts(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\nrun_count\t2\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "advanced_targeted_workflow_manifest.json").write_text(
+        json.dumps({"status": "ok"}) + "\n",
+        encoding="utf-8",
+    )
+
+    manifest = synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+
+    inventory_rows = tuple(
+        csv.DictReader(
+            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_NAME).read_text(
+                encoding="utf-8"
+            ).splitlines(),
+            delimiter="\t",
+        )
+    )
+    inventory_by_legacy_path = {
+        row["legacy_relative_path"]: row for row in inventory_rows
+    }
+
+    assert WORKFLOW_ARTIFACT_INVENTORY_NAME not in inventory_by_legacy_path
+    assert WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME not in inventory_by_legacy_path
+    assert inventory_by_legacy_path["biological_report_summary.tsv"]["row_count"] == "2"
+    assert inventory_by_legacy_path["advanced_targeted_workflow_manifest.json"]["row_count"] == "1"
+    assert len(inventory_rows) == len(manifest.artifacts) - 2
+
+
+def test_synchronize_workflow_artifact_layout_emits_inventory_summary_with_visible_counts(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\nrun_count\t2\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "accepted_proteins.tsv").write_text(
+        "protein_group_id\tdecision\nPG001\taccepted\nPG002\taccepted\n",
+        encoding="utf-8",
+    )
+
+    manifest = synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+
+    summary_rows = tuple(
+        csv.DictReader(
+            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).read_text(
+                encoding="utf-8"
+            ).splitlines(),
+            delimiter="\t",
+        )
+    )
+    summary_by_field = {row["field"]: row["value"] for row in summary_rows}
+
+    assert int(summary_by_field["artifact_count"]) == len(manifest.artifacts) - 2
+    assert int(summary_by_field["tsv_artifact_count"]) == 2
+    assert int(summary_by_field["total_tsv_row_count"]) == 4
+    assert "governed TSV row counts" in summary_by_field["note"]
+
+
+def test_validate_workflow_artifact_inventory_rejects_tsv_row_count_drift(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+    inventory_path = tmp_path / WORKFLOW_ARTIFACT_INVENTORY_NAME
+    drifted_lines = inventory_path.read_text(encoding="utf-8").splitlines()
+    drifted_lines[1] = drifted_lines[1].rsplit("\t", 1)[0] + "\t9"
+    inventory_path.write_text("\n".join(drifted_lines) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        InvalidWorkflowError,
+        match="workflow artifact inventory row count mismatch",
+    ):
+        validate_workflow_artifact_inventory(
+            output_dir=tmp_path,
+            manifest=load_workflow_artifact_manifest(tmp_path),
+        )
 
 
 def test_index_workflow_artifact_manifest_resolves_entries_by_id_and_legacy_path(
