@@ -134,18 +134,24 @@ def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> No
     from bijux_proteomics_runtime.workflows import (
         AdvancedDiannDryRunReport,
         AdvancedDiannDryRunStatus,
+        AdvancedDiannRuntimeInputChecksumEntry,
+        AdvancedDiannRuntimeRunIdentity,
         AdvancedDiannRuntimeRunReport,
         AdvancedDiannRuntimeStage,
         AdvancedDiannRuntimeStatus,
+        build_advanced_diann_runtime_run_identity,
         dry_run_resumable_advanced_diann_workflow,
         run_resumable_advanced_diann_workflow,
     )
 
     assert AdvancedDiannDryRunReport is not None
     assert AdvancedDiannDryRunStatus.READY.value == "ready"
+    assert AdvancedDiannRuntimeInputChecksumEntry is not None
+    assert AdvancedDiannRuntimeRunIdentity is not None
     assert AdvancedDiannRuntimeRunReport is not None
     assert AdvancedDiannRuntimeStage.MATRICES.value == "advanced-diann-matrices"
     assert AdvancedDiannRuntimeStatus.COMPLETED.value == "completed"
+    assert callable(build_advanced_diann_runtime_run_identity)
     assert callable(dry_run_resumable_advanced_diann_workflow)
     assert callable(run_resumable_advanced_diann_workflow)
 
