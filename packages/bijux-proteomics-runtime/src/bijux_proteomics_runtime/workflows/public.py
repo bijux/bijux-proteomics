@@ -6,6 +6,17 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.advanced_diann_comparison": [
+        "AdvancedDiannClaimChangeEntry",
+        "AdvancedDiannClaimComparisonState",
+        "AdvancedDiannParameterChangeEntry",
+        "AdvancedDiannProteinChangeEntry",
+        "AdvancedDiannProteinComparisonState",
+        "AdvancedDiannRejectedRowChangeEntry",
+        "AdvancedDiannRejectedRowComparisonState",
+        "AdvancedDiannRuntimeComparisonReport",
+        "compare_advanced_diann_runtime_outputs",
+    ],
     "bijux_proteomics_runtime.workflows.advanced_diann": [
         "AdvancedDiannRuntimeRunReport",
         "AdvancedDiannRuntimeStage",
