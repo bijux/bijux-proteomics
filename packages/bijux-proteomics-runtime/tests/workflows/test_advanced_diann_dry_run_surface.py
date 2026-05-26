@@ -79,3 +79,25 @@ def test_advanced_diann_dry_run_detects_missing_required_files(tmp_path: Path) -
         "design_tsv_path",
         "proteins_fasta_path",
     }
+
+
+def test_advanced_diann_dry_run_detects_invalid_contrast(tmp_path: Path) -> None:
+    report = dry_run_resumable_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+            output_dir=tmp_path / "advanced_diann_invalid_contrast",
+            condition_a="control",
+            condition_b="missing",
+        )
+    )
+
+    assert report.status is AdvancedDiannDryRunStatus.INVALID
+    assert {issue.code for issue in report.issues} == {
+        "invalid_contrast_unknown_condition"
+    }
+    assert report.supported_contrasts == ()
+    assert report.invalid_contrasts == (
+        "control/missing: contrast conditions must exist in the experiment design",
+    )
