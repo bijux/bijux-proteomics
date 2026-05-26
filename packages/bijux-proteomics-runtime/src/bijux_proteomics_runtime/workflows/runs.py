@@ -17,7 +17,7 @@ from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import (
+from bijux_proteomics.io.formats.proteomics_formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
 )
@@ -38,13 +38,13 @@ from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
     MissingChannelPolicy,
-    Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
 )
+from bijux_proteomics.quantification.contracts.input_models import Ms1FeatureRecord
 from bijux_proteomics.quantification.review import (
     build_multiplex_channel_balance_diagnostics_report,
     build_quant_review_bundle,

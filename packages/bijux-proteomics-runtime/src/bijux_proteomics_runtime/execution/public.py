@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from bijux_proteomics_runtime.execution.graph_validation import (
+        validate_execution_graph,
+        validate_state_snapshot,
+    )
 
 _EXECUTION_EXPORT_GROUPS = {
     "bijux_proteomics_runtime.execution.graph_validation": [
@@ -18,7 +24,10 @@ _EXECUTION_EXPORTS = {
     for name in names
 }
 
-__all__ = sorted(_EXECUTION_EXPORTS)
+__all__ = (
+    "validate_execution_graph",
+    "validate_state_snapshot",
+)
 
 
 def __getattr__(name: str) -> Any:
