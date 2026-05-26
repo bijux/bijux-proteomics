@@ -83,6 +83,10 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
         "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path"
         in PUBLIC_ENTRYPOINTS
     )
+    assert (
+        "bijux_proteomics_runtime.workflows.package_smoke.run_runtime_package_smoke_workflow"
+        in PUBLIC_ENTRYPOINTS
+    )
 
 
 def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
@@ -154,6 +158,20 @@ def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> No
     assert callable(build_advanced_diann_runtime_run_identity)
     assert callable(dry_run_resumable_advanced_diann_workflow)
     assert callable(run_resumable_advanced_diann_workflow)
+
+
+def test_runtime_surface_area_exposes_runtime_package_smoke_workflow() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        RuntimePackageSmokeArtifacts,
+        RuntimePackageSmokeConfig,
+        RuntimePackageSmokeWorkflowReport,
+        run_runtime_package_smoke_workflow,
+    )
+
+    assert RuntimePackageSmokeArtifacts is not None
+    assert RuntimePackageSmokeConfig is not None
+    assert RuntimePackageSmokeWorkflowReport is not None
+    assert callable(run_runtime_package_smoke_workflow)
 
 
 def test_runtime_surface_area_exposes_advanced_diann_comparison() -> None:
