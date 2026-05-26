@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 _PIPELINE_MODULES = (
+    "advanced_workflow_family",
     "advanced_diann",
     "advanced_fragpipe",
     "advanced_maxquant",
@@ -130,6 +131,7 @@ def test_workflow_pipelines_match_legacy_wrapper_exports() -> None:
     assert pipelines.__name__ == "bijux_proteomics.workflow.pipelines"
 
     wrapper_to_attr = {
+        "advanced_workflow_family": "build_advanced_workflow_family_contract",
         "dda_biological_workflow": "build_dda_biological_workflow_bundle",
         "advanced_tmt": "run_advanced_tmt_workflow",
         "advanced_targeted": "run_targeted_validation_workflow",

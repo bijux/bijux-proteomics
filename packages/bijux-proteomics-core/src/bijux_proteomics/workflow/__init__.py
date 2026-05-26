@@ -13,6 +13,7 @@ _WORKFLOW_EXPORT_MODULES = (
     "bijux_proteomics.workflow.reports.biological_result_graph",
     "bijux_proteomics.workflow.exports.artifact_layout",
     "bijux_proteomics.workflow.exports.output_validation",
+    "bijux_proteomics.workflow.advanced_workflow_family",
     "bijux_proteomics.workflow.blueprint",
     "bijux_proteomics.workflow.advanced_fragpipe",
     "bijux_proteomics.workflow.advanced_maxquant",
