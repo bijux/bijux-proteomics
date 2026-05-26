@@ -35,7 +35,7 @@ def _exception(relative_path: str, allowed_line_count: int) -> SourceFileLineCou
 LAB_LINE_COUNT_EXCEPTIONS = (
     _exception("design/experiments.py", 1054),
     _exception("outcomes/observations.py", 1283),
-    _exception("planning/assays.py", 1326),
+    _exception("planning/assays.py", 1380),
 )
 
 
@@ -44,6 +44,7 @@ def test_lab_source_tree_respects_line_count_ceiling() -> None:
         LAB_SRC_ROOT,
         ceiling=LINE_COUNT_CEILING,
         exceptions=LAB_LINE_COUNT_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()

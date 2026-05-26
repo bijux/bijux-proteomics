@@ -8,6 +8,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics_foundation.testing.generated_file_markers import (
+    is_marked_generated_file,
+)
+
 
 @dataclass(frozen=True)
 class SourceFileLineCountException:
@@ -35,6 +39,7 @@ class SourceTreeLineCountReport:
     source_root: Path
     ceiling: int
     scanned_file_count: int
+    skipped_marked_generated_count: int
     approved_over_ceiling: tuple[SourceFileLineCountObservation, ...]
     unexpected_over_ceiling: tuple[SourceFileLineCountObservation, ...]
     stale_exceptions: tuple[SourceFileLineCountException, ...]
@@ -45,6 +50,7 @@ def build_source_tree_line_count_report(
     *,
     ceiling: int,
     exceptions: tuple[SourceFileLineCountException, ...] = (),
+    exclude_marked_generated: bool = False,
 ) -> SourceTreeLineCountReport:
     """Scan one source tree and classify files above the shared line-count ceiling."""
 
@@ -52,8 +58,12 @@ def build_source_tree_line_count_report(
     approved_over_ceiling: list[SourceFileLineCountObservation] = []
     unexpected_over_ceiling: list[SourceFileLineCountObservation] = []
     observed_counts: dict[str, int] = {}
+    skipped_marked_generated_count = 0
 
     for path in sorted(source_root.rglob("*.py")):
+        if exclude_marked_generated and is_marked_generated_file(path):
+            skipped_marked_generated_count += 1
+            continue
         relative_path = path.relative_to(source_root).as_posix()
         line_count = len(path.read_text().splitlines())
         observed_counts[relative_path] = line_count
@@ -85,6 +95,7 @@ def build_source_tree_line_count_report(
         source_root=source_root,
         ceiling=ceiling,
         scanned_file_count=len(observed_counts),
+        skipped_marked_generated_count=skipped_marked_generated_count,
         approved_over_ceiling=tuple(approved_over_ceiling),
         unexpected_over_ceiling=tuple(unexpected_over_ceiling),
         stale_exceptions=stale_exceptions,

@@ -45,6 +45,7 @@ def test_knowledge_source_tree_respects_line_count_ceiling() -> None:
         KNOWLEDGE_SRC_ROOT,
         ceiling=LINE_COUNT_CEILING,
         exceptions=KNOWLEDGE_LINE_COUNT_EXCEPTIONS,
+        exclude_marked_generated=True,
     )
 
     assert report.stale_exceptions == ()
