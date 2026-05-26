@@ -49,6 +49,11 @@ def test_artifact_layout_owner_self_validates_written_workflow_outputs() -> None
     assert _calls_function(
         tree, "validate_workflow_artifact_completeness"
     ), "workflow artifact layout owner must validate workflow completeness from owned manifests"
+    assert _calls_function(
+        tree, "validate_workflow_artifact_inventory"
+    ), "workflow artifact layout owner must validate emitted artifact inventories"
+    assert "artifact_inventory.tsv" in source_text
+    assert "artifact_inventory_summary.tsv" in source_text
     assert "artifact_schema_version:" in source_text
     assert "output_table_schema_sidecar_relative_path:" in source_text
     assert "WorkflowArtifactExpectation" in source_text
