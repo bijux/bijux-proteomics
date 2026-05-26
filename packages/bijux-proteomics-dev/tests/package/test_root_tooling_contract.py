@@ -94,6 +94,7 @@ def test_root_make_declares_documented_repository_extensions() -> None:
     assert "quality-generated-file-markers:" in root_make
     assert "quality-internal-orphan-modules:" in root_make
     assert "quality-canonical-package-tree:" in root_make
+    assert "quality-architecture-regression:" in root_make
     assert "$(MAKE) quality-public-api-types" in root_make
     assert "$(MAKE) quality-circular-imports" in root_make
     assert "$(MAKE) quality-core-dependency-minimization" in root_make
@@ -101,3 +102,4 @@ def test_root_make_declares_documented_repository_extensions() -> None:
     assert "$(MAKE) quality-generated-file-markers" in root_make
     assert "$(MAKE) quality-internal-orphan-modules" in root_make
     assert "$(MAKE) quality-canonical-package-tree" in root_make
+    assert "$(MAKE) quality-architecture-regression" in root_make
