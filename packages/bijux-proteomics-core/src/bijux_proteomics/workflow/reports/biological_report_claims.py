@@ -476,9 +476,10 @@ def _build_biological_regulator_hypothesis_candidates(
         card.representative_protein_ref: card for card in protein_mechanism_cards.cards
     }
     entries_by_claim_id = {
-        (
-            "regulator-claim:"
-            f"{entry.regulator}:{entry.evidence_type.value}:{entry.signal_surface.value}"
+        build_regulator_claim_id(
+            entry.regulator,
+            entry.evidence_type.value,
+            entry.signal_surface.value,
         ): entry
         for entry in regulator_inference_report.entries
     }
