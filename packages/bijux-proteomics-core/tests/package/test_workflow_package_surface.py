@@ -1434,13 +1434,21 @@ def test_workflow_package_exports_integrated_scientific_report_surface(
 
     assert hasattr(workflow, "build_integrated_scientific_report")
     assert hasattr(workflow, "IntegratedScientificReportSectionKey")
+    assert hasattr(workflow, "IntegratedScientificResultExampleKind")
     assert report.summary.section_count == len(workflow.IntegratedScientificReportSectionKey)
     assert (
         report.summary.scientific_claim_count
         == report.summary.linked_scientific_claim_count
     )
+    assert report.summary.result_example_count == 5
+    assert {
+        example.example_kind for example in report.result_examples
+    } == set(workflow.IntegratedScientificResultExampleKind)
     assert "linked_scientific_claim_count" in (
         workflow.render_integrated_scientific_report_summary_tsv(report)
+    )
+    assert "validation_needed" in workflow.render_integrated_scientific_report_examples_tsv(
+        report
     )
 
 
