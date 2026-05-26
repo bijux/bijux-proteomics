@@ -4484,7 +4484,7 @@ def test_protein_coverage_plot_command_emits_positions_svg_and_html() -> None:
         )
         assert modified["start_residue"] == 12
         assert modified["end_residue"] == 16
-        assert modified["confidence_label"] == "medium"
+        assert modified["confidence_label"] == "moderate"
         assert modified["peptide_q_value"] == 0.02
         assert modified["best_intensity"] == 500.0
         assert Path("protein_plot.positions.tsv").exists()
@@ -9469,9 +9469,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert payload["report"]["summary"]["protein_card_count"] == 5
         assert payload["report"]["summary"]["experiment_confidence_score"] > 0.0
         assert payload["report"]["summary"]["experiment_confidence_tier"] in {
-            "high_confidence",
-            "moderate_confidence",
-            "low_confidence",
+            "high",
+            "moderate",
+            "low",
         }
         assert (
             payload["report"]["claim_validation_report"]["summary"][

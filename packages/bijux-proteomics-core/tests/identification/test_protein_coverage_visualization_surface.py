@@ -63,7 +63,7 @@ def test_protein_coverage_plot_report_keeps_positions_modifications_and_intensit
     assert modified.start_residue == 13
     assert modified.end_residue == 17
     assert modified.modified_peptide == "ACDM[Oxidation]K"
-    assert modified.confidence_label.value == "medium"
+    assert modified.confidence_label.value == "moderate"
     assert modified.best_intensity == 500.0
     assert modified.shared is True
 

@@ -1175,7 +1175,7 @@ def test_grouped_confidence_report_downgrades_single_run_only_proteins() -> None
 
     assert entry.evidence_tier == "moderate"
     assert entry.downgrade_reasons == ("single_run_only",)
-    assert entry.confidence_label.value == "medium"
+    assert entry.confidence_label.value == "moderate"
     assert "observed in one run only" in entry.explanation
 
 

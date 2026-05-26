@@ -63,7 +63,7 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     assert external.unique_peptides == ("UNIQUEB",)
     assert external.outside_group_proteins == ("P10001", "P20002")
     assert external.evidence_tier.value == "moderate"
-    assert external.confidence_label.value == "medium"
+    assert external.confidence_label.value == "moderate"
 
     assert indistinguishable.ambiguity_reason.value == "indistinguishable_members"
     assert indistinguishable.protein_refs == ("P40004", "P50005")

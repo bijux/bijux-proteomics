@@ -173,7 +173,7 @@ def build_protein_ambiguity_review_report(
             medium_confidence_group_count=sum(
                 1
                 for entry in entries
-                if entry.confidence_label is ConfidenceLabel.MEDIUM
+                if entry.confidence_label is ConfidenceLabel.MODERATE
             ),
             low_confidence_group_count=sum(
                 1 for entry in entries if entry.confidence_label is ConfidenceLabel.LOW
@@ -284,7 +284,7 @@ def _map_protein_evidence_tier_to_confidence_label(
     if evidence_tier is ProteinEvidenceTier.HIGH_CONFIDENCE:
         return ConfidenceLabel.HIGH
     if evidence_tier is ProteinEvidenceTier.MODERATE:
-        return ConfidenceLabel.MEDIUM
+        return ConfidenceLabel.MODERATE
     if evidence_tier is ProteinEvidenceTier.DECOY:
         return ConfidenceLabel.DECOY
     return ConfidenceLabel.LOW

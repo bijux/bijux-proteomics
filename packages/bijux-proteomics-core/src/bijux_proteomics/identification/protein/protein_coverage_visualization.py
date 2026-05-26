@@ -424,7 +424,7 @@ def _label_from_q_value(
     if q_value <= high_q_value:
         return ConfidenceLabel.HIGH
     if q_value <= medium_q_value:
-        return ConfidenceLabel.MEDIUM
+        return ConfidenceLabel.MODERATE
     if threshold is not None and q_value > threshold:
         return ConfidenceLabel.REJECTED
     return ConfidenceLabel.LOW
@@ -433,7 +433,7 @@ def _label_from_q_value(
 def _confidence_fill(label: ConfidenceLabel) -> str:
     if label is ConfidenceLabel.HIGH:
         return "#16a34a"
-    if label is ConfidenceLabel.MEDIUM:
+    if label is ConfidenceLabel.MODERATE:
         return "#f59e0b"
     if label is ConfidenceLabel.LOW:
         return "#ef4444"

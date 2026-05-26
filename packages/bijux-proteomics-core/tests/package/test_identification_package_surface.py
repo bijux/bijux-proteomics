@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics import identification
+from bijux_proteomics import domain, identification
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 
@@ -40,6 +40,13 @@ def test_identification_package_exports_psm_target_decoy_fdr_owner_surface() -> 
     assert report.summary.total_psm_count == len(cases[0].expected_entries)
     assert report.summary.q_values_monotonic is True
     assert "reproducibility_hash" in rendered
+
+
+def test_identification_package_exports_shared_confidence_tiers() -> None:
+    assert hasattr(identification, "ConfidenceLabel")
+    assert domain.ConfidenceTier.MODERATE.value == "moderate"
+    assert identification.ConfidenceLabel.MODERATE.value == "moderate"
+    assert identification.ConfidenceLabel.MEDIUM.value == "moderate"
 
 
 def test_identification_package_exports_psm_feature_extraction_surface() -> None:

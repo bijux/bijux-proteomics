@@ -26,6 +26,7 @@ from bijux_proteomics.domain.reason_codes import (
     ReasonCodeCategory,
     require_registered_reason_codes,
 )
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
     ModifiedPeptide as CanonicalModifiedPeptide,
@@ -66,9 +67,10 @@ from bijux_proteomics.identification.contracts.psm import PsmRecord, TargetDecoy
 class ConfidenceLabel(StrEnum):
     """Stable confidence labels over q-valued evidence."""
 
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
+    HIGH = ConfidenceTier.HIGH.value
+    MODERATE = ConfidenceTier.MODERATE.value
+    MEDIUM = ConfidenceTier.MODERATE.value
+    LOW = ConfidenceTier.LOW.value
     REJECTED = "rejected"
     DECOY = "decoy"
 
@@ -193,11 +195,11 @@ def assign_confidence_labels(
             label = ConfidenceLabel.HIGH
             explanation = f"q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
         elif entry.q_value <= medium_threshold:
-            label = ConfidenceLabel.MEDIUM
-            explanation = f"q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
+            label = ConfidenceLabel.MODERATE
+            explanation = f"q-value {entry.q_value:.4f} is at or below the moderate-confidence threshold"
         elif entry.accepted:
             label = ConfidenceLabel.LOW
-            explanation = f"q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
+            explanation = f"q-value {entry.q_value:.4f} passes FDR but misses the moderate-confidence threshold"
         else:
             label = ConfidenceLabel.REJECTED
             explanation = f"q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
@@ -264,7 +266,7 @@ def _map_protein_evidence_tier_to_confidence_label(
     if evidence_tier == "high_confidence":
         return ConfidenceLabel.HIGH
     if evidence_tier == "moderate":
-        return ConfidenceLabel.MEDIUM
+        return ConfidenceLabel.MODERATE
     if evidence_tier == "decoy":
         return ConfidenceLabel.DECOY
     return ConfidenceLabel.LOW
@@ -286,11 +288,11 @@ def _assign_level_specific_confidence(
             label = ConfidenceLabel.HIGH
             explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
         elif entry.q_value <= medium_threshold:
-            label = ConfidenceLabel.MEDIUM
-            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
+            label = ConfidenceLabel.MODERATE
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the moderate-confidence threshold"
         elif entry.accepted:
             label = ConfidenceLabel.LOW
-            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
+            explanation = f"{evidence_level.value} passes FDR but misses the moderate-confidence threshold at q-value {entry.q_value:.4f}"
         else:
             label = ConfidenceLabel.REJECTED
             explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
