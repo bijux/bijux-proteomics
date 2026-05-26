@@ -144,7 +144,12 @@ def test_run_proteomics_workflow_exports_label_free_bundle_assets(
         if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "field"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{result.export_manifest.artifacts.summary_tsv}.schema.json"
+    )
 
 
 def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> None:
@@ -172,7 +177,12 @@ def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> No
         if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "field"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{result.export_manifest.artifacts.summary_tsv}.schema.json"
+    )
 
 
 def test_run_proteomics_workflow_exports_targeted_matrix_assets(
@@ -279,4 +289,9 @@ def test_run_proteomics_workflow_exports_targeted_validation_assets(
         if entry.legacy_relative_path == result.export_manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "field"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{result.export_manifest.artifacts.summary_tsv}.schema.json"
+    )
