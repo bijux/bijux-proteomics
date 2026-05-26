@@ -16,6 +16,13 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.domain import SourceRowLineage
+from bijux_proteomics.domain.card_schema import (
+    StandardCardEntry,
+    StandardCardKind,
+    StandardCardSubjectKind,
+    render_standard_card_row,
+)
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.domain.semantic_ids import (
     build_ptm_card_id,
     build_ptm_claim_id,
@@ -713,6 +720,16 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
     writer.writerow(
         (
             "card_id",
+            "card_kind",
+            "subject_kind",
+            "subject_id",
+            "subject_label",
+            "claim",
+            "evidence_for",
+            "evidence_against",
+            "confidence",
+            "warning_codes",
+            "source_ids",
             "site_key",
             "protein_ref",
             "residue",
@@ -743,16 +760,16 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             "crosstalk_relationships",
             "crosstalk_evidence_sources",
             "crosstalk_shared_pathways",
-            "warning_codes",
             "claim_ids",
             "source_row_refs",
             "derived_no_source_reason",
         )
     )
     for entry in report.cards:
+        standard_card = _build_standard_card_entry(entry)
         writer.writerow(
             (
-                entry.card_id,
+                *render_standard_card_row(standard_card),
                 entry.site_key,
                 entry.protein_ref,
                 entry.residue,
@@ -836,7 +853,6 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                     for partner in entry.crosstalk_partners
                     if partner.shared_pathways
                 ),
-                ";".join(warning.code.value for warning in entry.warnings),
                 ";".join(entry.claim_ids),
                 ";".join(entry.source_row_refs),
                 ""
@@ -845,6 +861,45 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
             )
         )
     return buffer.getvalue()
+
+
+def _build_standard_card_entry(entry: PtmEvidenceCard) -> StandardCardEntry:
+    return StandardCardEntry(
+        card_id=entry.card_id,
+        card_kind=StandardCardKind.PTM,
+        subject_kind=StandardCardSubjectKind.PTM_SITE,
+        subject_id=entry.site_key,
+        subject_label=(
+            f"{entry.protein_ref} {entry.residue}{entry.position} {entry.modification_name}"
+        ),
+        claim=(
+            f"PTM site {entry.site_key} has log2 fold change "
+            f"{entry.differential_result.log2_fold_change:g} between "
+            f"{entry.differential_result.condition_a} and {entry.differential_result.condition_b}."
+        ),
+        evidence_for=(
+            f"localization tier is {entry.localization.localization_tier.value}; "
+            f"{len(entry.peptide_evidence)} peptide-spectrum matches support this site."
+        ),
+        evidence_against=(
+            "no explicit weakening evidence was preserved on this PTM card."
+            if not entry.warnings
+            else "warnings remained attached: "
+            + ", ".join(warning.code.value for warning in entry.warnings)
+            + "."
+        ),
+        confidence=_standard_card_confidence(entry.localization.localization_tier),
+        warning_codes=tuple(warning.code.value for warning in entry.warnings),
+        source_ids=tuple(dict.fromkeys((*entry.source_row_refs, *entry.claim_ids))),
+    )
+
+
+def _standard_card_confidence(localization_tier: PtmLocalizationConfidenceTier):
+    if localization_tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
+        return ConfidenceTier.HIGH
+    if localization_tier is PtmLocalizationConfidenceTier.SUPPORTED:
+        return ConfidenceTier.MODERATE
+    return ConfidenceTier.LOW
 
 
 def render_ptm_evidence_claim_tsv(report: PtmEvidenceCardReport) -> str:
