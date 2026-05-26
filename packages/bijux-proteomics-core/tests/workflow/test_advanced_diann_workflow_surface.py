@@ -5,9 +5,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from bijux_proteomics.domain.errors import ScientificEvidenceError
 from bijux_proteomics.workflow import (
     AdvancedDiannWorkflowConfig,
+    load_workflow_artifact_manifest,
     run_advanced_diann_workflow,
+    validate_workflow_artifact_completeness,
     validate_workflow_artifact_manifest,
 )
 
@@ -145,3 +150,43 @@ def test_run_advanced_diann_workflow_exports_fragment_coelution_when_fragment_ev
     assert (
         output_dir / report.manifest.artifacts.fragment_coelution_fragments_tsv
     ).exists()
+
+
+def test_advanced_diann_workflow_completeness_requires_declared_belief_audit_artifact(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "advanced_diann_completeness_surface"
+    report = run_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+            output_dir=output_dir,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    missing_name = report.manifest.artifacts.belief_audit_tsv
+    (output_dir / missing_name).unlink()
+    (output_dir / "qc" / missing_name).unlink()
+    manifest = load_workflow_artifact_manifest(output_dir)
+    drifted_manifest = manifest.model_copy(
+        update={
+            "artifacts": tuple(
+                artifact
+                for artifact in manifest.artifacts
+                if artifact.legacy_relative_path != missing_name
+            )
+        }
+    )
+    (output_dir / "manifest.json").write_text(
+        drifted_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ScientificEvidenceError,
+        match="missing advanced_diann_belief_audit.tsv declared at manifest.artifacts.belief_audit_tsv",
+    ):
+        validate_workflow_artifact_completeness(output_dir=output_dir)
