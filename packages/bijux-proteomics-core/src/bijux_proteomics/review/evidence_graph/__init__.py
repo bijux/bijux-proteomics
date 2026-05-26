@@ -13,6 +13,7 @@ _EVIDENCE_GRAPH_MODULES = (
     "bijux_proteomics.review.evidence_graph.evidence_graph_contradictions",
     "bijux_proteomics.review.evidence_graph.evidence_graph_downgrades",
     "bijux_proteomics.review.evidence_graph.evidence_graph_export",
+    "bijux_proteomics.review.evidence_graph.lazy_evidence_graph",
     "bijux_proteomics.review.evidence_graph.evidence_graph_queries",
     "bijux_proteomics.review.evidence_graph.evidence_graph_run_diff",
     "bijux_proteomics.review.evidence_graph.evidence_chain_reconstruction",
