@@ -23,10 +23,17 @@ _WORKFLOW_EXPORT_GROUPS = {
         "write_workflow_failure_report",
     ],
     "bijux_proteomics_runtime.workflows.advanced_diann": [
+        "AdvancedDiannDryRunInputCheck",
+        "AdvancedDiannDryRunIssue",
+        "AdvancedDiannDryRunOutputPlan",
+        "AdvancedDiannDryRunReport",
+        "AdvancedDiannDryRunStagePlan",
+        "AdvancedDiannDryRunStatus",
         "AdvancedDiannRuntimeRunReport",
         "AdvancedDiannRuntimeStage",
         "AdvancedDiannRuntimeStageDecision",
         "AdvancedDiannRuntimeStatus",
+        "dry_run_resumable_advanced_diann_workflow",
         "run_resumable_advanced_diann_workflow",
     ],
     "bijux_proteomics_runtime.artifacts": [

@@ -1057,9 +1057,16 @@ def _stage_loader(stage: AdvancedDiannRuntimeStage):
 
 
 __all__ = [
+    "AdvancedDiannDryRunInputCheck",
+    "AdvancedDiannDryRunIssue",
+    "AdvancedDiannDryRunOutputPlan",
+    "AdvancedDiannDryRunReport",
+    "AdvancedDiannDryRunStagePlan",
+    "AdvancedDiannDryRunStatus",
     "AdvancedDiannRuntimeRunReport",
     "AdvancedDiannRuntimeStage",
     "AdvancedDiannRuntimeStageDecision",
     "AdvancedDiannRuntimeStatus",
+    "dry_run_resumable_advanced_diann_workflow",
     "run_resumable_advanced_diann_workflow",
 ]
