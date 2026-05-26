@@ -31,6 +31,7 @@ def test_runtime_smoke_workflows_cover_review_and_handoff_paths() -> None:
         "ptm",
         "review",
         "lab_handoff",
+        "package_smoke",
     )
     assert workflows["sequence_to_digest"].steps[0].operation_name == (
         "run_reviewable_sequence_path"
@@ -38,6 +39,9 @@ def test_runtime_smoke_workflows_cover_review_and_handoff_paths() -> None:
     assert workflows["dda_import"].steps[0].import_only is True
     assert workflows["lab_handoff"].steps[0].handoff_surface == (
         "lab_operational_follow_up"
+    )
+    assert workflows["package_smoke"].steps[0].operation_name == (
+        "run_runtime_package_smoke_workflow"
     )
 
 
