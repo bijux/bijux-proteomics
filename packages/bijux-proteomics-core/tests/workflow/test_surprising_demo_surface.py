@@ -78,7 +78,10 @@ def test_run_surprising_demo_preserves_required_findings_and_outputs(
     assert (output_dir / report.artifacts.matrices_tsv).exists()
     assert (output_dir / report.artifacts.assay_panel_tsv).exists()
     assert (output_dir / report.artifacts.claims_tsv).exists()
+    assert (output_dir / report.artifacts.refusals_tsv).exists()
+    assert (output_dir / report.artifacts.falsifiers_tsv).exists()
     assert (output_dir / report.artifacts.contradictions_tsv).exists()
     assert (output_dir / report.artifacts.belief_audit_tsv).exists()
     assert report.claim_report
+    assert report.intelligence_report_contract.claim_entries
     assert report.belief_audit_report.entries
