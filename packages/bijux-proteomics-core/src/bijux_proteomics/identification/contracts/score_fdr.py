@@ -821,7 +821,26 @@ def build_fdr_audit_trail(
     score_orientation: str = "higher_better",
     tie_handling: str = "score_group",
 ) -> FdrAuditTrail:
-    """Build a stable audit trail for one target-decoy FDR calculation."""
+    """Build a stable audit trail for one target-decoy FDR calculation.
+
+    Inputs:
+    ``records`` must contain governed PSM records, ``threshold`` optionally
+    applies an acceptance cutoff, and ``score_orientation`` plus ``tie_handling``
+    select the owned target-decoy ranking policy.
+
+    Outputs:
+    Returns one ``FdrAuditTrail`` with ranked audit entries, the resolved policy,
+    and a reproducibility hash for the exact calculation inputs.
+
+    Failure Modes:
+    Propagates score-orientation normalization and target-decoy calculation
+    errors when the records cannot satisfy the owned FDR policy assumptions.
+
+    Scientific Caveats:
+    The audit trail explains the package's target-decoy calculation only; it
+    does not prove that the decoy strategy is appropriate for every search
+    engine, sample type, or experimental design.
+    """
     policy = FdrPolicy(
         score_orientation=score_orientation,
         tie_handling=tie_handling,

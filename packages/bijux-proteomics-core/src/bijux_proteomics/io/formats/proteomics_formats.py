@@ -627,7 +627,25 @@ def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
 
 
 def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
-    """Parse one experimental-design TSV or CSV table."""
+    """Parse one experimental-design TSV or CSV table.
+
+    Inputs:
+    ``path`` must point to a governed experimental-design delimited file with
+    the owned design schema columns.
+
+    Outputs:
+    Returns one ``ExperimentalDesignReport`` with accepted design entries and
+    rejected rows annotated with row-level issues.
+
+    Failure Modes:
+    Propagates filesystem read failures and accumulates invalid row conversion
+    problems into rejected-row issues instead of raising one exception per row.
+
+    Scientific Caveats:
+    A parsed design report captures structural and field-level validity only; it
+    does not prove that file references exist, that cohorts are scientifically
+    balanced, or that declared metadata match acquisition reality.
+    """
     validation_report = validate_scientific_table(
         path,
         schema=build_experimental_design_schema(),
@@ -912,7 +930,28 @@ def build_normalized_run_bundle(
     identifications_path: Path | None = None,
     design_path: Path | None = None,
 ) -> NormalizedRunBundleManifest:
-    """Build one normalized run bundle directory with spectra, IDs, and metadata."""
+    """Build one normalized run bundle directory with spectra, IDs, and metadata.
+
+    Inputs:
+    ``bundle_dir`` is the output directory, ``spectra_path`` must reference mzML
+    or MGF input, and ``identifications_path`` plus ``design_path`` optionally
+    add governed identification and design metadata inputs.
+
+    Outputs:
+    Returns one ``NormalizedRunBundleManifest`` after writing normalized spectra,
+    validation artifacts, optional identification exports, and metadata sidecars
+    into the bundle directory.
+
+    Failure Modes:
+    Raises ``ValueError`` for unsupported spectra or identification formats and
+    propagates filesystem, parsing, and export failures while building bundle
+    artifacts.
+
+    Scientific Caveats:
+    The bundle normalizes owned file formats and validation summaries only; it
+    does not rescue low-quality spectra, repair misassigned PSMs, or certify one
+    run as scientifically trustworthy.
+    """
     bundle_dir.mkdir(parents=True, exist_ok=True)
     spectra_kind = detect_proteomics_format(spectra_path)
     if spectra_kind not in {ProteomicsFormatKind.MGF, ProteomicsFormatKind.MZML}:

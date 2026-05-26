@@ -467,7 +467,26 @@ def parse_fasta_document(
     mode: FastaParseMode = FastaParseMode.STRICT,
     duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
 ) -> FastaParseReport:
-    """Parse FASTA payload into normalized records with explicit rejection details."""
+    """Parse FASTA payload into normalized records with explicit rejection details.
+
+    Inputs:
+    ``payload`` must contain FASTA text, ``mode`` selects sequence validation
+    strictness, and ``duplicate_accession_policy`` controls how repeated
+    normalized accessions are treated.
+
+    Outputs:
+    Returns one ``FastaParseReport`` with accepted normalized records, rejected
+    records, duplicate summaries, and database composition metrics.
+
+    Failure Modes:
+    Propagates low-level FASTA record parsing failures if the payload cannot be
+    tokenized into records before validation.
+
+    Scientific Caveats:
+    Acceptance means the records satisfy the active formatting and residue
+    policy only; it does not prove biological correctness, uniqueness in an
+    external database, or suitability for one downstream search space.
+    """
     raw_records = _parse_raw_fasta_records(payload)
     duplicates = _duplicate_identifiers(record.identifier for record in raw_records)
     duplicate_accessions = _duplicate_accessions(
