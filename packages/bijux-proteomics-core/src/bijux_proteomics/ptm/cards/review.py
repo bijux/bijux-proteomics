@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
@@ -388,7 +389,7 @@ def build_phospho_specific_review_fixture_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
     feature_records: tuple[Ms1FeatureRecord, ...],
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
 ) -> PtmPhosphoReviewFixtureReport:
     """Build a phospho-specific review fixture report for localization and quant context."""
     phospho_entries = tuple(

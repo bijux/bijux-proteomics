@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -591,7 +592,7 @@ def build_ptm_family_credibility_track_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
     feature_records: tuple[Ms1FeatureRecord, ...],
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
 ) -> PtmFamilyCredibilityTrackReport:
     """Build separate credibility tracks for major PTM families."""
 

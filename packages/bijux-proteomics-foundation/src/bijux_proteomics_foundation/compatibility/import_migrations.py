@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from importlib import import_module
 from types import ModuleType
@@ -75,7 +76,7 @@ def compatibility_module_getattr(surface: ImportMigrationSurface, name: str) -> 
 
 
 def compatibility_module_dir(
-    module_globals: dict[str, object],
+    module_globals: Mapping[str, object],
     surface: ImportMigrationSurface,
 ) -> list[str]:
     """Expose canonical names in interactive discovery for compatibility imports."""

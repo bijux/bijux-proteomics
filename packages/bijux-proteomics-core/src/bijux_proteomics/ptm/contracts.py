@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import csv
 from enum import StrEnum
 from importlib import import_module
@@ -839,7 +840,7 @@ def render_ptm_evidence_site_candidate_tsv(report: PtmEvidenceParseReport) -> st
 def map_ptm_evidence_to_protein_sites(
     records: tuple[PtmEvidenceRecord, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     registry: ModificationRegistryDocument | None = None,
 ) -> tuple[PtmProteinSiteMapping, ...]:
     """Map residue-localized modified peptides onto protein coordinates."""
@@ -857,7 +858,7 @@ def map_ptm_evidence_to_protein_sites(
 def build_ptm_protein_site_mapping_report(
     records: tuple[PtmEvidenceRecord, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     registry: ModificationRegistryDocument | None = None,
 ) -> PtmProteinSiteMappingReport:
     """Classify PTM protein-site mappings into exact, ambiguous, and unmapped ledgers."""
@@ -911,7 +912,7 @@ def build_ptm_site_coverage_report(
 def validate_ptm_site_coordinates(
     mappings: tuple[PtmProteinSiteMapping, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
 ) -> PtmCoordinateValidationReport:
     """Validate that peptide-localized PTM coordinates agree with protein mappings."""
     from bijux_proteomics.ptm.protein_site_mapping import (
@@ -993,7 +994,7 @@ def estimate_ptm_site_occupancy(
 def build_ptm_enrichment_input(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     modification_name: str = "Phospho",
 ) -> PtmEnrichmentInput:
     """Build foreground and background site lists for PTM enrichment."""
@@ -1011,7 +1012,7 @@ def build_ptm_enrichment_input(
 def build_ptm_motif_background_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     modification_name: str = "Phospho",
     background_mode: str = "whole_proteome_background",
 ) -> PtmMotifBackgroundReport:
@@ -1031,7 +1032,7 @@ def build_ptm_motif_background_report(
 def build_ptm_motif_windows(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     flank_size: int = 7,
 ) -> tuple[PtmMotifWindow, ...]:
     """Extract +/- N residue motif windows around PTM sites."""

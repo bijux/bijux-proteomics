@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
@@ -263,7 +264,7 @@ def build_ptm_motif_background_report(
 def build_ptm_motif_windows(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     flank_size: int = 7,
 ) -> tuple[PtmMotifWindow, ...]:
     """Extract +/- N residue motif windows around PTM sites."""

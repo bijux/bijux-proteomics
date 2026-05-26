@@ -27,7 +27,7 @@ KNOWN_PROVIDERS = frozenset(
 
 
 def evaluate_runtime_capabilities(
-    config: dict[str, object],
+    config: Mapping[str, object],
     *,
     known_providers: set[str] | frozenset[str],
     provider_capabilities: Mapping[str, ProviderCapabilities],
@@ -86,7 +86,7 @@ def evaluate_runtime_capabilities(
 
 
 def validate_runtime_capabilities(
-    config: dict[str, object], allow_unknown: bool = False
+    config: Mapping[str, object], allow_unknown: bool = False
 ) -> tuple[list[str], list[str]]:
     """Return runtime capability errors and warnings for one config."""
     return evaluate_runtime_capabilities(

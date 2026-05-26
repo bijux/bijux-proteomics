@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import csv
 from io import StringIO
 
@@ -33,7 +34,7 @@ build_ptm_site_group_evidence = _site_groups.build_ptm_site_group_evidence
 def map_ptm_evidence_to_protein_sites(
     records: tuple[PtmEvidenceRecord, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     registry: ModificationRegistryDocument | None = None,
 ) -> tuple[PtmProteinSiteMapping, ...]:
     """Map residue-localized modified peptides onto protein coordinates."""
@@ -377,7 +378,7 @@ def build_ptm_site_coverage_report(
 def validate_ptm_site_coordinates(
     mappings: tuple[PtmProteinSiteMapping, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
 ) -> PtmCoordinateValidationReport:
     """Validate that peptide-localized PTM coordinates agree with protein mappings."""
     issues: list[PtmCoordinateValidationIssue] = []

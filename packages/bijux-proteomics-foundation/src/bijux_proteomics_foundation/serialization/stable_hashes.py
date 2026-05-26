@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 import hashlib
 import json
@@ -75,7 +76,7 @@ def hash_text(
 
 
 def hash_payload(
-    payload: dict[str, Any],
+    payload: Mapping[str, Any],
     *,
     policy: StableHashPolicy | None = None,
 ) -> str:

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime
 import json
 from typing import TYPE_CHECKING, Any
@@ -37,7 +38,7 @@ def flatten_tsv_mapping(value: Any, *, prefix: str = "") -> dict[str, str]:
     return {prefix: str(value)}
 
 
-def to_canonical_json(model: JsonModel | dict[str, Any]) -> str:
+def to_canonical_json(model: JsonModel | Mapping[str, Any]) -> str:
     """Serialize one model or payload with deterministic key ordering.
 
     Inputs:
