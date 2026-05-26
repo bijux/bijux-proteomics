@@ -10,6 +10,7 @@ import pytest
 
 from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
 from bijux_proteomics._output_tables import OutputTableSchema
+from bijux_proteomics.workflow import AdvancedDiannWorkflowConfig, run_advanced_diann_workflow
 from bijux_proteomics.workflow.artifact_layout import (
     WorkflowArtifactFolder,
     WorkflowArtifactKind,
@@ -17,6 +18,10 @@ from bijux_proteomics.workflow.artifact_layout import (
     synchronize_workflow_artifact_layout,
     validate_workflow_artifact_manifest,
 )
+
+
+def _workflow_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
 def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_fixed_folders(
@@ -263,3 +268,85 @@ def test_validate_workflow_artifact_manifest_rejects_duplicate_artifact_ids(
 
     with pytest.raises(InvalidWorkflowError, match="duplicate artifact_id"):
         validate_workflow_artifact_manifest(tmp_path)
+
+
+def test_validate_workflow_artifact_manifest_rejects_missing_advanced_diann_belief_audit_declared_by_workflow_manifest(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "advanced_diann_incomplete_belief_audit"
+    report = run_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+            output_dir=output_dir,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    missing_name = report.manifest.artifacts.belief_audit_tsv
+    (output_dir / missing_name).unlink()
+    (output_dir / "qc" / missing_name).unlink()
+
+    manifest = load_workflow_artifact_manifest(output_dir)
+    drifted_manifest = manifest.model_copy(
+        update={
+            "artifacts": tuple(
+                artifact
+                for artifact in manifest.artifacts
+                if artifact.legacy_relative_path != missing_name
+            )
+        }
+    )
+    (output_dir / "manifest.json").write_text(
+        drifted_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ScientificEvidenceError,
+        match="missing advanced_diann_belief_audit.tsv declared at manifest.artifacts.belief_audit_tsv",
+    ):
+        validate_workflow_artifact_manifest(output_dir)
+
+
+def test_validate_workflow_artifact_manifest_rejects_missing_advanced_diann_rejected_evidence_declared_by_workflow_manifest(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "advanced_diann_incomplete_rejected_evidence"
+    report = run_advanced_diann_workflow(
+        AdvancedDiannWorkflowConfig(
+            result_tsv_path=_workflow_fixture("diann_advanced_report.tsv"),
+            design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
+            proteins_fasta_path=_workflow_fixture("diann_advanced_reference.fasta"),
+            output_dir=output_dir,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+
+    missing_name = report.manifest.artifacts.rejected_evidence_tsv
+    (output_dir / missing_name).unlink()
+    (output_dir / "evidence" / missing_name).unlink()
+
+    manifest = load_workflow_artifact_manifest(output_dir)
+    drifted_manifest = manifest.model_copy(
+        update={
+            "artifacts": tuple(
+                artifact
+                for artifact in manifest.artifacts
+                if artifact.legacy_relative_path != missing_name
+            )
+        }
+    )
+    (output_dir / "manifest.json").write_text(
+        drifted_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ScientificEvidenceError,
+        match="missing diann_import_rejected_evidence.tsv declared at manifest.artifacts.rejected_evidence_tsv",
+    ):
+        validate_workflow_artifact_manifest(output_dir)
