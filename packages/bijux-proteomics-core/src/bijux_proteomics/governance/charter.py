@@ -112,6 +112,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "domain/program_spec.py",
             "domain/programs.py",
             "domain/records.py",
+            "domain/semantic_ids.py",
             "domain/targets.py",
             "domain/validation.py",
         ),
