@@ -69,6 +69,12 @@ class LazyProteomicsEvidenceGraph:
         edge_records_by_key: dict[tuple[str, str, str, str], _IndexedEdgeRecord],
         incoming_edge_keys_by_node_id: dict[str, tuple[tuple[str, str, str, str], ...]],
         outgoing_edge_keys_by_node_id: dict[str, tuple[tuple[str, str, str, str], ...]],
+        incoming_edge_keys_by_node_id_and_relation: dict[
+            tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]
+        ],
+        outgoing_edge_keys_by_node_id_and_relation: dict[
+            tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]
+        ],
     ) -> None:
         self.nodes_path = nodes_path
         self.edges_path = edges_path
@@ -78,6 +84,12 @@ class LazyProteomicsEvidenceGraph:
         self._edge_records_by_key = edge_records_by_key
         self._incoming_edge_keys_by_node_id = incoming_edge_keys_by_node_id
         self._outgoing_edge_keys_by_node_id = outgoing_edge_keys_by_node_id
+        self._incoming_edge_keys_by_node_id_and_relation = (
+            incoming_edge_keys_by_node_id_and_relation
+        )
+        self._outgoing_edge_keys_by_node_id_and_relation = (
+            outgoing_edge_keys_by_node_id_and_relation
+        )
         self._materialized_nodes_by_id: dict[str, ProteomicsEvidenceNode] = {}
         self._materialized_edges_by_key: dict[
             tuple[str, str, str, str], ProteomicsEvidenceEdge
@@ -124,11 +136,33 @@ class LazyProteomicsEvidenceGraph:
             self._incoming_edge_keys_by_node_id.get(node_id, ())
         )
 
+    def incoming_edges_for_relation(
+        self,
+        node_id: str,
+        relation: ProteomicsEvidenceEdgeKind,
+    ) -> tuple[ProteomicsEvidenceEdge, ...]:
+        """Resolve canonical incoming edges for one node and one relation."""
+
+        return self._materialize_edges(
+            self._incoming_edge_keys_by_node_id_and_relation.get((node_id, relation), ())
+        )
+
     def outgoing_edges(self, node_id: str) -> tuple[ProteomicsEvidenceEdge, ...]:
         """Resolve canonical outgoing edges for one node."""
 
         return self._materialize_edges(
             self._outgoing_edge_keys_by_node_id.get(node_id, ())
+        )
+
+    def outgoing_edges_for_relation(
+        self,
+        node_id: str,
+        relation: ProteomicsEvidenceEdgeKind,
+    ) -> tuple[ProteomicsEvidenceEdge, ...]:
+        """Resolve canonical outgoing edges for one node and one relation."""
+
+        return self._materialize_edges(
+            self._outgoing_edge_keys_by_node_id_and_relation.get((node_id, relation), ())
         )
 
     def adjacent_edges(self, node_id: str) -> tuple[ProteomicsEvidenceEdge, ...]:
@@ -181,6 +215,8 @@ def load_lazy_proteomics_evidence_graph(
         edge_records_by_key,
         incoming_edge_keys_by_node_id,
         outgoing_edge_keys_by_node_id,
+        incoming_edge_keys_by_node_id_and_relation,
+        outgoing_edge_keys_by_node_id_and_relation,
         edge_kind_counts,
         evidence_type_counts,
     ) = _load_edge_records(
@@ -204,6 +240,8 @@ def load_lazy_proteomics_evidence_graph(
         edge_records_by_key=edge_records_by_key,
         incoming_edge_keys_by_node_id=incoming_edge_keys_by_node_id,
         outgoing_edge_keys_by_node_id=outgoing_edge_keys_by_node_id,
+        incoming_edge_keys_by_node_id_and_relation=incoming_edge_keys_by_node_id_and_relation,
+        outgoing_edge_keys_by_node_id_and_relation=outgoing_edge_keys_by_node_id_and_relation,
     )
 
 
@@ -257,6 +295,8 @@ def _load_edge_records(
     dict[tuple[str, str, str, str], _IndexedEdgeRecord],
     dict[str, tuple[tuple[str, str, str, str], ...]],
     dict[str, tuple[tuple[str, str, str, str], ...]],
+    dict[tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]],
+    dict[tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]],
     dict[str, int],
     dict[str, int],
 ]:
@@ -276,6 +316,12 @@ def _load_edge_records(
     edge_records_by_key: dict[tuple[str, str, str, str], _IndexedEdgeRecord] = {}
     incoming_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = defaultdict(list)
     outgoing_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = defaultdict(list)
+    incoming_edge_keys_by_node_id_and_relation: dict[
+        tuple[str, ProteomicsEvidenceEdgeKind], list[tuple[str, str, str, str]]
+    ] = defaultdict(list)
+    outgoing_edge_keys_by_node_id_and_relation: dict[
+        tuple[str, ProteomicsEvidenceEdgeKind], list[tuple[str, str, str, str]]
+    ] = defaultdict(list)
     edge_kind_counts: dict[str, int] = defaultdict(int)
     evidence_type_counts: dict[str, int] = defaultdict(int)
     for row in _iter_rows(edges_path):
@@ -295,6 +341,12 @@ def _load_edge_records(
         edge_records_by_key[record.edge_key] = record
         incoming_edge_keys_by_node_id[record.target_node_id].append(record.edge_key)
         outgoing_edge_keys_by_node_id[record.source_node_id].append(record.edge_key)
+        incoming_edge_keys_by_node_id_and_relation[
+            (record.target_node_id, record.relation)
+        ].append(record.edge_key)
+        outgoing_edge_keys_by_node_id_and_relation[
+            (record.source_node_id, record.relation)
+        ].append(record.edge_key)
         edge_kind_counts[record.relation.value] += 1
         evidence_type_counts[record.evidence_type.value] += 1
     return (
@@ -306,6 +358,14 @@ def _load_edge_records(
         {
             node_id: tuple(sorted(edge_keys))
             for node_id, edge_keys in outgoing_edge_keys_by_node_id.items()
+        },
+        {
+            key: tuple(sorted(edge_keys))
+            for key, edge_keys in incoming_edge_keys_by_node_id_and_relation.items()
+        },
+        {
+            key: tuple(sorted(edge_keys))
+            for key, edge_keys in outgoing_edge_keys_by_node_id_and_relation.items()
         },
         dict(edge_kind_counts),
         dict(evidence_type_counts),

@@ -128,28 +128,44 @@ def query_protein_evidence_summary(
     mapped_peptides = _unique_nodes(
         _source_nodes_for_relation(
             graph,
-            incoming,
+            _incoming_edges_for_relation(
+                graph,
+                protein.node_id,
+                ProteomicsEvidenceEdgeKind.PEPTIDE_MAPS_TO_PROTEIN,
+            ),
             ProteomicsEvidenceEdgeKind.PEPTIDE_MAPS_TO_PROTEIN,
         )
     )
     quantifying_peptides = _unique_nodes(
         _source_nodes_for_relation(
             graph,
-            incoming,
+            _incoming_edges_for_relation(
+                graph,
+                protein.node_id,
+                ProteomicsEvidenceEdgeKind.PEPTIDE_QUANTIFIES_PROTEIN,
+            ),
             ProteomicsEvidenceEdgeKind.PEPTIDE_QUANTIFIES_PROTEIN,
         )
     )
     protein_groups = _unique_nodes(
         _target_nodes_for_relation(
             graph,
-            outgoing,
+            _outgoing_edges_for_relation(
+                graph,
+                protein.node_id,
+                ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_GROUP,
+            ),
             ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_GROUP,
         )
     )
     quant_values = _unique_nodes(
         _target_nodes_for_relation(
             graph,
-            outgoing,
+            _outgoing_edges_for_relation(
+                graph,
+                protein.node_id,
+                ProteomicsEvidenceEdgeKind.PROTEIN_QUANTIFIED_BY_QUANT_VALUE,
+            ),
             ProteomicsEvidenceEdgeKind.PROTEIN_QUANTIFIED_BY_QUANT_VALUE,
         )
     )
@@ -264,14 +280,22 @@ def query_ptm_site_evidence(
     localized_modified_peptides = _unique_nodes(
         _source_nodes_for_relation(
             graph,
-            incoming,
+            _incoming_edges_for_relation(
+                graph,
+                ptm_site.node_id,
+                ProteomicsEvidenceEdgeKind.MODIFIED_PEPTIDE_LOCALIZES_PTM_SITE,
+            ),
             ProteomicsEvidenceEdgeKind.MODIFIED_PEPTIDE_LOCALIZES_PTM_SITE,
         )
     )
     proteins = _unique_nodes(
         _target_nodes_for_relation(
             graph,
-            outgoing,
+            _outgoing_edges_for_relation(
+                graph,
+                ptm_site.node_id,
+                ProteomicsEvidenceEdgeKind.PTM_SITE_BELONGS_TO_PROTEIN,
+            ),
             ProteomicsEvidenceEdgeKind.PTM_SITE_BELONGS_TO_PROTEIN,
         )
     )
@@ -403,8 +427,11 @@ def query_pathway_support_proteins(
     pathway = _require_node(graph, ProteomicsEvidenceNodeKind.PATHWAY, pathway_id)
     incoming = tuple(
         edge
-        for edge in _incoming_edges(graph, pathway.node_id)
-        if edge.relation is ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_PATHWAY
+        for edge in _incoming_edges_for_relation(
+            graph,
+            pathway.node_id,
+            ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_PATHWAY,
+        )
     )
     supporting_proteins = _unique_nodes(tuple(_source_node(graph, edge) for edge in incoming))
     return PathwaySupportProteinReport(
@@ -440,16 +467,22 @@ def query_sample_qc_reasons(
     sample = _require_node(graph, ProteomicsEvidenceNodeKind.SAMPLE, sample_id)
     run_edges = tuple(
         edge
-        for edge in _outgoing_edges(graph, sample.node_id)
-        if edge.relation is ProteomicsEvidenceEdgeKind.SAMPLE_CONTAINS_RUN
+        for edge in _outgoing_edges_for_relation(
+            graph,
+            sample.node_id,
+            ProteomicsEvidenceEdgeKind.SAMPLE_CONTAINS_RUN,
+        )
     )
     runs = _unique_nodes(tuple(_target_node(graph, edge) for edge in run_edges))
     qc_edges = _unique_edges(
         tuple(
             edge
             for run in runs
-            for edge in _outgoing_edges(graph, run.node_id)
-            if edge.relation is ProteomicsEvidenceEdgeKind.RUN_GOVERNED_BY_QC_DECISION
+            for edge in _outgoing_edges_for_relation(
+                graph,
+                run.node_id,
+                ProteomicsEvidenceEdgeKind.RUN_GOVERNED_BY_QC_DECISION,
+            )
         )
     )
     qc_decisions = _unique_nodes(tuple(_target_node(graph, edge) for edge in qc_edges))
@@ -608,6 +641,20 @@ def _incoming_edges(
     return tuple(edge for edge in graph.edges if edge.target_node_id == node_id)
 
 
+def _incoming_edges_for_relation(
+    graph: EvidenceGraphQuerySurface,
+    node_id: str,
+    relation: ProteomicsEvidenceEdgeKind,
+) -> tuple[ProteomicsEvidenceEdge, ...]:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.incoming_edges_for_relation(node_id, relation)
+    return tuple(
+        edge
+        for edge in graph.edges
+        if edge.target_node_id == node_id and edge.relation is relation
+    )
+
+
 def _outgoing_edges(
     graph: EvidenceGraphQuerySurface,
     node_id: str,
@@ -615,6 +662,20 @@ def _outgoing_edges(
     if isinstance(graph, LazyProteomicsEvidenceGraph):
         return graph.outgoing_edges(node_id)
     return tuple(edge for edge in graph.edges if edge.source_node_id == node_id)
+
+
+def _outgoing_edges_for_relation(
+    graph: EvidenceGraphQuerySurface,
+    node_id: str,
+    relation: ProteomicsEvidenceEdgeKind,
+) -> tuple[ProteomicsEvidenceEdge, ...]:
+    if isinstance(graph, LazyProteomicsEvidenceGraph):
+        return graph.outgoing_edges_for_relation(node_id, relation)
+    return tuple(
+        edge
+        for edge in graph.edges
+        if edge.source_node_id == node_id and edge.relation is relation
+    )
 
 
 def _require_node(
