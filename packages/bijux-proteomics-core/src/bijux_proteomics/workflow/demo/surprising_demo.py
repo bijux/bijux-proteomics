@@ -69,12 +69,16 @@ from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.belief_audit import (
     BeliefAuditReport,
     render_belief_audit_tsv,
-    build_belief_audit,
 )
 from bijux_proteomics_intelligence.contradictions import (
     ClaimContradictionReport,
     render_claim_contradictions_tsv,
-    find_claim_contradictions,
+)
+from bijux_proteomics_intelligence.falsifiers import render_claim_falsifiers_tsv
+from bijux_proteomics_intelligence.refusal import render_claim_refusal_tsv
+from bijux_proteomics_intelligence.reviews import (
+    IntelligenceReportContract,
+    build_intelligence_report_contract,
 )
 from bijux_proteomics_knowledge.memory.integrity.graph import build_evidence_graph
 from bijux_proteomics_knowledge.memory.models.claims import (
@@ -198,6 +202,8 @@ class SurprisingDemoArtifactPaths(JsonModel):
     matrices_tsv: str = Field(..., min_length=1)
     assay_panel_tsv: str = Field(..., min_length=1)
     claims_tsv: str = Field(..., min_length=1)
+    refusals_tsv: str = Field(..., min_length=1)
+    falsifiers_tsv: str = Field(..., min_length=1)
     contradictions_tsv: str = Field(..., min_length=1)
     belief_audit_tsv: str = Field(..., min_length=1)
 
@@ -217,6 +223,7 @@ class SurprisingDemoReport(JsonModel):
     study_result: ProteomicsStudyResult
     biological_report_manifest: BiologicalResultReportExportManifest
     claim_report: tuple[EvidenceClaim, ...] = Field(default_factory=tuple)
+    intelligence_report_contract: IntelligenceReportContract
     contradiction_report: ClaimContradictionReport
     belief_audit_report: BeliefAuditReport
     targeted_report: TargetedValidationWorkflowReport
@@ -335,11 +342,12 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
     )
     claim_report = _build_demo_claims(biological_report)
     evidence_bundle = _build_demo_evidence_bundle(claim_report)
-    contradiction_report = find_claim_contradictions(claim_report)
-    belief_audit_report = build_belief_audit(
+    intelligence_report_contract = build_intelligence_report_contract(
         claim_report,
         build_evidence_graph(evidence_bundle, claims=list(claim_report)),
     )
+    contradiction_report = intelligence_report_contract.contradiction_report
+    belief_audit_report = intelligence_report_contract.belief_audit_report
     elapsed_seconds = perf_counter() - start
 
     findings = (
@@ -409,6 +417,7 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         ptm_report=ptm_report,
         targeted_panel_assays=targeted_panel_assays,
         claim_report=claim_report,
+        intelligence_report_contract=intelligence_report_contract,
         contradiction_report=contradiction_report,
         belief_audit_report=belief_audit_report,
     )
@@ -423,6 +432,7 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         study_result=study_result,
         biological_report_manifest=biological_manifest,
         claim_report=claim_report,
+        intelligence_report_contract=intelligence_report_contract,
         contradiction_report=contradiction_report,
         belief_audit_report=belief_audit_report,
         targeted_report=targeted_report,
@@ -430,8 +440,9 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
             "The surprising demo is a compact shipped dataset that preserves one strong "
             "protein, one downgraded protein, one PTM ambiguity, one targeted QC issue, "
             "and one validation candidate through owned workflow outputs, then routes the "
-            "same local evidence into biological cards, claims, contradictions, belief "
-            "audit, and report surfaces without requiring external files."
+            "same local evidence into biological cards, claims, refusals, falsifiers, "
+            "contradictions, belief audit, and report surfaces without requiring "
+            "external files."
         ),
     )
     atomic_write_text(
@@ -586,11 +597,7 @@ def _build_demo_claim(entry: BiologicalClaimValidationEntry) -> EvidenceClaim:
             else ClaimType.MECHANISTIC
         ),
         evidence_ids=list(evidence_ids),
-        assumptions=(
-            [reason.value for reason in entry.reason_codes]
-            if entry.status is BiologicalClaimStatus.REJECTED
-            else []
-        ),
+        assumptions=_demo_claim_assumptions(entry),
         resolution_assays=["demo_follow_up_assay"],
         status=(
             ClaimStatus.SUPPORTED
@@ -611,6 +618,21 @@ def _build_demo_claim(entry: BiologicalClaimValidationEntry) -> EvidenceClaim:
         confidence=0.88 if entry.status is BiologicalClaimStatus.SUPPORTED else 0.52,
         decision_impact="demo_review",
     )
+
+
+def _demo_claim_assumptions(
+    entry: BiologicalClaimValidationEntry,
+) -> list[str]:
+    assumptions = [
+        "design_valid=true",
+        "qc_status=passed",
+    ]
+    if entry.status is BiologicalClaimStatus.SUPPORTED:
+        assumptions.append("peptide_support_count=3")
+    else:
+        assumptions.append("peptide_support_count=1")
+        assumptions.extend(reason.value for reason in entry.reason_codes)
+    return assumptions
 
 
 def _build_demo_evidence_bundle(
@@ -831,6 +853,7 @@ def _write_surprising_demo_artifacts(
     ptm_report: AdvancedPtmWorkflowReport,
     targeted_panel_assays: tuple[TargetedValidationPanelAssayInput, ...],
     claim_report: tuple[EvidenceClaim, ...],
+    intelligence_report_contract: IntelligenceReportContract,
     contradiction_report: ClaimContradictionReport,
     belief_audit_report: BeliefAuditReport,
 ) -> SurprisingDemoArtifactPaths:
@@ -841,6 +864,8 @@ def _write_surprising_demo_artifacts(
     matrices_name = "demo_matrices.tsv"
     assay_panel_name = "demo_assay_panel.tsv"
     claims_name = "demo_claims.tsv"
+    refusals_name = "demo_claim_refusals.tsv"
+    falsifiers_name = "demo_claim_falsifiers.tsv"
     contradictions_name = "demo_claim_contradictions.tsv"
     belief_audit_name = "demo_belief_audit.tsv"
     artifacts = SurprisingDemoArtifactPaths(
@@ -877,6 +902,8 @@ def _write_surprising_demo_artifacts(
         matrices_tsv=matrices_name,
         assay_panel_tsv=assay_panel_name,
         claims_tsv=claims_name,
+        refusals_tsv=refusals_name,
+        falsifiers_tsv=falsifiers_name,
         contradictions_tsv=contradictions_name,
         belief_audit_tsv=belief_audit_name,
     )
@@ -886,6 +913,19 @@ def _write_surprising_demo_artifacts(
     write_output_table_tsv((output_dir / matrices_name), _render_demo_matrix_index_tsv(biological_manifest, ptm_report))
     write_output_table_tsv((output_dir / assay_panel_name), _render_demo_assay_panel_tsv(targeted_panel_assays))
     write_output_table_tsv((output_dir / claims_name), _render_demo_claims_tsv(claim_report))
+    write_output_table_tsv(
+        (output_dir / refusals_name),
+        render_claim_refusal_tsv(intelligence_report_contract.refusal_report.entries),
+    )
+    write_output_table_tsv(
+        (output_dir / falsifiers_name),
+        render_claim_falsifiers_tsv(
+            tuple(
+                entry.falsifier
+                for entry in intelligence_report_contract.claim_entries
+            )
+        ),
+    )
     write_output_table_tsv((output_dir / contradictions_name), render_claim_contradictions_tsv(contradiction_report.entries))
     write_output_table_tsv((output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit_report.entries))
     return artifacts
