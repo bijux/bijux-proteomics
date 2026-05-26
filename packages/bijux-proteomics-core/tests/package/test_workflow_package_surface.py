@@ -579,6 +579,13 @@ def test_workflow_package_exports_targeted_validation_workflow_surface(
     assert hasattr(workflow, "render_advanced_targeted_evidence_cards_tsv")
     assert report.summary.confirmed_count == 1
     assert report.summary.evidence_card_count == 1
+    study_result = workflow.build_proteomics_study_result(report)
+    assert workflow.ProteomicsStudyKind.TARGETED.value == "targeted"
+    assert study_result.study_kind is workflow.ProteomicsStudyKind.TARGETED
+    assert any(
+        surface.kind is workflow.ProteomicsStudyCardKind.TARGETED_VALIDATION
+        for surface in study_result.card_surfaces
+    )
     assert "card_id" in workflow.render_advanced_targeted_evidence_cards_tsv(
         report.evidence_cards
     )
