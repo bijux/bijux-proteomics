@@ -9,12 +9,10 @@ from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
-from datetime import UTC, datetime
 import json
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-import re
 from time import perf_counter
 
 from pydantic import ConfigDict, Field
@@ -27,11 +25,6 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.review.claims.biological_claim_validation import (
-    BiologicalClaimDirection,
-    BiologicalClaimStatus,
-    BiologicalClaimValidationEntry,
-)
 from bijux_proteomics.targeted import (
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
@@ -43,6 +36,10 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultSelectionPolicy,
     build_biological_result_report_bundle_from_quant_table,
     write_biological_result_report_bundle,
+)
+from bijux_proteomics.workflow.demo.surprising_demo_claims import (
+    build_surprising_demo_claims,
+    build_surprising_demo_evidence_bundle,
 )
 from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyResult,
@@ -81,24 +78,7 @@ from bijux_proteomics_intelligence.reviews import (
     build_intelligence_report_contract,
 )
 from bijux_proteomics_knowledge.memory.integrity.graph import build_evidence_graph
-from bijux_proteomics_knowledge.memory.models.claims import (
-    ClaimEvidenceState,
-    ClaimPolarity,
-    ClaimResolutionState,
-    ClaimStatus,
-    ClaimType,
-    EvidenceClaim,
-)
-from bijux_proteomics_knowledge.memory.models.evidence import (
-    EvidenceBundle,
-    EvidenceExtractionMethod,
-    EvidenceKind,
-    EvidenceOrigin,
-    EvidenceRecord,
-    EvidenceSourceType,
-    EvidenceStrength,
-    QuantitativeSupport,
-)
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
 
 
 class SurprisingDemoFindingKind(StrEnum):
@@ -340,8 +320,8 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
         biological_output_dir / biological_manifest_name,
         biological_manifest.to_stable_json() + "\n",
     )
-    claim_report = _build_demo_claims(biological_report)
-    evidence_bundle = _build_demo_evidence_bundle(claim_report)
+    claim_report = build_surprising_demo_claims(biological_report)
+    evidence_bundle = build_surprising_demo_evidence_bundle(claim_report)
     intelligence_report_contract = build_intelligence_report_contract(
         claim_report,
         build_evidence_graph(evidence_bundle, claims=list(claim_report)),
@@ -560,137 +540,6 @@ def _build_demo_biological_report(
         ),
         ptm_evidence_card_report=ptm_report.ptm_workflow.report.evidence_cards,
     )
-
-
-def _build_demo_claims(
-    biological_report: BiologicalResultReportBundle,
-) -> tuple[EvidenceClaim, ...]:
-    claim_validation_report = biological_report.claim_validation_report
-    if claim_validation_report is None:
-        raise ValueError("surprising demo biological report did not produce claim validation")
-
-    entries = (
-        claim_validation_report.supported_claims
-        + claim_validation_report.rejected_claims
-    )
-    return tuple(_build_demo_claim(entry) for entry in entries)
-
-
-def _build_demo_claim(entry: BiologicalClaimValidationEntry) -> EvidenceClaim:
-    direction = _demo_claim_direction(entry.asserted_direction)
-    evidence_ids = tuple(
-        _stable_demo_id(source_id) for source_id in entry.source_ids
-    ) or (_stable_demo_id(f"{entry.claim_id}:source"),)
-    return EvidenceClaim(
-        claim_id=_stable_demo_id(entry.claim_id),
-        target_id=_stable_demo_id(f"{entry.claim_kind.value}:{entry.subject_id}"),
-        statement=entry.claim_text,
-        subject=entry.subject_id,
-        relation=entry.claim_kind.value,
-        object=direction,
-        condition=f"{entry.condition_a}_vs_{entry.condition_b}",
-        direction=direction,
-        magnitude=entry.effect_size,
-        claim_type=(
-            ClaimType.BIOMARKER
-            if entry.claim_kind.value == "protein_abundance_change"
-            else ClaimType.MECHANISTIC
-        ),
-        evidence_ids=list(evidence_ids),
-        assumptions=_demo_claim_assumptions(entry),
-        resolution_assays=["demo_follow_up_assay"],
-        status=(
-            ClaimStatus.SUPPORTED
-            if entry.status is BiologicalClaimStatus.SUPPORTED
-            else ClaimStatus.INSUFFICIENT
-        ),
-        polarity=ClaimPolarity.SUPPORTING,
-        resolution_state=(
-            ClaimResolutionState.CLOSED
-            if entry.status is BiologicalClaimStatus.SUPPORTED
-            else ClaimResolutionState.OPEN
-        ),
-        evidence_state=(
-            ClaimEvidenceState.SUPPORTED
-            if entry.status is BiologicalClaimStatus.SUPPORTED
-            else ClaimEvidenceState.UNRESOLVED
-        ),
-        confidence=0.88 if entry.status is BiologicalClaimStatus.SUPPORTED else 0.52,
-        decision_impact="demo_review",
-    )
-
-
-def _demo_claim_assumptions(
-    entry: BiologicalClaimValidationEntry,
-) -> list[str]:
-    assumptions = [
-        "design_valid=true",
-        "qc_status=passed",
-    ]
-    if entry.status is BiologicalClaimStatus.SUPPORTED:
-        assumptions.append("peptide_support_count=3")
-    else:
-        assumptions.append("peptide_support_count=1")
-        assumptions.extend(reason.value for reason in entry.reason_codes)
-    return assumptions
-
-
-def _build_demo_evidence_bundle(
-    claims: tuple[EvidenceClaim, ...],
-) -> EvidenceBundle:
-    records: list[EvidenceRecord] = []
-    seen_record_ids: set[str] = set()
-    for claim in claims:
-        for evidence_id in claim.evidence_ids:
-            if evidence_id in seen_record_ids:
-                continue
-            seen_record_ids.add(evidence_id)
-            records.append(
-                EvidenceRecord(
-                    evidence_id=evidence_id,
-                    kind=EvidenceKind.DIFFERENTIAL_PROTEOMICS,
-                    title=evidence_id,
-                    source="surprising_demo",
-                    source_type=EvidenceSourceType.CURATED_NOTE,
-                    origin=EvidenceOrigin.OBSERVED,
-                    extraction_method=EvidenceExtractionMethod.AUTOMATED_IMPORT,
-                    assay_modality="proteomics_demo",
-                    biological_system="surprising_demo",
-                    species="Homo sapiens",
-                    quantitative_support=QuantitativeSupport(effect_size=claim.magnitude),
-                    claim=claim.statement,
-                    related_targets=[claim.target_id],
-                    decision_tags=["demo_review"],
-                    confidence=claim.confidence,
-                    strength=(
-                        EvidenceStrength.DECISIVE
-                        if claim.confidence >= 0.8
-                        else EvidenceStrength.SUPPORTING
-                    ),
-                    observed_at=datetime.now(UTC),
-                )
-            )
-    return EvidenceBundle(
-        bundle_id="surprising_demo_bundle",
-        target_id="surprising_demo_target",
-        records=records,
-    )
-
-
-def _demo_claim_direction(direction: BiologicalClaimDirection) -> str:
-    return {
-        BiologicalClaimDirection.UP: "up",
-        BiologicalClaimDirection.DOWN: "down",
-        BiologicalClaimDirection.MIXED: "mixed",
-        BiologicalClaimDirection.UNRESOLVED: "unchanged",
-    }[direction]
-
-
-def _stable_demo_id(value: str) -> str:
-    normalized = value.lower().replace("/", ":")
-    normalized = re.sub(r"[^a-z0-9._:-]+", "-", normalized)
-    normalized = re.sub(r"-{2,}", "-", normalized).strip("-")
-    return normalized
 
 
 def _build_strong_protein_finding(
