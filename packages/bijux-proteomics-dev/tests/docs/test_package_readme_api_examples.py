@@ -11,7 +11,10 @@ REPO_ROOT = next(
 
 
 def _real_package_names() -> tuple[str, ...]:
-    return ("bijux-proteomics-foundation",)
+    return (
+        "bijux-proteomics-foundation",
+        "bijux-proteomics-core",
+    )
 
 
 def _package_readme(package_name: str) -> Path:

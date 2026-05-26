@@ -538,6 +538,28 @@ bijux-proteomics qc report spectra.mgf results.tsv proteins.fasta \
 See [`docs/QC_OPERATOR_GUIDE.md`](./docs/QC_OPERATOR_GUIDE.md) for threshold
 interpretation, advisory versus enforced findings, and failed-run diagnosis.
 
+## Public APIs
+
+The curated root API is intentionally narrow:
+
+- `parse_fasta_document(...)` for durable protein-sequence intake
+- `parse_experimental_design_table(...)` for governed study metadata
+- `build_normalized_run_bundle(...)` for table-shaped evidence normalization
+- `build_fdr_audit_trail(...)` for explicit score and q-value audit surfaces
+- `DigestPolicy` for digestion assumptions that must survive export and rerun
+
+Minimal executable example:
+
+```python
+from bijux_proteomics import parse_fasta_document
+
+report = parse_fasta_document(">sp|P11111|PTM1 Protein 1\nMPEPTIDEK\n")
+
+assert report.total_records == 1
+assert len(report.accepted_records) == 1
+assert report.accepted_records[0].canonical_accession == "P11111"
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -556,6 +578,12 @@ ranking policy, recommendation judgment, or lab scheduling behavior.
 Core also does not pretend that one domain model solves the whole suite. It
 defines the scientific source of truth, then hands execution, curation,
 judgment, and operations outward to runtime, knowledge, intelligence, and lab.
+
+## What this package must not do
+
+- it must not own provider binding, API transport, or replay orchestration
+- it must not replace knowledge curation, recommendation policy, or lab execution planning
+- it must not hide lossy scientific normalization behind optimistic convenience wrappers
 
 ## Contract checkpoints
 
