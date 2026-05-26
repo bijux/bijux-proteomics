@@ -114,6 +114,9 @@ from bijux_proteomics.workflow.cards.protein_evidence_cards import (
 from bijux_proteomics.workflow.cards.pathway_evidence_cards import (
     render_pathway_evidence_card_tsv,
 )
+from bijux_proteomics.workflow.cards.sample_evidence_cards import (
+    render_sample_evidence_card_tsv,
+)
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     render_protein_mechanism_card_summary_tsv, render_protein_mechanism_card_tsv,
 )
@@ -310,6 +313,7 @@ def write_biological_result_report_bundle(
     sample_variance_name = "biological_sample_pca_variance.tsv"
     sample_distance_name = "biological_sample_distances.tsv"
     sample_cluster_name = "biological_sample_clusters.tsv"
+    sample_card_name = "biological_sample_cards.tsv"
     report_html_name = "biological_report.html"
     evidence_aware_ranking_name = None
     claim_validation_summary_name = None
@@ -600,6 +604,7 @@ def write_biological_result_report_bundle(
         report.sample_exploration_report,
         output_dir / sample_cluster_name,
     )
+    write_output_table_tsv((output_dir / sample_card_name), render_sample_evidence_card_tsv(report.sample_exploration_report))
 
     go_summary_name = None
     go_term_name = None
@@ -721,6 +726,7 @@ def write_biological_result_report_bundle(
         sample_pca_variance_tsv=sample_variance_name,
         sample_distance_tsv=sample_distance_name,
         sample_cluster_tsv=sample_cluster_name,
+        sample_card_tsv=sample_card_name,
         report_html=report_html_name,
         go_summary_tsv=go_summary_name,
         go_term_tsv=go_term_name,

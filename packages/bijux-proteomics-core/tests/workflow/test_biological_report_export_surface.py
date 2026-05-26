@@ -61,6 +61,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / "cards" / manifest.artifacts.protein_card_tsv).exists()
     assert (output_dir / "cards" / manifest.artifacts.pathway_card_tsv).exists()
+    assert (output_dir / "cards" / manifest.artifacts.sample_card_tsv).exists()
     assert (output_dir / "evidence" / manifest.artifacts.supported_claim_tsv).exists()
     assert (output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv).exists()
     layout_manifest = validate_workflow_artifact_manifest(output_dir)
@@ -142,6 +143,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.heatmap_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.sample_pca_scores_tsv).exists()
+    assert (output_dir / manifest.artifacts.sample_card_tsv).exists()
     assert (output_dir / manifest.artifacts.volcano_tsv).exists()
     assert (output_dir / manifest.artifacts.volcano_json).exists()
     assert (output_dir / manifest.artifacts.volcano_svg).exists()
@@ -197,6 +199,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "member_kind\tmember_id\tresolved_protein_refs" in (
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
+    ).read_text(encoding="utf-8")
+    assert "global_centroid_outlier" in (
+        output_dir / manifest.artifacts.sample_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_kind" in (
+        output_dir / manifest.artifacts.sample_card_tsv
     ).read_text(encoding="utf-8")
     assert "complex_count" in (
         output_dir / manifest.artifacts.complex_activity_summary_tsv

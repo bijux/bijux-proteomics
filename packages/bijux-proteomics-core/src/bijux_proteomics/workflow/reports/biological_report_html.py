@@ -210,6 +210,7 @@ def _render_biological_result_report_html(
             "Pathway activity unresolved members",
             artifacts.pathway_activity_unresolved_member_tsv,
         ),
+        ("Sample cards", artifacts.sample_card_tsv),
         (
             "Complex activity summary",
             artifacts.complex_activity_summary_tsv,

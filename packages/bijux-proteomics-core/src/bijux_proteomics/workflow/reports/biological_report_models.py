@@ -486,6 +486,7 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     sample_pca_variance_tsv: str = Field(..., min_length=1)
     sample_distance_tsv: str = Field(..., min_length=1)
     sample_cluster_tsv: str = Field(..., min_length=1)
+    sample_card_tsv: str | None = None
     report_html: str = Field(..., min_length=1)
     go_summary_tsv: str | None = None
     go_term_tsv: str | None = None

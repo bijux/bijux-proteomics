@@ -9,6 +9,7 @@ _CARD_EXPORT_MODULES = (
     "bijux_proteomics.workflow.cards.pathway_evidence_cards",
     "bijux_proteomics.workflow.cards.protein_evidence_cards",
     "bijux_proteomics.workflow.cards.protein_mechanism_cards",
+    "bijux_proteomics.workflow.cards.sample_evidence_cards",
 )
 
 
