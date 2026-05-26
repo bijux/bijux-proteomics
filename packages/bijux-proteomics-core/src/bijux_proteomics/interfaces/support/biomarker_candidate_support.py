@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.semantic_ids import build_protein_id, build_site_id
+
 from .imports import *  # noqa: F401,F403
 
 from .targeted_selection_io import _parse_cli_bool, _read_summary_field_map, _require_report_artifact, _split_semicolon_field
@@ -133,7 +135,7 @@ def _build_biomarker_candidates_from_biological_report_dir(
                 )
                 candidates.append(
                     BiomarkerCandidateRankingInput(
-                        candidate_id=f"protein:{protein_group_id}",
+                        candidate_id=build_protein_id(protein_group_id),
                         candidate_kind=BiomarkerCandidateKind.PROTEIN,
                         display_label=display_label,
                         target_protein_ref=protein_ref,
@@ -311,7 +313,12 @@ def _build_biomarker_candidates_from_ptm_report_dir(
                 ).strip()
                 candidates.append(
                     BiomarkerCandidateRankingInput(
-                        candidate_id=f"ptm_site:{site_key}",
+                        candidate_id=build_site_id(
+                            str(row.get("protein_ref", "")).strip(),
+                            str(row.get("residue", "")).strip(),
+                            int(str(row.get("position", "")).strip()),
+                            str(row.get("modification_name", "")).strip(),
+                        ),
                         candidate_kind=BiomarkerCandidateKind.PTM_SITE,
                         display_label=display_label,
                         target_protein_ref=str(row.get("protein_ref", "")).strip(),
