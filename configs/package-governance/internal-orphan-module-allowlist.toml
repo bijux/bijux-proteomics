@@ -1,0 +1,17 @@
+[[justification]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/tools/golden_path_example.py"
+module_import_path = "bijux_proteomics_dev.tools.golden_path_example"
+reason = "manual example script retained as a human-facing golden-path walkthrough for canonical biology imports"
+
+[[justification]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/tools/mre_agentic_protein.py"
+module_import_path = "bijux_proteomics_dev.tools.mre_agentic_protein"
+reason = "manual example script retained as a minimal reproducible pathway-execution walkthrough for canonical biology imports"
+
+[[justification]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/tools/visualize_invariants.py"
+module_import_path = "bijux_proteomics_dev.tools.visualize_invariants"
+reason = "manual example script retained as a human-facing invariant-visualization walkthrough for canonical biology imports"
