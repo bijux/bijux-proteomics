@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.domain.constraints import (
     ConstraintCategory,
     ConstraintRiskReport,
@@ -172,6 +173,8 @@ from bijux_proteomics.domain.validation import validate_program
 __all__ = [
     "AssayRequirement",
     "ComplexMembership",
+    "coerce_confidence_tier",
+    "ConfidenceTier",
     "ConstraintCategory",
     "ConstraintRiskReport",
     "DecisionOwnerRole",
