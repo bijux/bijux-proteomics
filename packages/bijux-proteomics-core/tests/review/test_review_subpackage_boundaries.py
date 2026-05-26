@@ -121,6 +121,7 @@ def test_review_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(claims, "build_analysis_recommendation_report_from_artifacts")
 
     assert hasattr(cards, "build_external_reviewer_bundle")
+    assert hasattr(cards, "load_standard_card_index")
     assert hasattr(cards, "render_compact_result_summary_markdown")
     assert hasattr(cards, "build_protein_family_evidence_graph")
 

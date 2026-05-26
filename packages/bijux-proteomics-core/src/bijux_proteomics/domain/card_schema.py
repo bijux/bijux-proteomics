@@ -68,6 +68,17 @@ class StandardCardEntry(JsonModel):
     source_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class StandardCardIndex(JsonModel):
+    """Indexed lookup surface over one governed shared-card TSV."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[StandardCardEntry, ...] = Field(default_factory=tuple)
+    card_ids: dict[str, int] = Field(default_factory=dict)
+    subject_ids: dict[str, tuple[int, ...]] = Field(default_factory=dict)
+    source_ids: dict[str, tuple[int, ...]] = Field(default_factory=dict)
+
+
 def render_standard_card_row(entry: StandardCardEntry) -> tuple[str, ...]:
     """Render one shared card entry in the canonical TSV column order."""
 
@@ -119,6 +130,64 @@ def load_standard_card_tsv(path: Path) -> tuple[StandardCardEntry, ...]:
     return tuple(entries)
 
 
+def load_standard_card_index(path: Path) -> StandardCardIndex:
+    """Load one governed card TSV and index it by card, subject, and source ids."""
+
+    entries = load_standard_card_tsv(path)
+    subject_ids: dict[str, list[int]] = {}
+    source_ids: dict[str, list[int]] = {}
+    for index, entry in enumerate(entries):
+        subject_ids.setdefault(entry.subject_id, []).append(index)
+        for source_id in entry.source_ids:
+            source_ids.setdefault(source_id, []).append(index)
+    return StandardCardIndex(
+        entries=entries,
+        card_ids={entry.card_id: index for index, entry in enumerate(entries)},
+        subject_ids={
+            subject_id: tuple(indexes) for subject_id, indexes in subject_ids.items()
+        },
+        source_ids={
+            source_id: tuple(indexes) for source_id, indexes in source_ids.items()
+        },
+    )
+
+
+def find_standard_card_by_card_id(
+    card_index: StandardCardIndex,
+    card_id: str,
+) -> StandardCardEntry | None:
+    """Return the shared-card entry for one stable card id."""
+
+    row_index = card_index.card_ids.get(card_id)
+    if row_index is None:
+        return None
+    return card_index.entries[row_index]
+
+
+def find_standard_cards_by_subject_id(
+    card_index: StandardCardIndex,
+    subject_id: str,
+) -> tuple[StandardCardEntry, ...]:
+    """Return the shared-card entries anchored on one subject id."""
+
+    return tuple(
+        card_index.entries[row_index]
+        for row_index in card_index.subject_ids.get(subject_id, ())
+    )
+
+
+def find_standard_cards_by_source_id(
+    card_index: StandardCardIndex,
+    source_id: str,
+) -> tuple[StandardCardEntry, ...]:
+    """Return the shared-card entries citing one stable source id."""
+
+    return tuple(
+        card_index.entries[row_index]
+        for row_index in card_index.source_ids.get(source_id, ())
+    )
+
+
 def _required_text(row: dict[str, str | None], field_name: str) -> str:
     value = str(row.get(field_name, "")).strip()
     if not value:
@@ -133,8 +202,13 @@ def _split_multi(value: str) -> tuple[str, ...]:
 __all__ = [
     "STANDARD_CARD_TSV_COLUMNS",
     "StandardCardEntry",
+    "StandardCardIndex",
     "StandardCardKind",
     "StandardCardSubjectKind",
+    "find_standard_card_by_card_id",
+    "find_standard_cards_by_source_id",
+    "find_standard_cards_by_subject_id",
+    "load_standard_card_index",
     "load_standard_card_tsv",
     "render_standard_card_row",
 ]

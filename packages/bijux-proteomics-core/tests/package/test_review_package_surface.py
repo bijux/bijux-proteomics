@@ -33,6 +33,9 @@ def test_review_package_exports_proteomics_evidence_graph_owner_surface() -> Non
 
 def test_review_package_exports_queryable_card_loader_surface() -> None:
     assert hasattr(review, "load_standard_card_tsv")
+    assert hasattr(review, "load_standard_card_index")
+    assert hasattr(review, "find_standard_card_by_card_id")
+    assert hasattr(review, "find_standard_cards_by_subject_id")
     assert review.StandardCardKind.PROTEIN.value == "protein"
     assert review.StandardCardSubjectKind.BIOMARKER_CANDIDATE.value == (
         "biomarker_candidate"

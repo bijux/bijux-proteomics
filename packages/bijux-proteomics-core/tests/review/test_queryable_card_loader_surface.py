@@ -318,3 +318,25 @@ def test_review_loader_reads_all_governed_card_families(tmp_path: Path) -> None:
     assert all(entry.claim for entries in loaded.values() for entry in entries)
     assert all(entry.evidence_for for entries in loaded.values() for entry in entries)
     assert all(entry.evidence_against for entries in loaded.values() for entry in entries)
+
+
+def test_review_loader_indexes_cards_by_card_subject_and_source_ids(tmp_path: Path) -> None:
+    biological_report = _build_biological_report()
+    protein_path = tmp_path / "biological_protein_cards.tsv"
+    protein_path.write_text(
+        render_protein_evidence_card_tsv(biological_report.protein_cards),
+        encoding="utf-8",
+    )
+
+    card_index = review.load_standard_card_index(protein_path)
+    representative = card_index.entries[0]
+
+    assert review.find_standard_card_by_card_id(card_index, representative.card_id) == representative
+    assert representative in review.find_standard_cards_by_subject_id(
+        card_index,
+        representative.subject_id,
+    )
+    assert all(
+        representative in review.find_standard_cards_by_source_id(card_index, source_id)
+        for source_id in representative.source_ids
+    )
