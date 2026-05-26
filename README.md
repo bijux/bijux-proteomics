@@ -149,6 +149,9 @@ package owners rather than duplicating the same runtime under multiple names.
 - `make openapi-drift` to catch breaking schema changes without version bumps
 - `make quality-artifact-governance` to enforce artifact roots, drift audit, and
   package-root hygiene
+- `make quality-architecture-regression` to re-check import collection, public
+  API snapshots, package tree, architecture map, workflow output snapshots, and
+  the shipped demo CLI path after architecture-facing changes
 - `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
