@@ -10,6 +10,7 @@ from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.results_query import (
     run_interactive_result_bundle_command,
     run_interactive_result_comparison_command,
+    run_query_result_command,
     run_result_manifest_command,
     run_result_search_command,
     run_validate_result_command,
@@ -247,7 +248,41 @@ def validate_result_command(
         out_path,
     )
 
+@click.command("query-result")
+@click.argument(
+    "result_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
+@click.option("--query", "query_text", required=True)
+@click.option("--limit", type=int, default=20, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--hit-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def query_result_command(
+    result_root: Path,
+    query_text: str,
+    limit: int,
+    summary_tsv_out: Path | None,
+    hit_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    'Query governed result objects from one shipped result root.'
+    return run_query_result_command(
+        result_root,
+        query_text,
+        limit,
+        summary_tsv_out,
+        hit_tsv_out,
+        out_path,
+    )
+
 COMMANDS = (
+    query_result_command,
     result_search_command,
     interactive_result_comparison_command,
     interactive_result_bundle_command,

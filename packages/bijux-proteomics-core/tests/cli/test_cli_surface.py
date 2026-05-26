@@ -846,6 +846,46 @@ def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
         assert "site_key" in hit_tsv
 
 
+def test_query_result_command_searches_demo_root_without_internal_report_paths() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        demo = runner.invoke(
+            cli,
+            [
+                "demo",
+                "--out-dir",
+                "proteomics_demo_query_result",
+            ],
+        )
+        assert demo.exit_code == 0
+
+        result = runner.invoke(
+            cli,
+            [
+                "query-result",
+                "proteomics_demo_query_result",
+                "--query",
+                "P11111:S5:Phospho",
+                "--summary-tsv-out",
+                "query_result.summary.tsv",
+                "--hit-tsv-out",
+                "query_result.hits.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["index"]["summary"]["ptm_site_document_count"] >= 1
+        assert payload["report"]["summary"]["hit_count"] >= 1
+        assert payload["report"]["hits"][0]["object_id"] == "P11111:S5:Phospho"
+        assert "indexed_document_count" in Path(
+            "query_result.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "site_key" in Path("query_result.hits.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_interactive_result_comparison_command_emits_changed_object_payloads() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
