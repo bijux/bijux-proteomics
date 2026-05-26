@@ -647,9 +647,14 @@ def test_workflow_package_exports_discovery_to_assay_surface() -> None:
 
     assert hasattr(workflow, "design_assay_from_discovery")
     assert hasattr(workflow, "render_discovery_to_assay_targets_tsv")
+    assert hasattr(workflow, "render_discovery_to_assay_validation_candidate_cards_tsv")
     assert report.summary.target_count == 1
     assert report.summary.assay_ready_target_count == 1
+    assert report.validation_candidate_cards.summary.candidate_count == 1
     assert "assay_feasibility" in workflow.render_discovery_to_assay_targets_tsv(report)
+    assert "final_status" in workflow.render_discovery_to_assay_validation_candidate_cards_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_cross_study_protein_harmonization_surface() -> None:
