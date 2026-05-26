@@ -10,6 +10,7 @@ from bijux_proteomics_foundation.outcomes.exceptions import (
     ContractNotFoundError,
     ContractValidationError,
     FoundationContractError,
+    MissingOptionalDependencyError,
     MigrationExecutionError,
     MigrationPathError,
 )
@@ -18,6 +19,10 @@ from bijux_proteomics_foundation.outcomes.failures import (
     ErrorEnvelope,
     build_error_envelope_from_exception,
     summarize_exception_chain,
+)
+from bijux_proteomics_foundation.outcomes.optional_dependencies import (
+    import_optional_module,
+    is_missing_optional_dependency_error,
 )
 from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.outcomes.results import (
@@ -32,8 +37,11 @@ __all__ = [
     "ErrorCategory",
     "ErrorEnvelope",
     "FoundationContractError",
+    "import_optional_module",
+    "is_missing_optional_dependency_error",
     "MigrationExecutionError",
     "MigrationPathError",
+    "MissingOptionalDependencyError",
     "OperationDisposition",
     "OperationRefusal",
     "OperationResult",
