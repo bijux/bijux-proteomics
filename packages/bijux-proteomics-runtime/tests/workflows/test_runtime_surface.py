@@ -11,6 +11,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     RerunComparisonScope,
     WorkflowArchiveMedium,
     WorkflowCacheMissReason,
+    WorkflowCacheReuseDisposition,
     WorkflowCheckpointStatus,
     WorkflowDiffCategory,
     WorkflowDiffReport,
@@ -35,6 +36,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_proteomics_workflow_template,
+    build_workflow_cache_reuse_plan,
     build_reproducible_workflow_blueprint,
     build_workflow_cache_miss_explanation_report,
     build_workflow_checkpoint,
@@ -837,6 +839,56 @@ def test_workflow_cache_miss_explanations_identify_scientific_input_checksum_cha
     assert reasons_by_surface["quant-parse"] is (
         WorkflowCacheMissReason.SCIENTIFIC_INPUTS_CHANGED
     )
+
+
+def test_workflow_cache_reuse_plan_reruns_fdr_and_bundle_when_q_value_threshold_changes() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    reuse_plan = build_workflow_cache_reuse_plan(
+        changed_manifest,
+        expected=build_workflow_runtime_cache(changed_manifest),
+        observed=build_workflow_runtime_cache(baseline_manifest),
+    )
+
+    assert any(step_id.endswith("digest-database") for step_id in reuse_plan.reused_step_ids)
+    assert any(
+        step_id.endswith("normalize-identifications")
+        for step_id in reuse_plan.reused_step_ids
+    )
+    assert any(step_id.endswith("quantify-features") for step_id in reuse_plan.reused_step_ids)
+    assert any(step_id.endswith("calculate-fdr") for step_id in reuse_plan.rerun_step_ids)
+    assert any(step_id.endswith("build-run-bundle") for step_id in reuse_plan.rerun_step_ids)
+
+    decisions_by_surface = {decision.surface: decision for decision in reuse_plan.decisions}
+    assert (
+        decisions_by_surface["fdr-score"].disposition
+        is WorkflowCacheReuseDisposition.RERUN
+    )
+    assert decisions_by_surface["fdr-score"].reasons == ("parameters-changed",)
+    assert (
+        decisions_by_surface["run-bundle"].disposition
+        is WorkflowCacheReuseDisposition.RERUN
+    )
+    assert decisions_by_surface["run-bundle"].reasons == ("dependency-changed",)
 
 
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
