@@ -34,6 +34,7 @@ from bijux_proteomics.workflow.result_types import (
     artifact_name_map,
     build_rejected_evidence_entry,
     build_result_warning,
+    render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
@@ -89,6 +90,7 @@ class AdvancedMaxquantWorkflowArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     maxquant_workflow_manifest_json: str = Field(..., min_length=1)
     biological_report_manifest_json: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     excluded_protein_groups_tsv: str = Field(..., min_length=1)
     peptide_contribution_tsv: str = Field(..., min_length=1)
     supported_claim_tsv: str | None = None
@@ -185,10 +187,20 @@ def run_advanced_maxquant_workflow(
 
     excluded_name = "advanced_maxquant_excluded_protein_groups.tsv"
     peptide_contribution_name = "advanced_maxquant_peptide_contributions.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_maxquant_summary.tsv"
 
     write_output_table_tsv((output_dir / excluded_name), render_filtered_maxquant_protein_groups_tsv(excluded_groups))
     write_output_table_tsv((output_dir / peptide_contribution_name), render_advanced_maxquant_peptide_contributions_tsv(peptide_contributions))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(
+            _build_advanced_maxquant_rejected_evidence(
+                filtered_groups=base_report.filtered_protein_groups,
+                related_artifact=rejected_evidence_name,
+            )
+        ),
+    )
 
     claim_validation = base_report.biological_report.claim_validation_report
     summary = AdvancedMaxquantWorkflowSummary(
@@ -218,6 +230,7 @@ def run_advanced_maxquant_workflow(
             summary_tsv=summary_name,
             maxquant_workflow_manifest_json=maxquant_manifest_path.name,
             biological_report_manifest_json=maxquant_manifest.artifacts.biological_manifest_json,
+            rejected_evidence_tsv=rejected_evidence_name,
             excluded_protein_groups_tsv=excluded_name,
             peptide_contribution_tsv=peptide_contribution_name,
             supported_claim_tsv=maxquant_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
@@ -247,8 +260,8 @@ def run_advanced_maxquant_workflow(
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_maxquant_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_maxquant_rejected_evidence(
-            excluded_groups=excluded_groups,
-            manifest=manifest,
+            filtered_groups=base_report.filtered_protein_groups,
+            related_artifact=manifest.artifacts.rejected_evidence_tsv,
         ),
         note=(
             "advanced maxquant workflow composes governed maxquant import, "
@@ -317,11 +330,11 @@ def _build_advanced_maxquant_warnings(
 
 def _build_advanced_maxquant_rejected_evidence(
     *,
-    excluded_groups: tuple[MaxquantFilteredProteinGroupEntry, ...],
-    manifest: AdvancedMaxquantWorkflowManifest,
+    filtered_groups: tuple[MaxquantFilteredProteinGroupEntry, ...],
+    related_artifact: str,
 ) -> tuple:
     entries = []
-    for group in excluded_groups:
+    for group in filtered_groups:
         if group.reasons:
             for reason in group.reasons:
                 entries.append(
@@ -335,7 +348,8 @@ def _build_advanced_maxquant_rejected_evidence(
                             "maxquant protein group was filtered before biological "
                             "reporting"
                         ),
-                        related_artifact=manifest.artifacts.excluded_protein_groups_tsv,
+                        related_artifact=related_artifact,
+                        entity_type="protein_group",
                         entity_id=group.entity_id,
                     )
                 )
@@ -346,7 +360,8 @@ def _build_advanced_maxquant_rejected_evidence(
                 source_surface="advanced_maxquant_workflow",
                 reason_code="filtered_protein_group",
                 message="maxquant protein group was filtered before biological reporting",
-                related_artifact=manifest.artifacts.excluded_protein_groups_tsv,
+                related_artifact=related_artifact,
+                entity_type="protein_group",
                 entity_id=group.entity_id,
             )
         )

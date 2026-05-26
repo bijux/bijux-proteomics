@@ -524,7 +524,7 @@ def write_dda_biological_workflow_bundle(
     protein_lfq_missingness_mask_name = "dda_protein_lfq_missingness_mask.tsv"
     protein_discrepancy_name = "dda_source_protein_discrepancies.tsv"
     biological_manifest_name = "biological_report_manifest.json"
-    rejected_evidence_entries = _build_dda_workflow_rejected_evidence(report)
+    rejected_evidence_entries = build_dda_workflow_rejected_evidence_entries(report)
 
     write_output_table_tsv((output_dir / summary_name), render_dda_biological_workflow_summary_tsv(report))
     export_psm_tsv(report.accepted_psms, output_dir / accepted_name)
@@ -596,7 +596,7 @@ def export_dda_biological_workflow_bundle(
     return write_dda_biological_workflow_bundle(report, output_dir)
 
 
-def _build_dda_workflow_rejected_evidence(
+def build_dda_workflow_rejected_evidence_entries(
     report: DdaBiologicalWorkflowBundle,
 ) -> tuple:
     parse_rejections = build_rejected_evidence_entries_from_issue_rows(

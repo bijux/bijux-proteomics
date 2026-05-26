@@ -27,15 +27,16 @@ from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaPsmAcceptancePolicy,
     DdaProteinGroupDiscrepancyEntry,
     DdaProteinGroupDiscrepancyStatus,
+    build_dda_workflow_rejected_evidence_entries,
     write_dda_biological_workflow_bundle,
     build_dda_biological_workflow_bundle,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
     artifact_name_map,
-    build_rejected_evidence_entries_from_issue_rows,
     build_rejected_evidence_entries_from_reason_rows,
     build_result_warning,
+    render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
@@ -104,6 +105,7 @@ class AdvancedFragpipeWorkflowArtifactPaths(JsonModel):
     summary_tsv: str = Field(..., min_length=1)
     fragpipe_workflow_manifest_json: str = Field(..., min_length=1)
     biological_report_manifest_json: str = Field(..., min_length=1)
+    rejected_evidence_tsv: str = Field(..., min_length=1)
     peptide_evidence_tsv: str = Field(..., min_length=1)
     discrepancy_reason_tsv: str | None = None
     supported_claim_tsv: str | None = None
@@ -212,11 +214,22 @@ def run_advanced_fragpipe_workflow(
 
     peptide_evidence_name = "advanced_fragpipe_peptide_evidence.tsv"
     discrepancy_name = "advanced_fragpipe_protein_group_discrepancies.tsv"
+    rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_fragpipe_summary.tsv"
 
     write_output_table_tsv((output_dir / peptide_evidence_name), render_advanced_fragpipe_peptide_evidence_tsv(peptide_evidence))
     if discrepancy_reasons:
         write_output_table_tsv((output_dir / discrepancy_name), render_advanced_fragpipe_discrepancy_tsv(discrepancy_reasons))
+    write_output_table_tsv(
+        (output_dir / rejected_evidence_name),
+        render_result_rejected_evidence_tsv(
+            _build_advanced_fragpipe_rejected_evidence(
+                report=base_report,
+                discrepancy_reasons=discrepancy_reasons,
+                related_artifact=rejected_evidence_name,
+            )
+        ),
+    )
 
     summary = AdvancedFragpipeWorkflowSummary(
         imported_psm_row_count=base_report.summary.imported_psm_row_count,
@@ -238,6 +251,7 @@ def run_advanced_fragpipe_workflow(
             summary_tsv=summary_name,
             fragpipe_workflow_manifest_json=fragpipe_manifest_path.name,
             biological_report_manifest_json=fragpipe_manifest.artifacts.biological_manifest_json,
+            rejected_evidence_tsv=rejected_evidence_name,
             peptide_evidence_tsv=peptide_evidence_name,
             discrepancy_reason_tsv=discrepancy_name if discrepancy_reasons else None,
             supported_claim_tsv=fragpipe_manifest.biological_report_manifest.artifacts.supported_claim_tsv,
@@ -269,7 +283,7 @@ def run_advanced_fragpipe_workflow(
         rejected_evidence=_build_advanced_fragpipe_rejected_evidence(
             report=base_report,
             discrepancy_reasons=discrepancy_reasons,
-            manifest=manifest,
+            related_artifact=manifest.artifacts.rejected_evidence_tsv,
         ),
         note=(
             "advanced fragpipe workflow composes governed fragpipe psm import, "
@@ -405,22 +419,18 @@ def _build_advanced_fragpipe_rejected_evidence(
     *,
     report: DdaBiologicalWorkflowBundle,
     discrepancy_reasons: tuple[AdvancedFragpipeDiscrepancyEntry, ...],
-    manifest: AdvancedFragpipeWorkflowManifest,
+    related_artifact: str,
 ) -> tuple:
     return (
-        build_rejected_evidence_entries_from_issue_rows(
-            report.parse_rejected_rows,
-            source_surface="advanced_fragpipe_workflow",
-            related_artifact=manifest.fragpipe_workflow_manifest.artifacts.parse_rejected_tsv,
-            entity_prefix="psm_row",
-        )
+        build_dda_workflow_rejected_evidence_entries(report)
         + build_rejected_evidence_entries_from_reason_rows(
             discrepancy_reasons,
             source_surface="advanced_fragpipe_workflow",
             reason_field="discrepancy_reason",
             message_field="status",
             entity_field="protein_ref",
-            related_artifact=manifest.artifacts.discrepancy_reason_tsv,
+            related_artifact=related_artifact,
+            entity_type="protein_group",
         )
     )
 

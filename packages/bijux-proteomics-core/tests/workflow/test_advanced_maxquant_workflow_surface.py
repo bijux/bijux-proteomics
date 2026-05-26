@@ -57,6 +57,9 @@ def test_run_advanced_maxquant_workflow_excludes_reverse_and_contaminants_from_b
     peptide_contribution_tsv = (
         output_dir / report.manifest.artifacts.peptide_contribution_tsv
     ).read_text(encoding="utf-8")
+    rejected_evidence_tsv = (
+        output_dir / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
 
     assert report.summary.excluded_reverse_or_contaminant_count == 2
     assert report.summary.biological_foreground_protein_count >= 1
@@ -67,6 +70,8 @@ def test_run_advanced_maxquant_workflow_excludes_reverse_and_contaminants_from_b
     assert "CON__KRT1" not in foreground_tsv
     assert "REV__P77777" not in foreground_tsv
     assert "P04637\tP04637\tPEPAAA" in peptide_contribution_tsv
+    assert "CON__KRT1" in rejected_evidence_tsv
+    assert "REV__P77777" in rejected_evidence_tsv
     assert report.manifest.artifacts.supported_claim_tsv is not None
     assert report.manifest.artifacts.rejected_claim_tsv is not None
     assert (output_dir / report.manifest.artifacts.supported_claim_tsv).exists()
@@ -91,6 +96,11 @@ def test_run_advanced_maxquant_workflow_preserves_only_site_filtered_groups_sepa
     )
 
     assert report.summary.additional_filtered_protein_group_count == 1
+    rejected_evidence_tsv = (
+        tmp_path
+        / "advanced_maxquant_site_filtering"
+        / report.manifest.artifacts.rejected_evidence_tsv
+    ).read_text(encoding="utf-8")
     assert {entry.entity_id for entry in report.excluded_protein_groups} == {
         "CON__KRT1",
         "REV__P77777",
@@ -99,3 +109,4 @@ def test_run_advanced_maxquant_workflow_preserves_only_site_filtered_groups_sepa
         entry.entity_id == "P12345"
         for entry in report.maxquant_workflow.filtered_protein_groups
     )
+    assert "P12345" in rejected_evidence_tsv
