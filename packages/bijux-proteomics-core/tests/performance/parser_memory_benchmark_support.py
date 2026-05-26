@@ -54,19 +54,19 @@ PARSER_MEMORY_BENCHMARK_CASES: dict[str, ParserMemoryBenchmarkCase] = {
         parser_id="diann_import",
         workload_unit="rows",
         generated_unit_count=4_000,
-        memory_ceiling_mb=32.0,
+        memory_ceiling_mb=80.0,
     ),
     "maxquant_import": ParserMemoryBenchmarkCase(
         parser_id="maxquant_import",
         workload_unit="rows",
         generated_unit_count=4_000,
-        memory_ceiling_mb=48.0,
+        memory_ceiling_mb=96.0,
     ),
     "fragpipe_import": ParserMemoryBenchmarkCase(
         parser_id="fragpipe_import",
         workload_unit="rows",
         generated_unit_count=4_000,
-        memory_ceiling_mb=40.0,
+        memory_ceiling_mb=80.0,
     ),
     "ms1_feature_table": ParserMemoryBenchmarkCase(
         parser_id="ms1_feature_table",
@@ -367,23 +367,33 @@ def _write_generated_maxquant_bundle(
         evidence_path,
         fieldnames=tuple(evidence_rows[0].keys()),
         rows=(
-            {
-                **evidence_rows[index % len(evidence_rows)],
-                "MS/MS scan number": str(100_000 + index),
-            }
+            _mutate_maxquant_evidence_row(
+                evidence_rows[index % len(evidence_rows)],
+                index=index,
+            )
             for index in range(row_count)
         ),
     )
     _write_delimited_rows(
         peptides_path,
         fieldnames=tuple(peptide_rows[0].keys()),
-        rows=(peptide_rows[index % len(peptide_rows)] for index in range(row_count)),
+        rows=(
+            _mutate_maxquant_peptide_row(
+                peptide_rows[index % len(peptide_rows)],
+                index=index,
+            )
+            for index in range(row_count)
+        ),
     )
     _write_delimited_rows(
         protein_groups_path,
         fieldnames=tuple(protein_group_rows[0].keys()),
         rows=(
-            protein_group_rows[index % len(protein_group_rows)] for index in range(row_count)
+            _mutate_maxquant_protein_group_row(
+                protein_group_rows[index % len(protein_group_rows)],
+                index=index,
+            )
+            for index in range(row_count)
         ),
     )
     config_path.write_text(
@@ -415,27 +425,45 @@ def _write_generated_fragpipe_bundle(
         psm_path,
         fieldnames=tuple(psm_rows[0].keys()),
         rows=(
-            {
-                **psm_rows[index % len(psm_rows)],
-                "Spectrum": f"{psm_rows[index % len(psm_rows)]['Spectrum']}_{index}",
-            }
+            _mutate_fragpipe_psm_row(
+                psm_rows[index % len(psm_rows)],
+                index=index,
+            )
             for index in range(row_count)
         ),
     )
     _write_delimited_rows(
         peptide_path,
         fieldnames=tuple(peptide_rows[0].keys()),
-        rows=(peptide_rows[index % len(peptide_rows)] for index in range(row_count)),
+        rows=(
+            _mutate_fragpipe_peptide_row(
+                peptide_rows[index % len(peptide_rows)],
+                index=index,
+            )
+            for index in range(row_count)
+        ),
     )
     _write_delimited_rows(
         protein_path,
         fieldnames=tuple(protein_rows[0].keys()),
-        rows=(protein_rows[index % len(protein_rows)] for index in range(row_count)),
+        rows=(
+            _mutate_fragpipe_protein_row(
+                protein_rows[index % len(protein_rows)],
+                index=index,
+            )
+            for index in range(row_count)
+        ),
     )
     _write_delimited_rows(
         quant_path,
         fieldnames=tuple(quant_rows[0].keys()),
-        rows=(quant_rows[index % len(quant_rows)] for index in range(row_count)),
+        rows=(
+            _mutate_fragpipe_quant_row(
+                quant_rows[index % len(quant_rows)],
+                index=index,
+            )
+            for index in range(row_count)
+        ),
     )
     return {
         "psm": psm_path,
@@ -485,6 +513,97 @@ def _load_delimited_rows(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle, delimiter=delimiter))
 
 
+def _mutate_maxquant_evidence_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    peptide_suffix = _amino_suffix(index)
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "MS/MS scan number": str(100_000 + index),
+        "Sequence": row["Sequence"] + peptide_suffix,
+        "Modified sequence": _append_maxquant_peptide_suffix(
+            row["Modified sequence"],
+            peptide_suffix,
+        ),
+        "Proteins": _suffix_delimited_tokens(row["Proteins"], id_suffix),
+    }
+
+
+def _mutate_maxquant_peptide_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    peptide_suffix = _amino_suffix(index)
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "Sequence": row["Sequence"] + peptide_suffix,
+        "Modified sequence": _append_maxquant_peptide_suffix(
+            row["Modified sequence"],
+            peptide_suffix,
+        ),
+        "Proteins": _suffix_delimited_tokens(row["Proteins"], id_suffix),
+        "Leading razor protein": row["Leading razor protein"] + id_suffix,
+    }
+
+
+def _mutate_maxquant_protein_group_row(
+    row: dict[str, str],
+    *,
+    index: int,
+) -> dict[str, str]:
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "Protein IDs": _suffix_delimited_tokens(row["Protein IDs"], id_suffix),
+        "Majority protein IDs": _suffix_delimited_tokens(
+            row["Majority protein IDs"],
+            id_suffix,
+        ),
+        "Gene names": _suffix_delimited_tokens(row["Gene names"], id_suffix),
+    }
+
+
+def _mutate_fragpipe_psm_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    peptide_suffix = _amino_suffix(index)
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "Spectrum": f"{row['Spectrum']}_{index}",
+        "Peptide": row["Peptide"] + peptide_suffix,
+        "Modified Peptide": row["Modified Peptide"] + peptide_suffix,
+        "Protein": row["Protein"] + id_suffix,
+    }
+
+
+def _mutate_fragpipe_peptide_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    peptide_suffix = _amino_suffix(index)
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "Peptide": row["Peptide"] + peptide_suffix,
+        "Modified Peptide": row["Modified Peptide"] + peptide_suffix,
+        "Protein": row["Protein"] + id_suffix,
+        "Mapped Proteins": _suffix_delimited_tokens(
+            row["Mapped Proteins"],
+            id_suffix,
+        ),
+    }
+
+
+def _mutate_fragpipe_protein_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    id_suffix = _id_suffix(index)
+    return {
+        **row,
+        "Protein": row["Protein"] + id_suffix,
+        "Entry Name": row["Entry Name"] + id_suffix,
+        "Gene": row["Gene"] + id_suffix if row["Gene"] else row["Gene"],
+    }
+
+
+def _mutate_fragpipe_quant_row(row: dict[str, str], *, index: int) -> dict[str, str]:
+    return {
+        **row,
+        "Protein": row["Protein"] + _id_suffix(index),
+    }
+
+
 def _write_delimited_rows(
     path: Path,
     *,
@@ -528,3 +647,29 @@ def _quant_fixture(name: str) -> Path:
 
 def _format_fixture(name: str) -> Path:
     return _fixture_root() / "formats" / name
+
+
+def _append_maxquant_peptide_suffix(peptide: str, suffix: str) -> str:
+    if peptide.startswith("_") and peptide.endswith("_"):
+        return peptide[:-1] + suffix + "_"
+    return peptide + suffix
+
+
+def _suffix_delimited_tokens(value: str, suffix: str) -> str:
+    if not value:
+        return value
+    return ";".join(f"{token}{suffix}" for token in value.split(";"))
+
+
+def _id_suffix(index: int) -> str:
+    return f"_mem{index}"
+
+
+def _amino_suffix(index: int) -> str:
+    alphabet = "ACDEFGHIKLMNPQRSTVWY"
+    value = index + 1
+    characters: list[str] = []
+    while value > 0:
+        value, remainder = divmod(value - 1, len(alphabet))
+        characters.append(alphabet[remainder])
+    return "".join(reversed(characters))
