@@ -43,9 +43,9 @@ def test_diff_model_payloads_reports_changed_fields() -> None:
 
     diff = diff_model_payloads(left, right)
 
-    assert diff["added_fields"] == []
-    assert diff["removed_fields"] == []
-    assert diff["changed_fields"] == ["evidence_gaps"]
+    assert diff.added_fields == ()
+    assert diff.removed_fields == ()
+    assert diff.changed_fields == ("evidence_gaps",)
 
 
 def test_build_canonical_artifact_envelope_includes_schema_and_fingerprint() -> None:
@@ -56,9 +56,9 @@ def test_build_canonical_artifact_envelope_includes_schema_and_fingerprint() -> 
         schema=DocumentSchema(created_by="bijux-proteomics-lab"),
     )
 
-    assert envelope["artifact_kind"] == "plan"
-    assert "fingerprint" in envelope
-    assert "schema" in envelope
+    assert envelope.artifact_kind == "plan"
+    assert envelope.fingerprint
+    assert envelope.schema_metadata.created_by == "bijux-proteomics-lab"
 
 
 def test_verify_canonical_artifact_envelope_detects_tampering() -> None:
@@ -69,5 +69,5 @@ def test_verify_canonical_artifact_envelope_detects_tampering() -> None:
         schema=DocumentSchema(created_by="bijux-proteomics-lab"),
     )
     assert verify_canonical_artifact_envelope(envelope) is True
-    envelope["payload"] = {"program_id": "tampered"}
+    envelope.payload_raw_json = {"program_id": "tampered"}
     assert verify_canonical_artifact_envelope(envelope) is False

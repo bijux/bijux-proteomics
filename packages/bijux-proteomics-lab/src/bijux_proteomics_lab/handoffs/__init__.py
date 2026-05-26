@@ -15,6 +15,7 @@ __all__ = [
     "AssayRiskCode",
     "AssayRiskFinding",
     "AssayRiskSeverity",
+    "CanonicalArtifactEnvelope",
     "HandoffAuthorityBoundary",
     "HandoffAuthorityOwner",
     "HandoffExplanation",
@@ -35,6 +36,7 @@ __all__ = [
     "LimsExportBundle",
     "LimsExportRecord",
     "LimsFieldMapping",
+    "ModelPayloadDiff",
     "PtmLabAssayRisk",
     "PtmLabValidationPacket",
     "PtmLabValidationTargetEntry",
@@ -86,6 +88,10 @@ _HANDOFF_PUBLIC_EXPORTS = {
     "AssayRiskCode": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskCode"),
     "AssayRiskFinding": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskFinding"),
     "AssayRiskSeverity": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskSeverity"),
+    "CanonicalArtifactEnvelope": (
+        "bijux_proteomics_lab.handoffs.serialization",
+        "CanonicalArtifactEnvelope",
+    ),
     "HandoffAuthorityBoundary": (
         "bijux_proteomics_lab.handoffs.explanations",
         "HandoffAuthorityBoundary",
@@ -157,6 +163,10 @@ _HANDOFF_PUBLIC_EXPORTS = {
     "LimsExportBundle": ("bijux_proteomics_lab.handoffs.exports", "LimsExportBundle"),
     "LimsExportRecord": ("bijux_proteomics_lab.handoffs.exports", "LimsExportRecord"),
     "LimsFieldMapping": ("bijux_proteomics_lab.handoffs.exports", "LimsFieldMapping"),
+    "ModelPayloadDiff": (
+        "bijux_proteomics_lab.handoffs.serialization",
+        "ModelPayloadDiff",
+    ),
     "PtmLabAssayRisk": ("bijux_proteomics_lab.handoffs.ptm", "PtmLabAssayRisk"),
     "PtmLabValidationPacket": (
         "bijux_proteomics_lab.handoffs.ptm",
