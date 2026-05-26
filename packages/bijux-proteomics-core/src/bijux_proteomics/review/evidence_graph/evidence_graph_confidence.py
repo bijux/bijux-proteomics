@@ -6,12 +6,12 @@
 from __future__ import annotations
 
 import csv
-from enum import StrEnum
 from io import StringIO
 from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.chromatographic_evidence import (
     ChromatographicEvidenceScoreReport,
 )
@@ -33,12 +33,7 @@ if TYPE_CHECKING:
     )
 
 
-class EvidenceGraphConfidenceTier(StrEnum):
-    """Deterministic confidence tiers for final proteomics claims."""
-
-    HIGH = "high"
-    MODERATE = "moderate"
-    LOW = "low"
+EvidenceGraphConfidenceTier = ConfidenceTier
 
 
 class EvidenceGraphConfidenceEntry(JsonModel):

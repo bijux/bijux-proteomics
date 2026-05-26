@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 from types import SimpleNamespace
 
-from bijux_proteomics import study
+from bijux_proteomics import domain, study
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -75,6 +75,11 @@ def test_study_package_exports_lab_qc_status_surface() -> None:
     assert assessment.qc_status is study.QcStatus.PASS
     assert assessment.status_reasons == ()
     assert "qc_status" in study.render_qc_assessment_tsv(assessment).splitlines()[0]
+
+
+def test_study_package_exports_shared_experiment_confidence_tier() -> None:
+    assert study.ExperimentConfidenceTier is domain.ConfidenceTier
+    assert study.ExperimentConfidenceTier.HIGH_CONFIDENCE.value == "high"
 
 
 def test_study_package_exports_carryover_detection_surface() -> None:

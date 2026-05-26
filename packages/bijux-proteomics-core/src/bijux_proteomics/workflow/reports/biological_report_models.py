@@ -12,6 +12,7 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation import (
     BiologicalContextKind,
     BiologicalContextImportReport,
@@ -298,7 +299,7 @@ class BiologicalResultReportSummary(JsonModel):
     cohort_subgroup_effect_count: int = Field(..., ge=0)
     cohort_interaction_candidate_count: int = Field(..., ge=0)
     experiment_confidence_score: float = Field(..., ge=0.0, le=1.0)
-    experiment_confidence_tier: str = Field(..., min_length=1)
+    experiment_confidence_tier: ConfidenceTier
     low_confidence_component_count: int = Field(..., ge=0)
     high_confidence_section_count: int = Field(..., ge=0)
     moderate_confidence_section_count: int = Field(..., ge=0)

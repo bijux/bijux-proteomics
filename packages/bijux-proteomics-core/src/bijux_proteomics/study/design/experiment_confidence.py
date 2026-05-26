@@ -11,6 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import MissingnessConditionSummaryReport
 from bijux_proteomics.quantification.power_estimation import PowerEstimationReport
@@ -49,12 +50,7 @@ class ExperimentConfidenceComponentKind(StrEnum):
     EVIDENCE_CONSISTENCY = "evidence_consistency"
 
 
-class ExperimentConfidenceTier(StrEnum):
-    """Stable confidence tiers for components and whole-experiment scores."""
-
-    HIGH_CONFIDENCE = "high_confidence"
-    MODERATE_CONFIDENCE = "moderate_confidence"
-    LOW_CONFIDENCE = "low_confidence"
+ExperimentConfidenceTier = ConfidenceTier
 
 
 class ExperimentConfidenceComponent(JsonModel):

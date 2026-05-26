@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics import domain
 import bijux_proteomics.review as review
 
 
@@ -25,6 +26,7 @@ def test_review_package_exports_proteomics_evidence_graph_owner_surface() -> Non
     assert hasattr(review, "ProteomicsEvidenceNodeKind")
     assert hasattr(review, "ProteomicsEvidenceEdgeKind")
     assert hasattr(review, "ProteomicsEvidenceType")
+    assert review.EvidenceGraphConfidenceTier is domain.ConfidenceTier
     assert graph.summary.node_kind_counts == {"run": 1, "sample": 1}
     assert graph.summary.edge_kind_counts == {"sample_contains_run": 1}
 

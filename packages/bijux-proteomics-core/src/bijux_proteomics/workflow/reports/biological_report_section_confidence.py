@@ -12,6 +12,7 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation import (
     BiologicalContextKind,
     BiologicalContextImportReport,
@@ -288,7 +289,7 @@ def _build_biological_report_section_confidence_entries(
 ) -> tuple[BiologicalReportSectionConfidenceEntry, ...]:
     entries: list[BiologicalReportSectionConfidenceEntry] = []
     summary = experiment_confidence_report.summary
-    if summary.overall_tier.value == "high_confidence":
+    if summary.overall_tier is ConfidenceTier.HIGH:
         if summary.low_confidence_component_count == 0:
             entries.append(
                 _build_section_confidence_entry(
@@ -305,7 +306,7 @@ def _build_biological_report_section_confidence_entries(
                     "overall experimental confidence is high but at least one component remained low-confidence",
                 )
             )
-    elif summary.overall_tier.value == "moderate_confidence":
+    elif summary.overall_tier is ConfidenceTier.MODERATE:
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,

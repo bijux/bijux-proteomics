@@ -914,9 +914,7 @@ def build_biological_result_report_bundle_from_quant_table(
                 else cohort_stratification_report.summary.interaction_candidate_count
             ),
             experiment_confidence_score=experiment_confidence_report.summary.overall_score,
-            experiment_confidence_tier=(
-                experiment_confidence_report.summary.overall_tier.value
-            ),
+            experiment_confidence_tier=experiment_confidence_report.summary.overall_tier,
             low_confidence_component_count=(
                 experiment_confidence_report.summary.low_confidence_component_count
             ),
