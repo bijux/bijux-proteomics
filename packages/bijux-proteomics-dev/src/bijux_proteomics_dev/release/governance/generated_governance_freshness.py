@@ -5,6 +5,10 @@ import importlib
 from pathlib import Path
 import re
 
+from bijux_proteomics_foundation.testing.generated_file_markers import (
+    GeneratedFileMarkerKind,
+    detect_generated_file_marker,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -49,17 +53,17 @@ class GeneratedGovernanceFreshnessIssue:
 def _generated_governance_paths() -> tuple[Path, ...]:
     paths: list[Path] = []
     for path in sorted(PACKAGE_GOVERNANCE_DIR.rglob("*.toml")):
-        lines = path.read_text(encoding="utf-8").splitlines()
-        if lines and lines[0].startswith("# Generated"):
+        marker = detect_generated_file_marker(path)
+        if marker is not None and marker.kind == GeneratedFileMarkerKind.GENERATED_HEADER:
             paths.append(path)
     return tuple(paths)
 
 
 def _module_name(path: Path) -> str | None:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if len(lines) < 2:
+    marker = detect_generated_file_marker(path)
+    if marker is None or marker.regenerate_command is None:
         return None
-    match = REGENERATE_PATTERN.match(lines[1].strip())
+    match = REGENERATE_PATTERN.match(f"# Regenerate with: {marker.regenerate_command}")
     if match is None:
         return None
     return match.group("module")

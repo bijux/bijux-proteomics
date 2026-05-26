@@ -219,6 +219,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/states.py",
         "testing/public_function_docstrings.py",
         "testing/public_function_type_boundaries.py",
+        "testing/generated_file_markers.py",
         "testing/source_tree_complexity.py",
         "testing/skip_policy.py",
         "testing/pytest_markers.py",
@@ -258,6 +259,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "outcomes/failures.py",
         "outcomes/exceptions.py",
         "outcomes/__init__.py",
+        "outcomes/optional_dependencies.py",
         "outcomes/refusals.py",
         "outcomes/results.py",
     }:
