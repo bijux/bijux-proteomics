@@ -17,6 +17,7 @@ from bijux_proteomics.workflow import (
     TargetedResultSourceKind,
     TargetedValidationWorkflowConfig,
     run_targeted_validation_workflow,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -216,6 +217,23 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
         output_dir / report.manifest.artifacts.targeted_assay_qc_workflow_manifest_json
     ).exists()
     assert (output_dir / report.manifest.artifacts.validation_evidence_tsv).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == report.manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "field"
+    evidence_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == report.manifest.artifacts.evidence_cards_tsv
+    )
+    assert evidence_entry.output_table_schema is not None
+    assert "candidate_id" in {
+        column.name for column in evidence_entry.output_table_schema.columns
+    }
 
 
 def test_run_targeted_validation_workflow_preserves_assay_reliability_coelution_and_ratio_drift_surfaces(

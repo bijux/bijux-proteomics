@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.workflow import (
     AdvancedDiannWorkflowConfig,
     run_advanced_diann_workflow,
+    validate_workflow_artifact_manifest,
 )
 
 
@@ -84,6 +85,23 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
     assert report.manifest.artifacts.rejected_claim_tsv is not None
     assert (output_dir / report.manifest.artifacts.supported_claim_tsv).exists()
     assert (output_dir / report.manifest.artifacts.rejected_claim_tsv).exists()
+    layout_manifest = validate_workflow_artifact_manifest(output_dir)
+    summary_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == report.manifest.artifacts.summary_tsv
+    )
+    assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.columns[0].name == "field"
+    evidence_entry = next(
+        entry
+        for entry in layout_manifest.artifacts
+        if entry.legacy_relative_path == report.manifest.artifacts.accepted_proteins_tsv
+    )
+    assert evidence_entry.output_table_schema is not None
+    assert "protein_group_id" in {
+        column.name for column in evidence_entry.output_table_schema.columns
+    }
 
 
 def test_run_advanced_diann_workflow_exports_fragment_coelution_when_fragment_evidence_is_supplied(
