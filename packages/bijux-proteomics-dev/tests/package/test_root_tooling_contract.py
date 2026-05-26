@@ -75,6 +75,7 @@ def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None
         "local-rosettafold",
         "nl",
     }
+    assert any(str(entry).startswith("pyright>=") for entry in dependency_groups["dev"])
 
 
 def test_root_make_declares_documented_repository_extensions() -> None:
@@ -86,3 +87,5 @@ def test_root_make_declares_documented_repository_extensions() -> None:
     assert "manage_models:" in root_make
     assert "api-freeze:" in root_make
     assert "openapi-drift:" in root_make
+    assert "quality-public-api-types:" in root_make
+    assert "$(MAKE) quality-public-api-types" in root_make
