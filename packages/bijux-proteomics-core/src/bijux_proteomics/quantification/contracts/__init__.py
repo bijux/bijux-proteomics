@@ -90,7 +90,9 @@ from .input_models import (
 
 from .input_parsing import (
     parse_ms1_feature_table,
+    parse_ms1_feature_table_chunked,
     parse_precursor_intensity_table,
+    parse_precursor_intensity_table_chunked,
 )
 
 from .label_based import (
@@ -301,7 +303,9 @@ __all__ = [
     "PrecursorIntensityRecord",
     "PrecursorIntensityParseReport",
     "parse_ms1_feature_table",
+    "parse_ms1_feature_table_chunked",
     "parse_precursor_intensity_table",
+    "parse_precursor_intensity_table_chunked",
     "LabelBasedChannelPolicyEntry",
     "LabelBasedQuantPolicy",
     "LabelBasedChannelStateEntry",

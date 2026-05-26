@@ -38,7 +38,9 @@ _MODULE_EXPORTS = {
     ),
     "input_parsing": (
         "parse_ms1_feature_table",
+        "parse_ms1_feature_table_chunked",
         "parse_precursor_intensity_table",
+        "parse_precursor_intensity_table_chunked",
     ),
     "label_based": (
         "LabelBasedQuantBundle",
@@ -79,6 +81,7 @@ _MODULE_EXPORTS = {
 _FACADE_EXPORTS = (
     "Ms1FeatureRecord",
     "parse_ms1_feature_table",
+    "parse_ms1_feature_table_chunked",
     "LabelFreeQuantTable",
     "build_quant_matrix_export",
     "build_label_based_quant_bundle",
