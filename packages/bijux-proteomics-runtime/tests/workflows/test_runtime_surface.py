@@ -714,6 +714,131 @@ def test_workflow_manifest_records_fdr_threshold_in_policies_and_bundle_command_
     assert "0.05" in bundle_step.command_preview
 
 
+def test_workflow_cache_keys_track_semantic_fdr_parameters_and_dependent_bundle_surfaces() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    baseline_entries = {
+        entry.surface: entry for entry in build_workflow_runtime_cache(baseline_manifest).entries
+    }
+    changed_entries = {
+        entry.surface: entry for entry in build_workflow_runtime_cache(changed_manifest).entries
+    }
+
+    assert baseline_entries["digestion"].cache_key == changed_entries["digestion"].cache_key
+    assert (
+        baseline_entries["search-normalization"].cache_key
+        == changed_entries["search-normalization"].cache_key
+    )
+    assert baseline_entries["fdr-score"].parameter_assumptions == (
+        "fdr:q-value-threshold=0.01",
+    )
+    assert changed_entries["fdr-score"].parameter_assumptions == (
+        "fdr:q-value-threshold=0.05",
+    )
+    assert (
+        baseline_entries["fdr-score"].cache_key
+        != changed_entries["fdr-score"].cache_key
+    )
+    assert (
+        baseline_entries["run-bundle"].dependency_cache_keys
+        != changed_entries["run-bundle"].dependency_cache_keys
+    )
+    assert (
+        baseline_entries["run-bundle"].cache_key
+        != changed_entries["run-bundle"].cache_key
+    )
+
+
+def test_workflow_cache_miss_explanations_identify_parameter_and_dependency_changes() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    report = build_workflow_cache_miss_explanation_report(
+        build_workflow_runtime_cache(changed_manifest),
+        build_workflow_runtime_cache(baseline_manifest),
+    )
+    reasons_by_surface = {entry.surface: entry.reason for entry in report.entries}
+
+    assert reasons_by_surface["fdr-score"] is WorkflowCacheMissReason.PARAMETERS_CHANGED
+    assert reasons_by_surface["run-bundle"] is WorkflowCacheMissReason.DEPENDENCY_CHANGED
+
+
+def test_workflow_cache_miss_explanations_identify_scientific_input_checksum_changes(
+    tmp_path: Path,
+) -> None:
+    changed_design = tmp_path / "design.changed.tsv"
+    changed_design.write_text(
+        _fixture("design.tsv").read_text(encoding="utf-8").replace(
+            "control", "control_shifted"
+        ),
+        encoding="utf-8",
+    )
+
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=changed_design,
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_workflow_cache_miss_explanation_report(
+        build_workflow_runtime_cache(changed_manifest),
+        build_workflow_runtime_cache(baseline_manifest),
+    )
+    reasons_by_surface = {entry.surface: entry.reason for entry in report.entries}
+
+    assert reasons_by_surface["quant-parse"] is (
+        WorkflowCacheMissReason.SCIENTIFIC_INPUTS_CHANGED
+    )
+
+
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_fixture("proteins.fasta"),
