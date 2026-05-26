@@ -41,6 +41,7 @@ from bijux_proteomics_runtime.resume import (
     resume_workflow,
     write_workflow_resume_state,
 )
+from bijux_proteomics_runtime.support.primitives import deterministic_id
 from bijux_proteomics_runtime.support.workspace import write_text_atomic
 from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from bijux_proteomics_runtime.workflows.failure_reports import (
@@ -77,12 +78,40 @@ class AdvancedDiannRuntimeStageDecision(JsonModel):
     reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class AdvancedDiannRuntimeInputChecksumEntry(JsonModel):
+    """One content-hash entry contributing to a deterministic advanced DIA-NN run id."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_name: str = Field(..., min_length=1)
+    content_sha256: str = Field(..., min_length=64, max_length=64)
+
+
+class AdvancedDiannRuntimeRunIdentity(JsonModel):
+    """Deterministic identity over one semantic advanced DIA-NN runtime run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_type: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    fingerprint_sha256: str = Field(..., min_length=64, max_length=64)
+    input_checksums: tuple[AdvancedDiannRuntimeInputChecksumEntry, ...] = Field(
+        default_factory=tuple
+    )
+    parameter_fingerprint_sha256: str = Field(..., min_length=64, max_length=64)
+    schema_versions: dict[str, str] = Field(default_factory=dict)
+    note: str = Field(..., min_length=1)
+
+
 class AdvancedDiannRuntimeRunReport(JsonModel):
     """Reviewable report over resumable advanced DIA-NN runtime execution."""
 
     model_config = ConfigDict(extra="forbid")
 
+    workflow_type: str = Field(..., min_length=1)
     workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    run_identity: AdvancedDiannRuntimeRunIdentity
     status: AdvancedDiannRuntimeStatus
     completed_stage_ids: tuple[str, ...] = Field(default_factory=tuple)
     reused_stage_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -153,7 +182,10 @@ class AdvancedDiannDryRunReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    workflow_type: str = Field(..., min_length=1)
     workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    run_identity: AdvancedDiannRuntimeRunIdentity
     status: AdvancedDiannDryRunStatus
     output_dir: str = Field(..., min_length=1)
     input_checks: tuple[AdvancedDiannDryRunInputCheck, ...] = Field(default_factory=tuple)
@@ -187,18 +219,30 @@ _PLANNED_FRAGMENT_OUTPUTS = (
     ("advanced_diann_fragment_coelution_fragments.tsv", AdvancedDiannRuntimeStage.REVIEW, False, "optional fragment coelution fragment evidence"),
 )
 
+_ADVANCED_DIANN_RUNTIME_WORKFLOW_TYPE = "advanced_diann_runtime"
+_ADVANCED_DIANN_RUNTIME_ID_SCHEMA_VERSIONS = {
+    "advanced_diann_runtime_run_identity": "2026-05-26",
+    "advanced_diann_workflow_manifest": "2026-05-26",
+    "workflow_artifact_layout_manifest": "2026-05-25",
+    "output_table_schema": "2026-05-26",
+}
+
 
 def dry_run_resumable_advanced_diann_workflow(
     config: AdvancedDiannWorkflowConfig,
 ) -> AdvancedDiannDryRunReport:
     """Validate advanced DIA-NN inputs and plan runtime stages without running algorithms."""
 
-    workflow_id = _advanced_diann_runtime_workflow_id(config)
+    run_identity = build_advanced_diann_runtime_run_identity(config)
+    workflow_id = run_identity.run_id
     input_checks = _build_dry_run_input_checks(config)
     issues = _build_dry_run_issues(config, input_checks=input_checks)
     issue_codes = {issue.code for issue in issues}
     return AdvancedDiannDryRunReport(
+        workflow_type=run_identity.workflow_type,
         workflow_id=workflow_id,
+        run_id=run_identity.run_id,
+        run_identity=run_identity,
         status=(
             AdvancedDiannDryRunStatus.READY
             if not issues
@@ -229,7 +273,8 @@ def run_resumable_advanced_diann_workflow(
     config.output_dir.mkdir(parents=True, exist_ok=True)
     runtime_dir = config.output_dir / "checkpoints" / "advanced_diann_runtime"
     runtime_dir.mkdir(parents=True, exist_ok=True)
-    workflow_id = _advanced_diann_runtime_workflow_id(config)
+    run_identity = build_advanced_diann_runtime_run_identity(config)
+    workflow_id = run_identity.run_id
     try:
         design_entries = _load_valid_design_entries(config)
     except _AdvancedDiannExpectedFailure as exc:
@@ -242,7 +287,10 @@ def run_resumable_advanced_diann_workflow(
             reason_codes=exc.reason_codes,
         )
         return AdvancedDiannRuntimeRunReport(
+            workflow_type=run_identity.workflow_type,
             workflow_id=workflow_id,
+            run_id=run_identity.run_id,
+            run_identity=run_identity,
             status=AdvancedDiannRuntimeStatus.FAILED,
             completed_stage_ids=(),
             reused_stage_ids=(),
@@ -441,7 +489,10 @@ def run_resumable_advanced_diann_workflow(
         )
         if through_stage is stage:
             return AdvancedDiannRuntimeRunReport(
+                workflow_type=run_identity.workflow_type,
                 workflow_id=workflow_id,
+                run_id=run_identity.run_id,
+                run_identity=run_identity,
                 status=AdvancedDiannRuntimeStatus.INTERRUPTED,
                 completed_stage_ids=tuple(completed_stage_ids),
                 reused_stage_ids=reused_stage_ids,
@@ -457,7 +508,10 @@ def run_resumable_advanced_diann_workflow(
 
     assert advanced_report is not None
     return AdvancedDiannRuntimeRunReport(
+        workflow_type=run_identity.workflow_type,
         workflow_id=workflow_id,
+        run_id=run_identity.run_id,
+        run_identity=run_identity,
         status=AdvancedDiannRuntimeStatus.COMPLETED,
         completed_stage_ids=tuple(completed_stage_ids),
         reused_stage_ids=reused_stage_ids,
@@ -850,8 +904,142 @@ def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, ob
     }
 
 
-def _advanced_diann_runtime_workflow_id(config: AdvancedDiannWorkflowConfig) -> str:
-    return f"advanced-diann-runtime-{hash_payload({'result': str(config.result_tsv_path), 'design': str(config.design_tsv_path), 'proteins': str(config.proteins_fasta_path), 'output_dir': str(config.output_dir)})[:16]}"
+def build_advanced_diann_runtime_run_identity(
+    config: AdvancedDiannWorkflowConfig,
+) -> AdvancedDiannRuntimeRunIdentity:
+    """Build one deterministic semantic run identity for advanced DIA-NN runtime execution."""
+
+    identity_payloads = _run_identity_payloads(config)
+    input_checksums = _run_identity_input_checksums(identity_payloads)
+    parameter_payload = _run_identity_parameter_payload(identity_payloads)
+    missing_input_names = _run_identity_missing_input_names(identity_payloads)
+    fingerprint_payload = {
+        "workflow_type": _ADVANCED_DIANN_RUNTIME_WORKFLOW_TYPE,
+        "input_checksums": {
+            entry.input_name: entry.content_sha256 for entry in input_checksums
+        },
+        "missing_inputs": missing_input_names,
+        "parameters": parameter_payload,
+        "schema_versions": _ADVANCED_DIANN_RUNTIME_ID_SCHEMA_VERSIONS,
+    }
+    fingerprint_sha256 = hash_payload(fingerprint_payload)
+    return AdvancedDiannRuntimeRunIdentity(
+        workflow_type=_ADVANCED_DIANN_RUNTIME_WORKFLOW_TYPE,
+        run_id=deterministic_id(
+            _ADVANCED_DIANN_RUNTIME_WORKFLOW_TYPE,
+            fingerprint_payload,
+        ),
+        fingerprint_sha256=fingerprint_sha256,
+        input_checksums=input_checksums,
+        parameter_fingerprint_sha256=hash_payload(parameter_payload),
+        schema_versions=dict(_ADVANCED_DIANN_RUNTIME_ID_SCHEMA_VERSIONS),
+        note=(
+            "advanced dia-nn runtime run ids derive from workflow type, input "
+            "content checksums, semantic parameters, and governed schema versions"
+        ),
+    )
+
+
+def _run_identity_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, object]:
+    return {
+        "annotation_tsv_sha256": _optional_file_sha256(config.annotation_tsv_path),
+        "complex_membership_tsv_sha256": _optional_file_sha256(
+            config.complex_membership_tsv_path
+        ),
+        "condition_a": config.condition_a,
+        "condition_b": config.condition_b,
+        "config_path_sha256": _optional_file_sha256(config.config_path),
+        "context_annotation_tsv_sha256": _optional_file_sha256(
+            config.context_annotation_tsv_path
+        ),
+        "design_tsv_sha256": _missing_tolerant_file_sha256(config.design_tsv_path),
+        "fragment_apex_tolerance_seconds": config.fragment_apex_tolerance_seconds,
+        "fragment_min_correlation": config.fragment_min_correlation,
+        "fragment_min_passing_fragment_count": config.fragment_min_passing_fragment_count,
+        "fragment_min_peak_height": config.fragment_min_peak_height,
+        "fragment_mzml_sha256": tuple(
+            _missing_tolerant_file_sha256(path) for path in config.fragment_mzml_paths
+        ),
+        "fragment_target_tsv_sha256": _optional_file_sha256(
+            config.fragment_target_tsv_path
+        ),
+        "fragment_tolerance_da": config.fragment_tolerance_da,
+        "fragment_tolerance_ppm": config.fragment_tolerance_ppm,
+        "go_annotation_tsv_sha256": _optional_file_sha256(config.go_annotation_tsv_path),
+        "include_decoys": config.include_decoys,
+        "max_q_value": config.max_q_value,
+        "normalization_method": config.normalization_method.value,
+        "pathway_membership_tsv_sha256": _optional_file_sha256(
+            config.pathway_membership_tsv_path
+        ),
+        "peptide_rollup_method": config.peptide_rollup_method.value,
+        "proteins_fasta_sha256": _missing_tolerant_file_sha256(config.proteins_fasta_path),
+        "protocol_context_tsv_sha256": _optional_file_sha256(
+            config.protocol_context_tsv_path
+        ),
+        "result_tsv_sha256": _missing_tolerant_file_sha256(config.result_tsv_path),
+        "selection_policy_sha256": hash_payload(
+            None if config.selection_policy is None else config.selection_policy.to_dict()
+        ),
+        "shared_peptide_policy": config.shared_peptide_policy.value,
+        "target_kind": config.target_kind.value,
+        "volcano_policy_sha256": hash_payload(
+            None if config.volcano_policy is None else config.volcano_policy.to_dict()
+        ),
+        "protein_rollup_method": config.protein_rollup_method.value,
+    }
+
+
+def _run_identity_input_checksums(
+    identity_payloads: dict[str, object],
+) -> tuple[AdvancedDiannRuntimeInputChecksumEntry, ...]:
+    entries: list[AdvancedDiannRuntimeInputChecksumEntry] = []
+    for input_name, value in sorted(identity_payloads.items()):
+        if input_name == "fragment_mzml_sha256":
+            for index, checksum in enumerate(value, start=1):
+                if checksum is None:
+                    continue
+                entries.append(
+                    AdvancedDiannRuntimeInputChecksumEntry(
+                        input_name=f"fragment_mzml_sha256[{index}]",
+                        content_sha256=str(checksum),
+                    )
+                )
+            continue
+        if not input_name.endswith("_sha256") or value is None:
+            continue
+        entries.append(
+            AdvancedDiannRuntimeInputChecksumEntry(
+                input_name=input_name,
+                content_sha256=str(value),
+            )
+        )
+    return tuple(entries)
+
+
+def _run_identity_missing_input_names(
+    identity_payloads: dict[str, object],
+) -> tuple[str, ...]:
+    missing_inputs: list[str] = []
+    for input_name, value in sorted(identity_payloads.items()):
+        if input_name == "fragment_mzml_sha256":
+            for index, checksum in enumerate(value, start=1):
+                if checksum is None:
+                    missing_inputs.append(f"fragment_mzml_sha256[{index}]")
+            continue
+        if input_name.endswith("_sha256") and value is None:
+            missing_inputs.append(input_name)
+    return tuple(missing_inputs)
+
+
+def _run_identity_parameter_payload(
+    identity_payloads: dict[str, object],
+) -> dict[str, object]:
+    return {
+        key: value
+        for key, value in sorted(identity_payloads.items())
+        if not key.endswith("_sha256") and key != "fragment_mzml_sha256"
+    }
 
 
 def _stage_payload_path(runtime_dir: Path, stage: AdvancedDiannRuntimeStage) -> Path:
@@ -870,6 +1058,12 @@ def _file_sha256(path: Path) -> str:
 
 def _optional_file_sha256(path: Path | None) -> str | None:
     if path is None:
+        return None
+    return _file_sha256(path)
+
+
+def _missing_tolerant_file_sha256(path: Path) -> str | None:
+    if not path.exists():
         return None
     return _file_sha256(path)
 
@@ -1061,12 +1255,15 @@ __all__ = [
     "AdvancedDiannDryRunIssue",
     "AdvancedDiannDryRunOutputPlan",
     "AdvancedDiannDryRunReport",
+    "AdvancedDiannRuntimeInputChecksumEntry",
+    "AdvancedDiannRuntimeRunIdentity",
     "AdvancedDiannDryRunStagePlan",
     "AdvancedDiannDryRunStatus",
     "AdvancedDiannRuntimeRunReport",
     "AdvancedDiannRuntimeStage",
     "AdvancedDiannRuntimeStageDecision",
     "AdvancedDiannRuntimeStatus",
+    "build_advanced_diann_runtime_run_identity",
     "dry_run_resumable_advanced_diann_workflow",
     "run_resumable_advanced_diann_workflow",
 ]
