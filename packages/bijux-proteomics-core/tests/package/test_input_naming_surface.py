@@ -23,6 +23,7 @@ LEGACY_PARSER_WRAPPERS = {
 EXPECTED_CANONICAL_LOAD_NAMES = {
     "load_annotation_pack",
     "load_generic_psm_table_mapping",
+    "load_lazy_proteomics_evidence_graph",
     "load_matrix_archive",
     "load_modification_pack",
     "load_modification_registry",
@@ -30,7 +31,10 @@ EXPECTED_CANONICAL_LOAD_NAMES = {
     "load_public_benchmark_descriptor",
     "load_qc_threshold_policy",
     "load_result_archive",
+    "load_standard_card_index",
+    "load_standard_card_tsv",
     "load_surprising_demo_manifest",
+    "load_workflow_artifact_manifest",
 }
 
 MUTATING_IO_METHODS = {

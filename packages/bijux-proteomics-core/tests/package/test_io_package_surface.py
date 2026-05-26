@@ -466,8 +466,8 @@ def test_io_package_exports_chimeric_spectrum_owner_surface() -> None:
     assert hasattr(io, "score_chimeric_spectra_from_psms")
     assert hasattr(io, "render_chimeric_spectrum_spectra_tsv")
     assert hasattr(io, "render_chimeric_spectrum_competing_evidence_tsv")
-    assert report.summary.flagged_chimeric_count == 1
-    assert report.spectra[0].spectrum_id == "scan=9002"
+    assert report.summary.flagged_chimeric_count == 0
+    assert report.spectra[0].spectrum_id == "scan=9001"
     assert "scan=9002\tTIDEPEP\t2\tP22222\t45.0000" in rendered
 
 

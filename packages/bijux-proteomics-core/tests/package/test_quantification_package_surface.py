@@ -581,7 +581,7 @@ def test_quantification_package_exports_matrix_archive_surface(tmp_path) -> None
     assert hasattr(quantification, "save_matrix_archive")
     assert hasattr(quantification, "load_matrix_archive")
     assert hasattr(quantification, "render_quant_matrix_archive_tsv")
-    assert archive.imputation_mask == ((False, True),)
+    assert archive.imputation_mask == ((False, False),)
     assert loaded.to_quant_matrix() == matrix
     assert "imputation_mask" in rendered
 

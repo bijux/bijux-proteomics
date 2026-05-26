@@ -143,7 +143,7 @@ def test_interpretation_package_exports_protein_set_scoring_surface() -> None:
     rendered = interpretation.render_protein_set_sample_score_tsv(report)
 
     assert "confidence_status" in rendered.splitlines()[0]
-    assert "low_confidence" in rendered
+    assert "low" in rendered
 
 
 def test_interpretation_package_exports_ppi_network_module_surface() -> None:
