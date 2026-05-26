@@ -13,6 +13,20 @@
       "generated_unit_count": 1600,
       "baseline_seconds": 1.15,
       "regression_threshold_ratio": 3.0
+    },
+    {
+      "algorithm_id": "fdr",
+      "workload_unit": "psms",
+      "generated_unit_count": 30000,
+      "baseline_seconds": 0.55,
+      "regression_threshold_ratio": 3.0
+    },
+    {
+      "algorithm_id": "matrix_rollup",
+      "workload_unit": "protein_targets",
+      "generated_unit_count": 1200,
+      "baseline_seconds": 1.25,
+      "regression_threshold_ratio": 3.0
     }
   ]
 }
