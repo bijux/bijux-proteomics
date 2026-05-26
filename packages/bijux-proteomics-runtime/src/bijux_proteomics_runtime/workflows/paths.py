@@ -202,6 +202,24 @@ def build_runtime_smoke_workflows() -> tuple[RuntimeSmokeWorkflow, ...]:
                 ),
             ),
         ),
+        RuntimeSmokeWorkflow(
+            workflow_key="package_smoke",
+            display_name="runtime package smoke archive path",
+            steps=(
+                RuntimeWorkflowStep(
+                    step_id="run-package-smoke",
+                    operation_name="run_runtime_package_smoke_workflow",
+                    command="run",
+                    workflow_family="runtime_package_smoke",
+                    required_artifact_kinds=("result_manifest",),
+                    review_artifact_kinds=(
+                        "runtime-package-smoke-report",
+                        "result-archive",
+                    ),
+                    handoff_surface="archived_result_review",
+                ),
+            ),
+        ),
     )
 
 

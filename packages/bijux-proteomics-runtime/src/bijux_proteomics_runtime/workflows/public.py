@@ -198,6 +198,12 @@ _WORKFLOW_EXPORT_GROUPS = {
         "run_reviewable_import_path",
         "run_reviewable_sequence_path",
     ],
+    "bijux_proteomics_runtime.workflows.package_smoke": [
+        "RuntimePackageSmokeArtifacts",
+        "RuntimePackageSmokeConfig",
+        "RuntimePackageSmokeWorkflowReport",
+        "run_runtime_package_smoke_workflow",
+    ],
     "bijux_proteomics_runtime.workflows.plans": [
         "DeterministicExecutionContract",
         "ExternalToolCapabilityIssue",
