@@ -48,7 +48,24 @@ def _entries(
 
 
 def list_knowledge_root_api_entries() -> tuple[KnowledgeRootApiEntry, ...]:
-    """Return the curated public root API for the knowledge package."""
+    """Return the curated public root API for the knowledge package.
+
+    Inputs:
+    This function takes no runtime arguments and returns the in-module
+    knowledge root export ledger.
+
+    Outputs:
+    Returns the full tuple of ``KnowledgeRootApiEntry`` records that define the
+    supported knowledge package root exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger documents supported grounding and memory surfaces only; it does
+    not prove that any underlying annotation source is complete or current.
+    """
 
     return (
         _entries(

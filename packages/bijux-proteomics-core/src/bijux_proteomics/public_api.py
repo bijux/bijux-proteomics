@@ -32,7 +32,24 @@ PUBLIC_ROOT_MODULE_NAMES = ("programs", "scientific_tables", "tabular")
 
 
 def list_core_root_api_entries() -> tuple[CoreRootApiEntry, ...]:
-    """Return the curated public root API for the core package."""
+    """Return the curated public root API for the core package.
+
+    Inputs:
+    This function takes no runtime arguments and returns the in-module curated
+    root export ledger.
+
+    Outputs:
+    Returns the complete tuple of ``CoreRootApiEntry`` records that define the
+    supported core package root exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger records supported entrypoints and rationale only; it does not
+    execute the scientific owners or prove fitness for a specific study.
+    """
 
     return (
         CoreRootApiEntry(

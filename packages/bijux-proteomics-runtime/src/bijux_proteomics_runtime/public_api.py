@@ -30,7 +30,24 @@ RUNTIME_ROOT_API_BUDGET = RuntimeRootApiBudget(
 
 
 def list_runtime_root_api_entries() -> tuple[RuntimeRootApiEntry, ...]:
-    """Return the curated public root API for the runtime package."""
+    """Return the curated public root API for the runtime package.
+
+    Inputs:
+    This function takes no runtime arguments and reads the in-module runtime
+    root export ledger.
+
+    Outputs:
+    Returns the full tuple of ``RuntimeRootApiEntry`` records that describe the
+    supported runtime package root exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger documents supported runtime integration surfaces; it does not
+    execute workflows or validate scientific inputs.
+    """
 
     return (
         RuntimeRootApiEntry(

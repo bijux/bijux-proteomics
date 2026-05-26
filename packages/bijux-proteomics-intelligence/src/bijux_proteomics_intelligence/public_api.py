@@ -48,7 +48,24 @@ def _entries(
 
 
 def list_intelligence_root_api_entries() -> tuple[IntelligenceRootApiEntry, ...]:
-    """Return the curated public root API for the intelligence package."""
+    """Return the curated public root API for the intelligence package.
+
+    Inputs:
+    This function takes no runtime arguments and returns the in-module
+    intelligence root export ledger.
+
+    Outputs:
+    Returns the full tuple of ``IntelligenceRootApiEntry`` records that define
+    the supported intelligence package root exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger records package-level review ownership and export policy only; it
+    does not score evidence, judge claims, or validate one scientific report.
+    """
 
     return (
         _entries(

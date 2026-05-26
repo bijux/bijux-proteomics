@@ -30,7 +30,24 @@ LAB_ROOT_API_BUDGET = LabRootApiBudget(
 
 
 def list_lab_root_api_entries() -> tuple[LabRootApiEntry, ...]:
-    """Return the curated public root API for the lab package."""
+    """Return the curated public root API for the lab package.
+
+    Inputs:
+    This function takes no runtime arguments and returns the in-module lab root
+    export ledger.
+
+    Outputs:
+    Returns the full tuple of ``LabRootApiEntry`` records that define the
+    supported lab package root exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger records supported planning surfaces only; it does not confirm
+    reagent readiness, sample availability, or wet-lab feasibility.
+    """
 
     return (
         LabRootApiEntry(

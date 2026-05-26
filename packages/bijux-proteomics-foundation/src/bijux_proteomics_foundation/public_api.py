@@ -43,7 +43,24 @@ PUBLIC_ROOT_MODULE_NAMES = ("package_aliases",)
 
 
 def list_foundation_root_api_entries() -> tuple[FoundationRootApiEntry, ...]:
-    """Return the curated root API ledger for kernel-quality exports."""
+    """Return the curated root API ledger for kernel-quality exports.
+
+    Inputs:
+    This function takes no runtime arguments and always reads the in-module
+    curated ledger.
+
+    Outputs:
+    Returns the complete tuple of ``FoundationRootApiEntry`` records that define
+    the allowed root package exports.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal
+    package import conditions.
+
+    Scientific Caveats:
+    The ledger documents stable primitive ownership and export policy; it does
+    not validate scientific correctness or downstream caller usage.
+    """
 
     return (
         FoundationRootApiEntry(
