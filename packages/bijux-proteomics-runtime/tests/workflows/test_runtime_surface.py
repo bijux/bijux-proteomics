@@ -13,6 +13,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowCacheMissReason,
     WorkflowCacheReuseDisposition,
     WorkflowCheckpointStatus,
+    WorkflowDataType,
     WorkflowDagValidationReport,
     WorkflowDiffCategory,
     WorkflowDiffReport,
@@ -26,6 +27,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowStepKind,
     WorkflowStepProvenanceReport,
     WorkflowStepReplayDisposition,
+    WorkflowStepTypeValidationReport,
     WorkflowStreamingMode,
     WorkflowTemplateKind,
     build_deterministic_execution_contract,
@@ -56,6 +58,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_workflow_step_provenance_report,
     import_workflow_runtime_archive_bundle,
     instantiate_proteomics_workflow_template,
+    validate_proteomics_workflow_step_types,
     validate_proteomics_dag_plan,
 )
 
@@ -581,6 +584,7 @@ def test_runtime_validation_report_confirms_bundle_integrity() -> None:
 
     assert report.valid is True
     assert report.export_bundle_sha256
+    assert "step-types" in report.checked_surfaces
     assert "dag-plan" in report.checked_surfaces
     assert "artifact-inventory" in report.checked_surfaces
 
@@ -598,12 +602,18 @@ def test_runtime_bundle_exposes_validated_dag_and_parallel_layers() -> None:
 
     direct_dag = build_proteomics_dag_plan(bundle.manifest)
     validation = validate_proteomics_dag_plan(bundle.dag_plan)
+    type_validation = validate_proteomics_workflow_step_types(bundle.manifest)
 
     assert isinstance(validation, WorkflowDagValidationReport)
+    assert isinstance(type_validation, WorkflowStepTypeValidationReport)
     assert validation.valid is True
+    assert type_validation.valid is True
     assert bundle.dag_plan.ordered_step_ids == direct_dag.ordered_step_ids
     assert bundle.parallel_plan.groups[0].step_ids == (
         f"{bundle.manifest.workflow_id}-validate-inputs",
+    )
+    assert bundle.manifest.steps[4].output_data_types == (
+        WorkflowDataType.PEPTIDE_QUANT_MATRIX,
     )
     assert (
         bundle.deterministic_execution.ordered_step_ids

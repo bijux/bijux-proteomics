@@ -10,6 +10,7 @@ import pytest
 from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.workflows.plans import (
     ExternalToolCapabilityReport,
+    WorkflowDataType,
     WorkflowDagValidationReport,
     WorkflowExecutionMode,
     WorkflowInputRole,
@@ -18,12 +19,14 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowStepKind,
     WorkflowStepProvenanceReport,
     WorkflowStepReplayDisposition,
+    WorkflowStepTypeValidationReport,
     build_external_tool_capability_report,
     build_parallel_execution_plan,
     build_proteomics_dag_plan,
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_reproducible_workflow_blueprint,
+    validate_proteomics_workflow_step_types,
     validate_proteomics_dag_plan,
     build_workflow_manifest_explanation_report,
     build_workflow_replay_proof_report,
@@ -137,11 +140,48 @@ def test_workflow_dag_projection_makes_execution_order_and_surfaces_explicit() -
     )
     assert node_by_id[f"{manifest.workflow_id}-quantify-features"].consumes_roles == (
         WorkflowInputRole.FEATURES,
+        WorkflowInputRole.DESIGN,
+    )
+    assert node_by_id[f"{manifest.workflow_id}-quantify-features"].input_data_types == (
+        WorkflowDataType.MS1_FEATURE_TABLE,
+        WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE,
+    )
+    assert node_by_id[f"{manifest.workflow_id}-quantify-features"].output_data_types == (
+        WorkflowDataType.PEPTIDE_QUANT_MATRIX,
     )
     assert any(
         edge.source_node_id == f"{manifest.workflow_id}-calculate-fdr"
         and edge.target_node_id == f"{manifest.workflow_id}-build-run-bundle"
         for edge in dag_plan.edges
+    )
+
+
+def test_workflow_step_type_validation_makes_quant_and_bundle_contracts_explicit() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = validate_proteomics_workflow_step_types(manifest)
+    step_by_id = {step.step_id: step for step in manifest.steps}
+
+    assert isinstance(report, WorkflowStepTypeValidationReport)
+    assert report.valid is True
+    assert step_by_id[f"{manifest.workflow_id}-build-run-bundle"].input_data_types == (
+        WorkflowDataType.SPECTRA_DOCUMENT,
+        WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
+        WorkflowDataType.QC_SUMMARY_REPORT,
+        WorkflowDataType.PEPTIDE_QUANT_MATRIX,
+    )
+    assert step_by_id[f"{manifest.workflow_id}-build-run-bundle"].output_data_types == (
+        WorkflowDataType.NORMALIZED_RUN_BUNDLE,
     )
 
 
