@@ -6,6 +6,14 @@
 from __future__ import annotations
 
 from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.card_schema import (
+    STANDARD_CARD_TSV_COLUMNS,
+    StandardCardEntry,
+    StandardCardKind,
+    StandardCardSubjectKind,
+    load_standard_card_tsv,
+    render_standard_card_row,
+)
 from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.domain.constraints import (
     ConstraintCategory,
@@ -117,6 +125,7 @@ from bijux_proteomics.domain.semantic_ids import (
     build_artifact_id,
     build_cross_study_card_id,
     build_mechanism_card_id,
+    build_pathway_card_id,
     build_matrix_id,
     build_pathway_claim_id,
     build_peptide_id,
@@ -129,6 +138,7 @@ from bijux_proteomics.domain.semantic_ids import (
     build_ptm_claim_id,
     build_raw_signal_card_id,
     build_regulator_claim_id,
+    build_sample_card_id,
     build_site_id,
     classify_semantic_id,
     ensure_semantic_id_namespace,
@@ -172,6 +182,7 @@ from bijux_proteomics.domain.validation import validate_program
 
 __all__ = [
     "AssayRequirement",
+    "STANDARD_CARD_TSV_COLUMNS",
     "ComplexMembership",
     "coerce_confidence_tier",
     "ConfidenceTier",
@@ -234,6 +245,9 @@ __all__ = [
     "SpectrumRecord",
     "SchemaError",
     "StageEligibility",
+    "StandardCardEntry",
+    "StandardCardKind",
+    "StandardCardSubjectKind",
     "SuccessCriterion",
     "SemanticIdNamespace",
     "SourceRowLineage",
@@ -260,6 +274,7 @@ __all__ = [
     "build_cross_study_card_id",
     "build_matrix_id",
     "build_mechanism_card_id",
+    "build_pathway_card_id",
     "build_pathway_claim_id",
     "build_peptide_id",
     "build_protein_card_id",
@@ -272,6 +287,7 @@ __all__ = [
     "build_ptm_claim_id",
     "build_raw_signal_card_id",
     "build_regulator_claim_id",
+    "build_sample_card_id",
     "build_site_id",
     "classify_semantic_id",
     "create_program_spec",
@@ -287,6 +303,7 @@ __all__ = [
     "is_registered_reason_code",
     "kabsch_and_pairs",
     "latest_gate_decision",
+    "load_standard_card_tsv",
     "load_structure_from_pdb_text",
     "mean_plddt_from_ca_bfactor",
     "parse_structure_from_pdb_text",
@@ -298,6 +315,7 @@ __all__ = [
     "require_program",
     "require_registered_reason_code",
     "require_registered_reason_codes",
+    "render_standard_card_row",
     "residue_count",
     "revise_program",
     "secondary_summary_from_structure",

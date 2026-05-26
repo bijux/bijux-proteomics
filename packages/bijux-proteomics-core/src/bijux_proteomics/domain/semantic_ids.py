@@ -26,6 +26,8 @@ class SemanticIdNamespace(StrEnum):
     PROTEIN_CARD = "protein-card"
     PROTEIN_MECHANISM_CARD = "protein-mechanism-card"
     PTM_CARD = "ptm-card"
+    PATHWAY_CARD = "pathway-card"
+    SAMPLE_CARD = "sample-card"
     PATHWAY_SHIFT_CARD = "pathway-shift-card"
     KINASE_CANDIDATE_CARD = "kinase-candidate-card"
     COMPLEX_CHANGE_CARD = "complex-change-card"
@@ -186,6 +188,27 @@ def build_ptm_card_id(
         condition_a,
         condition_b,
     )
+
+
+def build_pathway_card_id(
+    pathway_id: str,
+    condition_a: str,
+    condition_b: str,
+) -> str:
+    """Build the canonical pathway evidence-card identifier."""
+
+    return _compose_id(
+        SemanticIdNamespace.PATHWAY_CARD,
+        pathway_id,
+        condition_a,
+        condition_b,
+    )
+
+
+def build_sample_card_id(sample_id: str) -> str:
+    """Build the canonical sample evidence-card identifier."""
+
+    return _compose_id(SemanticIdNamespace.SAMPLE_CARD, sample_id)
 
 
 def build_mechanism_card_id(
