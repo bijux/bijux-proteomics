@@ -56,6 +56,7 @@ def test_root_make_declares_shared_and_repo_owned_maintainer_commands() -> None:
     assert "quality-optional-dependency-guards:" in root_make
     assert "quality-generated-file-markers:" in root_make
     assert "quality-internal-orphan-modules:" in root_make
+    assert "quality-canonical-package-tree:" in root_make
 
 
 def test_repository_python_package_profiles_expose_full_test_surfaces() -> None:
