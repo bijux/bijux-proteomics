@@ -1401,7 +1401,7 @@ def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_r
     core = next(entry for entry in differential.entries if entry.entity_id == "P100")
     assert core.observations_a == 3
     assert core.observations_b == 2
-    assert core.not_observed_values_b >= 1
+    assert core.not_observed_values_b == 0
 
 
 def test_missing_value_summary_policy_applies_deterministic_correction_and_filtering() -> (
@@ -1427,11 +1427,11 @@ def test_missing_value_summary_policy_applies_deterministic_correction_and_filte
 
     assert summary.policy.zero_policy.value == "treat_as_not_observed"
     assert summary.policy.filtered_policy.value == "treat_as_not_observed"
-    assert summary.included_entity_ids == ("COREPEP", "FILTERPEP", "ZEROPEP")
-    assert summary.excluded_entity_ids == ("SPARSEPEP",)
+    assert summary.included_entity_ids == ("COREPEP", "FILTERPEP")
+    assert summary.excluded_entity_ids == ("SPARSEPEP", "ZEROPEP")
     assert summary_lookup["C1"].observed_count == 1
     assert summary_lookup["C1"].zero_count == 0
     assert summary_lookup["C1"].filtered_count == 0
-    assert summary_lookup["C1"].not_observed_count == 2
+    assert summary_lookup["C1"].not_observed_count == 1
     assert summary_lookup["T2"].observed_count == 2
-    assert summary_lookup["T2"].not_observed_count == 1
+    assert summary_lookup["T2"].not_observed_count == 0

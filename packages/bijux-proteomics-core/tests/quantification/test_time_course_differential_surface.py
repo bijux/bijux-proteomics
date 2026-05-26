@@ -287,8 +287,9 @@ def test_time_course_differential_blocks_non_longitudinal_designs() -> None:
             non_longitudinal_design,
         )
     except ValueError as exc:
-        assert "two_group" in str(exc)
-        assert "pairwise_differential" in str(exc)
+        assert "time_course_differential" in str(exc)
+        assert "different_analysis_family_required" in str(exc)
+        assert "insufficient_timepoint_count" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected non-longitudinal design to be rejected")
 

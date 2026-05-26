@@ -56,6 +56,7 @@ def test_build_ptm_volcano_review_preserves_raw_p_values_and_labels() -> None:
         normalization_method=NormalizationMethod.MEDIAN,
         feature_records=features.accepted_records,
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        batch_field="",
     )
 
     review = build_ptm_volcano_review(

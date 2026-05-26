@@ -115,7 +115,7 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="s2.mzml",
-            batch="b1",
+            batch="b2",
         ),
         ExperimentalDesignEntry(
             sample_id="s3",
@@ -123,7 +123,7 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="s3.mzml",
-            batch="b2",
+            batch="b1",
         ),
         ExperimentalDesignEntry(
             sample_id="s4",

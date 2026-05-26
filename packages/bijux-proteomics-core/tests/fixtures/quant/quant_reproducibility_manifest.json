@@ -1,7 +1,7 @@
 {
   "aggregation_method": "top_n",
   "document_schema": {
-    "content_hash": "737b76d21b970f2bf2912ec6d96d7d5aea9e2f61686e342e82c0956b66f31e9c",
+    "content_hash": "ea885f3be470f587019a2cc9eb1a38f776aacbea9214917ea2c98b5ba7b58f46",
     "created_at": "1970-01-01T00:00:00Z",
     "created_by": "bijux-proteomics-core",
     "derived_from": [],
@@ -30,7 +30,7 @@
   "entity_level": "protein",
   "measure_kind": "intensity",
   "normalization_method": "median",
-  "reproducibility_hash": "71da1b75969aaeb769cbd98b182c3bd41317c579eaccfe08da2e3b2bfd004747",
+  "reproducibility_hash": "9e3114a7578e0251d77a2dc60ecfdc5e2e4de93a3a27d884be910d1f0e5158d0",
   "sample_ids": [
     "C1",
     "C2",
