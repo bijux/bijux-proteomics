@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.interfaces.support.biomarker_candidate_support import (
     _build_biomarker_candidates_from_biological_report_dir,
+    _build_biomarker_candidates_from_ptm_report_dir,
 )
 from bijux_proteomics.review import BiomarkerCandidateKind
 
@@ -83,3 +84,49 @@ def test_biological_report_candidate_loader_matches_out_of_order_differential_ro
         "P11111:S5:Phospho",
         "proteogenomic:observed",
     )
+
+
+def test_ptm_report_candidate_loader_matches_out_of_order_differential_rows(
+    tmp_path: Path,
+) -> None:
+    report_dir = tmp_path / "ptm_report"
+    report_dir.mkdir()
+    (report_dir / "ptm_evidence_cards.tsv").write_text(
+        "\n".join(
+            (
+                "card_id\tsite_key\tprotein_ref\tresidue\tposition\tmodification_name\tidentity_level\tlocalization_tier\tmechanism_class\tpeptide_spectrum_count\tobserved_sample_count\tcentered_windows\tortholog_conservation_status\tfunctional_regions\tregulators\twarning_codes",
+                "ptm-card-1\tP11111:S5:Phospho\tP11111\tS\t5\tPhospho\tsite\tclass_i\tactivation\t4\t3\twindow:RRXS\tconserved\tregion:loop\tregulator:MAPK1\t",
+                "ptm-card-2\tP22222:T9:Phospho\tP22222\tT\t9\tPhospho\tsite\tclass_ii\tinhibitory\t2\t2\twindow:TP\tvariable\t\t\twarning:shared",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (report_dir / "ptm_differential.tsv").write_text(
+        "\n".join(
+            (
+                "site_key\tlow_localization\tambiguous\tshared_peptide\tlog2_fold_change\tadjusted_p_value\timputation_dependent_hit\tprotein_correction_status",
+                "P22222:T9:Phospho\ttrue\tfalse\ttrue\t0.6\t0.03\ttrue\tnot_requested",
+                "P11111:S5:Phospho\tfalse\tfalse\tfalse\t1.2\t0.002\tfalse\tsubtracted_unmodified_protein",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    candidates = _build_biomarker_candidates_from_ptm_report_dir(
+        report_dir,
+        sample_qc_score=0.9,
+    )
+
+    assert tuple(candidate.site_key for candidate in candidates) == (
+        "P11111:S5:Phospho",
+        "P22222:T9:Phospho",
+    )
+    assert all(
+        candidate.candidate_kind is BiomarkerCandidateKind.PTM_SITE
+        for candidate in candidates
+    )
+    assert candidates[0].effect_size == 1.2
+    assert "ortholog:conserved" in candidates[0].annotation_labels
+    assert "mechanism:activation" in candidates[0].annotation_labels
