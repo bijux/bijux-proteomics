@@ -42,6 +42,11 @@ if TYPE_CHECKING:
         dry_run_resumable_advanced_diann_workflow,
         run_resumable_advanced_diann_workflow,
     )
+    from bijux_proteomics_runtime.workflows.advanced_diann_archive import (
+        AdvancedDiannCompletedRunArchiveReport,
+        AdvancedDiannCompletedRunArtifacts,
+        archive_completed_advanced_diann_run,
+    )
     from bijux_proteomics_runtime.workflows.advanced_diann_comparison import (
         compare_advanced_diann_runtime_outputs,
     )
@@ -320,6 +325,11 @@ _WORKFLOW_EXPORT_GROUPS = {
         "dry_run_resumable_advanced_diann_workflow",
         "run_resumable_advanced_diann_workflow",
     ],
+    "bijux_proteomics_runtime.workflows.advanced_diann_archive": [
+        "AdvancedDiannCompletedRunArchiveReport",
+        "AdvancedDiannCompletedRunArtifacts",
+        "archive_completed_advanced_diann_run",
+    ],
     "bijux_proteomics_runtime.artifacts": [
         "StepArtifact",
         "build_step_artifact",
@@ -566,6 +576,8 @@ _WORKFLOW_EXPORTS = {
 }
 
 __all__ = (
+    "AdvancedDiannCompletedRunArchiveReport",
+    "AdvancedDiannCompletedRunArtifacts",
     "AdvancedDiannClaimChangeEntry",
     "AdvancedDiannClaimComparisonState",
     "AdvancedDiannDryRunInputCheck",
@@ -719,6 +731,7 @@ __all__ = (
     "WorkflowStepTypeValidationReport",
     "WorkflowStreamingMode",
     "build_advanced_diann_runtime_run_identity",
+    "archive_completed_advanced_diann_run",
     "build_benchmark_artifact_browser",
     "build_benchmark_execution_cost_report",
     "build_benchmark_failure_recovery_bundle",

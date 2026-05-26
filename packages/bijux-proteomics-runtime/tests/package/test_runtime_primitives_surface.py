@@ -94,6 +94,10 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
         in PUBLIC_ENTRYPOINTS
     )
     assert (
+        "bijux_proteomics_runtime.workflows.advanced_diann_archive."
+        "archive_completed_advanced_diann_run" in PUBLIC_ENTRYPOINTS
+    )
+    assert (
         "bijux_proteomics_runtime.workflows.package_smoke.run_runtime_package_smoke_workflow"
         in PUBLIC_ENTRYPOINTS
     )
@@ -160,6 +164,8 @@ def test_runtime_surface_area_exposes_workflow_dag_planning() -> None:
 
 def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> None:
     from bijux_proteomics_runtime.workflows import (
+        AdvancedDiannCompletedRunArchiveReport,
+        AdvancedDiannCompletedRunArtifacts,
         AdvancedDiannDryRunReport,
         AdvancedDiannDryRunStatus,
         AdvancedDiannRuntimeInputChecksumEntry,
@@ -167,11 +173,14 @@ def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> No
         AdvancedDiannRuntimeRunReport,
         AdvancedDiannRuntimeStage,
         AdvancedDiannRuntimeStatus,
+        archive_completed_advanced_diann_run,
         build_advanced_diann_runtime_run_identity,
         dry_run_resumable_advanced_diann_workflow,
         run_resumable_advanced_diann_workflow,
     )
 
+    assert AdvancedDiannCompletedRunArchiveReport is not None
+    assert AdvancedDiannCompletedRunArtifacts is not None
     assert AdvancedDiannDryRunReport is not None
     assert AdvancedDiannDryRunStatus.READY.value == "ready"
     assert AdvancedDiannRuntimeInputChecksumEntry is not None
@@ -179,6 +188,7 @@ def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> No
     assert AdvancedDiannRuntimeRunReport is not None
     assert AdvancedDiannRuntimeStage.MATRICES.value == "advanced-diann-matrices"
     assert AdvancedDiannRuntimeStatus.COMPLETED.value == "completed"
+    assert callable(archive_completed_advanced_diann_run)
     assert callable(build_advanced_diann_runtime_run_identity)
     assert callable(dry_run_resumable_advanced_diann_workflow)
     assert callable(run_resumable_advanced_diann_workflow)
