@@ -233,6 +233,7 @@ def test_review_subpackage_import_contract() -> None:
     assert hasattr(cards, "build_external_reviewer_bundle")
     assert hasattr(cards, "build_compact_result_summary_report_from_artifacts")
     assert hasattr(cards, "build_inference_disagreement_review_packet")
+    assert hasattr(cards, "load_standard_card_index")
 
     assert hasattr(belief, "build_belief_audit_report_from_artifacts")
     assert hasattr(belief, "build_biomarker_candidate_ranking_report")
@@ -510,6 +511,7 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(cards, "build_cross_study_evidence_card_report")
     assert hasattr(exports, "build_result_manifest_from_artifacts")
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
+    assert hasattr(exports, "index_workflow_artifact_manifest")
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_interrogation_report")
     assert hasattr(weak_evidence, "build_flagship_weak_evidence_benchmark_descriptor")
@@ -522,6 +524,7 @@ def test_review_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.review")
 
     assert hasattr(module, "load_standard_card_tsv")
+    assert hasattr(module, "load_standard_card_index")
     assert hasattr(module, "build_analysis_recommendation_report_from_artifacts")
     assert hasattr(module, "build_belief_audit_report_from_artifacts")
     assert hasattr(module, "build_compact_result_summary_report_from_artifacts")
