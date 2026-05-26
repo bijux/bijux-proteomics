@@ -98,6 +98,16 @@ def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
     assert build_workflow_assurance_matrix()
 
 
+def test_runtime_surface_area_exposes_workflow_cache_reuse_planning() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        WorkflowCacheReusePlan,
+        build_workflow_cache_reuse_plan,
+    )
+
+    assert WorkflowCacheReusePlan is not None
+    assert callable(build_workflow_cache_reuse_plan)
+
+
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
     from bijux_proteomics_runtime.support.primitives.surface_area import (
         EXTENSION_POINTS,
