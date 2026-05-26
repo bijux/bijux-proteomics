@@ -12,6 +12,9 @@ from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvide
 from bijux_proteomics._output_tables import OutputTableSchema
 from bijux_proteomics.workflow import AdvancedDiannWorkflowConfig, run_advanced_diann_workflow
 from bijux_proteomics.workflow.artifact_layout import (
+    find_workflow_artifact_by_id,
+    find_workflow_artifact_by_legacy_path,
+    index_workflow_artifact_manifest,
     WorkflowArtifactFolder,
     WorkflowArtifactKind,
     load_workflow_artifact_manifest,
@@ -120,6 +123,31 @@ def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
     assert (
         tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
     ).exists()
+
+
+def test_index_workflow_artifact_manifest_resolves_entries_by_id_and_legacy_path(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "biological_report_summary.tsv").write_text(
+        "metric\tvalue\nprotein_count\t4\n",
+        encoding="utf-8",
+    )
+    manifest = synchronize_workflow_artifact_layout(
+        tmp_path,
+        producer_function="test_workflow_surface",
+    )
+
+    artifact_index = index_workflow_artifact_manifest(manifest=manifest)
+    artifact = manifest.artifacts[0]
+
+    assert find_workflow_artifact_by_id(artifact_index, artifact.artifact_id) == artifact
+    assert (
+        find_workflow_artifact_by_legacy_path(
+            artifact_index,
+            artifact.legacy_relative_path,
+        )
+        == artifact
+    )
 
 
 def test_validate_workflow_artifact_manifest_rejects_checksum_drift(

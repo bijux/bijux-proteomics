@@ -78,6 +78,18 @@ class WorkflowArtifactLayoutManifest(JsonModel):
     artifacts: tuple[WorkflowArtifactLayoutEntry, ...] = Field(default_factory=tuple)
 
 
+class WorkflowArtifactLayoutIndex(JsonModel):
+    """Indexed lookup surface over one workflow artifact layout manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    manifest: WorkflowArtifactLayoutManifest
+    artifact_ids: dict[str, int] = Field(default_factory=dict)
+    legacy_relative_paths: dict[str, int] = Field(default_factory=dict)
+    relative_paths: dict[str, int] = Field(default_factory=dict)
+    canonical_relative_paths: dict[str, int] = Field(default_factory=dict)
+
+
 class WorkflowArtifactExpectation(JsonModel):
     """One workflow-owned artifact declared by a typed workflow manifest."""
 
@@ -140,18 +152,70 @@ def load_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutM
     )
 
 
-def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutManifest:
-    """Validate manifest-listed workflow artifacts against current on-disk content."""
+def index_workflow_artifact_manifest(
+    output_dir: Path | None = None,
+    *,
+    manifest: WorkflowArtifactLayoutManifest | None = None,
+) -> WorkflowArtifactLayoutIndex:
+    """Index one workflow artifact manifest by stable ids and paths."""
 
-    manifest = load_workflow_artifact_manifest(output_dir)
-    seen_artifact_ids: set[str] = set()
-    for artifact in manifest.artifacts:
-        if artifact.artifact_id in seen_artifact_ids:
+    if manifest is None:
+        if output_dir is None:
+            raise ValueError("output_dir is required when manifest is not provided")
+        manifest = load_workflow_artifact_manifest(output_dir)
+    artifact_ids: dict[str, int] = {}
+    legacy_relative_paths: dict[str, int] = {}
+    relative_paths: dict[str, int] = {}
+    canonical_relative_paths: dict[str, int] = {}
+    for index, artifact in enumerate(manifest.artifacts):
+        if artifact.artifact_id in artifact_ids:
             raise InvalidWorkflowError(
                 "workflow artifact manifest contains duplicate artifact_id "
                 f"{artifact.artifact_id!r}"
             )
-        seen_artifact_ids.add(artifact.artifact_id)
+        artifact_ids[artifact.artifact_id] = index
+        legacy_relative_paths[artifact.legacy_relative_path] = index
+        relative_paths[artifact.relative_path] = index
+        canonical_relative_paths[artifact.canonical_relative_path] = index
+    return WorkflowArtifactLayoutIndex(
+        manifest=manifest,
+        artifact_ids=artifact_ids,
+        legacy_relative_paths=legacy_relative_paths,
+        relative_paths=relative_paths,
+        canonical_relative_paths=canonical_relative_paths,
+    )
+
+
+def find_workflow_artifact_by_legacy_path(
+    artifact_index: WorkflowArtifactLayoutIndex,
+    legacy_relative_path: str,
+) -> WorkflowArtifactLayoutEntry | None:
+    """Return the layout entry for one legacy root-level workflow artifact path."""
+
+    row_index = artifact_index.legacy_relative_paths.get(legacy_relative_path)
+    if row_index is None:
+        return None
+    return artifact_index.manifest.artifacts[row_index]
+
+
+def find_workflow_artifact_by_id(
+    artifact_index: WorkflowArtifactLayoutIndex,
+    artifact_id: str,
+) -> WorkflowArtifactLayoutEntry | None:
+    """Return the layout entry for one stable workflow artifact id."""
+
+    row_index = artifact_index.artifact_ids.get(artifact_id)
+    if row_index is None:
+        return None
+    return artifact_index.manifest.artifacts[row_index]
+
+
+def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutManifest:
+    """Validate manifest-listed workflow artifacts against current on-disk content."""
+
+    manifest = load_workflow_artifact_manifest(output_dir)
+    artifact_index = index_workflow_artifact_manifest(manifest=manifest)
+    for artifact in manifest.artifacts:
         artifact_path = output_dir / artifact.relative_path
         if not artifact_path.is_file():
             raise ScientificEvidenceError(
@@ -194,6 +258,7 @@ def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLay
     validate_workflow_artifact_completeness(
         output_dir=output_dir,
         manifest=manifest,
+        artifact_index=artifact_index,
     )
     return manifest
 
@@ -357,14 +422,14 @@ def validate_workflow_artifact_completeness(
     *,
     output_dir: Path,
     manifest: WorkflowArtifactLayoutManifest | None = None,
+    artifact_index: WorkflowArtifactLayoutIndex | None = None,
 ) -> WorkflowArtifactLayoutManifest:
     """Validate manifest-declared workflow completeness against on-disk artifacts."""
 
     if manifest is None:
         manifest = load_workflow_artifact_manifest(output_dir)
-    indexed_artifacts = {
-        artifact.legacy_relative_path: artifact for artifact in manifest.artifacts
-    }
+    if artifact_index is None:
+        artifact_index = index_workflow_artifact_manifest(manifest=manifest)
     for expectation in _collect_workflow_artifact_expectations(
         output_dir=output_dir,
         manifest=manifest,
@@ -377,7 +442,10 @@ def validate_workflow_artifact_completeness(
                 f"{expectation.legacy_relative_path} declared at "
                 f"{expectation.manifest_key_path}"
             )
-        layout_entry = indexed_artifacts.get(expectation.legacy_relative_path)
+        layout_entry = find_workflow_artifact_by_legacy_path(
+            artifact_index,
+            expectation.legacy_relative_path,
+        )
         if layout_entry is None:
             raise InvalidWorkflowError(
                 "workflow artifact completeness validation failed for "
@@ -584,8 +652,12 @@ __all__ = [
     "WorkflowArtifactKind",
     "WorkflowArtifactExpectation",
     "WorkflowArtifactLayoutEntry",
+    "WorkflowArtifactLayoutIndex",
     "WorkflowArtifactLayoutManifest",
     "classify_workflow_artifact_name",
+    "find_workflow_artifact_by_id",
+    "find_workflow_artifact_by_legacy_path",
+    "index_workflow_artifact_manifest",
     "load_workflow_artifact_manifest",
     "synchronize_workflow_artifact_layout",
     "validate_workflow_artifact_completeness",
