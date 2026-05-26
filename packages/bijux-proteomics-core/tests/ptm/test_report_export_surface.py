@@ -123,16 +123,29 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
         if entry.legacy_relative_path == manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "accepted_evidence_count"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{manifest.artifacts.summary_tsv}.schema.json"
+    )
+    assert (
+        output_dir / "reports" / f"{manifest.artifacts.summary_tsv}.schema.json"
+    ).exists()
     differential_entry = next(
         entry
         for entry in layout_manifest.artifacts
         if entry.legacy_relative_path == manifest.artifacts.differential_tsv
     )
     assert differential_entry.output_table_schema is not None
+    assert differential_entry.artifact_schema_version == "2026-05-26"
+    assert differential_entry.output_table_schema.schema_version == "2026-05-26"
     assert "corrected_log2_fold_change" in {
         column.name for column in differential_entry.output_table_schema.columns
     }
+    assert differential_entry.output_table_schema_sidecar_relative_path == (
+        f"stats/{manifest.artifacts.differential_tsv}.schema.json"
+    )
     assert "S[Phospho]PEPTIDEK" in (
         output_dir / manifest.artifacts.peptide_tsv
     ).read_text()
