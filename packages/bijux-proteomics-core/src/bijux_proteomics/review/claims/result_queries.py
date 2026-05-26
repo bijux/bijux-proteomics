@@ -156,11 +156,38 @@ class _QcRunArtifact:
 
 
 @dataclass(frozen=True)
+class _ProteinCardLookupIndex:
+    cards_by_card_id: dict[str, _ProteinCardArtifact]
+    cards_by_protein_group_id: dict[str, _ProteinCardArtifact]
+    cards_by_representative_protein_ref: dict[str, _ProteinCardArtifact]
+    cards_by_gene_symbol: dict[str, tuple[_ProteinCardArtifact, ...]]
+    cards_by_protein_ref: dict[str, tuple[_ProteinCardArtifact, ...]]
+
+
+@dataclass(frozen=True)
+class _GraphNodeLookupIndex:
+    node_ids_by_entity: dict[tuple[str, str], tuple[str, ...]]
+    sample_ids_by_run_id: dict[str, tuple[str, ...]]
+
+
+@dataclass(frozen=True)
+class _PtmCardLookupIndex:
+    cards_by_card_id: dict[str, _PtmCardArtifact]
+    cards_by_site_key: dict[str, _PtmCardArtifact]
+    cards_by_claim_id: dict[str, tuple[_PtmCardArtifact, ...]]
+    cards_by_protein_ref: dict[str, tuple[_PtmCardArtifact, ...]]
+
+
+@dataclass(frozen=True)
 class _ResultArtifactContext:
     protein_cards: tuple[_ProteinCardArtifact, ...]
+    protein_card_index: _ProteinCardLookupIndex
     graph_nodes: tuple[_GraphNodeArtifact, ...]
+    graph_node_index: _GraphNodeLookupIndex
     ptm_cards: tuple[_PtmCardArtifact, ...]
+    ptm_card_index: _PtmCardLookupIndex
     qc_runs: tuple[_QcRunArtifact, ...]
+    failed_qc_runs_by_sample: dict[str, tuple[_QcRunArtifact, ...]]
 
 
 def build_result_query_report_from_artifacts(
@@ -317,11 +344,19 @@ def _load_result_artifact_context(
         ptm_cards = _load_ptm_cards(ptm_report_dir / "ptm_evidence_cards.tsv")
 
     qc_runs = _load_qc_runs(run_qc_assessment_tsv_paths)
+    graph_node_index = _build_graph_node_lookup_index(graph_nodes)
     return _ResultArtifactContext(
         protein_cards=protein_cards,
+        protein_card_index=_build_protein_card_lookup_index(protein_cards),
         graph_nodes=graph_nodes,
+        graph_node_index=graph_node_index,
         ptm_cards=ptm_cards,
+        ptm_card_index=_build_ptm_card_lookup_index(ptm_cards),
         qc_runs=qc_runs,
+        failed_qc_runs_by_sample=_build_failed_qc_runs_by_sample(
+            qc_runs=qc_runs,
+            graph_node_index=graph_node_index,
+        ),
     )
 
 
@@ -373,7 +408,7 @@ def _answer_protein_significance_query(
     *,
     context: _ResultArtifactContext,
 ) -> ResultQueryAnswer:
-    card = _find_protein_card(context.protein_cards, request.subject_id)
+    card = _find_protein_card(context.protein_card_index, request.subject_id)
     if card is None:
         return _not_found_answer(
             request,
@@ -420,7 +455,7 @@ def _answer_protein_peptide_support_query(
     *,
     context: _ResultArtifactContext,
 ) -> ResultQueryAnswer:
-    card = _find_protein_card(context.protein_cards, request.subject_id)
+    card = _find_protein_card(context.protein_card_index, request.subject_id)
     if card is None:
         return _not_found_answer(
             request,
@@ -552,13 +587,13 @@ def _answer_ptm_site_downgrade_query(
     *,
     context: _ResultArtifactContext,
 ) -> ResultQueryAnswer:
-    card = _find_ptm_card(context.ptm_cards, request.subject_id)
+    card = _find_ptm_card(context.ptm_card_index, request.subject_id)
     if card is None:
         return _not_found_answer(
             request,
             "no governed PTM evidence card matched the requested site subject",
         )
-    protein_card = _find_protein_card(context.protein_cards, card.protein_ref)
+    protein_card = _find_protein_card(context.protein_card_index, card.protein_ref)
     graph_node_ids = tuple(
         dict.fromkeys(
             (
@@ -568,9 +603,11 @@ def _answer_ptm_site_downgrade_query(
                     else _protein_card_graph_node_ids(protein_card)
                 ),
                 *tuple(
-                    node.node_id
-                    for node in context.graph_nodes
-                    if node.entity_ref == card.protein_ref
+                    _node_ids_for_entity(
+                        context.graph_node_index,
+                        entity_type="protein",
+                        entity_ref=card.protein_ref,
+                    )
                 ),
             )
         )
@@ -692,14 +729,14 @@ def _sample_qc_evidence_links(
     context: _ResultArtifactContext,
 ) -> tuple[ResultQueryEvidenceLink, ...]:
     sample_node_ids = _node_ids_for_entity(
-        context.graph_nodes,
+        context.graph_node_index,
         entity_type="sample",
         entity_ref=sample_id,
     )
     links: list[ResultQueryEvidenceLink] = []
     for run in qc_runs:
         run_node_ids = _node_ids_for_entity(
-            context.graph_nodes,
+            context.graph_node_index,
             entity_type="run",
             entity_ref=run.run_id,
         )
@@ -720,36 +757,44 @@ def _sample_qc_evidence_links(
 
 
 def _find_protein_card(
-    cards: tuple[_ProteinCardArtifact, ...],
+    index: _ProteinCardLookupIndex,
     subject_id: str | None,
 ) -> _ProteinCardArtifact | None:
     if subject_id is None:
         return None
-    for card in cards:
-        if subject_id in {
-            card.card_id,
-            card.protein_group_id,
-            card.representative_protein_ref,
-        }:
-            return card
-        if subject_id in card.protein_refs:
-            return card
-        if card.gene_symbol == subject_id:
-            return card
+    card = index.cards_by_card_id.get(subject_id)
+    if card is not None:
+        return card
+    card = index.cards_by_protein_group_id.get(subject_id)
+    if card is not None:
+        return card
+    card = index.cards_by_representative_protein_ref.get(subject_id)
+    if card is not None:
+        return card
+    protein_ref_matches = index.cards_by_protein_ref.get(subject_id)
+    if protein_ref_matches:
+        return protein_ref_matches[0]
+    gene_symbol_matches = index.cards_by_gene_symbol.get(subject_id)
+    if gene_symbol_matches:
+        return gene_symbol_matches[0]
     return None
 
 
 def _find_ptm_card(
-    cards: tuple[_PtmCardArtifact, ...],
+    index: _PtmCardLookupIndex,
     subject_id: str | None,
 ) -> _PtmCardArtifact | None:
     if subject_id is None:
         return None
-    for card in cards:
-        if subject_id in {card.card_id, card.site_key}:
-            return card
-        if subject_id in card.claim_ids:
-            return card
+    card = index.cards_by_card_id.get(subject_id)
+    if card is not None:
+        return card
+    card = index.cards_by_site_key.get(subject_id)
+    if card is not None:
+        return card
+    claim_matches = index.cards_by_claim_id.get(subject_id)
+    if claim_matches:
+        return claim_matches[0]
     return None
 
 
@@ -770,39 +815,106 @@ def _protein_card_graph_node_ids(
 def _sample_to_failed_qc_runs(
     context: _ResultArtifactContext,
 ) -> dict[str, tuple[_QcRunArtifact, ...]]:
-    run_to_sample_ids = {
-        node.entity_ref: tuple(
-            context_ref.split(":", maxsplit=1)[1]
-            for context_ref in node.context_refs
-            if context_ref.startswith("sample:")
+    return context.failed_qc_runs_by_sample
+
+
+def _node_ids_for_entity(
+    graph_node_index: _GraphNodeLookupIndex,
+    *,
+    entity_type: str,
+    entity_ref: str,
+) -> tuple[str, ...]:
+    return graph_node_index.node_ids_by_entity.get((entity_type, entity_ref), ())
+
+
+def _build_protein_card_lookup_index(
+    cards: tuple[_ProteinCardArtifact, ...],
+) -> _ProteinCardLookupIndex:
+    cards_by_gene_symbol: dict[str, list[_ProteinCardArtifact]] = {}
+    cards_by_protein_ref: dict[str, list[_ProteinCardArtifact]] = {}
+    for card in cards:
+        if card.gene_symbol is not None:
+            cards_by_gene_symbol.setdefault(card.gene_symbol, []).append(card)
+        for protein_ref in card.protein_refs:
+            cards_by_protein_ref.setdefault(protein_ref, []).append(card)
+    return _ProteinCardLookupIndex(
+        cards_by_card_id={card.card_id: card for card in cards},
+        cards_by_protein_group_id={card.protein_group_id: card for card in cards},
+        cards_by_representative_protein_ref={
+            card.representative_protein_ref: card for card in cards
+        },
+        cards_by_gene_symbol={
+            gene_symbol: tuple(matches)
+            for gene_symbol, matches in cards_by_gene_symbol.items()
+        },
+        cards_by_protein_ref={
+            protein_ref: tuple(matches)
+            for protein_ref, matches in cards_by_protein_ref.items()
+        },
+    )
+
+
+def _build_graph_node_lookup_index(
+    nodes: tuple[_GraphNodeArtifact, ...],
+) -> _GraphNodeLookupIndex:
+    node_ids_by_entity: dict[tuple[str, str], list[str]] = {}
+    sample_ids_by_run_id: dict[str, tuple[str, ...]] = {}
+    for node in nodes:
+        node_ids_by_entity.setdefault((node.entity_type, node.entity_ref), []).append(
+            node.node_id
         )
-        for node in context.graph_nodes
-        if node.entity_type == "run"
-    }
+        if node.entity_type == "run":
+            sample_ids_by_run_id[node.entity_ref] = tuple(
+                context_ref.split(":", maxsplit=1)[1]
+                for context_ref in node.context_refs
+                if context_ref.startswith("sample:")
+            )
+    return _GraphNodeLookupIndex(
+        node_ids_by_entity={
+            key: tuple(node_ids) for key, node_ids in node_ids_by_entity.items()
+        },
+        sample_ids_by_run_id=sample_ids_by_run_id,
+    )
+
+
+def _build_ptm_card_lookup_index(
+    cards: tuple[_PtmCardArtifact, ...],
+) -> _PtmCardLookupIndex:
+    cards_by_claim_id: dict[str, list[_PtmCardArtifact]] = {}
+    cards_by_protein_ref: dict[str, list[_PtmCardArtifact]] = {}
+    for card in cards:
+        for claim_id in card.claim_ids:
+            cards_by_claim_id.setdefault(claim_id, []).append(card)
+        cards_by_protein_ref.setdefault(card.protein_ref, []).append(card)
+    return _PtmCardLookupIndex(
+        cards_by_card_id={card.card_id: card for card in cards},
+        cards_by_site_key={card.site_key: card for card in cards},
+        cards_by_claim_id={
+            claim_id: tuple(matches)
+            for claim_id, matches in cards_by_claim_id.items()
+        },
+        cards_by_protein_ref={
+            protein_ref: tuple(matches)
+            for protein_ref, matches in cards_by_protein_ref.items()
+        },
+    )
+
+
+def _build_failed_qc_runs_by_sample(
+    *,
+    qc_runs: tuple[_QcRunArtifact, ...],
+    graph_node_index: _GraphNodeLookupIndex,
+) -> dict[str, tuple[_QcRunArtifact, ...]]:
     sample_to_runs: dict[str, list[_QcRunArtifact]] = {}
-    for run in context.qc_runs:
+    for run in qc_runs:
         if run.qc_status != "fail":
             continue
-        sample_ids = run_to_sample_ids.get(run.run_id, ())
-        for sample_id in sample_ids:
+        for sample_id in graph_node_index.sample_ids_by_run_id.get(run.run_id, ()):
             sample_to_runs.setdefault(sample_id, []).append(run)
     return {
         sample_id: tuple(sorted(runs, key=lambda entry: entry.run_id))
         for sample_id, runs in sample_to_runs.items()
     }
-
-
-def _node_ids_for_entity(
-    nodes: tuple[_GraphNodeArtifact, ...],
-    *,
-    entity_type: str,
-    entity_ref: str,
-) -> tuple[str, ...]:
-    return tuple(
-        node.node_id
-        for node in nodes
-        if node.entity_type == entity_type and node.entity_ref == entity_ref
-    )
 
 
 def _load_biological_protein_cards(path: Path) -> tuple[_ProteinCardArtifact, ...]:

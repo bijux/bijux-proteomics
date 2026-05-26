@@ -181,12 +181,20 @@ class _RejectedClaimArtifact:
 
 
 @dataclass(frozen=True)
+class _RejectedClaimLookupIndex:
+    claims_by_claim_id: dict[str, _RejectedClaimArtifact]
+    claims_by_subject_id: dict[str, tuple[_RejectedClaimArtifact, ...]]
+    claims_by_subject_label: dict[str, tuple[_RejectedClaimArtifact, ...]]
+
+
+@dataclass(frozen=True)
 class _ResultExplanationArtifactContext:
     base_context: _ResultArtifactContext
     pathway_comparisons: tuple[_PathwayComparisonArtifact, ...]
     pathway_member_contributions: tuple[_PathwayMemberContributionArtifact, ...]
     pathway_unresolved_members: tuple[_PathwayUnresolvedMemberArtifact, ...]
     rejected_claims: tuple[_RejectedClaimArtifact, ...]
+    rejected_claim_index: _RejectedClaimLookupIndex
     biological_report_available: bool
     ptm_report_available: bool
     pathway_activity_available: bool
@@ -363,7 +371,10 @@ def _explain_protein_result(
             request,
             "protein explanations require an exported biological report directory",
         )
-    card = _find_protein_card(context.base_context.protein_cards, request.subject_id)
+    card = _find_protein_card(
+        context.base_context.protein_card_index,
+        request.subject_id,
+    )
     if card is None:
         return _not_found_explanation(
             request,
@@ -463,13 +474,16 @@ def _explain_ptm_site_result(
             request,
             "PTM explanations require an exported PTM report directory",
         )
-    card = _find_ptm_card(context.base_context.ptm_cards, request.subject_id)
+    card = _find_ptm_card(context.base_context.ptm_card_index, request.subject_id)
     if card is None:
         return _not_found_explanation(
             request,
             "no governed PTM evidence card matched the requested subject",
         )
-    protein_card = _find_protein_card(context.base_context.protein_cards, card.protein_ref)
+    protein_card = _find_protein_card(
+        context.base_context.protein_card_index,
+        card.protein_ref,
+    )
     graph_node_ids = (
         ()
         if protein_card is None
@@ -592,7 +606,7 @@ def _explain_pathway_result(
             "no governed pathway activity comparison matched the requested subject",
         )
     graph_node_ids = _node_ids_for_entity(
-        context.base_context.graph_nodes,
+        context.base_context.graph_node_index,
         entity_type="pathway",
         entity_ref=comparison.pathway_id,
     )
@@ -696,7 +710,7 @@ def _explain_sample_qc_decision(
     failed_runs = sample_to_runs.get(request.subject_id or "", ())
     if failed_runs:
         sample_node_ids = _node_ids_for_entity(
-            context.base_context.graph_nodes,
+            context.base_context.graph_node_index,
             entity_type="sample",
             entity_ref=request.subject_id or "",
         )
@@ -708,7 +722,7 @@ def _explain_sample_qc_decision(
                         node_id
                         for run in failed_runs
                         for node_id in _node_ids_for_entity(
-                            context.base_context.graph_nodes,
+                            context.base_context.graph_node_index,
                             entity_type="run",
                             entity_ref=run.run_id,
                         )
@@ -751,7 +765,7 @@ def _explain_sample_qc_decision(
             "no failed sample or run QC decision matched the requested subject",
         )
     run_node_ids = _node_ids_for_entity(
-        context.base_context.graph_nodes,
+        context.base_context.graph_node_index,
         entity_type="run",
         entity_ref=run.run_id,
     )
@@ -792,7 +806,7 @@ def _explain_rejected_evidence_decision(
             request,
             "rejected evidence explanations require exported rejected-claim artifacts",
         )
-    claim = _find_rejected_claim(context.rejected_claims, request.subject_id)
+    claim = _find_rejected_claim(context.rejected_claim_index, request.subject_id)
     if claim is None:
         return _not_found_explanation(
             request,
@@ -972,6 +986,11 @@ def _load_result_explanation_artifact_context(
         candidate = biological_report_dir / "biological_rejected_claims.tsv"
         if candidate.exists():
             rejected_claim_path = candidate
+    rejected_claims = (
+        ()
+        if rejected_claim_path is None
+        else _load_rejected_claims(rejected_claim_path)
+    )
     return _ResultExplanationArtifactContext(
         base_context=base_context,
         pathway_comparisons=()
@@ -983,9 +1002,8 @@ def _load_result_explanation_artifact_context(
         pathway_unresolved_members=()
         if pathway_unresolved_path is None
         else _load_pathway_unresolved_members(pathway_unresolved_path),
-        rejected_claims=()
-        if rejected_claim_path is None
-        else _load_rejected_claims(rejected_claim_path),
+        rejected_claims=rejected_claims,
+        rejected_claim_index=_build_rejected_claim_lookup_index(rejected_claims),
         biological_report_available=biological_report_dir is not None,
         ptm_report_available=ptm_report_dir is not None,
         pathway_activity_available=pathway_comparison_path is not None,
@@ -1079,6 +1097,27 @@ def _load_rejected_claims(path: Path) -> tuple[_RejectedClaimArtifact, ...]:
     )
 
 
+def _build_rejected_claim_lookup_index(
+    claims: tuple[_RejectedClaimArtifact, ...],
+) -> _RejectedClaimLookupIndex:
+    claims_by_subject_id: dict[str, list[_RejectedClaimArtifact]] = {}
+    claims_by_subject_label: dict[str, list[_RejectedClaimArtifact]] = {}
+    for claim in claims:
+        claims_by_subject_id.setdefault(claim.subject_id, []).append(claim)
+        claims_by_subject_label.setdefault(claim.subject_label, []).append(claim)
+    return _RejectedClaimLookupIndex(
+        claims_by_claim_id={claim.claim_id: claim for claim in claims},
+        claims_by_subject_id={
+            subject_id: tuple(matches)
+            for subject_id, matches in claims_by_subject_id.items()
+        },
+        claims_by_subject_label={
+            subject_label: tuple(matches)
+            for subject_label, matches in claims_by_subject_label.items()
+        },
+    )
+
+
 def _find_pathway_comparison(
     comparisons: tuple[_PathwayComparisonArtifact, ...],
     subject_id: str | None,
@@ -1151,20 +1190,24 @@ def _find_failed_qc_run(
 
 
 def _find_rejected_claim(
-    claims: tuple[_RejectedClaimArtifact, ...],
+    rejected_claim_index: _RejectedClaimLookupIndex,
     subject_id: str | None,
 ) -> _RejectedClaimArtifact | None:
     if subject_id is None:
         return None
+    exact = rejected_claim_index.claims_by_claim_id.get(subject_id)
+    if exact is not None:
+        return exact
     matches = [
-        entry
-        for entry in claims
-        if subject_id in {entry.claim_id, entry.subject_id, entry.subject_label}
+        *rejected_claim_index.claims_by_subject_id.get(subject_id, ()),
+        *rejected_claim_index.claims_by_subject_label.get(subject_id, ()),
     ]
     if len(matches) == 1:
         return matches[0]
-    exact = next((entry for entry in matches if entry.claim_id == subject_id), None)
-    return exact
+    unique_matches = {entry.claim_id: entry for entry in matches}
+    if len(unique_matches) == 1:
+        return next(iter(unique_matches.values()))
+    return None
 
 
 def _rejected_claim_graph_node_ids(
@@ -1173,13 +1216,13 @@ def _rejected_claim_graph_node_ids(
 ) -> tuple[str, ...]:
     if claim.claim_kind == "protein_abundance_change":
         return _node_ids_for_entity(
-            context.graph_nodes,
+            context.graph_node_index,
             entity_type="protein",
             entity_ref=claim.subject_id,
         )
     if claim.claim_kind == "pathway_activity_change":
         return _node_ids_for_entity(
-            context.graph_nodes,
+            context.graph_node_index,
             entity_type="pathway",
             entity_ref=claim.subject_id,
         )
