@@ -660,11 +660,14 @@ def test_interpretation_package_exports_annotation_pack_surface(tmp_path: Path) 
     )
 
     assert hasattr(interpretation, "load_annotation_pack")
+    assert hasattr(interpretation, "render_annotation_pack_json")
     assert hasattr(interpretation, "AnnotationPackValidationError")
 
     pack = interpretation.load_annotation_pack(pack_path)
+    exported = interpretation.render_annotation_pack_json(pack)
 
     assert pack.pack_name == "public-annotations"
     assert pack.protein_features[0].protein_ref == "P04637"
     assert pack.pathways[0].member_id == "P04637"
     assert pack.orthologs[0].target_protein_ref == "P02340"
+    assert '"pack_name": "public-annotations"' in exported

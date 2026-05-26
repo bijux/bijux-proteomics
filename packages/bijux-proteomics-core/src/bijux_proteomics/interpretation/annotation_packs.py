@@ -248,6 +248,42 @@ class _RawAnnotationPack(JsonModel):
     metadata: dict[str, str] = Field(default_factory=dict)
 
 
+def render_annotation_pack_json(pack: AnnotationPack) -> str:
+    """Render one normalized annotation pack into canonical pack JSON."""
+
+    payload: dict[str, object] = {
+        "pack_name": pack.pack_name,
+        "pack_version": pack.pack_version,
+        "protein_features": [
+            _serialize_protein_feature_row(record)
+            for record in pack.protein_features
+        ],
+        "pathways": [_serialize_pathway_row(record) for record in pack.pathways],
+        "complexes": [_serialize_complex_row(record) for record in pack.complexes],
+        "compartments": [
+            _serialize_biological_context_row(record)
+            for record in pack.compartments
+        ],
+        "drug_targets": [
+            _serialize_biological_context_row(record)
+            for record in pack.drug_targets
+        ],
+        "disease_terms": [
+            _serialize_biological_context_row(record)
+            for record in pack.disease_terms
+        ],
+        "kinase_substrates": [
+            _serialize_kinase_substrate_row(record)
+            for record in pack.kinase_substrates
+        ],
+        "orthologs": [_serialize_ortholog_row(record) for record in pack.orthologs],
+        "metadata": dict(pack.metadata),
+    }
+    if pack.document_schema is not None:
+        payload["document_schema"] = pack.document_schema.to_dict()
+    return json.dumps(payload, sort_keys=True) + "\n"
+
+
 def load_annotation_pack(path: Path) -> AnnotationPack:
     """Load one governed JSON annotation pack with row-level validation."""
 
@@ -321,6 +357,92 @@ def load_annotation_pack(path: Path) -> AnnotationPack:
             ortholog_count=len(orthologs),
         ),
     )
+
+
+def _serialize_protein_feature_row(
+    record: ProteinAnnotationRecord,
+) -> dict[str, object]:
+    return {
+        "protein_ref": record.protein_ref,
+        "gene_symbol": record.gene_symbol,
+        "description": record.description,
+        "organism": record.organism,
+        "annotation_identifier": record.annotation_identifier,
+        "metadata": dict(record.metadata),
+    }
+
+
+def _serialize_pathway_row(record: PathwayMembershipRecord) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "pathway_id": record.pathway_id,
+        "pathway_name": record.pathway_name,
+        "source_name": record.source_name,
+        "source_accession": record.source_accession,
+        "protein_ref": None,
+        "gene_symbol": None,
+        "metadata": dict(record.metadata),
+    }
+    if record.member_kind is PathwayMemberKind.PROTEIN:
+        payload["protein_ref"] = record.member_id
+    else:
+        payload["gene_symbol"] = record.member_id
+    return payload
+
+
+def _serialize_complex_row(record: ComplexMembershipRecord) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "complex_id": record.complex_id,
+        "complex_name": record.complex_name,
+        "source_name": record.source_name,
+        "source_accession": record.source_accession,
+        "protein_ref": None,
+        "gene_symbol": None,
+        "metadata": dict(record.metadata),
+    }
+    if record.member_kind is ComplexMemberKind.PROTEIN:
+        payload["protein_ref"] = record.member_id
+    else:
+        payload["gene_symbol"] = record.member_id
+    return payload
+
+
+def _serialize_biological_context_row(
+    record: BiologicalContextRecord,
+) -> dict[str, object]:
+    return {
+        "protein_ref": record.protein_ref,
+        "context_id": record.context_id,
+        "context_name": record.context_name,
+        "source_name": record.source_name,
+        "source_accession": record.source_accession,
+        "evidence": record.evidence,
+        "metadata": dict(record.metadata),
+    }
+
+
+def _serialize_kinase_substrate_row(
+    record: RegulatorEvidenceRecord,
+) -> dict[str, object]:
+    return {
+        "regulator": record.regulator,
+        "site_key": record.site_key,
+        "source_name": record.source_name,
+        "source_accession": record.source_accession,
+        "metadata": dict(record.metadata),
+    }
+
+
+def _serialize_ortholog_row(record: OrthologRecord) -> dict[str, object]:
+    return {
+        "source_species": record.source_species,
+        "source_protein_ref": record.source_protein_ref,
+        "target_species": record.target_species,
+        "target_protein_ref": record.target_protein_ref,
+        "source_gene_symbol": record.source_gene_symbol,
+        "target_gene_symbol": record.target_gene_symbol,
+        "evidence": record.evidence,
+        "metadata": dict(record.metadata),
+    }
 
 
 def _load_protein_features(
@@ -694,4 +816,5 @@ __all__ = [
     "AnnotationPackValidationError",
     "AnnotationPackValidationReport",
     "load_annotation_pack",
+    "render_annotation_pack_json",
 ]

@@ -12,6 +12,7 @@ from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPackTableName,
     AnnotationPackValidationError,
     load_annotation_pack,
+    render_annotation_pack_json,
 )
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
@@ -196,4 +197,99 @@ def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path)
     )
     assert rejected[(AnnotationPackTableName.ORTHOLOGS, 1)] == (
         "target_protein_ref: Field required"
+    )
+
+
+def test_render_annotation_pack_json_round_trips_loaded_pack(tmp_path: Path) -> None:
+    original_path = _write_pack(
+        tmp_path / "annotation_pack_round_trip.json",
+        {
+            "document_schema": DocumentSchema(
+                created_by="bijux-proteomics-benchmark",
+                document_kind="annotation_pack",
+                package_name="bijux-proteomics-benchmark",
+                status="generated",
+            ).to_dict(),
+            "pack_name": "round-trip-pack",
+            "pack_version": "2026.05",
+            "protein_features": [
+                {
+                    "protein_ref": "sp|P04637|P53_HUMAN",
+                    "gene_symbol": "TP53",
+                    "description": "tumor protein p53",
+                    "annotation_identifier": "ENSP00000269305",
+                }
+            ],
+            "pathways": [
+                {
+                    "pathway_id": "pathway:stress_response",
+                    "pathway_name": "stress response",
+                    "gene_symbol": "TP53",
+                    "source_name": "reactome",
+                }
+            ],
+            "complexes": [
+                {
+                    "complex_id": "complex:guardian",
+                    "complex_name": "guardian complex",
+                    "protein_ref": "P04637",
+                    "source_accession": "complexportal:CPX-1",
+                }
+            ],
+            "compartments": [
+                {
+                    "protein_ref": "P04637",
+                    "context_id": "GO:0005737",
+                    "context_name": "cytoplasm",
+                    "source_name": "GO",
+                }
+            ],
+            "drug_targets": [
+                {
+                    "protein_ref": "P04637",
+                    "context_id": "drugbank:DB0001",
+                    "context_name": "example inhibitor",
+                    "source_accession": "DrugBank:DB0001",
+                    "metadata": {"relationship_type": "direct_target"},
+                }
+            ],
+            "disease_terms": [
+                {
+                    "protein_ref": "P04637",
+                    "context_id": "DOID:162",
+                    "context_name": "cancer",
+                    "source_name": "Disease Ontology",
+                }
+            ],
+            "kinase_substrates": [
+                {
+                    "regulator": "MAPK1",
+                    "site_key": "P04637:S15:Phospho",
+                    "source_accession": "PSP:0001",
+                }
+            ],
+            "orthologs": [
+                {
+                    "source_species": "human",
+                    "source_protein_ref": "P04637",
+                    "target_species": "mouse",
+                    "target_protein_ref": "P02340",
+                    "source_gene_symbol": "TP53",
+                    "target_gene_symbol": "Trp53",
+                }
+            ],
+            "metadata": {"curator": "team-bijux"},
+        },
+    )
+    loaded_pack = load_annotation_pack(original_path)
+    exported_path = tmp_path / "annotation_pack_exported.json"
+    exported_path.write_text(
+        render_annotation_pack_json(loaded_pack),
+        encoding="utf-8",
+    )
+
+    reloaded_pack = load_annotation_pack(exported_path)
+
+    assert reloaded_pack == loaded_pack.model_copy(
+        update={"source_path": str(exported_path)}
     )
