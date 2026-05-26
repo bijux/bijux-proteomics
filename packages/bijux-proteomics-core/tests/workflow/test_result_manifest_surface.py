@@ -24,6 +24,7 @@ from bijux_proteomics.workflow import (
     render_result_manifest_file_tsv,
     render_result_manifest_summary_tsv,
     render_result_manifest_warning_tsv,
+    write_result_archive_lab_action_packets,
 )
 
 
@@ -129,11 +130,17 @@ def test_result_manifest_preserves_completeness_counts_and_warning_ledgers(
 
     qc_path = tmp_path / "run_qc.tsv"
     _write_run_qc_tsv(qc_path)
+    lab_action_packet_path = tmp_path / "lab_action_packets.tsv"
+    packets = write_result_archive_lab_action_packets(
+        out_path=lab_action_packet_path,
+        run_qc_assessment_tsv_paths=(qc_path,),
+    )
 
     report = build_result_manifest_from_artifacts(
         biological_report_dir=biological_dir,
         ptm_report_dir=ptm_dir,
         run_qc_assessment_tsv_paths=(qc_path,),
+        lab_action_packet_tsv_paths=(lab_action_packet_path,),
         input_paths=(
             _workflow_fixture("biological_report_features.tsv"),
             _workflow_fixture("biological_report.design.tsv"),
@@ -152,6 +159,12 @@ def test_result_manifest_preserves_completeness_counts_and_warning_ledgers(
     assert report.summary.missing_required_file_count == 0
     assert report.summary.sample_count >= 6
     assert report.summary.protein_count >= 3
+    assert len(packets) == 1
+    assert any(
+        entry.input_kind.value == "lab_action_packet"
+        and entry.path == str(lab_action_packet_path)
+        for entry in report.inputs
+    )
     assert any(
         entry.relative_path == "biological_supported_claims.tsv" and entry.exists
         for entry in report.files

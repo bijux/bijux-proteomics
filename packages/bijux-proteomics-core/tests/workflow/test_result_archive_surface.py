@@ -28,9 +28,11 @@ from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.workflow import (
     ProteomicsStudyConclusionKind,
     ProteomicsStudyKind,
+    ProteomicsStudyQcKind,
     build_biological_result_report_bundle,
     build_result_manifest_from_artifacts,
     export_biological_result_report_bundle,
+    write_result_archive_lab_action_packets,
 )
 from bijux_proteomics.workflow.result_archive import load_result_archive
 
@@ -141,11 +143,13 @@ def _write_result_manifest_json(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
     run_qc_paths: tuple[Path, ...] = (),
+    lab_action_packet_paths: tuple[Path, ...] = (),
 ) -> Path:
     report = build_result_manifest_from_artifacts(
         biological_report_dir=biological_report_dir,
         ptm_report_dir=ptm_report_dir,
         run_qc_assessment_tsv_paths=run_qc_paths,
+        lab_action_packet_tsv_paths=lab_action_packet_paths,
         input_paths=(
             _workflow_fixture("biological_report_features.tsv"),
             _workflow_fixture("biological_report.design.tsv"),
@@ -168,11 +172,17 @@ def test_result_archive_rehydrates_mixed_queries_without_workflow_rerun(
     ptm_report_dir = _write_ptm_report_dir(tmp_path)
     run_qc_path = tmp_path / "run_qc.tsv"
     _write_run_qc_tsv(run_qc_path)
+    lab_action_packet_path = tmp_path / "archive" / "lab_action_packets.tsv"
+    write_result_archive_lab_action_packets(
+        out_path=lab_action_packet_path,
+        run_qc_assessment_tsv_paths=(run_qc_path,),
+    )
     manifest_path = _write_result_manifest_json(
         archive_dir=tmp_path / "archive",
         biological_report_dir=biological_report_dir,
         ptm_report_dir=ptm_report_dir,
         run_qc_paths=(run_qc_path,),
+        lab_action_packet_paths=(lab_action_packet_path,),
     )
 
     result = load_result_archive(manifest_path)
@@ -189,6 +199,18 @@ def test_result_archive_rehydrates_mixed_queries_without_workflow_rerun(
         entry.kind is ProteomicsStudyConclusionKind.SUPPORTED_CLAIM
         for entry in result.biological_conclusions
     )
+    assert any(
+        entry.kind is ProteomicsStudyQcKind.LAB_ACTION_PACKET
+        for entry in result.qc_surfaces
+    )
+    assert result.archived_lab_action_packets
+    run_packet = result.query_archived_lab_action_packets(
+        entity_id="t2.mzml",
+        entity_type="run",
+    )
+    assert len(run_packet) == 1
+    assert run_packet[0].problem == "identification_rate_low"
+    assert "identification depth" in run_packet[0].recommended_action
 
     bundle = result.interactive_result_bundle
     protein = result.query_archived_protein(
