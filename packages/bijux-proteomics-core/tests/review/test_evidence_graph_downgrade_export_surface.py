@@ -8,6 +8,7 @@ from bijux_proteomics.review import (
     render_evidence_graph_final_results_tsv,
 )
 
+from .test_evidence_graph_contradiction_surface import build_contradiction_fixture_graph
 from .test_evidence_graph_downgrade_surface import build_downgrade_fixture_graph
 
 
@@ -24,3 +25,12 @@ def test_evidence_graph_final_result_table_renders_evidence_tiers_and_downgrade_
     assert "\tmoderate\tpoor_run_qc\t" in rendered
     assert "\thigh_confidence\t\t" in rendered
     assert len(lines) == 8
+
+
+def test_evidence_graph_final_result_table_renders_contradiction_downgrade_reasons() -> None:
+    report = build_evidence_graph_final_result_table(build_contradiction_fixture_graph())
+
+    rendered = render_evidence_graph_final_results_tsv(report)
+
+    assert "\tlow\tweak\tsevere_contradiction\t" in rendered
+    assert "\tmoderate\tweak\tcontradiction_caution\t" in rendered
