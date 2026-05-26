@@ -132,6 +132,7 @@ from bijux_proteomics.domain.semantic_ids import (
     classify_semantic_id,
     ensure_semantic_id_namespace,
 )
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.targets import (
     ComplexMembership,
     MechanismLiability,
@@ -232,6 +233,7 @@ __all__ = [
     "StageEligibility",
     "SuccessCriterion",
     "SemanticIdNamespace",
+    "SourceRowLineage",
     "TargetAnnotation",
     "TargetDecoyState",
     "TargetOutcome",
