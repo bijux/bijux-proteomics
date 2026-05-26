@@ -688,6 +688,32 @@ def test_workflow_cache_miss_explanations_identify_schema_changes() -> None:
     )
 
 
+def test_workflow_manifest_records_fdr_threshold_in_policies_and_bundle_command_preview() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    assert "fdr:q-value-threshold=0.05" in manifest.runtime_policies
+    fdr_step = next(
+        step for step in manifest.steps if step.kind is WorkflowStepKind.CALCULATE_FDR
+    )
+    bundle_step = next(
+        step for step in manifest.steps if step.kind is WorkflowStepKind.BUILD_RUN_BUNDLE
+    )
+    assert "--q-value-threshold" in fdr_step.command_preview
+    assert "0.05" in fdr_step.command_preview
+    assert "--fdr-threshold" in bundle_step.command_preview
+    assert "0.05" in bundle_step.command_preview
+
+
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_fixture("proteins.fasta"),
