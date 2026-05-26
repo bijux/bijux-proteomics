@@ -10,6 +10,7 @@ from bijux_proteomics.dia import (
     build_diann_precursor_matrix_report,
     render_dia_precursor_matrix_summary_tsv,
     render_dia_precursor_metadata_tsv,
+    render_dia_precursor_missingness_tsv,
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
 )
@@ -28,6 +29,7 @@ def test_render_dia_precursor_quantity_and_q_value_matrices() -> None:
     report = build_diann_precursor_matrix_report(_bundle_root() / "diann_report.tsv")
 
     quantity_tsv = render_dia_precursor_quantity_matrix_tsv(report)
+    missingness_tsv = render_dia_precursor_missingness_tsv(report)
     q_value_tsv = render_dia_precursor_q_value_matrix_tsv(report)
 
     assert quantity_tsv.startswith(
@@ -38,6 +40,8 @@ def test_render_dia_precursor_quantity_and_q_value_matrices() -> None:
         in quantity_tsv
     )
     assert "\t1.25e+06\t1.3e+06\n" in quantity_tsv
+    assert "\tobserved\tobserved\n" in missingness_tsv
+    assert "target_decoy_label\tsample_A\tsample_B" in missingness_tsv
     assert "\t0.0021\t0.0024\n" in q_value_tsv
 
 

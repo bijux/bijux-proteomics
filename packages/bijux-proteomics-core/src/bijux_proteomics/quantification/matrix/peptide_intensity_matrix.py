@@ -597,6 +597,10 @@ def render_peptide_intensity_missingness_tsv(
         "zero_count",
         "not_observed_count",
         "filtered_count",
+        "imputed_count",
+        "censored_count",
+        "excluded_count",
+        "not_applicable_count",
     )
     rows = ["\t".join(header)]
     for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
@@ -608,6 +612,10 @@ def render_peptide_intensity_missingness_tsv(
                     str(entry.zero_count),
                     str(entry.not_observed_count),
                     str(entry.filtered_count),
+                    str(entry.imputed_count),
+                    str(entry.censored_count),
+                    str(entry.excluded_count),
+                    str(entry.not_applicable_count),
                 )
             )
         )

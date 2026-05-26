@@ -651,6 +651,10 @@ def render_protein_intensity_missingness_tsv(
         "zero_count",
         "not_observed_count",
         "filtered_count",
+        "imputed_count",
+        "censored_count",
+        "excluded_count",
+        "not_applicable_count",
     )
     rows = ["\t".join(header)]
     for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
@@ -662,6 +666,50 @@ def render_protein_intensity_missingness_tsv(
                     str(entry.zero_count),
                     str(entry.not_observed_count),
                     str(entry.filtered_count),
+                    str(entry.imputed_count),
+                    str(entry.censored_count),
+                    str(entry.excluded_count),
+                    str(entry.not_applicable_count),
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_protein_intensity_missingness_mask_tsv(
+    report: ProteinIntensityMatrixReport,
+) -> str:
+    """Render one protein-by-sample missingness mask beside the intensity matrix."""
+
+    ordered_sample_ids = sort_strings(report.sample_ids)
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
+    header = [
+        "entity_id",
+        "target_kind",
+        "protein_refs",
+        "peptide_count",
+        "unique_peptide_count",
+        "shared_peptide_count",
+        "contributing_peptides",
+    ]
+    header.extend(ordered_sample_ids)
+    rows = ["\t".join(header)]
+    for row in ordered_rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        rows.append(
+            "\t".join(
+                (
+                    row.entity_id,
+                    row.target_kind.value,
+                    ";".join(sort_strings(row.protein_refs)),
+                    str(row.peptide_count),
+                    str(row.unique_peptide_count),
+                    str(row.shared_peptide_count),
+                    ";".join(sort_strings(row.contributing_peptides)),
+                    *[
+                        value_lookup[sample_id].missing_value_kind.value
+                        for sample_id in ordered_sample_ids
+                    ],
                 )
             )
         )

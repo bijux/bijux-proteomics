@@ -18,6 +18,7 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     render_protein_lfq_disconnected_components_tsv,
     render_protein_lfq_matrix_tsv,
+    render_protein_lfq_missingness_mask_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
@@ -146,6 +147,7 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
     pairwise_tsv = render_protein_lfq_pairwise_ratios_tsv(lfq)
     disconnected_tsv = render_protein_lfq_disconnected_components_tsv(lfq)
     missingness_tsv = render_protein_lfq_missingness_tsv(lfq)
+    missingness_mask_tsv = render_protein_lfq_missingness_mask_tsv(lfq)
 
     assert (
         "source_kind\tgrouping_mode\ttarget_kind\tseparate_charge_states\taggregation_method"
@@ -165,6 +167,18 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
     assert (
         "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count"
         in missingness_tsv
+    )
+    assert (
+        "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count\timputed_count\tcensored_count\texcluded_count\tnot_applicable_count"
+        in missingness_tsv
+    )
+    assert (
+        "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tpairwise_ratio_count\tconnected_component_count\tcontributing_peptides\tS1\tS2\tS3"
+        in missingness_mask_tsv
+    )
+    assert (
+        "P1\tprotein\tP1\t3\t3\t0\t3\t1\tPEPAAK;PEPCCK;PEPVVK\tobserved\tobserved\tobserved"
+        in missingness_mask_tsv
     )
     assert (
         "entity_id\ttarget_kind\tprotein_refs\tcomponent_id\tsample_ids\tdisconnected_from_sample_ids\tsample_count\tpairwise_ratio_count\tcontributing_peptides"

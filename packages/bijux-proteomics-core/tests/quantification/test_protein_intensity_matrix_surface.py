@@ -19,6 +19,7 @@ from bijux_proteomics.quantification import (
     render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
+    render_protein_intensity_missingness_mask_tsv,
     render_protein_intensity_missingness_tsv,
 )
 
@@ -199,6 +200,7 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
     summary_tsv = render_protein_intensity_matrix_summary_tsv(matrix)
     matrix_tsv = render_protein_intensity_matrix_tsv(matrix)
     missingness_tsv = render_protein_intensity_missingness_tsv(matrix)
+    missingness_mask_tsv = render_protein_intensity_missingness_mask_tsv(matrix)
     contribution_tsv = render_protein_peptide_contribution_tsv(matrix)
 
     assert matrix.summary.protein_row_count == 1
@@ -213,6 +215,18 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
         in matrix_tsv
     )
     assert "R1\t1\t0\t0\t0" in missingness_tsv
+    assert (
+        "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count\timputed_count\tcensored_count\texcluded_count\tnot_applicable_count"
+        in missingness_tsv
+    )
+    assert (
+        "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tcontributing_peptides\tR1\tR2"
+        in missingness_mask_tsv
+    )
+    assert (
+        "P001\tprotein\tP001\t2\t2\t0\tPEMTIDE;PEM[Oxidation]TIDE\tobserved\tobserved"
+        in missingness_mask_tsv
+    )
     assert (
         "entity_id\ttarget_kind\tsample_id\tpeptide_id\tpeptide_sequence\tprotein_refs\tabundance\tmissing_value_kind\tshared_peptide\teligible_under_shared_peptide_policy\tincluded_by_policy\tprotein_value_abundance\tabundance_rank\tincluded_abundance_fraction\tabundance_to_protein_value_ratio\tshared_peptide_policy"
         in contribution_tsv

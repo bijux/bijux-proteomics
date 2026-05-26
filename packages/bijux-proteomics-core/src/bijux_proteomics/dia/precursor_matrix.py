@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Callable
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.quantification.contracts import MissingValueKind
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
@@ -68,6 +69,7 @@ class DiaPrecursorMatrixValue(JsonModel):
     source_observation_count: int = Field(..., ge=0)
     retained_observation_count: int = Field(..., ge=0)
     excluded_q_value_observation_count: int = Field(..., ge=0)
+    missing_value_kind: MissingValueKind
     detected: bool
 
 
@@ -317,6 +319,11 @@ def build_dia_precursor_matrix_report(
                         source_observation_count=len(observations),
                         retained_observation_count=0,
                         excluded_q_value_observation_count=len(observations),
+                        missing_value_kind=(
+                            MissingValueKind.EXCLUDED
+                            if observations
+                            else MissingValueKind.NOT_OBSERVED
+                        ),
                         detected=False,
                     )
                 )
@@ -361,6 +368,10 @@ def build_dia_precursor_matrix_report(
                     retained_observation_count=len(retained_observations),
                     excluded_q_value_observation_count=(
                         len(observations) - len(retained_observations)
+                    ),
+                    missing_value_kind=_dia_precursor_missing_value_kind(
+                        abundance=best_quantity,
+                        detected=True,
                     ),
                     detected=True,
                 )
@@ -569,6 +580,15 @@ def render_dia_precursor_q_value_matrix_tsv(report: DiaPrecursorMatrixReport) ->
     )
 
 
+def render_dia_precursor_missingness_tsv(report: DiaPrecursorMatrixReport) -> str:
+    """Render one DIA precursor missingness mask beside the wide matrices."""
+
+    return _render_dia_precursor_wide_matrix(
+        report,
+        value_getter=lambda value: value.missing_value_kind.value,
+    )
+
+
 def render_dia_precursor_metadata_tsv(report: DiaPrecursorMatrixReport) -> str:
     """Render the precursor metadata ledger carried alongside the wide matrices."""
 
@@ -633,6 +653,13 @@ def export_dia_precursor_q_value_matrix_tsv(
     write_output_table_tsv(path, render_dia_precursor_q_value_matrix_tsv(report))
 
 
+def export_dia_precursor_missingness_tsv(
+    report: DiaPrecursorMatrixReport,
+    path: Path,
+) -> None:
+    write_output_table_tsv(path, render_dia_precursor_missingness_tsv(report))
+
+
 def export_dia_precursor_metadata_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
@@ -684,6 +711,20 @@ def _combine_target_decoy_labels(
     if not labels:
         return TargetDecoyLabel.UNKNOWN
     return TargetDecoyLabel.MIXED
+
+
+def _dia_precursor_missing_value_kind(
+    *,
+    abundance: float | None,
+    detected: bool,
+) -> MissingValueKind:
+    if abundance == 0.0:
+        return MissingValueKind.ZERO
+    if abundance is not None:
+        return MissingValueKind.OBSERVED
+    if detected:
+        return MissingValueKind.CENSORED
+    return MissingValueKind.NOT_OBSERVED
 
 
 def _render_dia_precursor_wide_matrix(
@@ -744,10 +785,12 @@ __all__ = [
     "build_spectronaut_precursor_matrix_report",
     "export_dia_precursor_matrix_summary_tsv",
     "export_dia_precursor_metadata_tsv",
+    "export_dia_precursor_missingness_tsv",
     "export_dia_precursor_q_value_matrix_tsv",
     "export_dia_precursor_quantity_matrix_tsv",
     "render_dia_precursor_matrix_summary_tsv",
     "render_dia_precursor_metadata_tsv",
+    "render_dia_precursor_missingness_tsv",
     "render_dia_precursor_q_value_matrix_tsv",
     "render_dia_precursor_quantity_matrix_tsv",
 ]

@@ -569,6 +569,10 @@ def render_protein_lfq_missingness_tsv(report: ProteinLfqReport) -> str:
         "zero_count",
         "not_observed_count",
         "filtered_count",
+        "imputed_count",
+        "censored_count",
+        "excluded_count",
+        "not_applicable_count",
     )
     rows = ["\t".join(header)]
     for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
@@ -580,6 +584,52 @@ def render_protein_lfq_missingness_tsv(report: ProteinLfqReport) -> str:
                     str(entry.zero_count),
                     str(entry.not_observed_count),
                     str(entry.filtered_count),
+                    str(entry.imputed_count),
+                    str(entry.censored_count),
+                    str(entry.excluded_count),
+                    str(entry.not_applicable_count),
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_protein_lfq_missingness_mask_tsv(report: ProteinLfqReport) -> str:
+    """Render one protein-LFQ missingness mask beside the wide LFQ matrix."""
+
+    ordered_sample_ids = sort_strings(report.sample_ids)
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
+    header = [
+        "entity_id",
+        "target_kind",
+        "protein_refs",
+        "peptide_count",
+        "unique_peptide_count",
+        "shared_peptide_count",
+        "pairwise_ratio_count",
+        "connected_component_count",
+        "contributing_peptides",
+    ]
+    header.extend(ordered_sample_ids)
+    rows = ["\t".join(header)]
+    for row in ordered_rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        rows.append(
+            "\t".join(
+                (
+                    row.entity_id,
+                    row.target_kind.value,
+                    ";".join(sort_strings(row.protein_refs)),
+                    str(row.peptide_count),
+                    str(row.unique_peptide_count),
+                    str(row.shared_peptide_count),
+                    str(row.pairwise_ratio_count),
+                    str(row.connected_component_count),
+                    ";".join(sort_strings(row.contributing_peptides)),
+                    *[
+                        value_lookup[sample_id].missing_value_kind.value
+                        for sample_id in ordered_sample_ids
+                    ],
                 )
             )
         )
@@ -938,8 +988,14 @@ def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValue
         ):
             return MissingValueKind.ZERO
         return MissingValueKind.OBSERVED
+    if any(kind is MissingValueKind.EXCLUDED for kind in kinds):
+        return MissingValueKind.EXCLUDED
+    if any(kind is MissingValueKind.CENSORED for kind in kinds):
+        return MissingValueKind.CENSORED
     if any(kind is MissingValueKind.FILTERED for kind in kinds):
         return MissingValueKind.FILTERED
+    if all(kind is MissingValueKind.NOT_APPLICABLE for kind in kinds):
+        return MissingValueKind.NOT_APPLICABLE
     return MissingValueKind.NOT_OBSERVED
 
 

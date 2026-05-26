@@ -12,9 +12,11 @@ from bijux_proteomics.dia import (
     DiaSharedPeptidePolicy,
     build_diann_peptide_matrix_report,
     build_diann_protein_matrix_report,
+    render_dia_peptide_missingness_tsv,
     render_dia_peptide_matrix_summary_tsv,
     render_dia_peptide_q_value_matrix_tsv,
     render_dia_peptide_quantity_matrix_tsv,
+    render_dia_protein_missingness_tsv,
     render_dia_protein_matrix_summary_tsv,
     render_dia_protein_q_value_matrix_tsv,
     render_dia_protein_quantity_matrix_tsv,
@@ -51,6 +53,7 @@ def test_render_dia_peptide_matrix_exports() -> None:
 
     summary_tsv = render_dia_peptide_matrix_summary_tsv(report)
     quantity_tsv = render_dia_peptide_quantity_matrix_tsv(report)
+    missingness_tsv = render_dia_peptide_missingness_tsv(report)
     q_value_tsv = render_dia_peptide_q_value_matrix_tsv(report)
 
     assert summary_tsv.startswith(
@@ -65,6 +68,7 @@ def test_render_dia_peptide_matrix_exports() -> None:
         in quantity_tsv
     )
     assert "\t890000\t\n" in quantity_tsv
+    assert "\tobserved\tmissing_not_observed\n" in missingness_tsv
     assert "\t0.0048\t\n" in q_value_tsv
 
 
@@ -95,6 +99,7 @@ def test_render_dia_protein_matrix_exports() -> None:
 
     summary_tsv = render_dia_protein_matrix_summary_tsv(report)
     quantity_tsv = render_dia_protein_quantity_matrix_tsv(report)
+    missingness_tsv = render_dia_protein_missingness_tsv(report)
     q_value_tsv = render_dia_protein_q_value_matrix_tsv(report)
     evidence_tsv = render_dia_protein_rollup_evidence_tsv(report)
 
@@ -106,6 +111,10 @@ def test_render_dia_protein_matrix_exports() -> None:
         "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count"
     )
     assert "PG001\tprotein_group\tP11111;P11112\t1\t0\t1\tPESTIDE\t1.25e+06\t1.3e+06" in quantity_tsv
+    assert (
+        "PG002\tprotein_group\tP22222\t1\t1\t0\tACDM[Oxidation]K\tobserved\tmissing_not_observed"
+        in missingness_tsv
+    )
     assert "\t0.0021\t0.0024\n" in q_value_tsv
     assert evidence_tsv.startswith(
         "rollup_stage\ttarget_entity_level\ttarget_entity_id\tsample_id"

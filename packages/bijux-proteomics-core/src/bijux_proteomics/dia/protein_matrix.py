@@ -26,6 +26,7 @@ from bijux_proteomics.dia.precursor_matrix import (
     build_spectronaut_precursor_matrix_report,
 )
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.quantification.contracts import MissingValueKind
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -47,6 +48,7 @@ class DiaPeptideMatrixValue(JsonModel):
     contributing_precursor_count: int = Field(..., ge=0)
     source_precursor_keys: tuple[str, ...] = Field(default_factory=tuple)
     charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    missing_value_kind: MissingValueKind
     detected: bool
 
 
@@ -168,6 +170,7 @@ class DiaProteinMatrixValue(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
     contributing_peptide_count: int = Field(..., ge=0)
+    missing_value_kind: MissingValueKind
     detected: bool
 
 
@@ -356,6 +359,7 @@ def build_dia_peptide_matrix_report(
                     DiaPeptideMatrixValue(
                         sample_id=sample_id,
                         contributing_precursor_count=0,
+                        missing_value_kind=MissingValueKind.NOT_OBSERVED,
                         detected=False,
                     )
                 )
@@ -398,6 +402,10 @@ def build_dia_peptide_matrix_report(
                         )
                     ),
                     charge_states=tuple(sorted({row.charge for row in precursor_rows})),
+                    missing_value_kind=_dia_rollup_missing_value_kind(
+                        abundance=abundance,
+                        detected=True,
+                    ),
                     detected=True,
                 )
             )
@@ -538,6 +546,7 @@ def build_dia_protein_matrix_report(
                     DiaProteinMatrixValue(
                         sample_id=sample_id,
                         contributing_peptide_count=0,
+                        missing_value_kind=MissingValueKind.NOT_OBSERVED,
                         detected=False,
                     )
                 )
@@ -566,6 +575,10 @@ def build_dia_protein_matrix_report(
                     abundance=abundance,
                     q_value=min(q_values) if q_values else None,
                     contributing_peptide_count=len(observations),
+                    missing_value_kind=_dia_rollup_missing_value_kind(
+                        abundance=abundance,
+                        detected=True,
+                    ),
                     detected=True,
                 )
             )
@@ -672,6 +685,15 @@ def render_dia_peptide_q_value_matrix_tsv(report: DiaPeptideMatrixReport) -> str
     )
 
 
+def render_dia_peptide_missingness_tsv(report: DiaPeptideMatrixReport) -> str:
+    """Render one DIA peptide missingness mask beside the wide matrices."""
+
+    return _render_dia_peptide_wide_matrix(
+        report,
+        value_getter=lambda value: value.missing_value_kind.value,
+    )
+
+
 def render_dia_protein_matrix_summary_tsv(report: DiaProteinMatrixReport) -> str:
     """Render a compact summary for one DIA protein matrix."""
 
@@ -733,6 +755,15 @@ def render_dia_protein_q_value_matrix_tsv(report: DiaProteinMatrixReport) -> str
         value_getter=lambda value: (
             "" if value.q_value is None else f"{value.q_value:.6g}"
         ),
+    )
+
+
+def render_dia_protein_missingness_tsv(report: DiaProteinMatrixReport) -> str:
+    """Render one DIA protein missingness mask beside the wide matrices."""
+
+    return _render_dia_protein_wide_matrix(
+        report,
+        value_getter=lambda value: value.missing_value_kind.value,
     )
 
 
@@ -806,6 +837,13 @@ def export_dia_peptide_q_value_matrix_tsv(
     write_output_table_tsv(path, render_dia_peptide_q_value_matrix_tsv(report))
 
 
+def export_dia_peptide_missingness_tsv(
+    report: DiaPeptideMatrixReport,
+    path: Path,
+) -> None:
+    write_output_table_tsv(path, render_dia_peptide_missingness_tsv(report))
+
+
 def export_dia_protein_matrix_summary_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
@@ -827,11 +865,32 @@ def export_dia_protein_q_value_matrix_tsv(
     write_output_table_tsv(path, render_dia_protein_q_value_matrix_tsv(report))
 
 
+def export_dia_protein_missingness_tsv(
+    report: DiaProteinMatrixReport,
+    path: Path,
+) -> None:
+    write_output_table_tsv(path, render_dia_protein_missingness_tsv(report))
+
+
 def export_dia_protein_rollup_evidence_tsv(
     report: DiaProteinMatrixReport,
     path: Path,
 ) -> None:
     write_output_table_tsv(path, render_dia_protein_rollup_evidence_tsv(report))
+
+
+def _dia_rollup_missing_value_kind(
+    *,
+    abundance: float | None,
+    detected: bool,
+) -> MissingValueKind:
+    if abundance == 0.0:
+        return MissingValueKind.ZERO
+    if abundance is not None:
+        return MissingValueKind.OBSERVED
+    if detected:
+        return MissingValueKind.CENSORED
+    return MissingValueKind.NOT_OBSERVED
 
 
 def _build_peptide_key(row: DiaPrecursorMatrixRow) -> str:
