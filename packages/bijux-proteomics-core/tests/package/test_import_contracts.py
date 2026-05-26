@@ -461,6 +461,8 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "build_interactive_result_comparison_from_artifacts")
     assert hasattr(module, "build_result_manifest_from_artifacts")
     assert hasattr(module, "build_result_search_index_from_artifacts")
+    assert hasattr(module, "build_workflow_output_validation_report")
+    assert hasattr(module, "WorkflowOutputValidationStatus")
 
 
 def test_workflow_result_types_import_contract() -> None:
@@ -518,6 +520,7 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(cards, "build_cross_study_evidence_card_report")
     assert hasattr(exports, "build_result_manifest_from_artifacts")
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
+    assert hasattr(exports, "build_workflow_output_validation_report")
     assert hasattr(exports, "index_workflow_artifact_manifest")
     assert hasattr(demo, "run_scale_demo")
     assert hasattr(demo, "render_scale_demo_summary_tsv")

@@ -62,6 +62,7 @@ _ROOT_WRAPPER_TARGETS = {
     "interactive_result_comparison.py": (
         "bijux_proteomics.workflow.exports.interactive_result_comparison"
     ),
+    "output_validation.py": "bijux_proteomics.workflow.exports.output_validation",
     "result_archive.py": "bijux_proteomics.workflow.exports.result_archive",
     "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
     "result_search_index.py": (
@@ -123,6 +124,7 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(exports, "synchronize_workflow_artifact_layout")
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
     assert hasattr(exports, "build_interactive_result_comparison_from_artifacts")
+    assert hasattr(exports, "build_workflow_output_validation_report")
     assert hasattr(exports, "build_result_manifest_from_artifacts")
     assert hasattr(exports, "build_result_search_index_from_artifacts")
     assert hasattr(exports, "load_result_archive")
