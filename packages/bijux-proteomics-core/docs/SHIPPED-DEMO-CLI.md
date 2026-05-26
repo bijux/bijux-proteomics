@@ -22,8 +22,8 @@ artifacts are:
 
 - `demo_result/surprising_demo_report.json` for the top-level demo run record
 - `demo_result/biological_review/` for governed protein and pathway review outputs
+- `demo_result/biological_review/biological_report.html` for the governed biological review report
 - `demo_result/ptm_review/` for governed PTM review outputs
-- `demo_result/integrated_scientific_report.html` for the rendered narrative report
 
 ## 2. Validate the governed result bundle
 
