@@ -552,7 +552,7 @@ def _build_discovery_to_assay_rejected_evidence(
         build_rejected_evidence_entry(
             evidence_id=f"discovery_to_assay:{entry.candidate_id}",
             source_surface="discovery_to_assay",
-            reason_code=entry.assay_feasibility.value,
+            reason_code=_rejected_evidence_reason_code(entry.assay_feasibility),
             message=entry.note,
             related_artifact=manifest.artifacts.omitted_targets_tsv,
             entity_id=entry.candidate_id,
