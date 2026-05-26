@@ -54,7 +54,24 @@ class AppConfig:
 
 
 def create_app(config: AppConfig) -> FastAPI:
-    """Create a configured FastAPI app."""
+    """Create a configured FastAPI app.
+
+    Inputs:
+    ``config`` must provide the runtime base directory plus the app title,
+    description, version, and documentation toggle policy.
+
+    Outputs:
+    Returns one configured ``FastAPI`` application with runtime middleware,
+    exception handlers, provider metadata routes, and versioned API routers.
+
+    Failure Modes:
+    Propagates FastAPI router registration, middleware construction, and route
+    handler setup failures during application assembly.
+
+    Scientific Caveats:
+    This factory assembles transport and operator wiring only; it does not
+    validate scientific inputs or execute workflow algorithms at creation time.
+    """
     docs_url = "/docs" if config.docs_enabled else None
     redoc_url = "/redoc" if config.docs_enabled else None
     openapi_url = "/openapi.json" if config.docs_enabled else None

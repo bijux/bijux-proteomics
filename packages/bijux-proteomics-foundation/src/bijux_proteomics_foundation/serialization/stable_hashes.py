@@ -54,7 +54,23 @@ def hash_text(
     *,
     algorithm: StableHashAlgorithm = StableHashAlgorithm.SHA256,
 ) -> str:
-    """Hash one utf-8 text payload with a stable algorithm."""
+    """Hash one utf-8 text payload with a stable algorithm.
+
+    Inputs:
+    ``payload`` is the text to hash and ``algorithm`` selects the stable digest
+    policy.
+
+    Outputs:
+    Returns the hexadecimal digest string for the encoded text payload.
+
+    Failure Modes:
+    Raises ``ValueError`` if the requested stable hash algorithm is not
+    supported by the owner policy.
+
+    Scientific Caveats:
+    The digest guarantees deterministic byte hashing only; it does not establish
+    scientific provenance, authenticity, or semantic sameness.
+    """
     return _hash_bytes(payload.encode("utf-8"), algorithm)
 
 
@@ -63,7 +79,24 @@ def hash_payload(
     *,
     policy: StableHashPolicy | None = None,
 ) -> str:
-    """Hash one canonical JSON payload under a named policy."""
+    """Hash one canonical JSON payload under a named policy.
+
+    Inputs:
+    ``payload`` must be a JSON-compatible mapping and ``policy`` optionally
+    overrides the default stable hashing policy.
+
+    Outputs:
+    Returns the hexadecimal digest string for the canonicalized payload.
+
+    Failure Modes:
+    Raises ``ValueError`` if the active policy requests an unsupported stable
+    hash algorithm and propagates JSON serialization failures for unsupported
+    payload values.
+
+    Scientific Caveats:
+    The digest reflects deterministic canonical serialization only; it does not
+    prove that two payloads are scientifically interchangeable.
+    """
     policy = policy or default_hash_policy()
     encoded = json.dumps(
         stable_order_value(payload),
@@ -80,7 +113,23 @@ def hash_model(
     *,
     policy: StableHashPolicy | None = None,
 ) -> str:
-    """Hash one JsonModel payload under a named policy."""
+    """Hash one JsonModel payload under a named policy.
+
+    Inputs:
+    ``model`` must implement the foundation ``JsonModel`` contract and
+    ``policy`` optionally overrides the default stable hashing policy.
+
+    Outputs:
+    Returns the hexadecimal digest string for the model's canonical payload.
+
+    Failure Modes:
+    Propagates model serialization failures and raises ``ValueError`` if the
+    active policy requests an unsupported stable hash algorithm.
+
+    Scientific Caveats:
+    The digest provides deterministic payload identity only; it does not encode
+    scientific quality, trust, or biological interpretation.
+    """
     return hash_payload(model.to_dict(), policy=policy)
 
 

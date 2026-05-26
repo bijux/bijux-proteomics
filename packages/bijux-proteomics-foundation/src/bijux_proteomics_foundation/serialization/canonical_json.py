@@ -38,7 +38,24 @@ def flatten_tsv_mapping(value: Any, *, prefix: str = "") -> dict[str, str]:
 
 
 def to_canonical_json(model: JsonModel | dict[str, Any]) -> str:
-    """Serialize one model or payload with deterministic key ordering."""
+    """Serialize one model or payload with deterministic key ordering.
+
+    Inputs:
+    ``model`` must be either a foundation ``JsonModel`` or a JSON-compatible
+    mapping that can be normalized into canonical value order.
+
+    Outputs:
+    Returns one canonical JSON string with sorted keys and deterministic
+    separators.
+
+    Failure Modes:
+    Propagates normalization or JSON serialization failures for unsupported
+    values.
+
+    Scientific Caveats:
+    Canonical serialization stabilizes persisted payload shape only; it does not
+    validate scientific semantics or preserve every Python type distinction.
+    """
     from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
     payload = (

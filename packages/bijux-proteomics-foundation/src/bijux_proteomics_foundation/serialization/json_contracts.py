@@ -100,7 +100,24 @@ class JsonModel(BaseModel):
 
 
 def fingerprint_model(model: JsonModel) -> str:
-    """Return the stable fingerprint for one model."""
+    """Return the stable fingerprint for one model.
+
+    Inputs:
+    ``model`` must be a ``JsonModel`` instance with a stable ``to_dict``
+    representation.
+
+    Outputs:
+    Returns the hexadecimal fingerprint string for the model's canonical
+    payload.
+
+    Failure Modes:
+    Propagates serialization and hashing errors if the model cannot be reduced
+    to the stable JSON contract expected by foundation hashing.
+
+    Scientific Caveats:
+    The fingerprint captures deterministic payload identity only; it does not
+    prove scientific validity, provenance trust, or semantic equivalence.
+    """
     from bijux_proteomics_foundation.serialization.stable_hashes import hash_model
 
     return hash_model(model)
