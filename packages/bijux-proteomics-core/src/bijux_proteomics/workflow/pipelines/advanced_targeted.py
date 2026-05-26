@@ -59,6 +59,11 @@ from bijux_proteomics.workflow.result_types import (
     render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -150,6 +155,7 @@ class AdvancedTargetedWorkflowManifest(JsonModel):
     summary: AdvancedTargetedWorkflowSummary
     artifacts: AdvancedTargetedWorkflowArtifactPaths
     targeted_assay_qc_workflow_manifest: TargetedAssayQcWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -191,6 +197,7 @@ class TargetedValidationWorkflowReport(BiologyResult):
     )
     summary: AdvancedTargetedWorkflowSummary
     manifest: AdvancedTargetedWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -298,6 +305,27 @@ def run_targeted_validation_workflow(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_targeted_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_targeted_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_targeted",
+        config=config,
+        primary_input_fields=("result_tsv_path",),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=("discovery_claims", "panel_assays"),
+        comparison_input_fields=("case_condition", "control_condition"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=assay_qc_manifest_path.name,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=rejected_evidence_name,
+        ),
+        note=(
+            "advanced targeted workflow follows the canonical advanced workflow "
+            "family through normalized config categories plus shared summary, "
+            "manifest, and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedTargetedWorkflowManifest(
         summary=summary,
         artifacts=AdvancedTargetedWorkflowArtifactPaths(
@@ -339,13 +367,14 @@ def run_targeted_validation_workflow(
             evidence_cards_tsv=evidence_card_name,
         ),
         targeted_assay_qc_workflow_manifest=assay_qc_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced targeted validation preserves transition import, target matrix, "
             "coelution review, ratio drift review, assay reliability, discovery claim "
             "validation status, and evidence cards in one governed workflow surface"
         ),
     )
-    manifest_path = output_dir / "advanced_targeted_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -359,6 +388,7 @@ def run_targeted_validation_workflow(
         evidence_cards=evidence_cards,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_targeted_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_targeted_rejected_evidence(

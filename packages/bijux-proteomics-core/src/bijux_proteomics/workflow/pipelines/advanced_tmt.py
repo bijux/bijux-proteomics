@@ -41,6 +41,11 @@ from bijux_proteomics.workflow.result_types import (
     render_result_rejected_evidence_tsv,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -145,6 +150,7 @@ class AdvancedTmtWorkflowManifest(JsonModel):
     summary: AdvancedTmtWorkflowSummary
     artifacts: AdvancedTmtWorkflowArtifactPaths
     tmt_workflow_manifest: TmtExperimentWorkflowExportManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -216,6 +222,7 @@ class AdvancedTmtWorkflowReport(BiologyResult):
     evidence_cards: tuple[AdvancedTmtEvidenceCard, ...] = Field(default_factory=tuple)
     summary: AdvancedTmtWorkflowSummary
     manifest: AdvancedTmtWorkflowManifest
+    family_protocol: AdvancedWorkflowFamilyContract
     note: str = Field(..., min_length=1)
 
 
@@ -344,6 +351,35 @@ def run_advanced_tmt_workflow(
     )
     write_output_table_tsv((output_dir / summary_name), render_advanced_tmt_workflow_summary_tsv(summary))
 
+    workflow_manifest_name = "advanced_tmt_workflow_manifest.json"
+    family_protocol = build_advanced_workflow_family_contract(
+        workflow_name="advanced_tmt",
+        config=config,
+        primary_input_fields=("result_tsv_path",),
+        design_input_fields=("design_tsv_path",),
+        reference_input_fields=(
+            "control_channel",
+            "mapping",
+            "channel_columns",
+            "batch_field",
+            "covariate_fields",
+            "pairing_field",
+        ),
+        comparison_input_fields=("condition_a", "condition_b"),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json=workflow_manifest_name,
+            base_workflow_manifest_json=workflow_manifest_path.name,
+            review_manifest_json=workflow_manifest.artifacts.label_based_report_manifest_json,
+            summary_tsv=summary_name,
+            rejected_evidence_tsv=rejected_evidence_name,
+        ),
+        note=(
+            "advanced tmt workflow follows the canonical advanced workflow family "
+            "through normalized config categories plus shared summary, manifest, "
+            "and rejected-evidence output roles"
+        ),
+    )
+
     manifest = AdvancedTmtWorkflowManifest(
         summary=summary,
         artifacts=AdvancedTmtWorkflowArtifactPaths(
@@ -376,6 +412,7 @@ def run_advanced_tmt_workflow(
             evidence_card_tsv=evidence_card_name,
         ),
         tmt_workflow_manifest=workflow_manifest,
+        family_protocol=family_protocol,
         note=(
             "advanced tmt workflow preserves governed reporter import, channel validation, "
             "normalization, ratio analysis, protein differential results, and one "
@@ -383,7 +420,7 @@ def run_advanced_tmt_workflow(
             "downgrade or exclude downstream protein interpretation"
         ),
     )
-    manifest_path = output_dir / "advanced_tmt_workflow_manifest.json"
+    manifest_path = output_dir / workflow_manifest_name
     atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
     synchronize_workflow_artifact_layout(
         output_dir,
@@ -398,6 +435,7 @@ def run_advanced_tmt_workflow(
         evidence_cards=evidence_cards,
         summary=summary,
         manifest=manifest,
+        family_protocol=family_protocol,
         artifacts=artifact_name_map(manifest.artifacts),
         warnings=_build_advanced_tmt_warnings(summary=summary, manifest=manifest),
         rejected_evidence=_build_advanced_tmt_rejected_evidence(
