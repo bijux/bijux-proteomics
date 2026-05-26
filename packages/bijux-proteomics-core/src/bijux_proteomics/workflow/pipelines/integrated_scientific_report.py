@@ -16,11 +16,16 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_intelligence.reviews import (
+    IntelligenceReportClaimEntry,
+    validate_intelligence_report_contract,
+)
 from bijux_proteomics.workflow.demo.surprising_demo import SurprisingDemoReport
 from bijux_proteomics.workflow.demo.surprising_demo_interrogation import (
     ensure_surprising_demo_outputs,
 )
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
 
 
 class IntegratedScientificReportSectionKey(StrEnum):
@@ -130,6 +135,7 @@ def build_integrated_scientific_report(
 
     ensure_surprising_demo_outputs(demo_output_dir)
     source_report = _load_surprising_demo_report(demo_output_dir)
+    validate_intelligence_report_contract(source_report.intelligence_report_contract)
     context = _load_integrated_report_context(demo_output_dir)
     sections, sentences = _build_sections_and_sentences(source_report, context=context)
     _validate_scientific_claim_links(sentences)
@@ -299,8 +305,6 @@ class _IntegratedReportContext(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    supported_claims: tuple[dict[str, str], ...] = Field(default_factory=tuple)
-    rejected_claims: tuple[dict[str, str], ...] = Field(default_factory=tuple)
     protein_cards: tuple[dict[str, str], ...] = Field(default_factory=tuple)
     mechanism_cards: tuple[dict[str, str], ...] = Field(default_factory=tuple)
     pathway_rows: tuple[dict[str, str], ...] = Field(default_factory=tuple)
@@ -318,12 +322,6 @@ def _load_surprising_demo_report(demo_output_dir: Path) -> SurprisingDemoReport:
 
 def _load_integrated_report_context(demo_output_dir: Path) -> _IntegratedReportContext:
     return _IntegratedReportContext(
-        supported_claims=_read_tsv_rows(
-            demo_output_dir / "biological_review" / "biological_supported_claims.tsv"
-        ),
-        rejected_claims=_read_tsv_rows(
-            demo_output_dir / "biological_review" / "biological_rejected_claims.tsv"
-        ),
         protein_cards=_read_tsv_rows(
             demo_output_dir / "biological_review" / "biological_protein_cards.tsv"
         ),
@@ -364,8 +362,9 @@ def _build_sections_and_sentences(
 ]:
     design = source_report.study_result.design
     graph = source_report.study_result.biological_report.graph_report.graph
-    top_supported = tuple(context.supported_claims[:2])
-    rejected = context.rejected_claims
+    contract = source_report.intelligence_report_contract
+    top_supported = tuple(_top_supported_claim_entries(source_report))
+    rejected = tuple(_rejected_claim_entries(source_report))
     p11111_card = next(
         row
         for row in context.protein_cards
@@ -390,7 +389,7 @@ def _build_sections_and_sentences(
     top_targets = tuple(context.targeted_evidence_cards[:2])
     ambiguous_ptm = context.ptm_ambiguous_rows[0]
     ptm_mechanism = context.ptm_mechanism_rows[0]
-    belief_top_ids = tuple(source_report.belief_audit_report.summary.top_claim_ids)
+    belief_top_ids = tuple(contract.belief_audit_report.summary.top_claim_ids)
 
     sentences = (
         IntegratedScientificReportSentence(
@@ -459,14 +458,14 @@ def _build_sections_and_sentences(
             role=IntegratedScientificSentenceRole.SCIENTIFIC_CLAIM,
             text=(
                 f"Accepted results retain {len(top_supported)} supported protein-abundance claims: "
-                f"{'; '.join(row['claim_text'] for row in top_supported)}."
+                f"{'; '.join(entry.claim.statement for entry in top_supported)}."
             ),
-            linked_ids=tuple(row["claim_id"] for row in top_supported),
+            linked_ids=tuple(entry.claim.claim_id for entry in top_supported),
             source_row_refs=tuple(
-                f"biological_supported_claims:{row['claim_id']}" for row in top_supported
+                f"demo_claims:{entry.claim.claim_id}" for entry in top_supported
             ),
-            artifact_paths=("biological_review/biological_supported_claims.tsv",),
-            note="accepted-result scientific claims are linked directly to supported claim ids",
+            artifact_paths=("surprising_demo_report.json", "demo_claims.tsv"),
+            note="accepted-result scientific claims come from the typed intelligence report contract",
         ),
         IntegratedScientificReportSentence(
             sentence_id="accepted-results-2",
@@ -518,15 +517,16 @@ def _build_sections_and_sentences(
             section_key=IntegratedScientificReportSectionKey.REFUSED_CLAIMS,
             role=IntegratedScientificSentenceRole.SCIENTIFIC_CLAIM,
             text=(
-                "Refused claims remain explicit: the demo rejects one weak protein claim and two "
-                "pathway narratives instead of silently dropping them from the final review."
+                "Rejected and unresolved claims remain explicit in the report contract: "
+                + "; ".join(entry.claim.statement for entry in rejected)
+                + "."
             ),
-            linked_ids=tuple(row["claim_id"] for row in rejected),
+            linked_ids=tuple(entry.claim.claim_id for entry in rejected),
             source_row_refs=tuple(
-                f"biological_rejected_claims:{row['claim_id']}" for row in rejected
+                f"demo_claims:{entry.claim.claim_id}" for entry in rejected
             ),
-            artifact_paths=("biological_review/biological_rejected_claims.tsv",),
-            note="refused-claim sentence is linked directly to rejected claim ids",
+            artifact_paths=("surprising_demo_report.json", "demo_claims.tsv"),
+            note="refused-claim sentence is derived from typed claim status and refusal state",
         ),
         IntegratedScientificReportSentence(
             sentence_id="ptm-evidence-1",
@@ -607,12 +607,12 @@ def _build_sections_and_sentences(
             ),
             linked_ids=belief_top_ids,
             source_row_refs=tuple(
-                f"belief_audit:{entry.claim_id}"
-                for entry in source_report.belief_audit_report.entries
+                f"demo_belief_audit:{entry.claim_id}"
+                for entry in contract.belief_audit_report.entries
                 if entry.claim_id in set(belief_top_ids)
             ),
-            artifact_paths=("demo_belief_audit.tsv",),
-            note="belief-audit sentence is linked to the top claim ids preserved by the shipped demo audit",
+            artifact_paths=("surprising_demo_report.json", "demo_belief_audit.tsv"),
+            note="belief-audit sentence is linked to top claims preserved by the typed intelligence contract",
         ),
     )
     sections = tuple(
@@ -645,6 +645,48 @@ def _validate_scientific_claim_links(
             "scientific claim sentences must link to claim ids or evidence card ids: "
             + ", ".join(missing)
         )
+
+
+def _top_supported_claim_entries(
+    source_report: SurprisingDemoReport,
+) -> tuple[IntelligenceReportClaimEntry, ...]:
+    ranked_entries = sorted(
+        (
+            entry
+            for entry in source_report.intelligence_report_contract.claim_entries
+            if entry.claim.status is ClaimStatus.SUPPORTED and not entry.refusal.refused
+        ),
+        key=lambda entry: (
+            -1.0 if entry.belief_audit is None else -entry.belief_audit.confidence,
+            entry.claim.claim_id,
+        ),
+    )
+    if not ranked_entries:
+        raise ValueError(
+            "integrated scientific report requires at least one supported claim"
+        )
+    return tuple(ranked_entries[:2])
+
+
+def _rejected_claim_entries(
+    source_report: SurprisingDemoReport,
+) -> tuple[IntelligenceReportClaimEntry, ...]:
+    rejected_entries = sorted(
+        (
+            entry
+            for entry in source_report.intelligence_report_contract.claim_entries
+            if entry.claim.status is not ClaimStatus.SUPPORTED or entry.refusal.refused
+        ),
+        key=lambda entry: (
+            not entry.refusal.refused,
+            entry.claim.claim_id,
+        ),
+    )
+    if not rejected_entries:
+        raise ValueError(
+            "integrated scientific report requires at least one rejected or unresolved claim"
+        )
+    return tuple(rejected_entries)
 
 
 def _read_tsv_rows(path: Path) -> tuple[dict[str, str], ...]:
