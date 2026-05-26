@@ -56,6 +56,12 @@ explicit governance family:
 - `learning/adaptation.py` and `learning/refinement/` own future-oriented learning pressure
 - `governance/charter.py` owns the machine-readable capability map and charter
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_intelligence`
+- Top-level families: `candidates/`, `claims/`, `governance/`, `interpretation/`, `judgment/`, `learning/`, `posture/`, `reviews/`
+- Root modules: `belief_audit.py`, `contradictions.py`, `falsifiers.py`, `next_steps.py`, `public_api.py`, `query.py`, `refusal.py`
+
 ## Dependency direction
 
 The package emphasizes auditable analytical judgment over broad convenience.

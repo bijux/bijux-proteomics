@@ -37,6 +37,12 @@ runtime-agnostic workflow seams.
 - `governance/` owns the machine-readable package charter and owner-map
   boundaries for core scientific surfaces
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics`
+- Top-level families: `benchmarks/`, `biology/`, `chemistry/`, `dia/`, `domain/`, `governance/`, `identification/`, `interfaces/`, `interpretation/`, `io/`, `isotope_labeling/`, `lab/`, `multiplex/`, `panels/`, `proteoforms/`, `ptm/`, `quantification/`, `review/`, `sequences/`, `study/`, `targeted/`, `workflow/`
+- Root modules: `_atomic_files.py`, `_output_tables.py`, `_scientific_tables.py`, `_tabular.py`, `programs.py`, `public_api.py`, `scientific_tables.py`, `tabular.py`
+
 ## Dependency direction
 
 The package is designed as the durable semantic source of truth for progression

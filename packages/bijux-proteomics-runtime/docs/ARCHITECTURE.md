@@ -89,6 +89,12 @@ flowchart TD
 - `execution_mode="cpu"` is the CPU-compatible execution surface
 - `execution_mode="gpu"` requires a provider and environment that can honor GPU work
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_runtime`
+- Top-level families: `api/`, `artifacts/`, `checkpoints/`, `diff/`, `execution/`, `governance/`, `handoff/`, `parallel/`, `providers/`, `rehydrate/`, `resume/`, `runs/`, `state/`, `streaming/`, `support/`, `workflows/`
+- Root modules: `public_api.py`
+
 ## Dependency direction
 
 Runtime may depend on foundation, core, intelligence, knowledge, and lab in

@@ -36,6 +36,12 @@ enforce:
 - `release/` owns release-readiness and workflow validation helpers
 - `tools/` owns maintainer-only operational utilities
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_dev`
+- Top-level families: `docs/`, `governance/`, `quality/`, `release/`, `security/`, `tools/`
+- Root modules: none
+
 ## Dependency direction
 
 This package may inspect repository state across every package, but it should

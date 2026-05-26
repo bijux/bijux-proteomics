@@ -35,6 +35,12 @@ re-curating locally.
 - `governance/` owns the machine-readable knowledge charter and owner-map
   boundaries for scientific memory, review, and grounding surfaces
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_knowledge`
+- Top-level families: `complexes/`, `contracts/`, `coverage/`, `disease/`, `drugs/`, `features/`, `governance/`, `identity/`, `kinases/`, `memory/`, `orthologs/`, `pathways/`, `references/`, `reviews/`
+- Root modules: `public_api.py`
+
 ## Dependency direction
 
 The package is designed to keep scientific memory inspectable.

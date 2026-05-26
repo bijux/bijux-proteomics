@@ -37,6 +37,12 @@ with the same rules.
   `outcomes/refusals.py`, and `outcomes/results.py` own shared
   machine-readable contract outcomes
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_foundation`
+- Top-level families: `compatibility/`, `identity/`, `outcomes/`, `serialization/`, `support/`, `testing/`
+- Root modules: `_package_aliases.py`, `package_aliases.py`, `public_api.py`
+
 ## Dependency direction
 
 This package is intentionally dependency-light and stable so upstream packages
