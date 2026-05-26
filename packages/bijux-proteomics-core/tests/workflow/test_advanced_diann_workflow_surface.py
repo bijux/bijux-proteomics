@@ -92,16 +92,29 @@ def test_run_advanced_diann_workflow_exports_accepted_downgraded_and_rejected_ev
         if entry.legacy_relative_path == report.manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "field"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{report.manifest.artifacts.summary_tsv}.schema.json"
+    )
+    assert (
+        output_dir / "reports" / f"{report.manifest.artifacts.summary_tsv}.schema.json"
+    ).exists()
     evidence_entry = next(
         entry
         for entry in layout_manifest.artifacts
         if entry.legacy_relative_path == report.manifest.artifacts.accepted_proteins_tsv
     )
     assert evidence_entry.output_table_schema is not None
+    assert evidence_entry.artifact_schema_version == "2026-05-26"
+    assert evidence_entry.output_table_schema.schema_version == "2026-05-26"
     assert "protein_group_id" in {
         column.name for column in evidence_entry.output_table_schema.columns
     }
+    assert evidence_entry.output_table_schema_sidecar_relative_path == (
+        f"evidence/{report.manifest.artifacts.accepted_proteins_tsv}.schema.json"
+    )
 
 
 def test_run_advanced_diann_workflow_exports_fragment_coelution_when_fragment_evidence_is_supplied(

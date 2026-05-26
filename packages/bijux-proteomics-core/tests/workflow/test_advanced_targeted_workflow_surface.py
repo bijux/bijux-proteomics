@@ -224,16 +224,29 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
         if entry.legacy_relative_path == report.manifest.artifacts.summary_tsv
     )
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.artifact_schema_version == "2026-05-26"
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.columns[0].name == "field"
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{report.manifest.artifacts.summary_tsv}.schema.json"
+    )
+    assert (
+        output_dir / "reports" / f"{report.manifest.artifacts.summary_tsv}.schema.json"
+    ).exists()
     evidence_entry = next(
         entry
         for entry in layout_manifest.artifacts
         if entry.legacy_relative_path == report.manifest.artifacts.evidence_cards_tsv
     )
     assert evidence_entry.output_table_schema is not None
+    assert evidence_entry.artifact_schema_version == "2026-05-26"
+    assert evidence_entry.output_table_schema.schema_version == "2026-05-26"
     assert "candidate_id" in {
         column.name for column in evidence_entry.output_table_schema.columns
     }
+    assert evidence_entry.output_table_schema_sidecar_relative_path == (
+        f"cards/{report.manifest.artifacts.evidence_cards_tsv}.schema.json"
+    )
 
 
 def test_run_targeted_validation_workflow_preserves_assay_reliability_coelution_and_ratio_drift_surfaces(

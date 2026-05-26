@@ -70,10 +70,18 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     )
     assert summary_entry.producer_function == "export_biological_result_report_bundle"
     assert summary_entry.relative_path == f"reports/{manifest.artifacts.summary_tsv}"
+    assert summary_entry.artifact_schema_version == "2026-05-26"
     assert summary_entry.output_table_schema is not None
+    assert summary_entry.output_table_schema.schema_version == "2026-05-26"
     assert tuple(
         column.name for column in summary_entry.output_table_schema.columns
     ) == ("field", "value")
+    assert summary_entry.output_table_schema_sidecar_relative_path == (
+        f"reports/{manifest.artifacts.summary_tsv}.schema.json"
+    )
+    assert (
+        output_dir / "reports" / f"{manifest.artifacts.summary_tsv}.schema.json"
+    ).exists()
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
