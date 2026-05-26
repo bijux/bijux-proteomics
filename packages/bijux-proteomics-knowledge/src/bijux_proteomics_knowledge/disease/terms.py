@@ -59,7 +59,24 @@ def resolve_disease_terms(
     protein_ids: tuple[str, ...],
     disease_pack: AnnotationPack | tuple[BiologicalContextRecord, ...],
 ) -> DiseaseTermResolutionReport:
-    """Resolve proteins onto curated disease and phenotype term annotations."""
+    """Resolve proteins onto curated disease and phenotype term annotations.
+
+    Inputs:
+    ``protein_ids`` are the identifiers to ground and ``disease_pack`` supplies
+    curated disease and phenotype context rows or an annotation pack.
+
+    Outputs:
+    Returns one ``DiseaseTermResolutionReport`` with resolved term entries and
+    summary counts for disease versus phenotype evidence.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Returned terms are limited to explicitly sourced curated rows and alias
+    resolution; they do not prove causality or clinical relevance in one cohort.
+    """
 
     disease_records, annotation_pack = _normalize_disease_pack(disease_pack)
     lookup: dict[str, list[BiologicalContextRecord]] = {}
@@ -148,7 +165,23 @@ def resolve_disease_terms(
 def render_disease_term_resolution_tsv(
     entries: tuple[DiseaseTermResolutionEntry, ...],
 ) -> str:
-    """Render disease and phenotype resolution rows as TSV."""
+    """Render disease and phenotype resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the disease-term rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed disease and phenotype resolution
+    columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV is a serialization of resolved annotations only; it does not add
+    mechanistic or clinical interpretation.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

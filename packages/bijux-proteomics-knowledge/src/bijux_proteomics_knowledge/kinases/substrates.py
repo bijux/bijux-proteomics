@@ -70,7 +70,24 @@ def resolve_kinase_substrates(
     ptm_sites: tuple[str, ...],
     kinase_pack: AnnotationPack | tuple[RegulatorEvidenceRecord, ...],
 ) -> KinaseSubstrateResolutionReport:
-    """Resolve PTM sites onto curated kinase-substrate evidence rows."""
+    """Resolve PTM sites onto curated kinase-substrate evidence rows.
+
+    Inputs:
+    ``ptm_sites`` are the PTM site identifiers to ground and ``kinase_pack``
+    supplies curated kinase-substrate evidence rows or an annotation pack.
+
+    Outputs:
+    Returns one ``KinaseSubstrateResolutionReport`` with resolved kinase-site
+    matches and match-type summary counts.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Matches require exact site-position agreement against the supplied curated
+    evidence; they do not prove kinase activity in the measured sample.
+    """
 
     substrate_records, annotation_pack = _normalize_kinase_pack(kinase_pack)
     exact_lookup: dict[tuple[str, int], list[RegulatorEvidenceRecord]] = {}
@@ -177,7 +194,23 @@ def resolve_kinase_substrates(
 def render_kinase_substrate_resolution_tsv(
     entries: tuple[KinaseSubstrateResolutionEntry, ...],
 ) -> str:
-    """Render kinase-substrate resolution rows as TSV."""
+    """Render kinase-substrate resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the kinase-substrate rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed kinase-substrate resolution
+    columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV serializes resolved kinase-site evidence only; it does not add new
+    causal or mechanistic interpretation.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

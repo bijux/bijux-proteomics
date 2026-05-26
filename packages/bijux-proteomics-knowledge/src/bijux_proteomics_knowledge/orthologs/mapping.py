@@ -87,7 +87,25 @@ def map_cross_species_orthologs(
     source_species: str,
     target_species: str,
 ) -> CrossSpeciesOrthologReport:
-    """Map source-species proteins onto curated target-species ortholog edges."""
+    """Map source-species proteins onto curated target-species ortholog edges.
+
+    Inputs:
+    ``protein_ids`` are the source identifiers to map, ``ortholog_pack``
+    supplies curated ortholog edges or an annotation pack, and
+    ``source_species`` plus ``target_species`` define the mapping direction.
+
+    Outputs:
+    Returns one ``CrossSpeciesOrthologReport`` with mapped target orthologs,
+    ambiguity states, and evidence-status summaries.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The mapping depends entirely on the supplied curated ortholog edges and
+    alias resolution; it does not prove functional equivalence across species.
+    """
 
     ortholog_records, annotation_pack = _normalize_ortholog_pack(ortholog_pack)
     filtered_records = tuple(
@@ -209,7 +227,22 @@ def map_cross_species_orthologs(
 def render_cross_species_ortholog_tsv(
     entries: tuple[CrossSpeciesOrthologEntry, ...],
 ) -> str:
-    """Render cross-species ortholog rows as TSV."""
+    """Render cross-species ortholog rows as TSV.
+
+    Inputs:
+    ``entries`` must be the ortholog mapping rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed cross-species ortholog columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV serializes already classified ortholog relationships only; it does
+    not collapse ambiguity or infer conserved function.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

@@ -66,7 +66,25 @@ def overlap_protein_features(
     intervals: tuple[ProteinFeatureQueryInterval, ...],
     feature_pack: ProteinRegionContextImportReport | tuple[ProteinRegionContextRecord, ...],
 ) -> tuple[ProteinFeatureOverlapEntry, ...]:
-    """Resolve inclusive overlaps between query intervals and curated features."""
+    """Resolve inclusive overlaps between query intervals and curated features.
+
+    Inputs:
+    ``protein_id`` identifies the query protein, ``intervals`` provide inclusive
+    residue spans, and ``feature_pack`` supplies curated feature records or an
+    import report.
+
+    Outputs:
+    Returns a sorted tuple of ``ProteinFeatureOverlapEntry`` records for every
+    overlapping curated feature interval.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Overlap means coordinate intersection against the supplied curated feature
+    pack only; it does not prove functional impact or exhaustive annotation.
+    """
 
     canonical_protein_id = canonicalize_protein_reference(protein_id)
     context_records = _normalize_feature_pack(feature_pack)
@@ -116,7 +134,22 @@ def overlap_protein_features(
 def render_protein_feature_overlaps_tsv(
     entries: tuple[ProteinFeatureOverlapEntry, ...],
 ) -> str:
-    """Render protein feature overlap rows as TSV."""
+    """Render protein feature overlap rows as TSV.
+
+    Inputs:
+    ``entries`` must be the overlap rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed protein feature overlap columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV is a transport rendering of precomputed overlaps only; it does not
+    add new biological interpretation.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

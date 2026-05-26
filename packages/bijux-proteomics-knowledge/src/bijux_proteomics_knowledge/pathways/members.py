@@ -94,7 +94,25 @@ def resolve_pathway_members(
     *,
     policy: PathwayCoveragePolicy | None = None,
 ) -> PathwayMembershipResolutionReport:
-    """Resolve input proteins onto curated pathway membership rows."""
+    """Resolve input proteins onto curated pathway membership rows.
+
+    Inputs:
+    ``protein_ids`` are the identifiers to ground, ``pathway_pack`` supplies
+    curated pathway membership rows, and ``policy`` optionally overrides the
+    owned pathway coverage thresholds.
+
+    Outputs:
+    Returns one ``PathwayMembershipResolutionReport`` with matched members,
+    missing members, unresolved inputs, and pathway confidence summaries.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Pathway confidence reflects only curated membership coverage and alias
+    resolution; it does not prove pathway activation or causal direction.
+    """
 
     active_policy = policy or PathwayCoveragePolicy()
     pathway_records, annotation_pack = _normalize_pathway_pack(pathway_pack)
@@ -179,7 +197,22 @@ def resolve_pathway_members(
 def render_pathway_membership_resolution_tsv(
     entries: tuple[PathwayMembershipResolutionEntry, ...],
 ) -> str:
-    """Render pathway membership resolution rows as TSV."""
+    """Render pathway membership resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the pathway membership rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed pathway membership columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV preserves computed pathway coverage only; it does not add new
+    biological interpretation or pathway scoring.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

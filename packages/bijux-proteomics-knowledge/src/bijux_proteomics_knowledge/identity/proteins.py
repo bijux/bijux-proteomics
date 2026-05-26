@@ -47,7 +47,25 @@ def resolve_protein_ids(
     annotation_pack: AnnotationPack,
     species: str | None = None,
 ) -> tuple[ProteinIdResolutionEntry, ...]:
-    """Resolve protein ids against curated annotation-pack features."""
+    """Resolve protein ids against curated annotation-pack features.
+
+    Inputs:
+    ``ids`` are the protein identifiers to resolve, ``annotation_pack``
+    supplies curated annotation features, and ``species`` optionally restricts
+    matching to one species.
+
+    Outputs:
+    Returns a tuple of ``ProteinIdResolutionEntry`` rows describing exact,
+    alias-based, ambiguous, or unresolved identifier matches.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Resolution depends on the supplied annotation pack and alias vocabulary; it
+    does not prove biological identity beyond those curated references.
+    """
 
     normalized_species = _normalize_species(species)
     features = annotation_pack.protein_features
@@ -130,7 +148,22 @@ def resolve_protein_ids(
 def render_protein_id_resolution_tsv(
     entries: tuple[ProteinIdResolutionEntry, ...],
 ) -> str:
-    """Render protein-id resolution rows as TSV."""
+    """Render protein-id resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the protein-id resolution rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed protein-id resolution columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV serializes identifier grounding results only; it does not add
+    biological interpretation beyond the owned resolution status.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

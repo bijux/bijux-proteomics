@@ -80,7 +80,25 @@ def resolve_complex_members(
     *,
     policy: ComplexCoveragePolicy | None = None,
 ) -> ComplexMembershipResolutionReport:
-    """Resolve input proteins onto curated complex membership rows."""
+    """Resolve input proteins onto curated complex membership rows.
+
+    Inputs:
+    ``protein_ids`` are the identifiers to ground, ``complex_pack`` supplies
+    curated complex membership data, and ``policy`` optionally overrides the
+    owned confidence thresholds.
+
+    Outputs:
+    Returns one ``ComplexMembershipResolutionReport`` with per-complex observed
+    members, missing members, unresolved inputs, and confidence summaries.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Coverage and confidence reflect only the supplied curated complex pack and
+    alias resolution; they do not prove complex assembly in the measured sample.
+    """
 
     active_policy = policy or ComplexCoveragePolicy()
     complex_records, annotation_pack = _normalize_complex_pack(complex_pack)
@@ -153,7 +171,22 @@ def resolve_complex_members(
 def render_complex_membership_resolution_tsv(
     entries: tuple[ComplexMembershipResolutionEntry, ...],
 ) -> str:
-    """Render complex membership resolution rows as TSV."""
+    """Render complex membership resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the complex membership rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed complex membership columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV preserves computed complex coverage only; it does not create new
+    evidence beyond the supplied resolution report.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

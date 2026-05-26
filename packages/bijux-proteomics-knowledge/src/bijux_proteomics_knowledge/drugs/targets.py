@@ -66,7 +66,24 @@ def resolve_drug_targets(
     protein_ids: tuple[str, ...],
     drug_pack: AnnotationPack | tuple[BiologicalContextRecord, ...],
 ) -> DrugTargetResolutionReport:
-    """Resolve proteins onto curated drug-target annotations."""
+    """Resolve proteins onto curated drug-target annotations.
+
+    Inputs:
+    ``protein_ids`` are the identifiers to ground and ``drug_pack`` supplies
+    curated drug-target context rows or an annotation pack.
+
+    Outputs:
+    Returns one ``DrugTargetResolutionReport`` with resolved drug-target
+    relationships and direct-versus-indirect summary counts.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The report reflects curated annotation relationships only; it does not prove
+    compound activity, dosing relevance, or sample-specific response.
+    """
 
     drug_records, annotation_pack = _normalize_drug_pack(drug_pack)
     direct_lookup: dict[str, list[BiologicalContextRecord]] = {}
@@ -143,7 +160,22 @@ def resolve_drug_targets(
 def render_drug_target_resolution_tsv(
     entries: tuple[DrugTargetResolutionEntry, ...],
 ) -> str:
-    """Render drug-target resolution rows as TSV."""
+    """Render drug-target resolution rows as TSV.
+
+    Inputs:
+    ``entries`` must be the drug-target rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed drug-target resolution columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV serializes previously resolved relationships only; it does not add
+    pharmacologic interpretation or ranking.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")

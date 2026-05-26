@@ -92,7 +92,26 @@ def compute_knowledge_coverage(
     *,
     policy: KnowledgeCoveragePolicy | None = None,
 ) -> KnowledgeCoverageReport:
-    """Compute aggregate annotation coverage across result-entity families."""
+    """Compute aggregate annotation coverage across result-entity families.
+
+    Inputs:
+    ``result_entities`` declares the entity sets to audit, ``packs`` supplies
+    one or more annotation packs, and ``policy`` optionally overrides the owned
+    low-coverage thresholds.
+
+    Outputs:
+    Returns one ``KnowledgeCoverageReport`` with per-entity-family coverage rows
+    and low-coverage warnings.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Coverage measures the supplied annotation memory only; it does not prove
+    that missing annotations are biologically absent or experimentally
+    unsupported.
+    """
 
     active_policy = policy or KnowledgeCoveragePolicy()
     normalized_packs = _normalize_packs(packs)
@@ -146,7 +165,22 @@ def compute_knowledge_coverage(
 def render_knowledge_coverage_tsv(
     entries: tuple[KnowledgeCoverageEntry, ...],
 ) -> str:
-    """Render knowledge coverage rows as TSV."""
+    """Render knowledge coverage rows as TSV.
+
+    Inputs:
+    ``entries`` must be the knowledge coverage rows to serialize.
+
+    Outputs:
+    Returns one TSV string with the governed knowledge coverage columns.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    The TSV reports computed coverage only; it does not explain the biological
+    reason for missing annotations.
+    """
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
