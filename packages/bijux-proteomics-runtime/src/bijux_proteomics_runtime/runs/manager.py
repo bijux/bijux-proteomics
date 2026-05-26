@@ -755,10 +755,10 @@ class RuntimeStateMachine:
             and selection.human_required
             and not result.failure_type
         ):
-            decision_ok, errors, _payload = validate_human_decision(
+            decision_report = validate_human_decision(
                 self._run_context.workspace.human_decision_path
             )
-            if not decision_ok:
+            if not decision_report.passed:
                 result = PipelineResult(
                     candidate=result.candidate,
                     plan_fingerprint=result.plan_fingerprint,
