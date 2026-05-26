@@ -219,11 +219,12 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/states.py",
         "testing/skip_policy.py",
         "testing/pytest_markers.py",
+        "testing/source_tree_limits.py",
     }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
-            "Shared identifiers, provenance, state vocabulary, version primitives, skip and marker policy, and the audited root export ledger belong in foundation because every higher package must agree on them.",
+            "Shared identifiers, provenance, state vocabulary, version primitives, skip and marker policy, audited source-tree quality helpers, and the audited root export ledger belong in foundation because every higher package must agree on them.",
         )
 
     if module_path in {
