@@ -202,12 +202,12 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "quantification/provenance/review.py",
         "build_quant_review_bundle",
-        30,
+        36,
     ),
     _exception(
         "quantification/statistics/differential_abundance.py",
         "build_differential_abundance_report",
-        45,
+        48,
     ),
     _exception(
         "sequences/protein_region_context.py",

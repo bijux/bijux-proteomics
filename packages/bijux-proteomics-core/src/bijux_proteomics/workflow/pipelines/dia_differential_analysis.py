@@ -332,6 +332,12 @@ def build_dia_differential_analysis_report(
         condition_a=condition_a,
         condition_b=condition_b,
     )
+    if pairing_field is None and all(
+        entry.pair_id not in (None, "") for entry in experiment_design.entries
+    ):
+        raise ValueError(
+            "paired designs require paired_differential rather than pairwise_differential"
+        )
     feasibility_report = require_feasible_experiment_design_for_analysis(
         experiment_design,
         chosen_analysis_family=(
@@ -916,6 +922,11 @@ def _resolve_selected_contrast(
     if condition_a is not None or condition_b is not None:
         if not condition_a or not condition_b:
             raise ValueError("both condition_a and condition_b are required together")
+        unknown = sorted({condition_a, condition_b} - set(conditions))
+        if unknown:
+            raise ValueError(
+                "invalid_contrast_unknown_condition: " + ", ".join(unknown)
+            )
         return (condition_a, condition_b)
     if len(conditions) == 2:
         return (conditions[0], conditions[1])

@@ -11255,6 +11255,7 @@ def test_quantify_command_reports_log2_normalization_preparation_explicitly() ->
         )
         assert [entry["method"] for entry in payload["normalization_strategy"]["entries"]] == [
             "quantile",
+            "log2_median_centering",
             "vsn_like",
             "median",
             "none",

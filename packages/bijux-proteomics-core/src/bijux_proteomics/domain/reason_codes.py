@@ -38,6 +38,7 @@ _VALIDATION_ISSUE_CODES = frozenset(
         "absolute_archive_path",
         "absolute_artifact_path",
         "ambiguous_mass_delta",
+        "ambiguous_ortholog_mapping",
         "ambiguous_ortholog_unresolved",
         "ambiguous_residue",
         "ambiguous_shared_run",
@@ -347,6 +348,7 @@ _RESULT_WARNING_CODES = frozenset(
 
 _REJECTED_EVIDENCE_CODES = frozenset(
     {
+        "ambiguous_ortholog_mapping",
         "contaminant",
         "contradicted",
         "excluded_due_to_interference",

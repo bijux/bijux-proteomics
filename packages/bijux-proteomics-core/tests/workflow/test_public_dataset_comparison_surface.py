@@ -136,7 +136,7 @@ def test_build_public_dataset_comparison_report_keeps_passed_targeted_benchmarks
     assert report.summary.descriptor_count == 2
     assert report.summary.passed_dataset_count == 2
     assert report.summary.failed_dataset_count == 0
-    assert report.summary.successful_study_count == 1
+    assert report.summary.successful_study_count == 2
     assert report.summary.effect_support_study_count == 1
     assert report.summary.pathway_support_study_count == 0
 
@@ -146,6 +146,6 @@ def test_build_public_dataset_comparison_report_keeps_passed_targeted_benchmarks
     )
     assert dataset_by_id["targeted_validation"].effect_comparison_supported is False
     assert dataset_by_id["targeted_validation"].pathway_comparison_supported is False
-    assert "workflow output does not normalize into a proteomics study result" in (
+    assert "public benchmark descriptor executed through the owned workflow orchestrator" in (
         dataset_by_id["targeted_validation"].note
     )

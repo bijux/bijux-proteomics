@@ -324,22 +324,42 @@ def build_label_based_differential_analysis_report(
         condition_a=condition_a,
         condition_b=condition_b,
     )
-    require_feasible_experiment_design_for_analysis(
-        analysis_experiment_design,
-        chosen_analysis_family=(
-            ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
-            if selected_contrast is not None
-            else ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
-        ),
-        condition_a=(
-            selected_contrast[0] if selected_contrast is not None else condition_a
-        ),
-        condition_b=(
-            selected_contrast[1] if selected_contrast is not None else condition_b
-        ),
-        batch_field=batch_field if batch_field else None,
-        pairing_field=pairing_field,
-    )
+    if selected_contrast is not None and any(
+        entry.metadata.get("timepoint") not in ("", None)
+        for entry in analysis_design_entries
+    ):
+        raise ValueError(
+            "longitudinal labeled designs require time_course_differential rather than pairwise_differential"
+        )
+    try:
+        require_feasible_experiment_design_for_analysis(
+            analysis_experiment_design,
+            chosen_analysis_family=(
+                ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+                if selected_contrast is not None
+                else ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
+            ),
+            condition_a=(
+                selected_contrast[0] if selected_contrast is not None else condition_a
+            ),
+            condition_b=(
+                selected_contrast[1] if selected_contrast is not None else condition_b
+            ),
+            batch_field=batch_field if batch_field else None,
+            pairing_field=pairing_field,
+        )
+    except ValueError as error:
+        active_replicate_policy = replicate_policy or DifferentialReplicatePolicy()
+        if (
+            selected_contrast is not None
+            and active_replicate_policy.disposition
+            is QuantAssessmentDisposition.ENFORCED
+            and "insufficient_group_size" in str(error)
+        ):
+            raise ValueError(
+                "minimum replicate policy not satisfied for labeled differential analysis"
+            ) from error
+        raise
     differential_report: DifferentialAbundanceReport | None = None
     multi_condition_report: MultiConditionDifferentialAbundanceReport | None = None
     volcano_plot: LabelBasedDifferentialVolcanoPlot | None = None
