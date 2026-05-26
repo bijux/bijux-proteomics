@@ -102,6 +102,7 @@ class ProteomicsStudyConclusionKind(StrEnum):
     """Stable biological conclusion surfaces comparable across study results."""
 
     SUPPORTED_CLAIM = "supported_claim"
+    REFUSED_CLAIM = "refused_claim"
     REJECTED_CLAIM = "rejected_claim"
     BIOLOGICAL_HYPOTHESIS = "biological_hypothesis"
     REGULATOR_INFERENCE = "regulator_inference"
