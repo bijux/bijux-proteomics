@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation.testing.public_function_docstrings import (
-    REQUIRED_PUBLIC_FUNCTION_DOCSTRING_SECTIONS,
     build_public_function_docstring_report,
 )
 
