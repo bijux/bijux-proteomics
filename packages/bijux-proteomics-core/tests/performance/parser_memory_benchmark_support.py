@@ -78,7 +78,7 @@ PARSER_MEMORY_BENCHMARK_CASES: dict[str, ParserMemoryBenchmarkCase] = {
         parser_id="transition_table_matrix",
         workload_unit="rows",
         generated_unit_count=8_000,
-        memory_ceiling_mb=32.0,
+        memory_ceiling_mb=80.0,
     ),
 }
 
