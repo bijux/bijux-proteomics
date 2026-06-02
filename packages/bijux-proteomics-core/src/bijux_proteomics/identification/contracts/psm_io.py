@@ -136,7 +136,7 @@ def _parse_psm_row(
         if q_token:
             try:
                 q_value = float(q_token)
-                if q_value < 0:
+                if q_value < 0 or q_value > 1:
                     raise ValueError
             except ValueError:
                 issues.append(

@@ -17,7 +17,6 @@ from bijux_proteomics.chemistry.contracts import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
-from bijux_proteomics.domain.records import ModifiedPeptide as CanonicalModifiedPeptide
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -49,7 +48,20 @@ class ModifiedPeptideParseReview(JsonModel):
     at_protein_c_term: bool = False
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
     unknown_tokens: tuple[str, ...] = Field(default_factory=tuple)
-    modified_peptide_record: CanonicalModifiedPeptide
+    modified_peptide_record: ModifiedPeptideReviewRecord
+
+
+class ModifiedPeptideReviewRecord(JsonModel):
+    """Chemistry-owned modified-peptide record for notation review surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
+    modification_names: tuple[str, ...] = Field(default_factory=tuple)
+    metadata: dict[str, str] = Field(default_factory=dict)
 
 
 # Compatibility alias for existing chemistry and import surfaces.
@@ -134,8 +146,8 @@ def _build_modified_peptide_record(
     peptide: ParsedModifiedPeptide,
     *,
     canonical_notation: str,
-) -> CanonicalModifiedPeptide:
-    return CanonicalModifiedPeptide(
+) -> ModifiedPeptideReviewRecord:
+    return ModifiedPeptideReviewRecord(
         record_id=canonical_notation,
         peptide_sequence=peptide.sequence,
         canonical_peptide=peptide.sequence,

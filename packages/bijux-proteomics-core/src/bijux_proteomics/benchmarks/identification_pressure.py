@@ -120,8 +120,11 @@ def build_protein_inference_pressure_corpus_report(
         for scenario_kind in benchmark_suite.scenario_kinds
     )
     false_negative_pressure_scenario_count = sum(
-        scenario_kind is ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE
-        for scenario_kind in benchmark_suite.scenario_kinds
+        any(
+            assessment.false_negative_count > 0
+            for assessment in report.method_assessments
+        )
+        for report in benchmark_suite.reports
     )
     ready = (
         claim_review.accepted and not contaminant_audit.unresolved_contaminant_promotion

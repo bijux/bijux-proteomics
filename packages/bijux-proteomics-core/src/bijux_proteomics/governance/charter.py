@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import ast
 from enum import StrEnum
 from pathlib import Path
 import re
@@ -578,6 +579,7 @@ _COMPATIBILITY_IMPORT_RE = re.compile(
     r"^from\s+(bijux_proteomics(?:\.[a-z0-9_]+)+)\s+import\s+\*(?:\s+#.*)?$",
     flags=re.MULTILINE,
 )
+_EXPLICIT_COMPATIBILITY_EXPORT_PATHS: frozenset[str] = frozenset()
 
 
 def _core_source_root() -> Path:
@@ -596,7 +598,33 @@ def _resolve_module_path(module_name: str) -> str:
     raise ValueError(f"unable to resolve compatibility target for {module_name}")
 
 
+def _pure_reexport_targets(module_path: str) -> tuple[str, ...]:
+    content = (_core_source_root() / module_path).read_text(encoding="utf-8")
+    tree = ast.parse(content, filename=module_path)
+    targets: list[str] = []
+    for node in tree.body:
+        if isinstance(node, ast.Expr) and isinstance(
+            getattr(node, "value", None), ast.Constant
+        ):
+            if isinstance(node.value.value, str):
+                continue
+        if isinstance(node, ast.ImportFrom) and node.module == "__future__":
+            continue
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module is not None
+            and node.module.startswith("bijux_proteomics.")
+            and all(alias.name == "*" for alias in node.names)
+        ):
+            targets.append(node.module)
+            continue
+        return ()
+    return tuple(targets)
+
+
 def _compatibility_target(module_path: str) -> str | None:
+    if module_path not in _EXPLICIT_COMPATIBILITY_EXPORT_PATHS:
+        return None
     content = (_core_source_root() / module_path).read_text(encoding="utf-8")
     match = _COMPATIBILITY_IMPORT_RE.search(content)
     if match is None:
@@ -608,6 +636,9 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     compatibility_target = _compatibility_target(module_path)
     if compatibility_target is not None:
         return _module_family(compatibility_target)
+    pure_reexport_targets = _pure_reexport_targets(module_path)
+    if pure_reexport_targets:
+        return _module_family(_resolve_module_path(pure_reexport_targets[0]))
 
     if module_path.startswith(
         ("workflow/", "interfaces/execution/")
@@ -627,6 +658,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     }:
         return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
     if module_path in {
+        "_atomic_files.py",
         "_output_tables.py",
         "_tabular.py",
         "_scientific_tables.py",
@@ -666,6 +698,8 @@ def _module_classification(module_path: str) -> CoreModuleClassification:
         return CoreModuleClassification.THIN_ABSTRACTION
     if _compatibility_target(module_path) is not None:
         return CoreModuleClassification.COMPATIBILITY_EXPORT
+    if _pure_reexport_targets(module_path):
+        return CoreModuleClassification.THIN_ABSTRACTION
     return CoreModuleClassification.SUBSTANTIVE_SCIENTIFIC_SURFACE
 
 
@@ -681,8 +715,8 @@ def _module_reason(
         )
     if classification is CoreModuleClassification.THIN_ABSTRACTION:
         return (
-            "Namespace initializers and the package root aggregate stable exports "
-            "without becoming separate scientific owners."
+            "Namespace initializers and curated in-tree re-export facades aggregate "
+            "stable owned exports without becoming separate scientific owners."
         )
     if classification is CoreModuleClassification.COMPATIBILITY_EXPORT:
         target = _compatibility_target(module_path)
