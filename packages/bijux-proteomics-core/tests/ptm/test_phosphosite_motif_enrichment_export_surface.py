@@ -44,9 +44,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo() -> (
-    None
-):
+def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo(
+    tmp_path: Path,
+) -> None:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -82,23 +82,28 @@ def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo()
         ),
     )
 
-    export_ptm_phosphosite_motif_window_tsv(report, Path("ptm.motif.windows.tsv"))
-    export_ptm_phosphosite_motif_frequency_tsv(report, Path("ptm.motif.frequency.tsv"))
+    windows_path = tmp_path / "ptm.motif.windows.tsv"
+    frequency_path = tmp_path / "ptm.motif.frequency.tsv"
+    terms_path = tmp_path / "ptm.motif.terms.tsv"
+    logo_path = tmp_path / "ptm.motif.logo.tsv"
+
+    export_ptm_phosphosite_motif_window_tsv(report, windows_path)
+    export_ptm_phosphosite_motif_frequency_tsv(report, frequency_path)
     export_ptm_phosphosite_motif_enriched_term_tsv(
         report,
-        Path("ptm.motif.terms.tsv"),
+        terms_path,
     )
-    export_ptm_phosphosite_motif_logo_tsv(report, Path("ptm.motif.logo.tsv"))
+    export_ptm_phosphosite_motif_logo_tsv(report, logo_path)
 
-    assert Path("ptm.motif.windows.tsv").read_text().splitlines()[0] == (
+    assert windows_path.read_text().splitlines()[0] == (
         "site_key\tprotein_ref\tresidue\tposition\tmodification_name\tbackground_mode\twindow_role\t"
         "direction\tcentered_window\tflank_size\tplotted_log2_fold_change\t"
         "adjusted_p_value\tambiguous\tprotein_correction_mode"
     )
-    assert Path("ptm.motif.frequency.tsv").read_text().splitlines()[0] == (
+    assert frequency_path.read_text().splitlines()[0] == (
         "position_offset\tresidue\tbackground_mode\tregulated_window_count\tbackground_window_count\t"
         "regulated_frequency\tbackground_frequency"
     )
-    assert "whole_proteome_background" in Path("ptm.motif.windows.tsv").read_text()
-    assert "whole_proteome_background" in Path("ptm.motif.terms.tsv").read_text()
-    assert "whole_proteome_background" in Path("ptm.motif.logo.tsv").read_text()
+    assert "whole_proteome_background" in windows_path.read_text()
+    assert "whole_proteome_background" in terms_path.read_text()
+    assert "whole_proteome_background" in logo_path.read_text()

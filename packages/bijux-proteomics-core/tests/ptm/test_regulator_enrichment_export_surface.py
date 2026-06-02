@@ -17,7 +17,9 @@ from bijux_proteomics.ptm.regulator_enrichment import (
 )
 
 
-def test_ptm_regulator_enrichment_exports_preserve_supporting_site_ledgers() -> None:
+def test_ptm_regulator_enrichment_exports_preserve_supporting_site_ledgers(
+    tmp_path: Path,
+) -> None:
     report = PtmRegulatorEnrichmentReport(
         condition_a="control",
         condition_b="treated",
@@ -54,16 +56,19 @@ def test_ptm_regulator_enrichment_exports_preserve_supporting_site_ledgers() -> 
         note="synthetic report for export coverage",
     )
 
+    summary_path = tmp_path / "ptm.regulator_enrichment.summary.tsv"
+    results_path = tmp_path / "ptm.regulator_enrichment.results.tsv"
+
     export_ptm_regulator_enrichment_summary_tsv(
         report,
-        Path("ptm.regulator_enrichment.summary.tsv"),
+        summary_path,
     )
     export_ptm_regulator_enrichment_tsv(
         report,
-        Path("ptm.regulator_enrichment.results.tsv"),
+        results_path,
     )
 
-    assert Path("ptm.regulator_enrichment.summary.tsv").read_text().splitlines()[0] == (
+    assert summary_path.read_text().splitlines()[0] == (
         "condition_a\tcondition_b\teligible_site_count\tupregulated_site_count\t"
         "downregulated_site_count\tannotated_upregulated_site_count\t"
         "annotated_downregulated_site_count\tevaluated_regulator_count\t"
@@ -71,5 +76,5 @@ def test_ptm_regulator_enrichment_exports_preserve_supporting_site_ledgers() -> 
     )
     assert (
         "AKT1\tkinase\tupregulated\t2\tP11111:S5:Phospho;P11111:S9:Phospho"
-        in Path("ptm.regulator_enrichment.results.tsv").read_text()
+        in results_path.read_text()
     )

@@ -40,9 +40,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_site_annotation_exports_preserve_mapped_unmapped_and_biology_ledgers() -> (
-    None
-):
+def test_ptm_site_annotation_exports_preserve_mapped_unmapped_and_biology_ledgers(
+    tmp_path: Path,
+) -> None:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -59,38 +59,40 @@ def test_ptm_site_annotation_exports_preserve_mapped_unmapped_and_biology_ledger
     )
     biology_summary = build_ptm_site_annotation_biology_summary(mapping_report)
 
+    summary_path = tmp_path / "ptm.annotation.summary.tsv"
+    mapped_path = tmp_path / "ptm.annotation.mapped.tsv"
+    unmapped_path = tmp_path / "ptm.annotation.unmapped.tsv"
+    kinase_path = tmp_path / "ptm.annotation.kinase.tsv"
+    phosphatase_path = tmp_path / "ptm.annotation.phosphatase.tsv"
+
     export_ptm_site_annotation_mapping_summary_tsv(
         mapping_report,
-        Path("ptm.annotation.summary.tsv"),
+        summary_path,
     )
     export_ptm_mapped_site_annotation_tsv(
         mapping_report,
-        Path("ptm.annotation.mapped.tsv"),
+        mapped_path,
     )
     export_ptm_unmapped_site_annotation_tsv(
         mapping_report,
-        Path("ptm.annotation.unmapped.tsv"),
+        unmapped_path,
     )
     export_ptm_site_annotation_biology_tsv(
         biology_summary,
         category="kinase",
-        path=Path("ptm.annotation.kinase.tsv"),
+        path=kinase_path,
     )
     export_ptm_site_annotation_biology_tsv(
         biology_summary,
         category="phosphatase",
-        path=Path("ptm.annotation.phosphatase.tsv"),
+        path=phosphatase_path,
     )
 
-    assert Path("ptm.annotation.summary.tsv").read_text().splitlines()[0] == (
+    assert summary_path.read_text().splitlines()[0] == (
         "target_species\tmatched_annotation_count\tmatched_site_count\t"
         "unmapped_annotation_count\tspecies_mismatch_count"
     )
-    assert "P11111:S5:Phospho" in Path("ptm.annotation.mapped.tsv").read_text()
-    assert "Mus musculus" in Path("ptm.annotation.unmapped.tsv").read_text()
-    assert "AKT1\t1\tP11111:S5:Phospho" in Path(
-        "ptm.annotation.kinase.tsv"
-    ).read_text()
-    assert "PPP2CA\t1\tP11111:S5:Phospho" in Path(
-        "ptm.annotation.phosphatase.tsv"
-    ).read_text()
+    assert "P11111:S5:Phospho" in mapped_path.read_text()
+    assert "Mus musculus" in unmapped_path.read_text()
+    assert "AKT1\t1\tP11111:S5:Phospho" in kinase_path.read_text()
+    assert "PPP2CA\t1\tP11111:S5:Phospho" in phosphatase_path.read_text()
