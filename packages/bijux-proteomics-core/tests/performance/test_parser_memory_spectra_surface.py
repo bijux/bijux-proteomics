@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from .parser_memory_benchmark_support import (
     benchmark_mgf_streaming_memory,
     benchmark_mzml_streaming_memory,
@@ -18,6 +20,7 @@ def test_generated_large_mgf_streaming_stays_below_memory_ceiling(tmp_path) -> N
     assert report.memory_headroom_mb >= 0.0
 
 
+@pytest.mark.slow
 def test_generated_large_mzml_streaming_stays_below_memory_ceiling(tmp_path) -> None:
     report = benchmark_mzml_streaming_memory(tmp_path)
 
