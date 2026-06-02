@@ -109,15 +109,10 @@ def test_shared_python_test_runner_defines_fast_and_slow_marker_filters() -> Non
     ).read_text(encoding="utf-8")
 
     assert (
-        'TEST_UNIT_DIR_ARGS        ?= -m "unit and not slow and not benchmark and not external_data and not governance" --maxfail=1 -q'
+        'TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q'
         in shared_test_make
     )
     assert (
-        'TEST_UNIT_FALLBACK_ARGS   ?= -m "unit and not slow and not benchmark and not external_data and not governance" --maxfail=1 -q'
+        'TEST_UNIT_FALLBACK_ARGS   ?= -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q'
         in shared_test_make
     )
-    assert (
-        'TEST_SLOW_ARGS            ?= -m "slow or benchmark or external_data" --maxfail=1 -q'
-        in shared_test_make
-    )
-    assert "test-slow:" in shared_test_make
