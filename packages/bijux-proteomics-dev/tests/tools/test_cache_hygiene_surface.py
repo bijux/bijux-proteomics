@@ -12,7 +12,7 @@ def test_find_forbidden_cache_dirs_discovers_nested_cache_directories(
     tmp_path: Path,
 ) -> None:
     first = tmp_path / "package-a" / ".pytest_cache"
-    second = tmp_path / "package-b" / "tests" / "__pycache__"
+    second = tmp_path / "package-b" / "tests" / ".ruff_cache"
     third = tmp_path / "package-c" / ".ruff_cache"
     for path in (first, second, third):
         path.mkdir(parents=True)

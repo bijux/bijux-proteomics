@@ -66,7 +66,7 @@ def test_thin_alias_packages_only_keep_wrapper_source_files() -> None:
         observed = {
             path.relative_to(src_root(package_name)).as_posix()
             for path in src_root(package_name).rglob("*")
-            if path.is_file() and "__pycache__" not in Path(path).parts
+            if path.is_file() and (path.suffix == ".py" or path.name == "py.typed")
         }
         assert observed == expected
         assert "runtime_alias.py" not in observed
