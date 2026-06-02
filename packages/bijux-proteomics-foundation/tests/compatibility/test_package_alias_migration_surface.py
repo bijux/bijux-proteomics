@@ -22,6 +22,9 @@ def test_package_alias_migration_surface_warns_and_forwards_private_owner() -> N
         == "bijux_proteomics_foundation._package_aliases"
     )
     assert public_module.alias_package_version is private_module.alias_package_version
-    assert public_module.run_cli_alias is private_module.run_cli_alias
+    assert (
+        public_module.dispatch_alias_entrypoint
+        is private_module.dispatch_alias_entrypoint
+    )
     assert tuple(public_module.__all__) == tuple(private_module.__all__)
     assert "compatibility import surface" in public_module.DEPRECATION_MESSAGE

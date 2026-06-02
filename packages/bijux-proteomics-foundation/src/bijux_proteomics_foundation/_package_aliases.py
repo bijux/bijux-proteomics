@@ -18,8 +18,8 @@ __all__ = [
     "alias_package_version",
     "canonical_module_dir",
     "canonical_module_getattr",
+    "dispatch_alias_entrypoint",
     "install_import_aliases",
-    "run_cli_alias",
 ]
 
 
@@ -143,14 +143,14 @@ def install_import_aliases(
     )
 
 
-def run_cli_alias(
+def dispatch_alias_entrypoint(
     *,
     canonical_module: str,
     attribute_name: str,
     prog_name: str,
     argv: Sequence[str] | None = None,
 ) -> int:
-    """Run a canonical CLI object under an alias package command name."""
+    """Run a canonical command entrypoint under an alias package command name."""
 
     cli_object = getattr(import_module(canonical_module), attribute_name)
     return cast(

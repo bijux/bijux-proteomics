@@ -10,7 +10,7 @@ from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_foundation._package_aliases import (
     alias_package_version,
     canonical_module_getattr,
-    run_cli_alias,
+    dispatch_alias_entrypoint,
 )
 
 
@@ -43,7 +43,7 @@ def test_package_alias_helpers_delegate_cli_entrypoints() -> None:
     sys.modules[module_name] = fake_module
     try:
         assert (
-            run_cli_alias(
+            dispatch_alias_entrypoint(
                 canonical_module=module_name,
                 attribute_name="cli",
                 prog_name="proteomics",
