@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 import bijux_proteomics.targeted as targeted
 from bijux_proteomics import workflow
 from bijux_proteomics.chemistry import (
@@ -1329,6 +1331,7 @@ def test_workflow_package_exports_synthetic_quant_truth_surface() -> None:
     assert "truth_kind" in workflow.render_synthetic_quant_truth_tsv(report)
 
 
+@pytest.mark.slow
 def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
     report = workflow.build_public_benchmark_trust_bundle(
         workflow.public_benchmark_root(),

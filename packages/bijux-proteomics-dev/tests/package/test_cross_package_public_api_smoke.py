@@ -11,6 +11,8 @@ import sys
 from types import ModuleType
 from typing import Protocol
 
+import pytest
+
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
@@ -185,6 +187,7 @@ def test_cross_package_public_api_smoke_loads_every_root_export_in_order() -> No
     )
 
 
+@pytest.mark.slow
 def test_cross_package_public_api_smoke_does_not_require_dev_package_imports() -> None:
     code = """
 import builtins

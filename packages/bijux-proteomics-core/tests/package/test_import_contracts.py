@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib
 import os
 from pathlib import Path
+import pytest
 import subprocess
 import sys
 
@@ -100,12 +101,14 @@ def test_core_package_import_contract_succeeds_from_clean_checkout() -> None:
     _assert_clean_checkout_command_succeeds("import bijux_proteomics")
 
 
+@pytest.mark.slow
 def test_core_cli_import_contract_succeeds_from_clean_checkout() -> None:
     _assert_clean_checkout_command_succeeds(
         "from bijux_proteomics.interfaces.cli import cli"
     )
 
 
+@pytest.mark.slow
 def test_core_python_api_import_contract_succeeds_from_clean_checkout() -> None:
     _assert_clean_checkout_command_succeeds(
         "from bijux_proteomics.interfaces.python_api import run_quantify_command"

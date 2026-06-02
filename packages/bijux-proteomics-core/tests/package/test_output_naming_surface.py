@@ -6,6 +6,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics import benchmarks, sequences, workflow
 from bijux_proteomics.identification import contracts as identification_contracts
 from bijux_proteomics.identification import confidence as identification_confidence
@@ -137,6 +139,7 @@ def _assert_wrapper(module_path: str, legacy_name: str, canonical_name: str) -> 
     assert _call_target_name(call) == canonical_name
 
 
+@pytest.mark.slow
 def test_renderer_names_use_explicit_format_suffixes_or_wrappers() -> None:
     legacy_wrapper_names = {
         name
@@ -165,6 +168,7 @@ def test_legacy_render_wrappers_delegate_to_canonical_names() -> None:
             _assert_wrapper(module_path, legacy_name, canonical_name)
 
 
+@pytest.mark.slow
 def test_render_functions_do_not_write_files() -> None:
     offenders: list[str] = []
     for path in SOURCE_ROOT.rglob("*.py"):
@@ -186,6 +190,7 @@ def test_render_functions_do_not_write_files() -> None:
     assert offenders == []
 
 
+@pytest.mark.slow
 def test_bundle_writer_names_use_write_prefix_with_legacy_wrappers() -> None:
     expected_write_names = {
         "write_annotated_spectrum_bundle",

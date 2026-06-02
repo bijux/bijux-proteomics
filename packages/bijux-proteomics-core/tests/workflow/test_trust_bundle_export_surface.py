@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics.workflow import (
     build_public_benchmark_trust_bundle,
     public_benchmark_root,
@@ -12,6 +14,7 @@ from bijux_proteomics.workflow import (
 )
 
 
+@pytest.mark.slow
 def test_render_trust_bundle_run_summary_tsv_lists_generated_bundle_runs(
     tmp_path: Path,
 ) -> None:

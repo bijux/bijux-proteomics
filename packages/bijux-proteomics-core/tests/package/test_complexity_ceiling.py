@@ -5,10 +5,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics_foundation.testing.source_tree_complexity import (
     SourceFunctionComplexityException,
     build_source_tree_complexity_report,
 )
+
+pytestmark = [pytest.mark.governance, pytest.mark.slow]
 
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 COMPLEXITY_CEILING = 25

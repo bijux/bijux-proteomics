@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+import pytest
 
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
@@ -75,6 +76,7 @@ def _imported_modules(path: Path) -> set[str]:
     return modules
 
 
+@pytest.mark.slow
 def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or_lab() -> (
     None
 ):
@@ -112,6 +114,7 @@ def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or
     assert unexpected == {}
 
 
+@pytest.mark.slow
 def test_core_source_does_not_reintroduce_removed_wrapper_imports() -> None:
     stale_imports: dict[str, list[str]] = {}
 

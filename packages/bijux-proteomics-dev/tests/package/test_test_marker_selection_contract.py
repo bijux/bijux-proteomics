@@ -4,11 +4,16 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
+
+
+pytestmark = pytest.mark.slow
 
 
 def _pytest_collect_output(*args: str) -> str:

@@ -6,6 +6,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 CANONICAL_OWNER = SOURCE_ROOT / "domain" / "confidence.py"
@@ -69,6 +71,7 @@ def test_generic_confidence_alias_owners_route_through_shared_tier() -> None:
     assert offenders == []
 
 
+@pytest.mark.slow
 def test_no_other_owner_defines_incompatible_generic_confidence_tiers() -> None:
     offenders: list[str] = []
 

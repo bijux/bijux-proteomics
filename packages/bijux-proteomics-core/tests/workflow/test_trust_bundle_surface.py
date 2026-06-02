@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics.workflow import (
     build_flagship_trust_bundle_descriptors,
     build_trust_bundle,
@@ -13,6 +15,7 @@ from bijux_proteomics.workflow import (
 )
 
 
+@pytest.mark.slow
 def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     tmp_path: Path,
 ) -> None:
@@ -92,6 +95,7 @@ def test_build_public_benchmark_trust_bundle_preserves_generated_assets(
     assert "workflow outputs" in html_index
 
 
+@pytest.mark.slow
 def test_build_trust_bundle_uses_explicit_descriptor_set(
     tmp_path: Path,
 ) -> None:
