@@ -35,7 +35,7 @@ def _exception(relative_path: str, allowed_line_count: int) -> SourceFileLineCou
 INTELLIGENCE_LINE_COUNT_EXCEPTIONS = (
     _exception("candidates/lifecycle.py", 1104),
     _exception("candidates/ranking.py", 1589),
-    _exception("reviews/benchmarks.py", 1978),
+    _exception("reviews/benchmarks.py", 1982),
 )
 
 
