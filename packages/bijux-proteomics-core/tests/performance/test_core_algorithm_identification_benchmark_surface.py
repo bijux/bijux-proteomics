@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from .core_algorithm_benchmark_support import (
     CORE_ALGORITHM_BENCHMARK_CASES,
     benchmark_matrix_rollup_runtime,
@@ -10,6 +12,7 @@ from .core_algorithm_benchmark_support import (
 )
 
 
+@pytest.mark.slow
 def test_psm_fdr_runtime_stays_within_baseline_threshold() -> None:
     report = benchmark_psm_fdr_runtime()
 
@@ -19,6 +22,7 @@ def test_psm_fdr_runtime_stays_within_baseline_threshold() -> None:
     assert report.regression_detected is False
 
 
+@pytest.mark.slow
 def test_matrix_rollup_runtime_stays_within_baseline_threshold() -> None:
     report = benchmark_matrix_rollup_runtime()
 

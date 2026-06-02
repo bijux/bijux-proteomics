@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from .core_algorithm_benchmark_support import (
     CORE_ALGORITHM_BENCHMARK_CASES,
     benchmark_digest_runtime,
@@ -19,6 +21,7 @@ def test_digest_runtime_stays_within_baseline_threshold() -> None:
     assert report.regression_detected is False
 
 
+@pytest.mark.slow
 def test_peptide_index_runtime_stays_within_baseline_threshold() -> None:
     report = benchmark_peptide_index_runtime()
 
