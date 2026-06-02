@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.ptm import (
     PtmSiteEntry,
     build_ptm_site_table,
@@ -15,7 +16,7 @@ from bijux_proteomics.ptm.benchmarks import (
     ProteoformBenchmarkScenario,
     PtmFamilyCredibilityTrackReport,
     PtmLabTargetingDisposition,
-    PtmLocalizationConfidenceTier,
+    PtmLocalizationBenchmarkConfidenceTier,
     PtmMotifCredibilityDisposition,
     build_glycopeptide_support_roadmap_report,
     build_proteoform_benchmark_report,
@@ -74,12 +75,12 @@ def test_ptm_localization_confidence_benchmark_report_scores_decisive_and_ambigu
     supported = next(
         entry
         for entry in report.entries
-        if entry.confidence_tier is PtmLocalizationConfidenceTier.SUPPORTED
+        if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.SUPPORTED
     )
     ambiguous = next(
         entry
         for entry in report.entries
-        if entry.confidence_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
+        if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.AMBIGUOUS
     )
 
     assert supported.localization_probability >= 0.95
@@ -137,6 +138,10 @@ def test_ptm_ambiguity_propagation_benchmark_report_downgrades_ambiguous_sites()
 def test_ptm_family_credibility_track_report_separates_supported_interpretive_and_refused() -> (
     None
 ):
+    provenance = ImportedEvidenceProvenance(
+        source_engine="ptm-benchmark",
+        source_files=("inline",),
+    )
     site_entries = (
         PtmSiteEntry(
             site_key="P1:S5:Phospho",
@@ -151,6 +156,7 @@ def test_ptm_family_credibility_track_report_separates_supported_interpretive_an
             localized_peptides=("AAASPEP",),
             sample_ids=("C1", "T1"),
             ambiguous=True,
+            provenance=provenance,
         ),
         PtmSiteEntry(
             site_key="P2:K1:Acetyl",
@@ -165,6 +171,7 @@ def test_ptm_family_credibility_track_report_separates_supported_interpretive_an
             localized_peptides=("KPEPTIDE",),
             sample_ids=("C1",),
             ambiguous=False,
+            provenance=provenance,
         ),
         PtmSiteEntry(
             site_key="P3:K12:GlyGly",
@@ -179,6 +186,7 @@ def test_ptm_family_credibility_track_report_separates_supported_interpretive_an
             localized_peptides=("PEPTIDEK",),
             sample_ids=("T1",),
             ambiguous=False,
+            provenance=provenance,
         ),
     )
     feature_records = parse_ms1_feature_table(
@@ -292,9 +300,7 @@ def test_ptm_motif_credibility_benchmark_report_blocks_small_ambiguous_motif_cla
     assert report.caveats
 
 
-def test_ptm_lab_targeting_rubric_report_separates_targetable_and_interpretive_sites() -> (
-    None
-):
+def test_ptm_lab_targeting_rubric_report_preserves_interpretive_only_boundaries() -> None:
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records,
@@ -316,21 +322,16 @@ def test_ptm_lab_targeting_rubric_report_separates_targetable_and_interpretive_s
         },
     )
 
-    targetable = next(
-        entry
+    assert all(
+        entry.disposition is PtmLabTargetingDisposition.INTERPRETIVE_ONLY
         for entry in report.entries
-        if entry.disposition is PtmLabTargetingDisposition.TARGETABLE
     )
-    interpretive = next(
-        entry
+    assert report.targetable_count == 0
+    assert report.interpretive_only_count == len(report.entries)
+    assert any(
+        entry.localization_confidence_tier
+        is PtmLocalizationBenchmarkConfidenceTier.SUPPORTED
+        and entry.occupancy_complete is True
         for entry in report.entries
-        if entry.disposition is PtmLabTargetingDisposition.INTERPRETIVE_ONLY
     )
-
-    assert (
-        targetable.localization_confidence_tier
-        is PtmLocalizationConfidenceTier.DECISIVE
-    )
-    assert targetable.occupancy_complete is True
-    assert interpretive.rationale
-    assert report.interpretive_only_count >= 1
+    assert all(entry.rationale for entry in report.entries)

@@ -119,11 +119,16 @@ def build_ptm_localization_scoring_report(
             ):
                 continue
 
-            candidate_site_indices = _candidate_site_indices(
-                record=record,
-                modification=modification,
-                candidate=candidate,
-                same_name_count=same_name_counts.get(modification.name, 1),
+            candidate_site_indices = _filter_candidate_site_indices(
+                parsed,
+                modification_index=index,
+                candidate_site_indices=_candidate_site_indices(
+                    record=record,
+                    modification=modification,
+                    candidate=candidate,
+                    same_name_count=same_name_counts.get(modification.name, 1),
+                ),
+                registry=registry,
             )
             site_determining_ions = _site_determining_ions(
                 parsed,
@@ -465,6 +470,28 @@ def _site_determining_ions(
     if not differing_by_alternative:
         return ()
     return tuple(sorted(set.intersection(*differing_by_alternative)))
+
+
+def _filter_candidate_site_indices(
+    parsed: ParsedModifiedPeptide,
+    *,
+    modification_index: int,
+    candidate_site_indices: tuple[int, ...],
+    registry: ModificationRegistryDocument | None = None,
+) -> tuple[int, ...]:
+    valid_site_indices: list[int] = []
+    for site_index in candidate_site_indices:
+        try:
+            _localized_variant(
+                parsed,
+                modification_index=modification_index,
+                new_site_index=site_index,
+                registry=registry,
+            )
+        except ValueError:
+            continue
+        valid_site_indices.append(site_index)
+    return tuple(valid_site_indices)
 
 
 def _alternative_site_indices(

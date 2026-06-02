@@ -148,7 +148,7 @@ def test_flagship_lab_review_board_ranks_by_science_and_operational_feasibility(
     assert artifact.artifact_id == "flagship-lab-review-board"
     assert artifact.artifact_path.startswith("artifacts/")
     assert artifact.entries[0].workflow_family is KnowledgeWorkflowFamily.DDA
-    assert artifact.entries[1].workflow_family is KnowledgeWorkflowFamily.LFQ
+    assert artifact.entries[1].workflow_family is KnowledgeWorkflowFamily.DIA
     assert artifact.entries[-1].workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert (
         artifact.entries[0].overall_priority_score

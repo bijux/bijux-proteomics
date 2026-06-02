@@ -1,5 +1,5 @@
 {
-  "acceptance_passed": true,
+  "acceptance_passed": false,
   "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/lfq_acceptance_sheet.json",
   "benchmark_id": "benchmark:lfq_quantification_repeatability",
   "benchmark_package_id": "flagship_public_package:lfq_cohort_review_package",
@@ -7,7 +7,7 @@
     "do not promote LFQ to external execution parity",
     "do not treat one stable cohort package as proof of broad quantitative transfer"
   ],
-  "claim_ahead_of_evidence": false,
+  "claim_ahead_of_evidence": true,
   "criteria": [
     {
       "criterion_id": "lfq_missingness_burden",
@@ -18,8 +18,8 @@
       ],
       "note": "LFQ trust stays bounded to the current flagship package only while missingness and QC caveats remain no broader than the present checked review limits.",
       "observed_kind": "integer",
-      "observed_value": "2",
-      "passed": true,
+      "observed_value": "4",
+      "passed": false,
       "required_relation": "at_most",
       "required_value": "2"
     },
@@ -33,7 +33,7 @@
       "note": "LFQ acceptance keeps normalization drift tied to the current decision-readiness surface rather than allowing abundance tables to claim stability on raw row count alone.",
       "observed_kind": "state",
       "observed_value": "decision_grade",
-      "passed": true,
+      "passed": false,
       "required_relation": "exactly",
       "required_value": "decision_grade"
     },
@@ -80,7 +80,7 @@
       "required_value": "review_grade:true|decision_grade:true"
     }
   ],
-  "earned_release_language": "outsider_auditable_bounded",
+  "earned_release_language": "review_grade_bounded",
   "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
   "public_release_language": "outsider_auditable_bounded",
   "sheet_id": "flagship-acceptance:lfq",

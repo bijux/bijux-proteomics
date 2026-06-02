@@ -28,6 +28,7 @@ REPO_ROOT = next(
 
 def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
     sheets = list_flagship_acceptance_sheets()
+    sheet_by_family = {sheet.workflow_family: sheet for sheet in sheets}
 
     assert tuple(sheet.workflow_family for sheet in sheets) == (
         KnowledgeWorkflowFamily.DDA,
@@ -37,27 +38,35 @@ def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
     )
-    assert all(
-        sheet.acceptance_passed is True
-        for sheet in sheets
-        if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
+    assert sheet_by_family[KnowledgeWorkflowFamily.DDA].acceptance_passed is True
+    assert sheet_by_family[KnowledgeWorkflowFamily.DIA].acceptance_passed is True
+    assert sheet_by_family[KnowledgeWorkflowFamily.LFQ].acceptance_passed is False
+    assert sheet_by_family[KnowledgeWorkflowFamily.MULTIPLEX].acceptance_passed is False
+    assert sheet_by_family[KnowledgeWorkflowFamily.PTM].acceptance_passed is True
+    assert sheet_by_family[KnowledgeWorkflowFamily.TARGETED].acceptance_passed is True
+    assert (
+        sheet_by_family[KnowledgeWorkflowFamily.DDA].earned_release_language
+        is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
     )
     assert (
-        build_flagship_acceptance_sheet(
-            KnowledgeWorkflowFamily.MULTIPLEX
-        ).acceptance_passed
-        is False
-    )
-    assert all(
-        sheet.earned_release_language
+        sheet_by_family[KnowledgeWorkflowFamily.DIA].earned_release_language
         is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
-        for sheet in sheets
-        if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
     )
-    assert all(
-        sheet.earned_release_language is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
-        for sheet in sheets
-        if sheet.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
+    assert (
+        sheet_by_family[KnowledgeWorkflowFamily.LFQ].earned_release_language
+        is AcceptanceReleaseLanguage.REVIEW_GRADE_BOUNDED
+    )
+    assert (
+        sheet_by_family[KnowledgeWorkflowFamily.MULTIPLEX].earned_release_language
+        is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+    )
+    assert (
+        sheet_by_family[KnowledgeWorkflowFamily.PTM].earned_release_language
+        is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
+    )
+    assert (
+        sheet_by_family[KnowledgeWorkflowFamily.TARGETED].earned_release_language
+        is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
     )
 
 
@@ -89,8 +98,13 @@ def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_expli
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.LFQ)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
-    assert sheet.claim_ahead_of_evidence is False
-    assert criteria["lfq_missingness_burden"].observed_value == "2"
+    assert sheet.acceptance_passed is False
+    assert sheet.claim_ahead_of_evidence is True
+    assert (
+        sheet.earned_release_language
+        is AcceptanceReleaseLanguage.REVIEW_GRADE_BOUNDED
+    )
+    assert criteria["lfq_missingness_burden"].observed_value == "4"
     assert criteria["lfq_normalization_drift"].observed_value == "decision_grade"
     assert criteria["lfq_differential_reproducibility"].observed_value == "24"
 

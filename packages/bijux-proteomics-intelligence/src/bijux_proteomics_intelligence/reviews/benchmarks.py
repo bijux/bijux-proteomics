@@ -228,7 +228,11 @@ class WorkflowBenchmarkReview(JsonModel):
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[5]
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / "pyproject.toml").exists() and (parent / "packages").exists():
+            return parent
+    raise RuntimeError("Unable to resolve repository root for benchmark reviews")
 
 
 def _require_manifest(benchmark_id: str) -> BenchmarkManifest:

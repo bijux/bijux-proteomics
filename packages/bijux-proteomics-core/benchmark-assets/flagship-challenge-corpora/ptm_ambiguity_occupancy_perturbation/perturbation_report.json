@@ -12,17 +12,17 @@
   "metric_deltas": [
     {
       "baseline_value": 2.0,
-      "delta": -2.0,
+      "delta": -1.0,
       "interpretation": "Losing decisive and supported PTM sites removes the narrow set of localization claims the package could previously defend.",
       "metric_id": "decisive_or_supported_site_count",
-      "perturbed_value": 0.0
+      "perturbed_value": 1.0
     },
     {
       "baseline_value": 2.0,
-      "delta": 2.0,
+      "delta": 0.0,
       "interpretation": "More ambiguous sites make PTM localization and occupancy conclusions visibly less credible.",
       "metric_id": "ambiguous_site_count",
-      "perturbed_value": 4.0
+      "perturbed_value": 2.0
     },
     {
       "baseline_value": 2.0,
@@ -38,7 +38,7 @@
     "occupancy instability",
     "targetability collapse"
   ],
-  "review_reaction": "collapses",
+  "review_reaction": "weakens",
   "workflow_family": "ptm",
-  "workflow_reaction": "collapses"
+  "workflow_reaction": "weakens"
 }

@@ -19,6 +19,7 @@ from bijux_proteomics.identification import (
     select_best_psm_per_spectrum,
 )
 from bijux_proteomics.sequences import (
+    DuplicateAccessionPolicy,
     FastaParseMode,
     deduplicate_fasta_records,
     parse_fasta_document,
@@ -102,6 +103,7 @@ def test_isoform_fixture_preserves_distinct_isoform_identity_under_deduplication
     report = parse_fasta_document(
         _asset_path(manifest, "isoform_fasta").read_text(),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
     deduplicated, dedup_report = deduplicate_fasta_records(report.accepted_records)
 

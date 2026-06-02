@@ -37,8 +37,8 @@ from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 
-class PtmLocalizationConfidenceTier(StrEnum):
-    """Confidence ladder for PTM site localization claims."""
+class PtmLocalizationBenchmarkConfidenceTier(StrEnum):
+    """Benchmark-specific confidence ladder for PTM site localization claims."""
 
     DECISIVE = "decisive"
     SUPPORTED = "supported"
@@ -57,7 +57,7 @@ class PtmLocalizationConfidenceBenchmarkEntry(JsonModel):
     supporting_spectrum_count: int = Field(..., ge=0)
     supporting_peptide_count: int = Field(..., ge=0)
     fragment_ion_count: int = Field(..., ge=0)
-    confidence_tier: PtmLocalizationConfidenceTier
+    confidence_tier: PtmLocalizationBenchmarkConfidenceTier
     note: str = Field(..., min_length=1)
 
 
@@ -137,7 +137,7 @@ class PtmLabTargetingRubricEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     site_key: str = Field(..., min_length=1)
-    localization_confidence_tier: PtmLocalizationConfidenceTier
+    localization_confidence_tier: PtmLocalizationBenchmarkConfidenceTier
     occupancy_complete: bool
     ambiguous_site: bool
     best_q_value: float | None = Field(default=None, ge=0.0)
@@ -286,21 +286,21 @@ def build_ptm_localization_confidence_benchmark_report(
             node.supported_site_determining_ions or node.fragment_ions
         )
         if node.localization_tier is PtmLocalizationScoringTier.AMBIGUOUS:
-            tier = PtmLocalizationConfidenceTier.AMBIGUOUS
+            tier = PtmLocalizationBenchmarkConfidenceTier.AMBIGUOUS
             note = "site remains ambiguous and should not travel as a decisive localization claim"
         elif node.localization_tier is PtmLocalizationScoringTier.HIGH_CONFIDENCE:
-            tier = PtmLocalizationConfidenceTier.DECISIVE
+            tier = PtmLocalizationBenchmarkConfidenceTier.DECISIVE
             note = (
                 "site has high localization support and enough imported probability "
                 "or site-determining evidence for a decisive localization call"
             )
         elif node.localization_tier is PtmLocalizationScoringTier.SUPPORTED:
-            tier = PtmLocalizationConfidenceTier.SUPPORTED
+            tier = PtmLocalizationBenchmarkConfidenceTier.SUPPORTED
             note = (
                 "site is reviewable but still short of decisive localization evidence"
             )
         else:
-            tier = PtmLocalizationConfidenceTier.REFUSED
+            tier = PtmLocalizationBenchmarkConfidenceTier.REFUSED
             note = "site localization remains too weak for site-level claims"
         entries.append(
             PtmLocalizationConfidenceBenchmarkEntry(
@@ -319,28 +319,28 @@ def build_ptm_localization_confidence_benchmark_report(
         decisive_count=sum(
             1
             for entry in entries
-            if entry.confidence_tier is PtmLocalizationConfidenceTier.DECISIVE
+            if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.DECISIVE
         ),
         supported_count=sum(
             1
             for entry in entries
-            if entry.confidence_tier is PtmLocalizationConfidenceTier.SUPPORTED
+            if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.SUPPORTED
         ),
         ambiguous_count=sum(
             1
             for entry in entries
-            if entry.confidence_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
+            if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.AMBIGUOUS
         ),
         refused_count=sum(
             1
             for entry in entries
-            if entry.confidence_tier is PtmLocalizationConfidenceTier.REFUSED
+            if entry.confidence_tier is PtmLocalizationBenchmarkConfidenceTier.REFUSED
         ),
         ready_for_site_level_claims=all(
             entry.confidence_tier
             in {
-                PtmLocalizationConfidenceTier.DECISIVE,
-                PtmLocalizationConfidenceTier.SUPPORTED,
+                PtmLocalizationBenchmarkConfidenceTier.DECISIVE,
+                PtmLocalizationBenchmarkConfidenceTier.SUPPORTED,
             }
             for entry in entries
         ),
@@ -500,11 +500,11 @@ def build_ptm_lab_targeting_rubric_report(
         localization_tier = (
             localization_entry.confidence_tier
             if localization_entry is not None
-            else PtmLocalizationConfidenceTier.REFUSED
+            else PtmLocalizationBenchmarkConfidenceTier.REFUSED
         )
         occupancy_complete = site_entry.site_key not in incomplete_occupancy_sites
         rationale: list[str] = []
-        if localization_tier is not PtmLocalizationConfidenceTier.DECISIVE:
+        if localization_tier is not PtmLocalizationBenchmarkConfidenceTier.DECISIVE:
             rationale.append("localization confidence is not decisive")
         if site_entry.ambiguous:
             rationale.append("site localization remains ambiguous")

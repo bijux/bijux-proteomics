@@ -87,12 +87,16 @@ def test_lfq_ptm_and_targeted_outsider_packets_are_bounded_but_complete() -> Non
     assert ptm.runtime_run_mode is not None
     assert targeted.runtime_run_mode is not None
 
-    assert lfq.complete_outsider_surface is True
+    assert lfq.complete_outsider_surface is False
     assert lfq.runtime_run_mode.value == "raw_executable"
     assert lfq.public_claim_support_state.value == "advisory"
     assert lfq.recommendation_disposition.value == "recommend_with_downgrade"
     assert any(
         "external execution parity" in reason for reason in lfq.missing_surface_reasons
+    )
+    assert any(
+        "release language is ahead of the benchmark evidence" in reason
+        for reason in lfq.missing_surface_reasons
     )
     assert ptm.complete_outsider_surface is True
     assert ptm.public_claim_support_state.value == "advisory"

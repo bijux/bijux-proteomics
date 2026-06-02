@@ -172,6 +172,37 @@ def test_ptm_localization_scoring_supports_multi_phosphorylated_peptides() -> No
     assert all(entry.ambiguity_group.startswith("Phospho:") for entry in report.entries)
 
 
+def test_ptm_localization_scoring_ignores_invalid_candidate_residues() -> None:
+    report = build_ptm_localization_scoring_report(
+        (
+            PtmEvidenceRecord(
+                spectrum_id="scan=invalid-candidate",
+                sample_id="S1",
+                localized_peptide="AS[Phospho]TYEK",
+                canonical_peptide="AS[Phospho]TYEK",
+                sequence="ASTYEK",
+                charge=2,
+                score=91.0,
+                q_value=0.01,
+                protein_refs=("P11111",),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+                localization_score=0.91,
+                candidate_site_indices=(2, 5),
+                modification_names=("Phospho",),
+                provenance=ImportedEvidenceProvenance(
+                    source_engine="ptm-localization",
+                    source_files=("inline",),
+                ),
+            ),
+        )
+    )
+
+    entry = report.entries[0]
+
+    assert entry.candidate_site_indices == (2,)
+    assert entry.ambiguity_group == "Phospho:2"
+
+
 def test_ptm_localization_scoring_preserves_separate_entries_for_parsed_multi_sites() -> None:
     from bijux_proteomics.ptm import parse_ptm_localization_tsv
 
