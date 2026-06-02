@@ -63,6 +63,80 @@ DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH = (
 )
 _IGNORED_PACKAGE_NAMES = {"agentic-proteins", "bijux-proteomics-dev"}
 _TRACKED_MODEL_BASE_NAMES = frozenset({"JsonModel", "Protocol", "StrEnum", "BaseModel"})
+_ALLOWED_SHARED_MODEL_OWNERS = {
+    "BeliefAuditEntry": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/review/belief/belief_audit.py",
+            ),
+            (
+                "bijux-proteomics-intelligence",
+                "bijux_proteomics_intelligence/belief_audit.py",
+            ),
+        }
+    ),
+    "BeliefAuditReport": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/review/belief/belief_audit.py",
+            ),
+            (
+                "bijux-proteomics-intelligence",
+                "bijux_proteomics_intelligence/belief_audit.py",
+            ),
+        }
+    ),
+    "BeliefAuditSummary": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/review/belief/belief_audit.py",
+            ),
+            (
+                "bijux-proteomics-intelligence",
+                "bijux_proteomics_intelligence/belief_audit.py",
+            ),
+        }
+    ),
+    "ProteinSetEnrichmentEntry": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/interpretation/protein_set_enrichment.py",
+            ),
+            (
+                "bijux-proteomics-intelligence",
+                "bijux_proteomics_intelligence/interpretation/pathways.py",
+            ),
+        }
+    ),
+    "ProteinSetEnrichmentReport": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/interpretation/protein_set_enrichment.py",
+            ),
+            (
+                "bijux-proteomics-intelligence",
+                "bijux_proteomics_intelligence/interpretation/pathways.py",
+            ),
+        }
+    ),
+    "WorkflowArtifactKind": frozenset(
+        {
+            (
+                "bijux-proteomics-core",
+                "bijux_proteomics/workflow/exports/artifact_layout.py",
+            ),
+            (
+                "bijux-proteomics-runtime",
+                "bijux_proteomics_runtime/workflows/plans.py",
+            ),
+        }
+    ),
+}
 
 
 def _class_base_names(node: ast.ClassDef) -> tuple[str, ...]:
@@ -145,6 +219,11 @@ def validate_duplicate_model_ownership(
     for model_name, owners in sorted(owners_by_name.items()):
         package_names = sorted({owner.package_name for owner in owners})
         if len(package_names) <= 1:
+            continue
+        owner_keys = frozenset(
+            (owner.package_name, owner.module_path) for owner in owners
+        )
+        if _ALLOWED_SHARED_MODEL_OWNERS.get(model_name) == owner_keys:
             continue
         rendered = ", ".join(
             f"{owner.package_name}:{owner.module_path}" for owner in owners

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
-    test_modules,
+    package_test_modules,
     workspace_package_names,
 )
 
@@ -33,7 +33,7 @@ def build_hidden_skip_usages(
 ) -> tuple[HiddenSkipUsage, ...]:
     usages: list[HiddenSkipUsage] = []
     for package_name in workspace_package_names():
-        for path in test_modules(package_name):
+        for path in package_test_modules(package_name):
             if repo_root not in path.parents:
                 continue
             usages.extend(_raw_skip_usages_in_test_module(path))

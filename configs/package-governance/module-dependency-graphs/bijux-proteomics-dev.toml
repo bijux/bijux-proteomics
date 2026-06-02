@@ -30,7 +30,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.contributor_onboarding"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -45,27 +45,27 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.governance.claim_proof"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_docs", "bijux_proteomics_dev.governance.support.workspace_inventory.package_test_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.governance.package_document_contracts"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.governance.source_delivery_history"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.governance.source_path_integrity"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.docs.governance.topology_references"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_docs", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -84,19 +84,29 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.contracts.cross_package_function_signatures"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_identifier", "bijux_proteomics_dev.governance.support.workspace_import_inventory.workspace_import_roots", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.contracts.freeze_contracts"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.contracts.cross_package_function_signatures", "bijux_proteomics_dev.governance.contracts.cross_package_function_signatures.validate_cross_package_function_signatures"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.contracts.openapi_drift"
-outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process"]
+outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.contracts.public_api_typecheck_targets"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_src_parents", "bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.contracts.serialization_compatibility"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.planning.assays"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.DocumentSchema", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_foundation.compatibility.SchemaCompatibility", "bijux_proteomics_foundation.compatibility.assess_schema_compatibility", "bijux_proteomics_foundation.fingerprint_model", "bijux_proteomics_foundation.hash_model", "bijux_proteomics_foundation.to_canonical_json", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.contracts.schema.evaluate_schema_compatibility", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.memory.models.evidence.EvidenceBundle", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.artifacts.build_lab_artifact_upgrade_advisory", "bijux_proteomics_lab.handoffs.artifacts.evaluate_lab_artifact_with_registry", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.handoffs.serialization.build_canonical_artifact_envelope", "bijux_proteomics_lab.handoffs.serialization.verify_canonical_artifact_envelope", "bijux_proteomics_lab.planning.assays", "bijux_proteomics_lab.planning.assays.ExperimentPlan"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.core"
@@ -105,12 +115,12 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.core.compatibility_exports"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.foundation.root_consumers.downstream_packages"]
+outgoing_workspace_modules = ["bijux_proteomics.governance.charter", "bijux_proteomics.governance.charter.CoreModuleClassification", "bijux_proteomics.governance.charter.DEFAULT_CORE_MODULE_AUDIT"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.core.cross_package_imports"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -119,33 +129,38 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.dependencies.circular_import_scopes"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.WorkspaceModuleDependencyEdge", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.source_owner_families", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.internal_architecture_map"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.quality.architecture.circular_dependencies"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.dependencies.package_dependency_graph.build_package_dependency_graph_report", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.PackageDependencyPolicyEntry", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.build_package_dependency_policy_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.WorkspaceModuleDependencyEdge", "bijux_proteomics_dev.governance.support.workspace_import_inventory.cross_package_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_dependency_edges", "bijux_proteomics_dev.quality.architecture.circular_dependencies", "bijux_proteomics_dev.quality.architecture.circular_dependencies.find_workspace_dependency_cycles"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.module_dependency_graphs"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_identifier", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.dependencies.package_dependency_graph.build_package_dependency_graph_report", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.build_package_dependency_policy_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.package_dependency_graph"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_import_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.cross_package_dependency_edges"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.package_dependency_policy"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_graph", "bijux_proteomics_dev.governance.dependencies.package_dependency_graph.build_package_dependency_graph_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.dependencies.package_responsibility_map"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.WorkspaceModuleDependencyEdge", "bijux_proteomics_dev.governance.support.workspace_import_inventory.cross_package_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -155,47 +170,47 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.benchmark_surfaces"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts", "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts.BenchmarkArtifactDefinition", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts.load_benchmark_artifact_definitions", "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership", "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership.BenchmarkOwnerEntry", "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership.load_benchmark_owners"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.kernel_boundaries"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.package_boundary_coherence"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.foundation.repository_product_shape", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.build_package_dependency_policy_report", "bijux_proteomics_dev.governance.foundation.repository_product_shape", "bijux_proteomics_dev.governance.foundation.repository_product_shape.REPOSITORY_PRODUCT_SHAPE_PATH", "bijux_proteomics_dev.governance.foundation.repository_product_shape.build_repository_product_shape_report", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.package_shape.public_surfaces.default_public_surface_contracts", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.publishability"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.kernel_boundaries", "bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.size_reuse", "bijux_proteomics_dev.governance.package_shape.public_surfaces"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.kernel_boundaries", "bijux_proteomics_dev.governance.foundation.kernel_boundaries.FOUNDATION_KERNEL_BOUNDARIES_PATH", "bijux_proteomics_dev.governance.foundation.kernel_boundaries.build_foundation_kernel_boundaries", "bijux_proteomics_dev.governance.foundation.kernel_boundaries.validate_foundation_kernel_boundaries", "bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.foundation.root_consumers.build_foundation_root_consumers", "bijux_proteomics_dev.governance.foundation.size_reuse", "bijux_proteomics_dev.governance.foundation.size_reuse.FOUNDATION_SIZE_REUSE_PATH", "bijux_proteomics_dev.governance.foundation.size_reuse.build_foundation_size_reuse_report", "bijux_proteomics_dev.governance.foundation.size_reuse.validate_foundation_size_reuse", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.package_shape.public_surfaces.default_public_surface_contracts"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.repository_product_shape"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.build_package_dependency_policy_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.root_api_policy"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.public_api"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.__all__", "bijux_proteomics_foundation.public_api", "bijux_proteomics_foundation.public_api.FOUNDATION_ROOT_API_BUDGET", "bijux_proteomics_foundation.public_api.list_foundation_root_api_entries"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.root_consumers"
 outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.size_reuse"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.surface_usage"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.foundation.root_consumers.build_foundation_root_consumers", "bijux_proteomics_dev.governance.foundation.surface_usage", "bijux_proteomics_dev.governance.foundation.surface_usage.build_foundation_compatibility_aliases", "bijux_proteomics_dev.governance.foundation.surface_usage.build_foundation_dead_exports", "bijux_proteomics_dev.governance.foundation.surface_usage.build_foundation_surface_consumers"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.foundation.surface_usage"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.DownstreamPackage", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.foundation.root_consumers.downstream_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -205,22 +220,22 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.intelligence.boundary_mix"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_intelligence.governance.charter.list_intelligence_capability_map"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.intelligence.broad_root_imports"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.intelligence.capability_map"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_intelligence.governance.charter.DEFAULT_INTELLIGENCE_CAPABILITY_MAP", "bijux_proteomics_intelligence.governance.charter.list_intelligence_analytical_bands"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.intelligence.owner_import_boundaries"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -230,32 +245,32 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.analytical_logic"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.knowledge.boundary_drift", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.knowledge.boundary_drift", "bijux_proteomics_dev.governance.knowledge.boundary_drift.KNOWLEDGE_SRC_ROOT", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.boundary_drift"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.breadth"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.narratives"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.citations.DEFAULT_CITATION_REGISTRY", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.contexts.DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.corpora.DEFAULT_CORPUS_MANIFESTS", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.literature.DEFAULT_LITERATURE_GROUPS", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.ontologies.DEFAULT_ONTOLOGY_MAPPINGS", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.problems.DEFAULT_KNOWN_PROBLEM_REGISTRY", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.grounding.rules.DEFAULT_SCIENTIFIC_RULE_REFERENCES", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.DEFAULT_BENCHMARK_MANIFESTS", "bijux_proteomics_knowledge.references.workflows.narratives", "bijux_proteomics_knowledge.references.workflows.narratives.DEFAULT_WORKFLOW_NARRATIVES"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.publishability"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.knowledge.breadth", "bijux_proteomics_dev.governance.knowledge.reference_quality"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.knowledge.breadth", "bijux_proteomics_dev.governance.knowledge.breadth.KNOWLEDGE_BREADTH_PATH", "bijux_proteomics_dev.governance.knowledge.breadth.build_knowledge_breadth_report", "bijux_proteomics_dev.governance.knowledge.breadth.validate_knowledge_breadth", "bijux_proteomics_dev.governance.knowledge.reference_quality", "bijux_proteomics_dev.governance.knowledge.reference_quality.KNOWLEDGE_ORPHAN_REFERENCES_PATH", "bijux_proteomics_dev.governance.knowledge.reference_quality.KNOWLEDGE_PROVENANCE_COMPLETENESS_PATH", "bijux_proteomics_dev.governance.knowledge.reference_quality.KNOWLEDGE_UNDER_CURATED_WORKFLOWS_PATH", "bijux_proteomics_dev.governance.knowledge.reference_quality.build_knowledge_orphan_reference_report", "bijux_proteomics_dev.governance.knowledge.reference_quality.build_knowledge_provenance_completeness_report", "bijux_proteomics_dev.governance.knowledge.reference_quality.build_knowledge_under_curated_workflow_report"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.reference_quality"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings", "bijux_proteomics_knowledge.references.workflows.narratives"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.citations.DEFAULT_CITATION_REGISTRY", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.contexts.DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.corpora.DEFAULT_CORPUS_MANIFESTS", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.literature.DEFAULT_LITERATURE_GROUPS", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.ontologies.DEFAULT_ONTOLOGY_MAPPINGS", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.problems.DEFAULT_KNOWN_PROBLEM_REGISTRY", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.grounding.rules.DEFAULT_SCIENTIFIC_RULE_REFERENCES", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.DEFAULT_BENCHMARK_MANIFESTS", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_knowledge.references.workflows.briefings", "bijux_proteomics_knowledge.references.workflows.briefings.build_workflow_reference_briefing", "bijux_proteomics_knowledge.references.workflows.briefings.list_workflow_reference_briefings", "bijux_proteomics_knowledge.references.workflows.narratives", "bijux_proteomics_knowledge.references.workflows.narratives.DEFAULT_WORKFLOW_NARRATIVES"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.knowledge.surface_consumers"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.DownstreamPackage", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.foundation.root_consumers.downstream_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -265,42 +280,42 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.analytical_logic"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.core_scientific_semantics"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.cross_package_dependencies"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.operational_ownership"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter", "bijux_proteomics_lab.governance.charter.DEFAULT_LAB_MODULE_AUDIT", "bijux_proteomics_lab.governance.charter.LabModuleClassification"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.packet_only_modules"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter", "bijux_proteomics_lab.governance.charter.DEFAULT_LAB_MODULE_AUDIT", "bijux_proteomics_lab.governance.charter.LabModuleClassification"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.publishability"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.lab.analytical_logic", "bijux_proteomics_dev.governance.lab.core_scientific_semantics", "bijux_proteomics_dev.governance.lab.cross_package_dependencies", "bijux_proteomics_dev.governance.lab.operational_ownership", "bijux_proteomics_dev.governance.lab.packet_only_modules", "bijux_proteomics_dev.governance.lab.root_imports", "bijux_proteomics_dev.governance.lab.runtime_boundary_drift"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.root_consumers", "bijux_proteomics_dev.governance.foundation.root_consumers.REPO_ROOT", "bijux_proteomics_dev.governance.lab.analytical_logic", "bijux_proteomics_dev.governance.lab.analytical_logic.validate_lab_analytical_logic", "bijux_proteomics_dev.governance.lab.core_scientific_semantics", "bijux_proteomics_dev.governance.lab.core_scientific_semantics.LAB_CORE_SCIENTIFIC_SEMANTICS_PATH", "bijux_proteomics_dev.governance.lab.core_scientific_semantics.validate_lab_core_scientific_semantics", "bijux_proteomics_dev.governance.lab.cross_package_dependencies", "bijux_proteomics_dev.governance.lab.cross_package_dependencies.LAB_CROSS_PACKAGE_DEPENDENCIES_PATH", "bijux_proteomics_dev.governance.lab.cross_package_dependencies.validate_lab_cross_package_dependencies", "bijux_proteomics_dev.governance.lab.operational_ownership", "bijux_proteomics_dev.governance.lab.operational_ownership.LAB_OPERATIONAL_OWNERSHIP_PATH", "bijux_proteomics_dev.governance.lab.operational_ownership.build_lab_operational_ownership_report", "bijux_proteomics_dev.governance.lab.operational_ownership.validate_lab_operational_ownership", "bijux_proteomics_dev.governance.lab.packet_only_modules", "bijux_proteomics_dev.governance.lab.packet_only_modules.LAB_PACKET_ONLY_MODULES_PATH", "bijux_proteomics_dev.governance.lab.packet_only_modules.validate_lab_module_shapes", "bijux_proteomics_dev.governance.lab.root_imports", "bijux_proteomics_dev.governance.lab.root_imports.LAB_ROOT_IMPORTS_PATH", "bijux_proteomics_dev.governance.lab.root_imports.validate_lab_root_imports", "bijux_proteomics_dev.governance.lab.runtime_boundary_drift", "bijux_proteomics_dev.governance.lab.runtime_boundary_drift.LAB_RUNTIME_BOUNDARY_DRIFT_PATH", "bijux_proteomics_dev.governance.lab.runtime_boundary_drift.validate_lab_runtime_boundary_drift"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.root_imports"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.lab.runtime_boundary_drift"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -309,153 +324,178 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.internal_orphan_modules"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.foundation.repository_product_shape", "bijux_proteomics_dev.governance.foundation.repository_product_shape.build_repository_product_shape_report", "bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.package_shape.package_module_ledger.build_package_module_ledger_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_dependency_edges", "bijux_proteomics_dev.governance.support.workspace_import_inventory.workspace_dependency_edges_for_path", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.package_test_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.root_api_policy_path", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.tests_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.testing.generated_file_markers", "bijux_proteomics_foundation.testing.generated_file_markers.GeneratedFileMarkerKind", "bijux_proteomics_foundation.testing.generated_file_markers.detect_generated_file_marker"]
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_broad_root_imports"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root_import_occurrences", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_fixture_realism"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.fixture_files", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_fixture_scenario_coverage"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_fixture_realism", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_fixture_realism", "bijux_proteomics_dev.governance.package_shape.package_fixture_realism.REALISTIC_FIXTURE_SIZE_LIMIT", "bijux_proteomics_dev.governance.package_shape.package_fixture_realism.SERIOUS_PRODUCT_AREAS", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.fixture_files", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_module_ledger"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.is_wrapper_module", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.tests_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_roots_used", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_oversized_mixed_modules"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.nonempty_line_count", "bijux_proteomics_dev.governance.support.workspace_inventory.public_definition_counts", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_roots_used", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_owned_value_audit"
-outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.governance.package_shape.package_surface_pressure", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.docs.governance.package_document_contracts.boundary_doc_path", "bijux_proteomics_dev.docs.governance.package_document_contracts.markdown_bullets", "bijux_proteomics_dev.docs.governance.package_document_contracts.readme_path", "bijux_proteomics_dev.docs.governance.package_document_contracts.section_lines", "bijux_proteomics_dev.governance.package_shape.package_surface_pressure", "bijux_proteomics_dev.governance.package_shape.package_surface_pressure.build_package_surface_pressure_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_readme_maturity"
-outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.governance.package_shape.package_owned_value_audit", "bijux_proteomics_dev.governance.package_shape.package_release_dossiers", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.docs.governance.package_document_contracts.readme_opening_lines", "bijux_proteomics_dev.governance.package_shape.package_owned_value_audit", "bijux_proteomics_dev.governance.package_shape.package_owned_value_audit.build_package_owned_value_audit_report", "bijux_proteomics_dev.governance.package_shape.package_release_dossiers", "bijux_proteomics_dev.governance.package_shape.package_release_dossiers.build_package_release_dossier_report", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.package_shape.package_scorecard.build_package_scorecard_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_release_dossiers"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions", "bijux_proteomics_dev.governance.package_shape.package_topology_drift", "bijux_proteomics_dev.governance.package_shape.package_wrapper_owner_balance", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_readme_maturity.build_package_readme_maturity_report", "bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions", "bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions.build_package_root_surface_illusion_report", "bijux_proteomics_dev.governance.package_shape.package_topology_drift", "bijux_proteomics_dev.governance.package_shape.package_topology_drift.build_package_topology_drift_report", "bijux_proteomics_dev.governance.package_shape.package_wrapper_owner_balance", "bijux_proteomics_dev.governance.package_shape.package_wrapper_owner_balance.build_package_wrapper_owner_balance_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_root_budgets"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_root_line_counts", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_root_line_counts", "bijux_proteomics_dev.governance.package_shape.package_root_line_counts.PACKAGE_ROOT_LINE_COUNTS_PATH", "bijux_proteomics_dev.governance.package_shape.package_root_line_counts.validate_package_root_line_count_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.public_symbol_count_from_init", "bijux_proteomics_dev.governance.support.workspace_inventory.root_api_policy_budget", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_root_line_counts"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.public_symbol_count_from_init", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_surface_pressure", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_surface_pressure", "bijux_proteomics_dev.governance.package_shape.package_surface_pressure.build_package_surface_pressure_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_scorecard"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_surface_coherence"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers", "bijux_proteomics_dev.governance.package_shape.package_tree_dossiers", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers", "bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers.build_package_dependency_dossier_report", "bijux_proteomics_dev.governance.package_shape.package_tree_dossiers", "bijux_proteomics_dev.governance.package_shape.package_tree_dossiers.build_package_tree_dossier_report", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.package_shape.public_surfaces.default_public_surface_contracts", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_surface_pressure"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.package_shape.public_symbol_ledger", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.package_shape.package_module_ledger.build_package_module_ledger_report", "bijux_proteomics_dev.governance.package_shape.public_symbol_ledger", "bijux_proteomics_dev.governance.package_shape.public_symbol_ledger.build_public_symbol_ledger_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_test_tree_mirror"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.flat_test_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.source_owner_families", "bijux_proteomics_dev.governance.support.workspace_inventory.test_families", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_thin_modules"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.nonempty_line_count", "bijux_proteomics_dev.governance.support.workspace_inventory.public_definition_counts", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_top_level_files"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_topology_drift"
-outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.docs.governance.package_document_contracts", "bijux_proteomics_dev.docs.governance.package_document_contracts.module_topology_tokens", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.source_owner_families", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_tree_dossiers"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.is_wrapper_module", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.source_owner_families", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.package_tree_layout"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.source_owner_families", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_wrapper_density"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.is_wrapper_module", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_wrapper_owner_balance"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.package_shape.package_module_ledger.build_package_module_ledger_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_api_snapshots"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_api_policy_path", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_surfaces"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_symbol_ledger"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.tests_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_symbol_ownership"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.reopened_debt_ledger"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.repository_tree_quality"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.root_module_migration_surfaces"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.scientific_concept_owners"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.skip_policy"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_test_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.test_module_basenames"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_test_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.tests_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.top_level_module_visibility"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_api_snapshots", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_api_snapshots", "bijux_proteomics_dev.governance.package_shape.public_api_snapshots.CANONICAL_PUBLIC_API_PACKAGES", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.root_python_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_import_path"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -465,8 +505,8 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.runtime.breadth"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.support.primitives.surface_area"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.runtime.topology.build_runtime_topology_budget"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.governance.charter.DEFAULT_RUNTIME_MODULE_AUDIT", "bijux_proteomics_runtime.governance.charter.RuntimeModuleClassification", "bijux_proteomics_runtime.support.primitives.surface_area", "bijux_proteomics_runtime.support.primitives.surface_area.CONFIG_KNOBS", "bijux_proteomics_runtime.support.primitives.surface_area.EXTENSION_POINTS", "bijux_proteomics_runtime.support.primitives.surface_area.PUBLIC_ENTRYPOINTS"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.runtime.import_graph"
@@ -476,12 +516,12 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.governance.runtime.live_contracts"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_runtime.api"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.api.AppConfig", "bijux_proteomics_runtime.api.create_app"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.runtime.thin_modules"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.governance.charter.DEFAULT_RUNTIME_MODULE_AUDIT", "bijux_proteomics_runtime.governance.charter.RuntimeModuleClassification"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.runtime.topology"
@@ -495,12 +535,12 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.support.workspace_import_inventory"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules", "bijux_proteomics_dev.governance.support.workspace_inventory.src_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.support.workspace_inventory"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -515,42 +555,42 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.scanner", "bijux_proteomics_dev.release.governance.compatibility_ledger"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.scanner", "bijux_proteomics_dev.quality.architecture.scanner.import_references", "bijux_proteomics_dev.quality.architecture.scanner.iter_python_files", "bijux_proteomics_dev.quality.architecture.scanner.parse_python_module", "bijux_proteomics_dev.release.governance.compatibility_ledger", "bijux_proteomics_dev.release.governance.compatibility_ledger.build_ledger"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.circular_dependencies"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.build_workspace_package_graph"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.compatibility_migration_guides"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.AgenticModuleClassification", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.build_agentic_compatibility_inventory"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.duplicate_model_ownership"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.integration_patterns"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.WorkspacePackageGraph", "bijux_proteomics_dev.quality.graphs.package_graph.build_workspace_package_graph"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.package_coupling"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.build_workspace_package_graph"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.package_substance"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.graphs.package_graph"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.support.charter", "bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_knowledge.governance.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.governance.charter"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.AgenticModuleClassification", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.build_agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.validate_agentic_compatibility_inventory", "bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.WorkspacePackage", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.support.charter", "bijux_proteomics_foundation.support.charter.DEFAULT_FOUNDATION_MODULE_AUDIT", "bijux_proteomics_foundation.support.charter.FoundationModuleClassification", "bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_intelligence.governance.charter.DEFAULT_INTELLIGENCE_MODULE_AUDIT", "bijux_proteomics_intelligence.governance.charter.IntelligenceModuleClassification", "bijux_proteomics_knowledge.governance.charter", "bijux_proteomics_knowledge.governance.charter.DEFAULT_KNOWLEDGE_MODULE_AUDIT", "bijux_proteomics_knowledge.governance.charter.KnowledgeModuleClassification", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_lab.governance.charter.DEFAULT_LAB_MODULE_AUDIT", "bijux_proteomics_lab.governance.charter.LabModuleClassification", "bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.governance.charter.DEFAULT_RUNTIME_MODULE_AUDIT", "bijux_proteomics_runtime.governance.charter.RuntimeModuleClassification"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.runtime_boundaries"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.scanner"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.scanner", "bijux_proteomics_dev.quality.architecture.scanner.import_references", "bijux_proteomics_dev.quality.architecture.scanner.iter_python_files", "bijux_proteomics_dev.quality.architecture.scanner.parse_python_module", "bijux_proteomics_dev.quality.architecture.scanner.top_level_class_names"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -565,32 +605,37 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.artifact_schemas"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.benchmarks.benchmark_ownership", "bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.benchmarks.benchmark_ownership", "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership.load_benchmark_owners", "bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.bundle_verification"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.artifacts.artifact_schemas"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.artifacts.artifact_schemas", "bijux_proteomics_dev.quality.artifacts.artifact_schemas.load_high_value_artifact_schemas"]
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.quality.artifacts.generated_file_markers"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.testing.generated_file_markers", "bijux_proteomics_foundation.testing.generated_file_markers.GeneratedFileMarkerKind", "bijux_proteomics_foundation.testing.generated_file_markers.detect_generated_file_marker"]
+
+[[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.package_root_hygiene"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.tools.cache_hygiene"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names", "bijux_proteomics_dev.tools.cache_hygiene", "bijux_proteomics_dev.tools.cache_hygiene.find_forbidden_cache_dirs", "bijux_proteomics_dev.tools.cache_hygiene.purge_forbidden_cache_dirs"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.repository_drift_audit"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.artifacts.repository_file_ownership"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -600,7 +645,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.benchmarks.benchmark_ownership"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -609,18 +654,28 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.quality.dependencies.core_dependency_minimization"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_import_inventory", "bijux_proteomics_dev.governance.support.workspace_import_inventory.module_identifier", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.package_root", "bijux_proteomics_dev.governance.support.workspace_inventory.source_modules"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.quality.dependencies.dependency_boundaries"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.WorkspacePackage", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.dependencies.deptry_scan"
-outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process"]
+outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.gates"
 outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.quality.gates.architecture_regression_gate"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.internal_architecture_map", "bijux_proteomics_dev.governance.dependencies.internal_architecture_map.build_internal_architecture_map_report", "bijux_proteomics_dev.governance.dependencies.internal_architecture_map.evaluate_internal_architecture_violations", "bijux_proteomics_dev.governance.dependencies.internal_architecture_map.is_internal_architecture_map_up_to_date", "bijux_proteomics_dev.governance.package_shape.public_api_snapshots", "bijux_proteomics_dev.governance.package_shape.public_api_snapshots.CANONICAL_PUBLIC_API_PACKAGES", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_src_parents", "bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -630,7 +685,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.gates.medium_gate"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.artifacts.artifact_schemas", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts", "bijux_proteomics_dev.quality.artifacts.bundle_verification", "bijux_proteomics_dev.quality.dependencies.dependency_boundaries", "bijux_proteomics_dev.release.governance.package_family_readiness"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.artifacts.artifact_schemas", "bijux_proteomics_dev.quality.artifacts.artifact_schemas.validate_high_value_artifact_schemas", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts", "bijux_proteomics_dev.quality.artifacts.benchmark_artifacts.validate_benchmark_artifact_definitions", "bijux_proteomics_dev.quality.artifacts.bundle_verification", "bijux_proteomics_dev.quality.artifacts.bundle_verification.validate_bundle_verification_profiles", "bijux_proteomics_dev.quality.dependencies.dependency_boundaries", "bijux_proteomics_dev.quality.dependencies.dependency_boundaries.validate_workspace_dependency_boundaries", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.package_family_readiness.validate_package_family_readiness"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -655,28 +710,28 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.benchmark_asset_governance"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.BenchmarkPackageBundle", "bijux_proteomics_dev.release.governance.benchmark_review_support.CORE_FOUNDATION_DIR", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.benchmark_review_support.REPO_ROOT", "bijux_proteomics_dev.release.governance.benchmark_review_support.artifact_inventory_by_path", "bijux_proteomics_dev.release.governance.benchmark_review_support.build_generalization_report_map", "bijux_proteomics_dev.release.governance.benchmark_review_support.iter_benchmark_package_bundles", "bijux_proteomics_dev.release.governance.benchmark_review_support.package_sha256"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics.benchmarks.workflow_generalization.WorkflowGeneralizationReport", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.BenchmarkEvidenceTier", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.benchmark_flagship_status"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_asset_governance", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.benchmark_review_support"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_asset_governance", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.BENCHMARK_INCOMPLETENESS_LEDGER_PATH", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.BENCHMARK_LICENSING_PATH", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.BenchmarkIncompletenessEntry", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.BenchmarkLicensingEntry", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.build_benchmark_asset_audit", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.build_benchmark_incompleteness_ledger", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.build_benchmark_licensing_matrix", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.BENCHMARK_COMPARABILITY_MATRIX_PATH", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.BENCHMARK_RERUN_KITS_PATH", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.BenchmarkComparabilityRow", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.BenchmarkRerunKitEntry", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.build_benchmark_comparability_matrix", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.build_benchmark_rerun_kits", "bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.CORE_FOUNDATION_DIR", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.benchmark_review_support.family_order"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.benchmark_freshness_review"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.CORE_FOUNDATION_DIR", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.benchmark_review_support.build_workflow_authority_row_map", "bijux_proteomics_dev.release.governance.benchmark_review_support.iter_benchmark_package_bundles"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_asset_roots.build_flagship_asset_obsolescence_audit", "bijux_proteomics.benchmarks.flagship_asset_roots.build_flagship_asset_refresh_report", "bijux_proteomics.benchmarks.flagship_asset_roots.flagship_asset_obsolescence_audit_path", "bijux_proteomics.benchmarks.flagship_asset_roots.flagship_asset_refresh_report_path", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.benchmark_rerun_governance"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_asset_governance", "bijux_proteomics_dev.release.governance.benchmark_review_support"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_runtime.workflows.benchmark_runs"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_asset_governance", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.build_benchmark_asset_audit", "bijux_proteomics_dev.release.governance.benchmark_asset_governance.build_benchmark_licensing_matrix", "bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.BenchmarkPackageBundle", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.benchmark_review_support.RUNTIME_DIR", "bijux_proteomics_dev.release.governance.benchmark_review_support.build_generalization_report_map", "bijux_proteomics_dev.release.governance.benchmark_review_support.build_workflow_authority_row_map", "bijux_proteomics_dev.release.governance.benchmark_review_support.bundle_runtime_spec", "bijux_proteomics_dev.release.governance.benchmark_review_support.family_order", "bijux_proteomics_dev.release.governance.benchmark_review_support.iter_benchmark_package_bundles"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics.benchmarks.workflow_generalization.WorkflowGeneralizationFindingState", "bijux_proteomics.benchmarks.workflow_generalization.WorkflowGeneralizationReport", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.external_review_kits.WorkflowExternalReviewKit", "bijux_proteomics_intelligence.reviews.external_review_kits.build_workflow_external_review_kit_family", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.independent_reruns.WorkflowIndependentRerunDossier", "bijux_proteomics_intelligence.reviews.independent_reruns.build_workflow_independent_rerun_dossier_family", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.benchmark_runs.BenchmarkRunMode", "bijux_proteomics_runtime.workflows.benchmark_runs.BenchmarkRunSpec"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.benchmark_review_support"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_public_packages", "bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_runtime.workflows.benchmark_runs"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_asset_roots", "bijux_proteomics.benchmarks.flagship_asset_roots.FlagshipAssetRootEntry", "bijux_proteomics.benchmarks.flagship_asset_roots.list_flagship_asset_root_entries", "bijux_proteomics.benchmarks.flagship_public_packages", "bijux_proteomics.benchmarks.flagship_public_packages.FlagshipPublicBenchmarkAsset", "bijux_proteomics.benchmarks.flagship_public_packages.FlagshipPublicPackageArtifactInventory", "bijux_proteomics.benchmarks.flagship_public_packages.FlagshipPublicPackageArtifactRecord", "bijux_proteomics.benchmarks.flagship_public_packages.FlagshipPublicPackageLifecycleRecord", "bijux_proteomics.benchmarks.flagship_public_packages.FlagshipPublicPackageQualitySheet", "bijux_proteomics.benchmarks.flagship_public_packages.build_flagship_public_package_artifact_inventories", "bijux_proteomics.benchmarks.flagship_public_packages.build_flagship_public_package_lifecycle_records", "bijux_proteomics.benchmarks.flagship_public_packages.build_flagship_public_package_quality_sheets", "bijux_proteomics.benchmarks.flagship_public_packages.list_flagship_public_benchmark_packages", "bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics.benchmarks.workflow_generalization.WorkflowGeneralizationReport", "bijux_proteomics.benchmarks.workflow_generalization.build_secondary_public_package_artifact_inventories", "bijux_proteomics.benchmarks.workflow_generalization.build_secondary_public_package_asset_registry", "bijux_proteomics.benchmarks.workflow_generalization.build_secondary_public_package_lifecycle_records", "bijux_proteomics.benchmarks.workflow_generalization.build_secondary_public_package_quality_sheets", "bijux_proteomics.benchmarks.workflow_generalization.build_workflow_generalization_reports", "bijux_proteomics.benchmarks.workflow_generalization.list_secondary_public_benchmark_packages", "bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_intelligence.reviews.workflow_authority.WorkflowAuthorityRow", "bijux_proteomics_intelligence.reviews.workflow_authority.build_workflow_authority_matrix", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.BenchmarkManifest", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_knowledge.references.workflows.reference_support.get_benchmark_manifest_for_family", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.benchmark_runs.BenchmarkRunSpec", "bijux_proteomics_runtime.workflows.benchmark_runs.BenchmarkRuntimeTruthRow", "bijux_proteomics_runtime.workflows.benchmark_runs.build_benchmark_run_specs", "bijux_proteomics_runtime.workflows.benchmark_runs.build_benchmark_runtime_truth_surface"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.compatibility_ledger"
@@ -684,119 +739,124 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.release.governance.cross_package_smoke"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics", "bijux_proteomics.interpretation.annotation_packs", "bijux_proteomics.interpretation.annotation_packs.AnnotationPack", "bijux_proteomics.interpretation.annotation_packs.AnnotationPackSummary", "bijux_proteomics.interpretation.pathway_enrichment", "bijux_proteomics.interpretation.pathway_enrichment.PathwayMemberKind", "bijux_proteomics.interpretation.pathway_enrichment.PathwayMembershipRecord", "bijux_proteomics.interpretation.protein_annotation_mapping", "bijux_proteomics.interpretation.protein_annotation_mapping.ProteinAnnotationRecord", "bijux_proteomics.parse_fasta_document", "bijux_proteomics.workflow.interactive_result_bundle", "bijux_proteomics.workflow.interactive_result_bundle.InteractiveResultBundle", "bijux_proteomics.workflow.interactive_result_bundle.InteractiveResultBundleSummary", "bijux_proteomics.workflow.interactive_result_bundle.InteractiveResultPathway", "bijux_proteomics.workflow.study_result", "bijux_proteomics.workflow.study_result.ProteomicsStudyDesignEntry", "bijux_proteomics.workflow.study_result.ProteomicsStudyDesignSnapshot", "bijux_proteomics.workflow.study_result.ProteomicsStudyKind", "bijux_proteomics.workflow.study_result.ProteomicsStudyResult", "bijux_proteomics.workflow.study_result.ProteomicsStudyResultSummary", "bijux_proteomics_foundation", "bijux_proteomics_foundation.DocumentSchema", "bijux_proteomics_foundation.hash_payload", "bijux_proteomics_foundation.to_canonical_json", "bijux_proteomics_intelligence", "bijux_proteomics_intelligence.next_steps", "bijux_proteomics_knowledge", "bijux_proteomics_knowledge.KnowledgeCoverageEntitySet", "bijux_proteomics_knowledge.KnowledgeCoverageEntityType", "bijux_proteomics_knowledge.compute_knowledge_coverage", "bijux_proteomics_knowledge.evaluate_schema_compatibility", "bijux_proteomics_knowledge.resolve_pathway_members", "bijux_proteomics_runtime", "bijux_proteomics_runtime.AppConfig", "bijux_proteomics_runtime.create_app", "bijux_proteomics_runtime.workflows", "bijux_proteomics_runtime.workflows.run_reviewable_sequence_path"]
+
+[[module]]
 module_name = "bijux_proteomics_dev.release.governance.final_preflight"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.release.governance.benchmark_flagship_status", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.hostile_review_pages", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.public_language", "bijux_proteomics_dev.release.governance.readme_truth", "bijux_proteomics_dev.release.governance.release_narrowing_protocol", "bijux_proteomics_dev.release.governance.runtime_black_box_docs", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.test_collection_gate", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_consequence_docs", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.validate_package_dependency_policy", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence.validate_package_boundary_coherence", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene.validate_package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit.validate_repository_drift_audit", "bijux_proteomics_dev.release.governance.benchmark_flagship_status", "bijux_proteomics_dev.release.governance.benchmark_flagship_status.run", "bijux_proteomics_dev.release.governance.benchmark_flagship_status.validate_benchmark_flagship_promotion", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.run", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.validate_black_box_benchmark_language", "bijux_proteomics_dev.release.governance.hostile_review_pages", "bijux_proteomics_dev.release.governance.hostile_review_pages.run", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.package_family_readiness.validate_package_family_readiness", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.public_artifact_governance.run", "bijux_proteomics_dev.release.governance.public_language", "bijux_proteomics_dev.release.governance.public_language.run", "bijux_proteomics_dev.release.governance.readme_truth", "bijux_proteomics_dev.release.governance.readme_truth.validate_readme_truth", "bijux_proteomics_dev.release.governance.release_narrowing_protocol", "bijux_proteomics_dev.release.governance.release_narrowing_protocol.run", "bijux_proteomics_dev.release.governance.runtime_black_box_docs", "bijux_proteomics_dev.release.governance.runtime_black_box_docs.run", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.scientific_readiness.validate_scientific_release_dossier", "bijux_proteomics_dev.release.governance.test_collection_gate", "bijux_proteomics_dev.release.governance.test_collection_gate.build_test_collection_gate_report", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_authority_docs.validate_workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_claim_grounding.validate_workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.validate_workflow_consequence_coherence", "bijux_proteomics_dev.release.governance.workflow_consequence_docs", "bijux_proteomics_dev.release.governance.workflow_consequence_docs.run", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence.validate_workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence.validate_workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_workflow_public_scrutiny"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_black_box_rerun_gate", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest.validate_flagship_workflow_manifest"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.generated_governance_freshness"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = []
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.testing.generated_file_markers", "bijux_proteomics_foundation.testing.generated_file_markers.GeneratedFileMarkerKind", "bijux_proteomics_foundation.testing.generated_file_markers.detect_generated_file_marker"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.hostile_review_pages"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.release.governance.release_readiness_matrix"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_intelligence.reviews.release_candidates"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_readme_maturity.build_package_readme_maturity_report", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims.build_package_reopened_completion_claim_report", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.package_shape.package_scorecard.build_package_scorecard_report", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.release.governance.release_readiness_matrix", "bijux_proteomics_dev.release.governance.release_readiness_matrix.ReleaseReadinessCategory", "bijux_proteomics_dev.release.governance.release_readiness_matrix.build_release_readiness_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics.benchmarks.flagship_acceptance.build_flagship_acceptance_dashboard", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.external_review_kits.WorkflowExternalReviewKit", "bijux_proteomics_intelligence.reviews.external_review_kits.build_workflow_external_review_kit_family", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.independent_reruns.WorkflowIndependentRerunDossier", "bijux_proteomics_intelligence.reviews.independent_reruns.build_workflow_independent_rerun_dossier_family", "bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_intelligence.reviews.outsider_packets.FlagshipOutsiderReviewPacket", "bijux_proteomics_intelligence.reviews.outsider_packets.build_flagship_outsider_review_packet_family", "bijux_proteomics_intelligence.reviews.release_candidates", "bijux_proteomics_intelligence.reviews.release_candidates.build_flagship_release_candidate_bundle"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.package_family_readiness"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.quality.graphs.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.package_shape.package_scorecard.build_package_scorecard_report", "bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.public_artifact_governance"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.public_scrutiny"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.public_scrutiny", "bijux_proteomics_intelligence.reviews.public_scrutiny.PublicArtifactIndex", "bijux_proteomics_intelligence.reviews.public_scrutiny.PublicArtifactRoleMatrix", "bijux_proteomics_intelligence.reviews.public_scrutiny.build_public_artifact_index", "bijux_proteomics_intelligence.reviews.public_scrutiny.build_public_artifact_role_matrix"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.public_language"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.publication_guard"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.versioning.version_resolver"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.versioning.version_resolver", "bijux_proteomics_dev.release.versioning.version_resolver.resolve_version"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.readme_truth"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.release.governance.release_readiness_matrix"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.release.governance.release_readiness_matrix", "bijux_proteomics_dev.release.governance.release_readiness_matrix.RELEASE_READINESS_MATRIX_PATH"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.release_narrowing_protocol"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.release.governance.benchmark_freshness_review", "bijux_proteomics_dev.release.governance.release_readiness_matrix"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.workflow_authority"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.release.governance.benchmark_freshness_review", "bijux_proteomics_dev.release.governance.benchmark_freshness_review.BenchmarkFreshnessReviewEntry", "bijux_proteomics_dev.release.governance.benchmark_freshness_review.build_benchmark_freshness_review", "bijux_proteomics_dev.release.governance.release_readiness_matrix", "bijux_proteomics_dev.release.governance.release_readiness_matrix.ReleaseReadinessCategory", "bijux_proteomics_dev.release.governance.release_readiness_matrix.build_release_readiness_matrix"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics.benchmarks.flagship_acceptance.AcceptanceReleaseLanguage", "bijux_proteomics.benchmarks.flagship_acceptance.FlagshipAcceptanceDashboardRow", "bijux_proteomics.benchmarks.flagship_acceptance.build_flagship_acceptance_dashboard", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.external_review_kits.WorkflowExternalReviewKit", "bijux_proteomics_intelligence.reviews.external_review_kits.build_workflow_external_review_kit_family", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.independent_reruns.WorkflowIndependentRerunDossier", "bijux_proteomics_intelligence.reviews.independent_reruns.build_workflow_independent_rerun_dossier_family", "bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_intelligence.reviews.workflow_authority.WorkflowAuthorityRow", "bijux_proteomics_intelligence.reviews.workflow_authority.build_workflow_authority_matrix"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.release_readiness_matrix"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.release.governance.benchmark_freshness_review", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_policy", "bijux_proteomics_dev.governance.dependencies.package_dependency_policy.validate_package_dependency_policy", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence", "bijux_proteomics_dev.governance.foundation.package_boundary_coherence.validate_package_boundary_coherence", "bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene.validate_package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit.validate_repository_drift_audit", "bijux_proteomics_dev.release.governance.benchmark_freshness_review", "bijux_proteomics_dev.release.governance.benchmark_freshness_review.BENCHMARK_FRESHNESS_REVIEW_PATH", "bijux_proteomics_dev.release.governance.benchmark_freshness_review.validate_benchmark_freshness_review", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.validate_black_box_benchmark_language", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.package_family_readiness.package_family_readiness_manifest_path", "bijux_proteomics_dev.release.governance.package_family_readiness.validate_package_family_readiness", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.scientific_readiness.scientific_release_manifest_path", "bijux_proteomics_dev.release.governance.scientific_readiness.validate_scientific_release_dossier", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_authority_docs.validate_workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_claim_grounding.validate_workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.validate_workflow_consequence_coherence", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence.validate_workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence.validate_workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_workflow_public_scrutiny"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_black_box_rerun_gate", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest.FLAGSHIP_WORKFLOW_MANIFEST_PATH", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest.validate_flagship_workflow_manifest"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.repository_truth"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.release.governance.generated_governance_freshness", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_intelligence.candidates.ranking_benchmarks", "bijux_proteomics_intelligence.reviews.public_scrutiny", "bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_readme_maturity", "bijux_proteomics_dev.governance.package_shape.package_readme_maturity.PACKAGE_README_MATURITY_PATH", "bijux_proteomics_dev.governance.package_shape.package_readme_maturity.build_package_readme_maturity_report", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims.PACKAGE_REOPENED_COMPLETION_CLAIMS_PATH", "bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims.build_package_reopened_completion_claim_report", "bijux_proteomics_dev.governance.package_shape.package_scorecard", "bijux_proteomics_dev.governance.package_shape.package_scorecard.PACKAGE_SCORECARD_PATH", "bijux_proteomics_dev.governance.package_shape.package_scorecard.build_package_scorecard_report", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.package_root_hygiene.validate_package_root_hygiene", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit", "bijux_proteomics_dev.quality.artifacts.repository_drift_audit.validate_repository_drift_audit", "bijux_proteomics_dev.release.governance.generated_governance_freshness", "bijux_proteomics_dev.release.governance.generated_governance_freshness.validate_generated_governance_freshness", "bijux_proteomics_dev.release.governance.package_family_readiness", "bijux_proteomics_dev.release.governance.package_family_readiness.build_package_family_readiness_reports", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.public_artifact_governance.validate_public_artifact_governance", "bijux_proteomics_dev.release.governance.scientific_readiness", "bijux_proteomics_dev.release.governance.scientific_readiness.scientific_release_manifest_path", "bijux_proteomics_dev.release.governance.scientific_readiness.validate_scientific_release_dossier", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_authority_docs.validate_workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_claim_grounding.validate_workflow_claim_grounding", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.validate_workflow_consequence_coherence", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence.validate_workflow_intelligence_confidence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_lab_consequence.validate_workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_workflow_public_scrutiny"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics.benchmarks.flagship_acceptance.build_flagship_acceptance_dashboard", "bijux_proteomics_intelligence.candidates.ranking_benchmarks", "bijux_proteomics_intelligence.candidates.ranking_benchmarks.build_flagship_ranking_policy", "bijux_proteomics_intelligence.candidates.ranking_benchmarks.build_legacy_ranking_policy", "bijux_proteomics_intelligence.candidates.ranking_benchmarks.compare_ranking_policies_against_benchmark_corpus", "bijux_proteomics_intelligence.reviews.public_scrutiny", "bijux_proteomics_intelligence.reviews.public_scrutiny.build_public_artifact_index", "bijux_proteomics_intelligence.reviews.public_scrutiny.build_public_artifact_role_matrix", "bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_black_box_rerun_gate", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest.FLAGSHIP_WORKFLOW_MANIFEST_PATH", "bijux_proteomics_runtime.workflows.flagship_workflow_manifest.validate_flagship_workflow_manifest"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.runtime_black_box_docs"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.benchmark_review_support.RUNTIME_DIR"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.black_box_reproducibility", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_artifact_stability_reports", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_black_box_verification_routes", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_environment_contracts", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_execution_mode_comparisons", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_replay_challenges", "bijux_proteomics_runtime.workflows.black_box_reproducibility.build_runtime_rerun_refusals"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.runtime_compatibility_validation"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.contracts.freeze_contracts", "bijux_proteomics_dev.quality.architecture.runtime_boundaries", "bijux_proteomics_dev.release.governance.compatibility_ledger"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.contracts.freeze_contracts", "bijux_proteomics_dev.governance.contracts.freeze_contracts.run", "bijux_proteomics_dev.quality.architecture.runtime_boundaries", "bijux_proteomics_dev.quality.architecture.runtime_boundaries.run", "bijux_proteomics_dev.release.governance.compatibility_ledger", "bijux_proteomics_dev.release.governance.compatibility_ledger.run"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.scientific_readiness"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.release.governance.ssot_readiness"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.lookups"]
+outgoing_internal_modules = ["bijux_proteomics_dev.quality.graphs.package_graph", "bijux_proteomics_dev.quality.graphs.package_graph.load_workspace_packages", "bijux_proteomics_dev.release.governance.ssot_readiness", "bijux_proteomics_dev.release.governance.ssot_readiness.validate_ssot_readiness"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_knowledge.references.workflows.lookups", "bijux_proteomics_knowledge.references.workflows.lookups.get_benchmark_manifest"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.ssot_readiness"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_symbol_ownership", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.duplicate_model_ownership", "bijux_proteomics_dev.quality.architecture.package_substance"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.public_symbol_ownership", "bijux_proteomics_dev.governance.package_shape.public_symbol_ownership.validate_public_symbol_ownership", "bijux_proteomics_dev.governance.package_shape.scientific_concept_owners", "bijux_proteomics_dev.governance.package_shape.scientific_concept_owners.validate_scientific_concept_ownership", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory.validate_agentic_compatibility_inventory", "bijux_proteomics_dev.quality.architecture.duplicate_model_ownership", "bijux_proteomics_dev.quality.architecture.duplicate_model_ownership.validate_duplicate_model_ownership", "bijux_proteomics_dev.quality.architecture.package_substance", "bijux_proteomics_dev.quality.architecture.package_substance.validate_package_substance"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.test_collection_gate"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.support.workspace_inventory"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT", "bijux_proteomics_dev.governance.support.workspace_inventory", "bijux_proteomics_dev.governance.support.workspace_inventory.import_root", "bijux_proteomics_dev.governance.support.workspace_inventory.tests_root", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_package_names", "bijux_proteomics_dev.governance.support.workspace_inventory.workspace_src_parents", "bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_authority_docs"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.workflow_generalization", "bijux_proteomics.benchmarks.workflow_generalization.build_workflow_generalization_reports", "bijux_proteomics.benchmarks.workflow_generalization.count_public_packages_for_family", "bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_intelligence.reviews.workflow_authority.WorkflowAuthorityKind", "bijux_proteomics_intelligence.reviews.workflow_authority.build_workflow_authority_matrix", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_claim_grounding"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.claim_grounding"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_intelligence.reviews.outsider_packets.build_flagship_outsider_review_packet", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_knowledge.references.workflows.claim_grounding", "bijux_proteomics_knowledge.references.workflows.claim_grounding.ClaimNarrativeSurface", "bijux_proteomics_knowledge.references.workflows.claim_grounding.ScientificClaimSeverity", "bijux_proteomics_knowledge.references.workflows.claim_grounding.build_workflow_claim_citation_table", "bijux_proteomics_knowledge.references.workflows.claim_grounding.build_workflow_unsupported_claim_ledger"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_consequence_chain"
-outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_counterfactuals", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.contradiction_triage", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.outcome_dossiers"]
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology", "bijux_proteomics_dev.governance.runtime.topology.REPO_ROOT"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_corpora.BenchmarkDisposition", "bijux_proteomics_intelligence.judgment.benchmark_counterfactuals", "bijux_proteomics_intelligence.judgment.benchmark_counterfactuals.CounterfactualRecommendationEntry", "bijux_proteomics_intelligence.judgment.benchmark_counterfactuals.build_counterfactual_recommendation_report", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_intelligence.judgment.benchmark_packets.BenchmarkRecommendationPacket", "bijux_proteomics_intelligence.judgment.benchmark_packets.build_flagship_benchmark_recommendation_packet_family", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily", "bijux_proteomics_knowledge.references.workflows.contradiction_triage", "bijux_proteomics_knowledge.references.workflows.contradiction_triage.WorkflowContradictionTriageReport", "bijux_proteomics_knowledge.references.workflows.contradiction_triage.list_workflow_contradiction_triage_reports", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.follow_up.FlagshipLabFollowUpPacket", "bijux_proteomics_lab.benchmarks.follow_up.FlagshipLabPacketPosture", "bijux_proteomics_lab.benchmarks.follow_up.build_flagship_lab_follow_up_packet_family", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_lab.benchmarks.outcome_dossiers.FlagshipFollowUpOutcomeDossier", "bijux_proteomics_lab.benchmarks.outcome_dossiers.FlagshipJustifiedButLowYieldReport", "bijux_proteomics_lab.benchmarks.outcome_dossiers.FlagshipRecommendationRevisionReportEntry", "bijux_proteomics_lab.benchmarks.outcome_dossiers.FlagshipUnderestimatedButUsefulReport", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_follow_up_outcome_dossier_family", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_justified_but_low_yield_report", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_recommendation_revision_report", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_underestimated_but_useful_report"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_consequence_docs"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.workflow_consequence_chain"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.benchmark_review_support.LAST_REVIEWED", "bijux_proteomics_dev.release.governance.workflow_consequence_chain", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.LAB_CONSEQUENCE_OUTCOME_LEARNING_PATH", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.LAB_CONSEQUENCE_REFUSAL_HANDBOOK_PATH", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.RECOMMENDATION_CHANGE_PATH", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.WORKFLOW_CONSEQUENCE_MAPS_PATH", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.WorkflowConsequenceMap", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.WorkflowOutcomeLearningLoop", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.WorkflowRecommendationChange", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.WorkflowRefusalGuidance", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.build_workflow_consequence_maps", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.build_workflow_outcome_learning_loops", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.build_workflow_recommendation_changes", "bijux_proteomics_dev.release.governance.workflow_consequence_chain.build_workflow_refusal_guidance_family"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_intelligence_confidence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.judgment.benchmark_blinded_challenges", "bijux_proteomics_intelligence.judgment.benchmark_confidence", "bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.judgment.benchmark_blinded_challenges", "bijux_proteomics_intelligence.judgment.benchmark_blinded_challenges.build_workflow_blinded_recommendation_challenge", "bijux_proteomics_intelligence.judgment.benchmark_confidence", "bijux_proteomics_intelligence.judgment.benchmark_confidence.build_workflow_overconfidence_audit", "bijux_proteomics_intelligence.judgment.benchmark_confidence.build_workflow_underconfidence_audit", "bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_intelligence.reviews.outsider_packets.build_flagship_outsider_review_packet", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks.KnowledgeWorkflowFamily"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_lab_consequence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_lab.benchmarks.outcome_dossiers"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.workflow_authority", "bijux_proteomics_intelligence.reviews.workflow_authority.WorkflowAuthorityKind", "bijux_proteomics_intelligence.reviews.workflow_authority.build_workflow_authority_matrix", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_assay_worth_ledger", "bijux_proteomics_lab.benchmarks.outcome_dossiers.build_flagship_follow_up_outcome_dossier_family"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"
-outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.public_language"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.external_review_kits"]
+outgoing_internal_modules = ["bijux_proteomics_dev.release.governance.benchmark_rerun_governance", "bijux_proteomics_dev.release.governance.benchmark_rerun_governance.validate_black_box_benchmark_language", "bijux_proteomics_dev.release.governance.public_artifact_governance", "bijux_proteomics_dev.release.governance.public_artifact_governance.validate_public_artifact_governance", "bijux_proteomics_dev.release.governance.public_language", "bijux_proteomics_dev.release.governance.public_language.validate_public_language"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.external_review_kits.build_workflow_external_review_kit_family"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.licensing"
@@ -814,13 +874,8 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics_dev.release.versioning.changelog_version"
-outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process"]
-outgoing_workspace_modules = []
-
-[[module]]
 module_name = "bijux_proteomics_dev.release.versioning.version_resolver"
-outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process"]
+outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -856,7 +911,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.tools.golden_path_example"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.protein_agent"]
+outgoing_workspace_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.PathwayExecutor", "bijux_proteomics.biology.ProteinAgent", "bijux_proteomics.biology.SignalPayload", "bijux_proteomics.biology.SignalType", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.protein_agent.ProteinConstraints", "bijux_proteomics.biology.protein_agent.ProteinState"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.tools.manage_examples"
@@ -865,15 +920,15 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.tools.manage_models"
-outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process"]
+outgoing_internal_modules = ["bijux_proteomics_dev.security.trusted_process", "bijux_proteomics_dev.security.trusted_process.TrustedCommandError", "bijux_proteomics_dev.security.trusted_process.run_text"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.tools.mre_agentic_protein"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.biology.pathway", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.signals"]
+outgoing_workspace_modules = ["bijux_proteomics.biology.pathway", "bijux_proteomics.biology.pathway.ExecutionMode", "bijux_proteomics.biology.pathway.PathwayContract", "bijux_proteomics.biology.pathway.PathwayExecutor", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.protein_agent.ProteinAgent", "bijux_proteomics.biology.protein_agent.ProteinConstraints", "bijux_proteomics.biology.protein_agent.ProteinState", "bijux_proteomics.biology.signals", "bijux_proteomics.biology.signals.SignalPayload", "bijux_proteomics.biology.signals.SignalScope", "bijux_proteomics.biology.signals.SignalType"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.tools.visualize_invariants"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.protein_agent"]
+outgoing_workspace_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.PathwayExecutor", "bijux_proteomics.biology.ProteinAgent", "bijux_proteomics.biology.SignalPayload", "bijux_proteomics.biology.SignalType", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.protein_agent.ProteinConstraints", "bijux_proteomics.biology.protein_agent.ProteinState"]

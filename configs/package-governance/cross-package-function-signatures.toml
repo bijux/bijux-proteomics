@@ -1009,10 +1009,7 @@ provider_module = "bijux_proteomics.workflow"
 function_name = "build_result_manifest_from_artifacts"
 signature_text = "(*, biological_report_dir: 'Path | None' = None, ptm_report_dir: 'Path | None' = None, run_qc_assessment_tsv_paths: 'tuple[Path, ...]' = (), lab_action_packet_tsv_paths: 'tuple[Path, ...]' = (), input_paths: 'tuple[Path, ...]' = (), commands: 'tuple[str, ...]') -> 'ResultManifestReport'"
 consumer_distributions = ["bijux-proteomics-runtime"]
-consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann_archive", "bijux_proteomics_runtime.workflows.architecture_demo", "bijux_proteomics_runtime.workflows.package_smoke"]
-[[entry.import_site]]
-consumer_distribution = "bijux-proteomics-runtime"
-consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann_archive"
+consumer_modules = ["bijux_proteomics_runtime.workflows.architecture_demo", "bijux_proteomics_runtime.workflows.package_smoke"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-runtime"
 consumer_module = "bijux_proteomics_runtime.workflows.architecture_demo"
@@ -1077,6 +1074,17 @@ consumer_module = "bijux_proteomics_lab.planning.assays"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-lab"
 consumer_module = "bijux_proteomics_lab.readiness.stages"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow.exports.result_manifest"
+function_name = "build_result_manifest_from_artifacts"
+signature_text = "(*, biological_report_dir: 'Path | None' = None, ptm_report_dir: 'Path | None' = None, run_qc_assessment_tsv_paths: 'tuple[Path, ...]' = (), lab_action_packet_tsv_paths: 'tuple[Path, ...]' = (), input_paths: 'tuple[Path, ...]' = (), commands: 'tuple[str, ...]') -> 'ResultManifestReport'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.advanced_diann_archive"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.advanced_diann_archive"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"

@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 132
+max_total_thin_module_count = 374
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -636,6 +636,20 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/package_aliases.py"
+nonempty_line_count = 33
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/public_api.py"
+nonempty_line_count = 16
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/states.py"
 nonempty_line_count = 14
 public_function_count = 0
@@ -643,9 +657,23 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/weak_evidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/biology/validation.py"
 nonempty_line_count = 18
 public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/search_engine_modified_peptides.py"
+nonempty_line_count = 5
+public_function_count = 0
 public_class_count = 0
 
 [[module]]
@@ -671,8 +699,344 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/calibration_benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/calibration_drift.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/comet_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/confidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contaminant_audit.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contaminant_evidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/cross_run_reproducibility.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/diann_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/error_rate_annotation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/evidence_level_fdr_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/fragpipe_benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/fragpipe_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/generic_psm_mapper.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/maxquant_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/openms_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/parsimony_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/peptide_evidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/peptide_evidence_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/peptide_target_decoy_fdr.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/picked_protein_fdr.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/picked_protein_fdr_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein/protein_grouping_review.py"
+nonempty_line_count = 16
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_ambiguity_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_coverage.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_coverage_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_coverage_visualization.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_evidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_evidence_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_grouping.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_grouping_review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_inference_benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_parsimony.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein_target_decoy_fdr.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm_features.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm_inspection.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm_rescoring.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm_target_decoy_fdr.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/rejected_evidence_table.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/sage_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/score_separation_diagnostic.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapter_loss.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters/engines/generic.py"
+nonempty_line_count = 22
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters/family_policy.py"
+nonempty_line_count = 36
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/spectronaut_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/target_decoy_benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/target_decoy_reference_validation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/__main__.py"
 nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py"
+nonempty_line_count = 19
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/commands/quantify_runner.py"
+nonempty_line_count = 7
 public_function_count = 0
 public_class_count = 0
 
@@ -685,10 +1049,1340 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/support/contrast_resolution.py"
+nonempty_line_count = 36
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/support/imports.py"
+nonempty_line_count = 13
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/support/timecourse_support.py"
+nonempty_line_count = 23
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/chimeric_spectrum.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/chromatographic_evidence.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/chromatographic_peak_picking.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/deisotoping.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/dia_fragment_coelution.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/format_validation.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats/format_validation.py"
+nonempty_line_count = 14
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/fragment_ratio_stability.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/input_integrity.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/mgf_streaming.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/mzml_reader.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/noise.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/precursor_isotope_fit.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/precursor_validation.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/raw/chromatographic_peak_picking.py"
+nonempty_line_count = 37
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/raw_signal_evidence_cards.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/retention_time_alignment.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/run_qc.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectral_library.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectral_library_intensity_agreement.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectrum_entropy.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectrum_peak_matching.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/stable_outputs.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/target_panel.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/transition_table.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/xic_extraction.py"
+nonempty_line_count = 8
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/abundance_correction.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/acetylation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/ambiguity_handling.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/context_annotation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/crosstalk.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/differential_analysis.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/evidence_cards.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/fragment_scoring.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/hotspots.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/kinase_inference.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/localization_risk.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/localization_scoring.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/mechanism_classification.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/motif_analysis.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/occupancy_estimation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/ortholog_site_conservation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/oxidation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/peptide_parser.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/phosphatase_inference.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/protein_site_mapping.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/proteoforms.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/regulator_enrichment.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/reporting.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/site_annotation_import.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/site_groups.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/site_quantification.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/batch_effect.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/benchmarks.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/censored_differential.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/composition.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/core_matrix.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/design_matrix.py"
+nonempty_line_count = 8
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/differential_abundance.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/differential_imputation_dependence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/differential_result_robustness.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/heatmap_preparation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/imputation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/matrix_archive.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/method_agreement.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/missingness.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/model_rollup.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/multi_contrast_consistency.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/normalization.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/peptide_intensity_matrix.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/peptide_level_differential.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/peptide_profile_inconsistency.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/power_estimation.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/protein_intensity_matrix.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/protein_lfq.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/readiness.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/replicate_qc.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/sample_exploration.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/statistical_backend.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/time_course_differential.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/uncertainty.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/value_provenance.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/variance_model.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/analysis_recommendations.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/belief_audit.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/biological_claim_validation.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/biological_hypotheses.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/biomarker_candidate_ranking.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/cards/queryable_cards.py"
+nonempty_line_count = 28
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/collaboration.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/compact_result_summary.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/contracts.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_aware_ranking.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_chain_reconstruction.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_confidence.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_contradictions.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_downgrades.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_export.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_queries.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/evidence_graph_run_diff.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/failure_explanations.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/flagship_kernel.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/inference_packets.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/protein_family_graphs.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/result_explanations.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/result_queries.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/scientific_conflicts.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/scientific_failure_atlas.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/scientific_story.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/structure_reports/model.py"
 nonempty_line_count = 19
 public_function_count = 0
 public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/volcano_plots.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/scientific_tables.py"
+nonempty_line_count = 33
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/carryover.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/contracts.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/contrasts.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/design_classification.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/design_diagnostics.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/design_validity.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/experiment_confidence.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/experiment_design.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/experiment_feasibility.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/lab_protocol_context.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/laboratory_operations.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/laboratory_plans.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/lc_drift.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/protocol_consistency.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc_benchmarks.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/replicate_structure.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/sample_metadata.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/sample_run_identity.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/sample_sheet_repairs.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/tabular.py"
+nonempty_line_count = 33
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_diann.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_fragpipe.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_maxquant.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_ptm.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_targeted.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_tmt.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/advanced_workflow_family.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/artifact_layout.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_assembly.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_claims.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_html.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_html_support.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_models.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_ranking.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_rendering.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_section_confidence.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_report_selection.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_reporting.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/biological_result_graph.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/cross_study_evidence_cards.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/dda_biological_workflow.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/dia_dda_comparison.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/dia_differential_analysis.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/diann_biological_workflow.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/discovery_to_assay.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/flagship_run.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/integrated_scientific_report.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/interactive_result_bundle.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/interactive_result_comparison.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/label_based_differential_analysis.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/label_based_reporting.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/maxquant_biological_workflow.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/multi_study.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/orchestrator.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/output_validation.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/scale_demo.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/surprising_demo.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/surprising_demo_interrogation.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/protein_evidence_cards.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/protein_mechanism_cards.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/ptm_site_workflow.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/public_benchmark_runner.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/result_archive.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/result_manifest.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/result_search_index.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/scale_demo.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/surprising_demo.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/surprising_demo_interrogation.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/tmt_experiment_workflow.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/trust_bundle.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/weak_evidence.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -728,7 +2422,7 @@ public_class_count = 0
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/public.py"
-nonempty_line_count = 24
+nonempty_line_count = 32
 public_function_count = 0
 public_class_count = 0
 
@@ -783,6 +2477,13 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/rehydrate/loading.py"
+nonempty_line_count = 30
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/lifecycle.py"
 nonempty_line_count = 13
 public_function_count = 0
@@ -805,7 +2506,7 @@ public_class_count = 1
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/api_lock.py"
-nonempty_line_count = 18
+nonempty_line_count = 26
 public_function_count = 0
 public_class_count = 0
 
@@ -835,13 +2536,6 @@ distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/identifiers.py"
 nonempty_line_count = 9
 public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/surface_area.py"
-nonempty_line_count = 39
-public_function_count = 0
 public_class_count = 0
 
 [[module]]
@@ -896,7 +2590,7 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics"
 module_path = "packages/proteomics/src/proteomics/cli.py"
-nonempty_line_count = 16
+nonempty_line_count = 13
 public_function_count = 1
 public_class_count = 0
 
@@ -910,7 +2604,7 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics-core"
 module_path = "packages/proteomics-core/src/proteomics_core/cli.py"
-nonempty_line_count = 16
+nonempty_line_count = 13
 public_function_count = 1
 public_class_count = 0
 
@@ -924,6 +2618,6 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics-runtime"
 module_path = "packages/proteomics-runtime/src/proteomics_runtime/cli.py"
-nonempty_line_count = 16
+nonempty_line_count = 13
 public_function_count = 1
 public_class_count = 0

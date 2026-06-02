@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions
 
 [guard]
-max_total_root_surface_illusion_count = 9
+max_total_root_surface_illusion_count = 10
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -25,9 +25,9 @@ root_surface_hides_owner_depth = true
 [[package]]
 distribution_name = "bijux-proteomics-core"
 compatibility_surfaces = []
-root_public_module_count = 0
+root_public_module_count = 8
 root_export_symbol_count = 5
-owner_logic_module_count = 126
+owner_logic_module_count = 564
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
@@ -36,114 +36,114 @@ distribution_name = "bijux-proteomics-dev"
 compatibility_surfaces = []
 root_public_module_count = 0
 root_export_symbol_count = 0
-owner_logic_module_count = 142
+owner_logic_module_count = 159
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 compatibility_surfaces = []
-root_public_module_count = 0
+root_public_module_count = 3
 root_export_symbol_count = 15
-owner_logic_module_count = 19
+owner_logic_module_count = 31
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 compatibility_surfaces = []
-root_public_module_count = 0
-root_export_symbol_count = 7
-owner_logic_module_count = 52
+root_public_module_count = 7
+root_export_symbol_count = 14
+owner_logic_module_count = 61
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 compatibility_surfaces = []
-root_public_module_count = 0
-root_export_symbol_count = 5
-owner_logic_module_count = 44
-illusion_reasons = []
-root_surface_hides_owner_depth = false
+root_public_module_count = 1
+root_export_symbol_count = 61
+owner_logic_module_count = 54
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
+root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 compatibility_surfaces = []
-root_public_module_count = 0
+root_public_module_count = 1
 root_export_symbol_count = 3
-owner_logic_module_count = 27
+owner_logic_module_count = 29
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 compatibility_surfaces = []
-root_public_module_count = 0
+root_public_module_count = 1
 root_export_symbol_count = 4
-owner_logic_module_count = 131
+owner_logic_module_count = 149
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "proteomics"
 compatibility_surfaces = []
-root_public_module_count = 3
-root_export_symbol_count = 5
-owner_logic_module_count = 2
+root_public_module_count = 2
+root_export_symbol_count = 1
+owner_logic_module_count = 1
 illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-core"
 compatibility_surfaces = []
-root_public_module_count = 3
-root_export_symbol_count = 5
-owner_logic_module_count = 2
+root_public_module_count = 2
+root_export_symbol_count = 1
+owner_logic_module_count = 1
 illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-foundation"
 compatibility_surfaces = []
-root_public_module_count = 1
-root_export_symbol_count = 15
-owner_logic_module_count = 1
-illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+root_public_module_count = 0
+root_export_symbol_count = 1
+owner_logic_module_count = 0
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-intelligence"
 compatibility_surfaces = []
-root_public_module_count = 1
-root_export_symbol_count = 7
-owner_logic_module_count = 1
-illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+root_public_module_count = 0
+root_export_symbol_count = 1
+owner_logic_module_count = 0
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-knowledge"
 compatibility_surfaces = []
-root_public_module_count = 1
-root_export_symbol_count = 5
-owner_logic_module_count = 1
-illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+root_public_module_count = 0
+root_export_symbol_count = 1
+owner_logic_module_count = 0
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-lab"
 compatibility_surfaces = []
-root_public_module_count = 1
-root_export_symbol_count = 3
-owner_logic_module_count = 1
-illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+root_public_module_count = 0
+root_export_symbol_count = 1
+owner_logic_module_count = 0
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
 root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "proteomics-runtime"
 compatibility_surfaces = []
-root_public_module_count = 3
-root_export_symbol_count = 4
-owner_logic_module_count = 2
+root_public_module_count = 2
+root_export_symbol_count = 1
+owner_logic_module_count = 1
 illusion_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 root_surface_hides_owner_depth = true

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
-    test_modules,
+    package_test_modules,
     tests_root,
     workspace_package_names,
 )
@@ -56,7 +56,7 @@ def build_duplicate_test_module_families(
         package_tests_root = tests_root(package_name)
         if not package_tests_root.is_dir():
             continue
-        for path in test_modules(package_name):
+        for path in package_test_modules(package_name):
             if repo_root not in path.parents:
                 continue
             grouped_paths[path.name].append(path)

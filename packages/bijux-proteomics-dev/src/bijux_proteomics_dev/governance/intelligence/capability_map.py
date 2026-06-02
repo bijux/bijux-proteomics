@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_CAPABILITY_MAP,
-    IntelligenceAnalyticalBand,
     list_intelligence_analytical_bands,
 )
 
@@ -107,13 +106,8 @@ def validate_intelligence_capability_map() -> tuple[str, ...]:
     failures: list[str] = []
     seen_modules: set[str] = set()
 
-    if tuple(list_intelligence_analytical_bands()) != (
-        IntelligenceAnalyticalBand.CANDIDATES,
-        IntelligenceAnalyticalBand.JUDGMENT,
-        IntelligenceAnalyticalBand.POSTURE,
-        IntelligenceAnalyticalBand.INTERPRETATION,
-        IntelligenceAnalyticalBand.REVIEWS,
-        IntelligenceAnalyticalBand.LEARNING,
+    if tuple(list_intelligence_analytical_bands()) != tuple(
+        entry.band for entry in DEFAULT_INTELLIGENCE_CAPABILITY_MAP
     ):
         failures.append("intelligence analytical bands drifted from the governed order")
     if metrics.analytical_band_count != guard.baseline_analytical_band_count:

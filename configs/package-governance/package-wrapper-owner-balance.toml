@@ -21,98 +21,98 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 126
+owner_logic_module_count = 564
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-owner_logic_module_count = 142
+owner_logic_module_count = 159
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-owner_logic_module_count = 19
+owner_logic_module_count = 31
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-owner_logic_module_count = 52
+owner_logic_module_count = 61
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-owner_logic_module_count = 44
+owner_logic_module_count = 54
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-owner_logic_module_count = 27
+owner_logic_module_count = 29
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 131
+owner_logic_module_count = 149
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-core"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-foundation"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-lab"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics-runtime"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false

@@ -52,7 +52,7 @@ def test_duplicate_test_module_namespace_validation_rejects_unpackaged_same_pack
     )
     monkeypatch.setattr(
         test_module_basenames,
-        "test_modules",
+        "package_test_modules",
         lambda package_name: (study_file, targeted_file),
     )
 
@@ -94,7 +94,7 @@ def test_duplicate_test_module_namespace_validation_allows_packaged_same_package
     )
     monkeypatch.setattr(
         test_module_basenames,
-        "test_modules",
+        "package_test_modules",
         lambda package_name: (parallel_file, streaming_file),
     )
 

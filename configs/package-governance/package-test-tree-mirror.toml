@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 62
+min_total_mirrored_owner_family_count = 88
 max_total_missing_test_family_count = 0
 max_total_flat_test_module_count = 0
 
@@ -26,45 +26,45 @@ flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-source_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
-test_families = ["compatibility", "identity", "outcomes", "package", "performance", "serialization", "support"]
-mirrored_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+source_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support", "testing"]
+test_families = ["compatibility", "identity", "outcomes", "package", "performance", "serialization", "support", "testing"]
+mirrored_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support", "testing"]
 missing_test_families = []
 extra_test_families = ["package", "performance"]
 flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-source_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
-test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "governance", "identification", "interfaces", "io", "package", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
-mirrored_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+source_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "panels", "proteoforms", "ptm", "quantification", "review", "sequences", "study", "targeted", "workflow"]
+test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "package", "panels", "performance", "proteoforms", "ptm", "qc", "quantification", "review", "sequences", "study", "targeted", "workflow"]
+mirrored_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "panels", "proteoforms", "ptm", "quantification", "review", "sequences", "study", "targeted", "workflow"]
 missing_test_families = []
 extra_test_families = ["cli", "package", "performance", "qc"]
 flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-source_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
-test_families = ["api", "execution", "governance", "package", "performance", "providers", "runs", "state", "support", "workflows"]
-mirrored_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
+source_owner_families = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "parallel", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
+test_families = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "package", "parallel", "performance", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
+mirrored_owner_families = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "parallel", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
 missing_test_families = []
 extra_test_families = ["package", "performance"]
 flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-source_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
-test_families = ["candidates", "compatibility", "governance", "interpretation", "judgment", "learning", "package", "posture", "reviews"]
-mirrored_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+source_owner_families = ["candidates", "claims", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+test_families = ["belief_audit", "candidates", "claims", "compatibility", "contradictions", "falsifiers", "governance", "interpretation", "judgment", "learning", "next_steps", "package", "posture", "query", "refusal", "reviews"]
+mirrored_owner_families = ["candidates", "claims", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
 missing_test_families = []
-extra_test_families = ["compatibility", "package"]
+extra_test_families = ["belief_audit", "compatibility", "contradictions", "falsifiers", "next_steps", "package", "query", "refusal"]
 flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-source_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
-test_families = ["contracts", "governance", "memory", "package", "references", "reviews"]
-mirrored_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+source_owner_families = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "pathways", "references", "reviews"]
+test_families = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "package", "pathways", "references", "reviews"]
+mirrored_owner_families = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "pathways", "references", "reviews"]
 missing_test_families = []
 extra_test_families = ["package"]
 flat_test_module_count = 0

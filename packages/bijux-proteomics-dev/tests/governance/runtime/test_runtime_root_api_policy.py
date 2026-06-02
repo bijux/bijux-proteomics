@@ -26,6 +26,7 @@ RUNTIME_ROOT_API_POLICY = (
 PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py",
     "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py",
+    "packages/bijux-proteomics-runtime/tests/package/test_public_function_docstring_contract.py",
     "packages/bijux-proteomics-runtime/tests/package/test_public_api_surface.py",
 }
 

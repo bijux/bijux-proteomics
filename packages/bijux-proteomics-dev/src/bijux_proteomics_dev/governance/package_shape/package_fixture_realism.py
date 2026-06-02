@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import re
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
@@ -37,6 +38,12 @@ SERIOUS_PRODUCT_AREAS = frozenset(
 PACKAGE_FIXTURE_REALISM_PATH = (
     REPO_ROOT / "configs" / "package-governance" / "package-fixture-realism.toml"
 )
+
+
+def _fixture_name_tokens(name: str) -> tuple[str, ...]:
+    return tuple(
+        token for token in re.split(r"[^a-z0-9]+", name.lower()) if token
+    )
 
 
 @dataclass(frozen=True)
@@ -87,7 +94,10 @@ def build_package_fixture_realism_report() -> PackageFixtureRealismReport:
                     for path in files
                 ),
                 toy_named_fixture_count=sum(
-                    any(token in path.name.lower() for token in TOY_FIXTURE_NAME_TOKENS)
+                    bool(
+                        set(_fixture_name_tokens(path.name))
+                        & set(TOY_FIXTURE_NAME_TOKENS)
+                    )
                     for path in files
                 ),
             )

@@ -30,7 +30,7 @@ distribution_name = "bijux-proteomics-foundation"
 strongest_value = "bijux-proteomics-foundation owns its documented package surface."
 weakest_value = "no reopened structural debt is currently recorded"
 broadest_debt = "no reopened structural debt is currently recorded"
-strengths = ["owner domains: 5", "dependency dossier: 0 outbound edges and 6 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-foundation.toml"]
+strengths = ["owner domains: 6", "dependency dossier: 0 outbound edges and 13 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-foundation.toml"]
 limits = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = []
@@ -40,25 +40,25 @@ publishable = true
 [[package]]
 distribution_name = "bijux-proteomics-core"
 strongest_value = "bijux-proteomics-core owns its documented package surface."
-weakest_value = "22 oversized mixed-responsibility modules still need owner splits"
-broadest_debt = "22 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 15", "dependency dossier: 5 outbound edges and 7 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
+weakest_value = "45 oversized mixed-responsibility modules still need owner splits"
+broadest_debt = "45 oversized mixed-responsibility modules still need owner splits"
+strengths = ["owner domains: 22", "dependency dossier: 5 outbound edges and 8 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
 limits = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
-proofs = ["docs proof artifacts: 49", "scenario fixtures: medium=23 negative=9 ambiguity=3 contradiction=2", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 94", "scenario fixtures: medium=67 negative=19 ambiguity=4 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-core:mixed-responsibility-modules"]
-exact_not_ready_reasons = ["22 oversized mixed-responsibility modules still need owner splits"]
+exact_not_ready_reasons = ["45 oversized mixed-responsibility modules still need owner splits"]
 publishable = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 strongest_value = "This package owns:"
-weakest_value = "4 oversized mixed-responsibility modules still need owner splits"
-broadest_debt = "4 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 8", "dependency dossier: 3 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-runtime.toml"]
+weakest_value = "5 oversized mixed-responsibility modules still need owner splits"
+broadest_debt = "5 oversized mixed-responsibility modules still need owner splits"
+strengths = ["owner domains: 16", "dependency dossier: 5 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-runtime.toml"]
 limits = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]
-proofs = ["docs proof artifacts: 14", "scenario fixtures: medium=29 negative=8 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 14", "scenario fixtures: medium=31 negative=8 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-runtime:mixed-responsibility-modules"]
-exact_not_ready_reasons = ["4 oversized mixed-responsibility modules still need owner splits"]
+exact_not_ready_reasons = ["5 oversized mixed-responsibility modules still need owner splits"]
 publishable = false
 
 [[package]]
@@ -66,9 +66,9 @@ distribution_name = "bijux-proteomics-intelligence"
 strongest_value = "bijux-proteomics-intelligence owns its documented package surface."
 weakest_value = "5 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "5 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 7", "dependency dossier: 5 outbound edges and 4 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
+strengths = ["owner domains: 8", "dependency dossier: 5 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
 limits = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
-proofs = ["docs proof artifacts: 15", "scenario fixtures: medium=18 negative=6 ambiguity=1 contradiction=2", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 15", "scenario fixtures: medium=19 negative=6 ambiguity=1 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-intelligence:mixed-responsibility-modules"]
 exact_not_ready_reasons = ["5 oversized mixed-responsibility modules still need owner splits"]
 publishable = false
@@ -78,11 +78,11 @@ distribution_name = "bijux-proteomics-knowledge"
 strongest_value = "bijux-proteomics-knowledge owns its documented package surface."
 weakest_value = "3 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "3 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 5", "dependency dossier: 1 outbound edges and 4 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-knowledge.toml"]
+strengths = ["owner domains: 14", "dependency dossier: 2 outbound edges and 6 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-knowledge.toml"]
 limits = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
 proofs = ["docs proof artifacts: 5", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["bijux-proteomics-knowledge:mixed-responsibility-modules"]
-exact_not_ready_reasons = ["3 oversized mixed-responsibility modules still need owner splits"]
+unresolved_debt_ids = ["bijux-proteomics-knowledge:mixed-responsibility-modules", "bijux-proteomics-knowledge:reopened-completion-claim"]
+exact_not_ready_reasons = ["3 oversized mixed-responsibility modules still need owner splits", "root public breadth still exceeds owner logic depth"]
 publishable = false
 
 [[package]]
@@ -90,7 +90,7 @@ distribution_name = "bijux-proteomics-lab"
 strongest_value = "material limits instrument gaps explicit before spend is committed export notes work and records supported, weakened, or blocked follow-through story is supportable"
 weakest_value = "5 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "5 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 9", "dependency dossier: 4 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-lab.toml"]
+strengths = ["owner domains: 9", "dependency dossier: 4 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-lab.toml"]
 limits = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]
 proofs = ["docs proof artifacts: 8", "scenario fixtures: medium=11 negative=3 ambiguity=1 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-lab:mixed-responsibility-modules"]
@@ -112,25 +112,25 @@ publishable = false
 [[package]]
 distribution_name = "proteomics"
 strongest_value = "This package owns the short install, import, and CLI alias wrappers for the canonical core package."
-weakest_value = "root public breadth still exceeds owner logic depth"
-broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 1 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics.toml"]
+weakest_value = "historical topology language still dominates current design"
+broadest_debt = "historical topology language still dominates current design"
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics:reopened-completion-claim"]
-exact_not_ready_reasons = ["root public breadth still exceeds owner logic depth"]
+exact_not_ready_reasons = ["historical topology language still dominates current design"]
 publishable = false
 
 [[package]]
 distribution_name = "proteomics-core"
 strongest_value = "This package owns the short install, import, and CLI alias wrappers for the canonical core package."
-weakest_value = "root public breadth still exceeds owner logic depth"
-broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 1 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-core.toml"]
+weakest_value = "historical topology language still dominates current design"
+broadest_debt = "historical topology language still dominates current design"
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-core.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-core:reopened-completion-claim"]
-exact_not_ready_reasons = ["root public breadth still exceeds owner logic depth"]
+exact_not_ready_reasons = ["historical topology language still dominates current design"]
 publishable = false
 
 [[package]]
@@ -138,7 +138,7 @@ distribution_name = "proteomics-foundation"
 strongest_value = "This package owns the short install and import alias wrappers for the canonical foundation package."
 weakest_value = "root public breadth still exceeds owner logic depth"
 broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 0 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-foundation.toml"]
+strengths = ["owner domains: 0", "dependency dossier: 1 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-foundation.toml"]
 limits = ["evaluation artifacts", "product runtime behavior", "recommendation policy", "evidence-memory logic", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-foundation:reopened-completion-claim"]
@@ -148,13 +148,13 @@ publishable = false
 [[package]]
 distribution_name = "proteomics-runtime"
 strongest_value = "This package owns the short install, import, and CLI alias wrappers for the canonical runtime package."
-weakest_value = "root public breadth still exceeds owner logic depth"
-broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 1 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-runtime.toml"]
+weakest_value = "historical topology language still dominates current design"
+broadest_debt = "historical topology language still dominates current design"
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-runtime.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "recommendation policy", "evidence-memory logic", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-runtime:reopened-completion-claim"]
-exact_not_ready_reasons = ["root public breadth still exceeds owner logic depth"]
+exact_not_ready_reasons = ["historical topology language still dominates current design"]
 publishable = false
 
 [[package]]
@@ -162,7 +162,7 @@ distribution_name = "proteomics-intelligence"
 strongest_value = "This package owns the short install and import alias wrappers for the canonical intelligence package."
 weakest_value = "root public breadth still exceeds owner logic depth"
 broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 0 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-intelligence.toml"]
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-intelligence.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "evidence-memory logic", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-intelligence:reopened-completion-claim"]
@@ -174,7 +174,7 @@ distribution_name = "proteomics-knowledge"
 strongest_value = "This package owns the short install and import alias wrappers for the canonical knowledge package."
 weakest_value = "root public breadth still exceeds owner logic depth"
 broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 0 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-knowledge.toml"]
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-knowledge.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-knowledge:reopened-completion-claim"]
@@ -186,7 +186,7 @@ distribution_name = "proteomics-lab"
 strongest_value = "This package owns the short install and import alias wrappers for the canonical lab package."
 weakest_value = "root public breadth still exceeds owner logic depth"
 broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 0", "dependency dossier: 0 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-lab.toml"]
+strengths = ["owner domains: 0", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/proteomics-lab.toml"]
 limits = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "evidence-memory logic"]
 proofs = ["docs proof artifacts: 0", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["proteomics-lab:reopened-completion-claim"]

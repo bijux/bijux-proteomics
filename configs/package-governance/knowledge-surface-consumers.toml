@@ -3,10 +3,10 @@
 
 [[surface]]
 name = "bijux_proteomics_knowledge"
-consumer_count = 0
-consumer_distributions = []
-consumer_modules = []
-imported_symbols = []
+consumer_count = 1
+consumer_distributions = ["bijux-proteomics-dev"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/cross_package_smoke.py"]
+imported_symbols = ["KnowledgeCoverageEntitySet", "KnowledgeCoverageEntityType", "compute_knowledge_coverage", "evaluate_schema_compatibility", "resolve_pathway_members"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references"
@@ -52,24 +52,24 @@ imported_symbols = ["get_benchmark_manifest", "get_benchmark_package", "get_benc
 
 [[surface]]
 name = "bijux_proteomics_knowledge.memory.models.claims"
-consumer_count = 0
-consumer_distributions = []
-consumer_modules = []
-imported_symbols = []
+consumer_count = 9
+consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/workflow/demo/surprising_demo.py", "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/demo/surprising_demo_claims.py", "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/pipelines/integrated_scientific_report.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/belief_audit.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/claims/support.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/contradictions.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/falsifiers.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/refusal.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/report_contract.py"]
+imported_symbols = ["ClaimEvidenceState", "ClaimPolarity", "ClaimResolutionState", "ClaimStatus", "ClaimType", "EvidenceClaim"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.memory.models.evidence"
-consumer_count = 12
-consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/scenarios.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/decision_briefs.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes/observations.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/next_cycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/priorities.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness/stages.py"]
-imported_symbols = ["DecisionReadiness", "EvidenceBundle", "EvidenceKind", "EvidenceSourceType", "EvidenceStrength", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "plan_evidence_refresh", "triangulate_evidence"]
+consumer_count = 13
+consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/workflow/demo/surprising_demo_claims.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/scenarios.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/decision_briefs.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes/observations.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/next_cycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/priorities.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness/stages.py"]
+imported_symbols = ["DecisionReadiness", "EvidenceBundle", "EvidenceExtractionMethod", "EvidenceKind", "EvidenceOrigin", "EvidenceRecord", "EvidenceSourceType", "EvidenceStrength", "QuantitativeSupport", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "plan_evidence_refresh", "triangulate_evidence"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.memory.integrity.graph"
-consumer_count = 0
-consumer_distributions = []
-consumer_modules = []
-imported_symbols = []
+consumer_count = 4
+consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/workflow/demo/surprising_demo.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/belief_audit.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/claims/support.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/report_contract.py"]
+imported_symbols = ["EvidenceGraph", "build_evidence_graph"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.memory.normalization.ingestion"

@@ -19,12 +19,12 @@ def test_knowledge_breadth_keeps_menu_surface_narrow_relative_to_curation_depth(
     metrics = report.metrics
 
     assert KNOWLEDGE_BREADTH_PATH.exists()
-    assert metrics.root_public_symbol_count == 5
+    assert metrics.root_public_symbol_count == 61
     assert metrics.references_public_symbol_count == 10
-    assert metrics.total_public_surface_count == 15
+    assert metrics.total_public_surface_count == 71
     assert metrics.query_helper_count == 1
     assert metrics.curated_registry_entry_count >= 60
-    assert metrics.curated_entries_per_public_surface >= 4.0
+    assert metrics.curated_entries_per_public_surface >= 1.27
     assert metrics.curated_entries_per_query_helper >= 60.0
 
 

@@ -3,11 +3,11 @@
 
 [guard]
 max_core_edges = 13
-max_foundation_edges = 34
+max_foundation_edges = 35
 max_intelligence_edges = 7
 max_knowledge_edges = 11
 max_runtime_edges = 0
-max_total_edges = 65
+max_total_edges = 66
 
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
@@ -187,6 +187,12 @@ imported_symbols = ["AssayId", "DocumentSchema", "JsonModel"]
 importer_module_path = "handoffs/ptm.py"
 owner_distribution = "bijux-proteomics-core"
 imported_module_name = "bijux_proteomics.ptm"
+imported_symbols = ["PtmOccupancyCounterpartEvidenceEntry", "PtmOccupancyCounterpartStatus"]
+
+[[dependency]]
+importer_module_path = "handoffs/ptm.py"
+owner_distribution = "bijux-proteomics-core"
+imported_module_name = "bijux_proteomics.ptm"
 imported_symbols = ["PtmSiteEntry"]
 
 [[dependency]]
@@ -197,12 +203,12 @@ imported_symbols = ["PtmCooccurrenceCautionReport", "PtmOccupancyCounterpartEvid
 
 [[dependency]]
 importer_module_path = "handoffs/ptm.py"
-owner_distribution = "bijux-proteomics-core"
-imported_module_name = "bijux_proteomics.ptm.review"
-imported_symbols = ["PtmOccupancyCounterpartEvidenceEntry", "PtmOccupancyCounterpartStatus"]
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["JsonModel"]
 
 [[dependency]]
-importer_module_path = "handoffs/ptm.py"
+importer_module_path = "handoffs/qc_feedback.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["JsonModel"]

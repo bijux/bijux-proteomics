@@ -132,7 +132,7 @@ def flat_test_modules(package_name: str) -> tuple[Path, ...]:
     return tuple(sorted(root.glob("test_*.py")))
 
 
-def test_modules(package_name: str) -> tuple[Path, ...]:
+def package_test_modules(package_name: str) -> tuple[Path, ...]:
     root = tests_root(package_name)
     if not root.exists():
         return ()

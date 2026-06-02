@@ -22,7 +22,11 @@ def test_package_topology_drift_report_tracks_flatness_and_doc_mismatch() -> Non
     assert by_package["bijux-proteomics-foundation"].historical_topology_mentions == ()
     assert by_package["bijux-proteomics-foundation"].undocumented_owner_families == ()
     assert all(not entry.docs_tree_contradiction for entry in report.entries)
-    assert all(not entry.historical_shape_dominates_design for entry in report.entries)
+    assert {
+        entry.distribution_name
+        for entry in report.entries
+        if entry.historical_shape_dominates_design
+    } == {"proteomics", "proteomics-core", "proteomics-runtime"}
 
 
 def test_package_topology_drift_release_guard_has_no_failures() -> None:

@@ -34,17 +34,17 @@ title = "Docs clarity"
 ready = false
 rationale = "Root and handbook wording must route readers to the right evidence without stronger trust language than the current docs surfaces can honestly defend."
 evidence_paths = ["README.md", "docs/index.md", "docs/01-bijux-proteomics/foundation/product-architecture.md", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md", "docs/01-bijux-proteomics/foundation/release-readiness-matrix.md"]
-blocker_codes = ["black-box-language-outruns-rerun-evidence"]
-blocker_details = ["dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
+blocker_codes = ["external-review-kit-not-ready", "black-box-language-outruns-rerun-evidence"]
+blocker_details = ["lfq external review kit is not ready for outsider review", "dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
 
 [[category]]
 category_id = "package-boundary-stability"
 title = "Package-boundary stability"
-ready = true
+ready = false
 rationale = "Import directions, public surfaces, and README routing must continue to describe the same ownership model."
 evidence_paths = ["configs/package-governance/package-dependency-policy.toml", "configs/package-governance/repository-product-shape.toml", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md"]
-blocker_codes = []
-blocker_details = []
+blocker_codes = ["release-contract-failure", "release-contract-failure", "release-contract-failure", "release-contract-failure", "release-contract-failure", "release-contract-failure", "release-contract-failure", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift", "readme-role-summary-drift"]
+blocker_details = ["bijux-proteomics-knowledge imports disallowed package edges: bijux-proteomics-core", "proteomics imports disallowed package edges: bijux-proteomics-foundation", "proteomics-core imports disallowed package edges: bijux-proteomics-foundation", "proteomics-intelligence imports disallowed package edges: bijux-proteomics-foundation", "proteomics-knowledge imports disallowed package edges: bijux-proteomics-foundation", "proteomics-lab imports disallowed package edges: bijux-proteomics-foundation", "proteomics-runtime imports disallowed package edges: bijux-proteomics-foundation", "bijux-proteomics README no longer states the declared role summary 'install and command alias for bijux-proteomics-core'", "proteomics README no longer states the declared role summary 'install and import alias for bijux-proteomics-core'", "proteomics-core README no longer states the declared role summary 'install and import alias for bijux-proteomics-core'", "proteomics-foundation README no longer states the declared role summary 'install and import alias for bijux-proteomics-foundation'", "proteomics-intelligence README no longer states the declared role summary 'install and import alias for bijux-proteomics-intelligence'", "proteomics-knowledge README no longer states the declared role summary 'install and import alias for bijux-proteomics-knowledge'", "proteomics-lab README no longer states the declared role summary 'install and import alias for bijux-proteomics-lab'", "proteomics-runtime README no longer states the declared role summary 'install and import alias for bijux-proteomics-runtime'"]
 
 [[category]]
 category_id = "artifact-hygiene"

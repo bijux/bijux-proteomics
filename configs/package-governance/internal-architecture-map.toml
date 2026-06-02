@@ -37,7 +37,7 @@ rationale = "intelligence consumes core scientific semantics, foundation contrac
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
-rationale = "knowledge stays as cited memory over foundation primitives and does not lean on product-package owners."
+rationale = "knowledge owns grounded evidence memory over foundation primitives and the canonical core interpretation and sequence contracts that normalize cited scientific entities."
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
@@ -52,12 +52,12 @@ rationale = "runtime depends on core scientific seams, foundation contracts, and
 [[package]]
 distribution_name = "proteomics"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
-rationale = "proteomics stays as the short install and import alias for canonical core surfaces."
+rationale = "proteomics stays as the short install and import alias for canonical core surfaces while reusing shared alias-helper primitives from foundation."
 
 [[package]]
 distribution_name = "proteomics-core"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
-rationale = "proteomics-core stays as the short alias for the canonical core distribution."
+rationale = "proteomics-core stays as the short alias for the canonical core distribution while reusing shared alias-helper primitives from foundation."
 
 [[package]]
 distribution_name = "proteomics-foundation"
@@ -67,22 +67,22 @@ rationale = "proteomics-foundation stays as the short alias for the canonical fo
 [[package]]
 distribution_name = "proteomics-intelligence"
 allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
-rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution."
+rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution while reusing shared alias-helper primitives from foundation."
 
 [[package]]
 distribution_name = "proteomics-knowledge"
 allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
-rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution."
+rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution while reusing shared alias-helper primitives from foundation."
 
 [[package]]
 distribution_name = "proteomics-lab"
 allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-lab"]
-rationale = "proteomics-lab stays as the short alias for the canonical lab distribution."
+rationale = "proteomics-lab stays as the short alias for the canonical lab distribution while reusing shared alias-helper primitives from foundation."
 
 [[package]]
 distribution_name = "proteomics-runtime"
 allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-runtime"]
-rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution."
+rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution while reusing shared alias-helper primitives from foundation."
 
 [[module_family]]
 distribution_name = "bijux-proteomics-core"

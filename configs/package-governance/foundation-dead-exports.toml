@@ -3,17 +3,17 @@
 
 [[surface]]
 module_name = "bijux_proteomics_foundation"
-consumer_count = 215
+consumer_count = 520
 exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
 live_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
 dead_symbols = []
 
 [[surface]]
 module_name = "bijux_proteomics_foundation.compatibility"
-consumer_count = 1
-exported_symbols = ["MigrationRegistry", "SchemaCompatibility", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_compatibility", "assess_schema_evolution"]
-live_symbols = ["SchemaCompatibility", "assess_schema_compatibility"]
-dead_symbols = ["MigrationRegistry", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_evolution"]
+consumer_count = 3
+exported_symbols = ["ImportMigrationSurface", "MigrationRegistry", "SchemaCompatibility", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_compatibility", "assess_schema_evolution", "compatibility_export_names", "compatibility_module_dir", "compatibility_module_getattr", "emit_compatibility_import_warning", "import_migration_deprecation_message", "load_canonical_module"]
+live_symbols = ["ImportMigrationSurface", "SchemaCompatibility", "assess_schema_compatibility", "compatibility_export_names", "compatibility_module_dir", "compatibility_module_getattr", "emit_compatibility_import_warning", "import_migration_deprecation_message"]
+dead_symbols = ["MigrationRegistry", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_evolution", "load_canonical_module"]
 
 [[surface]]
 module_name = "bijux_proteomics_foundation.identity.identifiers"
@@ -31,7 +31,7 @@ dead_symbols = []
 
 [[surface]]
 module_name = "bijux_proteomics_foundation.outcomes.exceptions"
-consumer_count = 1
+consumer_count = 2
 exported_symbols = []
 live_symbols = []
 dead_symbols = []

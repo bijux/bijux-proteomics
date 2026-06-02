@@ -28,7 +28,12 @@ def test_top_level_module_visibility_report_tracks_public_and_private_leaf_modul
     assert entries["bijux-proteomics-core"] == PackageTopLevelModuleVisibilityEntry(
         distribution_name="bijux-proteomics-core",
         public_module_files=("programs.py", "scientific_tables.py", "tabular.py"),
-        private_module_files=("_scientific_tables.py", "_tabular.py"),
+        private_module_files=(
+            "_atomic_files.py",
+            "_output_tables.py",
+            "_scientific_tables.py",
+            "_tabular.py",
+        ),
     )
     assert entries["bijux-proteomics-intelligence"] == PackageTopLevelModuleVisibilityEntry(
         distribution_name="bijux-proteomics-intelligence",

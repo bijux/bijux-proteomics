@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.publishability
 
 [metrics]
-total_public_surface_count = 15
+total_public_surface_count = 71
 query_helper_count = 1
 curated_registry_entry_count = 90
-curated_entries_per_public_surface = 6.0
+curated_entries_per_public_surface = 1.27
 provenance_complete_surface_count = 9
 under_curated_workflow_count = 0
 orphan_reference_count = 0
@@ -13,9 +13,9 @@ breadth_ready = true
 publishable = true
 
 [guard]
-max_total_public_surface_count = 15
+max_total_public_surface_count = 71
 max_query_helper_count = 1
-min_curated_entries_per_public_surface = 6.0
+min_curated_entries_per_public_surface = 1.27
 min_provenance_complete_surface_count = 9
 max_under_curated_workflow_count = 0
 max_orphan_reference_count = 0

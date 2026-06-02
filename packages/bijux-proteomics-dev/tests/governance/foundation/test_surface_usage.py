@@ -87,6 +87,7 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
         ].consumer_distributions
     ) == {
         "bijux-proteomics-core",
+        "bijux-proteomics-runtime",
     }
 
 

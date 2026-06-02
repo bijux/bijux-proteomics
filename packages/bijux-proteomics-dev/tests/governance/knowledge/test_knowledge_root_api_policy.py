@@ -26,8 +26,10 @@ KNOWLEDGE_ROOT_API_POLICY = (
     REPO_ROOT / "configs" / "package-governance" / "knowledge-root-api.toml"
 )
 PUBLIC_SURFACE_TESTS = {
+    "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/cross_package_smoke.py",
     "packages/bijux-proteomics-dev/tests/governance/knowledge/test_knowledge_root_api_policy.py",
     "packages/bijux-proteomics-knowledge/tests/package/test_package_grounding_guards.py",
+    "packages/bijux-proteomics-knowledge/tests/package/test_public_function_docstring_contract.py",
     "packages/bijux-proteomics-knowledge/tests/contracts/test_schema.py",
     "packages/bijux-proteomics-knowledge/tests/package/test_public_api_surface.py",
     "packages/bijux-proteomics-knowledge/tests/package/test_serialization.py",

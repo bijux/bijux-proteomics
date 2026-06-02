@@ -24,6 +24,7 @@ PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-lab/tests/handoffs/test_artifact_contracts_surface.py",
     "packages/bijux-proteomics-lab/tests/handoffs/test_artifact_serialization_surface.py",
     "packages/bijux-proteomics-lab/tests/package/test_package_operational_guards.py",
+    "packages/bijux-proteomics-lab/tests/package/test_public_function_docstring_contract.py",
     "packages/bijux-proteomics-lab/tests/package/test_public_api_surface.py",
     "packages/proteomics-lab/tests/compatibility/test_proteomics_lab_alias.py",
 }

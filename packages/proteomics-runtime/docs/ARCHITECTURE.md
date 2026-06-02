@@ -47,7 +47,7 @@ the real execution owner remains `bijux-proteomics-runtime`.
 
 ## Misplacement signals
 
-- if the change defines workflow execution, replay, or provider behavior, it
+- if the change defines workflow execution or provider behavior, it
   belongs in `bijux-proteomics-runtime`
 - if a helper exists only for canonical runtime callers, it should not live
   here

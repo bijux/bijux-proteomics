@@ -29,7 +29,7 @@ def test_skip_policy_validation_rejects_raw_pytest_skip(
     )
     monkeypatch.setattr(
         skip_policy,
-        "test_modules",
+        "package_test_modules",
         lambda package_name: (test_file,),
     )
 
@@ -64,7 +64,7 @@ def test_skip_policy_validation_rejects_raw_pytest_importorskip(
     )
     monkeypatch.setattr(
         skip_policy,
-        "test_modules",
+        "package_test_modules",
         lambda package_name: (test_file,),
     )
 

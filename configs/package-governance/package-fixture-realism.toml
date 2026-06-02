@@ -3,7 +3,7 @@
 
 [guard]
 max_total_toy_named_fixture_count = 0
-min_total_realistic_fixture_count = 81
+min_total_realistic_fixture_count = 128
 min_serious_package_with_realistic_fixtures_count = 4
 
 [[package]]
@@ -33,25 +33,25 @@ toy_named_fixture_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-core"
 serious_product_area = true
-fixture_file_count = 168
-small_fixture_count_lt_512 = 120
-realistic_fixture_count_ge_1024 = 23
+fixture_file_count = 354
+small_fixture_count_lt_512 = 224
+realistic_fixture_count_ge_1024 = 67
 toy_named_fixture_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 serious_product_area = true
-fixture_file_count = 59
+fixture_file_count = 61
 small_fixture_count_lt_512 = 18
-realistic_fixture_count_ge_1024 = 29
+realistic_fixture_count_ge_1024 = 31
 toy_named_fixture_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 serious_product_area = true
-fixture_file_count = 20
+fixture_file_count = 21
 small_fixture_count_lt_512 = 2
-realistic_fixture_count_ge_1024 = 18
+realistic_fixture_count_ge_1024 = 19
 toy_named_fixture_count = 0
 
 [[package]]
@@ -65,7 +65,7 @@ toy_named_fixture_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 serious_product_area = true
-fixture_file_count = 17
+fixture_file_count = 18
 small_fixture_count_lt_512 = 4
 realistic_fixture_count_ge_1024 = 11
 toy_named_fixture_count = 0

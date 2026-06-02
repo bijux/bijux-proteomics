@@ -88,44 +88,62 @@ def _module_export_sources(
     tree = ast.parse(module_path.read_text(encoding="utf-8"), filename=str(module_path))
     mapping: dict[str, str] = {}
     runtime_package_name: str | None = None
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if (
-                    isinstance(target, ast.Name)
-                    and target.id == "_RUNTIME_PACKAGE"
-                    and isinstance(node.value, ast.Constant)
-                    and isinstance(node.value.value, str)
-                ):
-                    runtime_package_name = node.value.value
-        if isinstance(node, ast.ImportFrom):
-            if node.level == 0:
-                if node.module is None:
-                    continue
-                source_module_name = node.module
-            else:
-                relative_parts = []
-                if node.module:
-                    relative_parts.extend(node.module.split("."))
-                source_module_name = ".".join((root_module_name, *relative_parts))
-            for alias in node.names:
-                mapping[alias.asname or alias.name] = source_module_name
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                mapping[alias.asname or alias.name] = alias.name
-        elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
-            for key, value in zip(node.value.keys, node.value.values, strict=False):
-                if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
-                    continue
-                if isinstance(value, ast.Constant) and isinstance(value.value, str):
-                    mapping[key.value] = value.value
-                elif (
-                    isinstance(value, ast.Tuple)
-                    and value.elts
-                    and isinstance(value.elts[0], ast.Constant)
-                    and isinstance(value.elts[0].value, str)
-                ):
-                    mapping[key.value] = value.elts[0].value
+    def _record_statements(statements: list[ast.stmt]) -> None:
+        nonlocal runtime_package_name
+        for node in statements:
+            if isinstance(node, ast.If):
+                _record_statements(node.body)
+                _record_statements(node.orelse)
+                continue
+            if isinstance(node, ast.Try):
+                _record_statements(node.body)
+                for handler in node.handlers:
+                    _record_statements(handler.body)
+                _record_statements(node.orelse)
+                _record_statements(node.finalbody)
+                continue
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "_RUNTIME_PACKAGE"
+                        and isinstance(node.value, ast.Constant)
+                        and isinstance(node.value.value, str)
+                    ):
+                        runtime_package_name = node.value.value
+            if isinstance(node, ast.ImportFrom):
+                if node.level == 0:
+                    if node.module is None:
+                        continue
+                    source_module_name = node.module
+                else:
+                    relative_parts = []
+                    if node.module:
+                        relative_parts.extend(node.module.split("."))
+                    source_module_name = ".".join((root_module_name, *relative_parts))
+                for alias in node.names:
+                    mapping[alias.asname or alias.name] = source_module_name
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    mapping[alias.asname or alias.name] = alias.name
+            elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
+                for key, value in zip(node.value.keys, node.value.values, strict=False):
+                    if (
+                        not isinstance(key, ast.Constant)
+                        or not isinstance(key.value, str)
+                    ):
+                        continue
+                    if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                        mapping[key.value] = value.value
+                    elif (
+                        isinstance(value, ast.Tuple)
+                        and value.elts
+                        and isinstance(value.elts[0], ast.Constant)
+                        and isinstance(value.elts[0].value, str)
+                    ):
+                        mapping[key.value] = value.elts[0].value
+
+    _record_statements(tree.body)
     if runtime_package_name and runtime_package_name != root_module_name:
         runtime_package = importlib.import_module(runtime_package_name)
         runtime_module_file = getattr(runtime_package, "__file__", None)

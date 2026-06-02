@@ -27,6 +27,7 @@ def test_package_dependency_policy_covers_workspace_packages() -> None:
     )
     assert by_package["bijux-proteomics-foundation"].allowed_outbound_edges == ()
     assert by_package["bijux-proteomics-knowledge"].allowed_outbound_edges == (
+        "bijux-proteomics-core",
         "bijux-proteomics-foundation",
     )
     assert by_package["bijux-proteomics-core"].allowed_outbound_edges == (
@@ -51,6 +52,7 @@ def test_package_dependency_policy_covers_workspace_packages() -> None:
         "bijux-proteomics-runtime",
     )
     assert by_package["proteomics-runtime"].allowed_outbound_edges == (
+        "bijux-proteomics-foundation",
         "bijux-proteomics-runtime",
     )
 

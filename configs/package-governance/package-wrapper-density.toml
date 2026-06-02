@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_wrapper_density
 
 [guard]
-max_total_wrapper_module_count = 231
-max_average_wrapper_density = 0.1444
+max_total_wrapper_module_count = 497
+max_average_wrapper_density = 0.1523
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -14,51 +14,51 @@ max_wrapper_module_count = 116
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-total_source_module_count = 169
+total_source_module_count = 186
 wrapper_module_count = 27
-wrapper_density = 0.1598
+wrapper_density = 0.1452
 max_wrapper_module_count = 27
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-total_source_module_count = 25
+total_source_module_count = 38
 wrapper_module_count = 6
-wrapper_density = 0.24
+wrapper_density = 0.1579
 max_wrapper_module_count = 6
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-total_source_module_count = 149
-wrapper_module_count = 23
-wrapper_density = 0.1544
-max_wrapper_module_count = 23
+total_source_module_count = 879
+wrapper_module_count = 271
+wrapper_density = 0.3083
+max_wrapper_module_count = 271
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-total_source_module_count = 165
-wrapper_module_count = 30
-wrapper_density = 0.1818
-max_wrapper_module_count = 30
+total_source_module_count = 189
+wrapper_module_count = 38
+wrapper_density = 0.2011
+max_wrapper_module_count = 38
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-total_source_module_count = 62
-wrapper_module_count = 8
-wrapper_density = 0.129
-max_wrapper_module_count = 8
+total_source_module_count = 72
+wrapper_module_count = 9
+wrapper_density = 0.125
+max_wrapper_module_count = 9
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-total_source_module_count = 57
-wrapper_module_count = 12
-wrapper_density = 0.2105
-max_wrapper_module_count = 12
+total_source_module_count = 76
+wrapper_module_count = 21
+wrapper_density = 0.2763
+max_wrapper_module_count = 21
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-total_source_module_count = 37
+total_source_module_count = 39
 wrapper_module_count = 9
-wrapper_density = 0.2432
+wrapper_density = 0.2308
 max_wrapper_module_count = 9
 
 [[package]]
@@ -70,49 +70,49 @@ max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics"
-total_source_module_count = 4
+total_source_module_count = 3
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-core"
-total_source_module_count = 4
+total_source_module_count = 3
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-foundation"
-total_source_module_count = 2
+total_source_module_count = 1
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-runtime"
-total_source_module_count = 4
+total_source_module_count = 3
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-total_source_module_count = 2
+total_source_module_count = 1
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-total_source_module_count = 2
+total_source_module_count = 1
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0
 
 [[package]]
 distribution_name = "proteomics-lab"
-total_source_module_count = 2
+total_source_module_count = 1
 wrapper_module_count = 0
 wrapper_density = 0.0
 max_wrapper_module_count = 0

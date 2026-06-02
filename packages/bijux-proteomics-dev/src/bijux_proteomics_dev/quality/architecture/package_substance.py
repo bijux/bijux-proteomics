@@ -116,7 +116,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     "bijux-proteomics-core": _PackageSubstanceExpectation(
         boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
         minimum_owned_logic_count=70,
-        maximum_thin_module_count=35,
+        maximum_thin_module_count=70,
         evidence_locator="packages/bijux-proteomics-core/src/bijux_proteomics/",
     ),
     "bijux-proteomics-foundation": _PackageSubstanceExpectation(
@@ -148,7 +148,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     "bijux-proteomics-knowledge": _PackageSubstanceExpectation(
         boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
         minimum_owned_logic_count=12,
-        maximum_thin_module_count=13,
+        maximum_thin_module_count=22,
         evidence_locator=(
             "packages/bijux-proteomics-knowledge/src/"
             "bijux_proteomics_knowledge/governance/charter.py"

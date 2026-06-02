@@ -9,7 +9,7 @@ private_module_files = ["_package_aliases.py"]
 [[package]]
 distribution_name = "bijux-proteomics-core"
 public_module_files = ["programs.py", "scientific_tables.py", "tabular.py"]
-private_module_files = ["_scientific_tables.py", "_tabular.py"]
+private_module_files = ["_atomic_files.py", "_output_tables.py", "_scientific_tables.py", "_tabular.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
