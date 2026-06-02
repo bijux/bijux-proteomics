@@ -73,7 +73,7 @@ def test_build_maxquant_benchmark_report_blocks_invalid_contrasts() -> None:
             condition_b="missing",
         )
     except ValueError as exc:
-        assert "invalid_contrast_unknown_condition" in str(exc)
+        assert "requested contrast control vs missing is not available" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected invalid benchmark contrast to be rejected")
 
@@ -98,7 +98,7 @@ def test_build_maxquant_benchmark_report_blocks_paired_design_methods() -> None:
             condition_b="treatment",
         )
     except ValueError as exc:
-        assert "paired" in str(exc)
-        assert "paired_differential" in str(exc)
+        assert "pairwise differential analysis is not supportable" in str(exc)
+        assert "different_analysis_family_required" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected paired benchmark design to be rejected")

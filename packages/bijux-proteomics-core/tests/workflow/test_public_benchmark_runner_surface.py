@@ -105,7 +105,7 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     fragpipe_snapshot_run = runs["dda_fragpipe_review_snapshot"]
     assert fragpipe_snapshot_run.status == "failed"
     assert fragpipe_snapshot_run.failures[0].kind == "execution_failed"
-    assert "spectrum_id" in fragpipe_snapshot_run.failures[0].message
+    assert "missing required PSM column 'Charge'" in fragpipe_snapshot_run.failures[0].message
 
     maxquant_run = runs["dda_maxquant_review_snapshot"]
     assert maxquant_run.status == "failed"
