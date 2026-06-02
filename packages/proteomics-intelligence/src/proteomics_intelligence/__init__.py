@@ -13,7 +13,7 @@ from bijux_proteomics_foundation._package_aliases import (
 
 _ALIAS_PACKAGE = "proteomics_intelligence"
 _CANONICAL_PACKAGE = "bijux_proteomics_intelligence"
-_LOCAL_SUBMODULES = frozenset()
+_LOCAL_SUBMODULES: frozenset[str] = frozenset()
 
 install_import_aliases(
     alias_package=_ALIAS_PACKAGE,
