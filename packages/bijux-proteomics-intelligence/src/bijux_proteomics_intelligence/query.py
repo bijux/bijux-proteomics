@@ -88,15 +88,7 @@ def answer_result_question(
         return _answer_what_peptides_support(result, question_spec)
     if question_spec.question_kind is ResultQuestionKind.WHAT_WEAKENS_CLAIM:
         return _answer_what_weakens_claim(result, question_spec)
-    return ResultQuestionAnswer(
-        question_id=question_spec.question_id,
-        question_kind=question_spec.question_kind,
-        status=ResultQuestionStatus.UNSUPPORTED,
-        subject_id=question_spec.subject_id,
-        answer_text="question kind is not supported",
-        referenced_ids=(),
-        note="question engine only answers governed deterministic result questions",
-    )
+    raise AssertionError(f"unsupported result question kind {question_spec.question_kind!r}")
 
 
 def render_result_question_answers_tsv(

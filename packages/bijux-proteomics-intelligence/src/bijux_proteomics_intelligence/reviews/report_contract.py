@@ -200,12 +200,12 @@ def validate_intelligence_report_contract(contract: IntelligenceReportContract) 
             )
 
     for claim_id in contract.belief_audit_report.summary.top_claim_ids:
-        claim_entry = claim_entries_by_id.get(claim_id)
-        if claim_entry is None:
+        top_claim_entry = claim_entries_by_id.get(claim_id)
+        if top_claim_entry is None:
             raise ValueError(
                 f"intelligence report contract is missing top claim {claim_id}"
             )
-        if claim_entry.belief_audit is None or claim_id not in belief_ids:
+        if top_claim_entry.belief_audit is None or claim_id not in belief_ids:
             raise ValueError(
                 f"intelligence report contract is missing belief audit for top claim {claim_id}"
             )
