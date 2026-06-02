@@ -306,7 +306,7 @@ def _assessment_recommended_action(entry: LabActionAssessmentEntry) -> str:
 
 
 def _packets_for_run_diagnosis(row: RunDiagnosisEntry) -> tuple[LabActionPacket, ...]:
-    if row.status is LabQcStatus.PASS or row.failure_class is RunFailureClass.NO_FAILURE:
+    if row.status is LabQcStatus.PASSED or row.failure_class is RunFailureClass.NO_FAILURE:
         return ()
     actions = {
         RunFailureClass.CHROMATOGRAPHY_FAILURE: (
@@ -375,7 +375,7 @@ def _packets_for_run_diagnosis(row: RunDiagnosisEntry) -> tuple[LabActionPacket,
 
 
 def _packets_for_digestion(row: DigestionDiagnosisEntry) -> tuple[LabActionPacket, ...]:
-    if row.digestion_status is DigestionStatus.PASS:
+    if row.digestion_status is DigestionStatus.PASSED:
         return ()
     actions = {
         DigestionStatus.INEFFICIENT_DIGESTION: (

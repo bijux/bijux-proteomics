@@ -63,7 +63,7 @@ def test_classify_run_failure_separates_chromatography_identification_and_intens
     )
     lookup = {row.run_id: row for row in rows}
 
-    assert lookup["run_reference"].status is LabQcStatus.PASS
+    assert lookup["run_reference"].status is LabQcStatus.PASSED
     assert lookup["run_reference"].failure_class is RunFailureClass.NO_FAILURE
 
     assert lookup["run_chrom"].status is LabQcStatus.FAIL

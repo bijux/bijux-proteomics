@@ -747,7 +747,7 @@ def test_qc_run_assessment_emits_pass_caution_fail_statuses_with_reason_codes() 
     )
     pass_assessment = build_run_qc_assessment(pass_report, policy=empty_rule_policy)
     assert pass_assessment.sample_id == "PASS1"
-    assert pass_assessment.qc_status is QcStatus.PASS
+    assert pass_assessment.qc_status is QcStatus.PASSED
     assert pass_assessment.status_reasons == ()
 
     caution_design = ExperimentalDesignEntry(

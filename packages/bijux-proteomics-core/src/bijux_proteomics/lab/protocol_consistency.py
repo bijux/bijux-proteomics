@@ -44,7 +44,7 @@ class ProtocolConsistencySeverity(StrEnum):
 class ProtocolConsistencyStatus(StrEnum):
     """Compact overall protocol-consistency status."""
 
-    PASS = "pass"
+    PASSED = "pass"
     CAUTION = "caution"
     BLOCKING = "blocking"
 
@@ -129,7 +129,7 @@ def build_protocol_consistency_report(
         for diagnostic in diagnostics
         if diagnostic.severity is ProtocolConsistencySeverity.CAUTION
     )
-    status = ProtocolConsistencyStatus.PASS
+    status = ProtocolConsistencyStatus.PASSED
     if blocking_count:
         status = ProtocolConsistencyStatus.BLOCKING
     elif caution_count:

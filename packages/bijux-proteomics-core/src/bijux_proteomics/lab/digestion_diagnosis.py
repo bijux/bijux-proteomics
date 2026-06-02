@@ -25,7 +25,7 @@ from bijux_proteomics_foundation import JsonModel
 class DigestionStatus(StrEnum):
     """Stable sample-level digestion diagnosis outcomes."""
 
-    PASS = "pass"
+    PASSED = "pass"
     INEFFICIENT_DIGESTION = "inefficient_digestion"
     LOW_SPECIFICITY = "low_specificity"
     ENZYME_MISMATCH = "enzyme_mismatch"
@@ -146,7 +146,7 @@ def _diagnose_sample(
         declared_rule,
     )
 
-    status = DigestionStatus.PASS
+    status = DigestionStatus.PASSED
     specificity_burden = (
         declared_summary.semi_specific_rate + declared_summary.non_specific_rate
     )

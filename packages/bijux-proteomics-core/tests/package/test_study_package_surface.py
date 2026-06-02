@@ -71,8 +71,8 @@ def test_study_package_exports_lab_qc_status_surface() -> None:
         policy=study.default_qc_threshold_policy().model_copy(update={"rules": ()}),
     )
 
-    assert study.QcStatus.PASS.value == "pass"
-    assert assessment.qc_status is study.QcStatus.PASS
+    assert study.QcStatus.PASSED.value == "pass"
+    assert assessment.qc_status is study.QcStatus.PASSED
     assert assessment.status_reasons == ()
     assert "qc_status" in study.render_qc_assessment_tsv(assessment).splitlines()[0]
 
@@ -396,7 +396,7 @@ def test_study_package_exports_protocol_consistency_surface() -> None:
     assert hasattr(study, "build_protocol_consistency_report")
     assert hasattr(study, "render_protocol_consistency_tsv")
     assert hasattr(study, "require_protocol_consistency_without_blockers")
-    assert report.summary.status is study.ProtocolConsistencyStatus.PASS
+    assert report.summary.status is study.ProtocolConsistencyStatus.PASSED
     assert study.render_protocol_consistency_tsv(report).splitlines()[0].startswith(
         "protocol_id\taxis\tcode\tseverity"
     )

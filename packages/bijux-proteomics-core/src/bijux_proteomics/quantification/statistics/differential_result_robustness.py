@@ -816,7 +816,7 @@ def _qc_status_components(
             0.7,
             (DifferentialResultRobustnessReasonCode.CAUTION_QC,),
         )
-    return DifferentialResultRobustnessQcStatus.PASS, 1.0, ()
+    return DifferentialResultRobustnessQcStatus.PASSED, 1.0, ()
 
 
 def _reason_codes(

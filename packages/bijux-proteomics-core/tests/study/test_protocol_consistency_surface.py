@@ -202,7 +202,7 @@ def test_protocol_consistency_report_renders_and_requires_non_blocking_consisten
         ),
     )
 
-    assert report.summary.status is ProtocolConsistencyStatus.PASS
+    assert report.summary.status is ProtocolConsistencyStatus.PASSED
     assert require_protocol_consistency_without_blockers(report) is report
     assert render_protocol_consistency_tsv(report).splitlines()[0].startswith(
         "protocol_id\taxis\tcode\tseverity"

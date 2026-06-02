@@ -19,7 +19,7 @@ from bijux_proteomics_foundation import JsonModel
 class LabQcStatus(StrEnum):
     """Stable run-level outcome labels for laboratory action surfaces."""
 
-    PASS = "pass"
+    PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
 
@@ -175,7 +175,7 @@ def _diagnose_run(
     if primary_score < 0.35:
         return RunDiagnosisEntry(
             run_id=entry.run_id,
-            status=LabQcStatus.PASS,
+            status=LabQcStatus.PASSED,
             failure_class=RunFailureClass.NO_FAILURE,
             primary_reason="no_material_qc_failure_detected",
             secondary_reasons=(),

@@ -111,7 +111,9 @@ def ensure_surprising_demo_outputs(output_dir: Path) -> Path:
                 report_path.read_text(encoding="utf-8")
             )
             return output_dir
-        except Exception:  # noqa: BLE001
+        except ValueError:
+            # Fall through to regenerate governed demo outputs when the cached
+            # report no longer satisfies the durable runtime contract.
             pass
     run_surprising_demo(SurprisingDemoConfig(output_dir=output_dir))
     return output_dir

@@ -118,7 +118,7 @@ class ReplicateAndBatchQcReport(JsonModel):
 class SampleReliabilityQcStatus(StrEnum):
     """Stable sample-QC status classes that can affect quantitative weighting."""
 
-    PASS = "pass"
+    PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
 

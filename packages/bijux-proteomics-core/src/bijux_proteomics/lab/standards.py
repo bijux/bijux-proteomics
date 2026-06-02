@@ -117,7 +117,7 @@ def build_internal_standard_sample_qc(
         drift_count = sum(entry.drift_flag for entry in sample_entries)
         missing_count = sum(entry.missing for entry in sample_entries)
         if drift_count == 0:
-            status = SampleReliabilityQcStatus.PASS
+            status = SampleReliabilityQcStatus.PASSED
         elif drift_count == len(sample_entries):
             status = SampleReliabilityQcStatus.FAIL
         else:

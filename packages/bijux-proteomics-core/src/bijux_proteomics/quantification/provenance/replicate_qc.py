@@ -392,7 +392,7 @@ def _merge_sample_qc_entries(
     qc_table: tuple[SampleReliabilityQcEntry, ...],
 ) -> dict[str, SampleReliabilityQcEntry]:
     severity_rank = {
-        SampleReliabilityQcStatus.PASS: 0,
+        SampleReliabilityQcStatus.PASSED: 0,
         SampleReliabilityQcStatus.CAUTION: 1,
         SampleReliabilityQcStatus.FAIL: 2,
     }

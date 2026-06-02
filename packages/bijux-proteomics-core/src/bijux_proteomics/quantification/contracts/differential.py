@@ -100,7 +100,7 @@ class DifferentialAbundanceAssumptionReport(JsonModel):
 class DifferentialResultRobustnessQcStatus(StrEnum):
     """Stable QC severity carried onto differential-result rows."""
 
-    PASS = "pass"
+    PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
 

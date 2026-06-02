@@ -191,7 +191,7 @@ class QcAssessmentSeverity(StrEnum):
 class QcStatus(StrEnum):
     """Operator-facing QC status for laboratory review and handoff."""
 
-    PASS = "pass"
+    PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
 
@@ -694,7 +694,7 @@ def _severity_rank(severity: QcAssessmentSeverity) -> int:
 
 def _status_rank(status: QcStatus) -> int:
     return {
-        QcStatus.PASS: 0,
+        QcStatus.PASSED: 0,
         QcStatus.CAUTION: 1,
         QcStatus.FAIL: 2,
     }[status]
@@ -705,7 +705,7 @@ def _status_from_severity(severity: QcAssessmentSeverity) -> QcStatus:
         return QcStatus.FAIL
     if severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.NOT_ASSESSED):
         return QcStatus.CAUTION
-    return QcStatus.PASS
+    return QcStatus.PASSED
 
 
 def _metadata_reference_values(metadata: dict[str, str], key: str) -> tuple[str, ...]:
@@ -717,7 +717,7 @@ def _metadata_reference_values(metadata: dict[str, str], key: str) -> tuple[str,
 
 def _metric_status_reason(assessment: QcMetricAssessment) -> QcStatusReasonEntry | None:
     status = _status_from_severity(assessment.severity)
-    if status is QcStatus.PASS:
+    if status is QcStatus.PASSED:
         return None
     return QcStatusReasonEntry(
         code=assessment.metric_key,

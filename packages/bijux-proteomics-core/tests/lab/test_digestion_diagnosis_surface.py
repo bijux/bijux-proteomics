@@ -56,7 +56,7 @@ def test_classify_digestion_flags_wrong_declared_enzyme_as_mismatch() -> None:
     )
     lookup = {row.sample_id: row for row in rows}
 
-    assert lookup["sample_tryptic"].digestion_status is DigestionStatus.PASS
+    assert lookup["sample_tryptic"].digestion_status is DigestionStatus.PASSED
 
     mismatch = lookup["sample_mismatch"]
     assert mismatch.digestion_status is DigestionStatus.ENZYME_MISMATCH

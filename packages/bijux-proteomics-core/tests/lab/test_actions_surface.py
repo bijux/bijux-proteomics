@@ -82,7 +82,7 @@ def test_build_lab_action_packets_ties_every_recommendation_to_specific_failure_
             ),
             RunDiagnosisEntry(
                 run_id="run-pass",
-                status=LabQcStatus.PASS,
+                status=LabQcStatus.PASSED,
                 failure_class=RunFailureClass.NO_FAILURE,
                 primary_reason="no_material_qc_failure_detected",
                 secondary_reasons=(),

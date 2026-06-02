@@ -267,7 +267,7 @@ def _run_qc_component(
     total = len(run_qc_assessments)
     weighted = sum(
         1.0
-        if assessment.qc_status is QcStatus.PASS
+        if assessment.qc_status is QcStatus.PASSED
         else 0.5
         if assessment.qc_status is QcStatus.CAUTION
         else 0.0
@@ -278,7 +278,7 @@ def _run_qc_component(
             {
                 "failed_run_qc" if assessment.qc_status is QcStatus.FAIL else "caution_run_qc"
                 for assessment in run_qc_assessments
-                if assessment.qc_status is not QcStatus.PASS
+                if assessment.qc_status is not QcStatus.PASSED
             }
         )
     )
