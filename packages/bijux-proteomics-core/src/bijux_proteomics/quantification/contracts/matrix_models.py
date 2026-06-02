@@ -218,7 +218,10 @@ class LabelFreeQuantTable(JsonModel):
     def to_quant_matrix(self) -> CanonicalQuantMatrix:
         """Return the canonical numeric matrix that backs this quant table."""
 
-        assert self.quant_matrix is not None
+        if self.quant_matrix is None:
+            raise RuntimeError(
+                "quant matrix conversion requires a preserved canonical quant matrix"
+            )
         return self.quant_matrix
 
     @classmethod

@@ -452,7 +452,10 @@ def _load_selected_targeted_transitions(
                 selected_transitions = entries_by_assay[assay_entry_id][
                     "selected_transitions"
                 ]
-                assert isinstance(selected_transitions, list)
+                if not isinstance(selected_transitions, list):
+                    raise TypeError(
+                        "targeted selection entries must preserve selected transitions as a list"
+                    )
                 selected_transitions.append(
                     TargetedTransitionSelectionFragment(
                         rank=int(str(row.get("transition_rank", "")).strip()),

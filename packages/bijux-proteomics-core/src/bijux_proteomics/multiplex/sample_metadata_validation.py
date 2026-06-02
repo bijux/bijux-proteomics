@@ -239,8 +239,10 @@ def _multiplex_entries(
 def _metadata_row_from_accepted_entry(
     entry: ExperimentalDesignEntry,
 ) -> _MultiplexMetadataRow:
-    assert entry.multiplex_group is not None
-    assert entry.multiplex_channel is not None
+    if entry.multiplex_group is None or entry.multiplex_channel is None:
+        raise RuntimeError(
+            "accepted multiplex metadata entries must preserve group and channel assignments"
+        )
     return _MultiplexMetadataRow(
         multiplex_group=entry.multiplex_group,
         multiplex_channel=entry.multiplex_channel,

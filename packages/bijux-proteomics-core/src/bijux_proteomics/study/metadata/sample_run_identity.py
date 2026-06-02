@@ -339,7 +339,10 @@ def _resolve_entry_field(
 
 def _technical_replicate_id(entry: ExperimentalDesignEntry) -> str:
     if entry.technical_replicate_id not in (None, ""):
-        assert entry.technical_replicate_id is not None
+        if entry.technical_replicate_id is None:
+            raise RuntimeError(
+                "technical replicate identity normalization requires a concrete replicate id"
+            )
         return entry.technical_replicate_id
     return entry.spectra_file
 

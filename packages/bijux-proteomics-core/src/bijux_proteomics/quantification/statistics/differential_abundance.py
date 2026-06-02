@@ -106,8 +106,10 @@ def build_differential_abundance_report(
                 "differential abundance requires exactly two conditions or explicit condition names"
             )
         condition_a, condition_b = conditions
-    assert condition_a is not None
-    assert condition_b is not None
+    if condition_a is None or condition_b is None:
+        raise RuntimeError(
+            "differential abundance requires resolved condition names after validation"
+        )
     contrast_design_entries = tuple(
         entry
         for entry in analysis_design_entries
@@ -189,8 +191,10 @@ def build_differential_abundance_report(
     complete_design_pairs: tuple[tuple[str, str, str], ...] = ()
     broken_pairs: tuple[DifferentialBrokenPairEntry, ...] = ()
     if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
-        assert active_design_matrix is not None
-        assert active_paired_policy is not None
+        if active_design_matrix is None or active_paired_policy is None:
+            raise RuntimeError(
+                "paired differential abundance requires a design matrix and paired policy"
+            )
         complete_design_pairs, broken_pairs = _resolve_design_pairs(
             active_design_matrix,
             condition_a=condition_a,
@@ -245,8 +249,10 @@ def build_differential_abundance_report(
         mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
 
         if test_type is DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST:
-            assert active_design_matrix is not None
-            assert selected_contrast is not None
+            if active_design_matrix is None or selected_contrast is None:
+                raise RuntimeError(
+                    "linear-model contrasts require a design matrix and selected contrast"
+                )
             (
                 log2_fold_change,
                 p_value,

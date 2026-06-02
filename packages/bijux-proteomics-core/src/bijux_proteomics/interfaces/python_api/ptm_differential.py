@@ -236,7 +236,10 @@ def run_ptm_differential_command(
             broken_pairs_tsv_out,
         )
     if volcano_tsv_out is not None:
-        assert volcano_plot is not None
+        if volcano_plot is None:
+            raise RuntimeError(
+                "PTM volcano TSV export requires a generated volcano plot surface"
+            )
         export_ptm_differential_volcano_tsv(volcano_plot, volcano_tsv_out)
     if volcano_review is not None:
         _export_volcano_review_assets(

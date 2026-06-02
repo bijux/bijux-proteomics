@@ -897,7 +897,10 @@ def _build_site_regulation_entry(
     unresolved: list[UnresolvedRegulatorTargetEntry] = []
     matched_target_count = 0
     for record in records:
-        assert record.site_key is not None
+        if record.site_key is None:
+            raise RuntimeError(
+                "site-regulation regulator inference requires evidence records with site keys"
+            )
         signal = site_signal_lookup.get(record.site_key)
         if signal is None:
             unresolved.append(
@@ -961,7 +964,10 @@ def _build_protein_abundance_entry(
             target_field = RegulatorEvidenceTargetField.PROTEIN_REF
             target_value = record.protein_ref
         else:
-            assert record.gene_symbol is not None
+            if record.gene_symbol is None:
+                raise RuntimeError(
+                    "protein-abundance regulator inference requires a gene symbol when no protein ref is provided"
+                )
             resolved_protein_refs = gene_symbol_to_protein_refs.get(
                 record.gene_symbol.upper(),
                 (),
@@ -1042,7 +1048,10 @@ def _build_pathway_activity_entry(
     unresolved: list[UnresolvedRegulatorTargetEntry] = []
     matched_target_count = 0
     for record in records:
-        assert record.pathway_id is not None
+        if record.pathway_id is None:
+            raise RuntimeError(
+                "pathway regulator inference requires evidence records with pathway ids"
+            )
         pathway_signal = pathway_lookup.get(record.pathway_id)
         if pathway_signal is None or pathway_signal[0] is None:
             unresolved.append(

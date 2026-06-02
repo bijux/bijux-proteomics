@@ -82,8 +82,10 @@ def test_protein_effect_from_peptides(
                 "peptide-level differential requires exactly two conditions or explicit condition names"
             )
         condition_a, condition_b = design_conditions
-    assert condition_a is not None
-    assert condition_b is not None
+    if condition_a is None or condition_b is None:
+        raise RuntimeError(
+            "peptide-level differential requires resolved condition names after validation"
+        )
     if condition_a == condition_b:
         raise ValueError("condition_a and condition_b must be different")
 

@@ -894,7 +894,10 @@ def _confidence_reason(
             f"{observed_member_count} was below minimum {minimum_observed_member_count}"
         )
     if pathway_coverage_status == "low_confidence":
-        assert pathway_coverage_fraction is not None
+        if pathway_coverage_fraction is None:
+            raise RuntimeError(
+                "low-confidence pathway coverage reasoning requires an explicit coverage fraction"
+            )
         reasons.append(
             "pathway knowledge coverage "
             f"{pathway_coverage_fraction:g} was below minimum "

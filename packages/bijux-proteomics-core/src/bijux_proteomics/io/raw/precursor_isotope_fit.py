@@ -812,7 +812,10 @@ def _resolve_tolerance(
         if tolerance_da <= 0.0:
             raise ValueError("tolerance_da must be greater than zero")
         return XicToleranceUnit.DALTON, tolerance_da
-    assert tolerance_ppm is not None
+    if tolerance_ppm is None:
+        raise RuntimeError(
+            "tolerance resolution requires a ppm tolerance when dalton tolerance is absent"
+        )
     if tolerance_ppm <= 0.0:
         raise ValueError("tolerance_ppm must be greater than zero")
     return XicToleranceUnit.PPM, tolerance_ppm

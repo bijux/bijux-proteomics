@@ -136,7 +136,8 @@ def build_transition_qc_report(
             },
         )
         sample_entries = group["sample_entries"]
-        assert isinstance(sample_entries, dict)
+        if not isinstance(sample_entries, dict):
+            raise TypeError("transition QC grouping must preserve sample entries as a mapping")
         sample_entries.setdefault(entry.sample_id, []).append(entry)
 
     report_entries: list[DiaTransitionQcEntry] = []
@@ -152,7 +153,8 @@ def build_transition_qc_report(
         precursor_id = str(group["precursor_id"])
         precursor_ids.add(precursor_id)
         sample_entries = group["sample_entries"]
-        assert isinstance(sample_entries, dict)
+        if not isinstance(sample_entries, dict):
+            raise TypeError("transition QC grouping must preserve sample entries as a mapping")
         values: list[DiaTransitionSampleValue] = []
         detected_intensities: list[float] = []
         detected_retention_times: list[float] = []

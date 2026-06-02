@@ -129,7 +129,10 @@ def _parse_ms1_feature_table_impl(
             if rejected_row is not None:
                 rejected.append(rejected_row)
                 continue
-            assert parsed_record is not None
+            if parsed_record is None:
+                raise RuntimeError(
+                    "accepted MS1 feature parsing rows must produce a parsed record"
+                )
             accepted.append(parsed_record)
 
     accepted = sorted(
@@ -245,7 +248,10 @@ def _parse_precursor_intensity_table_impl(
             if rejected_row is not None:
                 rejected.append(rejected_row)
                 continue
-            assert parsed_record is not None
+            if parsed_record is None:
+                raise RuntimeError(
+                    "accepted precursor intensity parsing rows must produce a parsed record"
+                )
             accepted.append(parsed_record)
 
     accepted = sorted(

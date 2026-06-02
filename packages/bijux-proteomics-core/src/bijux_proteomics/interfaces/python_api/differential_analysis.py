@@ -123,7 +123,10 @@ def run_dia_differential_command(
             sample_balance_tsv_out,
         )
     if volcano_tsv_out is not None:
-        assert volcano_plot is not None
+        if volcano_plot is None:
+            raise RuntimeError(
+                "volcano TSV export requires a generated volcano plot surface"
+            )
         export_dia_differential_volcano_plot_tsv(volcano_plot, volcano_tsv_out)
     if volcano_review is not None:
         _export_volcano_review_assets(

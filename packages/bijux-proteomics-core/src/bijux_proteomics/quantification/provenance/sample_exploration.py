@@ -620,7 +620,10 @@ def build_sample_cluster_report(
                     best_pair = (left_index, right_index)
                     best_distance = distance
                     best_key = candidate_key
-        assert best_pair is not None  # sample_count >= 2 guarantees one merge
+        if best_pair is None:
+            raise RuntimeError(
+                "sample exploration clustering could not select a pair despite multiple active clusters"
+            )
         left_cluster = active_clusters[best_pair[0]]
         right_cluster = active_clusters[best_pair[1]]
         merged_indexes = tuple(

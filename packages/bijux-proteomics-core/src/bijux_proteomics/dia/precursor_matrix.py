@@ -238,16 +238,22 @@ def build_dia_precursor_matrix_report(
             },
         )
         protein_refs = group["protein_refs"]
-        assert isinstance(protein_refs, set)
+        if not isinstance(protein_refs, set):
+            raise TypeError("precursor grouping must preserve protein refs as a set")
         protein_refs.update(row.protein_refs)
         source_precursor_ids = group["source_precursor_ids"]
-        assert isinstance(source_precursor_ids, set)
+        if not isinstance(source_precursor_ids, set):
+            raise TypeError(
+                "precursor grouping must preserve source precursor ids as a set"
+            )
         source_precursor_ids.add(row.precursor_id)
         labels = group["labels"]
-        assert isinstance(labels, set)
+        if not isinstance(labels, set):
+            raise TypeError("precursor grouping must preserve target-decoy labels as a set")
         labels.add(row.target_decoy_label)
         sample_rows = group["sample_rows"]
-        assert isinstance(sample_rows, dict)
+        if not isinstance(sample_rows, dict):
+            raise TypeError("precursor grouping must preserve sample rows as a mapping")
         sample_rows.setdefault(row.sample_name, []).append(row)
 
     matrix_rows: list[DiaPrecursorMatrixRow] = []
@@ -260,9 +266,11 @@ def build_dia_precursor_matrix_report(
     for precursor_key in sorted(grouped):
         group = grouped[precursor_key]
         sample_rows = group["sample_rows"]
-        assert isinstance(sample_rows, dict)
+        if not isinstance(sample_rows, dict):
+            raise TypeError("precursor grouping must preserve sample rows as a mapping")
         labels = group["labels"]
-        assert isinstance(labels, set)
+        if not isinstance(labels, set):
+            raise TypeError("precursor grouping must preserve target-decoy labels as a set")
         label = _combine_target_decoy_labels(labels)
         if label is TargetDecoyLabel.DECOY:
             decoy_row_count += 1
@@ -377,9 +385,13 @@ def build_dia_precursor_matrix_report(
                 )
             )
         protein_refs = group["protein_refs"]
-        assert isinstance(protein_refs, set)
+        if not isinstance(protein_refs, set):
+            raise TypeError("precursor grouping must preserve protein refs as a set")
         source_precursor_ids = group["source_precursor_ids"]
-        assert isinstance(source_precursor_ids, set)
+        if not isinstance(source_precursor_ids, set):
+            raise TypeError(
+                "precursor grouping must preserve source precursor ids as a set"
+            )
         matrix_rows.append(
             DiaPrecursorMatrixRow(
                 precursor_key=precursor_key,

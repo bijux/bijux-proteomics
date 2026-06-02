@@ -84,8 +84,10 @@ def test_censored_two_group(
                 "censored differential testing requires exactly two conditions or explicit condition names"
             )
         condition_a, condition_b = conditions
-    assert condition_a is not None
-    assert condition_b is not None
+    if condition_a is None or condition_b is None:
+        raise RuntimeError(
+            "censored differential testing requires resolved condition names after validation"
+        )
 
     samples_a = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_a)
     samples_b = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_b)
