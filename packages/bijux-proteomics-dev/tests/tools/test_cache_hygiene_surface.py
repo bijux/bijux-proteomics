@@ -25,7 +25,7 @@ def test_find_forbidden_cache_dirs_discovers_nested_cache_directories(
 def test_purge_forbidden_cache_dirs_removes_live_cache_directories(
     tmp_path: Path,
 ) -> None:
-    cache_dir = tmp_path / "package-a" / "__pycache__"
+    cache_dir = tmp_path / "package-a" / ".pytest_cache"
     cache_dir.mkdir(parents=True)
     (cache_dir / "module.cpython-311.pyc").write_text("compiled", encoding="utf-8")
 

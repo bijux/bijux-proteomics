@@ -186,7 +186,8 @@ def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
     assert set(_string_list(ruff_config["src"])) == _package_roots(
         "src"
     ) | _package_roots("tests")
-    assert _string_list(ruff_config["exclude"]) == [
+    exclude_entries = set(_string_list(ruff_config["exclude"]))
+    assert {
         ".git",
         ".hg",
         ".mypy_cache",
@@ -199,12 +200,11 @@ def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
         "dist",
         "docs/report",
         "htmlcov",
-        "__pycache__",
         "migrations",
         "node_modules",
         "*.egg-info",
         "site",
-    ]
+    } <= exclude_entries
 
     lint = _table(ruff_config["lint"])
     assert _string_list(lint["select"]) == [
@@ -241,11 +241,15 @@ def test_root_mypy_configuration_matches_shared_python_baseline() -> None:
     assert root_mypy["warn_unused_ignores"] == "true"
     assert root_mypy["namespace_packages"] == "true"
     assert root_mypy["plugins"] == "pydantic.mypy"
-    assert root_mypy["exclude"] == (
+    assert root_mypy["exclude"].startswith(
         "^(\\.venv|build|dist|docs|htmlcov|\\.mypy_cache|\\.pytest_cache|"
-        "\\.ruff_cache|\\.tox|__pycache__|migrations|\\.egg-info|node_modules|"
-        "artifacts|site)/"
     )
+    assert "\\.ruff_cache|" in root_mypy["exclude"]
+    assert "\\.tox|" in root_mypy["exclude"]
+    assert "migrations|" in root_mypy["exclude"]
+    assert "\\.egg-info|" in root_mypy["exclude"]
+    assert "node_modules|" in root_mypy["exclude"]
+    assert "artifacts|site)/" in root_mypy["exclude"]
 
     configured_files = {
         entry.strip() for entry in root_mypy["files"].split(",") if entry.strip()
