@@ -10,6 +10,7 @@ from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 from .imports import *  # noqa: F401,F403
+from .workflow import *  # noqa: F401,F403
 
 def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
     if hasattr(payload, "to_stable_json"):

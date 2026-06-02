@@ -120,10 +120,9 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
 
 
 def run_proteomics_workflow(*args, **kwargs):
-    """Delegate workflow orchestration through the public CLI app surface."""
-    from bijux_proteomics.interfaces.cli import app as cli_app
+    """Delegate workflow orchestration through the canonical scientific owner."""
 
-    return cli_app.run_proteomics_workflow(*args, **kwargs)
+    return _orchestrator_run_proteomics_workflow(*args, **kwargs)
 
 
 
