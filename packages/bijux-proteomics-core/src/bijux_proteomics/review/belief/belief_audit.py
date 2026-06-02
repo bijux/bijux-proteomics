@@ -490,7 +490,7 @@ def _build_regulator_entries(
                         node_id
                         for protein_ref in inference.supporting_protein_refs
                         for node_id in _node_ids_for_entity(
-                            explanation_context.base_context.graph_nodes,
+                            explanation_context.base_context.graph_node_index,
                             entity_type="protein",
                             entity_ref=protein_ref,
                         )
@@ -499,7 +499,7 @@ def _build_regulator_entries(
                         node_id
                         for pathway_id in inference.supporting_pathway_ids
                         for node_id in _node_ids_for_entity(
-                            explanation_context.base_context.graph_nodes,
+                            explanation_context.base_context.graph_node_index,
                             entity_type="pathway",
                             entity_ref=pathway_id,
                         )
@@ -654,7 +654,7 @@ def _build_biomarker_entries(
                         ()
                         if card.target_protein_ref is None
                         else _node_ids_for_entity(
-                            explanation_context.base_context.graph_nodes,
+                            explanation_context.base_context.graph_node_index,
                             entity_type="protein",
                             entity_ref=card.target_protein_ref,
                         )

@@ -315,3 +315,51 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
         "quant_review_bundle.multi_contrast_consistency_report.entities"
         in bundle.evidence_pointers
     )
+
+
+def test_quant_review_bundle_skips_infeasible_multi_condition_statistics() -> None:
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="s1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="s1.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="s2.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s3",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="s3.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s4",
+            condition="rescue",
+            replicate=1,
+            fraction=1,
+            spectra_file="s4.mzml",
+            batch="batch-a",
+        ),
+    )
+
+    bundle = build_quant_review_bundle(
+        _records(),
+        design_entries=design,
+        normalization_method=NormalizationMethod.MEDIAN,
+        imputation_method=ImputationMethod.NONE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    assert bundle.differential_abundance_multi_condition_report is None
+    assert bundle.multi_contrast_consistency_report is None

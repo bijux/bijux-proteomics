@@ -383,7 +383,7 @@ def _build_sample_qc_section(
                 dict.fromkeys(
                     (
                         *_node_ids_for_entity(
-                            context.result_context.graph_nodes,
+                            context.result_context.graph_node_index,
                             entity_type="sample",
                             entity_ref=sample_id,
                         ),
@@ -391,7 +391,7 @@ def _build_sample_qc_section(
                             node_id
                             for run in qc_runs
                             for node_id in _node_ids_for_entity(
-                                context.result_context.graph_nodes,
+                                context.result_context.graph_node_index,
                                 entity_type="run",
                                 entity_ref=run.run_id,
                             )
@@ -753,7 +753,7 @@ def _graph_node_ids_for_subject(
     source_ids: tuple[str, ...],
     context: _ResultArtifactContext,
 ) -> tuple[str, ...]:
-    protein_card = _find_protein_card(context.protein_cards, subject_id)
+    protein_card = _find_protein_card(context.protein_card_index, subject_id)
     graph_node_ids: list[str] = []
     if protein_card is not None:
         graph_node_ids.extend(_protein_card_graph_node_ids(protein_card))
