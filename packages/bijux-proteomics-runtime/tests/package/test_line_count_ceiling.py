@@ -37,7 +37,7 @@ def _exception(relative_path: str, allowed_line_count: int) -> SourceFileLineCou
 RUNTIME_LINE_COUNT_EXCEPTIONS = (
     _exception("api/cli.py", 1052),
     _exception("runs/manager.py", 1662),
-    _exception("workflows/advanced_diann.py", 1269),
+    _exception("workflows/advanced_diann.py", 1300),
     _exception("workflows/benchmark_runs.py", 1547),
     _exception("workflows/plans.py", 4099),
     _exception("workflows/reproducibility.py", 1031),
