@@ -57,7 +57,13 @@ list-all:
 
 ROOT_INSTALL_PREREQS ?= root-check-env
 ROOT_CHECK_ENV_PREREQS ?= pyproject.toml uv.lock $(ROOT_UV_PREREQS) $(ROOT_CHECK_STAMP)
-ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND ?= @rm -rf $(ROOT_FORBIDDEN_ARTIFACTS) || true
+ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND ?= @set -eu; \
+	for path in $(ROOT_FORBIDDEN_ARTIFACTS); do \
+	  if [ -L "$$path" ]; then \
+	    continue; \
+	  fi; \
+	  rm -rf "$$path"; \
+	done
 ROOT_ALL_TARGETS ?= test lint quality security docs api build sbom
 ROOT_DEFINE_CLEAN ?= 0
 
