@@ -32,7 +32,7 @@ class ScientificCheckpointQcStatus(StrEnum):
     """Compact QC posture preserved at each scientific checkpoint."""
 
     NOT_APPLICABLE = "not_applicable"
-    PASS = "pass"
+    PASSED = "pass"
     WARN = "warn"
     FAIL = "fail"
 
@@ -73,7 +73,7 @@ class ScientificCheckpointInput(JsonModel):
     quantification_stage: ScientificStageSummary
     statistics_stage: ScientificStageSummary
     biology_stage: ScientificStageSummary
-    qc_status: ScientificCheckpointQcStatus = ScientificCheckpointQcStatus.PASS
+    qc_status: ScientificCheckpointQcStatus = ScientificCheckpointQcStatus.PASSED
     design_validity: ExperimentDesignValidityReport
     biology_confidence: EvidenceGraphConfidenceReport | None = None
 

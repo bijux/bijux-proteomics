@@ -170,7 +170,10 @@ def _claim_changes(
         if left_state is right_state:
             continue
         entry = left_entry if left_entry is not None else right_entry
-        assert entry is not None
+        if entry is None:
+            raise RuntimeError(
+                "advanced dia-nn claim comparison expected at least one changed claim entry"
+            )
         changes.append(
             AdvancedDiannClaimChangeEntry(
                 claim_id=claim_id,
@@ -199,7 +202,10 @@ def _rejected_row_changes(
         if left_state is right_state:
             continue
         entry = left_entry if left_entry is not None else right_entry
-        assert entry is not None
+        if entry is None:
+            raise RuntimeError(
+                "advanced dia-nn rejected-row comparison expected at least one changed precursor entry"
+            )
         changes.append(
             AdvancedDiannRejectedRowChangeEntry(
                 precursor_id=precursor_id,

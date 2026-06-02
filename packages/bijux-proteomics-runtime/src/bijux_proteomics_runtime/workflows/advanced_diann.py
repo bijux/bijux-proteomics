@@ -417,7 +417,11 @@ def run_resumable_advanced_diann_workflow(
                 import_report,
             )
         elif stage is AdvancedDiannRuntimeStage.MATRICES:
-            assert import_report is not None
+            if import_report is None:
+                raise RuntimeError(
+                    "advanced dia-nn matrices stage requires an import report before "
+                    "building quantification matrices"
+                )
             quant_matrix_bundle = build_diann_quant_matrix_bundle(
                 import_report,
                 include_decoys=config.include_decoys,
@@ -432,8 +436,16 @@ def run_resumable_advanced_diann_workflow(
                 quant_matrix_bundle,
             )
         elif stage is AdvancedDiannRuntimeStage.BIOLOGY:
-            assert import_report is not None
-            assert quant_matrix_bundle is not None
+            if import_report is None:
+                raise RuntimeError(
+                    "advanced dia-nn biology stage requires an import report before "
+                    "building biological workflow outputs"
+                )
+            if quant_matrix_bundle is None:
+                raise RuntimeError(
+                    "advanced dia-nn biology stage requires a quant matrix bundle "
+                    "before building biological workflow outputs"
+                )
             base_bundle = build_diann_biological_workflow_bundle_from_reports(
                 import_report,
                 quant_matrix_bundle,
@@ -458,7 +470,11 @@ def run_resumable_advanced_diann_workflow(
                 base_bundle,
             )
         else:
-            assert base_bundle is not None
+            if base_bundle is None:
+                raise RuntimeError(
+                    "advanced dia-nn review stage requires a biological workflow "
+                    "bundle before building the final report"
+                )
             advanced_report = build_advanced_diann_workflow_report_from_bundle(
                 base_bundle,
                 config,
@@ -506,7 +522,10 @@ def run_resumable_advanced_diann_workflow(
                 ),
             )
 
-    assert advanced_report is not None
+    if advanced_report is None:
+        raise RuntimeError(
+            "advanced dia-nn runtime completed without producing a final advanced report"
+        )
     return AdvancedDiannRuntimeRunReport(
         workflow_type=run_identity.workflow_type,
         workflow_id=workflow_id,
@@ -1201,18 +1220,30 @@ def _stage_schema_name(stage: AdvancedDiannRuntimeStage) -> str:
 def _stage_entity_count(stage: AdvancedDiannRuntimeStage, payload: JsonModel) -> int:
     if stage is AdvancedDiannRuntimeStage.IMPORT:
         report = payload
-        assert isinstance(report, DiaNnBundleImportReport)
+        if not isinstance(report, DiaNnBundleImportReport):
+            raise TypeError(
+                "advanced dia-nn import stage payload must be a DIA-NN import report"
+            )
         return report.summary.accepted_precursor_count
     if stage is AdvancedDiannRuntimeStage.MATRICES:
         bundle = payload
-        assert isinstance(bundle, DiannQuantMatrixBundle)
+        if not isinstance(bundle, DiannQuantMatrixBundle):
+            raise TypeError(
+                "advanced dia-nn matrices stage payload must be a DIA-NN quant matrix bundle"
+            )
         return bundle.protein_matrix_report.summary.protein_row_count
     if stage is AdvancedDiannRuntimeStage.BIOLOGY:
         bundle = payload
-        assert isinstance(bundle, DiannBiologicalWorkflowBundle)
+        if not isinstance(bundle, DiannBiologicalWorkflowBundle):
+            raise TypeError(
+                "advanced dia-nn biology stage payload must be a DIA-NN biological workflow bundle"
+            )
         return bundle.summary.significant_protein_count
     report = payload
-    assert isinstance(report, AdvancedDiannWorkflowReport)
+    if not isinstance(report, AdvancedDiannWorkflowReport):
+        raise TypeError(
+            "advanced dia-nn review stage payload must be an advanced DIA-NN workflow report"
+        )
     return report.summary.accepted_protein_count + report.summary.downgraded_protein_count
 
 

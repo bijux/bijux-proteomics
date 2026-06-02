@@ -179,8 +179,11 @@ def _confidence_change_note(
         return "biological hypothesis confidence appears only in the right completed run"
     if left_entry is not None and right_entry is None:
         return "biological hypothesis confidence appears only in the left completed run"
-    assert left_entry is not None
-    assert right_entry is not None
+    if left_entry is None or right_entry is None:
+        raise RuntimeError(
+            "confidence change notes require paired completed-run entries when both "
+            "sides are expected to be present"
+        )
     return (
         "biological hypothesis confidence tier changed across completed runs after "
         "rehydrating archived scientific conclusions"

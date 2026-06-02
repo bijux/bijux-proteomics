@@ -148,7 +148,7 @@ def test_invalid_design_blocks_statistics_and_biology() -> None:
             quantification_stage=_stage(90, 5),
             statistics_stage=_stage(0, 0),
             biology_stage=_stage(0, 0),
-            qc_status=ScientificCheckpointQcStatus.PASS,
+            qc_status=ScientificCheckpointQcStatus.PASSED,
             design_validity=_design(False),
             biology_confidence=_biology_confidence(EvidenceGraphConfidenceTier.HIGH),
         )
