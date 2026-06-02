@@ -291,7 +291,10 @@ def _resolved_inputs(
         }:
             unresolved_inputs.add(entry.input_id)
             continue
-        assert entry.resolved_accession is not None
+        if entry.resolved_accession is None:
+            raise RuntimeError(
+                "resolved protein identity entries must include an accession"
+            )
         resolved_protein_refs.add(canonicalize_protein_reference(entry.resolved_accession))
         if entry.gene:
             resolved_gene_symbols.add(entry.gene)
