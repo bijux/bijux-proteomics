@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 import importlib
 from pathlib import Path
+from typing import Protocol
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
@@ -53,11 +54,16 @@ class PublicApiSnapshotPackage:
     entries: tuple[PublicApiSnapshotEntry, ...]
 
 
+class _SnapshotSourceEntry(Protocol):
+    export_name: object
+    owner_module: object
+
+
 def _public_api_module_name(package_name: str) -> str:
     return f"{import_root(package_name)}.public_api"
 
 
-def _entry_list(module: object) -> tuple[object, ...]:
+def _entry_list(module: object) -> tuple[_SnapshotSourceEntry, ...]:
     for attribute_name in dir(module):
         if (
             attribute_name.startswith("list_")
@@ -103,7 +109,9 @@ def build_public_api_snapshot_packages() -> tuple[PublicApiSnapshotPackage, ...]
     with workspace_import_path():
         for package_name in CANONICAL_PUBLIC_API_PACKAGES:
             import_root_name = import_root(package_name)
-            public_api_module = importlib.import_module(_public_api_module_name(package_name))
+            public_api_module = importlib.import_module(
+                _public_api_module_name(package_name)
+            )
             max_public_symbols, max_init_lines = _budget(public_api_module)
             entries = tuple(
                 PublicApiSnapshotEntry(

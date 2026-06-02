@@ -5,10 +5,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics_foundation.testing.source_tree_limits import (
     SourceFileLineCountException,
     build_source_tree_line_count_report,
 )
+
+pytestmark = pytest.mark.governance
 
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 LINE_COUNT_CEILING = 1000

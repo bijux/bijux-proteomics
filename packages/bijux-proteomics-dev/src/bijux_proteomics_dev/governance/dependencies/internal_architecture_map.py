@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from typing import Callable
 
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     PackageDependencyPolicyEntry,
@@ -174,7 +175,9 @@ def build_internal_architecture_map_report() -> InternalArchitectureMapReport:
         package_entries=tuple(
             InternalArchitecturePackageEntry(
                 distribution_name=distribution_name,
-                allowed_outbound_edges=tuple(sorted(outbound_by_package[distribution_name])),
+                allowed_outbound_edges=tuple(
+                    sorted(outbound_by_package[distribution_name])
+                ),
                 rationale=policy_by_package[distribution_name].rationale,
             )
             for distribution_name in sorted(outbound_by_package)
@@ -187,7 +190,7 @@ def build_internal_architecture_map_report() -> InternalArchitectureMapReport:
 def _classifier_for_distribution(
     entries: tuple[InternalArchitectureModuleFamilyEntry, ...],
     distribution_name: str,
-):
+) -> Callable[[str], str | None]:
     candidates = tuple(
         sorted(
             (
@@ -224,7 +227,10 @@ def _coverage_prefixes(
 
 
 def _module_is_covered(module_name: str, prefixes: tuple[str, ...]) -> bool:
-    return any(module_name == prefix or module_name.startswith(prefix + ".") for prefix in prefixes)
+    return any(
+        module_name == prefix or module_name.startswith(prefix + ".")
+        for prefix in prefixes
+    )
 
 
 def evaluate_internal_architecture_violations(
@@ -249,14 +255,17 @@ def evaluate_internal_architecture_violations(
             edge.target_distribution
         )
 
-    for entry in report.package_entries:
-        unexpected = sorted(actual_outbound.get(entry.distribution_name, set()) - set(entry.allowed_outbound_edges))
+    for package_entry in report.package_entries:
+        unexpected = sorted(
+            actual_outbound.get(package_entry.distribution_name, set())
+            - set(package_entry.allowed_outbound_edges)
+        )
         if unexpected:
             violations.append(
                 InternalArchitectureViolation(
                     boundary_name="package_outbound_edge",
                     detail=(
-                        f"{entry.distribution_name} imports disallowed package edges: "
+                        f"{package_entry.distribution_name} imports disallowed package edges: "
                         f"{', '.join(unexpected)}"
                     ),
                 )
@@ -266,7 +275,9 @@ def evaluate_internal_architecture_violations(
         (entry.distribution_name, entry.family_name): entry
         for entry in report.module_family_entries
     }
-    distributions = sorted({entry.distribution_name for entry in report.module_family_entries})
+    distributions = sorted(
+        {entry.distribution_name for entry in report.module_family_entries}
+    )
     if module_edges is None:
         module_edges = tuple(
             edge
@@ -276,8 +287,12 @@ def evaluate_internal_architecture_violations(
         )
 
     for distribution_name in distributions:
-        classify = _classifier_for_distribution(report.module_family_entries, distribution_name)
-        covered_prefixes = _coverage_prefixes(report.module_family_entries, distribution_name)
+        classify = _classifier_for_distribution(
+            report.module_family_entries, distribution_name
+        )
+        covered_prefixes = _coverage_prefixes(
+            report.module_family_entries, distribution_name
+        )
         for edge in module_edges:
             if edge.source_distribution != distribution_name or not edge.internal:
                 continue
@@ -360,15 +375,15 @@ def _toml_text(report: InternalArchitectureMapReport) -> str:
                 "",
             ]
         )
-    for entry in report.module_family_entries:
+    for family_entry in report.module_family_entries:
         lines.extend(
             [
                 "[[module_family]]",
-                f'distribution_name = "{entry.distribution_name}"',
-                f'family_name = "{entry.family_name}"',
-                f"module_prefixes = [{_render_tuple(entry.module_prefixes)}]",
-                f"allowed_outbound_families = [{_render_tuple(entry.allowed_outbound_families)}]",
-                f'rationale = "{entry.rationale}"',
+                f'distribution_name = "{family_entry.distribution_name}"',
+                f'family_name = "{family_entry.family_name}"',
+                f"module_prefixes = [{_render_tuple(family_entry.module_prefixes)}]",
+                f"allowed_outbound_families = [{_render_tuple(family_entry.allowed_outbound_families)}]",
+                f'rationale = "{family_entry.rationale}"',
                 "",
             ]
         )

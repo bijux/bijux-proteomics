@@ -3,22 +3,50 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
 import sys
-
-from .public_api_smoke_support import (
-    load_public_package_apis,
-    ordered_public_package_modules,
-)
-
+from types import ModuleType
+from typing import Protocol
 
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
+SUPPORT_PATH = Path(__file__).with_name("public_api_smoke_support.py")
+
+
+class _PublicApiSmokeSupport(Protocol):
+    def load_public_package_apis(self) -> tuple["_PublicPackageApiLoad", ...]: ...
+
+    def ordered_public_package_modules(self) -> tuple[tuple[str, str], ...]: ...
+
+
+class _PublicPackageApiLoad(Protocol):
+    package_name: str
+    module_name: str
+    export_names: tuple[str, ...]
+
+
+def _load_support_module() -> _PublicApiSmokeSupport:
+    spec = importlib.util.spec_from_file_location(
+        "bijux_proteomics_dev_public_api_smoke_support",
+        SUPPORT_PATH,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    assert isinstance(module, ModuleType)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_SUPPORT = _load_support_module()
+load_public_package_apis = _SUPPORT.load_public_package_apis
+ordered_public_package_modules = _SUPPORT.ordered_public_package_modules
 
 
 def _product_source_pythonpath() -> str:
@@ -38,7 +66,7 @@ def _product_source_pythonpath() -> str:
         "packages/proteomics-knowledge/src",
         "packages/proteomics-lab/src",
         "packages/proteomics-runtime/src",
-        "packages/bijux-proteomics-dev/tests",
+        "packages/bijux-proteomics-dev/tests/package",
     )
     return ":".join(str(REPO_ROOT / root) for root in roots)
 
@@ -161,7 +189,7 @@ def test_cross_package_public_api_smoke_does_not_require_dev_package_imports() -
     code = """
 import builtins
 
-from package.public_api_smoke_support import load_public_package_apis
+from public_api_smoke_support import load_public_package_apis
 
 original_import = builtins.__import__
 

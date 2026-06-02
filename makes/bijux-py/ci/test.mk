@@ -16,8 +16,8 @@ ENABLE_BENCH              ?= 1
 PYTEST_ADDOPTS_EXTRA      ?=
 TEST_PRE_TARGETS          ?=
 TEST_MAIN_ARGS            ?=
-TEST_UNIT_DIR_ARGS        ?= -m "unit and not slow and not benchmark and not external_data" --maxfail=1 -q
-TEST_UNIT_FALLBACK_ARGS   ?= -m "unit and not slow and not benchmark and not external_data" --maxfail=1 -q
+TEST_UNIT_DIR_ARGS        ?= -m "unit and not slow and not benchmark and not external_data and not governance" --maxfail=1 -q
+TEST_UNIT_FALLBACK_ARGS   ?= -m "unit and not slow and not benchmark and not external_data and not governance" --maxfail=1 -q
 TEST_SLOW_ARGS            ?= -m "slow or benchmark or external_data" --maxfail=1 -q
 TEST_E2E_ARGS             ?= -m "e2e" --maxfail=1 -q
 TEST_REGRESSION_ARGS      ?= -m "regression" --maxfail=1 -q

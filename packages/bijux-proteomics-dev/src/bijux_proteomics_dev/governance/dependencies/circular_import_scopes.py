@@ -78,7 +78,9 @@ def load_circular_import_scopes(
         CircularImportScope(
             distribution_name=str(scope["distribution_name"]),
             scope_name=str(scope["scope_name"]),
-            monitored_families=tuple(str(value) for value in scope["monitored_families"]),
+            monitored_families=tuple(
+                str(value) for value in scope["monitored_families"]
+            ),
         )
         for scope in scopes
     )
@@ -185,7 +187,9 @@ def build_circular_import_scope_cycles(
 ) -> tuple[CircularImportScopeCycle, ...]:
     """Return the normalized set of family cycles for one governed scope."""
 
-    dependency_edges = dependency_edges or module_dependency_edges(scope.distribution_name)
+    dependency_edges = dependency_edges or module_dependency_edges(
+        scope.distribution_name
+    )
     monitored_families = set(scope.monitored_families)
     adjacency: dict[str, set[str]] = defaultdict(set)
     for family_name in scope.monitored_families:
@@ -193,7 +197,9 @@ def build_circular_import_scope_cycles(
     for edge in dependency_edges:
         if not edge.internal:
             continue
-        if _is_facade_module(edge.source_module) or _is_facade_module(edge.target_module):
+        if _is_facade_module(edge.source_module) or _is_facade_module(
+            edge.target_module
+        ):
             continue
         source_family = _family_name(edge.source_module)
         target_family = _family_name(edge.target_module)
@@ -201,7 +207,10 @@ def build_circular_import_scope_cycles(
             continue
         if source_family == target_family:
             continue
-        if source_family not in monitored_families or target_family not in monitored_families:
+        if (
+            source_family not in monitored_families
+            or target_family not in monitored_families
+        ):
             continue
         adjacency[source_family].add(target_family)
 
@@ -268,8 +277,8 @@ def validate_circular_import_scopes(
                 )
             )
             continue
-        for cycle in build_circular_import_scope_cycles(scope):
-            loop = " -> ".join([*cycle.families, cycle.families[0]])
+        for scope_cycle in build_circular_import_scope_cycles(scope):
+            loop = " -> ".join([*scope_cycle.families, scope_cycle.families[0]])
             issues.append(
                 CircularImportScopeIssue(
                     scope_name=scope.scope_name,
@@ -299,7 +308,9 @@ def run(*, check: bool = False) -> int:
         for issue in issues:
             print(issue.detail)
         return 1
-    artifact_path.write_text("no governed circular imports detected\n", encoding="utf-8")
+    artifact_path.write_text(
+        "no governed circular imports detected\n", encoding="utf-8"
+    )
     if not check:
         print("governed circular import scopes are acyclic")
     else:

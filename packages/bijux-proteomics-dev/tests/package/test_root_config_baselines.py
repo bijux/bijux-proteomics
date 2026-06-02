@@ -111,6 +111,7 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
         "e2e: end-to-end tests",
         "evaluation: evaluation benchmarks (deterministic, no regressions)",
         "external_data: tests that exercise checked-in external corpora and bundles",
+        "governance: repository governance and inventory freshness tests",
         "gpu: requires CUDA",
         "integration: integration tests",
         "live: live provider integration",

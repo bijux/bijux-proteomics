@@ -114,6 +114,7 @@ ignore-semiprivate = true
 markers = [
   "benchmark: performance and benchmark-oriented tests",
   "external_data: tests that exercise checked-in external corpora and bundles",
+  "governance: repository governance and inventory freshness tests",
   "slow: mark test as slow",
   "unit: unit tests",
 ]

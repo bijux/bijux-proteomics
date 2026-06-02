@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pytest import CaptureFixture
+from pytest import MonkeyPatch
+
 import bijux_proteomics_dev.governance.contracts.freeze_contracts as freeze_contracts_module
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
     run as run_api_freeze_contracts,
@@ -20,8 +23,8 @@ def test_api_freeze_contracts_pass_for_repository() -> None:
 
 
 def test_api_freeze_contracts_report_shared_function_signature_drift(
-    monkeypatch,
-    capsys,
+    monkeypatch: MonkeyPatch,
+    capsys: CaptureFixture[str],
 ) -> None:
     repo_root = next(
         parent

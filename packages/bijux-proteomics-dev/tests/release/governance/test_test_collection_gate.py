@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pytest import CaptureFixture
 from pytest import MonkeyPatch
 
 from bijux_proteomics_dev.release.governance import test_collection_gate
@@ -101,32 +102,34 @@ def test_workspace_collection_check_uses_repo_root_pytest_entrypoint(
 
 def test_run_reports_failed_import_or_collection_checks(
     monkeypatch: MonkeyPatch,
-    capsys: object,
+    capsys: CaptureFixture[str],
 ) -> None:
     monkeypatch.setattr(
         test_collection_gate,
         "build_test_collection_gate_report",
-        lambda repo_root, python_executable=None: test_collection_gate.CollectionGateReport(
-            import_checks=(
-                test_collection_gate.CollectionGateCheck(
-                    check_kind="import",
-                    package_name="bijux-proteomics-core",
-                    target="bijux_proteomics",
-                    command=("python", "-c", "import bijux_proteomics"),
-                    ok=False,
-                    detail="import failed",
+        lambda repo_root, python_executable=None: (
+            test_collection_gate.CollectionGateReport(
+                import_checks=(
+                    test_collection_gate.CollectionGateCheck(
+                        check_kind="import",
+                        package_name="bijux-proteomics-core",
+                        target="bijux_proteomics",
+                        command=("python", "-c", "import bijux_proteomics"),
+                        ok=False,
+                        detail="import failed",
+                    ),
                 ),
-            ),
-            collection_checks=(
-                test_collection_gate.CollectionGateCheck(
-                    check_kind="collection",
-                    package_name="bijux-proteomics-runtime",
-                    target="packages/bijux-proteomics-runtime/tests",
-                    command=("python", "-m", "pytest"),
-                    ok=False,
-                    detail="collection failed",
+                collection_checks=(
+                    test_collection_gate.CollectionGateCheck(
+                        check_kind="collection",
+                        package_name="bijux-proteomics-runtime",
+                        target="packages/bijux-proteomics-runtime/tests",
+                        command=("python", "-m", "pytest"),
+                        ok=False,
+                        detail="collection failed",
+                    ),
                 ),
-            ),
+            )
         ),
     )
 
@@ -135,24 +138,28 @@ def test_run_reports_failed_import_or_collection_checks(
 
     assert exit_code == 1
     assert "test collection gate failed" in captured.out
-    assert "[import] bijux-proteomics-core -> bijux_proteomics: import failed" in captured.out
+    assert (
+        "[import] bijux-proteomics-core -> bijux_proteomics: import failed"
+        in captured.out
+    )
     assert (
         "[collection] bijux-proteomics-runtime -> "
-        "packages/bijux-proteomics-runtime/tests: collection failed"
-        in captured.out
+        "packages/bijux-proteomics-runtime/tests: collection failed" in captured.out
     )
 
 
 def test_run_reports_success_when_every_check_passes(
     monkeypatch: MonkeyPatch,
-    capsys: object,
+    capsys: CaptureFixture[str],
 ) -> None:
     monkeypatch.setattr(
         test_collection_gate,
         "build_test_collection_gate_report",
-        lambda repo_root, python_executable=None: test_collection_gate.CollectionGateReport(
-            import_checks=(),
-            collection_checks=(),
+        lambda repo_root, python_executable=None: (
+            test_collection_gate.CollectionGateReport(
+                import_checks=(),
+                collection_checks=(),
+            )
         ),
     )
 
