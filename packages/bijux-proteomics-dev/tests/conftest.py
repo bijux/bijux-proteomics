@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -18,12 +19,18 @@ PACKAGE_TREES = tuple(Path("packages").glob("*"))
 
 def _remove_workspace_bytecode_artifacts() -> None:
     for root in PACKAGE_TREES:
-        for path in sorted(root.rglob("*")):
-            if path.is_dir() and path.name == "__pycache__":
-                shutil.rmtree(path, ignore_errors=True)
-                continue
-            if path.suffix in {".pyc", ".pyo"}:
-                path.unlink(missing_ok=True)
+        if not root.exists():
+            continue
+        for current_root, dirnames, filenames in os.walk(root, topdown=False):
+            current_path = Path(current_root)
+            for dirname in dirnames:
+                if dirname != "__pycache__":
+                    continue
+                shutil.rmtree(current_path / dirname, ignore_errors=True)
+            for filename in filenames:
+                path = current_path / filename
+                if path.suffix in {".pyc", ".pyo"}:
+                    path.unlink(missing_ok=True)
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:
