@@ -93,6 +93,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         required_modules=(
             "design/protocols.py",
             "handoffs/artifacts.py",
+            "handoffs/qc_feedback.py",
             "planning/assays.py",
             "planning/priorities.py",
             "handoffs/transitions.py",
@@ -238,6 +239,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
         reason="Artifact compatibility and contract policy keep lab handoffs reviewable and integrity-checked.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/qc_feedback.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Run-QC feedback contracts keep failed and cautioned lab observations typed at the owner boundary instead of flattening them into generic export rows.",
     ),
     LabModuleAuditEntry(
         module_path="handoffs/ptm.py",
