@@ -672,7 +672,10 @@ def _extract_biological_report_effects(
     significance_threshold: float,
 ) -> tuple[CrossStudyProteinEffectObservation, ...]:
     report = study.study_result.biological_report
-    assert report is not None
+    if report is None:
+        raise RuntimeError(
+            "cross-study biological effect extraction requires a biological report"
+        )
     differential_by_entity = {
         entry.entity_id: entry for entry in report.differential_report.entries
     }
@@ -743,9 +746,15 @@ def _extract_label_based_effects(
     significance_threshold: float,
 ) -> tuple[CrossStudyProteinEffectObservation, ...]:
     report = study.study_result.label_based_report
-    assert report is not None
+    if report is None:
+        raise RuntimeError(
+            "cross-study label-based effect extraction requires a label-based report"
+        )
     differential_report = report.differential_analysis_report.differential_abundance_report
-    assert differential_report is not None
+    if differential_report is None:
+        raise RuntimeError(
+            "cross-study label-based effect extraction requires a differential abundance report"
+        )
     matrix_rows = {
         row.entity_id: row for row in report.differential_analysis_report.normalized_matrix.rows
     }

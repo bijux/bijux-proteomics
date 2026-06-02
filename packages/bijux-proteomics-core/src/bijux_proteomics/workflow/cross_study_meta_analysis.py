@@ -699,7 +699,10 @@ def _build_meta_analysis_entry(
     policy: CrossStudyMetaAnalysisPolicy,
 ) -> tuple[CrossStudyMetaAnalysisEntry, list[CrossStudyMetaAnalysisStudyWeightEntry]]:
     normalized_effects = [entry.normalized_log2_fold_change for entry in study_entries]
-    assert all(value is not None for value in normalized_effects)
+    if any(value is None for value in normalized_effects):
+        raise RuntimeError(
+            "cross-study meta-analysis requires normalized effect sizes for every study entry"
+        )
     effects = [float(value) for value in normalized_effects if value is not None]
     standard_errors = [
         float(entry.standard_error)

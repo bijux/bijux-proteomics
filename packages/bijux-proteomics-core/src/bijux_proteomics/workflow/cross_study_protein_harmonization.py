@@ -688,7 +688,10 @@ def _extract_biological_report_observations(
     study: CrossStudyProteinStudyInput,
 ) -> tuple[CrossStudyProteinObservation, ...]:
     report = study.study_result.biological_report
-    assert report is not None
+    if report is None:
+        raise RuntimeError(
+            "cross-study harmonization requires a biological report for biological observations"
+        )
     observations: list[CrossStudyProteinObservation] = []
     for card in report.protein_cards.cards:
         protein_refs = _sorted_nonempty(
@@ -726,7 +729,10 @@ def _extract_label_based_observations(
     study: CrossStudyProteinStudyInput,
 ) -> tuple[CrossStudyProteinObservation, ...]:
     report = study.study_result.label_based_report
-    assert report is not None
+    if report is None:
+        raise RuntimeError(
+            "cross-study harmonization requires a label-based report for label-based observations"
+        )
     observations: list[CrossStudyProteinObservation] = []
     for row in report.differential_analysis_report.normalized_matrix.rows:
         protein_refs = _sorted_nonempty(row.protein_refs)
@@ -761,9 +767,15 @@ def _extract_ptm_parent_protein_observations(
     study: CrossStudyProteinStudyInput,
 ) -> tuple[CrossStudyProteinObservation, ...]:
     report = study.study_result.ptm_report
-    assert report is not None
+    if report is None:
+        raise RuntimeError(
+            "cross-study harmonization requires a PTM report for PTM parent-protein observations"
+        )
     evidence_cards = report.evidence_cards
-    assert evidence_cards is not None
+    if evidence_cards is None:
+        raise RuntimeError(
+            "cross-study harmonization requires PTM evidence cards when a PTM report is present"
+        )
     grouped_cards: dict[str, list] = {}
     for card in evidence_cards.cards:
         grouped_cards.setdefault(card.protein_ref, []).append(card)

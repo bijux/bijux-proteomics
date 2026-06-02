@@ -276,7 +276,10 @@ def build_cross_species_effect_comparison_report_from_observations(
         key=_observation_sort_key,
     ):
         source_species = _normalize_species(source_observation.species)
-        assert source_species is not None
+        if source_species is None:
+            raise RuntimeError(
+                "cross-species comparison requires normalized source species for every observation"
+            )
         for target_species in observed_species:
             if target_species == source_species:
                 continue
@@ -517,8 +520,10 @@ def _build_ortholog_index(
     for record in filtered_records:
         source_species = _normalize_species(record.source_species)
         target_species = _normalize_species(record.target_species)
-        assert source_species is not None
-        assert target_species is not None
+        if source_species is None or target_species is None:
+            raise RuntimeError(
+                "ortholog indexing requires normalized source and target species labels"
+            )
         source_ref = canonicalize_protein_reference(record.source_protein_ref)
         target_ref = canonicalize_protein_reference(record.target_protein_ref)
         source_counts.setdefault((source_species, source_ref, target_species), set()).add(
@@ -533,8 +538,10 @@ def _build_ortholog_index(
     for record in filtered_records:
         source_species = _normalize_species(record.source_species)
         target_species = _normalize_species(record.target_species)
-        assert source_species is not None
-        assert target_species is not None
+        if source_species is None or target_species is None:
+            raise RuntimeError(
+                "ortholog edge construction requires normalized source and target species labels"
+            )
         source_ref = canonicalize_protein_reference(record.source_protein_ref)
         target_ref = canonicalize_protein_reference(record.target_protein_ref)
         edge_key = (source_species, source_ref, target_species, target_ref)
@@ -567,7 +574,10 @@ def _build_target_observation_lookup(
     grouped: dict[tuple[str, str], list[CrossStudyProteinEffectObservation]] = {}
     for observation in observations:
         species = _normalize_species(observation.species)
-        assert species is not None
+        if species is None:
+            raise RuntimeError(
+                "cross-species target lookup requires normalized species labels"
+            )
         for token in _identity_tokens(observation):
             grouped.setdefault((species, token), []).append(observation)
     return {
@@ -583,7 +593,10 @@ def _ortholog_edges_for_source(
     ortholog_index: dict[tuple[str, str, str], tuple[_OrthologEdge, ...]],
 ) -> tuple[_OrthologEdge, ...]:
     source_species = _normalize_species(source_observation.species)
-    assert source_species is not None
+    if source_species is None:
+        raise RuntimeError(
+            "ortholog edge lookup requires a normalized source species label"
+        )
     matched_edges: dict[tuple[str, str, str, str], _OrthologEdge] = {}
     for token in _identity_tokens(source_observation):
         for edge in ortholog_index.get((source_species, token, target_species), ()):

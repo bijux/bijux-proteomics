@@ -562,10 +562,14 @@ def _dia_peptide_abundance(
             {"values": {}, "protein_refs": set()},
         )
         values = peptide_bucket["values"]
-        assert isinstance(values, dict)
+        if not isinstance(values, dict):
+            raise TypeError("DIA/DDA peptide abundance buckets must preserve values as a mapping")
         values[row.sample_name] = values.get(row.sample_name, 0.0) + quantity
         protein_refs = peptide_bucket["protein_refs"]
-        assert isinstance(protein_refs, set)
+        if not isinstance(protein_refs, set):
+            raise TypeError(
+                "DIA/DDA peptide abundance buckets must preserve protein refs as a set"
+            )
         protein_refs.update(row.protein_refs)
     return {
         peptide_sequence: {

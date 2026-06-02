@@ -96,7 +96,10 @@ def build_workflow_output_validation_report(
             issues=(missing_manifest_issue,),
         )
 
-    assert manifest is not None
+    if manifest is None:
+        raise RuntimeError(
+            "workflow output validation requires a manifest once missing-manifest issues are cleared"
+        )
     try:
         validate_workflow_artifact_manifest(output_dir)
     except (ScientificEvidenceError, InvalidWorkflowError) as error:
