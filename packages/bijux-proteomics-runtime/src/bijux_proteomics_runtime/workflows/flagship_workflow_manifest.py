@@ -302,11 +302,12 @@ def _load_manifest(
 
 def validate_flagship_workflow_manifest(
     manifest: FlagshipWorkflowManifest | None = None,
-    repo_root: Path = REPO_ROOT,
+    repo_root: Path | None = None,
 ) -> tuple[FlagshipWorkflowManifestIssue, ...]:
     """Validate the checked flagship workflow manifest against live repository truth."""
 
     manifest = manifest or _load_manifest()
+    repo_root = repo_root or REPO_ROOT
     issues: list[FlagshipWorkflowManifestIssue] = []
     if manifest.workflow_id != "flagship-workflow-chain":
         issues.append(

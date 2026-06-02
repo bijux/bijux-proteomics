@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from pathlib import Path, PurePath
+from typing import Protocol
 
 PRIMARY_TEST_SELECTION_MARKERS = frozenset(
     {
@@ -22,6 +23,18 @@ PRIMARY_TEST_SELECTION_MARKERS = frozenset(
         "unit",
     }
 )
+
+
+class _PytestMarker(Protocol):
+    name: str
+
+
+class _CollectedTestItem(Protocol):
+    fixturenames: Collection[str]
+
+    def iter_markers(self) -> Iterable[_PytestMarker]: ...
+
+    def add_marker(self, marker: object) -> None: ...
 
 
 def derive_default_test_markers(
@@ -80,7 +93,7 @@ def derive_default_test_markers(
 
 
 def apply_default_test_markers(
-    items: Iterable[object],
+    items: Iterable[_CollectedTestItem],
     *,
     benchmark_dirs: Collection[str] = (),
     integration_dirs: Collection[str] = (),
@@ -114,8 +127,9 @@ def apply_default_test_markers(
 
 
 def _matches_any_dir(path_parts: Collection[str], candidate_dirs: Collection[str]) -> bool:
+    normalized_path_parts = {part.lower() for part in path_parts}
     normalized_dirs = {candidate.lower() for candidate in candidate_dirs}
-    return bool(path_parts.intersection(normalized_dirs))
+    return not normalized_path_parts.isdisjoint(normalized_dirs)
 
 
 def _contains_any_token(stem: str, tokens: Collection[str]) -> bool:

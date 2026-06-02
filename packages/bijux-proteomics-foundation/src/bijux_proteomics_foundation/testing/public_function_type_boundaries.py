@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from dataclasses import dataclass
 
 
@@ -29,7 +30,7 @@ class PublicFunctionTypeBoundaryReport:
 
 
 def build_public_function_type_boundary_report(
-    functions: tuple[object, ...],
+    functions: tuple[Callable[..., object], ...],
 ) -> PublicFunctionTypeBoundaryReport:
     """Detect free-dict public function boundaries unless explicitly raw JSON."""
 
@@ -75,7 +76,7 @@ def _annotation_uses_free_dict(annotation: object) -> bool:
     return "dict[" in str(annotation)
 
 
-def _qualified_name(function: object) -> str:
+def _qualified_name(function: Callable[..., object]) -> str:
     module_name = getattr(function, "__module__", "")
     qualname = getattr(function, "__qualname__", repr(function))
     return f"{module_name}.{qualname}" if module_name else str(qualname)

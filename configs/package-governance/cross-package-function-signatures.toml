@@ -3007,7 +3007,7 @@ consumer_module = "bijux_proteomics_dev.release.governance.runtime_black_box_doc
 provider_distribution = "bijux-proteomics-runtime"
 provider_module = "bijux_proteomics_runtime.workflows.flagship_workflow_manifest"
 function_name = "validate_flagship_workflow_manifest"
-signature_text = "(manifest: 'FlagshipWorkflowManifest | None' = None, repo_root: 'Path' = PosixPath('/Users/bijan/bijux/bijux-proteomics')) -> 'tuple[FlagshipWorkflowManifestIssue, ...]'"
+signature_text = "(manifest: 'FlagshipWorkflowManifest | None' = None, repo_root: 'Path | None' = None) -> 'tuple[FlagshipWorkflowManifestIssue, ...]'"
 consumer_distributions = ["bijux-proteomics-dev"]
 consumer_modules = ["bijux_proteomics_dev.release.governance.final_preflight", "bijux_proteomics_dev.release.governance.release_readiness_matrix", "bijux_proteomics_dev.release.governance.repository_truth"]
 [[entry.import_site]]

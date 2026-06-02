@@ -6,6 +6,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import pytest
+
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 sys.path.insert(0, str(PACKAGE_ROOT / "src"))
@@ -13,6 +15,8 @@ sys.path.insert(0, str(REPO_ROOT / "packages" / "bijux-proteomics-foundation" / 
 sys.path.insert(
     0, str(REPO_ROOT / "packages" / "bijux-proteomics-intelligence" / "src")
 )
+
+pytestmark = pytest.mark.unit
 
 from bijux_proteomics_intelligence import candidates as runtime_candidates
 from proteomics_intelligence import __version__, candidates
