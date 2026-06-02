@@ -33,7 +33,7 @@ def test_run_quant_workflow_end_to_end_builds_review_bundle_runtime_report() -> 
             replicate=2,
             fraction=1,
             spectra_file="c2.mzML",
-            batch="B1",
+            batch="B2",
         ),
         ExperimentalDesignEntry(
             sample_id="T1",
@@ -41,7 +41,7 @@ def test_run_quant_workflow_end_to_end_builds_review_bundle_runtime_report() -> 
             replicate=1,
             fraction=1,
             spectra_file="t1.mzML",
-            batch="B2",
+            batch="B1",
         ),
         ExperimentalDesignEntry(
             sample_id="T2",

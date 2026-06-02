@@ -14,7 +14,7 @@
     },
     {
       "component": "tooling",
-      "detail": "provider metadata resolved for 1 providers",
+      "detail": "provider metadata resolved for 4 providers",
       "remediation_hint": "keep provider metadata and requirement probes importable",
       "state": "healthy"
     },

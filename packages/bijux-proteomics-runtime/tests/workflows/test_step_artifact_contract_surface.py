@@ -62,7 +62,7 @@ def _quant_design_entries() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="t1.mzML",
-            batch="B2",
+            batch="B1",
             multiplex_group="plex-a",
             multiplex_channel="126",
         ),
