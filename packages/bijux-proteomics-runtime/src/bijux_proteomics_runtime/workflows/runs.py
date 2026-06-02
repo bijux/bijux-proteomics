@@ -458,7 +458,7 @@ def _build_label_policy(
     )
     return LabelBasedQuantPolicy(
         channel_entries=channel_entries,
-        missing_channel_policy=MissingChannelPolicy.ERROR,
+        missing_channel_policy=MissingChannelPolicy.PRESERVE,
     )
 
 

@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.workflow import (
-    AdvancedDiannWorkflowConfig,
-    ProteomicsStudyResultSummary,
+from bijux_proteomics.workflow.exports.result_manifest import (
     ResultManifestReport,
     build_result_manifest_from_artifacts,
 )
+from bijux_proteomics.workflow.pipelines.advanced_diann import (
+    AdvancedDiannWorkflowConfig,
+)
+from bijux_proteomics.workflow.study_result import ProteomicsStudyResultSummary
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.rehydrate.loading import load_completed_run
 from bijux_proteomics_runtime.support.workspace import write_text_atomic

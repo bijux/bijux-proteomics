@@ -138,6 +138,7 @@ def test_runtime_wrappers_cover_flagship_lfq_multiplex_ptm_and_targeted() -> Non
     assert lfq.condition_count == 2
     assert lfq_companion.condition_count == 2
     assert multiplex.channel_count >= 1
+    assert multiplex.missing_channel_count == 2
     assert multiplex_companion.channel_count >= 1
     assert ptm.mapped_site_count >= 1
     assert ptm_companion.mapped_site_count >= 1
