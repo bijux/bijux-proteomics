@@ -49,7 +49,10 @@ def test_non_dda_external_review_kits_keep_bounded_exclusions_visible() -> None:
 
     assert dia.ready_for_outsider_review is True
     assert "library-conditioned" in " ".join(dia.known_exclusions)
-    assert lfq.ready_for_outsider_review is True
+    assert lfq.ready_for_outsider_review is False
+    assert "release language is ahead of the benchmark evidence" in " ".join(
+        lfq.known_exclusions
+    )
     assert "multi-cohort transfer authority" in " ".join(lfq.known_exclusions)
     assert ptm.ready_for_outsider_review is True
     assert "PTM-family coverage" in " ".join(ptm.known_exclusions)
