@@ -37,6 +37,7 @@
 
 `proteomics-foundation` is the compatibility alias for the canonical foundation
 owner `bijux-proteomics-foundation`.
+It is the install and import alias for bijux-proteomics-foundation.
 
 Use this package when you want a shorter distribution and import name for the
 serialization, schema, and compatibility kernel without creating a second

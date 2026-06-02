@@ -10,8 +10,9 @@
 `bijux-proteomics-intelligence` transforms core workflow state and
 knowledge-owned evidence posture into explicit analytical judgment.
 
-Its architecture is organized around six durable analytical families plus an
-explicit governance family:
+Its architecture is organized around candidate, claim, contradiction, refusal,
+belief-audit, interpretation, review, learning, and governance ownership
+surfaces:
 
 - `candidates`: `candidates/ranking.py`, `candidates/lifecycle.py`,
   `candidates/quality.py`, `candidates/validation.py`
@@ -38,6 +39,11 @@ explicit governance family:
 
 - `candidates/ranking.py` owns candidate framing, ranking narratives, and explainability summaries
 - `candidates/lifecycle.py` owns candidate movement, risk, and portfolio lifecycle semantics
+- `claims/support.py` owns graph-backed claim support validation before downstream judgment
+- `belief_audit.py`, `contradictions.py`, `falsifiers.py`, `next_steps.py`,
+  `query.py`, and `refusal.py` own cross-cutting analytical challenge,
+  contradiction, follow-up, query, and refusal behavior that stays inside
+  intelligence rather than leaking into package roots elsewhere
 - `judgment/policies.py` owns ranking factors and policy contracts
 - `judgment/scenarios.py` owns scenario evaluation and portfolio-facing judgment summaries
 - `judgment/recommendations.py` owns recommendation refusal, escalation, uncertainty, and advisory-versus-enforced decision envelopes

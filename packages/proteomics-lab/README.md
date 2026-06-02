@@ -37,6 +37,7 @@
 
 `proteomics-lab` is the compatibility alias for the canonical lab owner
 `bijux-proteomics-lab`.
+It is the install and import alias for bijux-proteomics-lab.
 
 Use this package when you want a shorter distribution and import name for assay
 planning and handoff behavior without creating a second owner.

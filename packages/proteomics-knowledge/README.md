@@ -37,6 +37,7 @@
 
 `proteomics-knowledge` is the compatibility alias for the canonical knowledge
 owner `bijux-proteomics-knowledge`.
+It is the install and import alias for bijux-proteomics-knowledge.
 
 Use this package when you want a shorter distribution and import name for the
 curated scientific memory surface without creating a second owner.

@@ -37,6 +37,7 @@
 
 `proteomics-runtime` is the compatibility alias for the canonical runtime owner
 `bijux-proteomics-runtime`.
+It is the install and import alias for bijux-proteomics-runtime.
 
 Use this package when you want a shorter runtime distribution and import name
 without creating a second execution owner.

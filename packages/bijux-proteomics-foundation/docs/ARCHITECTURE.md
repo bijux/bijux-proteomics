@@ -36,6 +36,11 @@ with the same rules.
 - `outcomes/exceptions.py`, `outcomes/failures.py`,
   `outcomes/refusals.py`, and `outcomes/results.py` own shared
   machine-readable contract outcomes
+- `testing/skip_policy.py`, `testing/pytest_markers.py`,
+  `testing/public_function_docstrings.py`,
+  `testing/public_function_type_boundaries.py`,
+  `testing/source_tree_limits.py`, `testing/source_tree_complexity.py`, and
+  `testing/generated_file_markers.py` own shared repository testing contracts
 
 ## Canonical tree layout
 

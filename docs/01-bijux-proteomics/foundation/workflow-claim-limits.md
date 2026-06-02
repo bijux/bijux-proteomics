@@ -12,7 +12,7 @@ last_reviewed: 2026-05-07
 This page is the release-facing claim-limit source of truth for the flagship
 workflow families.
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
 
 Family-level trust now requires two public benchmark packages plus one

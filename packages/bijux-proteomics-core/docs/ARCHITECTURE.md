@@ -29,6 +29,10 @@ runtime-agnostic workflow seams.
   identification contracts
 - `quantification/`, `study/`, `ptm/`, and `dia/` own quantitative, laboratory,
   PTM, and DIA scientific meaning
+- `interpretation/` owns typed scientific interpretation helpers over already-normalized core evidence
+- `isotope_labeling/`, `multiplex/`, and `targeted/` own label-aware, multiplexed, and targeted assay scientific contracts
+- `lab/` owns core-side laboratory design and review models that remain runtime-agnostic
+- `panels/` and `proteoforms/` own panel-facing and proteoform-specific scientific result surfaces
 - `review/` owns decision briefs, collaboration bundles, and structure-report
   surfaces
 - `workflow/` owns scientific workflow blueprints

@@ -37,6 +37,7 @@
 
 `proteomics-intelligence` is the compatibility alias for the canonical
 intelligence owner `bijux-proteomics-intelligence`.
+It is the install and import alias for bijux-proteomics-intelligence.
 
 Use this package when you want a shorter distribution and import name for the
 recommendation and review layer without creating a second owner.

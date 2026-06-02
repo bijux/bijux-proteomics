@@ -37,6 +37,7 @@
 
 `bijux-proteomics` is the distribution-name alias for the canonical core owner
 `bijux-proteomics-core`.
+It is the install and command alias for bijux-proteomics-core.
 
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.

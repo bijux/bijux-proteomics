@@ -37,6 +37,7 @@
 
 `proteomics-core` is the compatibility alias for the canonical core owner
 `bijux-proteomics-core`.
+It is the install and import alias for bijux-proteomics-core.
 
 Use this package when you want a shorter distribution and import name while
 keeping the same scientific processing owner and behavior.

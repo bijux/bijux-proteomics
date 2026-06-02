@@ -27,6 +27,9 @@ re-curating locally.
 - `memory/integrity/graph.py` owns evidence-graph structure and validation
 - `memory/normalization/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
 - `contracts/schema.py` owns schema compatibility and document contract profiles
+- `identity/`, `features/`, `coverage/`, `pathways/`, `complexes/`,
+  `kinases/`, `orthologs/`, `drugs/`, and `disease/` own reusable grounding,
+  annotation, and biological-context resolution surfaces over curated memory
 - `reviews/decision_briefs.py` owns decision-facing packets and multi-decision readiness summaries derived from existing scientific memory
 - `reviews/explanations.py` owns decision-scoped graph explanations built from existing decision briefs
 - `reviews/trends.py` owns packet comparisons and trend summaries for decision-facing change over time
