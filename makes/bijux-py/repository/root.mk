@@ -7,7 +7,6 @@
 ROOT_CHECK_VENV ?= $(ROOT_ARTIFACTS_DIR)/check-venv
 ROOT_CHECK_PYTHON ?= $(ROOT_CHECK_VENV)/bin/python
 ROOT_CHECK_STAMP ?= $(ROOT_ARTIFACTS_DIR)/.check-tools.stamp
-ROOT_UV_PREREQS ?= $(ROOT_UV_BOOTSTRAP_BIN)
 ROOT_DOCS_ARTIFACTS_DIR ?= $(ROOT_ARTIFACTS_DIR)/docs
 ROOT_DOCS_BUILD_SITE_DIR ?= $(ROOT_DOCS_ARTIFACTS_DIR)/build-site
 ROOT_DOCS_CHECK_SITE_DIR ?= $(ROOT_DOCS_ARTIFACTS_DIR)/check-site
@@ -37,11 +36,6 @@ ROOT_FORBIDDEN_ARTIFACTS ?= \
 	"$(CURDIR)/configs/.mypy_cache" \
 	"$(CURDIR)/configs/.hypothesis"
 
-$(ROOT_UV_BOOTSTRAP_BIN):
-	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"
-	@"$(PYTHON)" -m venv "$(ROOT_UV_BOOTSTRAP_VENV)"
-	@"$(ROOT_UV_BOOTSTRAP_PYTHON)" -m pip install --upgrade pip uv
-
 $(ROOT_CHECK_STAMP): pyproject.toml uv.lock
 	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"
 	@rm -rf "$(ROOT_CHECK_VENV)"
@@ -56,14 +50,8 @@ list-all:
 	@printf "%s\n" $(ALL_PACKAGES)
 
 ROOT_INSTALL_PREREQS ?= root-check-env
-ROOT_CHECK_ENV_PREREQS ?= pyproject.toml uv.lock $(ROOT_UV_PREREQS) $(ROOT_CHECK_STAMP)
-ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND ?= @set -eu; \
-	for path in $(ROOT_FORBIDDEN_ARTIFACTS); do \
-	  if [ -L "$$path" ]; then \
-	    continue; \
-	  fi; \
-	  rm -rf "$$path"; \
-	done
+ROOT_CHECK_ENV_PREREQS ?= pyproject.toml uv.lock $(ROOT_CHECK_STAMP)
+ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND ?= @rm -rf $(ROOT_FORBIDDEN_ARTIFACTS) || true
 ROOT_ALL_TARGETS ?= test lint quality security docs api build sbom
 ROOT_DEFINE_CLEAN ?= 0
 

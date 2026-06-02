@@ -11,15 +11,14 @@ ROOT_CLEAN_COMMAND ?= @rm -rf "$(PROJECT_ARTIFACTS_DIR)"
 ROOT_CHECK_ENV_PREREQS ?=
 ROOT_CHECK_ENV_COMMAND ?= @true
 ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND ?= @true
-ROOT_UV_PREREQS ?=
 
 install: $(ROOT_INSTALL_PREREQS) ## Install or sync repository dependencies
 	$(ROOT_INSTALL_COMMAND)
 
-lock: $(ROOT_UV_PREREQS) ## Refresh uv.lock from pyproject inputs
+lock: ## Refresh uv.lock from pyproject inputs
 	@$(UV) lock $(ROOT_LOCK_FLAGS)
 
-lock-check: $(ROOT_UV_PREREQS) ## Verify uv.lock matches current pyproject inputs
+lock-check: ## Verify uv.lock matches current pyproject inputs
 	@$(UV) lock $(ROOT_LOCK_CHECK_FLAGS)
 
 all: $(ROOT_ALL_TARGETS) ## Run the repository pipeline
