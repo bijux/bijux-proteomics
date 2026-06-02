@@ -4,7 +4,6 @@ import argparse
 from dataclasses import dataclass
 import os
 from pathlib import Path
-import subprocess
 import sys
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
@@ -14,6 +13,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_package_names,
     workspace_src_parents,
 )
+from bijux_proteomics_dev.security.trusted_process import run_text
 
 __all__ = [
     "CollectionGateCheck",
@@ -73,12 +73,11 @@ def _run_subprocess(
     *,
     cwd: Path,
 ) -> tuple[bool, str]:
-    completed = subprocess.run(
+    completed = run_text(
         command,
         cwd=cwd,
         env=_subprocess_env(),
         capture_output=True,
-        text=True,
         check=False,
     )
     output = completed.stdout.strip()

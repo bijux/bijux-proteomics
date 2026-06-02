@@ -6,7 +6,6 @@ import argparse
 from dataclasses import dataclass
 import os
 from pathlib import Path
-import subprocess  # nosec B404
 import sys
 
 from bijux_proteomics_dev.governance.package_shape.public_api_snapshots import (
@@ -22,6 +21,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     workspace_src_parents,
 )
+from bijux_proteomics_dev.security.trusted_process import run_text
 
 __all__ = [
     "ArchitectureRegressionTarget",
@@ -157,12 +157,11 @@ def _subprocess_env() -> dict[str, str]:
 
 
 def _run_subprocess(command: tuple[str, ...], *, cwd: Path) -> tuple[bool, str]:
-    completed = subprocess.run(
+    completed = run_text(
         command,
         cwd=cwd,
         env=_subprocess_env(),
         capture_output=True,
-        text=True,
         check=False,
     )
     output = completed.stdout.strip()

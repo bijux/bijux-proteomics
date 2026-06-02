@@ -10,7 +10,6 @@ from dataclasses import dataclass
 import json
 from os.path import relpath
 from pathlib import Path
-import subprocess
 import sys
 import tomllib
 from typing import Any, cast
@@ -20,6 +19,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_import_path,
     workspace_src_parents,
 )
+from bijux_proteomics_dev.security.trusted_process import run_text
 
 __all__ = [
     "PUBLIC_API_TYPECHECK_TARGETS_PATH",
@@ -218,11 +218,10 @@ def _run_mypy(report: PublicApiTypecheckReport) -> int:
         str(report.mypy_cache_dir),
         *(str(path) for path in report.target_paths),
     ]
-    completed = subprocess.run(
+    completed = run_text(
         command,
         cwd=REPO_ROOT,
         capture_output=True,
-        text=True,
         check=False,
     )
     output = completed.stdout
@@ -246,11 +245,10 @@ def _run_pyright(report: PublicApiTypecheckReport) -> int:
         "--project",
         str(report.pyright_config_path),
     ]
-    completed = subprocess.run(
+    completed = run_text(
         command,
         cwd=REPO_ROOT,
         capture_output=True,
-        text=True,
         check=False,
     )
     output = completed.stdout
