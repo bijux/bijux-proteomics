@@ -29,6 +29,9 @@ def _remove_runtime_bytecode_artifacts() -> None:
                 path.unlink()
 
 
+_remove_runtime_bytecode_artifacts()
+
+
 def pytest_sessionstart(session: pytest.Session) -> None:
     _remove_runtime_bytecode_artifacts()
 
