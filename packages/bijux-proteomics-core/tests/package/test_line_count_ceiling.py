@@ -104,7 +104,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("review/explanations/result_explanations.py", 1341),
     _exception("sequences/core.py", 1340),
     _exception("sequences/digestion.py", 1198),
-    _exception("sequences/protein_region_context.py", 1212),
     _exception("targeted/assay_interference.py", 1090),
     _exception("targeted/assay_qc.py", 1297),
     _exception("targeted/biomarker_stability.py", 1111),
