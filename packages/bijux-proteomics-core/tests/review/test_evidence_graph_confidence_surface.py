@@ -19,6 +19,13 @@ from bijux_proteomics.io.fragment_ratio_stability import (
     FragmentRatioStabilityReport,
     FragmentRatioStabilitySummary,
 )
+from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
+    PeptideMatrixGroupingMode,
+    PeptideMatrixSourceKind,
+)
+from bijux_proteomics.quantification.matrix.protein_intensity_matrix import (
+    ProteinMatrixTargetKind,
+)
 from bijux_proteomics.quantification.peptide_profile_inconsistency import (
     PeptideProfileInconsistencyEntry,
     PeptideProfileInconsistencyReport,
@@ -904,15 +911,15 @@ def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_prof
     with_inconsistency = propagate_evidence_graph_confidence(
         graph,
         peptide_profile_inconsistency_report=PeptideProfileInconsistencyReport(
-            source_kind="feature",
-            grouping_mode="modified_peptide",
-            target_kind="protein",
+            source_kind=PeptideMatrixSourceKind.FEATURE,
+            grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+            target_kind=ProteinMatrixTargetKind.PROTEIN,
             unique_only=False,
             sample_ids=("S1", "S2", "S3"),
             entries=(
                 PeptideProfileInconsistencyEntry(
                     entity_id="P77771",
-                    target_kind="protein",
+                    target_kind=ProteinMatrixTargetKind.PROTEIN,
                     peptide_id="PEPA",
                     peptide_sequence="PEPA",
                     protein_refs=("P77771",),
@@ -929,7 +936,7 @@ def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_prof
                 ),
                 PeptideProfileInconsistencyEntry(
                     entity_id="P77772",
-                    target_kind="protein",
+                    target_kind=ProteinMatrixTargetKind.PROTEIN,
                     peptide_id="PEPVVK",
                     peptide_sequence="PEPVVK",
                     protein_refs=("P77772",),

@@ -16,7 +16,10 @@ from bijux_proteomics.ptm import (
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.ptm.cards.evidence_cards import render_ptm_evidence_card_tsv
-from bijux_proteomics.ptm.cards.reporting import build_ptm_report_bundle
+from bijux_proteomics.ptm.cards.reporting import (
+    PtmReportBundle,
+    build_ptm_report_bundle,
+)
 from bijux_proteomics.quantification import parse_ms1_feature_table
 import bijux_proteomics.review as review
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
@@ -39,11 +42,15 @@ from bijux_proteomics.workflow.cards.sample_evidence_cards import (
 )
 from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowConfig,
+    TargetedValidationWorkflowReport,
     render_advanced_targeted_evidence_cards_tsv,
     run_targeted_validation_workflow,
 )
 from bijux_proteomics.workflow.reports.biological_report_assembly import (
     build_biological_result_report_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_models import (
+    BiologicalResultReportBundle,
 )
 
 
@@ -71,7 +78,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _build_biological_report():
+def _build_biological_report() -> BiologicalResultReportBundle:
     design_entries = tuple(
         parse_experimental_design_table(
             _workflow_fixture("biological_report.design.tsv")
@@ -87,7 +94,7 @@ def _build_biological_report():
     )
 
 
-def _build_ptm_report():
+def _build_ptm_report() -> PtmReportBundle:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
     annotations = parse_ptm_site_annotation_tsv(
@@ -168,7 +175,7 @@ def _write_validation_results(path: Path) -> None:
     )
 
 
-def _build_targeted_report(tmp_path: Path):
+def _build_targeted_report(tmp_path: Path) -> TargetedValidationWorkflowReport:
     result_path = tmp_path / "targeted_validation.skyline.tsv"
     design_path = tmp_path / "targeted_validation.design.tsv"
     _write_validation_results(result_path)
@@ -288,6 +295,7 @@ def test_review_loader_reads_all_governed_card_families(tmp_path: Path) -> None:
         render_sample_evidence_card_tsv(biological_report.sample_exploration_report),
         encoding="utf-8",
     )
+    assert ptm_report.evidence_cards is not None
     ptm_path = tmp_path / "ptm_evidence_cards.tsv"
     ptm_path.write_text(
         render_ptm_evidence_card_tsv(ptm_report.evidence_cards),
