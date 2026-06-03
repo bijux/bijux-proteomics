@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from collections import defaultdict
 from io import StringIO
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -17,6 +18,7 @@ from bijux_proteomics.io.formats import (
 )
 from bijux_proteomics.study.design.experiment_design import (
     ExperimentDesign,
+    ExperimentDesignSample,
     coerce_experiment_design,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -218,7 +220,7 @@ def render_replicate_structure_tsv(report: ReplicateStructureReport) -> str:
 
 def _build_sample_entry(
     *,
-    sample,
+    sample: ExperimentDesignSample,
     entries: tuple[ExperimentalDesignEntry, ...],
     repeated_measure_subject_ids: set[str],
 ) -> ReplicateStructureSampleEntry:
@@ -367,9 +369,10 @@ def _repeated_measure_subject_ids(experiment_design: ExperimentDesign) -> set[st
     for sample in experiment_design.samples:
         if sample.pair_id in (None, ""):
             continue
-        pair_samples[sample.pair_id].add(sample.sample_id)
+        pair_id = cast(str, sample.pair_id)
+        pair_samples[pair_id].add(sample.sample_id)
         if sample.timepoint not in (None, ""):
-            pair_timepoints[sample.pair_id].add(sample.timepoint)
+            pair_timepoints[pair_id].add(cast(str, sample.timepoint))
     return {
         pair_id
         for pair_id in pair_samples

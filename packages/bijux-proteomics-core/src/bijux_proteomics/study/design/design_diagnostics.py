@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from itertools import combinations
 from io import StringIO
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -157,9 +158,28 @@ def _resolve_entry_value(
     entry: ExperimentalDesignEntry,
     field_name: str,
 ) -> str | int | float | bool | None:
-    if hasattr(entry, field_name):
-        return getattr(entry, field_name)
-    return entry.metadata.get(field_name)
+    direct_values: dict[str, str | int | float | bool | None] = {
+        "sample_id": entry.sample_id,
+        "cohort": entry.cohort,
+        "condition": entry.condition,
+        "replicate": entry.replicate,
+        "fraction": entry.fraction,
+        "spectra_file": entry.spectra_file,
+        "identifications_file": entry.identifications_file,
+        "batch": entry.batch,
+        "instrument": entry.instrument,
+        "search_engine": entry.search_engine,
+        "pair_id": entry.pair_id,
+        "run_order": entry.run_order,
+        "technical_replicate_id": entry.technical_replicate_id,
+        "multiplex_group": entry.multiplex_group,
+        "multiplex_channel": entry.multiplex_channel,
+        "sample_role": entry.sample_role.value,
+    }
+    if field_name in direct_values:
+        return direct_values[field_name]
+    metadata = cast(dict[str, str], entry.metadata)
+    return metadata.get(field_name)
 
 
 __all__ = [
