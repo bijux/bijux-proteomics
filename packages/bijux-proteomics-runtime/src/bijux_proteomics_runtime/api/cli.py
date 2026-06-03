@@ -11,72 +11,79 @@ from importlib import import_module
 import importlib.metadata
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, cast
-
-try:
-    import click
-except ModuleNotFoundError:
-
-    class _ClickDecoratorShim:
-        def __call__(self, func: Any) -> Any:
-            return func
-
-    class _ClickTypeShim:
-        def __init__(self, *_args: object, **_kwargs: object) -> None:
-            pass
-
-    class _ClickCommandShim:
-        def __init__(self, callback: Any) -> None:
-            self.callback = callback
-            self.name = getattr(callback, "__name__", "cli")
-
-        def __call__(self, *args: object, **kwargs: object) -> Any:
-            return self.callback(*args, **kwargs)
-
-        def command(self, *_args: object, **_kwargs: object) -> Any:
-            def _decorator(func: Any) -> Any:
-                return func
-
-            return _decorator
-
-        def group(self, *_args: object, **_kwargs: object) -> Any:
-            def _decorator(func: Any) -> _ClickCommandShim:
-                return _ClickCommandShim(func)
-
-            return _decorator
-
-    class _ClickShim:
-        Path = _ClickTypeShim
-        Choice = _ClickTypeShim
-
-        @staticmethod
-        def echo(message: object = "") -> None:
-            print(message)
-
-        @staticmethod
-        def group(*_args: object, **_kwargs: object) -> Any:
-            def _decorator(func: Any) -> _ClickCommandShim:
-                return _ClickCommandShim(func)
-
-            return _decorator
-
-        @staticmethod
-        def version_option(*_args: object, **_kwargs: object) -> Any:
-            return _ClickDecoratorShim()
-
-        @staticmethod
-        def option(*_args: object, **_kwargs: object) -> Any:
-            return _ClickDecoratorShim()
-
-        @staticmethod
-        def argument(*_args: object, **_kwargs: object) -> Any:
-            return _ClickDecoratorShim()
-
-    click = _ClickShim()
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 if TYPE_CHECKING:
+    import click
+else:
+    try:
+        import click
+    except ModuleNotFoundError:
+
+        class _ClickDecoratorShim:
+            def __call__(self, func: Any) -> Any:
+                return func
+
+        class _ClickTypeShim:
+            def __init__(self, *_args: object, **_kwargs: object) -> None:
+                pass
+
+        class _ClickCommandShim:
+            def __init__(self, callback: Any) -> None:
+                self.callback = callback
+                self.name = getattr(callback, "__name__", "cli")
+
+            def __call__(self, *args: object, **kwargs: object) -> Any:
+                return self.callback(*args, **kwargs)
+
+            def command(self, *_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> Any:
+                    return func
+
+                return _decorator
+
+            def group(self, *_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> _ClickCommandShim:
+                    return _ClickCommandShim(func)
+
+                return _decorator
+
+        class _ClickShim:
+            Path = _ClickTypeShim
+            Choice = _ClickTypeShim
+
+            @staticmethod
+            def echo(message: object = "") -> None:
+                print(message)
+
+            @staticmethod
+            def group(*_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> _ClickCommandShim:
+                    return _ClickCommandShim(func)
+
+                return _decorator
+
+            @staticmethod
+            def version_option(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+            @staticmethod
+            def option(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+            @staticmethod
+            def argument(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+        click = cast(Any, _ClickShim())
+
+if TYPE_CHECKING:
+    from bijux_proteomics_intelligence.candidates import CandidateStore
     from bijux_proteomics_intelligence.candidates.schema import Candidate
+    from bijux_proteomics_runtime.runs.manager import RunManager
+    from bijux_proteomics_runtime.runs.request import RunRequest
     from bijux_proteomics_runtime.runs.run_config import RunConfig
+    from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 __all__ = [
     "CliResult",
@@ -95,7 +102,69 @@ __all__ = [
     "cli",
 ]
 
-_CLI_ERROR_TYPE = cast(str, "https://bijux.dev/errors/cli")
+class _RunsOperationsModule(Protocol):
+    def build_runtime_run_config(
+        self,
+        *,
+        rounds: int,
+        dry_run: bool,
+        logging_enabled: bool,
+        provider: str | None,
+        artifacts_dir: Path | None,
+        execution_mode: str,
+        launch_surface: str = "local",
+    ) -> RunConfig: ...
+
+    def run_sequence_operation(
+        self,
+        base_dir: Path,
+        sequence: str,
+        config: RunConfig,
+    ) -> dict[str, Any]: ...
+
+    def resume_candidate_operation(
+        self,
+        base_dir: Path,
+        *,
+        candidate_id: str,
+        rounds: int,
+        provider: str | None,
+        artifacts_dir: Path | None,
+        execution_mode: str,
+    ) -> dict[str, Any]: ...
+
+    def import_external_result_operation(
+        self,
+        base_dir: Path,
+        *,
+        sequence: str,
+        source_path: Path,
+        engine_name: str,
+        engine_version: str,
+        artifacts_dir: Path | None = None,
+    ) -> dict[str, Any]: ...
+
+    def compare_run_operation(self, run_a: Path, run_b: Path) -> dict[str, Any]: ...
+
+    def inspect_candidate_operation(
+        self,
+        base_dir: Path,
+        candidate_id: str,
+    ) -> Candidate: ...
+
+    def load_run_summary_operation(
+        self,
+        base_dir: Path,
+        run_id: str,
+        artifacts_dir: Path | None,
+    ) -> dict[str, Any]: ...
+
+    def load_run_config_operation(self, run_dir: Path) -> RunConfig: ...
+
+    def export_report_operation(self, base_dir: Path, run_id: str) -> str: ...
+
+
+_CLI_ERROR_TYPE = "https://bijux.dev/errors/cli"
 
 
 def _api_catalog_module() -> Any:
@@ -110,23 +179,31 @@ def _runs_correlation_module() -> Any:
     return import_module("bijux_proteomics_runtime.runs.correlation")
 
 
-def _runs_operations_module() -> Any:
-    return import_module("bijux_proteomics_runtime.runs.operations")
+def _runs_operations_module() -> _RunsOperationsModule:
+    return cast(
+        _RunsOperationsModule,
+        import_module("bijux_proteomics_runtime.runs.operations"),
+    )
 
 
-def _run_request_type() -> Any:
-    module = import_module("bijux_proteomics_runtime.runs.request")
-    return module.RunRequest
+def _run_request_type() -> type[RunRequest]:
+    from bijux_proteomics_runtime.runs.request import RunRequest as RuntimeRunRequest
+
+    return RuntimeRunRequest
 
 
-def _run_workspace_type() -> Any:
-    module = import_module("bijux_proteomics_runtime.support.workspace")
-    return module.RunWorkspace
+def _run_workspace_type() -> type[RunWorkspace]:
+    from bijux_proteomics_runtime.support.workspace import (
+        RunWorkspace as RuntimeRunWorkspace,
+    )
+
+    return RuntimeRunWorkspace
 
 
 def _runtime_banner() -> str:
-    module = import_module("bijux_proteomics_runtime.support.identity")
-    return module.runtime_banner()
+    from bijux_proteomics_runtime.support.identity import runtime_banner
+
+    return runtime_banner()
 
 
 def _model_dump_json(value: Any) -> Any:
@@ -135,14 +212,14 @@ def _model_dump_json(value: Any) -> Any:
     return value
 
 
-def _candidate_store_type() -> type[Any]:
+def _candidate_store_type() -> type[CandidateStore]:
     """Load the candidate store only for commands that resume stored candidates."""
     from bijux_proteomics_intelligence.candidates import CandidateStore
 
     return CandidateStore
 
 
-def _run_manager_type() -> type[Any]:
+def _run_manager_type() -> type[RunManager]:
     """Load the runtime manager only for commands that execute candidate replay."""
     from bijux_proteomics_runtime.runs.manager import RunManager
 

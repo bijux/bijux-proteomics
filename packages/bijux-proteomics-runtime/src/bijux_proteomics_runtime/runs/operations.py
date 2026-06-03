@@ -7,13 +7,16 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 if TYPE_CHECKING:
+    from bijux_proteomics_intelligence.candidates import CandidateStore
     from bijux_proteomics_intelligence.candidates.schema import Candidate
+    from bijux_proteomics_runtime.runs.artifacts import RunComparisonReport
+    from bijux_proteomics_runtime.runs.manager import RunManager
 
 _PROVIDER_MAP: dict[str | None, list[str]] = {
     None: ["heuristic_proxy"],
@@ -25,21 +28,21 @@ _PROVIDER_MAP: dict[str | None, list[str]] = {
 }
 
 
-def _candidate_store_type() -> type[Any]:
+def _candidate_store_type() -> type[CandidateStore]:
     """Load the runtime candidate store only when a candidate workflow needs it."""
     from bijux_proteomics_intelligence.candidates import CandidateStore
 
     return CandidateStore
 
 
-def _compare_runs_operation() -> Any:
+def _compare_runs_operation() -> Callable[[Path, Path], RunComparisonReport]:
     """Load the runtime comparison helper only for explicit compare requests."""
     from bijux_proteomics_runtime.runs.artifacts import compare_runs
 
     return compare_runs
 
 
-def _run_manager_type() -> type[Any]:
+def _run_manager_type() -> type[RunManager]:
     """Load the runtime manager only when a run-bearing operation is invoked."""
     from bijux_proteomics_runtime.runs.manager import RunManager
 
@@ -134,7 +137,7 @@ def import_external_result_operation(
 
 def compare_run_operation(run_a: Path, run_b: Path) -> dict[str, Any]:
     """Compare two runtime runs through the canonical runtime control surface."""
-    return _compare_runs_operation()(run_a, run_b)
+    return _compare_runs_operation()(run_a, run_b).model_dump(mode="json")
 
 
 def inspect_candidate_operation(base_dir: Path, candidate_id: str) -> Candidate:

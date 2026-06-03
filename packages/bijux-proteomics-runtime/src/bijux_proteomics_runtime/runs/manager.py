@@ -843,11 +843,14 @@ class RunManager:
                 explicit_tool=tool is not None,
                 command="resume",
             )
-            failure_type = result.get("failure_type") or FailureType.NONE.value
+            failure_type = _result_failure_type(result) or FailureType.NONE.value
             status = "failure" if failure_type != FailureType.NONE.value else "success"
-            if result.get("tool_status") == "dry_run":
+            if _result_tool_status(result) == "dry_run":
                 status = "partial"
-            if result.get("lifecycle_state") == RunLifecycleState.HUMAN_REVIEW.value:
+            if (
+                _result_lifecycle_state(result)
+                == RunLifecycleState.HUMAN_REVIEW.value
+            ):
                 status = "partial"
         except KeyboardInterrupt:
             status = "failure"
