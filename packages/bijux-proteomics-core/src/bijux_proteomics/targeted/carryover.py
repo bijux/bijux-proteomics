@@ -16,7 +16,11 @@ from bijux_proteomics.lab.carryover import (
     CarryoverRunOrderEntry,
     detect_carryover,
 )
-from bijux_proteomics.study.experiment_design import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study.experiment_design import (
+    ExperimentDesign,
+    ExperimentDesignRun,
+    coerce_experiment_design,
+)
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics_foundation import JsonModel
 
@@ -90,7 +94,10 @@ def build_targeted_carryover_report(
     totals_by_precursor_sample = _precursor_totals_by_sample(import_report)
     carryover_rows = detect_carryover(
         tuple(
-            CarryoverRunOrderEntry(run_id=run.run_id, run_order=run.run_order)
+            CarryoverRunOrderEntry(
+                run_id=run.run_id,
+                run_order=_required_run_order(run),
+            )
             for run in ordered_runs.values()
         ),
         _carryover_matrix(ordered_runs=ordered_runs, totals_by_precursor_sample=totals_by_precursor_sample),
@@ -228,8 +235,8 @@ def render_targeted_carryover_candidates_tsv(report: TargetedCarryoverReport) ->
 
 def _ordered_design_runs_by_sample_id(
     design: ExperimentDesign,
-):
-    runs_by_sample_id = {}
+) -> dict[str, ExperimentDesignRun]:
+    runs_by_sample_id: dict[str, ExperimentDesignRun] = {}
     missing_run_order = [
         run.sample_id for run in design.runs if run.run_order is None
     ]
@@ -248,10 +255,11 @@ def _ordered_design_runs_by_sample_id(
             "carryover analysis requires one ordered design run per targeted sample_id and is ambiguous for: "
             + ", ".join(sorted(duplicate_sample_ids))
         )
-    duplicate_run_order = {
+    duplicate_run_order: set[int] = {
         run.run_order
         for run in design.runs
-        if sum(candidate.run_order == run.run_order for candidate in design.runs) > 1
+        if run.run_order is not None
+        and sum(candidate.run_order == run.run_order for candidate in design.runs) > 1
     }
     if duplicate_run_order:
         duplicated = ", ".join(str(value) for value in sorted(duplicate_run_order))
@@ -295,9 +303,17 @@ def _precursor_identity(
     return matching[0].peptide_sequence, protein_ref
 
 
+def _required_run_order(run: ExperimentDesignRun) -> int:
+    if run.run_order is None:
+        raise ValueError(
+            "carryover analysis requires validated run_order values for all design runs"
+        )
+    return run.run_order
+
+
 def _carryover_matrix(
     *,
-    ordered_runs: dict[str, object],
+    ordered_runs: dict[str, ExperimentDesignRun],
     totals_by_precursor_sample: dict[str, dict[str, float]],
 ) -> tuple[CarryoverIntensityEntry, ...]:
     rows: list[CarryoverIntensityEntry] = []

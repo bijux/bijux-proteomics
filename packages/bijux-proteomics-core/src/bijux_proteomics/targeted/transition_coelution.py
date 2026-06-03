@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -14,6 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.targeted.result_import import (
     TargetedResultImportReport,
+    TargetedResultObservation,
     build_skyline_result_import_report,
     build_transition_table_result_import_report,
 )
@@ -637,7 +639,9 @@ def render_transition_coelution_tsv(
     return buffer.getvalue()
 
 
-def _anchor_observation(observations: list[object]) -> object | None:
+def _anchor_observation(
+    observations: Sequence[TargetedResultObservation],
+) -> TargetedResultObservation | None:
     candidates = [
         observation
         for observation in observations

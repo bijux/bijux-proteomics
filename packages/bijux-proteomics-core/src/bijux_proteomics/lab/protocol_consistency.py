@@ -299,7 +299,7 @@ def _append_labeling_diagnostics(
     reporter_import_report: TmtReporterImportReport | None,
     reporter_input_issue: str | None,
 ) -> None:
-    observed_channel_ids = ()
+    observed_channel_ids: tuple[str, ...] = ()
     observed_signal_count = 0
     if reporter_import_report is not None:
         observed_channel_ids = tuple(

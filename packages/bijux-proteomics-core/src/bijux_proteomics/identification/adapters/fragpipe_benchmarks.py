@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 import csv
 from io import StringIO
 from pathlib import Path
@@ -131,12 +132,12 @@ def build_fragpipe_import_benchmark_report(
     source_protein_rows = _read_tsv_rows(protein_tsv_path)
     source_psm_q_values = _source_psm_q_values(source_psm_rows)
     source_peptide_q_values = _source_peptide_q_values(source_peptide_rows)
-    imported_psm_q_values = {
+    imported_psm_q_values: Mapping[str, float] = {
         row.spectrum_id: row.q_value
         for row in import_report.psm_rows
         if row.q_value is not None
     }
-    imported_peptide_q_values = {
+    imported_peptide_q_values: Mapping[str, float] = {
         _peptide_entity_id(
             peptide=row.peptide,
             modified_peptide=row.modified_peptide,
@@ -424,8 +425,8 @@ def _build_q_value_behavior_comparison(
     *,
     source_psm_q_values: dict[str, float],
     source_peptide_q_values: dict[str, float],
-    imported_psm_q_values: dict[str, float | None],
-    imported_peptide_q_values: dict[str, float | None],
+    imported_psm_q_values: Mapping[str, float],
+    imported_peptide_q_values: Mapping[str, float],
     source_psm_rows: tuple[dict[str, str], ...],
     source_peptide_rows: tuple[dict[str, str], ...],
     import_report: FragpipeImportReport,
@@ -437,12 +438,11 @@ def _build_q_value_behavior_comparison(
                     entity_kind="psm",
                     entity_id=spectrum_id,
                     source_q_value=source_q_value,
-                    imported_q_value=float(imported_psm_q_values[spectrum_id]),
+                    imported_q_value=imported_psm_q_values[spectrum_id],
                     absolute_difference=abs(
-                        source_q_value - float(imported_psm_q_values[spectrum_id])
+                        source_q_value - imported_psm_q_values[spectrum_id]
                     ),
-                    exact_match=source_q_value
-                    == float(imported_psm_q_values[spectrum_id]),
+                    exact_match=source_q_value == imported_psm_q_values[spectrum_id],
                 )
                 for spectrum_id, source_q_value in source_psm_q_values.items()
                 if imported_psm_q_values.get(spectrum_id) is not None
@@ -457,12 +457,12 @@ def _build_q_value_behavior_comparison(
                     entity_kind="peptide",
                     entity_id=entity_id,
                     source_q_value=source_q_value,
-                    imported_q_value=float(imported_peptide_q_values[entity_id]),
+                    imported_q_value=imported_peptide_q_values[entity_id],
                     absolute_difference=abs(
-                        source_q_value - float(imported_peptide_q_values[entity_id])
+                        source_q_value - imported_peptide_q_values[entity_id]
                     ),
                     exact_match=source_q_value
-                    == float(imported_peptide_q_values[entity_id]),
+                    == imported_peptide_q_values[entity_id],
                 )
                 for entity_id, source_q_value in source_peptide_q_values.items()
                 if imported_peptide_q_values.get(entity_id) is not None
@@ -523,7 +523,7 @@ def _build_q_value_behavior_comparison(
     )
 
 
-def _q_values_monotonic(values) -> bool:
+def _q_values_monotonic(values: Iterable[float]) -> bool:
     q_values = tuple(float(value) for value in values)
     return all(left <= right for left, right in zip(q_values, q_values[1:], strict=False))
 
