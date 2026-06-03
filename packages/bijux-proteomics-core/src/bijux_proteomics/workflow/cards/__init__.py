@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _CARD_EXPORT_MODULES = (
     "bijux_proteomics.workflow.cards.cross_study_evidence_cards",
@@ -13,7 +14,7 @@ _CARD_EXPORT_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _CARD_EXPORT_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

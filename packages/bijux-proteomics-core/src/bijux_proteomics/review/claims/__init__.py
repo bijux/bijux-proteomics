@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _CLAIM_MODULES = (
     "bijux_proteomics.review.claims.analysis_recommendations",
@@ -15,7 +16,7 @@ _CLAIM_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _CLAIM_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

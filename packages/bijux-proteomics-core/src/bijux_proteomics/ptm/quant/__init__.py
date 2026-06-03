@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _QUANT_EXPORT_MODULES = (
     "bijux_proteomics.ptm.quant.abundance_correction",
@@ -17,7 +18,7 @@ _QUANT_EXPORT_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _QUANT_EXPORT_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

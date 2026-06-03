@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _STUDY_METADATA_EXPORT_MODULES = (
     "bijux_proteomics.study.metadata.contracts",
@@ -15,7 +16,7 @@ _STUDY_METADATA_EXPORT_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _STUDY_METADATA_EXPORT_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

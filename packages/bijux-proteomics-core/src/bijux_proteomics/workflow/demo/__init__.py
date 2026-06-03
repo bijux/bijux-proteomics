@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _DEMO_EXPORT_MODULES = (
     "bijux_proteomics.workflow.demo.scale_demo",
@@ -11,7 +12,7 @@ _DEMO_EXPORT_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _DEMO_EXPORT_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

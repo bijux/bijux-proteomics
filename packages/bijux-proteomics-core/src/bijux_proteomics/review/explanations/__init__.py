@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _EXPLANATION_MODULES = (
     "bijux_proteomics.review.explanations.volcano_plots",
@@ -17,7 +18,7 @@ _EXPLANATION_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _EXPLANATION_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):

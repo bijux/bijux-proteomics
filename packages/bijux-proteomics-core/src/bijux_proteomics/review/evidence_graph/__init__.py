@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _EVIDENCE_GRAPH_MODULES = (
     "bijux_proteomics.review.evidence_graph.evidence_graph",
@@ -20,7 +21,7 @@ _EVIDENCE_GRAPH_MODULES = (
 )
 
 
-def __getattr__(name: str) -> object:
+def __getattr__(name: str) -> Any:
     for module_path in _EVIDENCE_GRAPH_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):
