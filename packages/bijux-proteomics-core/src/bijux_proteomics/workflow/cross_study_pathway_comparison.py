@@ -17,6 +17,7 @@ from statistics import mean
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.interpretation import (
+    PathwayActivityReport,
     PathwayActivityConfidenceStatus,
     PathwayEnrichmentCorrectionPolicy,
     PathwayMemberKind,
@@ -731,7 +732,9 @@ def _extract_study_pathway_observations(
     return tuple(observations)
 
 
-def _activity_condition_coverage_lookup(report) -> dict[tuple[str, str], float]:
+def _activity_condition_coverage_lookup(
+    report: PathwayActivityReport,
+) -> dict[tuple[str, str], float]:
     grouped: dict[tuple[str, str], list[float]] = {}
     for entry in report.sample_scores:
         if entry.condition is None:
@@ -744,7 +747,7 @@ def _activity_condition_coverage_lookup(report) -> dict[tuple[str, str], float]:
     }
 
 
-def _activity_total_member_lookup(report) -> dict[str, int]:
+def _activity_total_member_lookup(report: PathwayActivityReport) -> dict[str, int]:
     totals: dict[str, int] = {}
     for entry in report.sample_scores:
         totals.setdefault(entry.pathway_id, entry.total_member_count)
@@ -996,9 +999,16 @@ def _build_pathway_comparison_entry(
         entry.total_member_count for entry in entries if entry.total_member_count is not None
     ]
     adjusted_values = [
-        entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value
+        value
         for entry in entries
-        if entry.p_value is not None or entry.adjusted_p_value is not None
+        for value in (
+            (
+                entry.adjusted_p_value
+                if entry.adjusted_p_value is not None
+                else entry.p_value
+            ),
+        )
+        if value is not None
     ]
     enrichment_ratios = [
         entry.enrichment_ratio for entry in entries if entry.enrichment_ratio is not None

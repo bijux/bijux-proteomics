@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from .imports import *  # noqa: F401,F403
 
 from .output_protocol import _emit_json, _write_text_output
@@ -444,10 +446,13 @@ def _filter_review_psms(
             for record in records
             if record.q_value is not None and record.q_value <= threshold
         )
-    return filter_psms_by_fdr(
-        records,
-        threshold=threshold,
-        score_orientation=score_orientation,
+    return cast(
+        tuple[PsmRecord, ...],
+        filter_psms_by_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        ),
     )
 
 def _default_psm_mapping() -> SearchResultColumnMapping:

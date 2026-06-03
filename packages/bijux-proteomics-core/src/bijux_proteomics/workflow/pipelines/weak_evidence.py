@@ -30,9 +30,6 @@ from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     run_public_benchmark_descriptor,
 )
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportBundle,
-)
 from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyConclusionEntry,
     ProteomicsStudyConclusionKind,
@@ -543,16 +540,9 @@ def _build_refused_claim_study_result(
     report: PublicBenchmarkRunReport | None,
     refused_claims: tuple[WeakEvidenceRefusedClaimEntry, ...],
 ) -> ProteomicsStudyResult | None:
-    if (
-        report is None
-        or report.workflow_result is None
-        or report.workflow_result.report is None
-        or not refused_claims
-    ):
+    if report is None or report.workflow_result is None or not refused_claims:
         return None
     workflow_report = report.workflow_result.report
-    if not isinstance(workflow_report, BiologicalResultReportBundle):
-        return None
     study_result = build_proteomics_study_result_from_biological_report_bundle(
         workflow_report
     )

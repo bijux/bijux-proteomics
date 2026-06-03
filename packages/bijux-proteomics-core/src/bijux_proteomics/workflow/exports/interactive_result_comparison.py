@@ -213,14 +213,11 @@ def build_interactive_result_comparison_payload(
     changed_ptm_sites = _build_ptm_site_changes(left_bundle, right_bundle)
     changed_qc_entries = _build_qc_changes(left_bundle, right_bundle)
     changed_pathways = _build_pathway_changes(left_bundle, right_bundle)
-    total_reason_count = sum(
-        len(entry.reasons)
-        for entry in (
-            *changed_proteins,
-            *changed_ptm_sites,
-            *changed_qc_entries,
-            *changed_pathways,
-        )
+    total_reason_count = (
+        sum(len(entry.reasons) for entry in changed_proteins)
+        + sum(len(entry.reasons) for entry in changed_ptm_sites)
+        + sum(len(entry.reasons) for entry in changed_qc_entries)
+        + sum(len(entry.reasons) for entry in changed_pathways)
     )
     return InteractiveResultComparisonPayload(
         left_source_reports=left_bundle.source_reports,
@@ -545,11 +542,11 @@ def _build_protein_changes(
                 object_id=object_id,
                 status=_comparison_status(left_entry, right_entry),
                 representative_protein_ref=(
-                    None
-                    if left_entry is None and right_entry is None
+                    left_entry.representative_protein_ref
+                    if left_entry is not None
                     else (
-                        left_entry.representative_protein_ref
-                        if left_entry is not None
+                        None
+                        if right_entry is None
                         else right_entry.representative_protein_ref
                     )
                 ),

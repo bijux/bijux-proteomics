@@ -250,6 +250,10 @@ from bijux_proteomics.workflow.cohort_stratification import (
     render_cohort_stratum_tsv,
     render_cohort_subgroup_effect_tsv,
 )
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.proteogenomic_peptide_support import (
+    ProteogenomicVariantPeptideRecord,
+)
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
@@ -444,7 +448,7 @@ def build_biological_result_report_bundle_from_quant_table(
         raise ValueError(
             "FASTA input contains rejected records under strict mode: " + rejected
         )
-    variant_fasta_records = ()
+    variant_fasta_records: tuple[NormalizedProteinRecord, ...] = ()
     if variant_proteins_fasta_path is not None:
         variant_fasta_report = parse_fasta_document(
             variant_proteins_fasta_path.read_text(encoding="utf-8"),
@@ -459,7 +463,7 @@ def build_biological_result_report_bundle_from_quant_table(
                 + rejected
             )
         variant_fasta_records = variant_fasta_report.accepted_records
-    variant_peptide_records = ()
+    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] = ()
     if variant_peptide_tsv_path is not None:
         variant_peptide_report = parse_proteogenomic_variant_peptide_table(
             variant_peptide_tsv_path
@@ -793,13 +797,18 @@ def build_biological_result_report_bundle_from_quant_table(
         normalized_table,
         design_entries,
     )
-    cohort_stratification_report = build_cohort_stratification_report(
+    cohort_stratification_report: CohortStratificationReport | None = (
+        build_cohort_stratification_report(
         normalized_table,
         experiment_design,
         condition_a=resolved_condition_a,
         condition_b=resolved_condition_b,
+        )
     )
-    if cohort_stratification_report.summary.field_count == 0:
+    if (
+        cohort_stratification_report is not None
+        and cohort_stratification_report.summary.field_count == 0
+    ):
         cohort_stratification_report = None
     feasibility_report = build_experiment_feasibility_report(
         experiment_design,

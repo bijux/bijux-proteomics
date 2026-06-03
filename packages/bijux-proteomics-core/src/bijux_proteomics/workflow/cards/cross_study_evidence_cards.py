@@ -173,8 +173,11 @@ def build_cross_study_evidence_card_report(
 
     if effect_report is not None:
         study_entries_by_harmonized_id: dict[str, list[CrossStudyProteinEffectStudyEntry]] = {}
-        for entry in effect_report.study_entries:
-            study_entries_by_harmonized_id.setdefault(entry.harmonized_id, []).append(entry)
+        for study_entry in effect_report.study_entries:
+            study_entries_by_harmonized_id.setdefault(
+                study_entry.harmonized_id,
+                [],
+            ).append(study_entry)
         meta_entries_by_harmonized_id = (
             {}
             if meta_report is None
@@ -186,18 +189,25 @@ def build_cross_study_evidence_card_report(
             else {entry.harmonized_id: entry for entry in meta_report.rejected_entries}
         )
         effect_unsupported_ids = {entry.study_id for entry in effect_report.unsupported_studies}
-        for comparison in effect_report.comparisons:
+        for protein_comparison in effect_report.comparisons:
             cards.append(
                 _build_protein_card(
-                    comparison=comparison,
+                    comparison=protein_comparison,
                     study_entries=tuple(
                         sorted(
-                            study_entries_by_harmonized_id.get(comparison.harmonized_id, []),
+                            study_entries_by_harmonized_id.get(
+                                protein_comparison.harmonized_id,
+                                [],
+                            ),
                             key=lambda entry: entry.study_id,
                         )
                     ),
-                    meta_entry=meta_entries_by_harmonized_id.get(comparison.harmonized_id),
-                    meta_rejection=meta_rejections_by_harmonized_id.get(comparison.harmonized_id),
+                    meta_entry=meta_entries_by_harmonized_id.get(
+                        protein_comparison.harmonized_id
+                    ),
+                    meta_rejection=meta_rejections_by_harmonized_id.get(
+                        protein_comparison.harmonized_id
+                    ),
                     dataset_by_id=dataset_by_id,
                     failure_entries_by_dataset=failure_entries_by_dataset,
                     unsupported_dataset_ids=effect_unsupported_ids,
@@ -206,18 +216,24 @@ def build_cross_study_evidence_card_report(
 
     if pathway_report is not None:
         study_entries_by_comparison_id: dict[str, list[CrossStudyPathwayStudyEntry]] = {}
-        for entry in pathway_report.study_entries:
-            study_entries_by_comparison_id.setdefault(entry.comparison_id, []).append(entry)
+        for pathway_study_entry in pathway_report.study_entries:
+            study_entries_by_comparison_id.setdefault(
+                pathway_study_entry.comparison_id,
+                [],
+            ).append(pathway_study_entry)
         pathway_unsupported_ids = {
             entry.study_id for entry in pathway_report.unsupported_studies
         }
-        for comparison in pathway_report.comparisons:
+        for pathway_comparison in pathway_report.comparisons:
             cards.append(
                 _build_pathway_card(
-                    comparison=comparison,
+                    comparison=pathway_comparison,
                     study_entries=tuple(
                         sorted(
-                            study_entries_by_comparison_id.get(comparison.comparison_id, []),
+                            study_entries_by_comparison_id.get(
+                                pathway_comparison.comparison_id,
+                                [],
+                            ),
                             key=lambda entry: entry.study_id,
                         )
                     ),
