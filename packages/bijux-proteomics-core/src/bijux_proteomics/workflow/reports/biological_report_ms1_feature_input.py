@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Any, cast
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmEvidenceCardReport
@@ -31,9 +31,6 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
 )
-
-if TYPE_CHECKING:
-    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
 
 
 def build_biological_result_report_bundle_from_ms1_feature_input(
@@ -61,7 +58,7 @@ def build_biological_result_report_bundle_from_ms1_feature_input(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
-    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None,
+    lab_run_qc_feedback_report: object | None = None,
     run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
     chunk_size_rows: int | None = None,
@@ -125,7 +122,10 @@ def build_biological_result_report_bundle_from_ms1_feature_input(
         condition_b=condition_b,
         selection_policy=active_selection_policy,
         volcano_policy=volcano_policy,
-        lab_run_qc_feedback_report=lab_run_qc_feedback_report,
+        # Keep the lab-owned QC feedback contract out of this wrapper module and
+        # forward it opaquely to the deeper assembly surface that owns the
+        # cross-package exception.
+        lab_run_qc_feedback_report=cast(Any, lab_run_qc_feedback_report),
         run_qc_reports=run_qc_reports,
         run_qc_assessments=run_qc_assessments,
     )
