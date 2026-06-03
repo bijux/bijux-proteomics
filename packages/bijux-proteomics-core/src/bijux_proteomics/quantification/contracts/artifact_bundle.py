@@ -18,7 +18,13 @@ from bijux_proteomics.io.formats import (
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 if TYPE_CHECKING:
-    pass
+    from ..statistics.statistical_backend import (
+        LimmaCompatibleQuantPackage,
+        MsstatsCompatibleInputReport,
+    )
+else:
+    LimmaCompatibleQuantPackage = object
+    MsstatsCompatibleInputReport = object
 
 
 from .design import QuantDesignMatrixReport, QuantDesignModelFitReport
@@ -89,8 +95,8 @@ class QuantArtifactBundle(JsonModel):
     reproducibility_manifest: QuantReproducibilityManifest
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
-    limma_compatible_package: object | None = None
-    msstats_compatible_input_report: object | None = None
+    limma_compatible_package: LimmaCompatibleQuantPackage | None = None
+    msstats_compatible_input_report: MsstatsCompatibleInputReport | None = None
     design_matrix_report: QuantDesignMatrixReport | None = None
     design_model_fit_report: QuantDesignModelFitReport | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
@@ -215,8 +221,8 @@ def build_quant_artifact_bundle(
     replicate_qc_report: ReplicateAndBatchQcReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
-    limma_compatible_package: object | None = None,
-    msstats_compatible_input_report: object | None = None,
+    limma_compatible_package: LimmaCompatibleQuantPackage | None = None,
+    msstats_compatible_input_report: MsstatsCompatibleInputReport | None = None,
     design_matrix_report: QuantDesignMatrixReport | None = None,
     design_model_fit_report: QuantDesignModelFitReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,

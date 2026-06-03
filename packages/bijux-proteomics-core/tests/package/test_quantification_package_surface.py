@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
@@ -548,7 +550,7 @@ def test_quantification_package_exports_variance_model_owner_surface() -> None:
     )
 
 
-def test_quantification_package_exports_matrix_archive_surface(tmp_path) -> None:
+def test_quantification_package_exports_matrix_archive_surface(tmp_path: Path) -> None:
     matrix = QuantMatrix(
         matrix_id="matrix-archive-surface",
         entity_kind=QuantEntityKind.PROTEIN,

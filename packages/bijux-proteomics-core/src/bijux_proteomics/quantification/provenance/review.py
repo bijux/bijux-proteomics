@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
@@ -74,6 +75,15 @@ from bijux_proteomics.study.replicate_structure import (
     count_effective_statistical_units_by_condition,
 )
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.quantification.statistics.statistical_backend import (
+        LimmaCompatibleQuantPackage,
+        MsstatsCompatibleInputReport,
+    )
+else:
+    LimmaCompatibleQuantPackage = object
+    MsstatsCompatibleInputReport = object
 
 
 class LfqFeaturePeptideProteinProvenanceReport(JsonModel):
@@ -1059,8 +1069,8 @@ class QuantReviewBundle(JsonModel):
     imputation_sensitivity: ImputationSensitivityReport | None = None
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
-    limma_compatible_package: object
-    msstats_compatible_input_report: object
+    limma_compatible_package: LimmaCompatibleQuantPackage
+    msstats_compatible_input_report: MsstatsCompatibleInputReport
     design_matrix_report: QuantDesignMatrixReport
     design_model_fit_report: QuantDesignModelFitReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None

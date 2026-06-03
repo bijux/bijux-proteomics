@@ -20,11 +20,14 @@ from bijux_proteomics.interpretation.pathway_enrichment import (
     parse_pathway_membership_table,
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinAnnotationMappingReport,
     ProteinReferenceEntry,
     build_protein_annotation_mapping_report,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
+    DifferentialAbundanceReport,
+    LabelFreeQuantTable,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,
@@ -42,7 +45,7 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def _build_fixture_table():
+def _build_fixture_table() -> LabelFreeQuantTable:
     parse_report = parse_ms1_feature_table(
         _fixture("biological_report_features.tsv"),
         mapping=Ms1FeatureColumnMapping(
@@ -65,7 +68,10 @@ def _build_fixture_table():
     return normalize_label_free_table(protein_table, method=NormalizationMethod.MEDIAN)
 
 
-def _build_annotation_report(protein_table, differential_report):
+def _build_annotation_report(
+    protein_table: LabelFreeQuantTable,
+    differential_report: DifferentialAbundanceReport,
+) -> ProteinAnnotationMappingReport:
     fasta_report = parse_fasta_document(
         _fixture("biological_report_reference.fasta").read_text(encoding="utf-8"),
         mode=FastaParseMode.STRICT,

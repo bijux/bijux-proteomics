@@ -16,7 +16,7 @@ from bijux_proteomics.quantification.rollup.protein_lfq import (
 )
 
 
-def _peptide_rows():
+def _peptide_rows() -> list[tuple[PeptideIntensityMatrixRow, bool]]:
     return [
         (
             PeptideIntensityMatrixRow(
