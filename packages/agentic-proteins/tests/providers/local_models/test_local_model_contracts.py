@@ -18,13 +18,13 @@ from agentic_proteins.providers.capabilities import (
     provider_requirements,
 )
 from agentic_proteins.providers.selection import cuda_available
+from agentic_proteins_testsupport.artifacts import assert_valid_run_artifacts
 from bijux_proteomics.domain.structure.structure import kabsch_and_pairs, tm_score
 from bijux_proteomics_foundation.testing.skip_policy import (
     SkipCategory,
     skip_test,
 )
 from bijux_proteomics_runtime.support.primitives.fingerprints import hash_payload
-from agentic_proteins_testsupport.artifacts import assert_valid_run_artifacts
 
 REAL_CASES = [
     {

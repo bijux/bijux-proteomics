@@ -5,10 +5,8 @@
 
 from __future__ import annotations
 
-from importlib import import_module
-from importlib import metadata
-from typing import TYPE_CHECKING
-from typing import Any
+from importlib import import_module, metadata
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from bijux_proteomics_runtime import AppConfig, RunManager, cli, create_app
