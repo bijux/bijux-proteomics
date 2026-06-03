@@ -15,6 +15,7 @@ from bijux_proteomics.identification.peptide_evidence import (
     PeptideEvidenceEntry,
 )
 from bijux_proteomics.sequences import parse_fasta_document
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.targeted import (
     DiscoveryTargetProteinEntry,
     TargetedPeptideCandidateSource,
@@ -23,7 +24,7 @@ from bijux_proteomics.targeted import (
 )
 
 
-def _protein_records():
+def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
     return parse_fasta_document(
         ">sp|P00001|KIN1 GN=KIN1\n"
         "PEPTIDERAAASHALEDKAAAMMMWNQK\n"

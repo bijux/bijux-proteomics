@@ -26,6 +26,7 @@ from bijux_proteomics.io import (
     SpectrumPeak,
 )
 from bijux_proteomics.sequences import parse_fasta_document
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.targeted import TargetedPanelCandidateKind
 from bijux_proteomics.workflow import (
     DiscoveryAssayFeasibilityStatus,
@@ -41,7 +42,7 @@ from bijux_proteomics.workflow import (
 )
 
 
-def _protein_records():
+def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
     return parse_fasta_document(
         ">sp|P00001|KIN1 GN=KIN1\n"
         "PEPTIDERAAASHALEDKAAAMMMWNQK\n"

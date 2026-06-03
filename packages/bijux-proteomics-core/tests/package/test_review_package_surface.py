@@ -619,7 +619,9 @@ def test_review_package_exports_evidence_graph_external_export_surface() -> None
     assert bundle.contradiction_node_count == 1
 
 
-def test_review_package_exports_lazy_evidence_graph_query_surface(tmp_path) -> None:
+def test_review_package_exports_lazy_evidence_graph_query_surface(
+    tmp_path: Path,
+) -> None:
     builder = review.ProteomicsEvidenceGraphBuilder()
     sample = builder.add_sample("S1", label="sample S1")
     run = builder.add_run("R1", label="run R1")

@@ -35,6 +35,7 @@ from bijux_proteomics.sequences import (
     PeptideUniquenessClass,
     parse_fasta_document,
 )
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 import bijux_proteomics.targeted as targeted
 
 
@@ -42,7 +43,7 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
-def _protein_records():
+def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
     return parse_fasta_document(">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n").accepted_records
 
 

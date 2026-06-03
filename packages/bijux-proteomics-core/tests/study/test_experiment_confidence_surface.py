@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
+from bijux_proteomics.lab.qc import LcmsRunQcReport
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
@@ -179,7 +182,7 @@ def _quant_table() -> LabelFreeQuantTable:
     )
 
 
-def _run_qc_report():
+def _run_qc_report() -> LcmsRunQcReport:
     peptide_a = "PEPTIDEK"
     peptide_b = "CNTAMK"
     spectra = (
@@ -232,14 +235,17 @@ def _run_qc_report():
             target_decoy_label=TargetDecoyLabel.TARGET,
         ),
     )
-    return build_lcms_run_qc_report(
-        spectra=spectra,
-        psm_records=psms,
-        protein_sequences={
-            "P11111": "MPEPTIDEKAA",
-            "CON__KERATIN1": "MCNTAMKAA",
-        },
-        run_id="run-001",
+    return cast(
+        LcmsRunQcReport,
+        build_lcms_run_qc_report(
+            spectra=spectra,
+            psm_records=psms,
+            protein_sequences={
+                "P11111": "MPEPTIDEKAA",
+                "CON__KERATIN1": "MCNTAMKAA",
+            },
+            run_id="run-001",
+        ),
     )
 
 
