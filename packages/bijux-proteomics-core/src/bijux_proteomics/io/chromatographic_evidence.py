@@ -10,5 +10,3 @@ from bijux_proteomics.io.chromatography.chromatographic_evidence import *
 from bijux_proteomics.io.raw.chromatographic_evidence import (
     extract_mzml_chromatographic_evidence as extract_mzml_chromatographic_evidence,
 )
-
-__all__ = [*globals().get("__all__", []), "extract_mzml_chromatographic_evidence"]

@@ -10,5 +10,3 @@ from bijux_proteomics.io.chromatography.chromatographic_peak_picking import *
 from bijux_proteomics.io.raw.chromatographic_peak_picking import (
     extract_mzml_chromatographic_peaks as extract_mzml_chromatographic_peaks,
 )
-
-__all__ = [*globals().get("__all__", []), "extract_mzml_chromatographic_peaks"]

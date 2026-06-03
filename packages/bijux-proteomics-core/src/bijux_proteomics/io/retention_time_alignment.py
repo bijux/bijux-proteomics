@@ -10,5 +10,3 @@ from bijux_proteomics.io.chromatography.retention_time_alignment import *
 from bijux_proteomics.io.raw.retention_time_alignment import (
     extract_mzml_retention_time_alignment as extract_mzml_retention_time_alignment,
 )
-
-__all__ = [*globals().get("__all__", []), "extract_mzml_retention_time_alignment"]

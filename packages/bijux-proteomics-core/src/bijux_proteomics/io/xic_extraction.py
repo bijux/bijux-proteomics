@@ -11,5 +11,3 @@ from bijux_proteomics.io.raw.xic_extraction import (
     extract_mzml_xic_traces as extract_mzml_xic_traces,
 )
 from bijux_proteomics.io.tables.xic_target_table import *
-
-__all__ = [*globals().get("__all__", []), "extract_mzml_xic_traces"]
