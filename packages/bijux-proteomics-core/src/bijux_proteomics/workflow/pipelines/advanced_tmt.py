@@ -17,9 +17,12 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.isotope_labeling.validation import TmtValidationReport
 from bijux_proteomics.multiplex import (
     TmtInterferenceObservationEntry,
     TmtNormalizationMethod,
+    TmtPeptideRatioEntry,
+    TmtRatioReport,
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
@@ -34,6 +37,8 @@ from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entries_from_issue_rows,
     build_rejected_evidence_entry,
@@ -625,8 +630,8 @@ def _build_advanced_tmt_warnings(
     *,
     summary: AdvancedTmtWorkflowSummary,
     manifest: AdvancedTmtWorkflowManifest,
-) -> tuple:
-    warnings = []
+) -> tuple[ResultWarningEntry, ...]:
+    warnings: list[ResultWarningEntry] = []
     if summary.rejected_input_row_count > 0:
         warnings.append(
             build_result_warning(
@@ -674,7 +679,7 @@ def _build_advanced_tmt_rejected_evidence(
     report: TmtExperimentWorkflowBundle,
     evidence_cards: tuple[AdvancedTmtEvidenceCard, ...],
     related_artifact: str,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     matrix_report = report.report.tmt_matrix_report
     if matrix_report is None:
         raise ValueError("advanced tmt workflow requires a TMT matrix report")
@@ -703,14 +708,18 @@ def _build_advanced_tmt_rejected_evidence(
     )
 
 
-def _require_tmt_ratio_report(base_report: TmtExperimentWorkflowBundle):
+def _require_tmt_ratio_report(
+    base_report: TmtExperimentWorkflowBundle,
+) -> TmtRatioReport:
     ratio_report = base_report.report.tmt_ratio_report
     if ratio_report is None:
         raise ValueError("advanced tmt workflow requires protein and peptide ratios")
     return ratio_report
 
 
-def _require_tmt_validation_report(base_report: TmtExperimentWorkflowBundle):
+def _require_tmt_validation_report(
+    base_report: TmtExperimentWorkflowBundle,
+) -> TmtValidationReport:
     validation_report = base_report.report.tmt_validation_report
     if validation_report is None:
         raise ValueError("advanced tmt workflow requires tmt channel validation")
@@ -801,19 +810,23 @@ def _build_protein_compression_entries(
 ) -> tuple[AdvancedTmtProteinCompressionEntry, ...]:
     ratio_report = _require_tmt_ratio_report(base_report)
     protein_ratio_by_id: dict[str, list[float]] = {}
-    for entry in ratio_report.protein_ratios:
+    for protein_ratio_entry in ratio_report.protein_ratios:
         if (
-            entry.numerator_role is LabelBasedChannelRole.SAMPLE
-            and entry.log2_ratio is not None
-            and entry.missing_reason is None
+            protein_ratio_entry.numerator_role is LabelBasedChannelRole.SAMPLE
+            and protein_ratio_entry.log2_ratio is not None
+            and protein_ratio_entry.missing_reason is None
         ):
-            protein_ratio_by_id.setdefault(entry.protein_id, []).append(abs(entry.log2_ratio))
+            protein_ratio_by_id.setdefault(protein_ratio_entry.protein_id, []).append(
+                abs(protein_ratio_entry.log2_ratio)
+            )
 
     peptide_by_protein: dict[str, list[AdvancedTmtPeptideConfidenceEntry]] = {}
-    for entry in peptide_confidence_entries:
-        if entry.disposition is AdvancedTmtPeptideDisposition.MISSING_RATIO:
+    for peptide_entry in peptide_confidence_entries:
+        if peptide_entry.disposition is AdvancedTmtPeptideDisposition.MISSING_RATIO:
             continue
-        peptide_by_protein.setdefault(entry.protein_id, []).append(entry)
+        peptide_by_protein.setdefault(peptide_entry.protein_id, []).append(
+            peptide_entry
+        )
 
     entries: list[AdvancedTmtProteinCompressionEntry] = []
     for protein_id in sorted(peptide_by_protein):
@@ -942,10 +955,10 @@ def _build_evidence_cards(
 
 
 def _matching_interference_observations(
-    ratio_entry,
+    ratio_entry: TmtPeptideRatioEntry,
     observations: tuple[TmtInterferenceObservationEntry, ...],
 ) -> tuple[TmtInterferenceObservationEntry, ...]:
-    matches = []
+    matches: list[TmtInterferenceObservationEntry] = []
     ratio_refs = set(ratio_entry.protein_refs)
     for observation in observations:
         if observation.multiplex_group != ratio_entry.multiplex_group:

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable, Sequence
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
@@ -439,6 +440,8 @@ def parse_protein_region_context_tsv(
                 )
                 continue
 
+            assert start is not None
+            assert end is not None
             accepted.append(
                 ProteinRegionContextRecord(
                     protein_ref=protein_ref,
@@ -977,7 +980,7 @@ def render_protein_peptide_region_context_tsv(
 
 
 def _validate_required_columns(
-    fieldnames: list[str],
+    fieldnames: Sequence[str],
     mapping: ProteinRegionContextColumnMapping,
 ) -> None:
     required = (
@@ -1136,7 +1139,7 @@ def _functional_region_token(region: ProteinFunctionalRegionEvidence) -> str:
     )
 
 
-def _unique_sorted(values: object) -> tuple[str, ...]:
+def _unique_sorted(values: Iterable[str | None]) -> tuple[str, ...]:
     return tuple(sorted({value for value in values if value}))
 
 

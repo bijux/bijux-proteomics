@@ -738,14 +738,24 @@ def _write_surprising_demo_artifacts(
         protein_cards_tsv=(
             "biological_review/" + biological_manifest.artifacts.protein_card_tsv
         ),
-        ptm_cards_tsv="ptm_review/" + ptm_report.manifest.artifacts.evidence_card_tsv,
+        ptm_cards_tsv="ptm_review/"
+        + _require_artifact_path(
+            ptm_report.manifest.artifacts.evidence_card_tsv,
+            "advanced ptm evidence card TSV",
+        ),
         pathway_activity_tsv=(
             "biological_review/"
-            + biological_manifest.artifacts.pathway_activity_condition_comparison_tsv
+            + _require_artifact_path(
+                biological_manifest.artifacts.pathway_activity_condition_comparison_tsv,
+                "pathway activity condition comparison TSV",
+            )
         ),
         mechanism_cards_tsv=(
             "biological_review/"
-            + biological_manifest.artifacts.protein_mechanism_card_tsv
+            + _require_artifact_path(
+                biological_manifest.artifacts.protein_mechanism_card_tsv,
+                "protein mechanism card TSV",
+            )
         ),
         qc_packets_tsv=qc_packets_name,
         matrices_tsv=matrices_name,
@@ -868,6 +878,14 @@ def _render_demo_matrix_index_tsv(
     biological_manifest: BiologicalResultReportExportManifest,
     ptm_report: AdvancedPtmWorkflowReport,
 ) -> str:
+    pathway_activity_matrix_tsv = _require_artifact_path(
+        biological_manifest.artifacts.pathway_activity_matrix_tsv,
+        "pathway activity matrix TSV",
+    )
+    ptm_exact_site_matrix_tsv = _require_artifact_path(
+        ptm_report.manifest.artifacts.exact_site_matrix_tsv,
+        "advanced ptm exact-site matrix TSV",
+    )
     return _dict_rows_to_tsv(
         [
             {
@@ -877,13 +895,12 @@ def _render_demo_matrix_index_tsv(
             },
             {
                 "matrix_kind": "pathway_activity",
-                "artifact_path": "biological_review/"
-                + biological_manifest.artifacts.pathway_activity_matrix_tsv,
+                "artifact_path": "biological_review/" + pathway_activity_matrix_tsv,
                 "note": "pathway activity matrix over the compact demo cohort",
             },
             {
                 "matrix_kind": "ptm_exact_sites",
-                "artifact_path": "ptm_review/" + ptm_report.manifest.artifacts.exact_site_matrix_tsv,
+                "artifact_path": "ptm_review/" + ptm_exact_site_matrix_tsv,
                 "note": "exact-site PTM quantification matrix after ambiguity exclusion",
             },
             {
@@ -915,6 +932,12 @@ def _render_demo_assay_panel_tsv(
             for assay in panel_assays
         ]
     )
+
+
+def _require_artifact_path(path: str | None, label: str) -> str:
+    if path is None:
+        raise ValueError(f"surprising demo requires {label}")
+    return path
 
 
 def _render_demo_claims_tsv(claims: tuple[EvidenceClaim, ...]) -> str:

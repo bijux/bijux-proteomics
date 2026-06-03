@@ -6,8 +6,10 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Callable
 from enum import StrEnum
 from io import StringIO
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -80,6 +82,15 @@ class FailureExplanationReport(JsonModel):
     explanations: tuple[FailureExplanation, ...] = Field(default_factory=tuple)
     summary: FailureExplanationSummary
     note: str = Field(..., min_length=1)
+
+
+class _FailureMatcher(TypedDict):
+    category: FailureExplanationCategory
+    condition_code: str
+    condition: str
+    fix: str
+    note: str
+    predicate: Callable[[str], bool]
 
 
 def build_failure_explanation_report(
@@ -218,8 +229,10 @@ def format_failure_explanation_for_cli(explanation: FailureExplanation) -> str:
             "The failure did not match a known scientific category, so inspect the "
             "raw message and the governed inputs directly."
         )
+    category = explanation.failure_category
+    assert category is not None
     return (
-        f"{workflow_prefix} with {explanation.failure_category.value}: "
+        f"{workflow_prefix} with {category.value}: "
         f"{explanation.scientific_condition}. "
         f"Fix input: {explanation.fix_recommendation}. "
         f"Raw failure: {explanation.raw_failure_text}."
@@ -270,7 +283,7 @@ def _contains_any(lower_text: str, patterns: tuple[str, ...]) -> bool:
     return any(pattern in lower_text for pattern in patterns)
 
 
-_FAILURE_MATCHERS = (
+_FAILURE_MATCHERS: tuple[_FailureMatcher, ...] = (
     {
         "category": FailureExplanationCategory.SCHEMA_ERROR,
         "condition_code": "input_schema_error",

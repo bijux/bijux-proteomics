@@ -86,7 +86,7 @@ def render_evidence_graph_contradictions_tsv(
 ) -> str:
     """Render contradictions as the governed `contradictions.tsv` surface."""
 
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "contradiction_id": entry.contradiction_id,
             "kind": entry.kind.value,

@@ -5,27 +5,42 @@
 
 from __future__ import annotations
 
+import csv
+import tracemalloc
+from collections.abc import Callable
 from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 
-import csv
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from time import perf_counter
-import tracemalloc
+from typing import TypeVar
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
-    build_label_free_intensity_table,
     parse_ms1_feature_table,
 )
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    build_label_free_intensity_table,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    Ms1FeatureParseReport,
+    Ms1FeatureRecord,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.review.evidence_graph import load_lazy_proteomics_evidence_graph
 from bijux_proteomics.workflow.exports import validate_workflow_artifact_manifest
+from bijux_proteomics.workflow.reports.biological_report_models import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
@@ -150,6 +165,7 @@ class _StageMeasurement:
 
 
 _AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY"
+_StageResult = TypeVar("_StageResult")
 
 
 def run_scale_demo(config: ScaleDemoConfig) -> ScaleDemoReport:
@@ -395,7 +411,7 @@ def _generate_scale_demo_dataset(
 
 def _parse_scale_demo_inputs(
     dataset: _GeneratedScaleDataset,
-):
+) -> tuple[Ms1FeatureParseReport, tuple[ExperimentalDesignEntry, ...]]:
     feature_parse_report = parse_ms1_feature_table(dataset.feature_path)
     if feature_parse_report.rejected_rows:
         raise ValueError("generated scale demo feature table must parse without rejected rows")
@@ -406,10 +422,10 @@ def _parse_scale_demo_inputs(
 
 
 def _build_scale_demo_quant_table(
-    records,
+    records: tuple[Ms1FeatureRecord, ...],
     *,
     peptides_per_protein: int,
-):
+) -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         records,
         entity_level=QuantEntityLevel.PROTEIN,
@@ -419,12 +435,12 @@ def _build_scale_demo_quant_table(
 
 
 def _build_scale_demo_report_bundle(
-    quant_table,
-    design_entries,
+    quant_table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
     pathway_path: Path,
-):
+) -> BiologicalResultReportBundle:
     return build_biological_result_report_bundle_from_quant_table(
         quant_table,
         design_entries,
@@ -440,7 +456,7 @@ def _build_scale_demo_report_bundle(
 
 
 def _export_and_validate_scale_demo(
-    report_bundle,
+    report_bundle: BiologicalResultReportBundle,
     *,
     biological_output_dir: Path,
 ) -> tuple[BiologicalResultReportExportManifest, ScaleDemoValidation]:
@@ -689,7 +705,9 @@ def _scale_demo_intensity(
     return base_intensity * peptide_factor * replicate_factor * condition_factor
 
 
-def _measure_stage(function):
+def _measure_stage(
+    function: Callable[[], _StageResult],
+) -> tuple[_StageResult, _StageMeasurement]:
     tracemalloc.start()
     start = perf_counter()
     try:

@@ -541,7 +541,7 @@ def _write_category_index(
     *,
     output_dir: Path,
 ) -> None:
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "dataset_id": artifact.dataset_id,
             "category": artifact.category.value,
@@ -740,7 +740,7 @@ def _descriptor_source_basenames(
 
 
 def _render_source_audits_tsv(suite: PublicBenchmarkSuiteReport) -> str:
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "dataset_id": run.dataset_id,
             "accession": run.accession,
@@ -758,7 +758,7 @@ def _render_source_audits_tsv(suite: PublicBenchmarkSuiteReport) -> str:
 
 
 def _render_verified_counts_tsv(suite: PublicBenchmarkSuiteReport) -> str:
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "dataset_id": run.dataset_id,
             "accession": run.accession,
