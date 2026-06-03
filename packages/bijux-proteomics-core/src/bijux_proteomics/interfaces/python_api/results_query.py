@@ -39,11 +39,13 @@ def _resolve_result_root_report_dirs(result_root: Path) -> tuple[Path | None, Pa
 
     scale_report_path = result_root / "scale_demo_report.json"
     if scale_report_path.exists():
-        report = ScaleDemoReport.model_validate_json(
+        scale_report = ScaleDemoReport.model_validate_json(
             scale_report_path.read_text(encoding="utf-8")
         )
         return (
-            _resolve_relative_result_dir(result_root, report.artifacts.biological_output_dir),
+            _resolve_relative_result_dir(
+                result_root, scale_report.artifacts.biological_output_dir
+            ),
             None,
         )
 

@@ -241,7 +241,7 @@ def run_quantify_command(
                     selected_contrast = (conditions[0], conditions[1])
 
                 if selected_contrast is not None:
-                    sensitivity_methods = (
+                    sensitivity_methods: tuple[ImputationMethod, ...] = (
                         ImputationMethod.NONE,
                         ImputationMethod.LOW_INTENSITY,
                         ImputationMethod.KNN,

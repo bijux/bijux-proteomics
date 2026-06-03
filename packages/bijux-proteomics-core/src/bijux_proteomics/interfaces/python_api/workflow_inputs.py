@@ -222,6 +222,9 @@ def run_protocol_consistency_report_command(
                 "spectra, psm, and proteins-fasta must be provided together for digestion consistency checks"
             )
         if all(path is not None for path in digestion_inputs):
+            assert proteins_fasta is not None
+            assert spectra_path is not None
+            assert psm_path is not None
             fasta_report = parse_fasta_document(
                 proteins_fasta.read_text(),
                 mode=FastaParseMode.STRICT,

@@ -331,6 +331,20 @@ def _build_biomarker_candidates_from_ptm_report_dir(
                 f"{row.get('residue', '')}{row.get('position', '')} "
                 f"{row.get('modification_name', '')}"
             ).strip()
+            effect_size_raw = differential_entry["log2_fold_change"]
+            adjusted_p_value_raw = differential_entry["adjusted_p_value"]
+            if not isinstance(effect_size_raw, int | float):
+                raise TypeError("PTM differential log2_fold_change must be numeric")
+            if adjusted_p_value_raw is not None and not isinstance(
+                adjusted_p_value_raw, int | float
+            ):
+                raise TypeError("PTM differential adjusted_p_value must be numeric")
+            effect_size = float(effect_size_raw)
+            adjusted_p_value = (
+                None
+                if adjusted_p_value_raw is None
+                else float(adjusted_p_value_raw)
+            )
             candidates.append(
                 BiomarkerCandidateRankingInput(
                     candidate_id=build_site_id(
@@ -343,14 +357,12 @@ def _build_biomarker_candidates_from_ptm_report_dir(
                     display_label=display_label,
                     target_protein_ref=str(row.get("protein_ref", "")).strip(),
                     site_key=site_key,
-                    effect_size=float(differential_entry["log2_fold_change"]),
-                    adjusted_p_value=differential_entry["adjusted_p_value"],
+                    effect_size=effect_size,
+                    adjusted_p_value=adjusted_p_value,
                     support_count=peptide_spectrum_count,
-                    effect_score=_score_effect_size(
-                        float(differential_entry["log2_fold_change"])
-                    ),
+                    effect_score=_score_effect_size(effect_size),
                     robustness_score=_score_ptm_robustness(
-                        adjusted_p_value=differential_entry["adjusted_p_value"],
+                        adjusted_p_value=adjusted_p_value,
                         imputation_dependent=bool(
                             differential_entry["imputation_dependent_hit"]
                         ),

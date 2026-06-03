@@ -83,7 +83,7 @@ def run_pathway_activity_command(
                 gene_symbol=pathway_gene_symbol_column,
             ),
         )
-        fasta_records = ()
+        fasta_records: tuple[NormalizedProteinRecord, ...] = ()
         if fasta is not None:
             fasta_report = parse_fasta_document(
                 fasta.read_text(encoding="utf-8"),
@@ -253,7 +253,7 @@ def run_complex_activity_command(
                 gene_symbol=gene_symbol_column,
             ),
         )
-        fasta_records = ()
+        fasta_records: tuple[NormalizedProteinRecord, ...] = ()
         if fasta is not None:
             fasta_report = parse_fasta_document(
                 fasta.read_text(encoding="utf-8"),

@@ -42,8 +42,14 @@ def run_qc_report_command(
                 ) from exc
         elif protocol_context_tsv is not None:
             try:
+                protocol_context = _load_protocol_context(protocol_context_tsv)
+                if protocol_context is None:
+                    raise ProteomicsOperatorError(
+                        ProteomicsOperatorErrorCode.QC_POLICY_INVALID,
+                        "protocol context could not be resolved",
+                    )
                 policy = build_protocol_aware_qc_threshold_policy(
-                    _load_protocol_context(protocol_context_tsv)
+                    protocol_context
                 )
             except Exception as exc:  # noqa: BLE001
                 raise ProteomicsOperatorError(

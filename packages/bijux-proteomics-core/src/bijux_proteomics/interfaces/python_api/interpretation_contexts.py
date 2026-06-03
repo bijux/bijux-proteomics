@@ -298,7 +298,7 @@ def run_drug_target_command(
                 ),
             )
         )
-        fasta_records = ()
+        fasta_records: tuple[NormalizedProteinRecord, ...] = ()
         if fasta is not None:
             fasta_report = parse_fasta_document(
                 fasta.read_text(encoding="utf-8"),
