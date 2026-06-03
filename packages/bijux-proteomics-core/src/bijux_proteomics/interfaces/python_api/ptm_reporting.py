@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
@@ -115,8 +113,6 @@ def run_ptm_report_command(
         raise click.ClickException(
             "workflow did not produce the expected PTM report manifest"
         )
-    workflow_report = cast(PtmSiteWorkflowBundle, workflow_report)
-
     _emit_json(
         {
             "accepted_rows": workflow_report.summary.accepted_evidence_count,

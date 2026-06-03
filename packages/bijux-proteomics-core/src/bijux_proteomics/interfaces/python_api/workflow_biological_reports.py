@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
@@ -104,8 +102,6 @@ def run_diann_biological_report_command(
         raise click.ClickException(
             "workflow did not produce the expected DIA-NN biological manifest"
         )
-    report = cast(DiannBiologicalWorkflowBundle, report)
-
     _emit_json(
         {
             "design_rows": result.design_row_count,
@@ -199,8 +195,6 @@ def run_maxquant_biological_report_command(
         raise click.ClickException(
             "workflow did not produce the expected MaxQuant biological manifest"
         )
-    report = cast(MaxquantBiologicalWorkflowBundle, report)
-
     _emit_json(
         {
             "design_rows": result.design_row_count,

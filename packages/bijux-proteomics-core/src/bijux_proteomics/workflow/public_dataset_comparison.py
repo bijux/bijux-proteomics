@@ -37,6 +37,35 @@ from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     load_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
+from bijux_proteomics.workflow.pipelines.advanced_diann import AdvancedDiannWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_fragpipe import (
+    AdvancedFragpipeWorkflowReport,
+)
+from bijux_proteomics.workflow.pipelines.advanced_maxquant import (
+    AdvancedMaxquantWorkflowReport,
+)
+from bijux_proteomics.workflow.pipelines.advanced_ptm import AdvancedPtmWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_tmt import AdvancedTmtWorkflowReport
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
+    DdaBiologicalWorkflowBundle,
+)
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
+    DiannBiologicalWorkflowBundle,
+)
+from bijux_proteomics.workflow.pipelines.flagship_run import ProteomicsRunBundle
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
+    MaxquantBiologicalWorkflowBundle,
+)
+from bijux_proteomics.workflow.pipelines.ptm_site_workflow import PtmSiteWorkflowBundle
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
+    TmtExperimentWorkflowBundle,
+)
+from bijux_proteomics.workflow.pipelines.advanced_targeted import (
+    TargetedValidationWorkflowReport,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyCardKind,
     ProteomicsStudyKind,
@@ -192,7 +221,29 @@ def build_public_dataset_comparison_report_from_suite(
                 f"public benchmark run '{run.dataset_id}' passed without a workflow result"
             )
         try:
-            study_result = build_proteomics_study_result(run.workflow_result.report)
+            workflow_report = run.workflow_result.report
+            if not isinstance(
+                workflow_report,
+                (
+                    AdvancedDiannWorkflowReport,
+                    AdvancedFragpipeWorkflowReport,
+                    AdvancedMaxquantWorkflowReport,
+                    AdvancedPtmWorkflowReport,
+                    AdvancedTmtWorkflowReport,
+                    BiologicalResultReportBundle,
+                    DdaBiologicalWorkflowBundle,
+                    DiannBiologicalWorkflowBundle,
+                    MaxquantBiologicalWorkflowBundle,
+                    ProteomicsRunBundle,
+                    PtmSiteWorkflowBundle,
+                    TargetedValidationWorkflowReport,
+                    TmtExperimentWorkflowBundle,
+                ),
+            ):
+                raise TypeError(
+                    "workflow result does not preserve a study-result-supported report surface"
+                )
+            study_result = build_proteomics_study_result(workflow_report)
         except (TypeError, ValueError) as exc:
             passed_dataset_without_study_contexts.append(
                 (

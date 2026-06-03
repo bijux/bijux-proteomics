@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
@@ -390,8 +388,6 @@ def run_tmt_report_command(
         raise click.ClickException(
             "workflow did not produce the expected TMT workflow manifest"
         )
-    workflow_report = cast(TmtExperimentWorkflowBundle, workflow_report)
-
     _emit_json(
         {
             "source_kind": source_kind,
