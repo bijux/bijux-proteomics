@@ -28,6 +28,15 @@ export
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
+ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND = @for path in $(ROOT_FORBIDDEN_ARTIFACTS); do \
+	if [ "$$path" = "$(CURDIR)/.hypothesis" ] || [ "$$path" = "$(CURDIR)/.benchmarks" ]; then \
+		if [ -L "$$path" ]; then \
+			continue; \
+		fi; \
+	fi; \
+	rm -rf "$$path"; \
+done || true
+
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
 ROOT_TARGET_PACKAGES_test-all := $(CHECK_PACKAGES)
 ROOT_TARGET_PACKAGES_test-all-plus-run-time := $(CHECK_PACKAGES)
