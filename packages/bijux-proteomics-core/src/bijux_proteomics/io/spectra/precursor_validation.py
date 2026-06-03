@@ -324,17 +324,22 @@ def _observed_monoisotopic_mz(
     assigned_mz: float,
     tolerance_da: float,
 ) -> float:
-    nearby = tuple(
+    nearby: tuple[SpectrumPeak, ...] = tuple(
         peak
         for peak in peaks
         if abs(peak.mz - assigned_mz) <= tolerance_da
     )
     if nearby:
-        return max(nearby, key=lambda peak: (peak.intensity, -abs(peak.mz - assigned_mz))).mz
-    return min(
+        selected_peak = max(
+            nearby,
+            key=lambda peak: (peak.intensity, -abs(peak.mz - assigned_mz)),
+        )
+        return float(selected_peak.mz)
+    selected_peak = min(
         peaks,
         key=lambda peak: (abs(peak.mz - assigned_mz), -peak.intensity, peak.mz),
-    ).mz
+    )
+    return float(selected_peak.mz)
 
 
 def _score_charge_candidate(

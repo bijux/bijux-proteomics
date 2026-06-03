@@ -662,7 +662,7 @@ def _pearson_correlation(
         return 1.0
     if abs(-1.0 - correlation) < 1e-3:
         return -1.0
-    return correlation
+    return float(correlation)
 
 
 def _coelution_score(

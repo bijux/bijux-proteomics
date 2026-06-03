@@ -278,7 +278,7 @@ def _pearson_correlation(x_values: list[int], y_values: list[float]) -> float | 
     variance_y = sum(value * value for value in centered_y)
     if variance_x <= 0.0 or variance_y <= 0.0:
         return None
-    return covariance / (variance_x * variance_y) ** 0.5
+    return float(covariance / (variance_x * variance_y) ** 0.5)
 
 
 def _directional_fraction(

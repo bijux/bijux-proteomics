@@ -16,7 +16,7 @@ from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
     TransitionRecord as CanonicalTransitionRecord,
 )
-from bijux_proteomics.io import parse_transition_table
+from bijux_proteomics.io.transition_table import parse_transition_table
 from bijux_proteomics_foundation import JsonModel
 
 

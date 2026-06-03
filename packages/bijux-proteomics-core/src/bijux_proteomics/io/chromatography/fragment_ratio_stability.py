@@ -19,6 +19,12 @@ from bijux_proteomics.io.chromatography.dia_fragment_coelution import (
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
+    from bijux_proteomics.io.chromatography.dia_fragment_coelution import (
+        DiaFragmentCoelutionFragmentEntry,
+    )
+    from bijux_proteomics.targeted.result_import import (
+        TargetedResultObservation,
+    )
     from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 
 
@@ -403,8 +409,8 @@ def _build_fragment_ratio_stability_report(
 
 def _runs_by_targeted_analyte(
     import_report: "TargetedResultImportReport",
-) -> dict[tuple[str, str], list[object]]:
-    grouped: dict[tuple[str, str], list[object]] = {}
+) -> dict[tuple[str, str], list["TargetedResultObservation"]]:
+    grouped: dict[tuple[str, str], list["TargetedResultObservation"]] = {}
     for observation in import_report.observations:
         grouped.setdefault((observation.precursor_id, observation.sample_id), []).append(
             observation
@@ -414,8 +420,8 @@ def _runs_by_targeted_analyte(
 
 def _dia_fragments_by_run(
     report: DiaFragmentCoelutionReport,
-) -> dict[tuple[str, str], list[object]]:
-    grouped: dict[tuple[str, str], list[object]] = {}
+) -> dict[tuple[str, str], list["DiaFragmentCoelutionFragmentEntry"]]:
+    grouped: dict[tuple[str, str], list["DiaFragmentCoelutionFragmentEntry"]] = {}
     for entry in report.fragment_entries:
         grouped.setdefault((entry.precursor_id, entry.run_id), []).append(entry)
     return grouped
@@ -429,7 +435,7 @@ def _coefficient_of_variation(values: list[float]) -> float | None:
         return None
     squared_distance_sum = sum((value - mean_value) ** 2 for value in values)
     variance = squared_distance_sum / (len(values) - 1)
-    return variance**0.5 / mean_value
+    return float(variance**0.5 / mean_value)
 
 
 def _stability_score(

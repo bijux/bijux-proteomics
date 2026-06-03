@@ -844,7 +844,7 @@ def _coefficient_of_variation(values: list[float]) -> float | None:
         return None
     squared_distance_sum = sum((value - mean_value) ** 2 for value in values)
     variance = squared_distance_sum / (len(values) - 1)
-    return variance**0.5 / mean_value
+    return float(variance**0.5 / mean_value)
 
 
 def _fragment_ratio_matrix(
