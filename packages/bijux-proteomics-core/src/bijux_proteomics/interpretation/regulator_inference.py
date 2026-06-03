@@ -10,6 +10,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import DefaultDict, Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -440,7 +441,7 @@ def parse_regulator_evidence_table(
             ),
         )
     )
-    counts = defaultdict(int)
+    counts: DefaultDict[RegulatorEvidenceType, int] = defaultdict(int)
     for record in accepted_tuple:
         counts[record.evidence_type] += 1
     return RegulatorEvidenceImportReport(
@@ -1067,8 +1068,10 @@ def _build_pathway_activity_entry(
             )
             continue
         matched_target_count += 1
-        delta, confidence = pathway_signal
-        values.append(delta)
+        delta_value, confidence = pathway_signal
+        if delta_value is None:
+            raise RuntimeError("validated pathway signal unexpectedly lost its delta")
+        values.append(delta_value)
         significance.append(1.0 if confidence is PathwayActivityConfidenceStatus.HIGH_CONFIDENCE else 0.5)
         supporting_pathway_ids.add(record.pathway_id)
         supporting_protein_refs.update(pathway_support_proteins.get(record.pathway_id, ()))
@@ -1355,7 +1358,10 @@ def _infer_delimiter(header_line: str) -> str:
     return "\t" if header_line.count("\t") >= header_line.count(",") else ","
 
 
-def _validate_required_columns(fieldnames: list[str], required: tuple[str | None, ...]) -> None:
+def _validate_required_columns(
+    fieldnames: Sequence[str],
+    required: tuple[str | None, ...],
+) -> None:
     missing = [field for field in required if field is not None and field not in fieldnames]
     if missing:
         raise ValueError(

@@ -787,12 +787,16 @@ def _protein_gene_annotations(
     custom_annotations: tuple[ProteinAnnotationRecord, ...],
 ) -> dict[str, tuple[str, ...]]:
     annotations: dict[str, set[str]] = {}
-    for record in fasta_records:
-        if record.gene:
-            annotations.setdefault(record.canonical_accession, set()).add(record.gene)
-    for record in custom_annotations:
-        if record.gene_symbol:
-            annotations.setdefault(record.protein_ref, set()).add(record.gene_symbol)
+    for fasta_record in fasta_records:
+        if fasta_record.gene:
+            annotations.setdefault(fasta_record.canonical_accession, set()).add(
+                fasta_record.gene
+            )
+    for annotation_record in custom_annotations:
+        if annotation_record.gene_symbol:
+            annotations.setdefault(annotation_record.protein_ref, set()).add(
+                annotation_record.gene_symbol
+            )
     return {
         canonicalize_protein_reference(protein_ref): tuple(sorted(gene_symbols))
         for protein_ref, gene_symbols in annotations.items()
@@ -829,6 +833,7 @@ def _build_member_specs(
         if member_key in seen_members:
             continue
         seen_members.add(member_key)
+        resolved_protein_refs: tuple[str, ...]
         if record.member_kind is PathwayMemberKind.PROTEIN:
             canonical_ref = canonicalize_protein_reference(record.member_id)
             resolved_protein_refs = (
