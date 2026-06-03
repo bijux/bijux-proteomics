@@ -139,6 +139,20 @@ def package_test_modules(package_name: str) -> tuple[Path, ...]:
     return tuple(sorted(root.rglob("test_*.py")))
 
 
+def package_test_entrypoint_paths(package_name: str) -> tuple[Path, ...]:
+    root = tests_root(package_name)
+    if not root.exists():
+        return ()
+    return tuple(
+        sorted(
+            {
+                *root.rglob("test_*.py"),
+                *root.rglob("conftest.py"),
+            }
+        )
+    )
+
+
 def fixture_files(package_name: str) -> tuple[Path, ...]:
     root = fixture_root(package_name)
     if root is None:

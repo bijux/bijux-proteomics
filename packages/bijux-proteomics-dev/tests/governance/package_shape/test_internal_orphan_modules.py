@@ -8,6 +8,10 @@ from bijux_proteomics_dev.governance.package_shape.internal_orphan_modules impor
     run,
     validate_internal_orphan_module_report,
 )
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    package_root,
+    package_test_entrypoint_paths,
+)
 
 
 def test_internal_orphan_module_artifacts_are_repository_owned() -> None:
@@ -27,6 +31,19 @@ def test_internal_orphan_module_allowlist_covers_only_manual_example_tools() -> 
         "bijux_proteomics_dev.tools.mre_agentic_protein",
         "bijux_proteomics_dev.tools.visualize_invariants",
     ]
+
+
+def test_package_test_entrypoint_paths_include_test_bootstraps() -> None:
+    package_tests_root = package_root("bijux-proteomics-knowledge") / "tests"
+    relative_paths = {
+        path.relative_to(package_tests_root.parent).as_posix()
+        for path in package_test_entrypoint_paths("bijux-proteomics-knowledge")
+    }
+
+    assert "tests/conftest.py" in relative_paths
+    assert "tests/memory/conftest.py" in relative_paths
+    assert "tests/reviews/conftest.py" in relative_paths
+    assert "tests/reviews/test_trends.py" in relative_paths
 
 
 def test_live_internal_orphan_module_report_is_fully_justified() -> None:

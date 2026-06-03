@@ -22,7 +22,7 @@ from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
 )
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_root,
-    package_test_modules,
+    package_test_entrypoint_paths,
     root_api_policy_path,
     source_modules,
     tests_root,
@@ -273,7 +273,7 @@ def _test_imported_modules(
     existing_modules: set[str],
 ) -> set[str]:
     modules: set[str] = set()
-    for path in package_test_modules(package_name):
+    for path in package_test_entrypoint_paths(package_name):
         source_module_name = _test_module_name(package_name, path)
         for edge in workspace_dependency_edges_for_path(
             package_name,
@@ -313,7 +313,7 @@ def _workspace_consumer_targets() -> dict[str, tuple[str, ...]]:
                 targets_by_distribution.setdefault(edge.target_distribution, set()).add(
                     edge.target_module
                 )
-        for path in package_test_modules(consumer_package_name):
+        for path in package_test_entrypoint_paths(consumer_package_name):
             source_module_name = _test_module_name(consumer_package_name, path)
             for edge in workspace_dependency_edges_for_path(
                 consumer_package_name,
