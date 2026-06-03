@@ -11,11 +11,13 @@ from io import StringIO
 import json
 from pathlib import Path
 import re
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.workflow.exports.interactive_result_bundle import (
     InteractiveResultBundle,
+    InteractiveResultPeptide,
     InteractiveResultSourceKind,
     build_interactive_result_bundle_from_artifacts,
 )
@@ -99,6 +101,11 @@ class ResultSearchIndex(JsonModel):
     token_postings: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     summary: ResultSearchIndexSummary
     note: str = Field(..., min_length=1)
+
+
+class _ArtifactSourceContext(TypedDict):
+    report_dir: Path
+    artifact_paths: dict[str, str]
 
 
 class ResultSearchSnippet(JsonModel):
@@ -337,8 +344,8 @@ def render_result_search_hit_tsv(report: ResultSearchReport) -> str:
 
 def _artifact_context_by_source_kind(
     bundle: InteractiveResultBundle,
-) -> dict[InteractiveResultSourceKind, dict[str, object]]:
-    context: dict[InteractiveResultSourceKind, dict[str, object]] = {}
+) -> dict[InteractiveResultSourceKind, _ArtifactSourceContext]:
+    context: dict[InteractiveResultSourceKind, _ArtifactSourceContext] = {}
     for source_report in bundle.source_reports:
         context[source_report.source_kind] = {
             "report_dir": Path(source_report.report_dir),
@@ -348,7 +355,7 @@ def _artifact_context_by_source_kind(
 
 
 def _load_protein_annotation_terms(
-    artifact_context: dict[InteractiveResultSourceKind, dict[str, object]],
+    artifact_context: dict[InteractiveResultSourceKind, _ArtifactSourceContext],
 ) -> dict[str, tuple[str, ...]]:
     context = artifact_context.get(InteractiveResultSourceKind.BIOLOGICAL_REPORT)
     if context is None:
@@ -388,7 +395,7 @@ def _load_protein_annotation_terms(
 
 
 def _load_ptm_annotation_terms(
-    artifact_context: dict[InteractiveResultSourceKind, dict[str, object]],
+    artifact_context: dict[InteractiveResultSourceKind, _ArtifactSourceContext],
 ) -> dict[str, tuple[str, ...]]:
     context = artifact_context.get(InteractiveResultSourceKind.PTM_REPORT)
     if context is None:
@@ -427,7 +434,7 @@ def _load_ptm_annotation_terms(
 def _build_protein_documents(
     *,
     bundle: InteractiveResultBundle,
-    peptides_by_id: dict[str, object],
+    peptides_by_id: dict[str, InteractiveResultPeptide],
     pathway_names_by_id: dict[str, str],
     protein_annotation_terms: dict[str, tuple[str, ...]],
 ) -> tuple[ResultSearchDocument, ...]:
@@ -772,7 +779,7 @@ def _build_search_hit(
 
 
 def _read_optional_rows(
-    context: dict[str, object],
+    context: _ArtifactSourceContext,
     artifact_key: str,
 ) -> tuple[dict[str, str], ...]:
     artifact_paths = context["artifact_paths"]

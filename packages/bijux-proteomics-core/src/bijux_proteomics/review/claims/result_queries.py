@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -190,6 +191,13 @@ class _ResultArtifactContext:
     failed_qc_runs_by_sample: dict[str, tuple[_QcRunArtifact, ...]]
 
 
+class _QcRunEntry(TypedDict):
+    qc_status: str
+    status_reason_codes: set[str]
+    metric_keys: list[str]
+    messages: list[str]
+
+
 def build_result_query_report_from_artifacts(
     requests: tuple[ResultQueryRequest, ...],
     *,
@@ -329,8 +337,8 @@ def _load_result_artifact_context(
     ptm_report_dir: Path | None,
     run_qc_assessment_tsv_paths: tuple[Path, ...],
 ) -> _ResultArtifactContext:
-    protein_cards = ()
-    graph_nodes = ()
+    protein_cards: tuple[_ProteinCardArtifact, ...] = ()
+    graph_nodes: tuple[_GraphNodeArtifact, ...] = ()
     if biological_report_dir is not None:
         protein_cards = _load_biological_protein_cards(
             biological_report_dir / "biological_protein_cards.tsv"
@@ -339,7 +347,7 @@ def _load_result_artifact_context(
             biological_report_dir / "biological_evidence_graph_nodes.tsv"
         )
 
-    ptm_cards = ()
+    ptm_cards: tuple[_PtmCardArtifact, ...] = ()
     if ptm_report_dir is not None:
         ptm_cards = _load_ptm_cards(ptm_report_dir / "ptm_evidence_cards.tsv")
 
@@ -987,7 +995,7 @@ def _load_ptm_cards(path: Path) -> tuple[_PtmCardArtifact, ...]:
 
 
 def _load_qc_runs(paths: tuple[Path, ...]) -> tuple[_QcRunArtifact, ...]:
-    runs_by_id: dict[str, dict[str, object]] = {}
+    runs_by_id: dict[str, _QcRunEntry] = {}
     for path in paths:
         for row in _read_tsv_rows(path):
             if row["scope"] != "run":
