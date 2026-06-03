@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypeVar
 
 from bijux_proteomics.identification.comet_import import (
     build_comet_import_report,
@@ -56,6 +57,8 @@ from bijux_proteomics.identification.spectronaut_import import (
     render_spectronaut_protein_group_tsv,
 )
 
+_RowT = TypeVar("_RowT")
+
 
 def _bundle_root(engine_name: str) -> Path:
     return (
@@ -66,7 +69,7 @@ def _bundle_root(engine_name: str) -> Path:
     )
 
 
-def _reversed_rows(rows: tuple[object, ...]) -> tuple[object, ...]:
+def _reversed_rows(rows: tuple[_RowT, ...]) -> tuple[_RowT, ...]:
     return tuple(reversed(rows))
 
 
@@ -118,15 +121,17 @@ def test_comet_and_sage_psm_exports_ignore_input_row_order() -> None:
     assert render_comet_canonical_psm_tsv(
         comet_report.canonical_psms
     ) == render_comet_canonical_psm_tsv(_reversed_rows(comet_report.canonical_psms))
-    assert render_comet_psm_tsv(
-        report_rows := comet_report.psm_rows
-    ) == render_comet_psm_tsv(_reversed_rows(report_rows))
+    comet_psm_rows = comet_report.psm_rows
+    assert render_comet_psm_tsv(comet_psm_rows) == render_comet_psm_tsv(
+        _reversed_rows(comet_psm_rows)
+    )
     assert render_sage_canonical_psm_tsv(
         sage_report.canonical_psms
     ) == render_sage_canonical_psm_tsv(_reversed_rows(sage_report.canonical_psms))
-    assert render_sage_psm_tsv(
-        report_rows := sage_report.psm_rows
-    ) == render_sage_psm_tsv(_reversed_rows(report_rows))
+    sage_psm_rows = sage_report.psm_rows
+    assert render_sage_psm_tsv(sage_psm_rows) == render_sage_psm_tsv(
+        _reversed_rows(sage_psm_rows)
+    )
 
 
 def test_openms_export_renderers_ignore_input_row_order() -> None:
