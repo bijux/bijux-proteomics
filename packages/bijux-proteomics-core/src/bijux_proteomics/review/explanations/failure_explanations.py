@@ -231,7 +231,8 @@ def format_failure_explanation_for_cli(explanation: FailureExplanation) -> str:
             "raw message and the governed inputs directly."
         )
     category = explanation.failure_category
-    assert category is not None
+    if category is None:
+        raise ValueError("classified failure explanations must carry a failure category")
     return (
         f"{workflow_prefix} with {category.value}: "
         f"{explanation.scientific_condition}. "

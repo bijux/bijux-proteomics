@@ -226,11 +226,19 @@ def run_protocol_consistency_report_command(
                 "spectra, psm, and proteins-fasta must be provided together for digestion consistency checks"
             )
         if all(path is not None for path in digestion_inputs):
-            assert proteins_fasta is not None
-            assert spectra_path is not None
-            assert psm_path is not None
+            proteins_fasta_path = proteins_fasta
+            spectra_input_path = spectra_path
+            psm_input_path = psm_path
+            if (
+                proteins_fasta_path is None
+                or spectra_input_path is None
+                or psm_input_path is None
+            ):
+                raise ValueError(
+                    "digestion consistency checks require spectra, psm, and proteins-fasta inputs"
+                )
             fasta_report = parse_fasta_document(
-                proteins_fasta.read_text(),
+                proteins_fasta_path.read_text(),
                 mode=FastaParseMode.STRICT,
             )
             if fasta_report.rejected_records:
@@ -241,8 +249,8 @@ def run_protocol_consistency_report_command(
                     "FASTA input contains rejected records under strict mode: "
                     f"{rejected}"
                 )
-            spectrum_report = parse_mgf(spectra_path)
-            psm_report = parse_psm_tsv(psm_path, mapping=_default_psm_mapping())
+            spectrum_report = parse_mgf(spectra_input_path)
+            psm_report = parse_psm_tsv(psm_input_path, mapping=_default_psm_mapping())
             run_qc_report = build_lcms_run_qc_report(
                 spectrum_report.accepted_spectra,
                 psm_report.accepted_records,

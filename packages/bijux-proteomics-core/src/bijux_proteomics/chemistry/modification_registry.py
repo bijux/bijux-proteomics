@@ -276,7 +276,8 @@ def resolve_modification(
 
     if normalized_controlled_id not in (None, ""):
         controlled_id_value = normalized_controlled_id
-        assert controlled_id_value is not None
+        if controlled_id_value is None:
+            raise ValueError("controlled modification id cannot normalize to None")
         definition = _lookup_by_controlled_id(controlled_id_value, registry=registry)
         match_mode = ModificationRegistryResolutionMode.CONTROLLED_ID
         if definition is None:
@@ -286,7 +287,8 @@ def resolve_modification(
             )
     elif normalized_token not in (None, ""):
         token_value = normalized_token
-        assert token_value is not None
+        if token_value is None:
+            raise ValueError("modification token cannot normalize to None")
         definition = _lookup_by_token(
             token_value,
             site=site,

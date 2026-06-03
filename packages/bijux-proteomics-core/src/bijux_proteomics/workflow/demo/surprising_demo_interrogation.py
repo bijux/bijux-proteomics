@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -158,10 +159,10 @@ def build_surprising_demo_example_requests(
         raise ValueError(
             "shipped demo outputs are missing one or more deterministic query anchors"
         )
-    assert protein_subject is not None
-    assert site_subject is not None
-    assert sample_subject is not None
-    assert target_subject is not None
+    protein_subject = cast(str, protein_subject)
+    site_subject = cast(str, site_subject)
+    sample_subject = cast(str, sample_subject)
+    target_subject = cast(str, target_subject)
     return (
         SurprisingDemoQueryRequest(
             query_id="demo-why-protein-changed",

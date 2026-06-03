@@ -444,8 +444,10 @@ def parse_protein_region_context_tsv(
                 )
                 continue
 
-            assert start is not None
-            assert end is not None
+            if start is None or end is None:
+                raise ValueError(
+                    "validated protein region context rows must carry start and end coordinates"
+                )
             accepted.append(
                 ProteinRegionContextRecord(
                     protein_ref=protein_ref,

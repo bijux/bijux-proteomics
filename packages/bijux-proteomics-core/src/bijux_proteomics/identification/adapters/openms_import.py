@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
-from xml.etree.ElementTree import Element
+from typing import TYPE_CHECKING, Any
 
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
@@ -582,7 +581,7 @@ def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReview
     )
 
 
-def _parse_openms_idxml_root(path: Path) -> Element:
+def _parse_openms_idxml_root(path: Path) -> Any:
     try:
         root = ET.parse(path).getroot()
     except ET.ParseError as exc:
