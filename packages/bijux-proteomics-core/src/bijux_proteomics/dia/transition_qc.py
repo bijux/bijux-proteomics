@@ -100,6 +100,18 @@ class DiaTransitionQcReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+def _optional_int(value: object) -> int | None:
+    if value is None:
+        return None
+    return int(str(value))
+
+
+def _optional_float(value: object) -> float | None:
+    if value is None:
+        return None
+    return float(str(value))
+
+
 def build_transition_qc_report(
     entries: tuple[TransitionTableEntry, ...],
     *,
@@ -238,11 +250,7 @@ def build_transition_qc_report(
             DiaTransitionQcEntry(
                 transition_id=transition_id,
                 precursor_id=precursor_id,
-                precursor_charge=(
-                    None
-                    if group["precursor_charge"] is None
-                    else int(group["precursor_charge"])
-                ),
+                precursor_charge=_optional_int(group["precursor_charge"]),
                 peptide_sequence=(
                     None
                     if group["peptide_sequence"] is None
@@ -256,16 +264,8 @@ def build_transition_qc_report(
                     if group["fragment_label"] is None
                     else str(group["fragment_label"])
                 ),
-                precursor_mz=(
-                    None
-                    if group["precursor_mz"] is None
-                    else float(group["precursor_mz"])
-                ),
-                fragment_mz=(
-                    None
-                    if group["fragment_mz"] is None
-                    else float(group["fragment_mz"])
-                ),
+                precursor_mz=_optional_float(group["precursor_mz"]),
+                fragment_mz=_optional_float(group["fragment_mz"]),
                 values=tuple(values),
                 detected_sample_count=len(detected_intensities),
                 missing_sample_count=len(sample_ids) - len(detected_intensities),

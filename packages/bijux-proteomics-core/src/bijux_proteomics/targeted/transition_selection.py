@@ -618,7 +618,7 @@ def _build_peptide_transition_selection(
             ordered_candidates[:maximum_transition_count], start=1
         )
     )
-    for fragment, _ in ordered_candidates[maximum_transition_count:]:
+    for rejected_fragment, _ in ordered_candidates[maximum_transition_count:]:
         rejected_entries.append(
             TargetedTransitionSelectionRejectionEntry(
                 assay_entry_id=assay_entry_id,
@@ -629,17 +629,17 @@ def _build_peptide_transition_selection(
                 canonical_peptide=peptide_entry.canonical_peptide,
                 precursor_charge=precursor_charge,
                 precursor_mz=precursor_mz,
-                fragment_label=fragment.fragment_label,
-                ion_type=fragment.ion_type,
-                fragment_ordinal=fragment.fragment_ordinal,
-                fragment_charge=fragment.fragment_charge,
-                fragment_sequence=fragment.fragment_sequence,
-                fragment_mz=fragment.fragment_mz,
-                expected_relative_intensity=fragment.expected_relative_intensity,
-                interference_risk=fragment.interference_risk,
-                interference_risk_score=fragment.interference_risk_score,
-                interference_risk_reasons=fragment.interference_risk_reasons,
-                selection_score=fragment.selection_score,
+                fragment_label=rejected_fragment.fragment_label,
+                ion_type=rejected_fragment.ion_type,
+                fragment_ordinal=rejected_fragment.fragment_ordinal,
+                fragment_charge=rejected_fragment.fragment_charge,
+                fragment_sequence=rejected_fragment.fragment_sequence,
+                fragment_mz=rejected_fragment.fragment_mz,
+                expected_relative_intensity=rejected_fragment.expected_relative_intensity,
+                interference_risk=rejected_fragment.interference_risk,
+                interference_risk_score=rejected_fragment.interference_risk_score,
+                interference_risk_reasons=rejected_fragment.interference_risk_reasons,
+                selection_score=rejected_fragment.selection_score,
                 rejection_codes=(
                     TargetedTransitionSelectionRejectionCode.LOWER_RANK_THAN_SELECTED,
                 ),
