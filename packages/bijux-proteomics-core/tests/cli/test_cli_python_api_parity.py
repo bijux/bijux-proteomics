@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from contextlib import redirect_stdout
 import io
 import json
 from pathlib import Path
 import shutil
+from typing import TypeAlias, cast
 
 from click.testing import CliRunner
 
@@ -22,16 +24,24 @@ from bijux_proteomics.interfaces.python_api import (
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
 _VOLATILE_KEYS = {"artifact_id", "content_hash", "created_at", "updated_at"}
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | dict[str, "JsonValue"] | list["JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 
-def _invoke_python_api(function, /, *args, **kwargs) -> dict[str, object]:
+def _invoke_python_api(
+    function: Callable[..., None],
+    /,
+    *args: object,
+    **kwargs: object,
+) -> JsonObject:
     stream = io.StringIO()
     with redirect_stdout(stream):
         function(*args, **kwargs)
-    return json.loads(stream.getvalue())
+    return cast(JsonObject, json.loads(stream.getvalue()))
 
 
-def _normalize_payload(value):
+def _normalize_payload(value: object) -> JsonValue:
     if isinstance(value, dict):
         return {
             key: _normalize_payload(item)
@@ -40,7 +50,7 @@ def _normalize_payload(value):
         }
     if isinstance(value, list):
         return [_normalize_payload(item) for item in value]
-    return value
+    return cast(JsonScalar, value)
 
 
 def test_psm_inspect_cli_matches_python_api_output() -> None:

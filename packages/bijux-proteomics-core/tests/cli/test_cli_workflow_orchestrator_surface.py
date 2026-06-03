@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import NoReturn
 
 from click.testing import CliRunner
+import pytest
 
 from bijux_proteomics.interfaces.cli.app import cli
 import bijux_proteomics.interfaces.support.output_protocol as output_protocol
@@ -48,9 +50,9 @@ def _targeted_fixture(name: str) -> Path:
 
 
 def test_biological_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
     protocol_path = tmp_path / "protocol.tsv"
     protocol_path.write_text(
         "\n".join(
@@ -63,7 +65,7 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
         encoding="utf-8",
     )
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -85,16 +87,17 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
 
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
-    assert isinstance(captured["config"], LabelFreeWorkflowConfig)
-    assert captured["config"].protocol_context_tsv_path == protocol_path
+    config = captured["config"]
+    assert isinstance(config, LabelFreeWorkflowConfig)
+    assert config.protocol_context_tsv_path == protocol_path
 
 
 def test_dda_biological_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -116,16 +119,17 @@ def test_dda_biological_report_command_routes_through_core_workflow_orchestrator
 
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
-    assert isinstance(captured["config"], DdaWorkflowConfig)
-    assert captured["config"].mode is WorkflowMode.GENERIC_PSM
+    config = captured["config"]
+    assert isinstance(config, DdaWorkflowConfig)
+    assert config.mode is WorkflowMode.GENERIC_PSM
 
 
 def test_diann_biological_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -149,12 +153,12 @@ def test_diann_biological_report_command_routes_through_core_workflow_orchestrat
 
 
 def test_maxquant_biological_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
     maxquant_dir = _workflow_fixture("maxquant_biological")
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -180,22 +184,23 @@ def test_maxquant_biological_report_command_routes_through_core_workflow_orchest
 
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
-    assert isinstance(captured["config"], MaxquantWorkflowConfig)
+    config = captured["config"]
+    assert isinstance(config, MaxquantWorkflowConfig)
     assert (
-        captured["config"].annotation_tsv_path
+        config.annotation_tsv_path
         == _fixture_root() / "interpretation" / "protein_annotation_custom.tsv"
     )
-    assert captured["config"].context_annotation_tsv_path == _workflow_fixture(
+    assert config.context_annotation_tsv_path == _workflow_fixture(
         "biological_report_context.tsv"
     )
 
 
 def test_tmt_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -221,11 +226,11 @@ def test_tmt_report_command_routes_through_core_workflow_orchestrator(
 
 
 def test_silac_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -249,11 +254,11 @@ def test_silac_report_command_routes_through_core_workflow_orchestrator(
 
 
 def test_ptm_report_command_routes_through_core_workflow_orchestrator(
-    monkeypatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -279,11 +284,11 @@ def test_ptm_report_command_routes_through_core_workflow_orchestrator(
 
 
 def test_targeted_target_matrix_command_routes_through_core_workflow_orchestrator(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -301,16 +306,17 @@ def test_targeted_target_matrix_command_routes_through_core_workflow_orchestrato
 
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
-    assert isinstance(captured["config"], TargetedWorkflowConfig)
-    assert captured["config"].stage is TargetedWorkflowStage.MATRIX
+    config = captured["config"]
+    assert isinstance(config, TargetedWorkflowConfig)
+    assert config.stage is TargetedWorkflowStage.MATRIX
 
 
 def test_targeted_assay_qc_command_routes_through_core_workflow_orchestrator(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    captured = {}
+    captured: dict[str, object] = {}
 
-    def _fake_run(config):
+    def _fake_run(config: object) -> NoReturn:
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
@@ -329,5 +335,6 @@ def test_targeted_assay_qc_command_routes_through_core_workflow_orchestrator(
 
     assert result.exit_code == 1
     assert "orchestrator sentinel" in result.output
-    assert isinstance(captured["config"], TargetedWorkflowConfig)
-    assert captured["config"].stage is TargetedWorkflowStage.ASSAY_QC
+    config = captured["config"]
+    assert isinstance(config, TargetedWorkflowConfig)
+    assert config.stage is TargetedWorkflowStage.ASSAY_QC
