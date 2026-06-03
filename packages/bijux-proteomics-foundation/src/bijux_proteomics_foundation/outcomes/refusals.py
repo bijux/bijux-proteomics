@@ -41,6 +41,7 @@ class OperationRefusal(JsonModel):
     @model_validator(mode="before")
     @classmethod
     def _normalize_legacy_keys(cls, value: object) -> object:
+        """Map legacy refusal payload keys onto the stable field names."""
         if not isinstance(value, dict):
             return value
         payload = dict(value)
@@ -53,11 +54,13 @@ class OperationRefusal(JsonModel):
     @field_validator("code")
     @classmethod
     def _normalize_code(cls, value: str) -> str:
+        """Canonicalize refusal codes into the shared stable token format."""
         return value.strip().lower().replace(" ", "_").replace("-", "_")
 
     @field_validator("reason_details", "recommended_actions")
     @classmethod
     def _order_strings(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        """Normalize explanatory string lists into a stable serialized order."""
         return stable_order_strings(value)
 
 

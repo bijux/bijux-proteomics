@@ -113,35 +113,44 @@ def build_source_tree_complexity_report(
 
 @dataclass(frozen=True)
 class _FunctionComplexity:
+    """Recorded complexity score for one collected function or method."""
+
     qualified_name: str
     complexity: int
 
 
 class _ComplexityCounter(ast.NodeVisitor):
     def __init__(self) -> None:
+        """Start every function at the baseline cyclomatic complexity of one."""
         self.complexity = 1
 
     def visit_If(self, node: ast.If) -> None:
+        """Count each conditional branch and continue into its body."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_IfExp(self, node: ast.IfExp) -> None:
+        """Count ternary expressions as one additional decision branch."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_For(self, node: ast.For) -> None:
+        """Count synchronous loops as one additional decision branch."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_AsyncFor(self, node: ast.AsyncFor) -> None:
+        """Count asynchronous loops as one additional decision branch."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_While(self, node: ast.While) -> None:
+        """Count while loops as one additional decision branch."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_Try(self, node: ast.Try) -> None:
+        """Count exception handlers and alternate try branches toward complexity."""
         self.complexity += len(node.handlers)
         if node.orelse:
             self.complexity += 1
@@ -150,42 +159,52 @@ class _ComplexityCounter(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_BoolOp(self, node: ast.BoolOp) -> None:
+        """Count chained boolean operands beyond the first as decision points."""
         self.complexity += max(0, len(node.values) - 1)
         self.generic_visit(node)
 
     def visit_comprehension(self, node: ast.comprehension) -> None:
+        """Count each comprehension generator as one additional branch."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_Assert(self, node: ast.Assert) -> None:
+        """Count assert guards as one additional branching condition."""
         self.complexity += 1
         self.generic_visit(node)
 
     def visit_Match(self, node: ast.Match) -> None:
+        """Count match cases toward the overall branch total."""
         self.complexity += len(node.cases)
         self.generic_visit(node)
 
     def visit_match_case(self, node: ast.match_case) -> None:
+        """Count guarded match cases as an extra decision within the case."""
         if node.guard is not None:
             self.complexity += 1
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Stop nested function bodies from inflating the current function score."""
         return None
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Stop nested async function bodies from inflating the current score."""
         return None
 
     def visit_Lambda(self, node: ast.Lambda) -> None:
+        """Ignore nested lambdas while scoring the surrounding callable."""
         return None
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Ignore nested class bodies while scoring the surrounding callable."""
         return None
 
 
 def _collect_function_complexities(
     module: ast.Module,
 ) -> tuple[_FunctionComplexity, ...]:
+    """Collect qualified function names and complexity scores from one module AST."""
     collector = _FunctionCollector()
     collector.visit(module)
     return tuple(collector.functions)
@@ -193,24 +212,29 @@ def _collect_function_complexities(
 
 class _FunctionCollector(ast.NodeVisitor):
     def __init__(self) -> None:
+        """Initialize nested scope tracking for qualified function names."""
         self._scope: list[str] = []
         self.functions: list[_FunctionComplexity] = []
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Enter class scope so contained functions receive class-qualified names."""
         self._scope.append(node.name)
         self.generic_visit(node)
         self._scope.pop()
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Record one synchronous function and recurse into nested definitions."""
         self._record_function(node)
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Record one asynchronous function and recurse into nested definitions."""
         self._record_function(node)
 
     def _record_function(
         self,
         node: ast.FunctionDef | ast.AsyncFunctionDef,
     ) -> None:
+        """Compute and store complexity for one function using the current scope."""
         qualified_name = ".".join((*self._scope, node.name))
         counter = _ComplexityCounter()
         for statement in node.body:

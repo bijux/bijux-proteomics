@@ -38,6 +38,7 @@ class ProvenancePointer(JsonModel):
     @model_validator(mode="before")
     @classmethod
     def _normalize_legacy_keys(cls, value: object) -> object:
+        """Accept earlier provenance key names while preserving current fields."""
         if not isinstance(value, dict):
             return value
         payload = dict(value)
@@ -50,6 +51,7 @@ class ProvenancePointer(JsonModel):
     @field_validator("pointer_labels")
     @classmethod
     def _order_labels(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        """Sort provenance labels deterministically for stable hashing and JSON."""
         return stable_order_strings(value)
 
 

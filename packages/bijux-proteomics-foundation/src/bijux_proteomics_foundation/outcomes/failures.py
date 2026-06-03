@@ -43,6 +43,7 @@ class ErrorEnvelope(JsonModel):
     @model_validator(mode="before")
     @classmethod
     def _normalize_legacy_keys(cls, value: object) -> object:
+        """Accept earlier field names while normalizing into the stable contract."""
         if not isinstance(value, dict):
             return value
         payload = dict(value)
@@ -53,6 +54,7 @@ class ErrorEnvelope(JsonModel):
     @field_validator("code")
     @classmethod
     def _normalize_code(cls, value: str) -> str:
+        """Canonicalize error codes into the shared stable token format."""
         return value.strip().lower().replace(" ", "_").replace("-", "_")
 
     @field_validator("context", mode="before")
@@ -61,11 +63,13 @@ class ErrorEnvelope(JsonModel):
         cls,
         value: tuple[tuple[str, Any], ...] | dict[str, Any],
     ) -> tuple[tuple[str, Any], ...]:
+        """Sort context pairs deterministically for reproducible serialization."""
         return stable_order_pairs(value)
 
     @field_validator("cause_chain")
     @classmethod
     def _order_causes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        """Drop empty cause entries while preserving the observed exception order."""
         return tuple(entry.strip() for entry in value if entry.strip())
 
 

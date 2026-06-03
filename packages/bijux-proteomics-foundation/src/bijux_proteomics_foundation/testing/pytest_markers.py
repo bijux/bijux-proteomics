@@ -26,15 +26,21 @@ PRIMARY_TEST_SELECTION_MARKERS = frozenset(
 
 
 class _PytestMarker(Protocol):
+    """Minimal pytest marker protocol needed for default marker inference."""
+
     name: str
 
 
 class _CollectedTestItem(Protocol):
+    """Minimal collected pytest item surface used by the marker helper."""
+
     fixturenames: Collection[str]
 
-    def iter_markers(self) -> Iterable[_PytestMarker]: ...
+    def iter_markers(self) -> Iterable[_PytestMarker]:
+        """Yield the markers already attached to the collected test item."""
 
-    def add_marker(self, marker: object) -> None: ...
+    def add_marker(self, marker: object) -> None:
+        """Attach one derived marker to the collected test item."""
 
 
 def derive_default_test_markers(
@@ -128,16 +134,19 @@ def apply_default_test_markers(
 
 
 def _matches_any_dir(path_parts: Collection[str], candidate_dirs: Collection[str]) -> bool:
+    """Return whether a normalized test path intersects one configured directory set."""
     normalized_path_parts = {part.lower() for part in path_parts}
     normalized_dirs = {candidate.lower() for candidate in candidate_dirs}
     return not normalized_path_parts.isdisjoint(normalized_dirs)
 
 
 def _contains_any_token(stem: str, tokens: Collection[str]) -> bool:
+    """Return whether a test module stem contains any configured marker token."""
     return any(token.lower() in stem for token in tokens)
 
 
 def _item_path(item: object) -> Path:
+    """Resolve a stable filesystem path from pytest path or legacy fspath attributes."""
     item_path = getattr(item, "path", None)
     if item_path is not None:
         return Path(str(item_path))
