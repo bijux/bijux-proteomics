@@ -83,21 +83,26 @@ def infer_phosphatases(
 
     exact_annotation_sites_by_phosphatase: dict[str, set[str]] = {}
     observed_exact_sites_by_phosphatase: dict[str, set[str]] = {}
-    for entry in phosphatase_substrate_table:
-        if entry.site_id is None:
+    for annotation_entry in phosphatase_substrate_table:
+        if annotation_entry.site_id is None:
             continue
-        exact_annotation_sites_by_phosphatase.setdefault(entry.phosphatase, set()).add(
-            entry.site_id
+        exact_annotation_sites_by_phosphatase.setdefault(
+            annotation_entry.phosphatase, set()
+        ).add(
+            annotation_entry.site_id
         )
-        if entry.site_id not in site_lookup:
+        if annotation_entry.site_id not in site_lookup:
             continue
         if (
-            entry.substrate_protein_id is not None
-            and entry.substrate_protein_id != site_lookup[entry.site_id].protein_id
+            annotation_entry.substrate_protein_id is not None
+            and annotation_entry.substrate_protein_id
+            != site_lookup[annotation_entry.site_id].protein_id
         ):
             continue
-        observed_exact_sites_by_phosphatase.setdefault(entry.phosphatase, set()).add(
-            entry.site_id
+        observed_exact_sites_by_phosphatase.setdefault(
+            annotation_entry.phosphatase, set()
+        ).add(
+            annotation_entry.site_id
         )
 
     entries: list[PtmPhosphataseInferenceEntry] = []
@@ -202,7 +207,7 @@ def _directional_consistency_p_value(
         math.comb(trial_count, support_count) / (2**trial_count)
         for support_count in range(dominant_count, trial_count + 1)
     )
-    return min(1.0, 2.0 * tail_probability)
+    return float(min(1.0, 2.0 * tail_probability))
 
 
 def _benjamini_hochberg(p_values: tuple[float, ...]) -> tuple[float, ...]:

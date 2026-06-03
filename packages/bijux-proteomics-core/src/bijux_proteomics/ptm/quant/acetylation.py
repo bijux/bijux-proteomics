@@ -71,31 +71,39 @@ def analyze_acetylation_sites(
         context_by_protein.setdefault(entry.protein_id, []).append(entry)
 
     analyzed: list[PtmAcetylSiteAnalysisEntry] = []
-    for entry in acetyl_site_table:
-        if entry.site_id in site_ids:
+    for site_candidate in acetyl_site_table:
+        if site_candidate.site_id in site_ids:
             raise ValueError("acetylation analysis requires unique site_id rows")
-        site_ids.add(entry.site_id)
-        acetylation_type = _acetylation_type(entry)
+        site_ids.add(site_candidate.site_id)
+        acetylation_type = _acetylation_type(site_candidate)
         matched_context = tuple(
             sorted(
                 {
                     region.domain_context
-                    for region in context_by_protein.get(entry.protein_id, [])
-                    if region.start <= entry.position <= region.end
+                    for region in context_by_protein.get(site_candidate.protein_id, [])
+                    if region.start <= site_candidate.position <= region.end
                 }
             )
         )
         analyzed.append(
             PtmAcetylSiteAnalysisEntry(
-                site_id=entry.site_id,
+                site_id=site_candidate.site_id,
                 acetylation_type=acetylation_type,
-                lysine_position=entry.position if acetylation_type is PtmAcetylationType.LYSINE_ACETYLATION else None,
-                n_terminal=entry.position == 1,
+                lysine_position=(
+                    site_candidate.position
+                    if acetylation_type is PtmAcetylationType.LYSINE_ACETYLATION
+                    else None
+                ),
+                n_terminal=site_candidate.position == 1,
                 domain_context=";".join(matched_context),
                 abundance_corrected_effect=(
                     None
-                    if entry.protein_log2fc is None
-                    else round(entry.raw_site_log2fc - entry.protein_log2fc, 10)
+                    if site_candidate.protein_log2fc is None
+                    else round(
+                        site_candidate.raw_site_log2fc
+                        - site_candidate.protein_log2fc,
+                        10,
+                    )
                 ),
             )
         )

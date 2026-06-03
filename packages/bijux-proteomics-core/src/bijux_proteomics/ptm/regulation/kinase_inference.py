@@ -78,17 +78,22 @@ def infer_kinases(
         site_lookup[entry.site_id] = entry
 
     motif_by_kinase_site: dict[tuple[str, str], float] = {}
-    for entry in motif_table:
-        if entry.site_id not in site_lookup:
+    for motif_entry in motif_table:
+        if motif_entry.site_id not in site_lookup:
             continue
-        key = (entry.kinase, entry.site_id)
-        motif_by_kinase_site[key] = max(entry.motif_score, motif_by_kinase_site.get(key, 0.0))
+        key = (motif_entry.kinase, motif_entry.site_id)
+        motif_by_kinase_site[key] = max(
+            motif_entry.motif_score,
+            motif_by_kinase_site.get(key, 0.0),
+        )
 
     substrate_by_kinase: dict[str, set[str]] = {}
-    for entry in kinase_substrate_table:
-        if entry.site_id not in site_lookup:
+    for substrate_entry in kinase_substrate_table:
+        if substrate_entry.site_id not in site_lookup:
             continue
-        substrate_by_kinase.setdefault(entry.kinase, set()).add(entry.site_id)
+        substrate_by_kinase.setdefault(substrate_entry.kinase, set()).add(
+            substrate_entry.site_id
+        )
 
     motif_by_kinase: dict[str, dict[str, float]] = {}
     for (kinase, site_id), motif_score in motif_by_kinase_site.items():

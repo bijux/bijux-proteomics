@@ -74,8 +74,10 @@ def detect_oxidation_artifacts(
         qc_by_sample[entry.sample_id] = entry
 
     observations_by_sample: dict[str, list[PtmOxidizedPeptideObservation]] = {}
-    for entry in oxidized_peptides:
-        observations_by_sample.setdefault(entry.sample_id, []).append(entry)
+    for oxidized_observation in oxidized_peptides:
+        observations_by_sample.setdefault(oxidized_observation.sample_id, []).append(
+            oxidized_observation
+        )
 
     detected: list[PtmOxidationArtifactEntry] = []
     for sample_id in sorted(observations_by_sample):
