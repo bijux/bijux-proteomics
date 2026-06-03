@@ -95,18 +95,18 @@ def assemble_proteoform_candidates(
                 ambiguous=False,
             )
         )
-    for entry in ptm_evidence:
-        if entry.site_id in site_ids:
+    for ptm_entry in ptm_evidence:
+        if ptm_entry.site_id in site_ids:
             raise ValueError("proteoform assembly requires unique site_id PTM rows")
-        site_ids.add(entry.site_id)
-        constraints_by_protein.setdefault(entry.protein_id, []).append(
+        site_ids.add(ptm_entry.site_id)
+        constraints_by_protein.setdefault(ptm_entry.protein_id, []).append(
             _Constraint(
-                label=entry.site_id,
-                protein_id=entry.protein_id,
-                required_sites=frozenset((entry.site_id,)),
+                label=ptm_entry.site_id,
+                protein_id=ptm_entry.protein_id,
+                required_sites=frozenset((ptm_entry.site_id,)),
                 excluded_sites=frozenset(),
-                required_peptides=frozenset(entry.supporting_peptides),
-                ambiguous=entry.ambiguous,
+                required_peptides=frozenset(ptm_entry.supporting_peptides),
+                ambiguous=ptm_entry.ambiguous,
             )
         )
 
