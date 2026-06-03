@@ -127,7 +127,7 @@ def load_standard_card_tsv(path: Path) -> tuple[StandardCardEntry, ...]:
                 claim=_required_text(row, "claim"),
                 evidence_for=_required_text(row, "evidence_for"),
                 evidence_against=_required_text(row, "evidence_against"),
-                confidence=coerce_confidence_tier(_required_text(row, "confidence")),
+                confidence=_required_confidence_tier(_required_text(row, "confidence")),
                 warning_codes=_split_multi(row.get("warning_codes", "")),
                 source_ids=_split_multi(row.get("source_ids", "")),
             )
@@ -199,6 +199,13 @@ def _required_text(row: dict[str, str | None], field_name: str) -> str:
     if not value:
         raise ValueError(f"shared card field {field_name!r} must not be blank")
     return value
+
+
+def _required_confidence_tier(value: str) -> ConfidenceTier:
+    confidence = coerce_confidence_tier(value)
+    if confidence is None:
+        raise ValueError("confidence tier must not be blank")
+    return confidence
 
 
 def _split_multi(value: str) -> tuple[str, ...]:

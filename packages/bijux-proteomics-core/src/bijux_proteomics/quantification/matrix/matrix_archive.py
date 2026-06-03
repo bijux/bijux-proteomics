@@ -12,6 +12,8 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantMatrix,
+    QuantEntityKind,
+    QuantMeasureKind,
     SampleMetadata,
 )
 from bijux_proteomics._tabular import render_rows_tsv
@@ -46,8 +48,8 @@ class QuantMatrixArchive(JsonModel):
 
         return QuantMatrix(
             matrix_id=self.matrix_id,
-            entity_kind=self.entity_kind,
-            measure_kind=self.measure_kind,
+            entity_kind=QuantEntityKind(self.entity_kind),
+            measure_kind=QuantMeasureKind(self.measure_kind),
             entity_ids=self.entity_ids,
             sample_ids=self.sample_ids,
             values=self.values,

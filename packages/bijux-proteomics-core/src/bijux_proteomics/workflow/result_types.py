@@ -8,7 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
-from typing import Iterable
+from typing import Iterable, Protocol
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -106,6 +106,15 @@ class BiologyResult(_StandardResult):
 
 class WorkflowResult(_StandardResult):
     """Typed workflow result with stable artifacts, warnings, and rejections."""
+
+
+class _RejectedEvidenceTableRow(Protocol):
+    source_file: str | None
+    row_number: int | None
+    entity_type: str | None
+    entity_id: str | None
+    reason_code: str
+    detail: str
 
 
 def artifact_name_map(artifacts: JsonModel) -> dict[str, str]:
@@ -254,7 +263,7 @@ def build_rejected_evidence_entries_from_reason_rows(
 
 
 def build_rejected_evidence_entries_from_table_rows(
-    rows: Iterable[object],
+    rows: Iterable[_RejectedEvidenceTableRow],
     *,
     source_surface: str,
     related_artifact: str | None = None,
