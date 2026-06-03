@@ -11,6 +11,7 @@ import csv
 from io import StringIO
 import math
 from pathlib import Path
+from collections.abc import Iterable
 
 import numpy as np
 from pydantic import ConfigDict, Field, field_validator
@@ -47,11 +48,13 @@ class PowerEstimationPolicy(JsonModel):
     def _normalize_candidate_replicates(cls, value: object) -> tuple[int, ...]:
         if value in (None, ()):
             return (2, 3, 4, 5, 6)
+        if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+            raise TypeError("candidate_replicates_per_condition must be iterable")
         normalized = tuple(
             sorted(
                 {
                     int(candidate)
-                    for candidate in value  # type: ignore[arg-type]
+                    for candidate in value
                     if int(candidate) >= 1
                 }
             )

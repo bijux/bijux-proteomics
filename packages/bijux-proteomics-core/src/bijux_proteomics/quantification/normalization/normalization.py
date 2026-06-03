@@ -6,10 +6,12 @@
 from __future__ import annotations
 
 import math
+from typing import TypedDict
 
 import numpy as np
 
 from bijux_proteomics.quantification.normalization.composition import (
+    CompositionalBiasReport,
     detect_compositional_bias,
 )
 from bijux_proteomics.quantification.matrix.core_matrix import (
@@ -29,6 +31,13 @@ from bijux_proteomics.quantification.contracts import (
     _rebuild_table_from_matrix,
     _table_matrix,
 )
+
+
+class _PreparedLogTransform(TypedDict):
+    """Typed scratch state for log-domain normalization paths."""
+
+    log_matrix: np.ndarray
+    pseudocount: float | None
 
 
 def build_normalization_comparison_report(
@@ -236,18 +245,11 @@ def _normalize_intensity_matrix_pure(
         pseudocount = prepared["pseudocount"]
         if method is NormalizationMethod.VSN_LIKE and pseudocount is None:
             return matrix.copy(), dict.fromkeys(sample_ids, 1.0)
-        sample_medians = np.array(
-            [
-                np.nanmedian(log_matrix[:, index])
-                if np.any(~np.isnan(log_matrix[:, index]))
-                else np.nan
-                for index in range(log_matrix.shape[1])
-            ],
-            dtype=float,
-        )
+        sample_medians = _nanmedian_by_column(log_matrix)
+        finite_medians = sample_medians[np.isfinite(sample_medians)]
         global_median = (
-            float(np.nanmedian(sample_medians))
-            if np.any(~np.isnan(sample_medians))
+            float(np.nanmedian(finite_medians))
+            if finite_medians.size
             else 0.0
         )
         shifts = np.array(
@@ -368,7 +370,7 @@ def _coefficient_of_variation(values: list[float]) -> float:
     return float(np.std(np.array(values, dtype=float)) / mean_value)
 
 
-def _tic_composition_penalty(composition_report) -> float:
+def _tic_composition_penalty(composition_report: CompositionalBiasReport) -> float:
     if composition_report.high_risk_sample_count:
         return 1.0
     if composition_report.caution_sample_count:
@@ -509,7 +511,7 @@ def _prepare_nonpositive_values_for_log_transform(
     matrix: np.ndarray,
     *,
     method: NormalizationMethod,
-) -> dict[str, np.ndarray | float | None]:
+) -> _PreparedLogTransform:
     positive_mask = np.isfinite(matrix) & (matrix > 0.0)
     if method is NormalizationMethod.LOG2_MEDIAN_CENTERING:
         log_matrix = np.full(matrix.shape, np.nan, dtype=float)

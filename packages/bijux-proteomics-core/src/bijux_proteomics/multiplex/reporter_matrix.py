@@ -97,7 +97,7 @@ def build_tmt_reporter_feature_bundle(
         raise ValueError(
             "tmt reporter import requires design entries with multiplex_group and multiplex_channel"
         )
-    design_by_group: dict[str, tuple[ExperimentalDesignEntry, ...]] = {}
+    design_by_group: dict[str, list[ExperimentalDesignEntry]] = {}
     for entry in multiplex_design_entries:
         design_by_group.setdefault(entry.multiplex_group or "", []).append(entry)
 
