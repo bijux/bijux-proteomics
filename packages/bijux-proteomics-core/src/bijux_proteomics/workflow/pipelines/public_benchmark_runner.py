@@ -1120,10 +1120,10 @@ def _direction_from_effect_size(value: float | None) -> str | None:
 
 
 __all__ = [
-    "PublicBenchmarkDescriptorRunReport",
+    "PublicBenchmarkRunReport",
     "PublicBenchmarkExpectedSignalAssessment",
     "PublicBenchmarkExpectedSignalAssessmentStatus",
-    "PublicBenchmarkFailureDetail",
+    "PublicBenchmarkFailure",
     "PublicBenchmarkFailureKind",
     "PublicBenchmarkRunStatus",
     "PublicBenchmarkSuiteReport",

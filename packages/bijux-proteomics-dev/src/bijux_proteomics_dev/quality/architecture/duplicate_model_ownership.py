@@ -124,18 +124,6 @@ _ALLOWED_SHARED_MODEL_OWNERS = {
             ),
         }
     ),
-    "WorkflowArtifactKind": frozenset(
-        {
-            (
-                "bijux-proteomics-core",
-                "bijux_proteomics/workflow/exports/artifact_layout.py",
-            ),
-            (
-                "bijux-proteomics-runtime",
-                "bijux_proteomics_runtime/workflows/plans.py",
-            ),
-        }
-    ),
 }
 
 

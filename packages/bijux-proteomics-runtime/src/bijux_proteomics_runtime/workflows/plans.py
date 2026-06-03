@@ -69,7 +69,7 @@ class WorkflowStepKind(StrEnum):
     BUILD_RUN_BUNDLE = "build-run-bundle"
 
 
-class WorkflowArtifactKind(StrEnum):
+class WorkflowOutputKind(StrEnum):
     """Artifact categories produced across workflow planning surfaces."""
 
     DIGEST_MANIFEST = "digest-manifest"
@@ -177,7 +177,7 @@ class WorkflowBlueprintStepMapping(JsonModel):
     step_kind: WorkflowStepKind
     scientific_surface: WorkflowScientificSurface
     required_input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
-    produced_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+    produced_artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(
         default_factory=tuple
     )
     note: str = Field(..., min_length=1)
@@ -352,7 +352,7 @@ class CoreResultRuntimeBinding(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str = Field(..., min_length=1)
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     producer_step_id: str = Field(..., min_length=1)
     runtime_surface: str = Field(..., min_length=1)
     runtime_path: str = Field(..., min_length=1)
@@ -383,7 +383,7 @@ class WorkflowRunDirectoryLayoutEntry(JsonModel):
     relative_path: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     producer_step_id: str | None = None
-    expected_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+    expected_artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(
         default_factory=tuple
     )
     required: bool = True
@@ -425,7 +425,7 @@ class WorkflowExecutionStep(JsonModel):
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
     consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
-    produces_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    produces_artifacts: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
     cacheable: bool = False
@@ -467,7 +467,7 @@ class WorkflowDagNode(JsonModel):
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
     consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
-    artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
     blocking: bool = True
@@ -580,7 +580,7 @@ class ExternalSearchToolContract(JsonModel):
     submit_command: tuple[str, ...] = Field(default_factory=tuple)
     wait_command: tuple[str, ...] = Field(default_factory=tuple)
     collect_command: tuple[str, ...] = Field(default_factory=tuple)
-    expected_outputs: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    expected_outputs: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     supports_containerized_submission: bool = True
     supports_hpc_submission: bool = True
 
@@ -631,7 +631,7 @@ class WorkflowCacheEntry(JsonModel):
     cache_schema_version: str = Field(..., min_length=1)
     tool_versions: tuple[str, ...] = Field(default_factory=tuple)
     policy_assumptions: tuple[str, ...] = Field(default_factory=tuple)
-    expected_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    expected_artifacts: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     cache_path: str = Field(..., min_length=1)
 
 
@@ -705,7 +705,7 @@ class ArtifactRegistryEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str = Field(..., min_length=1)
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     producer_step_id: str = Field(..., min_length=1)
     path: str = Field(..., min_length=1)
     upstream_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -731,7 +731,7 @@ class ArtifactInventoryEntry(JsonModel):
     run_id: str = Field(..., min_length=1)
     producer_step_id: str = Field(..., min_length=1)
     producer_step_kind: WorkflowStepKind
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     relative_path: str = Field(..., min_length=1)
     absolute_path: str = Field(..., min_length=1)
     provenance_sha256: str = Field(..., min_length=64, max_length=64)
@@ -1029,7 +1029,7 @@ def _artifact_provenance_sha256(
     run_id: str,
     artifact_id: str,
     producer_step_id: str,
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
     relative_path: str,
     expected_document_kind: str | None,
     upstream_artifact_ids: tuple[str, ...],
@@ -1069,7 +1069,7 @@ class _WorkflowCacheSurfaceSpec:
     surface: str
     producer_step_id: str
     source_roles: tuple[WorkflowInputRole, ...]
-    expected_artifacts: tuple[WorkflowArtifactKind, ...]
+    expected_artifacts: tuple[WorkflowOutputKind, ...]
     schema_refs: tuple[str, ...]
     parameter_assumptions: tuple[str, ...]
     policy_assumptions: tuple[str, ...]
@@ -1182,32 +1182,32 @@ def _workflow_step_input_types(
 
 
 def _expected_artifact_document_kind(
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
 ) -> str | None:
     mapping = {
-        WorkflowArtifactKind.DIGEST_MANIFEST: "peptide_digest_manifest",
-        WorkflowArtifactKind.RUN_BUNDLE: "normalized_run_bundle_manifest",
-        WorkflowArtifactKind.CHECKPOINT: "workflow_checkpoint",
+        WorkflowOutputKind.DIGEST_MANIFEST: "peptide_digest_manifest",
+        WorkflowOutputKind.RUN_BUNDLE: "normalized_run_bundle_manifest",
+        WorkflowOutputKind.CHECKPOINT: "workflow_checkpoint",
     }
     return mapping.get(artifact_kind)
 
 
 def _artifact_relative_path(
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
     workflow_id: str,
 ) -> str:
-    mapping: dict[WorkflowArtifactKind, str] = {
-        WorkflowArtifactKind.DIGEST_MANIFEST: "digest/manifest.json",
-        WorkflowArtifactKind.DIGEST_EXPORT: "digest/peptides.jsonl",
-        WorkflowArtifactKind.SEARCH_JOB: "search/submit.json",
-        WorkflowArtifactKind.SEARCH_RESULTS: "search/results.tsv",
-        WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS: "identifications.normalized.json",
-        WorkflowArtifactKind.FDR_REPORT: "fdr.report.json",
-        WorkflowArtifactKind.QUANT_REPORT: "quant.report.json",
-        WorkflowArtifactKind.QC_REPORT: "qc.report.json",
-        WorkflowArtifactKind.RUN_BUNDLE: "bundle/bundle.manifest.json",
-        WorkflowArtifactKind.JOB_DESCRIPTOR: f"jobs/{workflow_id}.slurm",
-        WorkflowArtifactKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
+    mapping: dict[WorkflowOutputKind, str] = {
+        WorkflowOutputKind.DIGEST_MANIFEST: "digest/manifest.json",
+        WorkflowOutputKind.DIGEST_EXPORT: "digest/peptides.jsonl",
+        WorkflowOutputKind.SEARCH_JOB: "search/submit.json",
+        WorkflowOutputKind.SEARCH_RESULTS: "search/results.tsv",
+        WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS: "identifications.normalized.json",
+        WorkflowOutputKind.FDR_REPORT: "fdr.report.json",
+        WorkflowOutputKind.QUANT_REPORT: "quant.report.json",
+        WorkflowOutputKind.QC_REPORT: "qc.report.json",
+        WorkflowOutputKind.RUN_BUNDLE: "bundle/bundle.manifest.json",
+        WorkflowOutputKind.JOB_DESCRIPTOR: f"jobs/{workflow_id}.slurm",
+        WorkflowOutputKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
     }
     return mapping.get(artifact_kind, f"{artifact_kind.value}.json")
 
@@ -1217,7 +1217,7 @@ def _format_policy_float(value: float) -> str:
 
 
 def _cache_schema_refs(
-    artifacts: tuple[WorkflowArtifactKind, ...],
+    artifacts: tuple[WorkflowOutputKind, ...],
 ) -> tuple[str, ...]:
     return tuple(
         _expected_artifact_document_kind(artifact_kind) or artifact_kind.value
@@ -1227,7 +1227,7 @@ def _cache_schema_refs(
 
 def _artifact_path_for_kind(
     manifest: ProteomicsWorkflowManifest,
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
 ) -> str:
     return str(
         Path(manifest.artifacts_dir)
@@ -1371,13 +1371,13 @@ def _workflow_cache_surface_specs(
             producer_step_id=step_by_kind[WorkflowStepKind.DIGEST_DATABASE].step_id,
             source_roles=(WorkflowInputRole.PROTEINS,),
             expected_artifacts=(
-                WorkflowArtifactKind.DIGEST_MANIFEST,
-                WorkflowArtifactKind.DIGEST_EXPORT,
+                WorkflowOutputKind.DIGEST_MANIFEST,
+                WorkflowOutputKind.DIGEST_EXPORT,
             ),
             schema_refs=_cache_schema_refs(
                 (
-                    WorkflowArtifactKind.DIGEST_MANIFEST,
-                    WorkflowArtifactKind.DIGEST_EXPORT,
+                    WorkflowOutputKind.DIGEST_MANIFEST,
+                    WorkflowOutputKind.DIGEST_EXPORT,
                 )
             ),
             parameter_assumptions=_cache_parameter_assumptions(manifest, "digestion"),
@@ -1396,9 +1396,9 @@ def _workflow_cache_surface_specs(
                 )
                 else (WorkflowInputRole.SPECTRA,)
             ),
-            expected_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
+            expected_artifacts=(WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,),
             schema_refs=_cache_schema_refs(
-                (WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,)
+                (WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,)
             ),
             parameter_assumptions=_cache_parameter_assumptions(
                 manifest, "search-normalization"
@@ -1411,8 +1411,8 @@ def _workflow_cache_surface_specs(
             surface="fdr-score",
             producer_step_id=step_by_kind[WorkflowStepKind.CALCULATE_FDR].step_id,
             source_roles=(),
-            expected_artifacts=(WorkflowArtifactKind.FDR_REPORT,),
-            schema_refs=_cache_schema_refs((WorkflowArtifactKind.FDR_REPORT,)),
+            expected_artifacts=(WorkflowOutputKind.FDR_REPORT,),
+            schema_refs=_cache_schema_refs((WorkflowOutputKind.FDR_REPORT,)),
             parameter_assumptions=_cache_parameter_assumptions(manifest, "fdr-score"),
             policy_assumptions=_cache_policy_assumptions(manifest, "fdr-score"),
             dependency_surfaces=("search-normalization",),
@@ -1427,8 +1427,8 @@ def _workflow_cache_surface_specs(
                 surface="quant-parse",
                 producer_step_id=step_by_kind[WorkflowStepKind.QUANTIFY_FEATURES].step_id,
                 source_roles=tuple(quant_roles),
-                expected_artifacts=(WorkflowArtifactKind.QUANT_REPORT,),
-                schema_refs=_cache_schema_refs((WorkflowArtifactKind.QUANT_REPORT,)),
+                expected_artifacts=(WorkflowOutputKind.QUANT_REPORT,),
+                schema_refs=_cache_schema_refs((WorkflowOutputKind.QUANT_REPORT,)),
                 parameter_assumptions=_cache_parameter_assumptions(
                     manifest, "quant-parse"
                 ),
@@ -1444,8 +1444,8 @@ def _workflow_cache_surface_specs(
             surface="run-bundle",
             producer_step_id=step_by_kind[WorkflowStepKind.BUILD_RUN_BUNDLE].step_id,
             source_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
-            expected_artifacts=(WorkflowArtifactKind.RUN_BUNDLE,),
-            schema_refs=_cache_schema_refs((WorkflowArtifactKind.RUN_BUNDLE,)),
+            expected_artifacts=(WorkflowOutputKind.RUN_BUNDLE,),
+            schema_refs=_cache_schema_refs((WorkflowOutputKind.RUN_BUNDLE,)),
             parameter_assumptions=_cache_parameter_assumptions(manifest, "run-bundle"),
             policy_assumptions=_cache_policy_assumptions(manifest, "run-bundle"),
             dependency_surfaces=tuple(bundle_dependency_surfaces),
@@ -1462,7 +1462,7 @@ def _build_step(
     depends_on: tuple[str, ...] = (),
     consumes_roles: tuple[WorkflowInputRole, ...] = (),
     input_data_types: tuple[WorkflowDataType, ...] = (),
-    produces_artifacts: tuple[WorkflowArtifactKind, ...] = (),
+    produces_artifacts: tuple[WorkflowOutputKind, ...] = (),
     output_data_types: tuple[WorkflowDataType, ...] = (),
     command_preview: tuple[str, ...] = (),
     cacheable: bool = False,
@@ -1585,8 +1585,8 @@ def build_proteomics_workflow_manifest(
                 quant_attached=features_path is not None,
             ),
             produces_artifacts=(
-                WorkflowArtifactKind.DIGEST_MANIFEST,
-                WorkflowArtifactKind.DIGEST_EXPORT,
+                WorkflowOutputKind.DIGEST_MANIFEST,
+                WorkflowOutputKind.DIGEST_EXPORT,
             ),
             output_data_types=_workflow_step_output_types(
                 WorkflowStepKind.DIGEST_DATABASE
@@ -1621,8 +1621,8 @@ def build_proteomics_workflow_manifest(
                     quant_attached=features_path is not None,
                 ),
                 produces_artifacts=(
-                    WorkflowArtifactKind.SEARCH_JOB,
-                    WorkflowArtifactKind.SEARCH_RESULTS,
+                    WorkflowOutputKind.SEARCH_JOB,
+                    WorkflowOutputKind.SEARCH_RESULTS,
                 ),
                 output_data_types=_workflow_step_output_types(
                     WorkflowStepKind.RUN_SEARCH_ENGINE
@@ -1661,7 +1661,7 @@ def build_proteomics_workflow_manifest(
                 design_attached=design_path is not None,
                 quant_attached=features_path is not None,
             ),
-            produces_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
+            produces_artifacts=(WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,),
             output_data_types=_workflow_step_output_types(
                 WorkflowStepKind.NORMALIZE_IDENTIFICATIONS
             ),
@@ -1689,7 +1689,7 @@ def build_proteomics_workflow_manifest(
                 design_attached=design_path is not None,
                 quant_attached=features_path is not None,
             ),
-            produces_artifacts=(WorkflowArtifactKind.FDR_REPORT,),
+            produces_artifacts=(WorkflowOutputKind.FDR_REPORT,),
             output_data_types=_workflow_step_output_types(
                 WorkflowStepKind.CALCULATE_FDR
             ),
@@ -1726,7 +1726,7 @@ def build_proteomics_workflow_manifest(
                     design_attached=design_path is not None,
                     quant_attached=features_path is not None,
                 ),
-                produces_artifacts=(WorkflowArtifactKind.QUANT_REPORT,),
+                produces_artifacts=(WorkflowOutputKind.QUANT_REPORT,),
                 output_data_types=_workflow_step_output_types(
                     WorkflowStepKind.QUANTIFY_FEATURES
                 ),
@@ -1755,7 +1755,7 @@ def build_proteomics_workflow_manifest(
                 design_attached=design_path is not None,
                 quant_attached=features_path is not None,
             ),
-            produces_artifacts=(WorkflowArtifactKind.QC_REPORT,),
+            produces_artifacts=(WorkflowOutputKind.QC_REPORT,),
             output_data_types=_workflow_step_output_types(WorkflowStepKind.RUN_QC),
             command_preview=(
                 "bijux-proteomics",
@@ -1786,7 +1786,7 @@ def build_proteomics_workflow_manifest(
                 design_attached=design_path is not None,
                 quant_attached=features_path is not None,
             ),
-            produces_artifacts=(WorkflowArtifactKind.RUN_BUNDLE,),
+            produces_artifacts=(WorkflowOutputKind.RUN_BUNDLE,),
             output_data_types=_workflow_step_output_types(
                 WorkflowStepKind.BUILD_RUN_BUNDLE
             ),
@@ -2930,9 +2930,9 @@ def build_external_search_tool_contract(
             f"{manifest.artifacts_dir}/search/results.tsv",
         ),
         expected_outputs=(
-            WorkflowArtifactKind.SEARCH_JOB,
-            WorkflowArtifactKind.SEARCH_RESULTS,
-            WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,
+            WorkflowOutputKind.SEARCH_JOB,
+            WorkflowOutputKind.SEARCH_RESULTS,
+            WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,
         ),
     )
     return contract.model_copy(
