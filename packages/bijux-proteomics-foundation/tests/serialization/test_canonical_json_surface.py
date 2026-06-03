@@ -6,14 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import string
-from typing import cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import ConfigDict, Field
-
-from bijux_proteomics_foundation.testing.skip_policy import (
-    SkipCategory,
-    import_or_skip,
-)
 
 from bijux_proteomics_foundation import (
     DocumentSchema,
@@ -38,14 +33,19 @@ from bijux_proteomics_foundation.serialization.fingerprints import (
     build_run_context_fingerprint,
 )
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
-
-hypothesis = import_or_skip(
-    "hypothesis",
-    category=SkipCategory.OPTIONAL_DEPENDENCY,
-    reason="hypothesis is required for the canonical-json property-based surface",
+from bijux_proteomics_foundation.testing.skip_policy import (
+    import_hypothesis_or_skip,
 )
-given = hypothesis.given
-st = hypothesis.strategies
+
+if TYPE_CHECKING:
+    from hypothesis import given
+    from hypothesis import strategies as st
+else:
+    hypothesis = import_hypothesis_or_skip(
+        reason="hypothesis is required for the canonical-json property-based surface",
+    )
+    given = hypothesis.given
+    st = cast(Any, hypothesis.strategies)
 
 JSON_SCALAR_STRATEGY = st.one_of(
     st.none(),

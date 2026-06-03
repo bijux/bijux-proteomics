@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import inspect
 from dataclasses import dataclass
+import inspect
 
 REQUIRED_PUBLIC_FUNCTION_DOCSTRING_SECTIONS = (
     "Inputs:",

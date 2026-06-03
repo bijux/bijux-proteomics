@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from types import ModuleType
 import sys
+from types import ModuleType
+from typing import cast
 import warnings
 
 from bijux_proteomics_foundation.compatibility import (
@@ -18,8 +19,13 @@ from bijux_proteomics_foundation.compatibility import (
 
 
 def test_import_migration_surface_forwards_exports_and_dir() -> None:
+    class _FakeImportMigrationModule(ModuleType):
+        __all__: tuple[str, str]
+        alpha: object
+        beta: object
+
     module_name = "_bijux_import_migration_surface_module"
-    fake_module = ModuleType(module_name)
+    fake_module = cast(_FakeImportMigrationModule, ModuleType(module_name))
     fake_module.__all__ = ("alpha", "beta")
     fake_module.alpha = object()
     fake_module.beta = object()

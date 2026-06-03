@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from types import ModuleType
 import sys
+from types import ModuleType
+from typing import cast
 
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_foundation._package_aliases import (
@@ -37,8 +38,11 @@ def test_package_alias_helpers_delegate_cli_entrypoints() -> None:
             self.calls.append((args, prog_name, standalone_mode))
             return 17
 
+    class _FakeCliModule(ModuleType):
+        cli: _FakeCli
+
     module_name = "_bijux_package_alias_test_cli"
-    fake_module = ModuleType(module_name)
+    fake_module = cast(_FakeCliModule, ModuleType(module_name))
     fake_module.cli = _FakeCli()
     sys.modules[module_name] = fake_module
     try:

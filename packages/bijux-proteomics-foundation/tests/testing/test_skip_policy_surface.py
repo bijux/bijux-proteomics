@@ -20,10 +20,13 @@ def test_skip_policy_normalizes_and_formats_reasons() -> None:
     assert validate_skip_reason("  httpx is required for api tests  ") == (
         "httpx is required for api tests"
     )
-    assert format_skip_reason(
-        category=SkipCategory.OPTIONAL_DEPENDENCY,
-        reason="httpx is required for api tests",
-    ) == "optional_dependency: httpx is required for api tests"
+    assert (
+        format_skip_reason(
+            category=SkipCategory.OPTIONAL_DEPENDENCY,
+            reason="httpx is required for api tests",
+        )
+        == "optional_dependency: httpx is required for api tests"
+    )
 
 
 @pytest.mark.parametrize("reason", ("", "   ", "not ready", "Not-Ready", "not_ready"))
@@ -33,7 +36,9 @@ def test_skip_policy_rejects_hidden_placeholder_reasons(reason: str) -> None:
 
 
 def test_skip_test_raises_skip_with_category_and_reason() -> None:
-    with pytest.raises(pytest.skip.Exception, match="hardware_requirement: GPU is required"):
+    with pytest.raises(
+        pytest.skip.Exception, match="hardware_requirement: GPU is required"
+    ):
         skip_test(
             category=SkipCategory.HARDWARE_REQUIREMENT,
             reason="GPU is required",

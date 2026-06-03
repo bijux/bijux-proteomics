@@ -186,19 +186,19 @@ class _ComplexityCounter(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Stop nested function bodies from inflating the current function score."""
-        return None
+        return
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Stop nested async function bodies from inflating the current score."""
-        return None
+        return
 
     def visit_Lambda(self, node: ast.Lambda) -> None:
         """Ignore nested lambdas while scoring the surrounding callable."""
-        return None
+        return
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Ignore nested class bodies while scoring the surrounding callable."""
-        return None
+        return
 
 
 def _collect_function_complexities(

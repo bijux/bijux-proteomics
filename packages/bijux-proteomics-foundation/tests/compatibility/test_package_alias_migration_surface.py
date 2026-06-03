@@ -10,9 +10,13 @@ import warnings
 def test_package_alias_migration_surface_warns_and_forwards_private_owner() -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        public_module = importlib.import_module("bijux_proteomics_foundation.package_aliases")
+        public_module = importlib.import_module(
+            "bijux_proteomics_foundation.package_aliases"
+        )
 
-    private_module = importlib.import_module("bijux_proteomics_foundation._package_aliases")
+    private_module = importlib.import_module(
+        "bijux_proteomics_foundation._package_aliases"
+    )
 
     assert len(caught) == 1
     assert caught[0].category is DeprecationWarning

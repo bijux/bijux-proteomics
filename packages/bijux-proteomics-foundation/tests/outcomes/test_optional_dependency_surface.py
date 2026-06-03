@@ -54,7 +54,9 @@ def test_import_optional_module_raises_stable_optional_dependency_error(
         )
 
 
-def test_optional_dependency_error_detection_rejects_unrelated_import_failures() -> None:
+def test_optional_dependency_error_detection_rejects_unrelated_import_failures() -> (
+    None
+):
     error = ModuleNotFoundError("No module named 'totally_unrelated'")
 
     assert not is_missing_optional_dependency_error(

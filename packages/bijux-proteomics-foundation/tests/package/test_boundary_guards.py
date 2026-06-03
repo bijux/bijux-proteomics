@@ -194,6 +194,8 @@ def test_foundation_does_not_import_higher_layer_packages() -> None:
                     f"{path.relative_to(FOUNDATION_SRC_ROOT)} imports {module}"
                 )
     assert violations == []
+
+
 def test_foundation_root_export_surface_stays_reviewable() -> None:
     module = importlib.import_module("bijux_proteomics_foundation")
 

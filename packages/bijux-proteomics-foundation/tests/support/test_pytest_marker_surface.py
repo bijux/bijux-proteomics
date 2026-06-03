@@ -12,7 +12,9 @@ from bijux_proteomics_foundation.testing.pytest_markers import (
 
 def test_default_test_markers_classify_benchmark_and_external_data_surfaces() -> None:
     derived = derive_default_test_markers(
-        PurePath("packages/bijux-proteomics-core/tests/benchmarks/test_external_dda_trial_surface.py"),
+        PurePath(
+            "packages/bijux-proteomics-core/tests/benchmarks/test_external_dda_trial_surface.py"
+        ),
         benchmark_dirs=("benchmarks", "performance"),
         external_data_name_tokens=("external_",),
     )
@@ -24,7 +26,9 @@ def test_default_test_markers_classify_integration_surfaces_without_unit_fallbac
     None
 ):
     derived = derive_default_test_markers(
-        PurePath("packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py"),
+        PurePath(
+            "packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py"
+        ),
         benchmark_dirs=("performance",),
         integration_dirs=("api", "execution", "workflows"),
     )
@@ -34,7 +38,9 @@ def test_default_test_markers_classify_integration_surfaces_without_unit_fallbac
 
 def test_default_test_markers_fall_back_to_unit_for_fast_local_surfaces() -> None:
     derived = derive_default_test_markers(
-        PurePath("packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"),
+        PurePath(
+            "packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"
+        ),
         benchmark_dirs=("performance",),
     )
 

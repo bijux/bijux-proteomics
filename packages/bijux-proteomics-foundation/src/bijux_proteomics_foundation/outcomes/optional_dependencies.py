@@ -29,12 +29,16 @@ def is_missing_optional_dependency_error(
         return False
     expected_roots = {root.split(".", 1)[0] for root in import_roots}
     missing_name = getattr(error, "name", None)
-    if isinstance(missing_name, str) and missing_name:
-        if missing_name.split(".", 1)[0] in expected_roots:
-            return True
+    if (
+        isinstance(missing_name, str)
+        and missing_name
+        and missing_name.split(".", 1)[0] in expected_roots
+    ):
+        return True
     error_text = str(error)
     return any(
-        f"No module named '{root}'" in error_text or f'No module named "{root}"' in error_text
+        f"No module named '{root}'" in error_text
+        or f'No module named "{root}"' in error_text
         for root in expected_roots
     )
 

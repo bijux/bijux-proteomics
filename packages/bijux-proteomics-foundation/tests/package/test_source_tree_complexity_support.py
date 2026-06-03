@@ -104,8 +104,7 @@ def test_source_tree_complexity_report_flags_stale_and_exceeded_exceptions(
         for item in report.unexpected_over_ceiling
     ) == (("module.py", "Example.still_too_complex", 4),)
     assert tuple(
-        (item.relative_path, item.qualified_name)
-        for item in report.stale_exceptions
+        (item.relative_path, item.qualified_name) for item in report.stale_exceptions
     ) == (("module.py", "Example.no_longer_complex"),)
 
 

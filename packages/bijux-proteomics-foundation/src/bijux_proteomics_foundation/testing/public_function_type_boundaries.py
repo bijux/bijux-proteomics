@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-import inspect
 from collections.abc import Callable
 from dataclasses import dataclass
+import inspect
 
 
 @dataclass(frozen=True)
@@ -47,9 +47,10 @@ def build_public_function_type_boundary_report(
             and "raw_json" not in parameter.name
             and "raw_json" not in function_name
         )
-        has_offending_return_type = _annotation_uses_free_dict(
-            signature.return_annotation
-        ) and "raw_json" not in function_name
+        has_offending_return_type = (
+            _annotation_uses_free_dict(signature.return_annotation)
+            and "raw_json" not in function_name
+        )
         observation = PublicFunctionTypeBoundaryObservation(
             qualified_name=qualified_name,
             offending_parameter_names=offending_parameter_names,

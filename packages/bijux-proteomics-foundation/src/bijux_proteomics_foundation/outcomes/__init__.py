@@ -10,9 +10,9 @@ from bijux_proteomics_foundation.outcomes.exceptions import (
     ContractNotFoundError,
     ContractValidationError,
     FoundationContractError,
-    MissingOptionalDependencyError,
     MigrationExecutionError,
     MigrationPathError,
+    MissingOptionalDependencyError,
 )
 from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,

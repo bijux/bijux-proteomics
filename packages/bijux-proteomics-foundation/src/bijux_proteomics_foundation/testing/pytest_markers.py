@@ -43,6 +43,12 @@ class _CollectedTestItem(Protocol):
         """Attach one derived marker to the collected test item."""
 
 
+class _LegacyCollectedTestItem(_CollectedTestItem, Protocol):
+    """Legacy pytest item surface that still exposes ``fspath``."""
+
+    fspath: object
+
+
 def derive_default_test_markers(
     test_path: str | PurePath,
     *,
@@ -133,7 +139,9 @@ def apply_default_test_markers(
             item.add_marker(getattr(pytest.mark, marker_name))
 
 
-def _matches_any_dir(path_parts: Collection[str], candidate_dirs: Collection[str]) -> bool:
+def _matches_any_dir(
+    path_parts: Collection[str], candidate_dirs: Collection[str]
+) -> bool:
     """Return whether a normalized test path intersects one configured directory set."""
     normalized_path_parts = {part.lower() for part in path_parts}
     normalized_dirs = {candidate.lower() for candidate in candidate_dirs}
@@ -150,4 +158,5 @@ def _item_path(item: object) -> Path:
     item_path = getattr(item, "path", None)
     if item_path is not None:
         return Path(str(item_path))
-    return Path(str(getattr(item, "fspath")))
+    legacy_item = cast(_LegacyCollectedTestItem, item)
+    return Path(str(legacy_item.fspath))
