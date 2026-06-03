@@ -17,6 +17,7 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.isotope_labeling import (
     SilacColumnMapping,
+    SilacLabelValidationEntry,
     SilacQuantificationPolicy,
     SilacRatioReport,
     SilacValidationPolicy,
@@ -167,7 +168,7 @@ class LabelBasedReportExportManifest(JsonModel):
 
 
 def build_tmt_label_based_report_bundle(
-    result_tsv_path,
+    result_tsv_path: Path,
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     control_channel: str,
@@ -248,7 +249,7 @@ def build_tmt_label_based_report_bundle(
 
 
 def build_silac_label_based_report_bundle(
-    feature_tsv_path,
+    feature_tsv_path: Path,
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     mapping: SilacColumnMapping | None = None,
@@ -329,14 +330,22 @@ def _build_tmt_sample_qc_entries(
         for entry in validation_report.distribution_entries
     }
     weak_counts_by_key: dict[tuple[str, str, str | None], int] = {}
-    for entry in validation_report.weak_evidence:
-        key = (entry.multiplex_group, entry.multiplex_channel, entry.sample_id)
+    for weak_entry in validation_report.weak_evidence:
+        key = (
+            weak_entry.multiplex_group,
+            weak_entry.multiplex_channel,
+            weak_entry.sample_id,
+        )
         weak_counts_by_key[key] = weak_counts_by_key.get(key, 0) + 1
     rows: list[LabelBasedReportSampleQcEntry] = []
-    for entry in validation_report.channel_entries:
-        if entry.sample_id is None:
+    for channel_entry in validation_report.channel_entries:
+        if channel_entry.sample_id is None:
             continue
-        key = (entry.multiplex_group, entry.multiplex_channel, entry.sample_id)
+        key = (
+            channel_entry.multiplex_group,
+            channel_entry.multiplex_channel,
+            channel_entry.sample_id,
+        )
         before_distribution = before_distribution_by_key.get(key)
         after_distribution = after_distribution_by_key.get(key)
         weak_measurement_count = weak_counts_by_key.get(key, 0)
@@ -344,7 +353,7 @@ def _build_tmt_sample_qc_entries(
             before_distribution is not None and before_distribution.abnormal_distribution
         ) + int(after_distribution is not None and after_distribution.flagged)
         notes: list[str] = []
-        if not entry.present:
+        if not channel_entry.present:
             notes.append("expected multiplex channel is missing or empty")
         if before_distribution is not None and before_distribution.abnormal_distribution:
             notes.append("channel total intensity falls outside the study-wide same-channel envelope")
@@ -355,14 +364,16 @@ def _build_tmt_sample_qc_entries(
         rows.append(
             LabelBasedReportSampleQcEntry(
                 source_kind=LabelBasedDifferentialSourceKind.TMT,
-                sample_id=entry.sample_id,
-                condition=entry.condition,
+                sample_id=channel_entry.sample_id,
+                condition=channel_entry.condition,
                 sample_role=(
-                    None if entry.channel_role is None else entry.channel_role.value
+                    None
+                    if channel_entry.channel_role is None
+                    else channel_entry.channel_role.value
                 ),
-                multiplex_group=entry.multiplex_group,
-                assay_axis=entry.multiplex_channel,
-                total_signal=entry.total_intensity,
+                multiplex_group=channel_entry.multiplex_group,
+                assay_axis=channel_entry.multiplex_channel,
+                total_signal=channel_entry.total_intensity,
                 before_balance_ratio=(
                     None
                     if before_distribution is None
@@ -373,7 +384,7 @@ def _build_tmt_sample_qc_entries(
                     if after_distribution is None
                     else after_distribution.ratio_to_group_median
                 ),
-                missing_measurement_count=entry.missing_row_count,
+                missing_measurement_count=channel_entry.missing_row_count,
                 weak_measurement_count=weak_measurement_count,
                 abnormal_distribution_count=abnormal_distribution_count,
                 flagged=bool(notes),
@@ -394,19 +405,20 @@ def _build_silac_sample_qc_entries(
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[LabelBasedReportSampleQcEntry, ...]:
     design_by_sample = {entry.sample_id: entry for entry in design_entries}
-    label_entries_by_sample: dict[str, list] = {}
-    for entry in validation_report.label_entries:
-        label_entries_by_sample.setdefault(entry.sample_id, []).append(entry)
+    label_entries_by_sample: dict[str, list[SilacLabelValidationEntry]] = {}
+    for label_entry in validation_report.label_entries:
+        label_entries_by_sample.setdefault(label_entry.sample_id, []).append(label_entry)
     abnormal_distribution_count_by_sample: dict[str, int] = {}
-    for entry in validation_report.distribution_entries:
-        if entry.abnormal_distribution:
-            abnormal_distribution_count_by_sample[entry.sample_id] = (
-                abnormal_distribution_count_by_sample.get(entry.sample_id, 0) + 1
+    for distribution_entry in validation_report.distribution_entries:
+        if distribution_entry.abnormal_distribution:
+            abnormal_distribution_count_by_sample[distribution_entry.sample_id] = (
+                abnormal_distribution_count_by_sample.get(distribution_entry.sample_id, 0)
+                + 1
             )
     weak_count_by_sample: dict[str, int] = {}
-    for entry in validation_report.weak_evidence:
-        weak_count_by_sample[entry.sample_id] = (
-            weak_count_by_sample.get(entry.sample_id, 0) + 1
+    for weak_entry in validation_report.weak_evidence:
+        weak_count_by_sample[weak_entry.sample_id] = (
+            weak_count_by_sample.get(weak_entry.sample_id, 0) + 1
         )
     balance_by_sample_stage = {
         (entry.sample_id, entry.stage.lower()): _ratio_or_none(
@@ -473,8 +485,8 @@ def _differential_result_count(report: LabelBasedDifferentialAnalysisReport) -> 
         return len(report.differential_abundance_report.entries)
     if report.differential_abundance_multi_condition_report is not None:
         return sum(
-            len(contrast.report.entries)
-            for contrast in report.differential_abundance_multi_condition_report.contrasts
+            len(differential_report.entries)
+            for differential_report in report.differential_abundance_multi_condition_report.reports
         )
     return 0
 
