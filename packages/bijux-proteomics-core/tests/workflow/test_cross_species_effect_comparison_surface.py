@@ -28,6 +28,8 @@ from bijux_proteomics.workflow.cross_species_effect_comparison import (
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectDirection,
     CrossStudyProteinEffectObservation,
+)
+from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     CrossStudyProteinObservationSourceKind,
     CrossStudyProteinStudyInput,
 )

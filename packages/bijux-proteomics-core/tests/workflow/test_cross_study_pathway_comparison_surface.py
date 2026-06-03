@@ -20,12 +20,14 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     CrossStudyPathwayDirection,
     CrossStudyPathwayObservation,
     CrossStudyPathwaySignalKind,
-    CrossStudyProteinStudyInput,
     build_cross_study_pathway_comparison_report_from_observations,
     extract_cross_study_pathway_observations,
     render_cross_study_opposite_pathway_signal_tsv,
     render_cross_study_pathway_comparison_tsv,
     render_cross_study_shared_pathway_signal_tsv,
+)
+from bijux_proteomics.workflow.cross_study_protein_harmonization import (
+    CrossStudyProteinStudyInput,
 )
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
 

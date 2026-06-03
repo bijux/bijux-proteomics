@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.io.formats import parse_experimental_design_table
@@ -24,29 +25,40 @@ from bijux_proteomics.workflow import (
 from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     CrossStudyProteinUnresolvedReason,
 )
+from bijux_proteomics.workflow.reports.biological_report_models import (
+    BiologicalResultReportBundle,
+)
 
 
 def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def _base_biological_report():
+def _base_biological_report() -> BiologicalResultReportBundle:
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
         ).accepted_entries
     )
-    return build_biological_result_report_bundle(
-        _fixture("biological_report_features.tsv"),
-        build_experiment_design(design_entries),
-        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
-        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
-        condition_a="control",
-        condition_b="treatment",
+    return cast(
+        BiologicalResultReportBundle,
+        build_biological_result_report_bundle(
+            _fixture("biological_report_features.tsv"),
+            build_experiment_design(design_entries),
+            proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+            pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+            condition_a="control",
+            condition_b="treatment",
+        ),
     )
 
 
-def _study_input(study_id: str, report, *, species: str) -> CrossStudyProteinStudyInput:
+def _study_input(
+    study_id: str,
+    report: BiologicalResultReportBundle,
+    *,
+    species: str,
+) -> CrossStudyProteinStudyInput:
     return CrossStudyProteinStudyInput(
         study_id=study_id,
         study_result=build_proteomics_study_result(report),
@@ -54,7 +66,9 @@ def _study_input(study_id: str, report, *, species: str) -> CrossStudyProteinStu
     )
 
 
-def _report_with_changed_effects_and_pathways(base_report):
+def _report_with_changed_effects_and_pathways(
+    base_report: BiologicalResultReportBundle,
+) -> tuple[BiologicalResultReportBundle, BiologicalResultReportBundle]:
     updated_cards = []
     for card in base_report.protein_cards.cards:
         if card.representative_protein_ref == "Q9Y243":
@@ -149,7 +163,10 @@ def _report_with_changed_effects_and_pathways(base_report):
     )
 
 
-def _single_protein_report(base_report, protein_ref: str):
+def _single_protein_report(
+    base_report: BiologicalResultReportBundle,
+    protein_ref: str,
+) -> BiologicalResultReportBundle:
     cards = tuple(
         card
         for card in base_report.protein_cards.cards
@@ -174,7 +191,9 @@ def _single_protein_report(base_report, protein_ref: str):
     )
 
 
-def _ambiguous_mouse_report(base_report):
+def _ambiguous_mouse_report(
+    base_report: BiologicalResultReportBundle,
+) -> BiologicalResultReportBundle:
     source_card = next(
         card
         for card in base_report.protein_cards.cards

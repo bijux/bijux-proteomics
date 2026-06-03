@@ -33,7 +33,7 @@ from bijux_proteomics.workflow.result_types import (
 
 
 def test_major_workflow_reports_subclass_standardized_result_types() -> None:
-    biology_reports = (
+    biology_report_types: tuple[type[BiologyResult], ...] = (
         AdvancedDiannWorkflowReport,
         AdvancedFragpipeWorkflowReport,
         AdvancedMaxquantWorkflowReport,
@@ -43,18 +43,19 @@ def test_major_workflow_reports_subclass_standardized_result_types() -> None:
         MultiStudyComparisonReport,
     )
 
-    for report_type in biology_reports:
-        assert issubclass(report_type, BiologyResult)
+    for biology_report_type in biology_report_types:
+        assert issubclass(biology_report_type, BiologyResult)
 
-    for report_type in (
+    workflow_report_types = (
         DiscoveryToAssayReport,
         OrchestratorWorkflowResult,
-    ):
-        assert issubclass(report_type, WorkflowResult)
+    )
+    for workflow_report_type in workflow_report_types:
+        assert issubclass(workflow_report_type, WorkflowResult)
 
 
 def test_major_workflow_reports_expose_standardized_result_fields() -> None:
-    advanced_family_reports = (
+    advanced_family_report_types: tuple[type[BiologyResult], ...] = (
         AdvancedDiannWorkflowReport,
         AdvancedFragpipeWorkflowReport,
         AdvancedMaxquantWorkflowReport,
@@ -62,20 +63,21 @@ def test_major_workflow_reports_expose_standardized_result_fields() -> None:
         TargetedValidationWorkflowReport,
         AdvancedTmtWorkflowReport,
     )
-    for report_type in advanced_family_reports:
-        fields = report_type.model_fields
+    for advanced_family_report_type in advanced_family_report_types:
+        fields = advanced_family_report_type.model_fields
         assert "manifest" in fields
         assert "family_protocol" in fields
         assert "artifacts" in fields
         assert "warnings" in fields
         assert "rejected_evidence" in fields
 
-    for report_type in (
+    standardized_workflow_report_types = (
         DiscoveryToAssayReport,
         MultiStudyComparisonReport,
         OrchestratorWorkflowResult,
-    ):
-        fields = report_type.model_fields
+    )
+    for standardized_workflow_report_type in standardized_workflow_report_types:
+        fields = standardized_workflow_report_type.model_fields
         assert "manifest" in fields
         assert "artifacts" in fields
         assert "warnings" in fields
