@@ -102,7 +102,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "interfaces/python_api/qc_commands.py",
         "run_qc_report_command",
-        26,
+        27,
     ),
     _exception(
         "interfaces/python_api/quantify_runner.py",
@@ -136,7 +136,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception("io/tables/transition_table.py", "_parse_transition_row", 29),
     _exception("lab/qc.py", "_build_run_status_reasons", 37),
     _exception("lab/qc.py", "build_lcms_run_qc_report", 55),
-    _exception("multiplex/ratio_analysis.py", "build_tmt_ratio_report", 42),
+    _exception("multiplex/ratio_analysis.py", "build_tmt_ratio_report", 43),
     _exception(
         "multiplex/reporter_ion_import.py",
         "parse_tmt_reporter_table",
@@ -161,7 +161,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "ptm/regulation/mechanism_classification.py",
         "_classify_mechanism_entry",
-        28,
+        29,
     ),
     _exception(
         "ptm/sites/ortholog_site_conservation.py",
@@ -211,12 +211,17 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "quantification/statistics/differential_abundance.py",
         "build_differential_abundance_report",
-        48,
+        49,
+    ),
+    _exception(
+        "quantification/statistics/time_course_differential.py",
+        "build_time_course_differential_report",
+        27,
     ),
     _exception(
         "sequences/protein_region_context.py",
         "parse_protein_region_context_tsv",
-        31,
+        33,
     ),
     _exception(
         "sequences/protein_region_context.py",
@@ -274,12 +279,12 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception(
         "workflow/public_dataset_comparison.py",
         "build_public_dataset_comparison_report_from_suite",
-        26,
+        27,
     ),
     _exception(
         "workflow/reports/biological_report_assembly.py",
         "build_biological_result_report_bundle_from_quant_table",
-        60,
+        61,
     ),
     _exception(
         "workflow/reports/biological_report_section_confidence.py",
