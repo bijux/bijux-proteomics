@@ -9,6 +9,7 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 
 from collections import defaultdict
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -125,6 +126,22 @@ class TheoreticalDigestBundle(JsonModel):
     )
 
 
+class _TheoreticalDigestAggregate(TypedDict):
+    canonical_notation: str
+    stripped_sequence: str
+    sequence_length: int
+    neutral_mass: float
+    modification_count: int
+    occurrence_count: int
+    protein_accessions: set[str]
+    min_missed_cleavages: int | None
+    max_missed_cleavages: int | None
+    source_contexts: set[tuple[str, bool, bool]]
+    truncated_source_context_count: int
+    max_candidate_site_count: int
+    terminal_contexts: set[str]
+
+
 def build_theoretical_digest_bundle(
     records: tuple[object, ...],
     *,
@@ -207,7 +224,7 @@ def build_theoretical_digest_bundle(
         )
         grouped_occurrences[context_key].append(peptide)
 
-    peptide_aggregates: dict[str, dict[str, object]] = {}
+    peptide_aggregates: dict[str, _TheoreticalDigestAggregate] = {}
     mapping_entries: list[TheoreticalDigestProteinMappingEntry] = []
     total_candidate_site_count = 0
     total_generated_variant_count = 0
@@ -270,22 +287,18 @@ def build_theoretical_digest_bundle(
                     "terminal_contexts": set(),
                 },
             )
-            aggregate["occurrence_count"] = int(aggregate["occurrence_count"]) + len(
-                occurrences
-            )
+            aggregate["occurrence_count"] += len(occurrences)
             aggregate["protein_accessions"].update(
                 occurrence.source_accession for occurrence in occurrences
             )
             aggregate["source_contexts"].add(context_key)
             aggregate["terminal_contexts"].add(terminal_context)
             aggregate["max_candidate_site_count"] = max(
-                int(aggregate["max_candidate_site_count"]),
+                aggregate["max_candidate_site_count"],
                 enumeration.candidate_site_count,
             )
             if enumeration.truncated:
-                aggregate["truncated_source_context_count"] = (
-                    int(aggregate["truncated_source_context_count"]) + 1
-                )
+                aggregate["truncated_source_context_count"] += 1
             for occurrence in occurrences:
                 aggregate["min_missed_cleavages"] = _bounded_min(
                     aggregate["min_missed_cleavages"],
@@ -321,20 +334,18 @@ def build_theoretical_digest_bundle(
 
     digest_peptides = tuple(
         TheoreticalDigestPeptideEntry(
-            canonical_notation=str(aggregate["canonical_notation"]),
-            stripped_sequence=str(aggregate["stripped_sequence"]),
-            sequence_length=int(aggregate["sequence_length"]),
-            neutral_mass=float(aggregate["neutral_mass"]),
-            modification_count=int(aggregate["modification_count"]),
-            occurrence_count=int(aggregate["occurrence_count"]),
+            canonical_notation=aggregate["canonical_notation"],
+            stripped_sequence=aggregate["stripped_sequence"],
+            sequence_length=aggregate["sequence_length"],
+            neutral_mass=aggregate["neutral_mass"],
+            modification_count=aggregate["modification_count"],
+            occurrence_count=aggregate["occurrence_count"],
             protein_accession_count=len(aggregate["protein_accessions"]),
-            min_missed_cleavages=int(aggregate["min_missed_cleavages"] or 0),
-            max_missed_cleavages=int(aggregate["max_missed_cleavages"] or 0),
+            min_missed_cleavages=aggregate["min_missed_cleavages"] or 0,
+            max_missed_cleavages=aggregate["max_missed_cleavages"] or 0,
             source_context_count=len(aggregate["source_contexts"]),
-            truncated_source_context_count=int(
-                aggregate["truncated_source_context_count"]
-            ),
-            max_candidate_site_count=int(aggregate["max_candidate_site_count"]),
+            truncated_source_context_count=aggregate["truncated_source_context_count"],
+            max_candidate_site_count=aggregate["max_candidate_site_count"],
             terminal_contexts=tuple(sorted(aggregate["terminal_contexts"])),
         )
         for _key, aggregate in sorted(peptide_aggregates.items())
