@@ -13,7 +13,6 @@ import io
 import json
 from pathlib import Path
 import re
-from typing import cast
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -630,12 +629,12 @@ def normalize_spectrum_scan_key(
 
 def iter_mgf_spectra(path: Path) -> Iterator[SpectrumModel]:
     """Yield accepted MGF spectra one block at a time from a streaming parse."""
-    yield from cast(Iterator[SpectrumModel], _iter_mgf_spectra(path))
+    yield from _iter_mgf_spectra(path)
 
 
 def parse_mgf(path: Path) -> MgfParseReport:
     """Parse an MGF file into stable spectrum contracts through streaming IO."""
-    return cast(MgfParseReport, _parse_mgf(path))
+    return _parse_mgf(path)
 
 
 def build_spectrum_collection_summary(

@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.chemistry import (
     ModificationPosition,
+    StaticModification,
     VariableModification,
     get_modification,
 )
@@ -105,8 +107,12 @@ def test_theoretical_digest_bundle_preserves_modification_policy_and_candidate_m
         protease="trypsin",
         missed_cleavages=0,
         digestion_mode=PeptideDigestionMode.FULL,
-        static_modifications=(get_modification("Carbamidomethyl"),),
-        variable_modifications=(get_modification("Oxidation"),),
+        static_modifications=(
+            cast(StaticModification, get_modification("Carbamidomethyl")),
+        ),
+        variable_modifications=(
+            cast(VariableModification, get_modification("Oxidation")),
+        ),
     )
     by_notation = {
         peptide.canonical_notation: peptide for peptide in bundle.digest_peptides

@@ -10,6 +10,7 @@ from bijux_proteomics.io.formats import (
     parse_experimental_design_table,
 )
 from bijux_proteomics.ptm import (
+    PtmSiteQuantificationReport,
     build_ptm_differential_analysis_report,
     build_ptm_site_quantification_report,
     build_ptm_site_table,
@@ -42,7 +43,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _site_quantification():
+def _site_quantification() -> PtmSiteQuantificationReport:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

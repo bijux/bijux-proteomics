@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
+    PtmDifferentialAnalysisReport,
     PtmMechanismClass,
     PtmProteinCorrectionMode,
     build_ptm_differential_analysis_report,
@@ -39,7 +40,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _build_differential_analysis_report():
+def _build_differential_analysis_report() -> PtmDifferentialAnalysisReport:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

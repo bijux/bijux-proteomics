@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmCoordinateValidationIssue,
     PtmCoordinateValidationReport,
+    PtmLocalizationScoringReport,
     PtmProteinCorrectionMode,
     PtmSiteQuantAmbiguityPolicy,
     build_ptm_ambiguity_review_report,
@@ -60,14 +62,17 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _localization_report():
+def _localization_report() -> PtmLocalizationScoringReport:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
-    return build_ptm_localization_scoring_report(
-        evidence.accepted_records,
-        fragment_ion_support_by_spectrum={
-            "scan=ptm-001": ("b5", "y7"),
-            "scan=ptm-005": ("b2",),
-        },
+    return cast(
+        PtmLocalizationScoringReport,
+        build_ptm_localization_scoring_report(
+            evidence.accepted_records,
+            fragment_ion_support_by_spectrum={
+                "scan=ptm-001": ("b5", "y7"),
+                "scan=ptm-005": ("b2",),
+            },
+        ),
     )
 
 

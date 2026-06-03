@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.ptm import (
     PtmSiteEntry,
@@ -38,7 +39,7 @@ def _site_entries() -> tuple[PtmSiteEntry, ...]:
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records, protein_sequences=_protein_sequences()
     )
-    return build_ptm_site_table(mappings)
+    return cast(tuple[PtmSiteEntry, ...], build_ptm_site_table(mappings))
 
 
 def test_ptm_site_fdr_boundary_supports_site_specific_confidence() -> None:

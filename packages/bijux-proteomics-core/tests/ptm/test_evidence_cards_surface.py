@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
@@ -11,6 +12,7 @@ from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmDifferentialAnalysisReport,
     PtmEvidenceCardPolicy,
+    PtmEvidenceCardReport,
     PtmEvidenceRecord,
     PtmLocalizationConfidenceTier,
     PtmLocalizationProbabilitySource,
@@ -41,6 +43,7 @@ from bijux_proteomics.ptm import (
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
 from bijux_proteomics.sequences import (
     FastaParseMode,
+    FastaParseReport,
     parse_fasta_document,
     parse_protein_region_context_tsv,
 )
@@ -58,7 +61,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _protein_report():
+def _protein_report() -> FastaParseReport:
     fasta = (
         Path(__file__).resolve().parent.parent
         / "fixtures"
@@ -68,7 +71,7 @@ def _protein_report():
     return parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
 
 
-def _build_evidence_card_report():
+def _build_evidence_card_report() -> PtmEvidenceCardReport:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -127,10 +130,12 @@ def _build_evidence_card_report():
         / "protein_region_context.tsv"
     )
     ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
-    return build_ptm_evidence_card_report(
-        evidence.accepted_records,
-        site_table,
-        localization,
+    return cast(
+        PtmEvidenceCardReport,
+        build_ptm_evidence_card_report(
+            evidence.accepted_records,
+            site_table,
+            localization,
         differential,
         site_quantification=site_quantification,
         motif_enrichment=motif_enrichment,
@@ -148,7 +153,8 @@ def _build_evidence_card_report():
         protein_records=_protein_report().accepted_records,
         protein_sequences=_protein_sequences(),
         protein_region_context_records=protein_regions.accepted_records,
-        policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+            policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+        ),
     )
 
 
