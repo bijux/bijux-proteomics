@@ -9,10 +9,20 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 import re
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.io.spectra.spectrum_contracts import (
+        MgfParseReport,
+        RejectedSpectrumBlock,
+        SpectrumModel,
+        SpectrumPeak,
+        SpectrumValidationIssue,
+    )
 
 
 class MgfBlockParseResult(JsonModel):
@@ -21,8 +31,8 @@ class MgfBlockParseResult(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     block_index: int = Field(..., ge=1)
-    accepted_spectrum: object | None = None
-    rejected_block: object | None = None
+    accepted_spectrum: SpectrumModel | None = None
+    rejected_block: RejectedSpectrumBlock | None = None
 
 
 @dataclass(slots=True)
@@ -34,8 +44,8 @@ class _MgfBlock:
     precursor_intensity: float | None = None
     precursor_charge: int | None = None
     retention_time_seconds: float | None = None
-    peaks: list[object] = field(default_factory=list)
-    issues: list[object] = field(default_factory=list)
+    peaks: list[SpectrumPeak] = field(default_factory=list)
+    issues: list[SpectrumValidationIssue] = field(default_factory=list)
     raw_lines: list[str] = field(default_factory=list)
 
 
@@ -58,8 +68,8 @@ def _issue(
     field: str | None = None,
     line_number: int | None = None,
     raw_line: str | None = None,
-) -> object:
-    from bijux_proteomics.io.spectra import SpectrumValidationIssue
+) -> SpectrumValidationIssue:
+    from bijux_proteomics.io.spectra.spectrum_contracts import SpectrumValidationIssue
 
     return SpectrumValidationIssue(
         code=code,
@@ -274,7 +284,7 @@ def iter_mgf_parse_results(path: Path) -> Iterator[MgfBlockParseResult]:
         yield _finalize_mgf_block(current)
 
 
-def iter_mgf_spectra(path: Path) -> Iterator[object]:
+def iter_mgf_spectra(path: Path) -> Iterator[SpectrumModel]:
     """Yield accepted spectra one MGF block at a time."""
 
     for result in iter_mgf_parse_results(path):
@@ -282,13 +292,13 @@ def iter_mgf_spectra(path: Path) -> Iterator[object]:
             yield result.accepted_spectrum
 
 
-def parse_mgf(path: Path) -> object:
+def parse_mgf(path: Path) -> MgfParseReport:
     """Aggregate one streamed MGF parse into the stable report contract."""
 
-    from bijux_proteomics.io.spectra import MgfParseReport
+    from bijux_proteomics.io.spectra.spectrum_contracts import MgfParseReport
 
-    accepted: list[object] = []
-    rejected: list[object] = []
+    accepted: list[SpectrumModel] = []
+    rejected: list[RejectedSpectrumBlock] = []
     total_blocks = 0
     for result in iter_mgf_parse_results(path):
         total_blocks = result.block_index

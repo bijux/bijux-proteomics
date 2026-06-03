@@ -6,6 +6,8 @@ from __future__ import annotations
 from collections.abc import Iterator
 from itertools import islice
 from pathlib import Path
+from types import TracebackType
+from typing import TextIO, cast
 
 from pytest import MonkeyPatch
 
@@ -32,7 +34,9 @@ def test_iter_mgf_parse_results_preserves_accepted_and_rejected_blocks() -> None
     issue_codes = {
         issue.code
         for result in results
-        for issue in result.rejected_block.issues  # type: ignore[union-attr]
+        for block in [result.rejected_block]
+        if block is not None
+        for issue in block.issues
     }
     assert "missing_precursor_mz" in issue_codes
     assert "missing_end_ions" in issue_codes
@@ -59,20 +63,25 @@ def test_iter_mgf_spectra_yields_early_for_generated_large_mgf(
     line_counter = {"count": 0}
 
     class _StreamingHandle:
-        def __init__(self, wrapped: object) -> None:
+        def __init__(self, wrapped: TextIO) -> None:
             self._wrapped = wrapped
 
         def __iter__(self) -> Iterator[str]:
-            for line in self._wrapped:  # type: ignore[operator]
+            for line in self._wrapped:
                 line_counter["count"] += 1
                 yield line
 
         def __enter__(self) -> _StreamingHandle:
-            self._wrapped.__enter__()  # type: ignore[attr-defined]
+            self._wrapped.__enter__()
             return self
 
-        def __exit__(self, exc_type: object, exc: object, tb: object) -> object:
-            return self._wrapped.__exit__(exc_type, exc, tb)  # type: ignore[attr-defined]
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            tb: TracebackType | None,
+        ) -> bool | None:
+            return self._wrapped.__exit__(exc_type, exc, tb)
 
         def read(self, *args: object, **kwargs: object) -> str:
             raise AssertionError("iter_mgf_spectra should not call read()")
@@ -83,11 +92,25 @@ def test_iter_mgf_spectra_yields_early_for_generated_large_mgf(
         def __getattr__(self, name: str) -> object:
             return getattr(self._wrapped, name)
 
-    def _wrapped_open(self: Path, *args: object, **kwargs: object) -> object:
-        handle = original_open(self, *args, **kwargs)
+    def _wrapped_open(
+        self: Path,
+        mode: str = "r",
+        buffering: int = -1,
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> TextIO:
+        handle = original_open(
+            self,
+            mode=mode,
+            buffering=buffering,
+            encoding=encoding,
+            errors=errors,
+            newline=newline,
+        )
         if self == path:
-            return _StreamingHandle(handle)
-        return handle
+            return cast(TextIO, _StreamingHandle(cast(TextIO, handle)))
+        return cast(TextIO, handle)
 
     monkeypatch.setattr(Path, "open", _wrapped_open)
 

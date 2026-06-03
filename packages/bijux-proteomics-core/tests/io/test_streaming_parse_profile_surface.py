@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from pathlib import Path
+from types import TracebackType
+from typing import TextIO, cast
 
 from pytest import MonkeyPatch
 
@@ -91,18 +93,23 @@ def test_build_streaming_parse_profile_counts_large_generated_mgf(
     original_open = Path.open
 
     class _StreamingHandle:
-        def __init__(self, wrapped: object) -> None:
+        def __init__(self, wrapped: TextIO) -> None:
             self._wrapped = wrapped
 
         def __iter__(self) -> Iterator[str]:
-            yield from self._wrapped  # type: ignore[operator]
+            yield from self._wrapped
 
         def __enter__(self) -> _StreamingHandle:
-            self._wrapped.__enter__()  # type: ignore[attr-defined]
+            self._wrapped.__enter__()
             return self
 
-        def __exit__(self, exc_type: object, exc: object, tb: object) -> object:
-            return self._wrapped.__exit__(exc_type, exc, tb)  # type: ignore[attr-defined]
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            tb: TracebackType | None,
+        ) -> bool | None:
+            return self._wrapped.__exit__(exc_type, exc, tb)
 
         def read(self, *args: object, **kwargs: object) -> str:
             raise AssertionError(
@@ -117,11 +124,25 @@ def test_build_streaming_parse_profile_counts_large_generated_mgf(
         def __getattr__(self, name: str) -> object:
             return getattr(self._wrapped, name)
 
-    def _wrapped_open(self: Path, *args: object, **kwargs: object) -> object:
-        handle = original_open(self, *args, **kwargs)
+    def _wrapped_open(
+        self: Path,
+        mode: str = "r",
+        buffering: int = -1,
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> TextIO:
+        handle = original_open(
+            self,
+            mode=mode,
+            buffering=buffering,
+            encoding=encoding,
+            errors=errors,
+            newline=newline,
+        )
         if self == path:
-            return _StreamingHandle(handle)
-        return handle
+            return cast(TextIO, _StreamingHandle(cast(TextIO, handle)))
+        return cast(TextIO, handle)
 
     monkeypatch.setattr(Path, "open", _wrapped_open)
 

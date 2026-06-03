@@ -60,6 +60,7 @@ def test_extract_mzml_dia_fragment_trace_coelution_preserves_fragment_ledgers() 
     missing_fragment = by_fragment[("prec_beta", "beta_b4")]
 
     assert shifted_fragment.apex_shift_seconds == 10.0
+    assert shifted_fragment.correlation_to_reference is not None
     assert shifted_fragment.correlation_to_reference < 0.8
     assert shifted_fragment.failure_reason == "shifted_apex"
     assert shifted_fragment.passed is False

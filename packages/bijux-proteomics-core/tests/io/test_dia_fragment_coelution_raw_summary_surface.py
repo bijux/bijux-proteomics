@@ -8,6 +8,9 @@ from pathlib import Path
 from bijux_proteomics.io.chromatographic_peak_picking import (
     extract_mzml_chromatographic_peaks,
 )
+from bijux_proteomics.io.chromatography.chromatographic_peak_picking import (
+    ChromatographicPeakPickingReport,
+)
 from bijux_proteomics.io.dia_fragment_coelution import (
     DiaFragmentTracePoint,
     extract_mzml_dia_fragment_trace_coelution,
@@ -59,7 +62,9 @@ def test_extract_mzml_dia_fragment_trace_coelution_preserves_raw_trace_summary()
     )
 
 
-def _raw_points_from_peak_report(peak_report) -> tuple[DiaFragmentTracePoint, ...]:
+def _raw_points_from_peak_report(
+    peak_report: ChromatographicPeakPickingReport,
+) -> tuple[DiaFragmentTracePoint, ...]:
     target_metadata = {
         target.target_id: (
             str(target.metadata["precursor_id"]),

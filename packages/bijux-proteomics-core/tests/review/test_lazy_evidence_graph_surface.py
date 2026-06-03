@@ -23,8 +23,6 @@ from bijux_proteomics.review.evidence_graph.evidence_graph import (
 )
 from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
     LazyProteomicsEvidenceGraph,
-)
-from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
     load_lazy_proteomics_evidence_graph,
 )
 

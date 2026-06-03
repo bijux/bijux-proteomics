@@ -8,5 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.io.chromatography.dia_fragment_coelution import *
 from bijux_proteomics.io.raw.dia_fragment_coelution import (
-    extract_mzml_dia_fragment_trace_coelution,
+    extract_mzml_dia_fragment_trace_coelution as extract_mzml_dia_fragment_trace_coelution,
 )
+
+__all__ = [*globals().get("__all__", []), "extract_mzml_dia_fragment_trace_coelution"]

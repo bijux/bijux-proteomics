@@ -41,6 +41,8 @@ def test_fit_rt_alignment_reduces_shifted_run_anchor_residuals() -> None:
     assert isclose(model.rt_shift or 0.0, 10.0, abs_tol=1e-9)
     assert isclose(model.rt_residual_median or 0.0, 0.0, abs_tol=1e-9)
     assert isclose(model.unaligned_rt_residual_median or 0.0, 10.0, abs_tol=1e-9)
+    assert model.rt_residual_median is not None
+    assert model.unaligned_rt_residual_median is not None
     assert model.rt_residual_median < model.unaligned_rt_residual_median
     assert rendered.splitlines()[0] == (
         "run_id\talignment_model\trt_shift\trt_residual_median\tfailed_anchor_count"
@@ -176,7 +178,7 @@ def _anchor(
     observed_rt: float,
     reference_rt: float,
     anchor_confidence: float,
-):
+) -> RetentionTimeAlignmentAnchor:
     return RetentionTimeAlignmentAnchor(
         run_id=run_id,
         peptide_id=peptide_id,
