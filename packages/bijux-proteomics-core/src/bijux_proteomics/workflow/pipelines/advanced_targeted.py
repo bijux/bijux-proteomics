@@ -26,6 +26,8 @@ from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
 from bijux_proteomics.io import parse_experimental_design_table
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.targeted import (
+    TargetedAssayQcReport,
+    TargetedTargetQcEntry,
     TargetedPanelCandidateKind,
     TargetedResultImportReport,
     TargetedResultSourceKind,
@@ -53,6 +55,8 @@ from bijux_proteomics.workflow.targeted_review_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entry,
     build_result_warning,
@@ -559,8 +563,8 @@ def _build_advanced_targeted_warnings(
     *,
     summary: AdvancedTargetedWorkflowSummary,
     manifest: AdvancedTargetedWorkflowManifest,
-) -> tuple:
-    warnings = []
+) -> tuple[ResultWarningEntry, ...]:
+    warnings: list[ResultWarningEntry] = []
     if summary.unreliable_target_entry_count > 0:
         warnings.append(
             build_result_warning(
@@ -608,7 +612,7 @@ def _build_advanced_targeted_rejected_evidence(
     import_report: TargetedResultImportReport,
     evidence_cards: tuple[AdvancedTargetedEvidenceCardEntry, ...],
     related_artifact: str,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     del import_report
     return tuple(
         build_rejected_evidence_entry(
@@ -642,12 +646,12 @@ def _build_import_report(
 def _build_evidence_cards(
     *,
     validation_report: TargetedResultValidationReport,
-    assay_qc_report,
+    assay_qc_report: TargetedAssayQcReport,
 ) -> tuple[AdvancedTargetedEvidenceCardEntry, ...]:
     assay_evidence_by_candidate: dict[str, list[TargetedValidationAssayEvidenceEntry]] = {}
     for entry in validation_report.assay_evidence:
         assay_evidence_by_candidate.setdefault(entry.candidate_id, []).append(entry)
-    target_qc_by_target: dict[str, list[object]] = {}
+    target_qc_by_target: dict[str, list[TargetedTargetQcEntry]] = {}
     for entry in assay_qc_report.target_qc:
         target_qc_by_target.setdefault(entry.target_id, []).append(entry)
     transition_qc_by_target: dict[str, list[TargetedTransitionQcEntry]] = {}

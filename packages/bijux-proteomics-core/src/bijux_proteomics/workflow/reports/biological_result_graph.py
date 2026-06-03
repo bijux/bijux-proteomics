@@ -17,6 +17,7 @@ from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
 )
+from bijux_proteomics.quantification.contracts import QuantValue
 from bijux_proteomics.review import (
     EvidenceGraphFinalResultReport,
     ProteomicsEvidenceContextRef,
@@ -25,6 +26,7 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     build_evidence_graph_final_result_table,
 )
+from bijux_proteomics.review.evidence_graph.evidence_graph import ProteomicsEvidenceNode
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
@@ -61,7 +63,7 @@ def build_biological_result_graph_report(
     design_entries = experiment_design.entries
     builder = ProteomicsEvidenceGraphBuilder()
     sample_conditions = {sample.sample_id: sample.condition for sample in experiment_design.samples}
-    run_nodes_by_id = {}
+    run_nodes_by_id: dict[str, ProteomicsEvidenceNode] = {}
     run_sample_ids_by_id = {}
     run_ids_by_sample: dict[str, list[str]] = {}
     for entry in experiment_design.runs:
@@ -107,7 +109,7 @@ def build_biological_result_graph_report(
     differential_by_entity = {
         entry.entity_id: entry for entry in differential_report.entries
     }
-    values_by_entity: dict[str, list] = {}
+    values_by_entity: dict[str, list[QuantValue]] = {}
     for value in quant_table.values:
         values_by_entity.setdefault(value.entity_id, []).append(value)
 
@@ -236,7 +238,7 @@ def build_biological_result_graph_report(
 def _attach_lab_run_qc_feedback(
     builder: ProteomicsEvidenceGraphBuilder,
     *,
-    run_nodes_by_id: dict[str, object],
+    run_nodes_by_id: dict[str, ProteomicsEvidenceNode],
     run_sample_ids_by_id: dict[str, str],
     feedback_report: LabRunQcFeedbackReport,
 ) -> None:
