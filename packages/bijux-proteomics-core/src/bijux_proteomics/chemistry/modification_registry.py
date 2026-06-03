@@ -275,7 +275,9 @@ def resolve_modification(
     rejection: ModificationRegistryRejection | None = None
 
     if normalized_controlled_id not in (None, ""):
-        definition = _lookup_by_controlled_id(normalized_controlled_id, registry=registry)
+        controlled_id_value = normalized_controlled_id
+        assert controlled_id_value is not None
+        definition = _lookup_by_controlled_id(controlled_id_value, registry=registry)
         match_mode = ModificationRegistryResolutionMode.CONTROLLED_ID
         if definition is None:
             rejection = ModificationRegistryRejection(
@@ -283,8 +285,10 @@ def resolve_modification(
                 message=f"unknown modification controlled id {controlled_id!r}",
             )
     elif normalized_token not in (None, ""):
+        token_value = normalized_token
+        assert token_value is not None
         definition = _lookup_by_token(
-            normalized_token,
+            token_value,
             site=site,
             residue=normalized_residue,
             at_protein_n_term=at_protein_n_term,
@@ -716,7 +720,11 @@ def _unique_registry_definitions(
 ) -> tuple[StaticModification | VariableModification, ...]:
     active = _BUILTIN_REGISTRY if registry is None else registry
     unique: list[StaticModification | VariableModification] = []
-    for definition in (*active.static_modifications, *active.variable_modifications):
+    active_definitions: tuple[StaticModification | VariableModification, ...] = (
+        *active.static_modifications,
+        *active.variable_modifications,
+    )
+    for definition in active_definitions:
         if any(_same_definition(existing, definition) for existing in unique):
             continue
         unique.append(definition)
@@ -735,20 +743,29 @@ def _definition_from_report(
         or report.application is None
     ):
         raise ValueError("modification resolution report does not contain a definition")
-    definition_fields = {
-        "name": report.modification_name,
-        "residues": report.residues,
-        "position": report.position,
-        "mass_delta_monoisotopic": report.mass_delta_monoisotopic,
-        "mass_delta_average": report.mass_delta_average,
-        "elemental_composition_delta": report.elemental_composition_delta,
-        "neutral_losses": report.neutral_losses,
-        "controlled_id": report.controlled_id,
-        "isotopic_label_family": report.isotopic_label_family,
-    }
     if report.application == "static":
-        return StaticModification(**definition_fields)
-    return VariableModification(**definition_fields)
+        return StaticModification(
+            name=report.modification_name,
+            residues=report.residues,
+            position=report.position,
+            mass_delta_monoisotopic=report.mass_delta_monoisotopic,
+            mass_delta_average=report.mass_delta_average,
+            elemental_composition_delta=report.elemental_composition_delta,
+            neutral_losses=report.neutral_losses,
+            controlled_id=report.controlled_id,
+            isotopic_label_family=report.isotopic_label_family,
+        )
+    return VariableModification(
+        name=report.modification_name,
+        residues=report.residues,
+        position=report.position,
+        mass_delta_monoisotopic=report.mass_delta_monoisotopic,
+        mass_delta_average=report.mass_delta_average,
+        elemental_composition_delta=report.elemental_composition_delta,
+        neutral_losses=report.neutral_losses,
+        controlled_id=report.controlled_id,
+        isotopic_label_family=report.isotopic_label_family,
+    )
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:

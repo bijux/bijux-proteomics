@@ -11,6 +11,7 @@ import importlib
 import json
 from pathlib import Path
 import re
+from typing import Protocol, cast
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -487,8 +488,58 @@ class ModifiedPeptideExportRecord(JsonModel):
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
 
 
-def _modification_registry_engine():
-    return importlib.import_module("bijux_proteomics.chemistry.modification_registry")
+class _ModificationRegistryEngine(Protocol):
+    def resolve_modification_definition(
+        self,
+        *,
+        token: str | None = None,
+        controlled_id: str | None = None,
+        mass_delta_monoisotopic: float | None = None,
+        site: ModificationPosition | None = None,
+        residue: str | None = None,
+        at_protein_n_term: bool = False,
+        at_protein_c_term: bool = False,
+        registry: ModificationRegistryDocument | None = None,
+        tolerance: float = 1e-6,
+    ) -> StaticModification | VariableModification: ...
+
+    def validate_modification_registry(
+        self,
+        registry: ModificationRegistryDocument,
+    ) -> ModificationRegistryValidationReport: ...
+
+    def modification_registry(self) -> ModificationRegistryDocument: ...
+
+    def build_modification_registry(
+        self,
+        *,
+        static_modifications: tuple[StaticModification, ...] = (),
+        variable_modifications: tuple[VariableModification, ...] = (),
+    ) -> ModificationRegistryDocument: ...
+
+    def load_modification_registry(
+        self,
+        path: Path,
+    ) -> ModificationRegistryDocument: ...
+
+    def _registry_lookup(
+        self,
+        registry: ModificationRegistryDocument | None,
+    ) -> dict[str, StaticModification | VariableModification]: ...
+
+    def get_modification(
+        self,
+        name: str,
+        *,
+        registry: ModificationRegistryDocument | None = None,
+    ) -> StaticModification | VariableModification: ...
+
+
+def _modification_registry_engine() -> _ModificationRegistryEngine:
+    return cast(
+        _ModificationRegistryEngine,
+        importlib.import_module("bijux_proteomics.chemistry.modification_registry"),
+    )
 
 
 def _format_mass_delta(delta: float) -> str:
