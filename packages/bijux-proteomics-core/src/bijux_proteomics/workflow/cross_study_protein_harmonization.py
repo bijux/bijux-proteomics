@@ -11,10 +11,12 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
+from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind, ProteomicsStudyResult
 from bijux_proteomics_foundation import JsonModel
@@ -73,6 +75,14 @@ class CrossStudyProteinObservation(JsonModel):
     accession_aliases: tuple[str, ...] = Field(default_factory=tuple)
     gene_symbol: str | None = None
     note: str = Field(..., min_length=1)
+
+
+class _GroupMetadata(TypedDict):
+    group_id: int
+    member_indices: tuple[int, ...]
+    tokens: set[str]
+    normalized_gene_symbols: set[str]
+    normalized_species: set[str]
 
 
 class UnsupportedCrossStudyProteinStudy(JsonModel):
@@ -776,7 +786,7 @@ def _extract_ptm_parent_protein_observations(
         raise RuntimeError(
             "cross-study harmonization requires PTM evidence cards when a PTM report is present"
         )
-    grouped_cards: dict[str, list] = {}
+    grouped_cards: dict[str, list[PtmEvidenceCard]] = {}
     for card in evidence_cards.cards:
         grouped_cards.setdefault(card.protein_ref, []).append(card)
 
@@ -847,7 +857,7 @@ def _build_group_metadata(
     group_id: int,
     member_indices: tuple[int, ...],
     observations: tuple[CrossStudyProteinObservation, ...],
-) -> dict[str, object]:
+) -> _GroupMetadata:
     tokens = {
         token
         for index in member_indices
@@ -881,7 +891,7 @@ class _OrthologResolution(JsonModel):
 
 def _resolve_unique_ortholog_links(
     *,
-    group_metadata: dict[int, dict[str, object]],
+    group_metadata: dict[int, _GroupMetadata],
     ortholog_records: tuple[OrthologRecord, ...],
 ) -> _OrthologResolution:
     if not ortholog_records:
@@ -922,15 +932,22 @@ def _resolve_unique_ortholog_links(
 
     unique_links: set[tuple[int, int]] = set()
     ambiguous_candidates: dict[int, set[int]] = {}
-    for (source_group_id, target_species), target_group_ids in source_pair_matches.items():
-        for target_group_id in target_group_ids:
-            source_species_candidates = group_metadata[source_group_id]["normalized_species"]
+    for (source_group_id, target_species), target_group_id_set in source_pair_matches.items():
+        for target_group_id in target_group_id_set:
+            source_species_candidates = group_metadata[source_group_id][
+                "normalized_species"
+            ]
             if not source_species_candidates:
                 continue
             source_species = sorted(source_species_candidates)[0]
             reverse_sources = target_pair_matches.get((target_group_id, source_species), set())
-            if len(target_group_ids) == 1 and len(reverse_sources) == 1:
-                unique_links.add(tuple(sorted((source_group_id, target_group_id))))
+            if len(target_group_id_set) == 1 and len(reverse_sources) == 1:
+                ordered_link = (
+                    (source_group_id, target_group_id)
+                    if source_group_id <= target_group_id
+                    else (target_group_id, source_group_id)
+                )
+                unique_links.add(ordered_link)
                 continue
             ambiguous_candidates.setdefault(source_group_id, set()).add(target_group_id)
             ambiguous_candidates.setdefault(target_group_id, set()).add(source_group_id)
@@ -963,7 +980,7 @@ def _build_harmonized_components(
 
 def _build_gene_symbol_candidates(
     *,
-    group_metadata: dict[int, dict[str, object]],
+    group_metadata: dict[int, _GroupMetadata],
     harmonized_component_ids: set[int],
     group_component_ids: dict[int, int],
 ) -> dict[int, tuple[int, ...]]:
