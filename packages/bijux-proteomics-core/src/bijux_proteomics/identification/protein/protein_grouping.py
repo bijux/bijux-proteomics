@@ -14,6 +14,7 @@ import json
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
+    PeptideEvidenceEntry,
     PsmRecord,
     TargetDecoyLabel,
     parse_target_decoy_label,
@@ -242,7 +243,7 @@ def render_protein_grouping_entries_tsv(report: ProteinGroupingReport) -> str:
 
 
 def _build_protein_ranking_context(
-    peptide_rollups: dict[str, object],
+    peptide_rollups: dict[str, PeptideEvidenceEntry],
 ) -> tuple[dict[str, int], dict[str, float]]:
     unique_counts: dict[str, int] = defaultdict(int)
     best_scores: dict[str, float] = defaultdict(float)

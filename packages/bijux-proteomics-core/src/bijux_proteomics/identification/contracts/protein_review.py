@@ -430,7 +430,7 @@ def build_peptide_uniqueness_across_database(
         raise ValueError(
             "provide either protein_sequences or protein_records for peptide uniqueness lookup"
         )
-    entries: list[DatabasePeptideUniquenessEntry] = []
+    direct_entries: list[DatabasePeptideUniquenessEntry] = []
     for peptide in sorted(dict.fromkeys(peptides)):
         lookup_sequence = peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
         matching_proteins = tuple(
@@ -444,7 +444,7 @@ def build_peptide_uniqueness_across_database(
                 )
             )
         )
-        entries.append(
+        direct_entries.append(
             DatabasePeptideUniquenessEntry(
                 canonical_peptide=peptide,
                 protein_refs=matching_proteins,
@@ -457,7 +457,7 @@ def build_peptide_uniqueness_across_database(
                 ),
             )
         )
-    return tuple(entries)
+    return tuple(direct_entries)
 
 
 def calculate_picked_protein_fdr(

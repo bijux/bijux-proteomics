@@ -485,7 +485,9 @@ def classify_target_decoy_contaminant(
     if isinstance(explicit_contaminant_label, bool):
         contaminant_from_label = explicit_contaminant_label
     else:
-        contaminant_from_label = _parse_contaminant_label(explicit_contaminant_label)
+        contaminant_from_label = bool(
+            _parse_contaminant_label(explicit_contaminant_label)
+        )
 
     target_protein_refs: list[str] = []
     decoy_protein_refs: list[str] = []

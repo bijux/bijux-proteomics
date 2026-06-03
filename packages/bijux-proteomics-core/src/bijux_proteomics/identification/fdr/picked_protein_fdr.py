@@ -15,6 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
     ProteinEvidenceEntry,
+    PsmRecord,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     rollup_protein_evidence,
@@ -164,7 +165,7 @@ def build_picked_protein_fdr_report(
     policy = PickedProteinFdrPolicy(
         threshold=threshold,
         score_orientation=score_orientation,
-        protein_prefix=active_decoy_policy.protein_prefix,
+        protein_prefix=active_decoy_policy.protein_prefix or "DECOY_",
         protein_suffix=active_decoy_policy.protein_suffix,
     )
 
@@ -296,7 +297,7 @@ def build_picked_protein_fdr_report(
 
 
 def build_picked_protein_fdr_report_from_psm_records(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",

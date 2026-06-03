@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import csv
 from enum import StrEnum
 import hashlib
@@ -16,11 +17,13 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.peptide.cross_run_reproducibility import (
     CrossRunReproducibilityClass,
+    CrossRunReproducibilityEntry,
     RunDetectionContext,
     build_protein_cross_run_reproducibility_report,
 )
 from bijux_proteomics.identification.peptide.peptide_evidence import (
     PeptideEvidenceClass,
+    PeptideEvidenceEntry,
     build_peptide_evidence_report,
 )
 from bijux_proteomics.identification.protein.protein_grouping import (
@@ -333,8 +336,8 @@ def render_protein_evidence_entries_tsv(report: ProteinEvidenceReport) -> str:
 def _build_entry(
     *,
     group: ProteinGroupingEntry,
-    peptide_by_sequence: dict[str, object],
-    reproducibility_by_protein: dict[str, object],
+    peptide_by_sequence: Mapping[str, PeptideEvidenceEntry],
+    reproducibility_by_protein: Mapping[str, CrossRunReproducibilityEntry],
     high_q_value: float,
     moderate_q_value: float,
 ) -> ProteinEvidenceEntry:
@@ -386,7 +389,7 @@ def _build_entry(
 def _classify_group(
     *,
     group: ProteinGroupingEntry,
-    unique_entries: tuple[object, ...],
+    unique_entries: tuple[PeptideEvidenceEntry, ...],
     reproducibility_class: CrossRunReproducibilityClass | None,
     exploratory_override: bool,
     high_q_value: float,
