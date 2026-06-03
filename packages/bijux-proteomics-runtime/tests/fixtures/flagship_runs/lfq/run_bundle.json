@@ -107,7 +107,7 @@
       "design_entry_count=8",
       "condition_count=2",
       "outlier_sample_count=2",
-      "review_bundle_hash=43a56720c86044218238a155df74114860680e73452bc8ec75c1c72d8f531527"
+      "review_bundle_hash=6b00c0652d092106da6a66df8f62f946122b1c41d3070cc01dfd1966b0d9fa7c"
     ],
     "input_artifact_ids": [
       "lfq-cohort-review-corpus:primary_input",
