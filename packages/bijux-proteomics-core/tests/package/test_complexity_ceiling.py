@@ -219,17 +219,17 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         27,
     ),
     _exception(
-        "sequences/protein_region_context.py",
+        "sequences/protein_region_context_workflows.py",
         "parse_protein_region_context_tsv",
         33,
     ),
     _exception(
-        "sequences/protein_region_context.py",
+        "sequences/protein_region_context_workflows.py",
         "build_protein_site_region_context_report",
         26,
     ),
     _exception(
-        "sequences/protein_region_context.py",
+        "sequences/protein_region_context_workflows.py",
         "build_protein_peptide_region_context_report",
         29,
     ),

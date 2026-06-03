@@ -294,6 +294,7 @@ def build_protein_lfq_report_from_peptides(
 
     ordered_target_ids = tuple(sorted(grouped_rows))
     row_results: dict[str, ProteinLfqRow] = {}
+    row_values_by_target: dict[str, dict[str, ProteinLfqValue]] = {}
     for target_id in ordered_target_ids:
         row = _build_target_lfq_row(
             target_id,
@@ -304,6 +305,9 @@ def build_protein_lfq_report_from_peptides(
             minimum_shared_peptides=minimum_shared_peptides,
         )
         row_results[target_id] = row
+        row_values_by_target[target_id] = {
+            value.sample_id: value for value in row.values
+        }
         rows.append(row)
         total_pairwise_ratio_count += row.pairwise_ratio_count
         if row.fully_connected:
@@ -328,11 +332,7 @@ def build_protein_lfq_report_from_peptides(
         not_observed = 0
         filtered = 0
         for target_id in ordered_target_ids:
-            value = next(
-                candidate
-                for candidate in row_results[target_id].values
-                if candidate.sample_id == sample_id
-            )
+            value = row_values_by_target[target_id][sample_id]
             if value.missing_value_kind is MissingValueKind.OBSERVED:
                 observed += 1
             elif value.missing_value_kind is MissingValueKind.ZERO:
