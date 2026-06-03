@@ -178,6 +178,8 @@ def _classify_claim_pair(
     left: EvidenceClaim,
     right: EvidenceClaim,
 ) -> ClaimContradictionEntry | None:
+    """Classify one claim pair when they occupy the same comparison scope."""
+
     if not _same_condition_scope(left, right):
         return None
 
@@ -212,6 +214,8 @@ def _classify_protein_ptm_pair(
     left: EvidenceClaim,
     right: EvidenceClaim,
 ) -> ClaimContradictionEntry | None:
+    """Downgrade neutral-protein but shifting-site pairs into PTM-aware outcomes."""
+
     left_kind = _target_kind(left.target_id)
     right_kind = _target_kind(right.target_id)
     if {left_kind, right_kind} != {"protein", "ptm_site"}:
@@ -274,6 +278,8 @@ def _build_entry(
     contradiction_type: ClaimContradictionType,
     severity: ClaimContradictionSeverity,
 ) -> ClaimContradictionEntry:
+    """Build one contradiction row with stable claim and evidence ordering."""
+
     claim_a, claim_b = sorted((left.claim_id, right.claim_id))
     evidence_ids = tuple(
         sorted(
@@ -295,6 +301,8 @@ def _build_entry(
 
 
 def _same_condition_scope(left: EvidenceClaim, right: EvidenceClaim) -> bool:
+    """Allow claim comparison only when condition scope is shared or unspecified."""
+
     return (
         left.condition is None
         or right.condition is None
@@ -303,6 +311,8 @@ def _same_condition_scope(left: EvidenceClaim, right: EvidenceClaim) -> bool:
 
 
 def _claims_disagree(left: EvidenceClaim, right: EvidenceClaim) -> bool:
+    """Determine whether two claims point in incompatible biological directions."""
+
     left_direction = _normalized_direction(left.direction)
     right_direction = _normalized_direction(right.direction)
     if left_direction == "unknown" or right_direction == "unknown":
@@ -313,6 +323,8 @@ def _claims_disagree(left: EvidenceClaim, right: EvidenceClaim) -> bool:
 
 
 def _normalized_direction(direction: str | None) -> str:
+    """Collapse free-text directional language into canonical comparison buckets."""
+
     if direction is None:
         return "unknown"
     normalized = direction.strip().lower().replace("-", "_").replace(" ", "_")
@@ -353,12 +365,16 @@ def _normalized_direction(direction: str | None) -> str:
 
 
 def _is_strong_change(claim: EvidenceClaim) -> bool:
+    """Return whether a claim clears the minimum effect-size threshold."""
+
     return (
         claim.magnitude is not None and abs(claim.magnitude) >= _STRONG_EFFECT_THRESHOLD
     )
 
 
 def _target_kind(target_id: str) -> str:
+    """Classify target identifiers into protein, PTM-site, or other scopes."""
+
     if target_id.startswith("protein:"):
         return "protein"
     if target_id.startswith("ptm_site:"):
@@ -367,6 +383,8 @@ def _target_kind(target_id: str) -> str:
 
 
 def _protein_id_from_target(target_id: str) -> str | None:
+    """Recover the owning protein identifier from a protein or PTM target id."""
+
     if target_id.startswith("protein:"):
         _, protein_id = target_id.split(":", 1)
         return protein_id
@@ -378,6 +396,8 @@ def _protein_id_from_target(target_id: str) -> str | None:
 
 
 def _assumption_map(assumptions: list[str]) -> dict[str, str]:
+    """Parse key-value assumption strings into a lookup table for classification."""
+
     resolved: dict[str, str] = {}
     for assumption in assumptions:
         key, separator, value = assumption.partition("=")

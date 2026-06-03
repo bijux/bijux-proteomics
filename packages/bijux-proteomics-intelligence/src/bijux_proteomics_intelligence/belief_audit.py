@@ -158,6 +158,8 @@ def _belief_audit_entry(
     claim: EvidenceClaim,
     support_entry: ClaimSupportValidationEntry,
 ) -> BeliefAuditEntry:
+    """Assemble one stable audit row from a claim and its support validation."""
+
     falsifier_entry = generate_falsifiers(claim).entries[0]
     evidence_for = _stable_evidence_ids(claim.evidence_ids)
     evidence_against = _stable_evidence_ids(support_entry.contradicting_evidence)
@@ -179,6 +181,8 @@ def _belief_audit_entry(
 
 
 def _stable_evidence_ids(evidence_ids: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    """Sort and deduplicate evidence identifiers for stable TSV rendering."""
+
     return tuple(sorted(dict.fromkeys(evidence_ids)))
 
 
@@ -187,6 +191,8 @@ def _uncertainty_messages(
     claim: EvidenceClaim,
     support_entry: ClaimSupportValidationEntry,
 ) -> tuple[str, ...]:
+    """Collect the uncertainty flags that still constrain the claim."""
+
     issues: list[str] = []
     if support_entry.support_status is ClaimSupportStatus.INVALID:
         issues.extend(
@@ -208,6 +214,8 @@ def _audited_confidence(
     claim: EvidenceClaim,
     support_entry: ClaimSupportValidationEntry,
 ) -> float:
+    """Downgrade confidence when support quality or resolution state is weak."""
+
     confidence = claim.confidence
     if support_entry.support_status is ClaimSupportStatus.INVALID:
         confidence -= 0.35
@@ -227,6 +235,8 @@ def _next_check(
     falsifier_entry: ClaimFalsifierEntry,
     uncertainty: tuple[str, ...],
 ) -> str:
+    """Pick the next concrete validation action for the audited claim."""
+
     if support_entry.missing_support:
         return support_entry.missing_support[0]
     if claim.resolution_assays:
@@ -237,6 +247,8 @@ def _next_check(
 
 
 def _top_claim_ids(claims: tuple[EvidenceClaim, ...]) -> tuple[str, ...]:
+    """Return the high-confidence claim identifiers that must stay audited."""
+
     top_claims = tuple(
         sorted(
             (
