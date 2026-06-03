@@ -90,7 +90,9 @@ def validate_claim_support(
         graph_support_nodes = support_edges.get(claim_node_id, ())
         for evidence_node_id in declared_support_nodes:
             if evidence_node_id not in graph_node_ids:
-                missing_support.append(f"missing graph evidence node {evidence_node_id}")
+                missing_support.append(
+                    f"missing graph evidence node {evidence_node_id}"
+                )
             elif evidence_node_id not in graph_support_nodes:
                 missing_support.append(
                     f"missing support edge for {evidence_node_id.removeprefix('evidence:')}"
@@ -122,10 +124,14 @@ def validate_claim_support(
         summary=ClaimSupportValidationSummary(
             claim_count=len(entries),
             supported_claim_count=sum(
-                1 for entry in entries if entry.support_status is ClaimSupportStatus.SUPPORTED
+                1
+                for entry in entries
+                if entry.support_status is ClaimSupportStatus.SUPPORTED
             ),
             conflicted_claim_count=sum(
-                1 for entry in entries if entry.support_status is ClaimSupportStatus.CONFLICTED
+                1
+                for entry in entries
+                if entry.support_status is ClaimSupportStatus.CONFLICTED
             ),
             contradicted_claim_count=sum(
                 1
@@ -133,7 +139,9 @@ def validate_claim_support(
                 if entry.support_status is ClaimSupportStatus.CONTRADICTED
             ),
             invalid_claim_count=sum(
-                1 for entry in entries if entry.support_status is ClaimSupportStatus.INVALID
+                1
+                for entry in entries
+                if entry.support_status is ClaimSupportStatus.INVALID
             ),
         ),
         note=(

@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 import inspect
 import json
-from importlib import import_module
 from pathlib import Path
 from typing import Any
 
@@ -50,6 +50,5 @@ def test_intelligence_core_signature_snapshots_match_consumed_core_surfaces() ->
     expected = json.loads(_fixture_path().read_text(encoding="utf-8"))
 
     assert {
-        symbol_path: _build_signature_snapshot(symbol_path)
-        for symbol_path in expected
+        symbol_path: _build_signature_snapshot(symbol_path) for symbol_path in expected
     } == expected

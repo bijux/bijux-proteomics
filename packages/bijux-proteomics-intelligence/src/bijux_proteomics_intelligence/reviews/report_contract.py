@@ -14,9 +14,9 @@ from bijux_proteomics_intelligence.belief_audit import (
     build_belief_audit,
 )
 from bijux_proteomics_intelligence.claims.support import (
+    ClaimSupportStatus,
     ClaimSupportValidationEntry,
     ClaimSupportValidationReport,
-    ClaimSupportStatus,
     validate_claim_support,
 )
 from bijux_proteomics_intelligence.contradictions import (
@@ -24,7 +24,10 @@ from bijux_proteomics_intelligence.contradictions import (
     ClaimContradictionReport,
     find_claim_contradictions,
 )
-from bijux_proteomics_intelligence.falsifiers import ClaimFalsifierEntry, generate_falsifiers
+from bijux_proteomics_intelligence.falsifiers import (
+    ClaimFalsifierEntry,
+    generate_falsifiers,
+)
 from bijux_proteomics_intelligence.refusal import (
     ClaimRefusalEntry,
     ClaimRefusalReport,
@@ -67,7 +70,9 @@ class IntelligenceReportContract(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_entries: tuple[IntelligenceReportClaimEntry, ...] = Field(default_factory=tuple)
+    claim_entries: tuple[IntelligenceReportClaimEntry, ...] = Field(
+        default_factory=tuple
+    )
     support_validation_report: ClaimSupportValidationReport
     contradiction_report: ClaimContradictionReport
     refusal_report: ClaimRefusalReport
@@ -100,7 +105,9 @@ def build_intelligence_report_contract(
     belief_audit_by_claim_id = {
         entry.claim_id: entry for entry in belief_audit_report.entries
     }
-    contradictions_by_claim_id = _contradictions_by_claim_id(contradiction_report.entries)
+    contradictions_by_claim_id = _contradictions_by_claim_id(
+        contradiction_report.entries
+    )
 
     claim_entries = tuple(
         IntelligenceReportClaimEntry(
@@ -126,7 +133,8 @@ def build_intelligence_report_contract(
                 entry.claim.status is ClaimStatus.SUPPORTED for entry in claim_entries
             ),
             unresolved_claim_count=sum(
-                entry.claim.status is not ClaimStatus.SUPPORTED for entry in claim_entries
+                entry.claim.status is not ClaimStatus.SUPPORTED
+                for entry in claim_entries
             ),
             refused_claim_count=sum(entry.refusal.refused for entry in claim_entries),
             top_claim_count=belief_audit_report.summary.top_claim_count,
@@ -148,7 +156,9 @@ def build_intelligence_report_contract(
 def validate_intelligence_report_contract(contract: IntelligenceReportContract) -> None:
     """Reject report contracts that have drifted away from typed intelligence state."""
 
-    claim_entries_by_id = {entry.claim.claim_id: entry for entry in contract.claim_entries}
+    claim_entries_by_id = {
+        entry.claim.claim_id: entry for entry in contract.claim_entries
+    }
     if len(claim_entries_by_id) != len(contract.claim_entries):
         raise ValueError("intelligence report contract requires unique claim ids")
 

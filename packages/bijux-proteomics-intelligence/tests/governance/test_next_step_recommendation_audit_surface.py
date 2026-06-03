@@ -36,7 +36,10 @@ def test_next_steps_module_audit_points_to_live_owner_module() -> None:
         if entry.module_path == "next_steps.py"
     )
 
-    assert next_steps_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    assert (
+        next_steps_entry.classification
+        is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    )
     assert next_steps_entry.anchor_capabilities == (
         IntelligenceCharterCapability.REVIEW_REASONING,
         IntelligenceCharterCapability.RECOMMENDATION,

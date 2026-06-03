@@ -23,7 +23,10 @@ def test_query_band_keeps_id_backed_answer_scope_explicit() -> None:
     )
 
     assert query_band.required_modules == ("query.py",)
-    assert any("referenced IDs" in scope or "explicit IDs" in scope for scope in query_band.decision_scope + query_band.refusal_scope)
+    assert any(
+        "referenced IDs" in scope or "explicit IDs" in scope
+        for scope in query_band.decision_scope + query_band.refusal_scope
+    )
 
 
 def test_query_module_audit_points_to_live_owner_module() -> None:
@@ -33,7 +36,9 @@ def test_query_module_audit_points_to_live_owner_module() -> None:
         if entry.module_path == "query.py"
     )
 
-    assert query_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    assert (
+        query_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    )
     assert query_entry.anchor_capabilities == (
         IntelligenceCharterCapability.REVIEW_REASONING,
         IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,

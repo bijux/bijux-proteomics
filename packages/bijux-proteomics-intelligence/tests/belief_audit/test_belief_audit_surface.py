@@ -20,7 +20,9 @@ from bijux_proteomics_knowledge.memory.models.claims import (
 )
 
 
-def test_build_belief_audit_keeps_top_claim_rows_and_balanced_evidence_visible() -> None:
+def test_build_belief_audit_keeps_top_claim_rows_and_balanced_evidence_visible() -> (
+    None
+):
     report = build_belief_audit(
         (
             EvidenceClaim(

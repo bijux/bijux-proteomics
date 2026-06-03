@@ -36,7 +36,10 @@ def test_belief_audit_module_audit_points_to_live_owner_module() -> None:
         if entry.module_path == "belief_audit.py"
     )
 
-    assert belief_audit_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    assert (
+        belief_audit_entry.classification
+        is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    )
     assert belief_audit_entry.anchor_capabilities == (
         IntelligenceCharterCapability.CONTRADICTION_HANDLING,
         IntelligenceCharterCapability.REVIEW_REASONING,

@@ -19,9 +19,7 @@ class ClaimFalsifierType(StrEnum):
     """Stable falsifier classes over supported analytical claims."""
 
     ORTHOGONAL_PROTEIN_QUANT_FAILURE = "orthogonal_protein_quant_failure"
-    SITE_LOCALIZATION_OR_CORRECTION_FAILURE = (
-        "site_localization_or_correction_failure"
-    )
+    SITE_LOCALIZATION_OR_CORRECTION_FAILURE = "site_localization_or_correction_failure"
     PATHWAY_MEMBER_SUPPORT_COLLAPSE = "pathway_member_support_collapse"
     REGULATOR_SUBSTRATE_ACTIVITY_COLLAPSE = "regulator_substrate_activity_collapse"
     BIOMARKER_REPLICATION_FAILURE = "biomarker_replication_failure"
@@ -68,10 +66,14 @@ def generate_falsifiers(claim: EvidenceClaim) -> ClaimFalsifierReport:
         summary=ClaimFalsifierSummary(
             claim_count=1,
             typed_falsifier_count=(
-                0 if entry.falsifier_type is ClaimFalsifierType.CLAIM_STRUCTURE_GAP else 1
+                0
+                if entry.falsifier_type is ClaimFalsifierType.CLAIM_STRUCTURE_GAP
+                else 1
             ),
             structure_gap_count=(
-                1 if entry.falsifier_type is ClaimFalsifierType.CLAIM_STRUCTURE_GAP else 0
+                1
+                if entry.falsifier_type is ClaimFalsifierType.CLAIM_STRUCTURE_GAP
+                else 0
             ),
         ),
         note=(
@@ -87,7 +89,9 @@ def render_claim_falsifiers_tsv(entries: tuple[ClaimFalsifierEntry, ...]) -> str
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("claim_id", "falsifier_type", "required_evidence", "why_it_matters"))
+    writer.writerow(
+        ("claim_id", "falsifier_type", "required_evidence", "why_it_matters")
+    )
     for entry in entries:
         writer.writerow(
             (
@@ -192,7 +196,10 @@ def _falsifier_entry(claim: EvidenceClaim) -> ClaimFalsifierEntry:
         falsifier_type=ClaimFalsifierType.CLAIM_STRUCTURE_GAP,
         required_evidence=_required_evidence(
             claim,
-            defaults=("explicit resolution assay", "typed subject-relation-object claim"),
+            defaults=(
+                "explicit resolution assay",
+                "typed subject-relation-object claim",
+            ),
         ),
         why_it_matters=(
             "A claim without a recognized analytical surface or explicit resolution "
@@ -210,7 +217,10 @@ def _target_kind(claim: EvidenceClaim) -> str:
         return "pathway"
     if claim.target_id.startswith("regulator:"):
         return "regulator"
-    if claim.target_id.startswith("biomarker:") or claim.claim_type is ClaimType.BIOMARKER:
+    if (
+        claim.target_id.startswith("biomarker:")
+        or claim.claim_type is ClaimType.BIOMARKER
+    ):
         return "biomarker"
     return "other"
 

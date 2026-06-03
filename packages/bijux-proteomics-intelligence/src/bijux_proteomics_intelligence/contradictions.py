@@ -89,7 +89,9 @@ def find_claim_contradictions(
     claim_ids: set[str] = set()
     for claim in claim_items:
         if claim.claim_id in claim_ids:
-            raise ValueError("claim contradiction detection requires unique claim_id rows")
+            raise ValueError(
+                "claim contradiction detection requires unique claim_id rows"
+            )
         claim_ids.add(claim.claim_id)
 
     entries: list[ClaimContradictionEntry] = []
@@ -120,7 +122,8 @@ def find_claim_contradictions(
             contradiction_group_count=sum(
                 1
                 for entry in stable_entries
-                if entry.contradiction_type is ClaimContradictionType.CONTRADICTION_GROUP
+                if entry.contradiction_type
+                is ClaimContradictionType.CONTRADICTION_GROUP
             ),
             protein_site_contradiction_count=sum(
                 1
@@ -155,7 +158,9 @@ def render_claim_contradictions_tsv(
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("claim_a", "claim_b", "contradiction_type", "severity", "evidence_ids"))
+    writer.writerow(
+        ("claim_a", "claim_b", "contradiction_type", "severity", "evidence_ids")
+    )
     for entry in entries:
         writer.writerow(
             (
@@ -230,12 +235,9 @@ def _classify_protein_ptm_pair(
     correction_status = correction_assumptions.get("protein_correction_status")
     mechanism_class = correction_assumptions.get("mechanism_class")
     mechanism_reason_code = correction_assumptions.get("mechanism_reason_code")
-    if (
-        correction_status in _CORRECTED_SITE_STATUSES
-        and (
-            mechanism_class == "site_specific"
-            or mechanism_reason_code == "residual_site_effect_after_correction"
-        )
+    if correction_status in _CORRECTED_SITE_STATUSES and (
+        mechanism_class == "site_specific"
+        or mechanism_reason_code == "residual_site_effect_after_correction"
     ):
         severity = (
             ClaimContradictionSeverity.MODERATE
@@ -351,7 +353,9 @@ def _normalized_direction(direction: str | None) -> str:
 
 
 def _is_strong_change(claim: EvidenceClaim) -> bool:
-    return claim.magnitude is not None and abs(claim.magnitude) >= _STRONG_EFFECT_THRESHOLD
+    return (
+        claim.magnitude is not None and abs(claim.magnitude) >= _STRONG_EFFECT_THRESHOLD
+    )
 
 
 def _target_kind(target_id: str) -> str:

@@ -3,12 +3,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.next_steps import (
-    NextExperimentRecommendationEntry,
-    NextExperimentRecommendationType,
-    recommend_next_experiments,
-    render_next_experiments_tsv,
-)
 from bijux_proteomics.workflow.interactive_result_bundle import (
     InteractiveResultBundle,
     InteractiveResultBundleSummary,
@@ -26,6 +20,12 @@ from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyKind,
     ProteomicsStudyResult,
     ProteomicsStudyResultSummary,
+)
+from bijux_proteomics_intelligence.next_steps import (
+    NextExperimentRecommendationEntry,
+    NextExperimentRecommendationType,
+    recommend_next_experiments,
+    render_next_experiments_tsv,
 )
 
 

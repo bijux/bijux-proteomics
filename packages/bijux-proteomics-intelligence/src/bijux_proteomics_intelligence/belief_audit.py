@@ -12,8 +12,8 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.claims.support import (
-    ClaimSupportValidationEntry,
     ClaimSupportStatus,
+    ClaimSupportValidationEntry,
     validate_claim_support,
 )
 from bijux_proteomics_intelligence.falsifiers import (
@@ -189,7 +189,9 @@ def _uncertainty_messages(
 ) -> tuple[str, ...]:
     issues: list[str] = []
     if support_entry.support_status is ClaimSupportStatus.INVALID:
-        issues.extend(f"missing_support:{item}" for item in support_entry.missing_support)
+        issues.extend(
+            f"missing_support:{item}" for item in support_entry.missing_support
+        )
     if support_entry.support_status is ClaimSupportStatus.CONFLICTED:
         issues.append("contradicting_evidence_present")
     if claim.resolution_state is ClaimResolutionState.OPEN:

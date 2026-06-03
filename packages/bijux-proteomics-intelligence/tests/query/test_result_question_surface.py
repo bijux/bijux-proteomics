@@ -3,22 +3,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.query import (
-    ResultQuestionKind,
-    ResultQuestionSpec,
-    ResultQuestionStatus,
-    answer_result_question,
-    render_result_question_answers_tsv,
-)
 from bijux_proteomics.workflow.interactive_result_bundle import (
     InteractiveResultBundle,
     InteractiveResultBundleSummary,
+    InteractiveResultPathway,
     InteractiveResultProtein,
     InteractiveResultPtmSite,
     InteractiveResultQcEntry,
     InteractiveResultQcKind,
     InteractiveResultSample,
-    InteractiveResultPathway,
 )
 from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyConclusionEntry,
@@ -28,6 +21,13 @@ from bijux_proteomics.workflow.study_result import (
     ProteomicsStudyKind,
     ProteomicsStudyResult,
     ProteomicsStudyResultSummary,
+)
+from bijux_proteomics_intelligence.query import (
+    ResultQuestionKind,
+    ResultQuestionSpec,
+    ResultQuestionStatus,
+    answer_result_question,
+    render_result_question_answers_tsv,
 )
 
 
@@ -89,7 +89,10 @@ def test_answer_result_question_returns_ids_for_every_supported_spec() -> None:
         "pep-2",
         "graph:protein:pg1",
     )
-    assert why_rejected.referenced_ids == ("claim-rejected-1", "pathway:stress_response")
+    assert why_rejected.referenced_ids == (
+        "claim-rejected-1",
+        "pathway:stress_response",
+    )
     assert what_peptides_support.referenced_ids == ("pep-1", "pep-2")
     assert what_samples_failed.referenced_ids == ("S2", "qc-run-1")
     assert what_weakens_claim.referenced_ids == (
@@ -160,7 +163,9 @@ def _study_result_fixture() -> ProteomicsStudyResult:
                 plot_count=0,
             ),
             samples=(
-                InteractiveResultSample(sample_id="S1", condition="control", outlier=False),
+                InteractiveResultSample(
+                    sample_id="S1", condition="control", outlier=False
+                ),
                 InteractiveResultSample(
                     sample_id="S2",
                     condition="treated",

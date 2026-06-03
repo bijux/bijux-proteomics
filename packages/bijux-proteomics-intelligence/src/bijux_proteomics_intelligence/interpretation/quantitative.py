@@ -11,14 +11,14 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.lab.qc import (
+    InstrumentBatchQcReport,
+    QcRunAssessmentReport,
+)
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
     ReplicateCorrelationReport,
-)
-from bijux_proteomics.lab.qc import (
-    InstrumentBatchQcReport,
-    QcRunAssessmentReport,
 )
 from bijux_proteomics_foundation import JsonModel
 

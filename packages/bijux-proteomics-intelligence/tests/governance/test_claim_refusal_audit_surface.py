@@ -36,7 +36,10 @@ def test_refusal_module_audit_points_to_live_owner_module() -> None:
         if entry.module_path == "refusal.py"
     )
 
-    assert refusal_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    assert (
+        refusal_entry.classification
+        is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    )
     assert refusal_entry.anchor_capabilities == (
         IntelligenceCharterCapability.CONTRADICTION_HANDLING,
         IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,

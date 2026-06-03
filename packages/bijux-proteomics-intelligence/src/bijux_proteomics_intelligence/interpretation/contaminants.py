@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.quantification import BatchEffectAdvisoryReport
 from bijux_proteomics.lab.qc import (
     LcmsRunQcReport,
     QcAssessmentSeverity,
     QcRunAssessmentReport,
 )
+from bijux_proteomics.quantification import BatchEffectAdvisoryReport
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.interpretation.pathways import (
     InterpretationClaimScope,

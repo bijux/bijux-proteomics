@@ -42,9 +42,7 @@ def test_build_intelligence_report_contract_keeps_claim_review_state_typed() -> 
     assert top_refused.refusal.refused is True
     assert top_refused.refusal.refusal_reason is not None
     assert top_refused.contradictions
-    assert {
-        contradiction.claim_a for contradiction in top_refused.contradictions
-    } | {
+    assert {contradiction.claim_a for contradiction in top_refused.contradictions} | {
         contradiction.claim_b for contradiction in top_refused.contradictions
     } >= {"claim-top-refused", "claim-opposed"}
 

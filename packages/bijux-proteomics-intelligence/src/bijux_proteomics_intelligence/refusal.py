@@ -98,7 +98,8 @@ def refuse_unsupported_claims(
                 for entry in entries
             ),
             failed_qc_count=sum(
-                entry.refusal_reason is ClaimRefusalReason.FAILED_QC for entry in entries
+                entry.refusal_reason is ClaimRefusalReason.FAILED_QC
+                for entry in entries
             ),
             weak_peptide_support_count=sum(
                 entry.refusal_reason is ClaimRefusalReason.WEAK_PEPTIDE_SUPPORT
@@ -183,7 +184,10 @@ def _refusal_entry(
     if claim.target_id.startswith("ptm_site:"):
         localization_tier = assumption_map.get("localization_tier", "").lower()
         accepted = {tier.lower() for tier in thresholds.accepted_localization_tiers}
-        if localization_tier and localization_tier not in accepted | _HIGH_LOCALIZATION_TIERS:
+        if (
+            localization_tier
+            and localization_tier not in accepted | _HIGH_LOCALIZATION_TIERS
+        ):
             return ClaimRefusalEntry(
                 claim_id=claim.claim_id,
                 refused=True,

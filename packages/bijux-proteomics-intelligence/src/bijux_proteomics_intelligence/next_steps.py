@@ -61,7 +61,9 @@ class NextExperimentRecommendationReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[NextExperimentRecommendationEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[NextExperimentRecommendationEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: NextExperimentRecommendationSummary
     note: str = Field(..., min_length=1)
 

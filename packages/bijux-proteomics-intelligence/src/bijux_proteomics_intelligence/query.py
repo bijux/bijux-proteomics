@@ -88,7 +88,9 @@ def answer_result_question(
         return _answer_what_peptides_support(result, question_spec)
     if question_spec.question_kind is ResultQuestionKind.WHAT_WEAKENS_CLAIM:
         return _answer_what_weakens_claim(result, question_spec)
-    raise AssertionError(f"unsupported result question kind {question_spec.question_kind!r}")
+    raise AssertionError(
+        f"unsupported result question kind {question_spec.question_kind!r}"
+    )
 
 
 def render_result_question_answers_tsv(
@@ -147,7 +149,9 @@ def _answer_why_significant(
                 note="matched protein row did not preserve significance",
             )
         referenced_ids = tuple(
-            dict.fromkeys((protein.object_id, *protein.peptide_ids, *protein.graph_node_ids))
+            dict.fromkeys(
+                (protein.object_id, *protein.peptide_ids, *protein.graph_node_ids)
+            )
         )
         return ResultQuestionAnswer(
             question_id=question_spec.question_id,
@@ -171,7 +175,9 @@ def _answer_why_significant(
                 f"{subject_id} has no retained PTM significance row",
                 note="matched PTM site is missing adjusted significance",
             )
-        referenced_ids = tuple(dict.fromkeys((site.site_key, *site.claim_ids, *site.sample_ids)))
+        referenced_ids = tuple(
+            dict.fromkeys((site.site_key, *site.claim_ids, *site.sample_ids))
+        )
         return ResultQuestionAnswer(
             question_id=question_spec.question_id,
             question_kind=question_spec.question_kind,
@@ -314,9 +320,7 @@ def _answer_what_samples_failed(
         )
 
     failed_sample_ids = tuple(
-        sample.sample_id
-        for sample in bundle.samples
-        if sample.outlier is True
+        sample.sample_id for sample in bundle.samples if sample.outlier is True
     )
     failed_qc_ids = tuple(
         entry.qc_id
@@ -353,9 +357,14 @@ def _answer_what_weakens_claim(
     subject_id = question_spec.subject_id or ""
     if bundle is not None:
         for protein in bundle.proteins:
-            if subject_id not in {protein.object_id, protein.representative_protein_ref}:
+            if subject_id not in {
+                protein.object_id,
+                protein.representative_protein_ref,
+            }:
                 continue
-            weakening_ids = tuple(dict.fromkeys((*protein.warning_codes, *protein.ptm_site_keys)))
+            weakening_ids = tuple(
+                dict.fromkeys((*protein.warning_codes, *protein.ptm_site_keys))
+            )
             if weakening_ids:
                 return ResultQuestionAnswer(
                     question_id=question_spec.question_id,
@@ -384,7 +393,9 @@ def _answer_what_weakens_claim(
             if pathway.pathway_id != subject_id:
                 continue
             weakening_ids = tuple(
-                dict.fromkeys((*pathway.unresolved_member_ids, *pathway.supporting_protein_refs))
+                dict.fromkeys(
+                    (*pathway.unresolved_member_ids, *pathway.supporting_protein_refs)
+                )
             )
             if weakening_ids:
                 return ResultQuestionAnswer(

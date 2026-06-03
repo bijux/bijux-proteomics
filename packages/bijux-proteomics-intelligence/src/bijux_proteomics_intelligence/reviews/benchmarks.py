@@ -25,7 +25,10 @@ from bijux_proteomics.dia.benchmarks import (
     build_targeted_raw_to_reviewed_bundle_report,
     build_targeted_workflow_benchmark_report,
 )
-from bijux_proteomics.identification import PsmRecord, build_review_ready_evidence_bundle
+from bijux_proteomics.identification import (
+    PsmRecord,
+    build_review_ready_evidence_bundle,
+)
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     build_search_adapter_conformance_report,
@@ -33,6 +36,16 @@ from bijux_proteomics.identification.search_adapters import (
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
+from bijux_proteomics.lab.planning import (
+    TargetedPlatformAssumptionInput,
+    TargetedWorkflowBoundaryInput,
+    TargetedWorkflowMethod,
+    build_targeted_platform_support_matrix,
+    evaluate_targeted_workflow_boundary,
+)
+from bijux_proteomics.lab.qc_benchmarks import (
+    build_workflow_minimum_control_report,
+)
 from bijux_proteomics.ptm import (
     build_ptm_site_ambiguity_report,
     build_ptm_site_table,
@@ -69,16 +82,6 @@ from bijux_proteomics.review.collaboration import (
     build_external_reviewer_bundle,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics.lab.planning import (
-    TargetedPlatformAssumptionInput,
-    TargetedWorkflowBoundaryInput,
-    TargetedWorkflowMethod,
-    build_targeted_platform_support_matrix,
-    evaluate_targeted_workflow_boundary,
-)
-from bijux_proteomics.lab.qc_benchmarks import (
-    build_workflow_minimum_control_report,
-)
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (

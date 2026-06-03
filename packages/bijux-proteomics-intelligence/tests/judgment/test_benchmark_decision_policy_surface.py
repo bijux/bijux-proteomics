@@ -76,7 +76,9 @@ def test_flagship_policy_keeps_dia_vendor_gap_visible_on_borderline_case() -> No
     assert dia_result.selected_option_id == "dia_borderline_path"
     assert dia_result.disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
     assert dia_result.solved is False
-    assert "vendor and library comparison gaps remain open" in dia_result.downgrade_chain
+    assert (
+        "vendor and library comparison gaps remain open" in dia_result.downgrade_chain
+    )
     assert (
         "operational burden remains too high for a justified recommendation"
         in dia_result.blocker_set

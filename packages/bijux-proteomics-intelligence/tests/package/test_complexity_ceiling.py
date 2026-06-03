@@ -39,7 +39,8 @@ def test_intelligence_source_tree_respects_complexity_ceiling() -> None:
     assert report.stale_exceptions == ()
     assert report.unexpected_over_ceiling == ()
     assert tuple(
-        (item.relative_path, item.qualified_name) for item in report.approved_over_ceiling
+        (item.relative_path, item.qualified_name)
+        for item in report.approved_over_ceiling
     ) == tuple(
         (item.relative_path, item.qualified_name)
         for item in INTELLIGENCE_COMPLEXITY_EXCEPTIONS

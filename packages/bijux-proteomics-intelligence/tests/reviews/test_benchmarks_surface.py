@@ -5,13 +5,23 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 
+import pytest
+
+from bijux_proteomics.dia.benchmarks import (
+    DiaWorkflowScientificSupportReport,
+)
 from bijux_proteomics.dia.benchmarks import (
     build_dia_workflow_scientific_support_report as build_core_dia_workflow_scientific_support_report,
 )
 from bijux_proteomics.identification import PsmRecord
-import bijux_proteomics_intelligence.reviews.benchmarks as benchmark_reviews
+from bijux_proteomics.identification.search_adapters import (
+    SearchAdapterNormalizationReport,
+)
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_foundation.support.states import SupportState
+import bijux_proteomics_intelligence.reviews.benchmarks as benchmark_reviews
 from bijux_proteomics_intelligence.reviews.benchmarks import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,
@@ -140,10 +150,14 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     )
 
 
-def test_build_dia_benchmark_review_uses_aggregate_fallback_without_run_ids() -> None:
+def test_build_dia_benchmark_review_uses_aggregate_fallback_without_run_ids(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     observed_arguments: dict[str, int] = {}
 
-    def _capture_support_arguments(**kwargs: int):
+    def _capture_support_arguments(
+        **kwargs: int,
+    ) -> DiaWorkflowScientificSupportReport:
         observed_arguments.update(kwargs)
         return build_core_dia_workflow_scientific_support_report(**kwargs)
 
@@ -157,18 +171,11 @@ def test_build_dia_benchmark_review_uses_aggregate_fallback_without_run_ids() ->
         / "spectronaut"
         / "spectronaut_report.tsv"
     )
-    original_support_report_builder = (
-        benchmark_reviews.build_dia_workflow_scientific_support_report
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.build_dia_workflow_scientific_support_report",
+        _capture_support_arguments,
     )
-    benchmark_reviews.build_dia_workflow_scientific_support_report = (
-        _capture_support_arguments
-    )
-    try:
-        review = benchmark_reviews.build_dia_benchmark_review(source_path=benchmark_path)
-    finally:
-        benchmark_reviews.build_dia_workflow_scientific_support_report = (
-            original_support_report_builder
-        )
+    review = benchmark_reviews.build_dia_benchmark_review(source_path=benchmark_path)
 
     assert review.workflow_family is KnowledgeWorkflowFamily.DIA
     assert observed_arguments["sample_resolved_precursor_count"] == 3
@@ -177,12 +184,30 @@ def test_build_dia_benchmark_review_uses_aggregate_fallback_without_run_ids() ->
     assert observed_arguments["expected_sample_resolved_protein_count"] == 4
 
 
-def test_build_dia_benchmark_review_uses_run_resolved_counts_when_present() -> None:
+def test_build_dia_benchmark_review_uses_run_resolved_counts_when_present(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     observed_arguments: dict[str, int] = {}
 
-    def _capture_support_arguments(**kwargs: int):
+    def _capture_support_arguments(
+        **kwargs: int,
+    ) -> DiaWorkflowScientificSupportReport:
         observed_arguments.update(kwargs)
         return build_core_dia_workflow_scientific_support_report(**kwargs)
+
+    def _normalize_synthetic_records(**_: object) -> SearchAdapterNormalizationReport:
+        return cast(
+            SearchAdapterNormalizationReport,
+            SimpleNamespace(
+                normalized_records=synthetic_records,
+                adapter_manifest=SimpleNamespace(
+                    score_orientation=SimpleNamespace(value="higher_better")
+                ),
+            ),
+        )
+
+    def _synthetic_fingerprint(_: JsonModel) -> str:
+        return "synthetic-normalization"
 
     synthetic_records = (
         PsmRecord(
@@ -214,31 +239,21 @@ def test_build_dia_benchmark_review_uses_run_resolved_counts_when_present() -> N
         ),
     )
 
-    original_normalize = benchmark_reviews.normalize_search_results_with_adapter
-    original_support_report_builder = (
-        benchmark_reviews.build_dia_workflow_scientific_support_report
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.normalize_search_results_with_adapter",
+        _normalize_synthetic_records,
     )
-    original_fingerprint_model = benchmark_reviews.fingerprint_model
-    benchmark_reviews.normalize_search_results_with_adapter = lambda **_: SimpleNamespace(
-        normalized_records=synthetic_records,
-        adapter_manifest=SimpleNamespace(
-            score_orientation=SimpleNamespace(value="higher_better")
-        ),
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.build_dia_workflow_scientific_support_report",
+        _capture_support_arguments,
     )
-    benchmark_reviews.build_dia_workflow_scientific_support_report = (
-        _capture_support_arguments
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.fingerprint_model",
+        _synthetic_fingerprint,
     )
-    benchmark_reviews.fingerprint_model = lambda _: "synthetic-normalization"
-    try:
-        review = benchmark_reviews.build_dia_benchmark_review(
-            source_path=Path("synthetic_spectronaut.tsv")
-        )
-    finally:
-        benchmark_reviews.normalize_search_results_with_adapter = original_normalize
-        benchmark_reviews.build_dia_workflow_scientific_support_report = (
-            original_support_report_builder
-        )
-        benchmark_reviews.fingerprint_model = original_fingerprint_model
+    review = benchmark_reviews.build_dia_benchmark_review(
+        source_path=Path("synthetic_spectronaut.tsv")
+    )
 
     assert review.workflow_family is KnowledgeWorkflowFamily.DIA
     assert observed_arguments["sample_resolved_precursor_count"] == 3

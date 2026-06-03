@@ -23,7 +23,9 @@ def test_claim_support_band_keeps_graph_validation_scope_explicit() -> None:
     )
 
     assert claims_band.required_modules == ("claims/support.py",)
-    assert any("evidence-graph support" in scope for scope in claims_band.decision_scope)
+    assert any(
+        "evidence-graph support" in scope for scope in claims_band.decision_scope
+    )
 
 
 def test_claim_support_module_audit_points_to_live_owner_module() -> None:

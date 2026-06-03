@@ -39,7 +39,9 @@ def _entries(
     return tuple(
         IntelligenceRootApiEntry(
             export_name=name,
-            owner_module=owner_module if "." in owner_module else f"bijux_proteomics_intelligence.{owner_module}",
+            owner_module=owner_module
+            if "." in owner_module
+            else f"bijux_proteomics_intelligence.{owner_module}",
             classification=classification,
             rationale=rationale,
         )

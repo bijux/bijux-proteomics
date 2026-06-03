@@ -75,4 +75,7 @@ def test_lab_burden_corpus_keeps_dia_review_context_release_ready() -> None:
     assert dia_option.option_id == "dia_borderline_path"
     assert dia_option.review.public_claim_support_state.value == "advisory"
     assert dia_option.review.ready_for_release_review is True
-    assert dia_option.review.benchmark_package_id == "benchmark_package:dia_library_review_package"
+    assert (
+        dia_option.review.benchmark_package_id
+        == "benchmark_package:dia_library_review_package"
+    )
