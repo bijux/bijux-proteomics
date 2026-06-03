@@ -14,7 +14,9 @@ from bijux_proteomics.io.retention_time_alignment import (
 )
 
 
-def test_apply_rt_residuals_downgrades_high_confidence_outliers_after_alignment() -> None:
+def test_apply_rt_residuals_downgrades_high_confidence_outliers_after_alignment() -> (
+    None
+):
     model_report = fit_rt_alignment(
         (
             _anchor("shifted_run", "anchor_alpha", 20.0, 10.0, 1.0),
@@ -25,7 +27,9 @@ def test_apply_rt_residuals_downgrades_high_confidence_outliers_after_alignment(
     )
     rows = apply_rt_residuals(
         (
-            _identification("high_confidence_supported", "shifted_run", 50.0, 40.0, 0.98),
+            _identification(
+                "high_confidence_supported", "shifted_run", 50.0, 40.0, 0.98
+            ),
             _identification("high_confidence_outlier", "shifted_run", 62.0, 40.0, 0.99),
             _identification("low_confidence_outlier", "shifted_run", 62.0, 40.0, 0.25),
         ),
@@ -48,7 +52,10 @@ def test_apply_rt_residuals_downgrades_high_confidence_outliers_after_alignment(
 
     assert by_id["low_confidence_outlier"].rt_outlier is True
     assert by_id["low_confidence_outlier"].rt_confidence_penalty == 1.0
-    assert "entity_id\tobserved_rt\texpected_rt\trt_residual\trt_outlier\trt_confidence_penalty" in rendered
+    assert (
+        "entity_id\tobserved_rt\texpected_rt\trt_residual\trt_outlier\trt_confidence_penalty"
+        in rendered
+    )
     assert "high_confidence_outlier\t62\t50\t12\ttrue\t0.2000" in rendered
 
 

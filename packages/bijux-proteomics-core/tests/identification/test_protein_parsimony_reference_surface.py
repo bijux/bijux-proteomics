@@ -50,7 +50,9 @@ def test_protein_parsimony_reference_cases_match_expected_outputs() -> None:
             encoding="utf-8"
         )
     )
-    cases = tuple(ProteinParsimonyReferenceCase.model_validate(case) for case in raw_cases)
+    cases = tuple(
+        ProteinParsimonyReferenceCase.model_validate(case) for case in raw_cases
+    )
 
     for case in cases:
         report = build_protein_parsimony_report(
@@ -70,8 +72,13 @@ def test_protein_parsimony_reference_cases_match_expected_outputs() -> None:
             assert observed.selection_rank == expected.selection_rank
             assert observed.protein_ref == expected.protein_ref
             assert observed.source_group_id == expected.source_group_id
-            assert observed.newly_explained_peptides == expected.newly_explained_peptides
-            assert observed.unresolved_shared_peptides == expected.unresolved_shared_peptides
+            assert (
+                observed.newly_explained_peptides == expected.newly_explained_peptides
+            )
+            assert (
+                observed.unresolved_shared_peptides
+                == expected.unresolved_shared_peptides
+            )
         assert tuple(entry.subject_id for entry in report.unresolved_ambiguities) == (
             case.expected_ambiguity_subjects
         )

@@ -8,8 +8,8 @@ from pathlib import Path
 from bijux_proteomics.review import (
     ResultExplanationEvidenceRole,
     ResultExplanationKind,
-    ResultExplanationStatus,
     ResultExplanationRequest,
+    ResultExplanationStatus,
     build_result_explanation_report_from_artifacts,
     render_result_explanation_evidence_tsv,
     render_result_explanation_tsv,
@@ -169,13 +169,20 @@ def test_result_explanation_engine_structures_claims_evidence_and_decisions(
     assert explanations["protein"].confidence == "moderate"
     assert explanations["protein"].evidence
     assert explanations["protein"].opposing_evidence
-    assert explanations["protein"].evidence[0].role is ResultExplanationEvidenceRole.SUPPORTING
+    assert (
+        explanations["protein"].evidence[0].role
+        is ResultExplanationEvidenceRole.SUPPORTING
+    )
 
-    assert explanations["ptm"].decision == "site was downgraded on the PTM evidence card"
+    assert (
+        explanations["ptm"].decision == "site was downgraded on the PTM evidence card"
+    )
     assert "ptm-claim:P11111-S5" in explanations["ptm"].result_row_ids
     assert explanations["ptm"].opposing_evidence
 
-    assert explanations["pathway"].claim.startswith("Pathway Cell Cycle shows higher activity")
+    assert explanations["pathway"].claim.startswith(
+        "Pathway Cell Cycle shows higher activity"
+    )
     assert explanations["pathway"].confidence == "high"
     assert any(
         "top observed contributing members" in point.summary
@@ -190,7 +197,9 @@ def test_result_explanation_engine_structures_claims_evidence_and_decisions(
     assert explanations["sample-qc"].result_row_ids == ("t2.mzml",)
     assert "sample:T2" in explanations["sample-qc"].graph_node_ids
 
-    assert explanations["rejected"].claim == "Cell Cycle is activated in treated samples"
+    assert (
+        explanations["rejected"].claim == "Cell Cycle is activated in treated samples"
+    )
     assert explanations["rejected"].confidence == "high"
     assert any(
         "rejection code low_pathway_confidence" in point.summary

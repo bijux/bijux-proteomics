@@ -83,7 +83,9 @@ def test_parse_study_contrast_specifications_rejects_missing_semantic_support() 
     assert "unknown_condition" in issue_codes
 
 
-def test_parse_study_contrast_table_expands_multi_condition_rows(tmp_path: Path) -> None:
+def test_parse_study_contrast_table_expands_multi_condition_rows(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "contrasts.tsv"
     path.write_text(
         "\n".join(

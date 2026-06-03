@@ -11,7 +11,6 @@ from click.testing import CliRunner
 
 from bijux_proteomics.interfaces.cli import cli
 
-
 _FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures" / "quant"
 
 

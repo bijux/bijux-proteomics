@@ -7,12 +7,8 @@ import ast
 import importlib
 from pathlib import Path
 
-
 _BENCHMARK_ROOT = (
-    Path(__file__).resolve().parents[2]
-    / "src"
-    / "bijux_proteomics"
-    / "benchmarks"
+    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "benchmarks"
 )
 
 
@@ -29,10 +25,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
     return [
         node
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom)
-            and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     ]
 
 
@@ -52,7 +45,9 @@ def test_benchmark_weak_evidence_wrapper_stays_thin() -> None:
 
 
 def test_benchmark_weak_evidence_exports_delegate_to_workflow_owner() -> None:
-    benchmark_module = importlib.import_module("bijux_proteomics.benchmarks.weak_evidence")
+    benchmark_module = importlib.import_module(
+        "bijux_proteomics.benchmarks.weak_evidence"
+    )
     workflow_module = importlib.import_module("bijux_proteomics.workflow.weak_evidence")
 
     assert (

@@ -24,7 +24,9 @@ def _record(
         canonical_peptide=peptide,
         charge=2,
         score=score,
-        protein_refs=("P11111",) if label is TargetDecoyLabel.TARGET else ("DECOY_P99999",),
+        protein_refs=("P11111",)
+        if label is TargetDecoyLabel.TARGET
+        else ("DECOY_P99999",),
         target_decoy_label=label,
     )
 

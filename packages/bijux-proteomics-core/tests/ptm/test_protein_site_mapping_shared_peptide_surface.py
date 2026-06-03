@@ -40,9 +40,7 @@ def test_ptm_site_mapping_marks_shared_peptide_mappings_explicitly() -> None:
         protein_sequences=_protein_sequences(),
     )
     shared = [
-        mapping
-        for mapping in mappings
-        if mapping.localized_peptide == "AS[Phospho]TYK"
+        mapping for mapping in mappings if mapping.localized_peptide == "AS[Phospho]TYK"
     ]
 
     assert shared

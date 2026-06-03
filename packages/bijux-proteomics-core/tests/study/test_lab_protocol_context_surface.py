@@ -183,6 +183,4 @@ def test_protocol_aware_qc_policy_distinguishes_targeted_dia_tmt_and_enriched_mo
     assert _threshold(tmt_policy, "missed_cleavage_rate", "upper_warn") == 0.25
     assert _threshold(tmt_policy, "non_specific_fraction", "upper_fail") == 0.35
     assert _threshold(phospho_policy, "identification_rate", "lower_warn") == 0.1
-    assert (
-        _threshold(phospho_policy, "contaminant_psm_fraction", "upper_warn") == 0.12
-    )
+    assert _threshold(phospho_policy, "contaminant_psm_fraction", "upper_warn") == 0.12

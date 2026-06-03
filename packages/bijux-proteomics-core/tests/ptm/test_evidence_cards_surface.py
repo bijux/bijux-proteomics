@@ -9,25 +9,25 @@ from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
+    PtmDifferentialAnalysisReport,
     PtmEvidenceCardPolicy,
     PtmEvidenceRecord,
+    PtmLocalizationConfidenceTier,
+    PtmLocalizationProbabilitySource,
+    PtmLocalizationScoringEntry,
+    PtmLocalizationScoringReport,
     PtmMotifComparisonPolicy,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
     PtmSiteDifferentialEntry,
     PtmSiteDifferentialReport,
-    PtmDifferentialAnalysisReport,
-    PtmLocalizationConfidenceTier,
-    PtmLocalizationProbabilitySource,
-    PtmLocalizationScoringEntry,
-    PtmLocalizationScoringReport,
     PtmSiteEntry,
-    build_ptm_mechanism_classification_report,
-    build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
     build_ptm_localization_scoring_report,
+    build_ptm_mechanism_classification_report,
+    build_ptm_ortholog_conservation_report,
     build_ptm_phosphosite_motif_enrichment_report,
     build_ptm_regulator_enrichment_report,
     build_ptm_site_annotation_mapping_report,
@@ -104,7 +104,9 @@ def _build_evidence_card_report():
         ),
         comparison_policy=PtmMotifComparisonPolicy(),
     )
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     annotation_mapping = build_ptm_site_annotation_mapping_report(
         site_table,
         annotations.accepted_records,
@@ -161,14 +163,10 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
     assert claim_card_ids == {card.card_id for card in report.cards}
 
     annotated = next(
-        card
-        for card in report.cards
-        if card.site_key == "P11111:S5:Phospho"
+        card for card in report.cards if card.site_key == "P11111:S5:Phospho"
     )
     low_localization = next(
-        card
-        for card in report.cards
-        if card.site_key == "Q9DEC1:S5:Phospho"
+        card for card in report.cards if card.site_key == "Q9DEC1:S5:Phospho"
     )
 
     assert annotated.motif_evidence.centered_windows
@@ -195,17 +193,22 @@ def test_ptm_evidence_cards_preserve_card_ids_claim_links_and_warnings() -> None
     }
     assert annotated.identity_reason
     assert any(
-        warning.code.value == "low_localization" for warning in low_localization.warnings
+        warning.code.value == "low_localization"
+        for warning in low_localization.warnings
     )
     assert any(
         warning.code.value == "decoy_site" for warning in low_localization.warnings
     )
     assert low_localization.mechanism_classification is not None
-    assert low_localization.mechanism_classification.mechanism_class.value == "unsupported"
+    assert (
+        low_localization.mechanism_classification.mechanism_class.value == "unsupported"
+    )
     assert low_localization.ortholog_conservation is not None
     assert low_localization.ortholog_conservation.status.value == "unmapped"
     assert all(claim.source_row_refs for claim in report.narrative_claims)
-    assert all(claim.derived_no_source_reason is None for claim in report.narrative_claims)
+    assert all(
+        claim.derived_no_source_reason is None for claim in report.narrative_claims
+    )
 
 
 def test_ptm_evidence_cards_do_not_call_exact_isoform_without_unique_peptide() -> None:

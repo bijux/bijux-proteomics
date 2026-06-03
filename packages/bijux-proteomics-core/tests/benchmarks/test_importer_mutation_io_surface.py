@@ -22,9 +22,9 @@ def test_experimental_design_missing_column_mutation_fixture_rejects_missing_stu
     assert fixture.mutated_path.is_file()
     assert len(report.accepted_entries) == fixture.expected_accepted_count
     assert len(report.rejected_rows) == fixture.expected_rejected_count
-    assert {
-        issue.code for row in report.rejected_rows for issue in row.issues
-    } == set(fixture.expected_issue_codes)
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == set(
+        fixture.expected_issue_codes
+    )
 
 
 def test_transition_duplicate_and_invalid_q_mutation_fixture_rejects_row_level_science_failures() -> (
@@ -54,6 +54,6 @@ def test_experimental_design_duplicate_identifier_mutation_fixture_rejects_dupli
 
     assert len(report.accepted_entries) == fixture.expected_accepted_count
     assert len(report.rejected_rows) == fixture.expected_rejected_count
-    assert {
-        issue.code for row in report.rejected_rows for issue in row.issues
-    } == set(fixture.expected_issue_codes)
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == set(
+        fixture.expected_issue_codes
+    )

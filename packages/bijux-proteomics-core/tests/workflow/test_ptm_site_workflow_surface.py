@@ -84,7 +84,9 @@ def test_build_ptm_site_workflow_bundle_preserves_rejected_evidence_review() -> 
     assert report.summary.rejected_evidence_count == 1
     assert report.experiment_design.summary.condition_count == 2
     assert report.evidence_parse_report.rejected_rows[0].row_number == 3
-    assert {issue.code for issue in report.evidence_parse_report.rejected_rows[0].issues} == {
+    assert {
+        issue.code for issue in report.evidence_parse_report.rejected_rows[0].issues
+    } == {
         "invalid_charge",
         "missing_protein_refs",
     }

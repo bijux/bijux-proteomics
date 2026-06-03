@@ -19,7 +19,12 @@ from bijux_proteomics.identification.peptide_evidence import (
     PeptideEvidenceClass,
     PeptideEvidenceEntry,
 )
-from bijux_proteomics.io import SpectralLibraryEntry, SpectralLibraryFormat, SpectrumModel, SpectrumPeak
+from bijux_proteomics.io import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+    SpectrumModel,
+    SpectrumPeak,
+)
 from bijux_proteomics.sequences import parse_fasta_document
 from bijux_proteomics.targeted import TargetedPanelCandidateKind
 from bijux_proteomics.workflow import (
@@ -153,7 +158,9 @@ def _library_entry_for_peptide(peptide: str) -> SpectralLibraryEntry:
     )
 
 
-def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_and_keeps_sites_visible() -> None:
+def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_and_keeps_sites_visible() -> (
+    None
+):
     report = design_assay_from_discovery(
         DiscoveryAssaySourceResult(
             peptide_evidence_entries=_observed_entries(),
@@ -250,17 +257,23 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
     assert targets["ptm_site:P00001:S15"].acceptable_peptide_count == 1
     assert targets["ptm_site:P00001:S15"].retained_assay_count == 0
 
-    cards = {entry.candidate_id: entry for entry in report.validation_candidate_cards.cards}
+    cards = {
+        entry.candidate_id: entry for entry in report.validation_candidate_cards.cards
+    }
     assert report.validation_candidate_cards.summary.candidate_count == 3
-    assert report.validation_candidate_cards.summary.ready_for_targeted_validation_count == 1
+    assert (
+        report.validation_candidate_cards.summary.ready_for_targeted_validation_count
+        == 1
+    )
     assert report.validation_candidate_cards.summary.blocked_by_assay_design_count == 2
     assert cards["protein:P00001"].final_status.value == "ready_for_targeted_validation"
     assert cards["protein:P404"].final_status.value == "blocked_by_assay_design"
     assert cards["protein:P404"].omitted_reason == targets["protein:P404"].note
     assert "no acceptable peptide survived" in cards["protein:P404"].omitted_reason
     assert cards["ptm_site:P00001:S15"].final_status.value == "blocked_by_assay_design"
-    assert "blocked_by_assay_design" in render_discovery_to_assay_validation_candidate_cards_tsv(
-        report
+    assert (
+        "blocked_by_assay_design"
+        in render_discovery_to_assay_validation_candidate_cards_tsv(report)
     )
     assert (
         "ready_for_targeted_validation_count\t1"
@@ -268,7 +281,8 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
     )
 
     assert {
-        entry.biomarker_candidate_id for entry in report.panel_design_report.assay_entries
+        entry.biomarker_candidate_id
+        for entry in report.panel_design_report.assay_entries
     } == {"protein:P00001"}
     assert "fragment_mz" in render_discovery_to_assay_panel_tsv(report)
     assert "expected_retention_time_minutes" in render_discovery_to_assay_assay_tsv(
@@ -277,10 +291,14 @@ def test_design_assay_from_discovery_blocks_targets_without_acceptable_peptides_
     assert "chemically_unsuitable" in render_discovery_to_assay_rejected_peptides_tsv(
         report
     )
-    assert "ptm_site:P00001:S15" in render_discovery_to_assay_omitted_targets_tsv(report)
+    assert "ptm_site:P00001:S15" in render_discovery_to_assay_omitted_targets_tsv(
+        report
+    )
 
 
-def test_design_assay_from_discovery_marks_transition_limited_targets_without_exported_assays() -> None:
+def test_design_assay_from_discovery_marks_transition_limited_targets_without_exported_assays() -> (
+    None
+):
     report = design_assay_from_discovery(
         DiscoveryAssaySourceResult(
             peptide_evidence_entries=_observed_entries()[:1],
@@ -314,18 +332,23 @@ def test_design_assay_from_discovery_marks_transition_limited_targets_without_ex
     target = report.target_entries[0]
 
     assert (
-        target.assay_feasibility
-        is DiscoveryAssayFeasibilityStatus.TRANSITION_LIMITED
+        target.assay_feasibility is DiscoveryAssayFeasibilityStatus.TRANSITION_LIMITED
     )
     assert target.acceptable_peptide_count == 1
     assert target.transition_supported_peptide_count == 1
     assert target.retained_assay_count == 0
     assert target.panel_transition_count == 0
     assert report.rejected_evidence[0].reason_code == "partial_assay_coverage"
-    assert report.rejected_evidence[0].related_artifact == "discovery_to_assay_omitted_targets.tsv"
+    assert (
+        report.rejected_evidence[0].related_artifact
+        == "discovery_to_assay_omitted_targets.tsv"
+    )
     assert report.panel_design_report.assay_entries == ()
     assert report.validation_candidate_cards.summary.blocked_by_assay_design_count == 1
-    assert report.validation_candidate_cards.cards[0].final_status.value == "blocked_by_assay_design"
+    assert (
+        report.validation_candidate_cards.cards[0].final_status.value
+        == "blocked_by_assay_design"
+    )
     assert "no retained targeted assay survived peptide selection" in (
         render_discovery_to_assay_omitted_targets_tsv(report)
     )

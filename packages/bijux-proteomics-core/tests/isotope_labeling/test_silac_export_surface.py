@@ -20,7 +20,9 @@ from bijux_proteomics.isotope_labeling import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    )
 
 
 def test_silac_ratio_renderers_emit_summary_and_ledgers(tmp_path: Path) -> None:
@@ -41,10 +43,16 @@ def test_silac_ratio_renderers_emit_summary_and_ledgers(tmp_path: Path) -> None:
     peptide_tsv = render_silac_peptide_ratio_tsv(report)
     protein_tsv = render_silac_protein_ratio_tsv(report)
 
-    assert "sample_count\texpected_label_count\tpeptide_ratio_count\tprotein_ratio_count\tmissing_ratio_count" in summary_tsv
+    assert (
+        "sample_count\texpected_label_count\tpeptide_ratio_count\tprotein_ratio_count\tmissing_ratio_count"
+        in summary_tsv
+    )
     assert "\tPEPTIDE\tPEPTIDE\t" in peptide_tsv
     assert "numerator_label_missing" in peptide_tsv
-    assert "sample_a\tP001\tP001\tPEPTIDE\tmedium\tlight\t2000.0\t1500.0\t1.3333333333333333" in protein_tsv
+    assert (
+        "sample_a\tP001\tP001\tPEPTIDE\tmedium\tlight\t2000.0\t1500.0\t1.3333333333333333"
+        in protein_tsv
+    )
 
     summary_path = tmp_path / "silac.summary.tsv"
     peptide_path = tmp_path / "silac.peptides.tsv"

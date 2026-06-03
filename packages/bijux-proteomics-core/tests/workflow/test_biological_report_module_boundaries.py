@@ -6,17 +6,11 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 WORKFLOW_ROOT = (
-    Path(__file__).resolve().parents[2]
-    / "src"
-    / "bijux_proteomics"
-    / "workflow"
+    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 REPORTS_ROOT = WORKFLOW_ROOT / "reports"
-BIOLOGICAL_REPORT_MODULES = tuple(
-    sorted(REPORTS_ROOT.glob("biological_report*.py"))
-)
+BIOLOGICAL_REPORT_MODULES = tuple(sorted(REPORTS_ROOT.glob("biological_report*.py")))
 BIOLOGICAL_REPORT_LINE_LIMIT = 1000
 MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_models.py": (
@@ -57,9 +51,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_biological_report_section_confidence_table_html",
         "_render_section_heading_html",
     ),
-    "biological_report_html.py": (
-        "_render_biological_result_report_html",
-    ),
+    "biological_report_html.py": ("_render_biological_result_report_html",),
     "biological_report_rendering.py": (
         "export_biological_result_report_bundle",
         "render_biological_report_section_confidence_tsv",
@@ -132,9 +124,7 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
         "build_biological_result_report_bundle",
         "build_biological_result_report_bundle_from_quant_table",
     }
-    assert import_map[
-        "bijux_proteomics.workflow.reports.biological_report_models"
-    ] >= {
+    assert import_map["bijux_proteomics.workflow.reports.biological_report_models"] >= {
         "BiologicalReportSectionConfidenceEntry",
         "BiologicalReportSectionConfidenceLabel",
         "BiologicalReportSectionKey",

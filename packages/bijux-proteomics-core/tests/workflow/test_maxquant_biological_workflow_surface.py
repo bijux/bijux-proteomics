@@ -42,7 +42,9 @@ def test_build_maxquant_biological_workflow_bundle_preserves_import_lfq_and_biol
         context_annotation_tsv_path=_workflow_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )

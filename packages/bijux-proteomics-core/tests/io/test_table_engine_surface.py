@@ -34,8 +34,7 @@ _SAFE_TEXT = st.text(
     min_size=1,
     max_size=12,
 ).filter(
-    lambda value: value.strip().lower()
-    not in {"", "na", "n/a", "null", "none", "nan"}
+    lambda value: value.strip().lower() not in {"", "na", "n/a", "null", "none", "nan"}
 )
 _OPTIONAL_TEXT = st.one_of(st.none(), _SAFE_TEXT)
 _SMALL_FLOAT = st.one_of(
@@ -57,7 +56,9 @@ _REPLICATE_TOKEN = st.one_of(
     st.sampled_from(("", "NA", "one", "1.5", "false")),
 )
 _INTENSITY_TOKEN = st.one_of(
-    st.integers(min_value=-10_000, max_value=10_000).map(lambda value: f"{value / 10:g}"),
+    st.integers(min_value=-10_000, max_value=10_000).map(
+        lambda value: f"{value / 10:g}"
+    ),
     st.sampled_from(("", "NA", "abc", "true")),
 )
 _BOOLEAN_TOKEN = st.one_of(
@@ -92,7 +93,14 @@ def _expected_generated_row_issue_codes(row: dict[str, str]) -> tuple[str, ...]:
             issue_codes.append("invalid_float_value")
 
     contaminant_value = row["contaminant"].strip().lower()
-    if contaminant_value not in {"", "na", "n/a", "null", "none", "nan"} and contaminant_value not in {
+    if contaminant_value not in {
+        "",
+        "na",
+        "n/a",
+        "null",
+        "none",
+        "nan",
+    } and contaminant_value not in {
         "true",
         "false",
         "1",
@@ -111,9 +119,7 @@ def test_parse_delimited_table_supports_required_columns_coercion_and_missing_va
 ) -> None:
     table_path = tmp_path / "quant.csv"
     table_path.write_text(
-        "sample_id,replicate,intensity,contaminant\n"
-        "s1,1,12.5,false\n"
-        "s2,2,NA,true\n",
+        "sample_id,replicate,intensity,contaminant\ns1,1,12.5,false\ns2,2,NA,true\n",
         encoding="utf-8",
     )
 
@@ -163,8 +169,7 @@ def test_parse_delimited_table_reports_header_and_row_failures(tmp_path: Path) -
 
     invalid_row_path = tmp_path / "invalid.tsv"
     invalid_row_path.write_text(
-        "sample_id\treplicate\n"
-        "s1\tone\n",
+        "sample_id\treplicate\ns1\tone\n",
         encoding="utf-8",
     )
 
@@ -209,27 +214,28 @@ def test_table_engine_infers_delimiter_and_renders_stable_tsv() -> None:
     )
 
     assert rendered == (
-        "sample_id\treplicate\tintensity\taccepted\n"
-        "s1\t1\t12.5\ttrue\n"
-        "s2\t2\t\tfalse\n"
+        "sample_id\treplicate\tintensity\taccepted\ns1\t1\t12.5\ttrue\ns2\t2\t\tfalse\n"
     )
-    assert render_tsv_rows(
-        fieldnames=("sample_id", "replicate", "intensity", "accepted"),
-        rows=(
-            {
-                "sample_id": "s1",
-                "replicate": 1,
-                "intensity": 12.5,
-                "accepted": True,
-            },
-            {
-                "sample_id": "s2",
-                "replicate": 2,
-                "intensity": None,
-                "accepted": False,
-            },
-        ),
-    ) == rendered
+    assert (
+        render_tsv_rows(
+            fieldnames=("sample_id", "replicate", "intensity", "accepted"),
+            rows=(
+                {
+                    "sample_id": "s1",
+                    "replicate": 1,
+                    "intensity": 12.5,
+                    "accepted": True,
+                },
+                {
+                    "sample_id": "s2",
+                    "replicate": 2,
+                    "intensity": None,
+                    "accepted": False,
+                },
+            ),
+        )
+        == rendered
+    )
 
 
 @given(rows=st.lists(_TABLE_ROW, min_size=1, max_size=5))
@@ -339,13 +345,10 @@ def test_parse_delimited_table_preserves_generated_rejection_invariants(
         assert len(report.accepted_rows) + len(report.rejected_rows) == len(rows)
         assert tuple(
             sorted(
-                row.row_number
-                for row in (*report.accepted_rows, *report.rejected_rows)
+                row.row_number for row in (*report.accepted_rows, *report.rejected_rows)
             )
         ) == tuple(range(2, len(rows) + 2))
         assert tuple(
             tuple(issue.code for issue in rejected_row.issues)
             for rejected_row in report.rejected_rows
-        ) == tuple(
-            issue_codes for issue_codes in expected_issue_codes if issue_codes
-        )
+        ) == tuple(issue_codes for issue_codes in expected_issue_codes if issue_codes)

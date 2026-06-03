@@ -87,7 +87,9 @@ def _build_real_summary_artifacts(tmp_path: Path) -> tuple[Path, Path, Path]:
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -104,7 +106,9 @@ def _build_real_summary_artifacts(tmp_path: Path) -> tuple[Path, Path, Path]:
 
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ptm_report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -145,10 +149,7 @@ def test_compact_result_summary_preserves_required_sections_and_validated_source
         run_qc_assessment_tsv_paths=(qc_path,),
     )
 
-    by_section = {
-        section.section_kind: section
-        for section in report.sections
-    }
+    by_section = {section.section_kind: section for section in report.sections}
     assert tuple(by_section) == (
         CompactResultSummarySectionKind.SAMPLE_QC,
         CompactResultSummarySectionKind.STRONGEST_FINDINGS,
@@ -168,7 +169,8 @@ def test_compact_result_summary_preserves_required_sections_and_validated_source
     )
     assert weak.entries
     assert all(
-        entry.result_surfaces[0] in {
+        entry.result_surfaces[0]
+        in {
             "biological_hypotheses",
             "biological_report_section_confidence",
         }
@@ -176,7 +178,8 @@ def test_compact_result_summary_preserves_required_sections_and_validated_source
     )
     assert failed.entries
     assert all(
-        entry.result_surfaces[0] in {
+        entry.result_surfaces[0]
+        in {
             "biological_rejected_claims",
             "biological_report_section_confidence",
         }
@@ -186,9 +189,7 @@ def test_compact_result_summary_preserves_required_sections_and_validated_source
     assert all(entry.result_surfaces for entry in next_targets.entries)
 
     strongest_row_ids = {
-        row_id
-        for entry in strongest.entries
-        for row_id in entry.result_row_ids
+        row_id for entry in strongest.entries for row_id in entry.result_row_ids
     }
     assert "Strongest findings" in render_compact_result_summary_markdown(report)
     assert "Sample QC" in render_compact_result_summary_markdown(report)
@@ -221,7 +222,6 @@ def test_compact_result_summary_does_not_mix_supported_and_rejected_claim_rows(
         newline="",
     ) as handle:
         rejected_claim_ids = {
-            row["claim_id"]
-            for row in csv.DictReader(handle, delimiter="\t")
+            row["claim_id"] for row in csv.DictReader(handle, delimiter="\t")
         }
     assert strongest_row_ids.isdisjoint(rejected_claim_ids)

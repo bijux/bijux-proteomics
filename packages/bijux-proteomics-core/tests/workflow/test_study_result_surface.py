@@ -8,12 +8,12 @@ from pathlib import Path
 from bijux_proteomics.identification import SearchAdapterKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
-from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
 )
+from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.targeted import (
     TargetedPanelCandidateKind,
@@ -125,7 +125,9 @@ def test_build_proteomics_study_result_preserves_label_free_biological_bundle() 
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -135,16 +137,14 @@ def test_build_proteomics_study_result_preserves_label_free_biological_bundle() 
     assert study_result.study_kind is ProteomicsStudyKind.LABEL_FREE
     assert study_result.source_surface == "BiologicalResultReportBundle"
     assert study_result.design.sample_count == 6
-    assert study_result.matrix_surfaces[0].kind is ProteomicsStudyMatrixKind.HEATMAP_REVIEW
-    assert {
-        surface.kind for surface in study_result.qc_surfaces
-    } == {
+    assert (
+        study_result.matrix_surfaces[0].kind is ProteomicsStudyMatrixKind.HEATMAP_REVIEW
+    )
+    assert {surface.kind for surface in study_result.qc_surfaces} == {
         ProteomicsStudyQcKind.SAMPLE_EXPLORATION,
         ProteomicsStudyQcKind.EXPERIMENT_CONFIDENCE,
     }
-    assert {
-        surface.kind for surface in study_result.card_surfaces
-    } == {
+    assert {surface.kind for surface in study_result.card_surfaces} == {
         ProteomicsStudyCardKind.PROTEIN_EVIDENCE,
         ProteomicsStudyCardKind.PROTEIN_MECHANISM,
     }
@@ -166,7 +166,9 @@ def test_build_proteomics_study_result_preserves_diann_workflow_surfaces() -> No
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -205,15 +207,11 @@ def test_build_proteomics_study_result_preserves_fragpipe_workflow_surfaces() ->
     study_result = build_proteomics_study_result(workflow)
 
     assert study_result.study_kind is ProteomicsStudyKind.DDA
-    assert {
-        surface.kind for surface in study_result.matrix_surfaces
-    } == {
+    assert {surface.kind for surface in study_result.matrix_surfaces} == {
         ProteomicsStudyMatrixKind.LABEL_FREE_PROTEIN,
         ProteomicsStudyMatrixKind.HEATMAP_REVIEW,
     }
-    assert {
-        surface.kind for surface in study_result.qc_surfaces
-    } == {
+    assert {surface.kind for surface in study_result.qc_surfaces} == {
         ProteomicsStudyQcKind.DDA_ACCEPTANCE,
         ProteomicsStudyQcKind.DDA_PARSIMONY,
         ProteomicsStudyQcKind.SAMPLE_EXPLORATION,
@@ -248,9 +246,7 @@ def test_build_proteomics_study_result_preserves_maxquant_workflow_surfaces() ->
     study_result = build_proteomics_study_result(workflow)
 
     assert study_result.study_kind is ProteomicsStudyKind.MAXQUANT
-    assert {
-        surface.kind for surface in study_result.matrix_surfaces
-    } == {
+    assert {surface.kind for surface in study_result.matrix_surfaces} == {
         ProteomicsStudyMatrixKind.LABEL_FREE_PROTEIN,
         ProteomicsStudyMatrixKind.HEATMAP_REVIEW,
     }
@@ -262,9 +258,7 @@ def test_build_proteomics_study_result_preserves_maxquant_workflow_surfaces() ->
         surface.kind is ProteomicsStudyStatisticKind.DIFFERENTIAL_PROTEIN
         for surface in study_result.statistic_surfaces
     )
-    assert {
-        surface.kind for surface in study_result.qc_surfaces
-    } == {
+    assert {surface.kind for surface in study_result.qc_surfaces} == {
         ProteomicsStudyQcKind.MAXQUANT_IMPORT,
         ProteomicsStudyQcKind.MAXQUANT_ACCEPTANCE,
         ProteomicsStudyQcKind.SAMPLE_EXPLORATION,
@@ -308,9 +302,7 @@ def test_build_proteomics_study_result_preserves_tmt_and_ptm_studies_for_compari
     assert ptm_study.study_kind is ProteomicsStudyKind.PTM
     assert tmt_study.design.sample_count == 8
     assert ptm_study.design.sample_count == 4
-    assert {
-        surface.kind for surface in tmt_study.matrix_surfaces
-    } == {
+    assert {surface.kind for surface in tmt_study.matrix_surfaces} == {
         ProteomicsStudyMatrixKind.REPORTER_CHANNEL,
         ProteomicsStudyMatrixKind.PROTEIN_RATIO,
     }
@@ -345,7 +337,9 @@ def test_build_proteomics_study_result_dispatches_flagship_run_bundles() -> None
         contrast="control-treatment",
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
     )
 
     study_result = build_proteomics_study_result(bundle)
@@ -393,7 +387,9 @@ def test_build_proteomics_study_result_normalizes_advanced_diann_and_maxquant_re
         surface.kind is ProteomicsStudyQcKind.BELIEF_AUDIT
         for surface in diann_study.qc_surfaces
     )
-    assert diann_study.biological_report is advanced_diann.diann_workflow.biological_report
+    assert (
+        diann_study.biological_report is advanced_diann.diann_workflow.biological_report
+    )
     assert maxquant_study.study_kind is ProteomicsStudyKind.MAXQUANT
     assert maxquant_study.source_surface == "AdvancedMaxquantWorkflowReport"
     assert any(
@@ -444,7 +440,10 @@ def test_build_proteomics_study_result_normalizes_advanced_fragpipe_and_ptm_repo
         surface.kind is ProteomicsStudyQcKind.PROTEIN_GROUP_DISCREPANCY
         for surface in fragpipe_study.qc_surfaces
     )
-    assert fragpipe_study.biological_report is advanced_fragpipe.fragpipe_workflow.biological_report
+    assert (
+        fragpipe_study.biological_report
+        is advanced_fragpipe.fragpipe_workflow.biological_report
+    )
     assert ptm_study.study_kind is ProteomicsStudyKind.PTM
     assert ptm_study.source_surface == "AdvancedPtmWorkflowReport"
     assert any(
@@ -581,7 +580,10 @@ def test_build_proteomics_study_result_normalizes_advanced_tmt_and_targeted_repo
     assert targeted_study.study_kind is ProteomicsStudyKind.TARGETED
     assert targeted_study.source_surface == "TargetedValidationWorkflowReport"
     assert targeted_study.design.sample_count == 4
-    assert targeted_study.matrix_surfaces[0].kind is ProteomicsStudyMatrixKind.TARGETED_TARGET
+    assert (
+        targeted_study.matrix_surfaces[0].kind
+        is ProteomicsStudyMatrixKind.TARGETED_TARGET
+    )
     assert any(
         surface.kind is ProteomicsStudyQcKind.TARGETED_ASSAY_QC
         for surface in targeted_study.qc_surfaces
@@ -590,9 +592,7 @@ def test_build_proteomics_study_result_normalizes_advanced_tmt_and_targeted_repo
         surface.kind is ProteomicsStudyCardKind.TARGETED_VALIDATION
         for surface in targeted_study.card_surfaces
     )
-    assert {
-        entry.kind for entry in targeted_study.biological_conclusions
-    } == {
+    assert {entry.kind for entry in targeted_study.biological_conclusions} == {
         ProteomicsStudyConclusionKind.SUPPORTED_CLAIM,
         ProteomicsStudyConclusionKind.REJECTED_CLAIM,
         ProteomicsStudyConclusionKind.REFUSED_CLAIM,

@@ -51,9 +51,7 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_precursor_isotope_fit_
         "missing_isotope_peak",
     )
     assert by_run["precursor_isotope_fit_wrong_charge"].missing_isotope_indices == (1,)
-    assert {
-        warning.code.value for warning in card.warnings
-    } == {
+    assert {warning.code.value for warning in card.warnings} == {
         "chromatographic_peak_concern",
         "precursor_isotope_mismatch",
     }
@@ -72,7 +70,9 @@ def test_extract_mzml_raw_signal_evidence_cards_use_semantic_card_ids() -> None:
     assert report.cards[0].card_id == "raw-signal-card:prec_peptide"
 
 
-def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warnings() -> None:
+def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warnings() -> (
+    None
+):
     report = extract_mzml_raw_signal_evidence_cards(
         (
             _format_fixture("raw_signal_card_reference.mzml"),
@@ -121,9 +121,7 @@ def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warni
         "peptide_y8",
     )
     assert by_run["raw_signal_card_shifted"].coelution_score < 0.5
-    assert {
-        warning.code.value for warning in card.warnings
-    } == {
+    assert {warning.code.value for warning in card.warnings} == {
         "chromatographic_peak_concern",
         "retention_time_alignment_outside_tolerance",
         "weak_fragment_support",

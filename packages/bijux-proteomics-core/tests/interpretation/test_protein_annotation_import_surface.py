@@ -12,8 +12,12 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
 
 
-def test_parse_protein_annotation_table_preserves_custom_annotations_and_rejected_rows() -> None:
-    report = parse_protein_annotation_table(_fixture_path("protein_annotation_custom.tsv"))
+def test_parse_protein_annotation_table_preserves_custom_annotations_and_rejected_rows() -> (
+    None
+):
+    report = parse_protein_annotation_table(
+        _fixture_path("protein_annotation_custom.tsv")
+    )
 
     assert report.total_rows == 4
     assert report.summary.accepted_record_count == 2

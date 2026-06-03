@@ -131,8 +131,12 @@ def test_interpretation_package_exports_protein_set_enrichment_surface() -> None
 
 
 def test_interpretation_package_exports_protein_set_scoring_surface() -> None:
-    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
-    protein_sets = interpretation.parse_protein_set_table(_fixture_path("protein_sets.tsv"))
+    design_report = parse_experimental_design_table(
+        _quant_fixture_path("quant.design.tsv")
+    )
+    protein_sets = interpretation.parse_protein_set_table(
+        _fixture_path("protein_sets.tsv")
+    )
     report = interpretation.build_protein_set_scoring_report(
         _build_protein_fixture_table(),
         protein_sets.accepted_records,
@@ -227,7 +231,9 @@ def test_interpretation_package_exports_foreground_background_model_surface() ->
     )
 
     assert hasattr(interpretation, "build_biological_foreground_background_model")
-    assert hasattr(interpretation, "render_biological_foreground_background_summary_tsv")
+    assert hasattr(
+        interpretation, "render_biological_foreground_background_summary_tsv"
+    )
     assert model.summary.valid_for_enrichment is True
     assert "foreground_source_kind" in (
         interpretation.render_biological_foreground_background_summary_tsv(model)
@@ -419,7 +425,9 @@ def test_interpretation_package_exports_compartment_biology_surface() -> None:
     assert "compartment_id" in interpretation.render_compartment_enrichment_tsv(report)
 
 
-def test_interpretation_package_exports_disease_phenotype_interpretation_surface() -> None:
+def test_interpretation_package_exports_disease_phenotype_interpretation_surface() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _workflow_fixture_path("biological_report.design.tsv")
@@ -547,7 +555,9 @@ def test_interpretation_package_exports_drug_target_interpretation_surface() -> 
     assert hasattr(interpretation, "build_drug_target_interpretation_report")
     assert hasattr(interpretation, "render_drug_target_interpretation_tsv")
     assert report.summary.direct_target_entry_count == 1
-    assert "relationship" in interpretation.render_drug_target_interpretation_tsv(report)
+    assert "relationship" in interpretation.render_drug_target_interpretation_tsv(
+        report
+    )
 
 
 def test_interpretation_package_exports_regulator_inference_surface() -> None:

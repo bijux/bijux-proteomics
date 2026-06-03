@@ -56,7 +56,10 @@ def test_sample_sheet_repairs_detect_missing_metadata_sample_and_run_mismatch(
     assert missing_sample.suggested_fields["spectra_file"] == "treated_2.raw"
     assert run_mismatch.current_value == "missing_run.raw"
     assert run_mismatch.suggested_value == "treated_1.raw"
-    assert "confidence" in render_sample_sheet_repair_suggestions_tsv(report).splitlines()[0]
+    assert (
+        "confidence"
+        in render_sample_sheet_repair_suggestions_tsv(report).splitlines()[0]
+    )
 
 
 def test_sample_sheet_repairs_detect_singleton_condition_typo() -> None:
@@ -172,9 +175,7 @@ def test_sample_sheet_repairs_preserve_parse_rejected_row_count(
         encoding="utf-8",
     )
     report = build_sample_sheet_repair_suggestion_report(
-        parse_experimental_design_table(
-            path
-        )
+        parse_experimental_design_table(path)
     )
 
     assert report.parse_rejected_row_count == 1

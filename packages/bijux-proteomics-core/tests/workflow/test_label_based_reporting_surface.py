@@ -17,7 +17,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / name
 
 
-def test_tmt_label_based_report_bundle_preserves_channel_ratio_and_differential_surfaces() -> None:
+def test_tmt_label_based_report_bundle_preserves_channel_ratio_and_differential_surfaces() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(_fixture("tmt.design.tsv")).accepted_entries
     )

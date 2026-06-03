@@ -15,10 +15,12 @@ from bijux_proteomics.sequences.protein_identity_resolution import (
 )
 
 
-def test_protein_identity_resolution_distinguishes_isoform_protein_gene_family_and_ambiguous_support() -> None:
+def test_protein_identity_resolution_distinguishes_isoform_protein_gene_family_and_ambiguous_support() -> (
+    None
+):
     fasta = parse_fasta_document(
-            (
-                ">sp|P11111|GENE1_HUMAN Canonical GN=GENE1\n"
+        (
+            ">sp|P11111|GENE1_HUMAN Canonical GN=GENE1\n"
             "MAAAAKPEPTIDEKCCMMNK\n"
             ">sp|P11111-2|GENE1_HUMAN Isoform GN=GENE1\n"
             "MDDDDKPEPTIDEKCCMMNK\n"
@@ -77,17 +79,13 @@ def test_protein_identity_resolution_distinguishes_isoform_protein_gene_family_a
     assert by_key["gene"].identity_level is ProteinIdentityLevel.GENE_LEVEL
     assert by_key["family"].identity_level is ProteinIdentityLevel.FAMILY_LEVEL
     assert by_key["ambiguous"].identity_level is ProteinIdentityLevel.AMBIGUOUS
-    assert (
-        by_key["gene"].peptide_evidence[0].support_class.value
-        == "gene_shared"
-    )
-    assert (
-        by_key["family"].peptide_evidence[0].support_class.value
-        == "family_shared"
-    )
+    assert by_key["gene"].peptide_evidence[0].support_class.value == "gene_shared"
+    assert by_key["family"].peptide_evidence[0].support_class.value == "family_shared"
 
 
-def test_protein_identity_resolution_refuses_exact_isoform_when_peptides_are_only_isoform_shared() -> None:
+def test_protein_identity_resolution_refuses_exact_isoform_when_peptides_are_only_isoform_shared() -> (
+    None
+):
     fasta = parse_fasta_document(
         (
             ">sp|P11111|GENE1_HUMAN Canonical GN=GENE1\n"
@@ -116,7 +114,9 @@ def test_protein_identity_resolution_refuses_exact_isoform_when_peptides_are_onl
     assert "do not isolate one exact isoform" in entry.identity_reason
 
 
-def test_protein_identity_resolution_tsv_preserves_identity_level_and_peptide_support() -> None:
+def test_protein_identity_resolution_tsv_preserves_identity_level_and_peptide_support() -> (
+    None
+):
     fasta = parse_fasta_document(
         ">sp|P11111-2|GENE1_HUMAN Isoform GN=GENE1\nMDDDDK\n",
         mode=FastaParseMode.STRICT,

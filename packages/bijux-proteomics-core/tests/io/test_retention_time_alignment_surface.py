@@ -6,18 +6,18 @@ from __future__ import annotations
 from math import isclose
 from pathlib import Path
 
+from bijux_proteomics.io.chromatographic_peak_picking import (
+    extract_mzml_chromatographic_peaks,
+)
 from bijux_proteomics.io.retention_time_alignment import (
+    RetentionTimeAlignmentAnchor,
     align_chromatographic_peak_retention_times,
     extract_mzml_retention_time_alignment,
     fit_rt_alignment,
-    RetentionTimeAlignmentAnchor,
-    render_rt_alignment_fit_models_tsv,
     render_retention_time_alignment_failed_anchors_tsv,
     render_retention_time_alignment_models_tsv,
     render_retention_time_alignment_residuals_tsv,
-)
-from bijux_proteomics.io.chromatographic_peak_picking import (
-    extract_mzml_chromatographic_peaks,
+    render_rt_alignment_fit_models_tsv,
 )
 
 
@@ -48,7 +48,9 @@ def test_fit_rt_alignment_reduces_shifted_run_anchor_residuals() -> None:
     assert "shifted_run\tconfidence_weighted_shift\t10\t0\t0" in rendered
 
 
-def test_align_chromatographic_peak_retention_times_builds_shift_models_and_flags_drift() -> None:
+def test_align_chromatographic_peak_retention_times_builds_shift_models_and_flags_drift() -> (
+    None
+):
     reference_report = extract_mzml_chromatographic_peaks(
         _format_fixture("rt_alignment_reference.mzml"),
         _format_fixture("rt_alignment_targets.tsv"),
@@ -124,7 +126,9 @@ def test_extract_mzml_retention_time_alignment_composes_peak_extraction() -> Non
     ]
 
 
-def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_failures() -> None:
+def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_failures() -> (
+    None
+):
     report = extract_mzml_retention_time_alignment(
         (
             _format_fixture("rt_alignment_reference.mzml"),
@@ -144,13 +148,9 @@ def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_
         "rt_shift\trt_residual_median\tfailed_anchor_count\tshift_seconds\t"
         "median_absolute_residual_seconds\tmax_absolute_residual_seconds\tfailure_reason"
     )
+    assert "rt_alignment_shifted\t" in models_tsv
     assert (
-        "rt_alignment_shifted\t"
-        in models_tsv
-    )
-    assert (
-        "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t"
-        in models_tsv
+        "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t" in models_tsv
     )
     assert residuals_tsv.splitlines()[0] == (
         "run_id\tsource_path\ttarget_id\treference_peak_id\trun_peak_id\t"
@@ -158,10 +158,7 @@ def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_
         "aligned_apex_time_seconds\tshift_seconds\tresidual_seconds\t"
         "absolute_residual_seconds\toutside_aligned_tolerance"
     )
-    assert (
-        "rt_alignment_shifted\t"
-        in residuals_tsv
-    )
+    assert "rt_alignment_shifted\t" in residuals_tsv
     assert (
         "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70\t10\t10\t10\ttrue"
         in residuals_tsv
@@ -169,10 +166,7 @@ def test_render_retention_time_alignment_tsv_surfaces_emit_models_residuals_and_
     assert failed_tsv.splitlines()[0] == (
         "run_id\tsource_path\ttarget_id\treason\treference_peak_count\trun_peak_count"
     )
-    assert (
-        "rt_alignment_shifted\t"
-        in failed_tsv
-    )
+    assert "rt_alignment_shifted\t" in failed_tsv
     assert "\tanchor_delta\tmissing_run_peak\t1\t0" in failed_tsv
 
 

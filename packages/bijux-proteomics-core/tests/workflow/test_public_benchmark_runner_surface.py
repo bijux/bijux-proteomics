@@ -26,7 +26,10 @@ def test_load_public_benchmark_descriptor_preserves_required_contract_fields() -
     )
 
     assert descriptor.dataset_id == "ptm_localization_review_package"
-    assert descriptor.accession == "flagship_public_package:ptm_localization_review_package"
+    assert (
+        descriptor.accession
+        == "flagship_public_package:ptm_localization_review_package"
+    )
     assert descriptor.search_engine == "ptm"
     assert descriptor.expected_input_schemas == (
         "evidence_tsv",
@@ -55,7 +58,9 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert diann_benchmark_run.status == "passed"
     assert diann_benchmark_run.verified_counts["imported_precursor_count"] == 31
     assert diann_benchmark_run.verified_counts["significant_protein_count"] == 3
-    assert Path(diann_benchmark_run.output_dir, "diann_biological_report_manifest.json").exists()
+    assert Path(
+        diann_benchmark_run.output_dir, "diann_biological_report_manifest.json"
+    ).exists()
 
     maxquant_benchmark_run = runs["maxquant_lfq_benchmark_dataset"]
     assert maxquant_benchmark_run.status == "passed"
@@ -68,7 +73,9 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     fragpipe_benchmark_run = runs["fragpipe_msfragger_benchmark_dataset"]
     assert fragpipe_benchmark_run.status == "passed"
     assert fragpipe_benchmark_run.verified_counts["accepted_psm_count"] == 30
-    assert fragpipe_benchmark_run.verified_counts["protein_group_discrepancy_count"] == 2
+    assert (
+        fragpipe_benchmark_run.verified_counts["protein_group_discrepancy_count"] == 2
+    )
     assert Path(
         fragpipe_benchmark_run.output_dir, "fragpipe_biological_report_manifest.json"
     ).exists()
@@ -105,7 +112,10 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     fragpipe_snapshot_run = runs["dda_fragpipe_review_snapshot"]
     assert fragpipe_snapshot_run.status == "failed"
     assert fragpipe_snapshot_run.failures[0].kind == "execution_failed"
-    assert "missing required PSM column 'Charge'" in fragpipe_snapshot_run.failures[0].message
+    assert (
+        "missing required PSM column 'Charge'"
+        in fragpipe_snapshot_run.failures[0].message
+    )
 
     maxquant_run = runs["dda_maxquant_review_snapshot"]
     assert maxquant_run.status == "failed"
@@ -129,4 +139,6 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     assert Path(
         targeted_run.output_dir, "targeted_assay_qc_workflow_manifest.json"
     ).exists()
-    assert Path(targeted_run.output_dir, "targeted_assay_qc_fragment_ratios.tsv").exists()
+    assert Path(
+        targeted_run.output_dir, "targeted_assay_qc_fragment_ratios.tsv"
+    ).exists()

@@ -6,19 +6,19 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import DifferentialReplicatePolicy
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.label_based_differential_analysis import (
     LabelBasedDifferentialInputReport,
     LabelBasedDifferentialMatrixRow,
     LabelBasedDifferentialMatrixSummary,
     LabelBasedDifferentialMatrixValue,
-    LabelBasedMeasurementKind,
     LabelBasedDifferentialSourceKind,
+    LabelBasedMeasurementKind,
     build_label_based_differential_analysis_report,
     build_tmt_differential_analysis_report,
     build_tmt_differential_input_report,
 )
-from bijux_proteomics.quantification import DifferentialReplicatePolicy
 
 
 def _multiplex_fixture(name: str) -> Path:
@@ -28,7 +28,9 @@ def _multiplex_fixture(name: str) -> Path:
 def test_build_tmt_differential_input_report_preserves_bridge_normalized_protein_matrix() -> (
     None
 ):
-    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _multiplex_fixture("tmt.design.tsv")
+    )
 
     report = build_tmt_differential_input_report(
         _multiplex_fixture("maxquant_tmt_evidence.tsv"),
@@ -52,8 +54,12 @@ def test_build_tmt_differential_input_report_preserves_bridge_normalized_protein
     assert "bridge-normalized TMT protein matrix" in report.note
 
 
-def test_build_tmt_differential_analysis_report_preserves_design_and_bh_results() -> None:
-    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+def test_build_tmt_differential_analysis_report_preserves_design_and_bh_results() -> (
+    None
+):
+    design_report = parse_experimental_design_table(
+        _multiplex_fixture("tmt.design.tsv")
+    )
 
     report = build_tmt_differential_analysis_report(
         _multiplex_fixture("maxquant_tmt_evidence.tsv"),
@@ -82,7 +88,9 @@ def test_build_tmt_differential_analysis_report_preserves_design_and_bh_results(
 def test_build_label_based_differential_analysis_report_blocks_missing_plex_channels() -> (
     None
 ):
-    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _multiplex_fixture("tmt.design.tsv")
+    )
     valid_entries = tuple(design_report.accepted_entries)
     input_report = build_tmt_differential_input_report(
         _multiplex_fixture("maxquant_tmt_evidence.tsv"),
@@ -106,7 +114,9 @@ def test_build_label_based_differential_analysis_report_blocks_missing_plex_chan
 def test_build_label_based_differential_analysis_report_blocks_longitudinal_designs() -> (
     None
 ):
-    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _multiplex_fixture("tmt.design.tsv")
+    )
     valid_entries = tuple(design_report.accepted_entries)
     input_report = build_tmt_differential_input_report(
         _multiplex_fixture("maxquant_tmt_evidence.tsv"),
@@ -179,9 +189,9 @@ def test_build_label_based_differential_analysis_report_does_not_count_technical
     )
     design = build_experiment_design(
         (
-            parse_experimental_design_table(
-                _multiplex_fixture("tmt.design.tsv")
-            ).accepted_entries[0].model_copy(
+            parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+            .accepted_entries[0]
+            .model_copy(
                 update={
                     "sample_id": "control-1",
                     "condition": "control",
@@ -193,9 +203,9 @@ def test_build_label_based_differential_analysis_report_does_not_count_technical
                     "metadata": {},
                 }
             ),
-            parse_experimental_design_table(
-                _multiplex_fixture("tmt.design.tsv")
-            ).accepted_entries[0].model_copy(
+            parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+            .accepted_entries[0]
+            .model_copy(
                 update={
                     "sample_id": "control-1",
                     "condition": "control",
@@ -207,9 +217,9 @@ def test_build_label_based_differential_analysis_report_does_not_count_technical
                     "metadata": {},
                 }
             ),
-            parse_experimental_design_table(
-                _multiplex_fixture("tmt.design.tsv")
-            ).accepted_entries[0].model_copy(
+            parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+            .accepted_entries[0]
+            .model_copy(
                 update={
                     "sample_id": "treated-1",
                     "condition": "treatment",
@@ -221,9 +231,9 @@ def test_build_label_based_differential_analysis_report_does_not_count_technical
                     "metadata": {},
                 }
             ),
-            parse_experimental_design_table(
-                _multiplex_fixture("tmt.design.tsv")
-            ).accepted_entries[0].model_copy(
+            parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+            .accepted_entries[0]
+            .model_copy(
                 update={
                     "sample_id": "treated-1",
                     "condition": "treatment",

@@ -65,18 +65,32 @@ def test_run_advanced_tmt_workflow_excludes_proteins_supported_only_by_high_inte
     rejected_evidence_tsv = (
         output_dir / report.manifest.artifacts.rejected_evidence_tsv
     ).read_text(encoding="utf-8")
-    summary_tsv = (
-        output_dir / report.manifest.artifacts.summary_tsv
-    ).read_text(encoding="utf-8")
+    summary_tsv = (output_dir / report.manifest.artifacts.summary_tsv).read_text(
+        encoding="utf-8"
+    )
 
     assert report.summary.high_interference_peptide_count == 2
     assert report.summary.excluded_peptide_count == 2
     assert report.summary.excluded_protein_count == 1
-    assert report.manifest.artifacts.reporter_import_summary_tsv == "tmt_reporter_import_summary.tsv"
-    assert report.manifest.artifacts.normalization_summary_tsv == "tmt_normalization_summary.tsv"
-    assert report.manifest.artifacts.validation_summary_tsv == "tmt_validation_summary.tsv"
-    assert report.evidence_cards[0].confidence_status is AdvancedTmtProteinConfidenceStatus.SUPPORTED
-    assert report.evidence_cards[1].confidence_status is AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
+    assert (
+        report.manifest.artifacts.reporter_import_summary_tsv
+        == "tmt_reporter_import_summary.tsv"
+    )
+    assert (
+        report.manifest.artifacts.normalization_summary_tsv
+        == "tmt_normalization_summary.tsv"
+    )
+    assert (
+        report.manifest.artifacts.validation_summary_tsv == "tmt_validation_summary.tsv"
+    )
+    assert (
+        report.evidence_cards[0].confidence_status
+        is AdvancedTmtProteinConfidenceStatus.SUPPORTED
+    )
+    assert (
+        report.evidence_cards[1].confidence_status
+        is AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
+    )
     assert all(
         entry.disposition is AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
         for entry in report.peptide_confidence_entries
@@ -126,7 +140,8 @@ def test_run_advanced_tmt_workflow_downgrades_mixed_support_and_flags_possible_c
     assert report.summary.excluded_protein_count == 0
     assert report.summary.compression_risk_count == 1
     assert all(
-        entry.disposition is not AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
+        entry.disposition
+        is not AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
         for entry in report.peptide_confidence_entries
     )
     assert any(

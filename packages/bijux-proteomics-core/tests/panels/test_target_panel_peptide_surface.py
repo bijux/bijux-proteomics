@@ -60,7 +60,9 @@ def test_build_diann_peptide_target_panel_report_keeps_matched_and_missing_targe
     assert report.intensity_entries[0].expected_charge == 2
 
 
-def test_build_lfq_peptide_target_panel_report_keeps_target_intensities_visible() -> None:
+def test_build_lfq_peptide_target_panel_report_keeps_target_intensities_visible() -> (
+    None
+):
     report = build_lfq_peptide_target_panel_report(
         _quant_fixture("target_panel_ms1_features.tsv"),
         _format_fixture("lfq_target_panel.tsv"),

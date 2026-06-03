@@ -16,7 +16,9 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_extract_mzml_dia_fragment_trace_coelution_flags_shifted_and_missing_fragments() -> None:
+def test_extract_mzml_dia_fragment_trace_coelution_flags_shifted_and_missing_fragments() -> (
+    None
+):
     report = extract_mzml_dia_fragment_trace_coelution(
         (_format_fixture("dia_fragment_coelution.mzml"),),
         _format_fixture("dia_fragment_targets.tsv"),

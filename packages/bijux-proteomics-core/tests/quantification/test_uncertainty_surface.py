@@ -91,8 +91,14 @@ def test_estimate_protein_uncertainty_widens_single_peptide_intervals() -> None:
     )
 
     assert single_width > multi_width
-    assert lookup[("P001", "sample-a")].uncertainty_source is ProteinUncertaintySource.MULTI_PEPTIDE_SUPPORT
-    assert lookup[("P002", "sample-a")].uncertainty_source is ProteinUncertaintySource.SINGLE_PEPTIDE_SUPPORT
+    assert (
+        lookup[("P001", "sample-a")].uncertainty_source
+        is ProteinUncertaintySource.MULTI_PEPTIDE_SUPPORT
+    )
+    assert (
+        lookup[("P002", "sample-a")].uncertainty_source
+        is ProteinUncertaintySource.SINGLE_PEPTIDE_SUPPORT
+    )
     assert lookup[("P002", "sample-a")].supporting_peptide_count == 1
     assert "uncertainty_source" in rendered
     assert "supporting_peptide_count" in rendered
@@ -201,4 +207,6 @@ def test_estimate_protein_uncertainty_widens_residual_disagreement_intervals() -
     noisy_width = noisy_entry.upper_ci - noisy_entry.lower_ci
 
     assert noisy_width > clean_width
-    assert noisy_entry.uncertainty_source is ProteinUncertaintySource.RESIDUAL_DISPERSION
+    assert (
+        noisy_entry.uncertainty_source is ProteinUncertaintySource.RESIDUAL_DISPERSION
+    )

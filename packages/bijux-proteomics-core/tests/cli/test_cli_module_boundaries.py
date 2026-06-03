@@ -7,8 +7,13 @@ import ast
 import importlib
 from pathlib import Path
 
-
-CLI_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "interfaces" / "cli"
+CLI_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics"
+    / "interfaces"
+    / "cli"
+)
 COMMANDS_ROOT = CLI_ROOT / "commands"
 PYTHON_API_ROOT = (
     Path(__file__).resolve().parents[2]
@@ -24,9 +29,7 @@ def test_cli_python_files_stay_under_eight_hundred_lines() -> None:
     for path in sorted(CLI_ROOT.rglob("*.py")):
         line_count = sum(1 for _ in path.open(encoding="utf-8"))
         if line_count > 800:
-            violations.append(
-                f"{path.relative_to(CLI_ROOT)} has {line_count} lines"
-            )
+            violations.append(f"{path.relative_to(CLI_ROOT)} has {line_count} lines")
     assert not violations, "\n".join(violations)
 
 
@@ -64,14 +67,12 @@ def test_click_command_wrappers_stay_thin() -> None:
             f"bijux_proteomics.interfaces.python_api.{path.stem}"
         )
         for node in module.body:
-            if (
-                not isinstance(node, ast.FunctionDef)
-                or node.name.startswith("run_")
-            ):
+            if not isinstance(node, ast.FunctionDef) or node.name.startswith("run_"):
                 continue
-            if node.name.endswith("_command"):
-                runner_name = f"run_{node.name}"
-            elif node.name in {"program_template", "summarize_program"}:
+            if node.name.endswith("_command") or node.name in {
+                "program_template",
+                "summarize_program",
+            }:
                 runner_name = f"run_{node.name}"
             else:
                 continue

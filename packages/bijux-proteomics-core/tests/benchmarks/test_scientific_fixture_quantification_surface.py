@@ -53,9 +53,13 @@ def _expected_count(
 def test_missing_sample_fixture_preserves_condition_specific_absence_and_technical_dropout() -> (
     None
 ):
-    manifest = get_scientific_fixture_manifest(ScientificFixtureCaseKind.MISSING_SAMPLES)
+    manifest = get_scientific_fixture_manifest(
+        ScientificFixtureCaseKind.MISSING_SAMPLES
+    )
     feature_report = parse_ms1_feature_table(_asset_path(manifest, "feature_table"))
-    design_report = parse_experimental_design_table(_asset_path(manifest, "design_table"))
+    design_report = parse_experimental_design_table(
+        _asset_path(manifest, "design_table")
+    )
     table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -93,8 +97,12 @@ def test_missing_sample_fixture_preserves_condition_specific_absence_and_technic
     by_condition = {entry.condition: entry for entry in condition_summary.entries}
     assert by_condition["control"].missing_fraction == 1 / 6
     assert by_condition["treatment"].missing_fraction == 2 / 3
-    assert by_condition["treatment"].condition_specific_absence_entity_ids == ("BIOPEP",)
+    assert by_condition["treatment"].condition_specific_absence_entity_ids == (
+        "BIOPEP",
+    )
 
-    by_mechanism = {entry.entity_id: entry.mechanism for entry in mechanism_summary.entries}
+    by_mechanism = {
+        entry.entity_id: entry.mechanism for entry in mechanism_summary.entries
+    }
     assert by_mechanism["BIOPEP"] is MissingnessMechanismKind.SPARSE_BIOLOGY_CANDIDATE
     assert by_mechanism["TECHPEP"] is MissingnessMechanismKind.TECHNICAL_FAILURE

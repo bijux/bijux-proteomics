@@ -14,10 +14,14 @@ from bijux_proteomics.isotope_labeling import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    )
 
 
-def test_silac_validation_report_preserves_expected_labels_and_missing_pair_members() -> None:
+def test_silac_validation_report_preserves_expected_labels_and_missing_pair_members() -> (
+    None
+):
     import_report = parse_silac_feature_table(_fixture("silac_features.tsv"))
 
     report = build_silac_validation_report(

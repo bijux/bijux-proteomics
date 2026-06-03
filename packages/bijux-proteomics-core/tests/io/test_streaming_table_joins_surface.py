@@ -97,16 +97,14 @@ def test_iter_delimited_rows_reports_missing_required_columns(tmp_path: Path) ->
 
 def _build_in_memory_join(paths: dict[str, Path]) -> tuple[dict[str, str], ...]:
     peptides = {
-        row["peptide_id"]: row
-        for _, row in iter_delimited_rows(paths["peptides"])
+        row["peptide_id"]: row for _, row in iter_delimited_rows(paths["peptides"])
     }
     proteins = {
         row["protein_group_id"]: row
         for _, row in iter_delimited_rows(paths["proteins"])
     }
     metadata = {
-        row["sample_id"]: row
-        for _, row in iter_delimited_rows(paths["metadata"])
+        row["sample_id"]: row for _, row in iter_delimited_rows(paths["metadata"])
     }
     annotations = {
         row["annotation_id"]: row

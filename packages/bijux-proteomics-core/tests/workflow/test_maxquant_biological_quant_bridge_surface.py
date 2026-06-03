@@ -38,7 +38,8 @@ def test_build_label_free_quant_table_from_maxquant_protein_groups_preserves_mem
         tuple(
             row
             for row in import_report.protein_group_rows
-            if row.protein_ids in {
+            if row.protein_ids
+            in {
                 ("P04637",),
                 ("Q9Y243",),
             }
@@ -81,7 +82,8 @@ def test_build_label_free_quant_table_from_maxquant_lfq_candidates_preserves_fla
         tuple(
             row
             for row in import_report.protein_group_rows
-            if row.protein_ids in {
+            if row.protein_ids
+            in {
                 ("P04637",),
                 ("CON__KRT1",),
             }

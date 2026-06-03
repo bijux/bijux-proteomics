@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import pytest
 from pydantic import ValidationError
+import pytest
 
 from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
@@ -13,13 +13,13 @@ from bijux_proteomics.quantification.contracts.study_qc import (
     SampleReliabilityQcEntry,
     SampleReliabilityQcStatus,
 )
-from bijux_proteomics.review.flagship_kernel import FlagshipScientificKernelReport
-from bijux_proteomics.review.scientific_conflicts import ScientificConflictReport
-from bijux_proteomics.review.scientific_story import ScientificConsistencyReport
 from bijux_proteomics.review.evidence_graph_confidence import (
     EvidenceGraphConfidenceTier,
 )
 from bijux_proteomics.review.evidence_graph_downgrades import FinalClaimEvidenceTier
+from bijux_proteomics.review.flagship_kernel import FlagshipScientificKernelReport
+from bijux_proteomics.review.scientific_conflicts import ScientificConflictReport
+from bijux_proteomics.review.scientific_story import ScientificConsistencyReport
 from bijux_proteomics.study.qc import (
     QcStatus,
     QcStatusReasonEntry,

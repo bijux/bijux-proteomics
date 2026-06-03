@@ -6,8 +6,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.chromatographic_peak_picking import (
-    pick_peak,
     pick_chromatographic_peaks,
+    pick_peak,
 )
 from bijux_proteomics.io.xic_extraction import extract_mzml_xic_traces
 
@@ -23,12 +23,16 @@ def test_chromatographic_peak_report_tracks_raw_overlap_classification() -> None
         tolerance_ppm=10.0,
     )
     overlap_trace = tuple(
-        point for point in trace_report.trace_points if point.target_id == "target_overlap"
+        point
+        for point in trace_report.trace_points
+        if point.target_id == "target_overlap"
     )
 
     raw_peaks = pick_peak(overlap_trace)
     report = pick_chromatographic_peaks(trace_report)
-    report_overlap = [peak for peak in report.peaks if peak.target_id == "target_overlap"]
+    report_overlap = [
+        peak for peak in report.peaks if peak.target_id == "target_overlap"
+    ]
 
     assert len(raw_peaks) == len(report_overlap) == 2
     assert [peak.rt_apex for peak in raw_peaks] == [

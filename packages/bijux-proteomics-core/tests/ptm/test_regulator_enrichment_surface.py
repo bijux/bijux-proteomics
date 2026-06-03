@@ -8,12 +8,15 @@ from pathlib import Path
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     build_ptm_differential_analysis_report,
-    build_ptm_site_table,
     build_ptm_site_quantification_report,
+    build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.ptm.differential_analysis import PtmSiteDifferentialEntry, PtmSiteDifferentialReport
+from bijux_proteomics.ptm.differential_analysis import (
+    PtmSiteDifferentialEntry,
+    PtmSiteDifferentialReport,
+)
 from bijux_proteomics.ptm.localization_scoring import PtmLocalizationConfidenceTier
 from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorDirection,
@@ -51,7 +54,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_regulator_enrichment_reports_exact_supporting_sites_from_real_annotations() -> None:
+def test_ptm_regulator_enrichment_reports_exact_supporting_sites_from_real_annotations() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -70,7 +75,9 @@ def test_ptm_regulator_enrichment_reports_exact_supporting_sites_from_real_annot
         normalization_method=NormalizationMethod.MEDIAN,
         batch_field="",
     )
-    annotation_report = parse_ptm_site_annotation_tsv(_fixture_path("ptm_site_annotations.tsv"))
+    annotation_report = parse_ptm_site_annotation_tsv(
+        _fixture_path("ptm_site_annotations.tsv")
+    )
     mapping_report = build_ptm_site_annotation_mapping_report(
         site_table,
         annotation_report.accepted_records,
@@ -110,7 +117,9 @@ def test_ptm_regulator_enrichment_reports_exact_supporting_sites_from_real_annot
     assert phosphatase_entry.adjusted_p_value is not None
 
 
-def test_ptm_regulator_enrichment_separates_direction_and_preserves_site_ledgers() -> None:
+def test_ptm_regulator_enrichment_separates_direction_and_preserves_site_ledgers() -> (
+    None
+):
     differential_report = PtmSiteDifferentialReport(
         normalization_method=NormalizationMethod.MEDIAN,
         test_type=DifferentialAbundanceTestType.WELCH_T_TEST,

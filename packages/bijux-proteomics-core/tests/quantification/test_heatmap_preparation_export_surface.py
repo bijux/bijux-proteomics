@@ -104,5 +104,11 @@ def test_heatmap_preparation_exports_matrix_and_metadata_ledgers(tmp_path) -> No
 
     assert "entity_level\tmeasure_kind\taggregation_method" in summary_path.read_text()
     assert "entity_id\ts1\ts2" in matrix_path.read_text()
-    assert "protein_refs\tmember_peptides\tobserved_sample_count\tmissing_sample_count\tfilled_missing_sample_count\tobserved_fraction\tmissing_value_policy" in row_path.read_text()
-    assert "column_index\tsample_id\tcondition\treplicate\tfraction\tbatch\tinstrument\tsearch_engine\tmissing_value_policy\tnormalization_factor" in column_path.read_text()
+    assert (
+        "protein_refs\tmember_peptides\tobserved_sample_count\tmissing_sample_count\tfilled_missing_sample_count\tobserved_fraction\tmissing_value_policy"
+        in row_path.read_text()
+    )
+    assert (
+        "column_index\tsample_id\tcondition\treplicate\tfraction\tbatch\tinstrument\tsearch_engine\tmissing_value_policy\tnormalization_factor"
+        in column_path.read_text()
+    )

@@ -51,7 +51,9 @@ def test_tmt_label_based_report_export_writes_quality_ratio_and_differential_led
     assert (output_dir / "reports").is_dir()
     assert (output_dir / "reports" / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / "qc" / manifest.artifacts.tmt_validation_summary_tsv).exists()
-    assert (output_dir / "matrices" / manifest.artifacts.tmt_channel_totals_tsv).exists()
+    assert (
+        output_dir / "matrices" / manifest.artifacts.tmt_channel_totals_tsv
+    ).exists()
     assert (output_dir / "stats" / manifest.artifacts.differential_results_tsv).exists()
     layout_manifest = validate_workflow_artifact_manifest(output_dir)
     summary_entry = next(
@@ -93,15 +95,15 @@ def test_tmt_label_based_report_export_writes_quality_ratio_and_differential_led
     assert "quality_entry_count" in (
         output_dir / manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
-    assert "assay_axis" in (
-        output_dir / manifest.artifacts.sample_qc_tsv
-    ).read_text(encoding="utf-8")
+    assert "assay_axis" in (output_dir / manifest.artifacts.sample_qc_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "total_intensity" in (
         output_dir / manifest.artifacts.tmt_channel_totals_tsv
     ).read_text(encoding="utf-8")
-    assert "ratio" in (
-        output_dir / manifest.artifacts.tmt_protein_ratio_tsv
-    ).read_text(encoding="utf-8")
+    assert "ratio" in (output_dir / manifest.artifacts.tmt_protein_ratio_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "adjusted_p_value" in (
         output_dir / manifest.artifacts.differential_results_tsv
     ).read_text(encoding="utf-8")
@@ -147,9 +149,9 @@ def test_silac_label_based_report_export_writes_quality_ratio_and_differential_l
     assert "protein_ratio_count" in (
         output_dir / manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
-    assert "assay_axis" in (
-        output_dir / manifest.artifacts.sample_qc_tsv
-    ).read_text(encoding="utf-8")
+    assert "assay_axis" in (output_dir / manifest.artifacts.sample_qc_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "reference_label" in (
         output_dir / manifest.artifacts.silac_protein_ratio_tsv
     ).read_text(encoding="utf-8")

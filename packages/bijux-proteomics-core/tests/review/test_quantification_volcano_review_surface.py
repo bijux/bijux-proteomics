@@ -29,7 +29,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_quantification_volcano_review_preserves_significance_and_labels() -> None:
+def test_build_quantification_volcano_review_preserves_significance_and_labels() -> (
+    None
+):
     mapping = Ms1FeatureColumnMapping(
         sample_id="sample_id",
         feature_id="feature_id",

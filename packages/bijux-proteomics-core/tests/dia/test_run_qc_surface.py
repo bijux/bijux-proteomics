@@ -63,7 +63,8 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert intensity_distribution[("raw_C", "<1e5")] == 1
 
     correlations = {
-        (entry.run_name_a, entry.run_name_b): entry for entry in report.pairwise_correlations
+        (entry.run_name_a, entry.run_name_b): entry
+        for entry in report.pairwise_correlations
     }
     assert correlations[("raw_A", "raw_B")].shared_precursor_key_count == 4
     assert correlations[("raw_A", "raw_B")].pearson_correlation is not None
@@ -73,7 +74,10 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert len(report.outlier_runs) == 1
     assert report.outlier_runs[0].run_name == "raw_C"
     assert len(report.outlier_runs[0].flags) == 5
-    assert "precursor coverage is far below the study median" in report.outlier_runs[0].reasons
+    assert (
+        "precursor coverage is far below the study median"
+        in report.outlier_runs[0].reasons
+    )
     first_flag = report.outlier_runs[0].flags[0]
     assert first_flag.threshold_name in {
         "high_missing_fraction",

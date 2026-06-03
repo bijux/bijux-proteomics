@@ -75,7 +75,14 @@ def test_build_integrated_scientific_report_preserves_required_sections_and_link
         row_ref.startswith("study_design:")
         for row_ref in experiment_design_sentence.source_row_refs
     )
-    assert len(examples_by_kind[IntegratedScientificResultExampleKind.CONTRADICTORY].linked_ids) == 2
+    assert (
+        len(
+            examples_by_kind[
+                IntegratedScientificResultExampleKind.CONTRADICTORY
+            ].linked_ids
+        )
+        == 2
+    )
     assert examples_by_kind[
         IntegratedScientificResultExampleKind.VALIDATION_NEEDED
     ].linked_ids == ("targeted-evidence-card:protein:P001",)

@@ -16,20 +16,12 @@ def test_scan_input_integrity_detects_expected_row_level_failures(
 ) -> None:
     invalid_tsv = tmp_path / "invalid_quant.tsv"
     invalid_tsv.write_text(
-        (
-            "sample_id\tintensity\tprotein_id\n"
-            "S1\t100.0\tP1\n"
-            "S1\tbad\tP2\n"
-            "\t42.0\tP3\n"
-        ),
+        ("sample_id\tintensity\tprotein_id\nS1\t100.0\tP1\nS1\tbad\tP2\n\t42.0\tP3\n"),
         encoding="utf-8",
     )
     inconsistent_tsv = tmp_path / "inconsistent.tsv"
     inconsistent_tsv.write_text(
-        (
-            "sample_id\tintensity\tprotein_id\n"
-            "S2,50.0,P4\n"
-        ),
+        ("sample_id\tintensity\tprotein_id\nS2,50.0,P4\n"),
         encoding="utf-8",
     )
     broken_encoding = tmp_path / "broken.tsv"
@@ -71,8 +63,12 @@ def test_scan_input_integrity_streams_large_file_without_read_text(
             handle.write(f"S{index}\t{index + 1}.0\tP{index}\n")
         handle.write("S5000\t5001.0\tP5000\textra_column\n")
 
-    def _forbid_read_text(self: Path, *args, **kwargs):  # pragma: no cover - proof guard
-        raise AssertionError("scan_input_integrity must not read whole files with read_text")
+    def _forbid_read_text(
+        self: Path, *args, **kwargs
+    ):  # pragma: no cover - proof guard
+        raise AssertionError(
+            "scan_input_integrity must not read whole files with read_text"
+        )
 
     monkeypatch.setattr(Path, "read_text", _forbid_read_text)
 

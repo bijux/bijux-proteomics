@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+from contextlib import redirect_stdout
 import io
 import json
-from contextlib import redirect_stdout
 from pathlib import Path
 import shutil
 
@@ -19,7 +19,6 @@ from bijux_proteomics.interfaces.python_api import (
     run_psm_inspect_command,
     run_quantify_command,
 )
-
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
 _VOLATILE_KEYS = {"artifact_id", "content_hash", "created_at", "updated_at"}

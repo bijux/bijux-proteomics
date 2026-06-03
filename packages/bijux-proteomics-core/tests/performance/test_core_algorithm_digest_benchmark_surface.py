@@ -17,7 +17,10 @@ def test_digest_runtime_stays_within_baseline_threshold() -> None:
 
     assert report.algorithm_id == "digest"
     assert report.workload_unit == "proteins"
-    assert report.generated_unit_count == CORE_ALGORITHM_BENCHMARK_CASES["digest"].generated_unit_count
+    assert (
+        report.generated_unit_count
+        == CORE_ALGORITHM_BENCHMARK_CASES["digest"].generated_unit_count
+    )
     assert report.regression_detected is False
 
 
@@ -27,5 +30,8 @@ def test_peptide_index_runtime_stays_within_baseline_threshold() -> None:
 
     assert report.algorithm_id == "peptide_index"
     assert report.workload_unit == "proteins"
-    assert report.generated_unit_count == CORE_ALGORITHM_BENCHMARK_CASES["peptide_index"].generated_unit_count
+    assert (
+        report.generated_unit_count
+        == CORE_ALGORITHM_BENCHMARK_CASES["peptide_index"].generated_unit_count
+    )
     assert report.regression_detected is False

@@ -59,7 +59,9 @@ def test_ptm_site_annotation_mapping_report_preserves_matches_and_unmapped_reaso
     assert report.summary.unmapped_annotation_count == 2
     assert report.summary.species_mismatch_count == 1
     matched = next(
-        entry for entry in report.matched_annotations if entry.site_key == "P11111:S17:Phospho"
+        entry
+        for entry in report.matched_annotations
+        if entry.site_key == "P11111:S17:Phospho"
     )
     assert matched.ambiguous_site is True
     assert matched.shared_peptide_site is True
@@ -68,7 +70,9 @@ def test_ptm_site_annotation_mapping_report_preserves_matches_and_unmapped_reaso
     species_unmapped = next(
         entry
         for entry in report.unmapped_annotations
-        if entry.protein_ref == "P11111" and entry.position == 5 and entry.annotation_species == "Mus musculus"
+        if entry.protein_ref == "P11111"
+        and entry.position == 5
+        and entry.annotation_species == "Mus musculus"
     )
     assert "species" in species_unmapped.reason
     missing_site = next(

@@ -6,8 +6,8 @@ from __future__ import annotations
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     BrokenPairDisposition,
-    DifferentialReplicatePolicy,
     DifferentialAbundanceTestType,
+    DifferentialReplicatePolicy,
     MissingValueKind,
     Ms1FeatureRecord,
     PairedDifferentialPolicy,
@@ -250,8 +250,7 @@ def test_differential_abundance_owner_returns_bh_complete_missingness_aware_rows
     )
 
     assert (
-        report.assumption_report.test_type
-        is DifferentialAbundanceTestType.WELCH_T_TEST
+        report.assumption_report.test_type is DifferentialAbundanceTestType.WELCH_T_TEST
     )
     assert (
         report.assumption_report.multiple_testing_scope
@@ -295,7 +294,9 @@ def test_differential_abundance_owner_supports_linear_model_contrasts() -> None:
     assert p1.adjusted_p_value is not None
 
 
-def test_differential_abundance_owner_supports_paired_testing_and_reports_broken_pairs() -> None:
+def test_differential_abundance_owner_supports_paired_testing_and_reports_broken_pairs() -> (
+    None
+):
     report = build_differential_abundance_report(
         _paired_table(),
         _paired_design(),

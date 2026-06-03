@@ -31,8 +31,7 @@ _SAFE_TEXT = st.text(
     min_size=1,
     max_size=12,
 ).filter(
-    lambda value: value.strip().lower()
-    not in {"", "na", "n/a", "null", "none", "nan"}
+    lambda value: value.strip().lower() not in {"", "na", "n/a", "null", "none", "nan"}
 )
 _OPTIONAL_TEXT = st.one_of(st.none(), _SAFE_TEXT)
 _DESIGN_ROW = st.fixed_dictionaries(
@@ -150,7 +149,12 @@ def test_parse_experimental_design_table_accepts_multi_run_sample_rows(
 
 
 def test_parse_experimental_design_table_accepts_explicit_run_order() -> None:
-    design_path = Path(__file__).resolve().parent.parent / "fixtures" / "formats" / "skyline_targeted_carryover.design.tsv"
+    design_path = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "formats"
+        / "skyline_targeted_carryover.design.tsv"
+    )
 
     report = parse_experimental_design_table(design_path)
 

@@ -7,7 +7,6 @@ import ast
 import importlib
 from pathlib import Path
 
-
 _CORE_SRC_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 _STUDY_ROOT = _CORE_SRC_ROOT / "study"
 _LAB_ROOT = _CORE_SRC_ROOT / "lab"
@@ -60,9 +59,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
     return [
         node
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom) and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     ]
 
 
@@ -117,8 +114,10 @@ def test_lab_modules_do_not_duplicate_design_validity_logic() -> None:
                         raise AssertionError(
                             f"{path.name} must not import study design-validity owners"
                         )
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                if node.name in _FORBIDDEN_DESIGN_VALIDITY_NAMES:
-                    raise AssertionError(
-                        f"{path.name} must not define duplicated design-validity owners"
-                    )
+            if (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                and node.name in _FORBIDDEN_DESIGN_VALIDITY_NAMES
+            ):
+                raise AssertionError(
+                    f"{path.name} must not define duplicated design-validity owners"
+                )

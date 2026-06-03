@@ -135,7 +135,9 @@ def test_load_modification_pack_rejects_invalid_residue_and_terminus_rules(
     rejected = {row.row_number: row.reason for row in report.rejected_rows}
 
     assert report.source_path == str(pack_path)
-    assert rejected[1] == "modification pack row must target residues or termini, not both"
+    assert (
+        rejected[1] == "modification pack row must target residues or termini, not both"
+    )
     assert rejected[2] == "allowed_residues: invalid modification-pack residues: B"
     assert rejected[3] == (
         "modification pack row requires allowed_residues or allowed_termini"

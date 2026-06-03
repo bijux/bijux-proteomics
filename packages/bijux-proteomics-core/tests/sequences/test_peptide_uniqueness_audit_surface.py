@@ -133,9 +133,7 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
         mode=DecoyGenerationMode.REVERSE,
     )
     contaminant_record = build_builtin_contaminant_records()[0]
-    with pytest.warns(
-        DeprecationWarning, match="build_builtin_contaminant_records"
-    ):
+    with pytest.warns(DeprecationWarning, match="build_builtin_contaminant_records"):
         legacy_contaminant_record = load_builtin_contaminant_records()[0]
     combined_records = (
         *report.accepted_records,
@@ -181,7 +179,9 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
     assert shared_entry.database_membership is PeptideDatabaseMembership.TARGET
     assert shared_entry.protein_accessions == ("P20001", "P20002")
 
-    assert by_peptide[decoy_query].database_membership is PeptideDatabaseMembership.DECOY
+    assert (
+        by_peptide[decoy_query].database_membership is PeptideDatabaseMembership.DECOY
+    )
     assert by_peptide[decoy_query].uniqueness_class is PeptideUniquenessClass.DECOY
     assert by_peptide[contaminant_query].database_membership is (
         PeptideDatabaseMembership.CONTAMINANT

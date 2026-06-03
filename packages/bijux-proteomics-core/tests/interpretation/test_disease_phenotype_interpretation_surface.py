@@ -58,9 +58,13 @@ def _build_fixture_table():
     return normalize_label_free_table(protein_table, method=NormalizationMethod.MEDIAN)
 
 
-def test_build_disease_phenotype_interpretation_report_preserves_explicit_term_support() -> None:
+def test_build_disease_phenotype_interpretation_report_preserves_explicit_term_support() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(
@@ -95,15 +99,25 @@ def test_build_disease_phenotype_interpretation_report_preserves_explicit_term_s
     assert report.summary.evaluated_term_count == 4
     assert report.summary.filter_passing_term_count >= 1
     assert report.summary.high_confidence_term_count >= 1
-    disease_entry = next(entry for entry in report.entries if entry.term_id == "DOID:162")
+    disease_entry = next(
+        entry for entry in report.entries if entry.term_id == "DOID:162"
+    )
     assert disease_entry.context_kind.value == "disease_term"
     assert disease_entry.source_name == "Disease Ontology"
     assert disease_entry.supporting_protein_refs == ("O14920", "P04637")
-    assert disease_entry.confidence_status is DiseasePhenotypeConfidenceStatus.HIGH_CONFIDENCE
-    phenotype_entry = next(entry for entry in report.entries if entry.term_id == "HP:0001250")
+    assert (
+        disease_entry.confidence_status
+        is DiseasePhenotypeConfidenceStatus.HIGH_CONFIDENCE
+    )
+    phenotype_entry = next(
+        entry for entry in report.entries if entry.term_id == "HP:0001250"
+    )
     assert phenotype_entry.context_kind.value == "phenotype_term"
     assert phenotype_entry.supporting_protein_refs == ("O14920",)
-    assert phenotype_entry.confidence_status is DiseasePhenotypeConfidenceStatus.LOW_CONFIDENCE
+    assert (
+        phenotype_entry.confidence_status
+        is DiseasePhenotypeConfidenceStatus.LOW_CONFIDENCE
+    )
     assert any(
         entry.annotation_scope is DiseasePhenotypeAnnotationScope.BACKGROUND
         and entry.protein_ref == "P62993"
@@ -111,9 +125,13 @@ def test_build_disease_phenotype_interpretation_report_preserves_explicit_term_s
     )
 
 
-def test_disease_phenotype_interpretation_renderers_expose_terms_and_unknown_annotations() -> None:
+def test_disease_phenotype_interpretation_renderers_expose_terms_and_unknown_annotations() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(

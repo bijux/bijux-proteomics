@@ -12,7 +12,9 @@ from bijux_proteomics.lab import (
 )
 
 
-def test_classify_run_failure_separates_chromatography_identification_and_intensity_failures() -> None:
+def test_classify_run_failure_separates_chromatography_identification_and_intensity_failures() -> (
+    None
+):
     rows = classify_run_failure(
         (
             RunDiagnosisQcEntry(
@@ -79,7 +81,11 @@ def test_classify_run_failure_separates_chromatography_identification_and_intens
 
     assert lookup["run_signal"].status is LabQcStatus.FAIL
     assert lookup["run_signal"].failure_class is RunFailureClass.INTENSITY_FAILURE
-    assert lookup["run_signal"].primary_reason in {"low_tic", "low_bpc", "low_ms1_count"}
+    assert lookup["run_signal"].primary_reason in {
+        "low_tic",
+        "low_bpc",
+        "low_ms1_count",
+    }
 
 
 def test_classify_run_failure_renders_tsv_and_preserves_secondary_reasons() -> None:

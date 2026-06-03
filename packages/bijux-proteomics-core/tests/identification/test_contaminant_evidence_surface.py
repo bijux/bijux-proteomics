@@ -62,4 +62,6 @@ def test_contaminant_evidence_report_separates_psms_peptides_proteins_and_burden
     proteins_tsv = render_contaminant_proteins_tsv(evidence)
 
     assert "run-a\tsample-a\t3\t2" in burden_tsv
-    assert "CON__K1C10_HUMAN\trun-a;run-b\tsample-a;sample-b\t2\t2\t850.0" in proteins_tsv
+    assert (
+        "CON__K1C10_HUMAN\trun-a;run-b\tsample-a;sample-b\t2\t2\t850.0" in proteins_tsv
+    )

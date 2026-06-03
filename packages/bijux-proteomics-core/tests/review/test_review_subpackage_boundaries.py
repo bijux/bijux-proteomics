@@ -7,7 +7,6 @@ import ast
 import importlib
 from pathlib import Path
 
-
 _REVIEW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "review"
 )
@@ -53,9 +52,7 @@ _ROOT_WRAPPER_TARGETS = {
     ),
     "flagship_kernel.py": "bijux_proteomics.review.belief.flagship_kernel",
     "inference_packets.py": "bijux_proteomics.review.cards.inference_packets",
-    "protein_family_graphs.py": (
-        "bijux_proteomics.review.cards.protein_family_graphs"
-    ),
+    "protein_family_graphs.py": ("bijux_proteomics.review.cards.protein_family_graphs"),
     "result_explanations.py": (
         "bijux_proteomics.review.explanations.result_explanations"
     ),
@@ -84,9 +81,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
     return [
         node
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom) and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     ]
 
 
@@ -134,7 +129,9 @@ def test_review_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(explanations, "build_ptm_volcano_review")
 
 
-def test_evidence_graph_layer_stays_independent_from_workflow_report_rendering() -> None:
+def test_evidence_graph_layer_stays_independent_from_workflow_report_rendering() -> (
+    None
+):
     evidence_graph_root = _REVIEW_ROOT / "evidence_graph"
     forbidden_modules = {
         "bijux_proteomics.workflow.reports",

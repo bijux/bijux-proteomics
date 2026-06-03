@@ -15,7 +15,6 @@ from bijux_proteomics.quantification import (
     statistics,
 )
 
-
 _WRAPPER_MODULES = (
     "quantification/core_matrix.py",
     "quantification/design_matrix.py",
@@ -91,9 +90,10 @@ def test_quantification_root_wrappers_stay_compatibility_only() -> None:
 def test_quantification_root_and_subpackage_surfaces_share_owner_functions() -> None:
     from bijux_proteomics import quantification
 
-    assert quantification.build_numeric_quant_matrix is matrix.build_numeric_quant_matrix
+    assert (
+        quantification.build_numeric_quant_matrix is matrix.build_numeric_quant_matrix
+    )
     assert quantification.fit_peptide_bias_model is rollup.fit_peptide_bias_model
     assert (
-        quantification.build_quant_review_bundle
-        is provenance.build_quant_review_bundle
+        quantification.build_quant_review_bundle is provenance.build_quant_review_bundle
     )

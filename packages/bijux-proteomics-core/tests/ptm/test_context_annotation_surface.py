@@ -34,7 +34,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_site_context_parser_preserves_region_annotations_and_rejected_rows() -> None:
+def test_ptm_site_context_parser_preserves_region_annotations_and_rejected_rows() -> (
+    None
+):
     report = parse_ptm_site_context_tsv(_fixture_path("ptm_site_context.tsv"))
 
     assert report.total_rows == 6

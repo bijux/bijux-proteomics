@@ -7,9 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics.identification.contracts import SearchResultColumnMapping
-from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
-from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
 from bijux_proteomics._scientific_tables import (
     ScientificTableValidationContext,
     ScientificTableValidationError,
@@ -27,6 +24,9 @@ from bijux_proteomics._scientific_tables import (
     require_valid_scientific_table,
     validate_scientific_table,
 )
+from bijux_proteomics.identification.contracts import SearchResultColumnMapping
+from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
+from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
 
 
 def test_validate_scientific_table_reports_missing_column_and_wrong_type(
@@ -35,14 +35,14 @@ def test_validate_scientific_table_reports_missing_column_and_wrong_type(
     psm_path = tmp_path / "psms.tsv"
     psm_path.write_text(
         "\n".join(
-                (
-                    "scan\tsequence\tcharge\tscore\tqval",
-                    "scan_001\tPEPTIDE\t2\t10.5\t0.02",
-                    "scan_002\tPEPTIDE\twrong\t11.5\t0.03",
-                )
+            (
+                "scan\tsequence\tcharge\tscore\tqval",
+                "scan_001\tPEPTIDE\t2\t10.5\t0.02",
+                "scan_002\tPEPTIDE\twrong\t11.5\t0.03",
             )
-            + "\n",
-            encoding="utf-8",
+        )
+        + "\n",
+        encoding="utf-8",
     )
 
     report = validate_scientific_table(
@@ -231,7 +231,9 @@ def test_require_valid_scientific_table_raises_structured_error(tmp_path: Path) 
     assert excinfo.value.report.table_kind == "experimental_design"
 
 
-def test_validate_scientific_table_accepts_minimal_samples_table(tmp_path: Path) -> None:
+def test_validate_scientific_table_accepts_minimal_samples_table(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "samples.tsv"
     path.write_text(
         "\n".join(
@@ -254,15 +256,20 @@ def test_validate_scientific_table_accepts_minimal_samples_table(tmp_path: Path)
 def test_scientific_table_schemas_cover_real_scientific_table_families() -> None:
     assert build_diann_report_schema().table_kind == "diann_report"
     assert build_maxquant_peptides_schema().table_kind == "maxquant_peptides"
-    assert build_maxquant_protein_groups_schema().table_kind == "maxquant_protein_groups"
-    assert build_ptm_evidence_schema(
-        PtmLocalizationColumnMapping(
-            spectrum_id="spectrum_id",
-            peptide="peptide",
-            charge="charge",
-            score="score",
-            protein_refs="proteins",
-            localization_score="localization_score",
-        )
-    ).table_kind == "ptm_evidence"
+    assert (
+        build_maxquant_protein_groups_schema().table_kind == "maxquant_protein_groups"
+    )
+    assert (
+        build_ptm_evidence_schema(
+            PtmLocalizationColumnMapping(
+                spectrum_id="spectrum_id",
+                peptide="peptide",
+                charge="charge",
+                score="score",
+                protein_refs="proteins",
+                localization_score="localization_score",
+            )
+        ).table_kind
+        == "ptm_evidence"
+    )
     assert build_transition_table_schema().table_kind == "transition_table"

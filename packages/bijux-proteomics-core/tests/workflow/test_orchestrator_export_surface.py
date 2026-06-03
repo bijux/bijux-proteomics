@@ -137,7 +137,9 @@ def test_run_proteomics_workflow_exports_label_free_bundle_assets(
         / result.export_manifest.artifacts.protein_card_tsv
     ).exists()
     assert result.outputs["manifest_json"].endswith("biological_report_manifest.json")
-    layout_manifest = validate_workflow_artifact_manifest(tmp_path / "biological_report")
+    layout_manifest = validate_workflow_artifact_manifest(
+        tmp_path / "biological_report"
+    )
     summary_entry = next(
         entry
         for entry in layout_manifest.artifacts
@@ -169,7 +171,9 @@ def test_run_proteomics_workflow_exports_tmt_bundle_assets(tmp_path: Path) -> No
     assert result.export_manifest is not None
     assert (tmp_path / "tmt_report" / "tmt_workflow_manifest.json").exists()
     assert (tmp_path / "tmt_report" / "label_based_report_manifest.json").exists()
-    assert result.outputs["workflow_manifest_json"].endswith("tmt_workflow_manifest.json")
+    assert result.outputs["workflow_manifest_json"].endswith(
+        "tmt_workflow_manifest.json"
+    )
     layout_manifest = validate_workflow_artifact_manifest(tmp_path / "tmt_report")
     summary_entry = next(
         entry
@@ -203,7 +207,9 @@ def test_run_proteomics_workflow_exports_targeted_matrix_assets(
         tmp_path / "targeted_matrix" / "targeted_matrix_workflow_manifest.json"
     ).exists()
     assert (
-        tmp_path / "targeted_matrix" / result.export_manifest.artifacts.matrix_targets_tsv
+        tmp_path
+        / "targeted_matrix"
+        / result.export_manifest.artifacts.matrix_targets_tsv
     ).exists()
     assert result.outputs["workflow_manifest_json"].endswith(
         "targeted_matrix_workflow_manifest.json"
@@ -226,9 +232,7 @@ def test_run_proteomics_workflow_exports_targeted_assay_qc_assets(
     assert result.mode is WorkflowMode.TARGETED
     assert result.export_manifest is not None
     assert (
-        tmp_path
-        / "targeted_assay_qc"
-        / "targeted_assay_qc_workflow_manifest.json"
+        tmp_path / "targeted_assay_qc" / "targeted_assay_qc_workflow_manifest.json"
     ).exists()
     assert (
         tmp_path
@@ -265,9 +269,7 @@ def test_run_proteomics_workflow_exports_targeted_validation_assets(
     assert result.mode is WorkflowMode.TARGETED
     assert result.export_manifest is not None
     assert (
-        tmp_path
-        / "targeted_validation"
-        / "advanced_targeted_workflow_manifest.json"
+        tmp_path / "targeted_validation" / "advanced_targeted_workflow_manifest.json"
     ).exists()
     assert (
         tmp_path
@@ -282,7 +284,9 @@ def test_run_proteomics_workflow_exports_targeted_validation_assets(
     assert result.outputs["workflow_manifest_json"].endswith(
         "advanced_targeted_workflow_manifest.json"
     )
-    layout_manifest = validate_workflow_artifact_manifest(tmp_path / "targeted_validation")
+    layout_manifest = validate_workflow_artifact_manifest(
+        tmp_path / "targeted_validation"
+    )
     summary_entry = next(
         entry
         for entry in layout_manifest.artifacts

@@ -41,4 +41,7 @@ def test_ortholog_renderers_emit_summary_mapped_unmapped_and_rejected_ledgers() 
     )
     assert "P005\thuman\tmouse\tM005" in mapped_tsv
     assert "P999\thuman\tmouse" in unmapped_tsv
-    assert "duplicate ortholog relationship for human:P12345 -> mouse:Q9AAA1" in rejected_tsv
+    assert (
+        "duplicate ortholog relationship for human:P12345 -> mouse:Q9AAA1"
+        in rejected_tsv
+    )

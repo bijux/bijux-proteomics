@@ -20,7 +20,9 @@ def _fixture(name: str) -> Path:
 
 
 def test_build_silac_differential_input_report_preserves_protein_ratio_matrix() -> None:
-    report = build_silac_differential_input_report(_fixture("silac_differential_features.tsv"))
+    report = build_silac_differential_input_report(
+        _fixture("silac_differential_features.tsv")
+    )
 
     assert report.source_kind is LabelBasedDifferentialSourceKind.SILAC
     assert report.measurement_kind.value == "ratio"
@@ -34,7 +36,9 @@ def test_build_silac_differential_input_report_preserves_protein_ratio_matrix() 
     assert "SILAC sample ratios" in report.note
 
 
-def test_build_silac_differential_analysis_report_preserves_ratio_native_effects() -> None:
+def test_build_silac_differential_analysis_report_preserves_ratio_native_effects() -> (
+    None
+):
     design_report = parse_experimental_design_table(
         _fixture("silac_differential.design.tsv")
     )

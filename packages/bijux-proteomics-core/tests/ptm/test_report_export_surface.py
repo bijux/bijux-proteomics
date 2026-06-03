@@ -43,7 +43,9 @@ def _protein_sequences() -> dict[str, str]:
 def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     design_entries = tuple(
         entry.model_copy(update={"batch": None})
@@ -109,7 +111,9 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert (output_dir / manifest.artifacts.motif_term_tsv).exists()
     assert (output_dir / manifest.artifacts.regulator_enrichment_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.regulator_enrichment_tsv).exists()
-    assert (output_dir / manifest.artifacts.mechanism_classification_summary_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.mechanism_classification_summary_tsv
+    ).exists()
     assert (output_dir / manifest.artifacts.mechanism_classification_tsv).exists()
     assert (output_dir / manifest.artifacts.ortholog_conservation_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.ortholog_conservation_tsv).exists()
@@ -125,7 +129,9 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert summary_entry.output_table_schema is not None
     assert summary_entry.artifact_schema_version == "2026-05-26"
     assert summary_entry.output_table_schema.schema_version == "2026-05-26"
-    assert summary_entry.output_table_schema.columns[0].name == "accepted_evidence_count"
+    assert (
+        summary_entry.output_table_schema.columns[0].name == "accepted_evidence_count"
+    )
     assert summary_entry.output_table_schema_sidecar_relative_path == (
         f"reports/{manifest.artifacts.summary_tsv}.schema.json"
     )
@@ -146,53 +152,74 @@ def test_ptm_report_export_writes_required_tables_and_manifest(tmp_path: Path) -
     assert differential_entry.output_table_schema_sidecar_relative_path == (
         f"stats/{manifest.artifacts.differential_tsv}.schema.json"
     )
-    assert "S[Phospho]PEPTIDEK" in (
-        output_dir / manifest.artifacts.peptide_tsv
-    ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_tsv
-    ).read_text()
-    assert "probability_source" in (
-        output_dir / manifest.artifacts.localization_tsv
-    ).read_text()
-    assert "P11111:S5:Phospho" in (
-        output_dir / manifest.artifacts.site_quant_matrix_tsv
-    ).read_text()
-    assert "group_row_count" in (
-        output_dir / manifest.artifacts.site_group_summary_tsv
-    ).read_text()
-    assert "group_key" in (
-        output_dir / manifest.artifacts.site_group_matrix_tsv
-    ).read_text()
-    assert "sample_id" in (
-        output_dir / manifest.artifacts.site_group_missingness_tsv
-    ).read_text()
-    assert "corrected_log2_fold_change" in (
-        output_dir / manifest.artifacts.differential_tsv
-    ).read_text()
-    assert "exclusive_to_regulated" in (
-        output_dir / manifest.artifacts.motif_term_tsv
-    ).read_text()
-    assert "evaluated_regulator_count" in (
-        output_dir / manifest.artifacts.regulator_enrichment_summary_tsv
-    ).read_text()
-    assert "supporting_sites" in (
-        output_dir / manifest.artifacts.regulator_enrichment_tsv
-    ).read_text()
-    assert "site_specific_count" in (
-        output_dir / manifest.artifacts.mechanism_classification_summary_tsv
-    ).read_text()
-    assert "corrected_log2_fold_change" in (
-        output_dir / manifest.artifacts.mechanism_classification_tsv
-    ).read_text()
-    assert "unmapped_site_count" in (
-        output_dir / manifest.artifacts.ortholog_conservation_summary_tsv
-    ).read_text()
-    assert "status" in (
-        output_dir / manifest.artifacts.ortholog_conservation_tsv
-    ).read_text()
+    assert (
+        "S[Phospho]PEPTIDEK"
+        in (output_dir / manifest.artifacts.peptide_tsv).read_text()
+    )
+    assert "P11111:S5:Phospho" in (output_dir / manifest.artifacts.site_tsv).read_text()
+    assert (
+        "probability_source"
+        in (output_dir / manifest.artifacts.localization_tsv).read_text()
+    )
+    assert (
+        "P11111:S5:Phospho"
+        in (output_dir / manifest.artifacts.site_quant_matrix_tsv).read_text()
+    )
+    assert (
+        "group_row_count"
+        in (output_dir / manifest.artifacts.site_group_summary_tsv).read_text()
+    )
+    assert (
+        "group_key"
+        in (output_dir / manifest.artifacts.site_group_matrix_tsv).read_text()
+    )
+    assert (
+        "sample_id"
+        in (output_dir / manifest.artifacts.site_group_missingness_tsv).read_text()
+    )
+    assert (
+        "corrected_log2_fold_change"
+        in (output_dir / manifest.artifacts.differential_tsv).read_text()
+    )
+    assert (
+        "exclusive_to_regulated"
+        in (output_dir / manifest.artifacts.motif_term_tsv).read_text()
+    )
+    assert (
+        "evaluated_regulator_count"
+        in (
+            output_dir / manifest.artifacts.regulator_enrichment_summary_tsv
+        ).read_text()
+    )
+    assert (
+        "supporting_sites"
+        in (output_dir / manifest.artifacts.regulator_enrichment_tsv).read_text()
+    )
+    assert (
+        "site_specific_count"
+        in (
+            output_dir / manifest.artifacts.mechanism_classification_summary_tsv
+        ).read_text()
+    )
+    assert (
+        "corrected_log2_fold_change"
+        in (output_dir / manifest.artifacts.mechanism_classification_tsv).read_text()
+    )
+    assert (
+        "unmapped_site_count"
+        in (
+            output_dir / manifest.artifacts.ortholog_conservation_summary_tsv
+        ).read_text()
+    )
+    assert (
+        "status"
+        in (output_dir / manifest.artifacts.ortholog_conservation_tsv).read_text()
+    )
     assert "card_id" in (output_dir / manifest.artifacts.evidence_card_tsv).read_text()
-    assert "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()
-    assert "ptm_site" in (
-        output_dir / manifest.artifacts.evidence_aware_ranking_tsv
-    ).read_text()
+    assert (
+        "claim_id" in (output_dir / manifest.artifacts.evidence_claim_tsv).read_text()
+    )
+    assert (
+        "ptm_site"
+        in (output_dir / manifest.artifacts.evidence_aware_ranking_tsv).read_text()
+    )

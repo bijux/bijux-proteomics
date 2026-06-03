@@ -8,9 +8,9 @@ from pathlib import Path
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmMotifBackgroundMode,
+    PtmMotifComparisonPolicy,
     PtmMotifRegulationDirection,
     PtmPhosphositeSelectionPolicy,
-    PtmMotifComparisonPolicy,
     build_ptm_differential_analysis_report,
     build_ptm_phosphosite_motif_enrichment_report,
     build_ptm_site_quantification_report,
@@ -40,7 +40,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windows() -> None:
+def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windows() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -94,7 +96,9 @@ def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windo
     )
 
 
-def test_phosphosite_motif_enrichment_separates_observed_and_whole_proteome_backgrounds() -> None:
+def test_phosphosite_motif_enrichment_separates_observed_and_whole_proteome_backgrounds() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -141,7 +145,19 @@ def test_phosphosite_motif_enrichment_separates_observed_and_whole_proteome_back
         ),
     )
 
-    assert observed_background.background_mode is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
-    assert proteome_background.background_mode is PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
-    assert observed_background.background_site_count != proteome_background.background_site_count
-    assert proteome_background.background_site_count > observed_background.background_site_count
+    assert (
+        observed_background.background_mode
+        is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
+    )
+    assert (
+        proteome_background.background_mode
+        is PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    )
+    assert (
+        observed_background.background_site_count
+        != proteome_background.background_site_count
+    )
+    assert (
+        proteome_background.background_site_count
+        > observed_background.background_site_count
+    )

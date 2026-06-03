@@ -10,8 +10,8 @@ import pytest
 from bijux_proteomics.identification.generic_psm_mapper import (
     build_generic_psm_mapper_report,
     load_generic_psm_table_mapping,
-    render_generic_psm_rejected_row_tsv,
     render_generic_psm_mapper_tsv,
+    render_generic_psm_rejected_row_tsv,
 )
 
 
@@ -54,7 +54,9 @@ def test_generic_psm_mapper_report_preserves_run_mapping_and_unmapped_columns() 
     assert report.summary.unmapped_source_columns == ("analyst_note", "instrument")
     assert report.column_mapping.score_orientation == "higher_better"
     assert report.normalization.adapter_manifest.adapter_kind.value == "generic"
-    assert report.normalization.adapter_manifest.score_orientation.value == "higher_better"
+    assert (
+        report.normalization.adapter_manifest.score_orientation.value == "higher_better"
+    )
     assert report.mapped_rows[0].run_id == "run_A"
     assert report.mapped_rows[0].spectrum_id == "generic-1001"
     assert report.mapped_rows[0].peptide_sequence == "PESTIDE"
@@ -108,7 +110,9 @@ def test_generic_psm_mapper_supports_modified_only_mapping_and_explicit_orientat
     )
 
     assert report.summary.accepted_rows == 2
-    assert report.normalization.adapter_manifest.score_orientation.value == "lower_better"
+    assert (
+        report.normalization.adapter_manifest.score_orientation.value == "lower_better"
+    )
     assert report.mapped_rows[0].canonical_peptide == "PES[Phospho]TIDE"
 
 
@@ -117,7 +121,9 @@ def test_generic_psm_mapper_rejects_unsupported_mapping_extensions() -> None:
         load_generic_psm_table_mapping(_fixture("generic_results.tsv"))
 
 
-def test_generic_psm_mapper_missing_required_mapping_blocks_import(tmp_path: Path) -> None:
+def test_generic_psm_mapper_missing_required_mapping_blocks_import(
+    tmp_path: Path,
+) -> None:
     missing_orientation = tmp_path / "missing_orientation.yaml"
     missing_orientation.write_text(
         "\n".join(
@@ -192,4 +198,6 @@ def test_generic_psm_mapper_rejected_rows_render_stably(tmp_path: Path) -> None:
     assert report.rejected_evidence_rows[0].entity_type == "psm"
     assert report.rejected_evidence_rows[0].entity_id == "generic-1002"
     assert report.rejected_evidence_rows[0].reason_code == "invalid_charge"
-    assert "raw_fields_json" in render_generic_psm_rejected_row_tsv(report.rejected_rows)
+    assert "raw_fields_json" in render_generic_psm_rejected_row_tsv(
+        report.rejected_rows
+    )

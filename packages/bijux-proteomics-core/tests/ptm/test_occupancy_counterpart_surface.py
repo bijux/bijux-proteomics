@@ -76,7 +76,9 @@ def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambigui
     )
 
     complete_entry = next(
-        entry for entry in report.entries if entry.counterpart_status.value == "complete"
+        entry
+        for entry in report.entries
+        if entry.counterpart_status.value == "complete"
     )
     assert complete_entry.confidence_tier.value == "high_confidence"
     assert complete_entry.modified_peptides

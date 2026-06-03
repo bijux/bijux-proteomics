@@ -24,8 +24,8 @@ from bijux_proteomics.study import (
     EnrichmentType,
     ExperimentConfidenceComponentKind,
     FractionationMode,
-    LabProtocolContextEntry,
     LabelingMethod,
+    LabProtocolContextEntry,
     build_experiment_confidence_report,
     build_experiment_design,
     build_lcms_run_qc_report,
@@ -303,15 +303,10 @@ def test_experiment_confidence_report_scores_decomposed_components() -> None:
         and "severe_contamination"
         in components[ExperimentConfidenceComponentKind.CONTAMINATION].reason_codes
     )
-    assert (
-        ExperimentConfidenceComponentKind.RUN_QC in components
-        and {
-            "caution_run_qc",
-            "failed_run_qc",
-        }.intersection(
-            components[ExperimentConfidenceComponentKind.RUN_QC].reason_codes
-        )
-    )
+    assert ExperimentConfidenceComponentKind.RUN_QC in components and {
+        "caution_run_qc",
+        "failed_run_qc",
+    }.intersection(components[ExperimentConfidenceComponentKind.RUN_QC].reason_codes)
     assert (
         ExperimentConfidenceComponentKind.EVIDENCE_CONSISTENCY in components
         and "frequent_result_card_warnings"
@@ -344,12 +339,17 @@ def test_experiment_confidence_report_marks_unavailable_inputs_explicitly() -> N
 
     components = {component.component: component for component in report.components}
 
-    assert "run_qc_not_available" in components[
-        ExperimentConfidenceComponentKind.RUN_QC
-    ].reason_codes
-    assert "contamination_not_available" in components[
-        ExperimentConfidenceComponentKind.CONTAMINATION
-    ].reason_codes
-    assert "protocol_consistency_not_available" in components[
-        ExperimentConfidenceComponentKind.EVIDENCE_CONSISTENCY
-    ].reason_codes
+    assert (
+        "run_qc_not_available"
+        in components[ExperimentConfidenceComponentKind.RUN_QC].reason_codes
+    )
+    assert (
+        "contamination_not_available"
+        in components[ExperimentConfidenceComponentKind.CONTAMINATION].reason_codes
+    )
+    assert (
+        "protocol_consistency_not_available"
+        in components[
+            ExperimentConfidenceComponentKind.EVIDENCE_CONSISTENCY
+        ].reason_codes
+    )

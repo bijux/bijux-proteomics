@@ -38,9 +38,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_site_quantification_tsv_renderers_preserve_matrix_and_exclusions() -> (
-    None
-):
+def test_ptm_site_quantification_tsv_renderers_preserve_matrix_and_exclusions() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

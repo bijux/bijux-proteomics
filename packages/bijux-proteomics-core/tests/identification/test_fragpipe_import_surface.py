@@ -71,7 +71,10 @@ def test_fragpipe_import_report_preserves_bundle_tables_and_open_search_state() 
     assert report.peptide_rows[0].provenance.source_engine == "fragpipe-peptide"
     assert report.peptide_rows[0].provenance.source_row_numbers == (2,)
     assert report.peptide_rows[1].mapped_protein_refs == ("sp|P34567|TRANSFER_MOUSE",)
-    assert {row.entity_kind for row in report.open_search_evidence} == {"psm", "peptide"}
+    assert {row.entity_kind for row in report.open_search_evidence} == {
+        "psm",
+        "peptide",
+    }
     assert {row.mass_difference for row in report.open_search_evidence} == {42.0106}
     assert report.protein_quantity_rows[0].quantity_kind == "maxlfq_intensity"
     assert report.protein_quantity_rows[0].provenance.source_engine == "fragpipe-quant"

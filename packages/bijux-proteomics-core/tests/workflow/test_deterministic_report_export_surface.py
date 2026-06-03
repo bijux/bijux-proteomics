@@ -7,6 +7,8 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import build_ptm_report_bundle, parse_ptm_localization_tsv
+from bijux_proteomics.ptm.reporting import render_ptm_report_peptide_tsv
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.workflow import (
     ProteomicsRunEngine,
     build_proteomics_run_bundle,
@@ -14,8 +16,6 @@ from bijux_proteomics.workflow import (
     render_label_based_sample_qc_tsv,
     render_proteomics_run_enrichment_tsv,
 )
-from bijux_proteomics.ptm.reporting import render_ptm_report_peptide_tsv
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def _workflow_fixture(name: str) -> Path:
@@ -60,7 +60,9 @@ def test_flagship_enrichment_renderer_is_deterministic_under_equivalent_entry_or
         contrast="control-treatment",
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
     )
 
     biological_report = report.fragpipe_workflow.biological_report
@@ -117,9 +119,9 @@ def test_label_based_sample_qc_renderer_is_deterministic_under_equivalent_entry_
         update={"sample_qc_entries": tuple(reversed(report.sample_qc_entries))}
     )
 
-    assert render_label_based_sample_qc_tsv(
-        report
-    ) == render_label_based_sample_qc_tsv(reordered)
+    assert render_label_based_sample_qc_tsv(report) == render_label_based_sample_qc_tsv(
+        reordered
+    )
 
 
 def test_ptm_report_peptide_renderer_is_deterministic_under_equivalent_entry_order() -> (

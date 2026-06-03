@@ -92,16 +92,16 @@ def test_analysis_recommendation_engine_ties_each_action_to_detected_condition(
         "batch_effect",
     }
     by_kind = {entry.recommendation_kind: entry for entry in report.recommendations}
-    assert by_kind[AnalysisRecommendationKind.RUN_PTM_CORRECTION].detected_condition_code == (
-        "ptm_protein_correction_not_requested"
-    )
-    assert by_kind[AnalysisRecommendationKind.INSPECT_CONTAMINATION].detected_condition_code == (
-        "elevated_contamination"
-    )
-    assert by_kind[AnalysisRecommendationKind.EXCLUDE_FAILED_RUN].detected_condition_code == (
-        "failed_run_qc"
-    )
-    assert by_kind[AnalysisRecommendationKind.AVOID_BATCH_CORRECTION].detected_condition_code == (
-        "batch_condition_confounding"
-    )
+    assert by_kind[
+        AnalysisRecommendationKind.RUN_PTM_CORRECTION
+    ].detected_condition_code == ("ptm_protein_correction_not_requested")
+    assert by_kind[
+        AnalysisRecommendationKind.INSPECT_CONTAMINATION
+    ].detected_condition_code == ("elevated_contamination")
+    assert by_kind[
+        AnalysisRecommendationKind.EXCLUDE_FAILED_RUN
+    ].detected_condition_code == ("failed_run_qc")
+    assert by_kind[
+        AnalysisRecommendationKind.AVOID_BATCH_CORRECTION
+    ].detected_condition_code == ("batch_condition_confounding")
     assert "detected_condition_code" in render_analysis_recommendation_tsv(report)

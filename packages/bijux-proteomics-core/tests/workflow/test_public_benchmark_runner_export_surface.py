@@ -40,4 +40,6 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     assert failures_tsv.splitlines()[0] == (
         "dataset_id\taccession\tstatus\tfailure_kind\tsubject\tmessage"
     )
-    assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
+    assert (
+        "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
+    )

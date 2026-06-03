@@ -74,9 +74,7 @@ def test_track_internal_standards_flags_drift_and_missing_rows() -> None:
 
 def test_internal_standard_tracking_renders_tsv_and_builds_sample_qc() -> None:
     rows = track_internal_standards(_standards_matrix(), ("STD_A", "STD_B"))
-    qc_rows = {
-        row.sample_id: row for row in build_internal_standard_sample_qc(rows)
-    }
+    qc_rows = {row.sample_id: row for row in build_internal_standard_sample_qc(rows)}
     rendered = render_internal_standard_tracking_tsv(rows)
 
     assert qc_rows["sample_a"].qc_status.value == "pass"
@@ -84,5 +82,7 @@ def test_internal_standard_tracking_renders_tsv_and_builds_sample_qc() -> None:
     assert "internal_standard_drift" in qc_rows["sample_c"].status_reason_codes
     assert qc_rows["sample_d"].qc_status.value == "fail"
     assert "internal_standard_missing" in qc_rows["sample_d"].status_reason_codes
-    assert rendered.startswith("standard_id\tsample_id\tintensity\tcv\tmissing\tdrift_flag\n")
+    assert rendered.startswith(
+        "standard_id\tsample_id\tintensity\tcv\tmissing\tdrift_flag\n"
+    )
     assert "true" in rendered

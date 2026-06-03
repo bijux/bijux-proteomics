@@ -216,7 +216,9 @@ def test_differential_abundance_report_preserves_imputation_dependence_fields() 
     )
     assert by_entity["PEPA"].imputation_dependent_hit is True
     assert by_entity["PEPA"].no_impute_adjusted_p_value is not None
-    assert by_entity["PEPA"].imputed_adjusted_p_value == by_entity["PEPA"].adjusted_p_value
+    assert (
+        by_entity["PEPA"].imputed_adjusted_p_value == by_entity["PEPA"].adjusted_p_value
+    )
     assert (
         DifferentialResultRobustnessReasonCode.IMPUTATION_DEPENDENT_SIGNIFICANCE
         in by_entity["PEPA"].robustness_reason_codes
@@ -264,6 +266,5 @@ def test_compare_imputation_policies_flags_imputation_only_hits_as_sensitive() -
     assert by_entity["PEPB"].imputation_dependent is True
     assert (
         "entity_id\tsignificant_without_imputation\tsignificant_after_imputation"
-        "\timputation_dependent\tpolicy_sensitive"
-        in rendered
+        "\timputation_dependent\tpolicy_sensitive" in rendered
     )

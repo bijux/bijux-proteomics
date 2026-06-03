@@ -73,5 +73,7 @@ def test_build_targeted_carryover_report_requires_run_order() -> None:
         _format_fixture("skyline_targeted_qc.design.tsv")
     ).accepted_entries
 
-    with pytest.raises(ValueError, match="run_order is required for carryover analysis"):
+    with pytest.raises(
+        ValueError, match="run_order is required for carryover analysis"
+    ):
         build_targeted_carryover_report(import_report, unordered_design_entries)

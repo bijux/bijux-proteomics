@@ -30,7 +30,9 @@ def test_render_targeted_carryover_exports_keep_ordered_review_visible() -> None
     summary_tsv = render_targeted_carryover_summary_tsv(report)
     candidates_tsv = render_targeted_carryover_candidates_tsv(report)
 
-    assert "source_name\trun_count\tprecursor_count\tcandidate_entry_count" in summary_tsv
+    assert (
+        "source_name\trun_count\tprecursor_count\tcandidate_entry_count" in summary_tsv
+    )
     assert "Skyline\t4\t2\t2\t2\t1" in summary_tsv
     assert (
         "source_high.raw\tsource_high\t1\tblank_after_source.raw\tblank_after_source\t2\t1\tCARRYPEP/2\tCARRYPEP\tP100\t200000\t4000\t0.020000\t0.9333\thigh_intensity_previous_run|low_level_repeated_signal|immediate_run_order_followup"

@@ -189,7 +189,9 @@ def test_run_proteomics_workflow_supports_fragpipe_mode() -> None:
             search_result_tsv_path=_workflow_fixture("fragpipe_biological_psms.tsv"),
             design_tsv_path=_workflow_fixture("biological_report.design.tsv"),
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
-            source_protein_tsv_path=_workflow_fixture("fragpipe_biological_proteins.tsv"),
+            source_protein_tsv_path=_workflow_fixture(
+                "fragpipe_biological_proteins.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )
@@ -208,9 +210,7 @@ def test_run_proteomics_workflow_supports_diann_mode() -> None:
             design_tsv_path=_workflow_fixture("diann_biological.design.tsv"),
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
             annotation_tsv_path=(
-                _fixture_root()
-                / "interpretation"
-                / "protein_annotation_custom.tsv"
+                _fixture_root() / "interpretation" / "protein_annotation_custom.tsv"
             ),
             context_annotation_tsv_path=_workflow_fixture(
                 "biological_report_context.tsv"
@@ -238,9 +238,7 @@ def test_run_proteomics_workflow_supports_maxquant_mode() -> None:
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
             config_path=maxquant_dir / "maxquant_settings.txt",
             annotation_tsv_path=(
-                _fixture_root()
-                / "interpretation"
-                / "protein_annotation_custom.tsv"
+                _fixture_root() / "interpretation" / "protein_annotation_custom.tsv"
             ),
             context_annotation_tsv_path=_workflow_fixture(
                 "biological_report_context.tsv"
@@ -361,7 +359,10 @@ def test_run_proteomics_workflow_supports_targeted_validation_mode(
     assert result.design_row_count == 4
     assert result.manifest is result.export_manifest
     assert result.source_report is not None
-    assert result.artifacts["confirmed_validation_tsv"] == "targeted_validation_confirmed.tsv"
+    assert (
+        result.artifacts["confirmed_validation_tsv"]
+        == "targeted_validation_confirmed.tsv"
+    )
     assert result.warnings == result.report.warnings
     assert result.rejected_evidence == result.report.rejected_evidence
     assert result.report.summary.discovery_claim_count == 2

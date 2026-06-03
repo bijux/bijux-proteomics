@@ -2,6 +2,7 @@
 # Copyright © 2026 Bijan Mousavi
 
 from __future__ import annotations
+
 from pathlib import Path
 
 from bijux_proteomics.workflow import (
@@ -91,10 +92,19 @@ def test_build_workflow_output_validation_report_rejects_hidden_missing_required
 
     assert validation.status is WorkflowOutputValidationStatus.INVALID
     assert validation.issue_count == 1
-    assert validation.issues[0].check is WorkflowOutputValidationCheck.DECLARED_ARTIFACT_COMPLETENESS
-    assert validation.issues[0].code is WorkflowOutputValidationIssueCode.MISSING_REQUIRED_ARTIFACT
+    assert (
+        validation.issues[0].check
+        is WorkflowOutputValidationCheck.DECLARED_ARTIFACT_COMPLETENESS
+    )
+    assert (
+        validation.issues[0].code
+        is WorkflowOutputValidationIssueCode.MISSING_REQUIRED_ARTIFACT
+    )
     assert validation.issues[0].artifact_relative_path == missing_name
-    assert "declared at manifest.artifacts.belief_audit_tsv" in validation.issues[0].message
+    assert (
+        "declared at manifest.artifacts.belief_audit_tsv"
+        in validation.issues[0].message
+    )
 
 
 def test_build_workflow_output_validation_report_marks_missing_manifest_as_invalid(
@@ -109,7 +119,12 @@ def test_build_workflow_output_validation_report_marks_missing_manifest_as_inval
     assert validation.status is WorkflowOutputValidationStatus.INVALID
     assert validation.issue_count == 1
     assert validation.artifact_count == 0
-    assert validation.issues[0].check is WorkflowOutputValidationCheck.MANIFEST_ARTIFACT_LAYOUT
-    assert validation.issues[0].code is WorkflowOutputValidationIssueCode.MISSING_MANIFEST
+    assert (
+        validation.issues[0].check
+        is WorkflowOutputValidationCheck.MANIFEST_ARTIFACT_LAYOUT
+    )
+    assert (
+        validation.issues[0].code is WorkflowOutputValidationIssueCode.MISSING_MANIFEST
+    )
     assert validation.issues[0].artifact_relative_path == "manifest.json"
     assert "workflow artifact manifest is missing" in validation.issues[0].message

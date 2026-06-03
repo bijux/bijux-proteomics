@@ -75,7 +75,9 @@ def test_ptm_mechanism_classification_distinguishes_site_specific_ambiguous_and_
     report = build_ptm_mechanism_classification_report(differential)
 
     entries = {entry.site_key: entry for entry in report.entries}
-    assert entries["P11111:S5:Phospho"].mechanism_class is PtmMechanismClass.SITE_SPECIFIC
+    assert (
+        entries["P11111:S5:Phospho"].mechanism_class is PtmMechanismClass.SITE_SPECIFIC
+    )
     assert entries["P22222:Y18:Phospho"].mechanism_class is PtmMechanismClass.AMBIGUOUS
     assert entries["Q9DEC1:S5:Phospho"].mechanism_class is PtmMechanismClass.UNSUPPORTED
     assert report.summary.site_specific_count == 1
@@ -127,7 +129,9 @@ def test_ptm_mechanism_classification_marks_abundance_driven_when_protein_explai
     }
 
 
-def test_render_ptm_mechanism_classification_tsv_preserves_raw_and_corrected_effects() -> None:
+def test_render_ptm_mechanism_classification_tsv_preserves_raw_and_corrected_effects() -> (
+    None
+):
     differential = _build_differential_analysis_report()
 
     report = build_ptm_mechanism_classification_report(differential)

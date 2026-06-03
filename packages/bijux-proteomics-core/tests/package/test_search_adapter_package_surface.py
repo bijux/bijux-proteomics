@@ -9,9 +9,7 @@ from bijux_proteomics import identification
 
 
 def _matrix_root() -> Path:
-    return (
-        Path(__file__).resolve().parents[1] / "fixtures" / "search_adapter_corpora"
-    )
+    return Path(__file__).resolve().parents[1] / "fixtures" / "search_adapter_corpora"
 
 
 def test_identification_package_exports_search_adapter_split_surface() -> None:

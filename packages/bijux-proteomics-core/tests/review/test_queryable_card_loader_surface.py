@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import bijux_proteomics.review as review
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
@@ -19,6 +18,7 @@ from bijux_proteomics.ptm import (
 from bijux_proteomics.ptm.cards.evidence_cards import render_ptm_evidence_card_tsv
 from bijux_proteomics.ptm.cards.reporting import build_ptm_report_bundle
 from bijux_proteomics.quantification import parse_ms1_feature_table
+import bijux_proteomics.review as review
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
@@ -56,8 +56,15 @@ def _ptm_fixture(name: str) -> Path:
 
 
 def _protein_sequences() -> dict[str, str]:
-    fasta = Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / "ptm_sites.fasta"
-    report = parse_fasta_document(fasta.read_text(encoding="utf-8"), mode=FastaParseMode.STRICT)
+    fasta = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "fasta"
+        / "ptm_sites.fasta"
+    )
+    report = parse_fasta_document(
+        fasta.read_text(encoding="utf-8"), mode=FastaParseMode.STRICT
+    )
     return {
         record.canonical_accession: record.residues
         for record in report.accepted_records
@@ -83,7 +90,9 @@ def _build_biological_report():
 def _build_ptm_report():
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     design_entries = tuple(
         entry.model_copy(update={"batch": None})
@@ -303,10 +312,20 @@ def test_review_loader_reads_all_governed_card_families(tmp_path: Path) -> None:
     assert loaded["sample"]
     assert loaded["ptm"]
     assert loaded["biomarker"]
-    assert all(entry.card_kind is review.StandardCardKind.PROTEIN for entry in loaded["protein"])
-    assert all(entry.card_kind is review.StandardCardKind.PATHWAY for entry in loaded["pathway"])
-    assert all(entry.card_kind is review.StandardCardKind.SAMPLE for entry in loaded["sample"])
-    assert all(entry.card_kind is review.StandardCardKind.PTM for entry in loaded["ptm"])
+    assert all(
+        entry.card_kind is review.StandardCardKind.PROTEIN
+        for entry in loaded["protein"]
+    )
+    assert all(
+        entry.card_kind is review.StandardCardKind.PATHWAY
+        for entry in loaded["pathway"]
+    )
+    assert all(
+        entry.card_kind is review.StandardCardKind.SAMPLE for entry in loaded["sample"]
+    )
+    assert all(
+        entry.card_kind is review.StandardCardKind.PTM for entry in loaded["ptm"]
+    )
     assert all(
         entry.card_kind is review.StandardCardKind.BIOMARKER
         for entry in loaded["biomarker"]
@@ -317,10 +336,14 @@ def test_review_loader_reads_all_governed_card_families(tmp_path: Path) -> None:
     )
     assert all(entry.claim for entries in loaded.values() for entry in entries)
     assert all(entry.evidence_for for entries in loaded.values() for entry in entries)
-    assert all(entry.evidence_against for entries in loaded.values() for entry in entries)
+    assert all(
+        entry.evidence_against for entries in loaded.values() for entry in entries
+    )
 
 
-def test_review_loader_indexes_cards_by_card_subject_and_source_ids(tmp_path: Path) -> None:
+def test_review_loader_indexes_cards_by_card_subject_and_source_ids(
+    tmp_path: Path,
+) -> None:
     biological_report = _build_biological_report()
     protein_path = tmp_path / "biological_protein_cards.tsv"
     protein_path.write_text(
@@ -331,7 +354,10 @@ def test_review_loader_indexes_cards_by_card_subject_and_source_ids(tmp_path: Pa
     card_index = review.load_standard_card_index(protein_path)
     representative = card_index.entries[0]
 
-    assert review.find_standard_card_by_card_id(card_index, representative.card_id) == representative
+    assert (
+        review.find_standard_card_by_card_id(card_index, representative.card_id)
+        == representative
+    )
     assert representative in review.find_standard_cards_by_subject_id(
         card_index,
         representative.subject_id,

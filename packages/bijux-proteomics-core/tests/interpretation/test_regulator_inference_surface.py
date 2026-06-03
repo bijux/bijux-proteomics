@@ -5,16 +5,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.interpretation.pathway_activity import build_pathway_activity_report
-from bijux_proteomics.interpretation.pathway_enrichment import parse_pathway_membership_table
+from bijux_proteomics.interpretation.pathway_activity import (
+    build_pathway_activity_report,
+)
+from bijux_proteomics.interpretation.pathway_enrichment import (
+    parse_pathway_membership_table,
+)
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinReferenceEntry,
     build_protein_annotation_mapping_report,
 )
 from bijux_proteomics.interpretation.regulator_inference import (
+    RegulatorEvidenceRecord,
     RegulatorEvidenceType,
     RegulatorInferencePolicy,
-    RegulatorEvidenceRecord,
     RegulatorSignalSurface,
     build_regulator_inference_report,
     parse_regulator_evidence_table,
@@ -87,9 +91,13 @@ def _build_annotation_report(differential_report):
     )
 
 
-def test_build_regulator_inference_report_separates_site_and_abundance_support() -> None:
+def test_build_regulator_inference_report_separates_site_and_abundance_support() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(
@@ -103,7 +111,9 @@ def test_build_regulator_inference_report_separates_site_and_abundance_support()
     annotation_report = _build_annotation_report(differential_report)
     pathway_report = build_pathway_activity_report(
         protein_table,
-        parse_pathway_membership_table(_fixture("biological_report_pathways.tsv")).accepted_records,
+        parse_pathway_membership_table(
+            _fixture("biological_report_pathways.tsv")
+        ).accepted_records,
         design_entries=design_entries,
         fasta_records=parse_fasta_document(
             _fixture("biological_report_reference.fasta").read_text(encoding="utf-8"),
@@ -155,9 +165,13 @@ def test_build_regulator_inference_report_separates_site_and_abundance_support()
     assert report.unresolved_targets[0].target_value == "UNSEEN"
 
 
-def test_regulator_inference_renderers_expose_supporting_targets_and_unresolved_rows() -> None:
+def test_regulator_inference_renderers_expose_supporting_targets_and_unresolved_rows() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(
@@ -171,7 +185,9 @@ def test_regulator_inference_renderers_expose_supporting_targets_and_unresolved_
     annotation_report = _build_annotation_report(differential_report)
     pathway_report = build_pathway_activity_report(
         protein_table,
-        parse_pathway_membership_table(_fixture("biological_report_pathways.tsv")).accepted_records,
+        parse_pathway_membership_table(
+            _fixture("biological_report_pathways.tsv")
+        ).accepted_records,
         design_entries=design_entries,
     )
     report = build_regulator_inference_report(
@@ -200,12 +216,16 @@ def test_regulator_inference_renderers_expose_supporting_targets_and_unresolved_
         "regulator\tevidence_type\ttarget_field\ttarget_value\tsource_name\t"
         "source_accession\treason"
     )
-    assert "OrphanTF\ttranscription_factor_target\tgene_symbol\tUNSEEN" in unresolved_tsv
+    assert (
+        "OrphanTF\ttranscription_factor_target\tgene_symbol\tUNSEEN" in unresolved_tsv
+    )
 
 
 def test_build_regulator_inference_report_downgrades_low_target_coverage() -> None:
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(

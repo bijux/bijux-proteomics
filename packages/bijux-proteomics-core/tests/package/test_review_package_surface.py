@@ -58,8 +58,9 @@ def test_review_package_exports_evidence_graph_query_engine_surface() -> None:
     assert hasattr(review, "query_protein_evidence_summary")
     assert hasattr(review, "render_protein_evidence_summary_tsv")
     assert report.support_edge_count == 1
-    assert "protein_id\tprotein_label\trelation" in review.render_protein_evidence_summary_tsv(
-        report
+    assert (
+        "protein_id\tprotein_label\trelation"
+        in review.render_protein_evidence_summary_tsv(report)
     )
 
 
@@ -166,9 +167,14 @@ def test_review_package_exports_analysis_recommendation_surface(tmp_path: Path) 
     )
 
     assert hasattr(review, "build_analysis_recommendation_report_from_artifacts")
-    assert review.AnalysisRecommendationKind.RUN_PTM_CORRECTION.value == "run_ptm_correction"
+    assert (
+        review.AnalysisRecommendationKind.RUN_PTM_CORRECTION.value
+        == "run_ptm_correction"
+    )
     assert report.summary.recommendation_count == 1
-    assert "detected_condition_code" in review.render_analysis_recommendation_tsv(report)
+    assert "detected_condition_code" in review.render_analysis_recommendation_tsv(
+        report
+    )
 
 
 def test_review_package_exports_compact_result_summary_surface() -> None:
@@ -257,9 +263,7 @@ def test_review_package_exports_failure_explanation_surface() -> None:
     assert hasattr(review, "build_failure_explanation_report")
     assert review.FailureExplanationCategory.INVALID_DESIGN.value == "invalid_design"
     assert report.summary.explained_count == 1
-    assert (
-        "scientific_condition_code" in review.render_failure_explanation_tsv(report)
-    )
+    assert "scientific_condition_code" in review.render_failure_explanation_tsv(report)
 
 
 def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
@@ -293,8 +297,9 @@ def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
     assert hasattr(review, "reconstruct_protein_evidence_chain")
     assert hasattr(review, "render_evidence_chain_tsv")
     assert report.source_row_count == 2
-    assert "claim_kind\tclaim_id\tstatistical_result_id\trelation" in review.render_evidence_chain_tsv(
-        report
+    assert (
+        "claim_kind\tclaim_id\tstatistical_result_id\trelation"
+        in review.render_evidence_chain_tsv(report)
     )
 
 
@@ -496,7 +501,9 @@ def test_review_package_exports_evidence_graph_run_diff_surface() -> None:
         label="protein differential result",
         claim_state="changed",
     )
-    left_spectrum = left.add_spectrum("scan=1001", label="scan=1001", trust_class="high")
+    left_spectrum = left.add_spectrum(
+        "scan=1001", label="scan=1001", trust_class="high"
+    )
     left_psm = left.add_psm("psm:1001", label="psm:1001", trust_class="high")
     left.add_spectrum_supports_psm(
         left_spectrum.node_id,
@@ -534,7 +541,9 @@ def test_review_package_exports_evidence_graph_run_diff_surface() -> None:
         label="protein differential result",
         claim_state="changed",
     )
-    right_spectrum = right.add_spectrum("scan=1002", label="scan=1002", trust_class="high")
+    right_spectrum = right.add_spectrum(
+        "scan=1002", label="scan=1002", trust_class="high"
+    )
     right_psm = right.add_psm("psm:1002", label="psm:1002", trust_class="high")
     right.add_spectrum_supports_psm(
         right_spectrum.node_id,
@@ -715,8 +724,9 @@ def test_review_package_exports_biological_claim_validation_surface() -> None:
     assert hasattr(review, "build_biological_claim_validation_report")
     assert hasattr(review, "render_supported_biological_claim_tsv")
     assert report.summary.supported_claim_count == 1
-    assert "claim_id\tclaim_kind\tstatus" in review.render_supported_biological_claim_tsv(
-        report
+    assert (
+        "claim_id\tclaim_kind\tstatus"
+        in review.render_supported_biological_claim_tsv(report)
     )
 
 

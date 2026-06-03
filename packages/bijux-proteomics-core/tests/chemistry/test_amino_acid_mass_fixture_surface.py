@@ -18,7 +18,9 @@ def _chemistry_fixture(name: str) -> Path:
 
 
 def test_curated_amino_acid_mass_examples_match_fixed_expected_values() -> None:
-    fixture = json.loads(_chemistry_fixture("amino_acid_mass_examples.json").read_text())
+    fixture = json.loads(
+        _chemistry_fixture("amino_acid_mass_examples.json").read_text()
+    )
 
     for case in fixture:
         report = build_peptide_mass_report(

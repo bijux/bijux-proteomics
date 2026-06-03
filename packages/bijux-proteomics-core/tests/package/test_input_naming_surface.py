@@ -8,7 +8,6 @@ from pathlib import Path
 
 from bijux_proteomics import domain, sequences
 
-
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 LEGACY_PARSER_WRAPPERS = {
@@ -105,12 +104,17 @@ def test_parse_functions_do_not_write_or_mutate_external_state() -> None:
     for path in SOURCE_ROOT.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in tree.body:
-            if not isinstance(node, ast.FunctionDef) or not node.name.startswith("parse_"):
+            if not isinstance(node, ast.FunctionDef) or not node.name.startswith(
+                "parse_"
+            ):
                 continue
             for child in ast.walk(node):
                 if not isinstance(child, ast.Call):
                     continue
-                if isinstance(child.func, ast.Attribute) and child.func.attr in MUTATING_IO_METHODS:
+                if (
+                    isinstance(child.func, ast.Attribute)
+                    and child.func.attr in MUTATING_IO_METHODS
+                ):
                     offenders.append(
                         f"{path.relative_to(SOURCE_ROOT)}:{node.lineno}:{node.name}"
                     )
@@ -119,15 +123,15 @@ def test_parse_functions_do_not_write_or_mutate_external_state() -> None:
 
 def test_load_function_names_remain_reserved_for_structured_hydration() -> None:
     legacy_wrapper_names = {
-        name
-        for wrappers in LEGACY_PARSER_WRAPPERS.values()
-        for name in wrappers
+        name for wrappers in LEGACY_PARSER_WRAPPERS.values() for name in wrappers
     }
     found_canonical_names: set[str] = set()
     for path in SOURCE_ROOT.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in tree.body:
-            if not isinstance(node, ast.FunctionDef) or not node.name.startswith("load_"):
+            if not isinstance(node, ast.FunctionDef) or not node.name.startswith(
+                "load_"
+            ):
                 continue
             if node.name in legacy_wrapper_names:
                 continue

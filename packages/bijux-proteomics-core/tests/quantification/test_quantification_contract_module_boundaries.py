@@ -6,7 +6,6 @@ from __future__ import annotations
 from importlib import import_module
 from pathlib import Path
 
-
 _CONTRACT_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
@@ -101,14 +100,16 @@ def test_quantification_contract_modules_stay_within_line_ceiling() -> None:
     }
 
     assert line_counts
-    assert all(
-        count <= _MAX_CONTRACT_LINES for count in line_counts.values()
-    ), line_counts
+    assert all(count <= _MAX_CONTRACT_LINES for count in line_counts.values()), (
+        line_counts
+    )
 
 
 def test_quantification_contract_modules_expose_owned_surfaces() -> None:
     for module_name, exports in _MODULE_EXPORTS.items():
-        module = import_module(f"bijux_proteomics.quantification.contracts.{module_name}")
+        module = import_module(
+            f"bijux_proteomics.quantification.contracts.{module_name}"
+        )
         for export_name in exports:
             assert hasattr(module, export_name), f"{module_name}.{export_name}"
 

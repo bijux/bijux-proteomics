@@ -19,6 +19,6 @@ def test_ptm_invalid_q_and_malformed_modification_mutation_fixture_rejects_broke
 
     assert len(report.accepted_records) == fixture.expected_accepted_count
     assert len(report.rejected_rows) == fixture.expected_rejected_count
-    assert {
-        issue.code for row in report.rejected_rows for issue in row.issues
-    } == set(fixture.expected_issue_codes)
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == set(
+        fixture.expected_issue_codes
+    )

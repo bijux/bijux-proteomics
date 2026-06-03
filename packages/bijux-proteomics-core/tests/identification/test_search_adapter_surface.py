@@ -158,7 +158,9 @@ def test_built_in_pipeline_dialects_cover_richer_engine_like_outputs() -> None:
     assert reports["msfragger"].normalized_records[0].score == 132.4
     assert reports["sage"].normalized_records[0].q_value == 0.001
     assert reports["maxquant"].normalized_records[1].target_decoy_label.value == "decoy"
-    assert reports["maxquant"].normalized_records[0].posterior_error_probability == 0.001
+    assert (
+        reports["maxquant"].normalized_records[0].posterior_error_probability == 0.001
+    )
     assert reports["maxquant"].normalized_records[0].q_value is None
     assert reports["diann"].normalized_records[0].q_value == 0.002
     assert reports["spectronaut"].normalized_records[0].protein_refs == (

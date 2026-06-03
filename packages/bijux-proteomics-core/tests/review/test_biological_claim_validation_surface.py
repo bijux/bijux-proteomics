@@ -36,7 +36,10 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
                 robustness_score=0.82,
                 evidence_tier=FinalClaimEvidenceTier.HIGH_CONFIDENCE,
                 confidence_tier=EvidenceGraphConfidenceTier.HIGH,
-                source_ids=("protein-mechanism-card:P11111", "statistical_result:P11111"),
+                source_ids=(
+                    "protein-mechanism-card:P11111",
+                    "statistical_result:P11111",
+                ),
                 source_row_refs=("protein_stats.tsv:4", "protein_matrix.tsv:4"),
                 note="strong protein decrease",
             ),
@@ -165,9 +168,7 @@ def test_biological_claim_validation_supports_only_directional_and_robust_claims
     }
     supported_by_id = {entry.claim_id: entry for entry in report.supported_claims}
     assert supported_by_id["protein-claim:P11111"].source_row_refs
-    assert (
-        supported_by_id["pathway-claim:R-HSA-1"].derived_no_source_reason is not None
-    )
+    assert supported_by_id["pathway-claim:R-HSA-1"].derived_no_source_reason is not None
 
 
 def test_biological_claim_validation_rejects_non_significant_protein_claims() -> None:

@@ -37,14 +37,18 @@ from bijux_proteomics.multiplex import (
 
 
 def _silac_fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    )
 
 
 def _multiplex_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / name
 
 
-def test_validation_renderers_and_exports_emit_silac_and_tmt_ledgers(tmp_path: Path) -> None:
+def test_validation_renderers_and_exports_emit_silac_and_tmt_ledgers(
+    tmp_path: Path,
+) -> None:
     silac_report = build_silac_validation_report(
         parse_silac_feature_table(_silac_fixture("silac_features.tsv")),
         policy=SilacValidationPolicy(
@@ -100,11 +104,21 @@ def test_validation_renderers_and_exports_emit_silac_and_tmt_ledgers(tmp_path: P
     )
     export_tmt_validation_weak_tsv(tmt_report, tmp_path / "tmt.weak.tsv")
 
-    assert (tmp_path / "silac.summary.tsv").read_text(encoding="utf-8") == silac_summary_tsv
-    assert (tmp_path / "silac.labels.tsv").read_text(encoding="utf-8") == silac_label_tsv
-    assert (tmp_path / "silac.distribution.tsv").read_text(encoding="utf-8") == silac_distribution_tsv
+    assert (tmp_path / "silac.summary.tsv").read_text(
+        encoding="utf-8"
+    ) == silac_summary_tsv
+    assert (tmp_path / "silac.labels.tsv").read_text(
+        encoding="utf-8"
+    ) == silac_label_tsv
+    assert (tmp_path / "silac.distribution.tsv").read_text(
+        encoding="utf-8"
+    ) == silac_distribution_tsv
     assert (tmp_path / "silac.weak.tsv").read_text(encoding="utf-8") == silac_weak_tsv
     assert (tmp_path / "tmt.summary.tsv").read_text(encoding="utf-8") == tmt_summary_tsv
-    assert (tmp_path / "tmt.channels.tsv").read_text(encoding="utf-8") == tmt_channel_tsv
-    assert (tmp_path / "tmt.distribution.tsv").read_text(encoding="utf-8") == tmt_distribution_tsv
+    assert (tmp_path / "tmt.channels.tsv").read_text(
+        encoding="utf-8"
+    ) == tmt_channel_tsv
+    assert (tmp_path / "tmt.distribution.tsv").read_text(
+        encoding="utf-8"
+    ) == tmt_distribution_tsv
     assert (tmp_path / "tmt.weak.tsv").read_text(encoding="utf-8") == tmt_weak_tsv

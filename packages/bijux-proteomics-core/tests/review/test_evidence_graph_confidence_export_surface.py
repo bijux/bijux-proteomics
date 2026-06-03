@@ -17,9 +17,11 @@ def test_evidence_graph_confidence_renders_deterministic_tsv() -> None:
     rendered = render_evidence_graph_confidence_tsv(report)
     lines = rendered.strip().splitlines()
 
-    assert "claim_node_id\tclaim_node_ref\tsubject_node_id\tsubject_node_ref" in rendered
+    assert (
+        "claim_node_id\tclaim_node_ref\tsubject_node_id\tsubject_node_ref" in rendered
+    )
     assert "confidence_tier" in lines[0]
     assert len(lines) == 6
     assert "\thigh\t" in rendered
     assert "\tlow\t" in rendered
-    assert "\"entry_count\": 5" in report.to_stable_json()
+    assert '"entry_count": 5' in report.to_stable_json()

@@ -21,13 +21,13 @@ from bijux_proteomics.quantification import (
     render_heatmap_row_metadata_tsv,
     render_peptide_intensity_matrix_tsv,
     render_peptide_intensity_missingness_tsv,
-    render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
     render_protein_lfq_disconnected_components_tsv,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
+    render_protein_peptide_contribution_tsv,
     render_sample_cluster_tsv,
     render_sample_distance_tsv,
     render_sample_pca_variance_tsv,
@@ -249,9 +249,9 @@ def test_heatmap_renderers_ignore_scrambled_report_order() -> None:
     )
 
     assert render_heatmap_matrix_tsv(report) == render_heatmap_matrix_tsv(scrambled)
-    assert render_heatmap_row_metadata_tsv(
-        report
-    ) == render_heatmap_row_metadata_tsv(scrambled)
+    assert render_heatmap_row_metadata_tsv(report) == render_heatmap_row_metadata_tsv(
+        scrambled
+    )
     assert render_heatmap_column_metadata_tsv(
         report
     ) == render_heatmap_column_metadata_tsv(scrambled)
@@ -268,9 +268,7 @@ def test_sample_exploration_renderers_ignore_scrambled_report_order() -> None:
         update={
             "explained_variance_report": report.explained_variance_report.model_copy(
                 update={
-                    "entries": tuple(
-                        reversed(report.explained_variance_report.entries)
-                    )
+                    "entries": tuple(reversed(report.explained_variance_report.entries))
                 }
             ),
             "sample_distance_report": report.sample_distance_report.model_copy(
@@ -286,12 +284,8 @@ def test_sample_exploration_renderers_ignore_scrambled_report_order() -> None:
         }
     )
 
-    assert render_sample_pca_variance_tsv(
-        report
-    ) == render_sample_pca_variance_tsv(scrambled)
-    assert render_sample_distance_tsv(
-        report
-    ) == render_sample_distance_tsv(scrambled)
-    assert render_sample_cluster_tsv(
-        report
-    ) == render_sample_cluster_tsv(scrambled)
+    assert render_sample_pca_variance_tsv(report) == render_sample_pca_variance_tsv(
+        scrambled
+    )
+    assert render_sample_distance_tsv(report) == render_sample_distance_tsv(scrambled)
+    assert render_sample_cluster_tsv(report) == render_sample_cluster_tsv(scrambled)

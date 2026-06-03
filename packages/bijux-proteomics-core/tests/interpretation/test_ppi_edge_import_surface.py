@@ -24,4 +24,6 @@ def test_parse_ppi_edge_table_preserves_edges_and_rejections() -> None:
     rejected_reasons = {row.reason for row in report.rejected_rows}
     assert "ppi edge row must connect two distinct proteins" in rejected_reasons
     assert "duplicate undirected ppi edge for P001 and P002" in rejected_reasons
-    assert "ppi edge interaction_score must be numeric when supplied" in rejected_reasons
+    assert (
+        "ppi edge interaction_score must be numeric when supplied" in rejected_reasons
+    )

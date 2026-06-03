@@ -11,10 +11,10 @@ from bijux_proteomics.identification import (
     FdrPolicy,
     ParsimonyVariant,
     PsmRecord,
-    TargetDecoyContaminantClass,
     PsmSortField,
     PtmIdentificationObservation,
     SearchResultColumnMapping,
+    TargetDecoyContaminantClass,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     apply_q_values,
@@ -41,8 +41,8 @@ from bijux_proteomics.identification import (
     build_review_ready_evidence_bundle,
     build_search_result_provenance_manifest,
     build_shared_peptide_ambiguity_report,
-    calculate_grouped_fdr,
     calculate_basic_target_decoy_fdr,
+    calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     compare_parsimony_variants,
@@ -163,10 +163,7 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert first.canonical_peptide == "PES[Phospho]TIDE"
     assert first.intensity == 1200.5
     assert first.contaminant_flag is False
-    assert (
-        first.target_decoy_contaminant_class
-        is TargetDecoyContaminantClass.TARGET
-    )
+    assert first.target_decoy_contaminant_class is TargetDecoyContaminantClass.TARGET
     second = report.accepted_records[1]
     assert second.run_id == "run_B"
     assert second.peptide_sequence == "DECOYPEP"
@@ -174,10 +171,7 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert second.intensity is None
     assert second.target_decoy_label is TargetDecoyLabel.DECOY
     assert second.contaminant_flag is True
-    assert (
-        second.target_decoy_contaminant_class
-        is TargetDecoyContaminantClass.MIXED
-    )
+    assert second.target_decoy_contaminant_class is TargetDecoyContaminantClass.MIXED
 
 
 def test_psm_parser_preserves_engine_pep_without_relabeling_it_as_q_value(
@@ -1170,7 +1164,9 @@ def test_grouped_confidence_report_downgrades_single_run_only_proteins() -> None
     )
 
     entry = next(
-        candidate for candidate in grouped.entries if candidate.protein_refs == ("P11111",)
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P11111",)
     )
 
     assert entry.evidence_tier == "moderate"
@@ -1230,7 +1226,9 @@ def test_grouped_confidence_report_preserves_explicit_exploratory_single_run_pro
     )
 
     entry = next(
-        candidate for candidate in grouped.entries if candidate.protein_refs == ("P22222",)
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P22222",)
     )
 
     assert entry.evidence_tier == "high_confidence"
@@ -1421,9 +1419,10 @@ def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases()
         == "P55555"
     )
     assert "P55555" not in {entry.protein_ref for entry in picked}
-    assert next(
-        entry for entry in picked if entry.protein_ref == "DECOY_P55555"
-    ).accepted is False
+    assert (
+        next(entry for entry in picked if entry.protein_ref == "DECOY_P55555").accepted
+        is False
+    )
     assert [entry.q_value for entry in picked] == sorted(
         entry.q_value for entry in picked
     )

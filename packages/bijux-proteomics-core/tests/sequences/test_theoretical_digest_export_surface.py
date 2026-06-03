@@ -39,13 +39,19 @@ def test_theoretical_digest_export_writes_governed_tsv_bundle(tmp_path: Path) ->
     assert peptides_path.name == "digest_peptides.tsv"
     assert mappings_path.name == "peptide_to_protein.tsv"
     assert summary_path.name == "digest_summary.tsv"
-    assert peptides_path.read_text().splitlines()[0].startswith(
-        "canonical_notation\tstripped_sequence"
+    assert (
+        peptides_path.read_text()
+        .splitlines()[0]
+        .startswith("canonical_notation\tstripped_sequence")
     )
-    assert mappings_path.read_text().splitlines()[0].startswith(
-        "canonical_notation\tstripped_sequence\tsource_accession"
+    assert (
+        mappings_path.read_text()
+        .splitlines()[0]
+        .startswith("canonical_notation\tstripped_sequence\tsource_accession")
     )
-    assert summary_path.read_text().splitlines()[0].startswith(
-        "input_record_count\tpeptide_occurrence_count"
+    assert (
+        summary_path.read_text()
+        .splitlines()[0]
+        .startswith("input_record_count\tpeptide_occurrence_count")
     )
     assert bundle.search_space_hash in summary_path.read_text()

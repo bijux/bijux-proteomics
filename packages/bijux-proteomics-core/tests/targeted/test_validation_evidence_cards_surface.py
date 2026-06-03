@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences import PeptideUniquenessClass
-from bijux_proteomics.targeted.assay_interference import TargetedAssayInterferenceRiskTier
+from bijux_proteomics.targeted.assay_interference import (
+    TargetedAssayInterferenceRiskTier,
+)
 from bijux_proteomics.targeted.biomarker_stability import BiomarkerStabilityReasonCode
 from bijux_proteomics.targeted.panel_design import (
     TargetedPanelCandidateKind,
@@ -16,7 +18,6 @@ from bijux_proteomics.targeted.result_validation import (
 )
 from bijux_proteomics.targeted.validation_evidence_cards import (
     ValidationEvidenceCardStatus,
-    ValidationEvidenceWarningCode,
     ValidationEvidenceDiscoveryInput,
     ValidationEvidenceOmittedCandidateInput,
     ValidationEvidencePanelAssayInput,
@@ -24,6 +25,7 @@ from bijux_proteomics.targeted.validation_evidence_cards import (
     ValidationEvidenceResultAssayInput,
     ValidationEvidenceResultInput,
     ValidationEvidenceStabilityInput,
+    ValidationEvidenceWarningCode,
     build_validation_evidence_card_report,
     render_validation_evidence_card_tsv,
     render_validation_evidence_card_warning_tsv,
@@ -78,7 +80,9 @@ def test_validation_evidence_cards_derive_final_status_from_governed_evidence() 
     )
 
 
-def test_validation_evidence_card_renderers_preserve_biological_role_and_warning_ledgers() -> None:
+def test_validation_evidence_card_renderers_preserve_biological_role_and_warning_ledgers() -> (
+    None
+):
     report = build_validation_evidence_card_report(
         _discovery_candidates(),
         panel_assays=_panel_assays(),

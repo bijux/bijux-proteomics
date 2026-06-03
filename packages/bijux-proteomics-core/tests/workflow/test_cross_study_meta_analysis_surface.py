@@ -105,8 +105,7 @@ def test_cross_study_meta_analysis_combines_effects_with_inverse_variance_weight
     assert report.summary.rejected_group_count == 0
     entry = report.combined_entries[0]
     assert (
-        entry.effect_model
-        is CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE
+        entry.effect_model is CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE
     )
     assert entry.combined_log2_fold_change == pytest.approx(1.12)
     assert entry.combined_standard_error == pytest.approx((1.0 / 31.25) ** 0.5)
@@ -115,7 +114,8 @@ def test_cross_study_meta_analysis_combines_effects_with_inverse_variance_weight
     assert entry.combined_p_value != pytest.approx((0.001 + 0.004) / 2.0)
 
     weight_by_study = {
-        weight_entry.study_id: weight_entry for weight_entry in report.study_weight_entries
+        weight_entry.study_id: weight_entry
+        for weight_entry in report.study_weight_entries
     }
     assert weight_by_study["study_a"].fixed_weight_fraction == pytest.approx(0.8)
     assert weight_by_study["study_b"].fixed_weight_fraction == pytest.approx(0.2)
@@ -161,9 +161,7 @@ def test_cross_study_meta_analysis_marks_direction_conflicts_and_high_heterogene
     assert entry.direction_conflict is True
     assert set(entry.conflicting_study_ids) == {"study_a", "study_b"}
     assert entry.effect_model is CrossStudyMetaAnalysisEffectModel.RANDOM_EFFECTS
-    assert (
-        entry.heterogeneity_tier is CrossStudyMetaAnalysisHeterogeneityTier.HIGH
-    )
+    assert entry.heterogeneity_tier is CrossStudyMetaAnalysisHeterogeneityTier.HIGH
 
 
 def test_cross_study_meta_analysis_rejects_heterogeneous_contrasts() -> None:

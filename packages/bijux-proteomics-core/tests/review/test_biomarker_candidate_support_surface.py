@@ -50,24 +50,26 @@ def test_biological_report_candidate_loader_matches_out_of_order_differential_ro
         encoding="utf-8",
     )
 
-    candidates, sample_qc_score = _build_biomarker_candidates_from_biological_report_dir(
-        report_dir,
-        selected_peptide_support={
-            "P11111": {
-                "detectability_score": 0.9,
-                "uniqueness_score": 0.8,
-                "suitability_score": 0.7,
+    candidates, sample_qc_score = (
+        _build_biomarker_candidates_from_biological_report_dir(
+            report_dir,
+            selected_peptide_support={
+                "P11111": {
+                    "detectability_score": 0.9,
+                    "uniqueness_score": 0.8,
+                    "suitability_score": 0.7,
+                },
+                "P22222": {
+                    "detectability_score": 0.4,
+                    "uniqueness_score": 0.5,
+                    "suitability_score": 0.3,
+                },
             },
-            "P22222": {
-                "detectability_score": 0.4,
-                "uniqueness_score": 0.5,
-                "suitability_score": 0.3,
+            assay_interference_support={
+                "P11111": {"assay_score": 0.8},
+                "P22222": {"assay_score": 0.2},
             },
-        },
-        assay_interference_support={
-            "P11111": {"assay_score": 0.8},
-            "P22222": {"assay_score": 0.2},
-        },
+        )
     )
 
     assert sample_qc_score == 0.85
@@ -75,7 +77,10 @@ def test_biological_report_candidate_loader_matches_out_of_order_differential_ro
         "protein:pg-1",
         "protein:pg-2",
     )
-    assert all(candidate.candidate_kind is BiomarkerCandidateKind.PROTEIN for candidate in candidates)
+    assert all(
+        candidate.candidate_kind is BiomarkerCandidateKind.PROTEIN
+        for candidate in candidates
+    )
     assert candidates[0].effect_size == 1.8
     assert candidates[0].annotation_labels == (
         "pathway:kinase",

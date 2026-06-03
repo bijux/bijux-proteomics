@@ -216,7 +216,12 @@ def test_estimate_sample_weights_zeroes_failed_outlier_sample() -> None:
     assert "failed_sample_qc" in by_sample["case-3"].low_weight_reasons
     assert "sample_exploration_outlier" in by_sample["case-3"].low_weight_reasons
     assert "high_relative_missingness" in by_sample["case-3"].low_weight_reasons
-    assert by_sample["case-1"].reliability_weight > by_sample["case-3"].reliability_weight
-    assert by_sample["control-1"].reliability_weight > by_sample["case-3"].reliability_weight
+    assert (
+        by_sample["case-1"].reliability_weight > by_sample["case-3"].reliability_weight
+    )
+    assert (
+        by_sample["control-1"].reliability_weight
+        > by_sample["case-3"].reliability_weight
+    )
     assert rendered.startswith("sample_id\treliability_weight\tlow_weight_reasons\n")
     assert "case-3\t0.0000\t" in rendered

@@ -29,14 +29,25 @@ def test_build_surprising_demo_interrogation_report_answers_all_shipped_examples
     assert report.summary.query_count == 4
     assert report.summary.answered_query_count == 4
     assert report.summary.not_found_query_count == 0
-    assert all(answer.status is SurprisingDemoQueryStatus.ANSWERED for answer in report.answers)
-    assert "confidence_reasons" in render_surprising_demo_interrogation_answers_tsv(report)
-    assert "answered_query_count" in render_surprising_demo_interrogation_summary_tsv(report)
+    assert all(
+        answer.status is SurprisingDemoQueryStatus.ANSWERED for answer in report.answers
+    )
+    assert "confidence_reasons" in render_surprising_demo_interrogation_answers_tsv(
+        report
+    )
+    assert "answered_query_count" in render_surprising_demo_interrogation_summary_tsv(
+        report
+    )
 
     protein_answer = answers_by_kind[SurprisingDemoQueryKind.WHY_PROTEIN_CHANGED]
     assert protein_answer.subject_id == "P11111"
-    assert "statistical_result:protein:control_vs_treated:P11111" in protein_answer.evidence_ids
-    assert "biological_protein_cards:protein-card:P11111" in protein_answer.source_row_refs
+    assert (
+        "statistical_result:protein:control_vs_treated:P11111"
+        in protein_answer.evidence_ids
+    )
+    assert (
+        "biological_protein_cards:protein-card:P11111" in protein_answer.source_row_refs
+    )
     assert "evidence_tier:high_support" in protein_answer.confidence_reasons
 
     site_answer = answers_by_kind[SurprisingDemoQueryKind.WHY_SITE_AMBIGUOUS]

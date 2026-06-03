@@ -116,8 +116,7 @@ def build_importer_mutation_fixture_catalog() -> tuple[ImporterMutationFixture, 
             fixture_id="importer_mutation:ms1_feature_negative_intensity",
             owner_surface="quantification.parse_ms1_feature_table",
             source_repo_relative_path=(
-                "packages/bijux-proteomics-core/tests/fixtures/quant/"
-                "ms1_features.tsv"
+                "packages/bijux-proteomics-core/tests/fixtures/quant/ms1_features.tsv"
             ),
             mutated_repo_relative_path=(
                 "packages/bijux-proteomics-core/tests/fixtures/importer_mutations/"

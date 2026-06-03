@@ -6,9 +6,10 @@ from __future__ import annotations
 import importlib
 import os
 from pathlib import Path
-import pytest
 import subprocess
 import sys
+
+import pytest
 
 
 def _source_pythonpath() -> str:

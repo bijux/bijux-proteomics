@@ -15,7 +15,9 @@ from bijux_proteomics.quantification import (
     normalize_label_free_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.quantification.differential_abundance import apply_benjamini_hochberg
+from bijux_proteomics.quantification.differential_abundance import (
+    apply_benjamini_hochberg,
+)
 from bijux_proteomics.workflow import build_biological_result_graph_report
 from bijux_proteomics_lab.handoffs.qc_feedback import (
     LabRunQcObservation,
@@ -28,7 +30,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_biological_result_graph_report_preserves_graph_backed_final_claims() -> None:
+def test_build_biological_result_graph_report_preserves_graph_backed_final_claims() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -74,8 +78,12 @@ def test_build_biological_result_graph_report_preserves_graph_backed_final_claim
     )
 
     assert report.protein_claim_count == len(differential_report.entries)
-    assert report.graph.summary.node_kind_counts["protein"] == len(differential_report.entries)
-    assert report.graph.summary.node_kind_counts["statistical_result"] == len(differential_report.entries)
+    assert report.graph.summary.node_kind_counts["protein"] == len(
+        differential_report.entries
+    )
+    assert report.graph.summary.node_kind_counts["statistical_result"] == len(
+        differential_report.entries
+    )
     assert report.final_results.entry_count == len(differential_report.entries)
     assert all(
         entry.claim_node_id.startswith("statistical_result:")
@@ -162,7 +170,10 @@ def test_build_biological_result_graph_report_routes_lab_run_qc_feedback_into_gr
             for context in node.context_refs
         )
     )
-    assert {f"{context.entity_type.value}:{context.entity_ref}" for context in quant_node.context_refs} >= {
+    assert {
+        f"{context.entity_type.value}:{context.entity_ref}"
+        for context in quant_node.context_refs
+    } >= {
         f"sample:{design_entries[0].sample_id}",
         f"run:{design_entries[0].spectra_file}",
     }
@@ -170,4 +181,7 @@ def test_build_biological_result_graph_report_routes_lab_run_qc_feedback_into_gr
         "poor_run_qc" in {reason.value for reason in entry.downgrade_reasons}
         for entry in qc_report.final_results.entries
     )
-    assert all(entry.confidence_tier.value != "high" for entry in qc_report.final_results.entries)
+    assert all(
+        entry.confidence_tier.value != "high"
+        for entry in qc_report.final_results.entries
+    )

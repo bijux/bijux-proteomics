@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.identification.diann_import import build_diann_import_report
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import build_diann_biological_workflow_bundle
@@ -12,7 +13,6 @@ from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     build_diann_biological_workflow_bundle_from_reports,
     build_diann_quant_matrix_bundle,
 )
-from bijux_proteomics.identification.diann_import import build_diann_import_report
 
 
 def _fixture(name: str) -> Path:
@@ -77,7 +77,9 @@ def test_diann_biological_workflow_stage_helpers_match_the_monolithic_bundle() -
         ).accepted_entries
     )
     import_report = build_diann_import_report(_fixture("diann_biological_report.tsv"))
-    quant_matrix_bundle = build_diann_quant_matrix_bundle(import_report, max_q_value=0.01)
+    quant_matrix_bundle = build_diann_quant_matrix_bundle(
+        import_report, max_q_value=0.01
+    )
 
     staged_report = build_diann_biological_workflow_bundle_from_reports(
         import_report,

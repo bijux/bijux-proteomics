@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.ptm.differential_analysis import PtmProteinCorrectionMode
 from bijux_proteomics.ptm.evidence_cards import (
     PtmEvidenceCard,
     PtmEvidenceCardClaim,
@@ -21,7 +22,6 @@ from bijux_proteomics.ptm.evidence_cards import (
     PtmEvidenceCardReport,
     PtmEvidenceCardSummary,
 )
-from bijux_proteomics.ptm.differential_analysis import PtmProteinCorrectionMode
 from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationConfidenceTier,
     PtmLocalizationProbabilitySource,
@@ -37,14 +37,16 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.sequences import ProteinIdentityLevel
+from bijux_proteomics.sequences import (
+    ProteinIdentityLevel,
+    parse_protein_region_context_tsv,
+)
 from bijux_proteomics.workflow import (
     ProteinEvidenceCardSelectionPolicy,
-    build_biological_result_report_bundle,
     build_biological_result_graph_report,
+    build_biological_result_report_bundle,
     build_protein_evidence_card_report,
 )
-from bijux_proteomics.sequences import parse_protein_region_context_tsv
 
 
 def _fixture(name: str) -> Path:
@@ -100,7 +102,9 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                 motif_evidence=PtmEvidenceCardMotifEvidence(),
                 mechanism_classification=PtmEvidenceCardMechanismClassification(
                     mechanism_class=PtmMechanismClass.SITE_SPECIFIC,
-                    reason_codes=(PtmMechanismReasonCode.RESIDUAL_SITE_EFFECT_AFTER_CORRECTION,),
+                    reason_codes=(
+                        PtmMechanismReasonCode.RESIDUAL_SITE_EFFECT_AFTER_CORRECTION,
+                    ),
                     raw_log2_fold_change=2.0,
                     corrected_log2_fold_change=1.5,
                     note="corrected site effect remains strong after accounting for the protein baseline",
@@ -194,7 +198,9 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
     )
 
 
-def test_build_protein_evidence_card_report_preserves_one_structured_card_per_final_protein() -> None:
+def test_build_protein_evidence_card_report_preserves_one_structured_card_per_final_protein() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -249,7 +255,9 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
             "O14920": "MPEPCCCK",
         },
         selection_policy=ProteinEvidenceCardSelectionPolicy(),
-        sample_conditions={entry.sample_id: entry.condition for entry in design_entries},
+        sample_conditions={
+            entry.sample_id: entry.condition for entry in design_entries
+        },
         context_mapping_report=bundle.context_mapping_report,
         pathway_enrichment_report=bundle.pathway_enrichment_report,
         complex_enrichment_report=bundle.complex_enrichment_report,
@@ -258,11 +266,18 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
         ).accepted_records,
     )
 
-    assert report.summary.protein_result_count == len(bundle.differential_report.entries)
+    assert report.summary.protein_result_count == len(
+        bundle.differential_report.entries
+    )
     assert len(report.cards) == bundle.summary.protein_count
     assert all(card.card_id.startswith("protein-card:") for card in report.cards)
-    assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.cards)
-    assert all(card.graph_subject_node_id.startswith("protein:") for card in report.cards)
+    assert all(
+        card.graph_claim_node_id.startswith("statistical_result:")
+        for card in report.cards
+    )
+    assert all(
+        card.graph_subject_node_id.startswith("protein:") for card in report.cards
+    )
     assert all(card.peptide_count == len(card.peptides) for card in report.cards)
     assert any(card.pathways for card in report.cards)
     assert any(card.context_terms for card in report.cards)
@@ -277,7 +292,9 @@ def test_build_protein_evidence_card_report_preserves_one_structured_card_per_fi
     assert any(card.warnings for card in report.cards)
 
 
-def test_build_protein_evidence_card_report_preserves_ptm_site_keys_when_ptm_cards_are_supplied() -> None:
+def test_build_protein_evidence_card_report_preserves_ptm_site_keys_when_ptm_cards_are_supplied() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -329,7 +346,9 @@ def test_build_protein_evidence_card_report_preserves_ptm_site_keys_when_ptm_car
             "O14920": "MPEPCCCK",
         },
         selection_policy=ProteinEvidenceCardSelectionPolicy(),
-        sample_conditions={entry.sample_id: entry.condition for entry in design_entries},
+        sample_conditions={
+            entry.sample_id: entry.condition for entry in design_entries
+        },
         ptm_evidence_card_report=_synthetic_ptm_evidence_card_report(),
     )
 

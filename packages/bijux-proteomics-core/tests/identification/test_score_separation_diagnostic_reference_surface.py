@@ -34,12 +34,12 @@ def test_score_separation_reference_cases_prove_overlap_and_warning_tiers() -> N
             unstable_overlap_threshold=case["unstable_overlap_threshold"],
         )
 
-        assert report.summary.target_dominance_fraction == case[
-            "expected_target_dominance_fraction"
-        ]
-        assert report.summary.overlap_metric == case["expected_overlap_metric"]
         assert (
-            report.summary.warning_tier
-            is ScoreSeparationWarningTier(case["expected_warning_tier"])
+            report.summary.target_dominance_fraction
+            == case["expected_target_dominance_fraction"]
+        )
+        assert report.summary.overlap_metric == case["expected_overlap_metric"]
+        assert report.summary.warning_tier is ScoreSeparationWarningTier(
+            case["expected_warning_tier"]
         )
         assert report.summary.fdr_unstable is case["expected_fdr_unstable"]

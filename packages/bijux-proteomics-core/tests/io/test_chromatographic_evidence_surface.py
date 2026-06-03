@@ -70,11 +70,19 @@ def test_score_chromatographic_evidence_penalizes_rt_drift_and_missingness() -> 
     assert by_target["anchor_delta"].missing_run_ids == ("rt_alignment_shifted",)
     assert by_target["anchor_delta"].chromatographic_evidence_score < 0.75
     assert "missing_peak" in by_target["anchor_delta"].concern_codes
-    assert by_peptide["PEPC"].chromatographic_evidence_score == by_target["anchor_gamma"].chromatographic_evidence_score
-    assert by_peptide["PEPD"].chromatographic_evidence_score == by_target["anchor_delta"].chromatographic_evidence_score
+    assert (
+        by_peptide["PEPC"].chromatographic_evidence_score
+        == by_target["anchor_gamma"].chromatographic_evidence_score
+    )
+    assert (
+        by_peptide["PEPD"].chromatographic_evidence_score
+        == by_target["anchor_delta"].chromatographic_evidence_score
+    )
 
 
-def test_extract_mzml_chromatographic_evidence_composes_alignment_and_renders_tsv() -> None:
+def test_extract_mzml_chromatographic_evidence_composes_alignment_and_renders_tsv() -> (
+    None
+):
     report = extract_mzml_chromatographic_evidence(
         (
             _format_fixture("rt_alignment_reference.mzml"),
@@ -106,4 +114,7 @@ def test_extract_mzml_chromatographic_evidence_composes_alignment_and_renders_ts
         "apex_intensity_score\tsignal_to_noise_score\trt_agreement_score\t"
         "missingness_score\tchromatographic_evidence_score\tconcern_codes"
     )
-    assert "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250" in peptide_tsv
+    assert (
+        "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250"
+        in peptide_tsv
+    )

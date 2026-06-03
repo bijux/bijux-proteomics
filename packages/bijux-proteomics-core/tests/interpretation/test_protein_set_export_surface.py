@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.interpretation import (
     build_protein_set_scoring_report,
     parse_protein_set_table,
@@ -17,6 +16,7 @@ from bijux_proteomics.interpretation import (
     render_protein_set_unresolved_member_tsv,
     render_rejected_protein_set_tsv,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -63,8 +63,12 @@ def _build_fixture_table():
     )
 
 
-def test_protein_set_renderers_emit_summary_matrix_condition_and_unresolved_ledgers() -> None:
-    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
+def test_protein_set_renderers_emit_summary_matrix_condition_and_unresolved_ledgers() -> (
+    None
+):
+    design_report = parse_experimental_design_table(
+        _quant_fixture_path("quant.design.tsv")
+    )
     protein_sets = parse_protein_set_table(_fixture_path("protein_sets.tsv"))
     invalid_sets = parse_protein_set_table(_fixture_path("protein_sets_invalid.tsv"))
     report = build_protein_set_scoring_report(
@@ -93,4 +97,7 @@ def test_protein_set_renderers_emit_summary_matrix_condition_and_unresolved_ledg
     assert "confidence_status" in condition_tsv.splitlines()[0]
     assert "condition_a_confidence_status" in comparison_tsv.splitlines()[0]
     assert "P999" in unresolved_tsv
-    assert "duplicate protein set membership for activation and protein P001" in rejected_tsv
+    assert (
+        "duplicate protein set membership for activation and protein P001"
+        in rejected_tsv
+    )

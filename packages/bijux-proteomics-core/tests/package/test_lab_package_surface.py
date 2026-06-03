@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import bijux_proteomics.lab as lab
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
@@ -11,6 +10,7 @@ from bijux_proteomics.domain.records import (
     QuantMeasureKind,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+import bijux_proteomics.lab as lab
 
 
 def test_lab_package_exports_run_diagnosis_surface() -> None:

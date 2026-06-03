@@ -77,7 +77,9 @@ def test_bad_tmt_channel_fixture_keeps_missing_channel_evidence_visible() -> Non
         _asset_path(manifest, "reporter_table"),
         source_kind=TmtSearchResultSourceKind.MAXQUANT,
     )
-    design_report = parse_experimental_design_table(_asset_path(manifest, "design_table"))
+    design_report = parse_experimental_design_table(
+        _asset_path(manifest, "design_table")
+    )
     feature_bundle = build_tmt_reporter_feature_bundle(
         reporter_report,
         design_entries=design_report.accepted_entries,

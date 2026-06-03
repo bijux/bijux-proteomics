@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-import bijux_proteomics.quantification as quantification
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
-    QuantMeasureKind,
     QuantMatrix,
+    QuantMeasureKind,
     SampleMetadata,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+import bijux_proteomics.quantification as quantification
 from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
@@ -139,7 +139,9 @@ def test_quantification_package_exports_protein_uncertainty_owner_surface() -> N
 
     report = quantification.estimate_protein_uncertainty(rollup)
     rendered = quantification.render_protein_uncertainty_tsv(report)
-    entry_lookup = {(entry.protein_id, entry.sample_id): entry for entry in report.entries}
+    entry_lookup = {
+        (entry.protein_id, entry.sample_id): entry for entry in report.entries
+    }
 
     assert hasattr(quantification, "estimate_protein_uncertainty")
     assert hasattr(quantification, "render_protein_uncertainty_tsv")
@@ -275,9 +277,7 @@ def test_quantification_package_exports_peptide_level_differential_owner_surface
     )
 
 
-def test_quantification_package_exports_replicate_reliability_weight_surface() -> (
-    None
-):
+def test_quantification_package_exports_replicate_reliability_weight_surface() -> None:
     table = quantification.build_label_free_intensity_table(
         (
             quantification.Ms1FeatureRecord(
@@ -538,7 +538,10 @@ def test_quantification_package_exports_variance_model_owner_surface() -> None:
 
     assert hasattr(quantification, "fit_mean_variance_trend")
     assert hasattr(quantification, "render_mean_variance_trend_tsv")
-    assert entry_lookup["P_LOW"].quantitative_confidence < entry_lookup["P_HIGH"].quantitative_confidence
+    assert (
+        entry_lookup["P_LOW"].quantitative_confidence
+        < entry_lookup["P_HIGH"].quantitative_confidence
+    )
     assert (
         "entity_id\tmean_intensity\tobserved_variance\texpected_variance\tvariance_residual"
         in rendered
@@ -1131,8 +1134,9 @@ def test_quantification_package_exports_differential_result_robustness_surface()
     )
     assert report.entries[0].robustness_score is not None
     assert len(robustness.entries) == len(report.entries)
-    assert "robustness_reason_codes" in quantification.render_differential_abundance_tsv(
-        report
+    assert (
+        "robustness_reason_codes"
+        in quantification.render_differential_abundance_tsv(report)
     )
     assert (
         "imputation_significance_change_reason"
@@ -1458,8 +1462,7 @@ def test_quantification_package_exports_imputation_policy_comparison_surface() -
     assert entry_lookup["PEPA"].policy_sensitive is True
     assert (
         "entity_id\tsignificant_without_imputation\tsignificant_after_imputation"
-        "\timputation_dependent\tpolicy_sensitive"
-        in rendered
+        "\timputation_dependent\tpolicy_sensitive" in rendered
     )
 
 
@@ -1745,7 +1748,9 @@ def test_quantification_package_exports_heatmap_preparation_owner_surface() -> N
         aggregation_method=quantification.QuantRollupMethod.SUM,
     )
 
-    report = quantification.build_heatmap_preparation_report(table, design_entries=design_entries)
+    report = quantification.build_heatmap_preparation_report(
+        table, design_entries=design_entries
+    )
     rendered = quantification.render_heatmap_row_metadata_tsv(report)
 
     assert hasattr(quantification, "build_heatmap_preparation_report")
@@ -2031,7 +2036,9 @@ def test_quantification_package_exports_peptide_profile_inconsistency_surface() 
             protein_refs=("P001",),
         ),
     )
-    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(records)
+    peptide_matrix = quantification.build_peptide_intensity_matrix_from_features(
+        records
+    )
     report = quantification.build_peptide_profile_inconsistency_report(peptide_matrix)
     rendered = quantification.render_peptide_profile_inconsistency_tsv(report)
     inverted_entry = next(
@@ -2145,9 +2152,11 @@ def test_quantification_package_exports_multi_contrast_consistency_surface() -> 
         entity_level=quantification.QuantEntityLevel.PROTEIN,
         aggregation_method=quantification.QuantRollupMethod.SUM,
     )
-    multi_condition = quantification.build_multi_condition_differential_abundance_report(
-        table,
-        design_entries,
+    multi_condition = (
+        quantification.build_multi_condition_differential_abundance_report(
+            table,
+            design_entries,
+        )
     )
     report = quantification.build_multi_contrast_consistency_report(
         multi_condition,

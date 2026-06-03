@@ -5,14 +5,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.fragment_ratio_stability import (
-    build_targeted_fragment_ratio_stability_report,
-    score_dia_fragment_ratio_stability,
-)
 from bijux_proteomics.io.dia_fragment_coelution import (
     DiaFragmentCoelutionFragmentEntry,
     DiaFragmentCoelutionReport,
     DiaFragmentCoelutionRunEntry,
+)
+from bijux_proteomics.io.fragment_ratio_stability import (
+    build_targeted_fragment_ratio_stability_report,
+    score_dia_fragment_ratio_stability,
 )
 from bijux_proteomics.targeted.result_import import build_skyline_result_import_report
 
@@ -21,9 +21,13 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_build_targeted_fragment_ratio_stability_report_flags_unstable_transition_ratios() -> None:
+def test_build_targeted_fragment_ratio_stability_report_flags_unstable_transition_ratios() -> (
+    None
+):
     report = build_targeted_fragment_ratio_stability_report(
-        build_skyline_result_import_report(_format_fixture("skyline_targeted_qc_results.tsv"))
+        build_skyline_result_import_report(
+            _format_fixture("skyline_targeted_qc_results.tsv")
+        )
     )
 
     assert report.summary.analyte_count == 2
@@ -34,7 +38,8 @@ def test_build_targeted_fragment_ratio_stability_report_flags_unstable_transitio
     assert report.summary.drift_flagged_observation_count == 2
 
     by_fragment = {
-        (entry.analyte_id, entry.fragment_id): entry for entry in report.fragment_entries
+        (entry.analyte_id, entry.fragment_id): entry
+        for entry in report.fragment_entries
     }
     unstable_entry = by_fragment[("PEPTIDEK/2", "y8")]
     stable_entry = by_fragment[("PEPTIDEK/2", "y7")]
@@ -61,7 +66,9 @@ def test_build_targeted_fragment_ratio_stability_report_flags_unstable_transitio
     assert reference_observation.drift_flag is False
 
 
-def test_score_dia_fragment_ratio_stability_compares_fragment_ratios_across_runs() -> None:
+def test_score_dia_fragment_ratio_stability_compares_fragment_ratios_across_runs() -> (
+    None
+):
     report = score_dia_fragment_ratio_stability(
         DiaFragmentCoelutionReport(
             run_ids=("run_alpha", "run_beta"),
@@ -178,7 +185,8 @@ def test_score_dia_fragment_ratio_stability_compares_fragment_ratios_across_runs
     assert report.summary.drift_flagged_observation_count == 4
 
     by_fragment = {
-        (entry.analyte_id, entry.fragment_id): entry for entry in report.fragment_entries
+        (entry.analyte_id, entry.fragment_id): entry
+        for entry in report.fragment_entries
     }
     stable_entry = by_fragment[("prec_alpha", "alpha_y7")]
     shifted_entry = by_fragment[("prec_alpha", "alpha_y8")]

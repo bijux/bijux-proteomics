@@ -57,11 +57,9 @@ def test_parse_sample_metadata_table_rejects_ambiguous_shared_runs_without_chann
 
     assert not report.accepted_entries
     assert len(report.rejected_rows) == 2
-    assert {
-        issue.code
-        for row in report.rejected_rows
-        for issue in row.issues
-    } == {"ambiguous_shared_run"}
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == {
+        "ambiguous_shared_run"
+    }
 
 
 def test_parse_sample_metadata_table_rejects_duplicate_channel_assignments(
@@ -84,8 +82,6 @@ def test_parse_sample_metadata_table_rejects_duplicate_channel_assignments(
 
     assert not report.accepted_entries
     assert len(report.rejected_rows) == 2
-    assert {
-        issue.code
-        for row in report.rejected_rows
-        for issue in row.issues
-    } == {"duplicate_run_channel_assignment"}
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == {
+        "duplicate_run_channel_assignment"
+    }

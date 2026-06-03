@@ -7,12 +7,8 @@ import ast
 import importlib
 from pathlib import Path
 
-
 _WORKFLOW_ROOT = (
-    Path(__file__).resolve().parents[2]
-    / "src"
-    / "bijux_proteomics"
-    / "workflow"
+    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 _ROOT_WRAPPER_TARGETS = {
     "biological_report_assembly.py": (
@@ -65,9 +61,7 @@ _ROOT_WRAPPER_TARGETS = {
     "output_validation.py": "bijux_proteomics.workflow.exports.output_validation",
     "result_archive.py": "bijux_proteomics.workflow.exports.result_archive",
     "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
-    "result_search_index.py": (
-        "bijux_proteomics.workflow.exports.result_search_index"
-    ),
+    "result_search_index.py": ("bijux_proteomics.workflow.exports.result_search_index"),
     "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
     "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
@@ -86,10 +80,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
     return [
         node
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom)
-            and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     ]
 
 

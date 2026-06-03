@@ -201,12 +201,16 @@ def test_design_classification_detects_batch_confounded_targeted_and_exploratory
         exploratory_design
     )
 
-    assert confounded_report.primary_design_type is ExperimentDesignType.BATCH_CONFOUNDED
+    assert (
+        confounded_report.primary_design_type is ExperimentDesignType.BATCH_CONFOUNDED
+    )
     assert (
         confounded_report.recommended_analysis_family
         is ExperimentDesignAnalysisFamily.EXPLORATORY_SUMMARY
     )
-    assert targeted_report.primary_design_type is ExperimentDesignType.TARGETED_VALIDATION
+    assert (
+        targeted_report.primary_design_type is ExperimentDesignType.TARGETED_VALIDATION
+    )
     assert (
         targeted_report.recommended_analysis_family
         is ExperimentDesignAnalysisFamily.TARGETED_VALIDATION_REVIEW

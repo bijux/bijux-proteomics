@@ -76,8 +76,7 @@ def test_build_diann_differential_input_report_preserves_sample_matrix() -> None
     assert report.table.entity_protein_refs["PG001"] == ("P11111",)
     assert report.table.entity_member_peptides["PG002"] == ("ACDM[Oxidation]K",)
     values = {
-        (value.entity_id, value.sample_id): value
-        for value in report.table.values
+        (value.entity_id, value.sample_id): value for value in report.table.values
     }
     assert values[("PG001", "T2")].abundance == 420000.0
     assert values[("PG001", "T2")].source_feature_count == 1
@@ -85,7 +84,9 @@ def test_build_diann_differential_input_report_preserves_sample_matrix() -> None
     assert "DIA-NN rollup evidence" in report.note
 
 
-def test_build_diann_differential_analysis_report_preserves_normalization_and_fdr() -> None:
+def test_build_diann_differential_analysis_report_preserves_normalization_and_fdr() -> (
+    None
+):
     design_report = parse_experimental_design_table(
         _format_fixture("diann_differential.design.tsv")
     )
@@ -124,7 +125,9 @@ def test_build_diann_differential_analysis_report_preserves_normalization_and_fd
     assert "qc summary counts" in report.note
 
 
-def test_build_dia_protein_matrix_differential_analysis_report_runs_from_core_api() -> None:
+def test_build_dia_protein_matrix_differential_analysis_report_runs_from_core_api() -> (
+    None
+):
     design_report = parse_experimental_design_table(
         _format_fixture("diann_differential.design.tsv")
     )
@@ -147,7 +150,9 @@ def test_build_dia_protein_matrix_differential_analysis_report_runs_from_core_ap
     assert report.qc_summary.significant_entry_count == 2
 
 
-def test_build_spectronaut_differential_analysis_report_preserves_the_same_result_shape() -> None:
+def test_build_spectronaut_differential_analysis_report_preserves_the_same_result_shape() -> (
+    None
+):
     design_report = parse_experimental_design_table(
         _format_fixture("spectronaut_differential.design.tsv")
     )
@@ -225,9 +230,7 @@ def test_build_diann_differential_analysis_report_blocks_paired_design_methods()
         raise AssertionError("expected paired DIA design to be rejected")
 
 
-def test_build_diann_differential_analysis_report_blocks_underpowered_designs() -> (
-    None
-):
+def test_build_diann_differential_analysis_report_blocks_underpowered_designs() -> None:
     underpowered_design = build_experiment_design(
         (
             _entry(sample_id="C1", condition="control", spectra_file="c1.raw"),

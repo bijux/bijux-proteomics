@@ -62,7 +62,9 @@ def test_check_cohort_balance_blocks_condition_confounded_covariate() -> None:
     assert "blocks naive subgroup interpretation" in sex.analysis_warning
 
 
-def test_check_cohort_balance_renders_tsv_and_keeps_balanced_covariate_unblocked() -> None:
+def test_check_cohort_balance_renders_tsv_and_keeps_balanced_covariate_unblocked() -> (
+    None
+):
     rows = check_cohort_balance(
         (
             _entry(

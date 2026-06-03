@@ -5,14 +5,16 @@ from __future__ import annotations
 
 from bijux_proteomics.review import (
     BiomarkerCandidateKind,
-    BiomarkerCandidateRankReasonCode,
     BiomarkerCandidateRankingInput,
+    BiomarkerCandidateRankReasonCode,
     build_biomarker_candidate_ranking_report,
     render_biomarker_candidate_ranking_tsv,
 )
 
 
-def test_biomarker_candidate_ranking_prioritizes_validation_ready_signal_over_famous_annotation() -> None:
+def test_biomarker_candidate_ranking_prioritizes_validation_ready_signal_over_famous_annotation() -> (
+    None
+):
     report = build_biomarker_candidate_ranking_report(
         (
             BiomarkerCandidateRankingInput(
@@ -70,7 +72,9 @@ def test_biomarker_candidate_ranking_prioritizes_validation_ready_signal_over_fa
     )
 
 
-def test_biomarker_candidate_ranking_renderer_preserves_reason_codes_for_protein_and_site_candidates() -> None:
+def test_biomarker_candidate_ranking_renderer_preserves_reason_codes_for_protein_and_site_candidates() -> (
+    None
+):
     report = build_biomarker_candidate_ranking_report(
         (
             BiomarkerCandidateRankingInput(

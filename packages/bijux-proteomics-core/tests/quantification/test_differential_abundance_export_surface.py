@@ -279,7 +279,12 @@ def test_export_differential_abundance_tsv_writes_table() -> None:
         condition_a="case",
         condition_b="control",
     )
-    path = Path(__file__).resolve().parent.parent / "fixtures" / "quant" / "differential_abundance.tsv"
+    path = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "quant"
+        / "differential_abundance.tsv"
+    )
 
     try:
         export_differential_abundance_tsv(report, path)
@@ -288,9 +293,16 @@ def test_export_differential_abundance_tsv_writes_table() -> None:
         path.unlink(missing_ok=True)
 
 
-def test_export_multi_condition_differential_abundance_tsv_writes_flattened_table() -> None:
+def test_export_multi_condition_differential_abundance_tsv_writes_flattened_table() -> (
+    None
+):
     report = build_multi_condition_differential_abundance_report(_table(), _design())
-    path = Path(__file__).resolve().parent.parent / "fixtures" / "quant" / "multi_condition_differential_abundance.tsv"
+    path = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "quant"
+        / "multi_condition_differential_abundance.tsv"
+    )
 
     try:
         export_multi_condition_differential_abundance_tsv(report, path)
@@ -310,7 +322,12 @@ def test_render_and_export_differential_broken_pairs_tsv() -> None:
         test_type=DifferentialAbundanceTestType.PAIRED_T_TEST,
         paired_policy=PairedDifferentialPolicy(),
     )
-    path = Path(__file__).resolve().parent.parent / "fixtures" / "quant" / "differential_broken_pairs.tsv"
+    path = (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "quant"
+        / "differential_broken_pairs.tsv"
+    )
 
     try:
         tsv = render_differential_broken_pairs_tsv(report)

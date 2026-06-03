@@ -89,7 +89,4 @@ def test_picked_protein_fdr_review_renders_summary_and_entry_ledgers() -> None:
         "0.1\tpicked:P22222\tP22222\tP22222\tDECOY_P22222\tP22222\tDECOY_P22222"
         in entries_tsv
     )
-    assert (
-        "\t100.0\t94.0\tP22222\ttarget\tpg-"
-        in entries_tsv
-    )
+    assert "\t100.0\t94.0\tP22222\ttarget\tpg-" in entries_tsv

@@ -9,9 +9,9 @@ from bijux_proteomics.sequences import (
     FastaParseMode,
     ProteogenomicPeptideReference,
     ProteogenomicPeptideSupportClass,
+    build_proteogenomic_peptide_support_report,
     parse_fasta_document,
     parse_proteogenomic_variant_peptide_table,
-    build_proteogenomic_peptide_support_report,
     render_proteogenomic_peptide_support_tsv,
 )
 
@@ -39,7 +39,10 @@ def test_parse_proteogenomic_variant_peptide_table_preserves_explicit_variant_su
     assert report.summary.rejected_row_count == 2
     assert report.accepted_records[0].variant_protein_ref == "Q9AAA4"
     assert report.accepted_records[0].reference_protein_ref == "P12345"
-    assert report.rejected_rows[0].reason == "variant peptide row requires peptide_sequence"
+    assert (
+        report.rejected_rows[0].reason
+        == "variant peptide row requires peptide_sequence"
+    )
     assert "duplicate variant peptide support row" in report.rejected_rows[1].reason
 
 

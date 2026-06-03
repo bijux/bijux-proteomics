@@ -31,9 +31,7 @@ def test_build_peptide_uniqueness_across_database_reports_extended_classes() -> 
 
     assert by_peptide["AK"].uniqueness is DatabasePeptideUniqueness.ISOFORM_SHARED
     assert by_peptide["AK"].protein_families == ("P11111",)
-    assert by_peptide["SHADEQK"].uniqueness is (
-        DatabasePeptideUniqueness.FAMILY_SHARED
-    )
+    assert by_peptide["SHADEQK"].uniqueness is (DatabasePeptideUniqueness.FAMILY_SHARED)
     assert by_peptide["SHADEQK"].gene_symbols == ("FAMX",)
     assert by_peptide["PEPTSHK"].uniqueness is DatabasePeptideUniqueness.SHARED
     assert by_peptide["MISSINGK"].uniqueness is DatabasePeptideUniqueness.MISSING

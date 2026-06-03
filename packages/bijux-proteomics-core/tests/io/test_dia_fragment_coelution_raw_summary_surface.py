@@ -19,7 +19,9 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_extract_mzml_dia_fragment_trace_coelution_preserves_raw_trace_summary() -> None:
+def test_extract_mzml_dia_fragment_trace_coelution_preserves_raw_trace_summary() -> (
+    None
+):
     peak_report = extract_mzml_chromatographic_peaks(
         _format_fixture("dia_fragment_coelution.mzml"),
         _format_fixture("dia_fragment_targets.tsv"),
@@ -35,11 +37,26 @@ def test_extract_mzml_dia_fragment_trace_coelution_preserves_raw_trace_summary()
     by_precursor = {entry.precursor_id: entry for entry in report.run_entries}
     raw_by_precursor = {entry.precursor_id: entry for entry in raw_scores}
 
-    assert by_precursor["prec_alpha"].coelution_score == raw_by_precursor["prec_alpha"].coelution_score
-    assert by_precursor["prec_beta"].apex_spread_seconds == raw_by_precursor["prec_beta"].apex_rt_spread
-    assert by_precursor["prec_beta"].mean_correlation == raw_by_precursor["prec_beta"].mean_trace_correlation
-    assert by_precursor["prec_beta"].failed_fragment_ids == raw_by_precursor["prec_beta"].failed_fragments
-    assert by_precursor["prec_beta"].coelution_score == raw_by_precursor["prec_beta"].coelution_score
+    assert (
+        by_precursor["prec_alpha"].coelution_score
+        == raw_by_precursor["prec_alpha"].coelution_score
+    )
+    assert (
+        by_precursor["prec_beta"].apex_spread_seconds
+        == raw_by_precursor["prec_beta"].apex_rt_spread
+    )
+    assert (
+        by_precursor["prec_beta"].mean_correlation
+        == raw_by_precursor["prec_beta"].mean_trace_correlation
+    )
+    assert (
+        by_precursor["prec_beta"].failed_fragment_ids
+        == raw_by_precursor["prec_beta"].failed_fragments
+    )
+    assert (
+        by_precursor["prec_beta"].coelution_score
+        == raw_by_precursor["prec_beta"].coelution_score
+    )
 
 
 def _raw_points_from_peak_report(peak_report) -> tuple[DiaFragmentTracePoint, ...]:

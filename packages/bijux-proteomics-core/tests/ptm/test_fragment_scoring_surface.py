@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.chemistry import FragmentIonSeries, calculate_fragment_ions, parse_modified_peptide
+from bijux_proteomics.chemistry import (
+    FragmentIonSeries,
+    calculate_fragment_ions,
+    parse_modified_peptide,
+)
 from bijux_proteomics.io.spectra import SpectrumPeak
 from bijux_proteomics.ptm.fragment_scoring import (
     render_ptm_fragment_scores_tsv,
@@ -24,7 +28,9 @@ def test_ptm_fragment_scoring_separates_phosphate_neutral_loss_from_site_determi
     b2 = next(
         ion
         for ion in ions
-        if ion.series is FragmentIonSeries.B and ion.ordinal == 2 and ion.neutral_loss is None
+        if ion.series is FragmentIonSeries.B
+        and ion.ordinal == 2
+        and ion.neutral_loss is None
     )
     b2_neutral_loss = next(
         ion
@@ -36,7 +42,9 @@ def test_ptm_fragment_scoring_separates_phosphate_neutral_loss_from_site_determi
     b3 = next(
         ion
         for ion in ions
-        if ion.series is FragmentIonSeries.B and ion.ordinal == 3 and ion.neutral_loss is None
+        if ion.series is FragmentIonSeries.B
+        and ion.ordinal == 3
+        and ion.neutral_loss is None
     )
 
     rows = score_ptm_fragments(
@@ -60,7 +68,9 @@ def test_ptm_fragment_scoring_separates_phosphate_neutral_loss_from_site_determi
     assert "site_determining" in rendered
 
 
-def test_ptm_fragment_scoring_returns_no_rows_when_no_peaks_support_theoretical_ions() -> None:
+def test_ptm_fragment_scoring_returns_no_rows_when_no_peaks_support_theoretical_ions() -> (
+    None
+):
     rows = score_ptm_fragments(
         "AS[Phospho]TYK",
         (

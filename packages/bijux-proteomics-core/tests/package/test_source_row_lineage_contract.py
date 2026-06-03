@@ -6,7 +6,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 MANAGED_FINAL_ROW_OWNERS = (
     ("workflow/cards/protein_evidence_cards.py", ("graph_source_row_refs",)),
@@ -46,11 +45,7 @@ def _string_constants(tree: ast.AST) -> set[str]:
 
 
 def _name_references(tree: ast.AST) -> set[str]:
-    return {
-        node.id
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Name)
-    }
+    return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
 
 
 def test_final_row_owners_expose_source_row_lineage_fields() -> None:

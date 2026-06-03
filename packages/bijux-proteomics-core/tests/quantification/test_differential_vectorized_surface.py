@@ -15,7 +15,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
-from bijux_proteomics.quantification.matrix import build_dense_label_free_quant_table_view
+from bijux_proteomics.quantification.matrix import (
+    build_dense_label_free_quant_table_view,
+)
 from bijux_proteomics.quantification.statistics.differential_abundance import (
     _collect_condition_values,
     _collect_condition_values_vectorized,

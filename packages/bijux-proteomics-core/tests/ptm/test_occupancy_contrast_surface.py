@@ -21,7 +21,9 @@ from bijux_proteomics.quantification.contracts import (
 )
 
 
-def test_occupancy_contrast_estimates_case_control_change_and_downgrades_missing_unmodified() -> None:
+def test_occupancy_contrast_estimates_case_control_change_and_downgrades_missing_unmodified() -> (
+    None
+):
     modified = _occupancy_matrix(
         {
             "P11111:S5:Phospho": {

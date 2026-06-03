@@ -29,7 +29,9 @@ def _diann_fixture(name: str) -> Path:
     )
 
 
-def test_render_target_panel_exports_keep_summary_missing_and_intensity_visible() -> None:
+def test_render_target_panel_exports_keep_summary_missing_and_intensity_visible() -> (
+    None
+):
     report = build_diann_peptide_target_panel_report(
         _diann_fixture("diann_library_coverage.tsv"),
         _format_fixture("dia_target_panel.tsv"),
@@ -41,7 +43,10 @@ def test_render_target_panel_exports_keep_summary_missing_and_intensity_visible(
     intensity_tsv = render_target_panel_intensity_tsv(report)
     matrix_tsv = render_target_panel_matrix_tsv(report)
 
-    assert "source_kind\tsource_name\ttotal_target_count\tmatched_target_count" in summary_tsv
+    assert (
+        "source_kind\tsource_name\ttotal_target_count\tmatched_target_count"
+        in summary_tsv
+    )
     assert (
         "target_id\ttarget_kind\tmodified_peptide\texpected_charge\tmatched_entity_ids\tdetected_sample_count"
         in target_tsv
@@ -63,5 +68,11 @@ def test_render_target_panel_exports_keep_summary_missing_and_intensity_visible(
         in missing_tsv
     )
     assert "dia-p22222\tprotein\t\t\tPEPGAMMA|PG002\t2" in target_tsv
-    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\t2\tsample_A\t1200000.0\ttrue" in intensity_tsv
-    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111\t1200000.0" in matrix_tsv
+    assert (
+        "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\t2\tsample_A\t1200000.0\ttrue"
+        in intensity_tsv
+    )
+    assert (
+        "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111\t1200000.0"
+        in matrix_tsv
+    )

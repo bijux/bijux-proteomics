@@ -5,14 +5,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
     build_ptm_report_bundle,
-    parse_ptm_ortholog_site_tsv,
     parse_ptm_localization_tsv,
+    parse_ptm_ortholog_site_tsv,
     parse_ptm_site_annotation_tsv,
     render_ptm_report_differential_tsv,
     render_ptm_report_evidence_aware_ranking_tsv,
@@ -21,7 +22,6 @@ from bijux_proteomics.ptm import (
     render_ptm_report_site_quant_matrix_tsv,
     render_ptm_report_summary_tsv,
 )
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -76,10 +76,7 @@ def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
         entry.localized_peptide == "S[Phospho]PEPTIDEK"
         for entry in report.peptide_entries
     )
-    assert any(
-        entry.site_key == "P11111:S5:Phospho"
-        for entry in report.site_table
-    )
+    assert any(entry.site_key == "P11111:S5:Phospho" for entry in report.site_table)
 
 
 def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_explicit() -> (
@@ -118,7 +115,9 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
 def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
 
     report = build_ptm_report_bundle(

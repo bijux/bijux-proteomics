@@ -5,11 +5,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics import io
-from bijux_proteomics.identification import TargetDecoyLabel
+from bijux_proteomics.identification import (
+    SearchResultColumnMapping,
+    TargetDecoyLabel,
+    parse_psm_tsv,
+)
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
-from bijux_proteomics.io.spectral_library import SpectralLibraryEntry, SpectralLibraryFormat
+from bijux_proteomics.io.spectral_library import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+)
 import bijux_proteomics.targeted as targeted
 
 
@@ -19,7 +25,9 @@ def _format_fixture(name: str) -> Path:
 
 def test_io_package_exports_mzml_reader_owner_surface() -> None:
     report = io.parse_mzml(_format_fixture("simple.mzml"))
-    review = io.build_mzml_practical_review_report(_format_fixture("practical_review.mzml"))
+    review = io.build_mzml_practical_review_report(
+        _format_fixture("practical_review.mzml")
+    )
 
     assert hasattr(io, "parse_mzml")
     assert hasattr(io, "inspect_mzml_decoding_support")
@@ -107,7 +115,9 @@ def test_io_package_exports_spectrum_entropy_owner_surface() -> None:
     assert "entropy_quality_tier" in rendered
 
 
-def test_io_package_exports_spectral_library_intensity_agreement_owner_surface() -> None:
+def test_io_package_exports_spectral_library_intensity_agreement_owner_surface() -> (
+    None
+):
     agreement = io.compare_observed_to_library(
         SpectrumModel(
             spectrum_id="observed-library-check",
@@ -337,7 +347,10 @@ def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
     assert len(report.flagged_residuals) == 1
     assert "shifted_run\tconfidence_weighted_shift\t10\t0\t0" in fit_rendered
     assert "high_confidence_outlier\t62\t50\t12\ttrue\t0.2000" in penalty_rendered
-    assert "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70" in rendered
+    assert (
+        "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70"
+        in rendered
+    )
 
 
 def test_io_package_exports_chromatographic_evidence_owner_surface() -> None:
@@ -358,7 +371,10 @@ def test_io_package_exports_chromatographic_evidence_owner_surface() -> None:
     assert hasattr(io, "render_chromatographic_peptide_evidence_tsv")
     assert len(report.target_entries) == 4
     assert report.peptide_entries[0].chromatographic_evidence_score == 1.0
-    assert "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250" in rendered
+    assert (
+        "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250"
+        in rendered
+    )
 
 
 def test_io_package_exports_dia_fragment_coelution_owner_surface() -> None:
@@ -440,11 +456,16 @@ def test_io_package_exports_fragment_ratio_stability_owner_surface() -> None:
     assert hasattr(io, "render_fragment_ratio_stability_observations_tsv")
     assert targeted_report.summary.fragment_entry_count == 4
     assert targeted_report.summary.unstable_fragment_count == 1
-    assert "targeted\tPEPTIDEK/2\tPEPTIDEK\ty8\t4\t3\t0.236842\t0.396731\t1\ttrue" in rendered
+    assert (
+        "targeted\tPEPTIDEK/2\tPEPTIDEK\ty8\t4\t3\t0.236842\t0.396731\t1\ttrue"
+        in rendered
+    )
 
 
 def test_io_package_exports_chimeric_spectrum_owner_surface() -> None:
-    spectra = io.parse_mzml(_format_fixture("chimeric_spectrum_review.mzml")).accepted_spectra
+    spectra = io.parse_mzml(
+        _format_fixture("chimeric_spectrum_review.mzml")
+    ).accepted_spectra
     psm_records = parse_psm_tsv(
         Path(__file__).resolve().parents[1]
         / "fixtures"
@@ -572,11 +593,7 @@ def test_io_package_exports_precursor_validation_owner_surface() -> None:
 def test_io_package_exports_input_integrity_owner_surface(tmp_path: Path) -> None:
     input_path = tmp_path / "integrity.tsv"
     input_path.write_text(
-        (
-            "sample_id\tintensity\tprotein_id\n"
-            "S1\t100.0\tP1\n"
-            "S1\tinvalid\tP2\n"
-        ),
+        ("sample_id\tintensity\tprotein_id\nS1\t100.0\tP1\nS1\tinvalid\tP2\n"),
         encoding="utf-8",
     )
 

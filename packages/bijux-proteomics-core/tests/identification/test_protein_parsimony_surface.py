@@ -20,7 +20,9 @@ def _psm_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "psm" / name
 
 
-def test_protein_parsimony_report_preserves_selected_proteins_and_unresolved_shared_peptides() -> None:
+def test_protein_parsimony_report_preserves_selected_proteins_and_unresolved_shared_peptides() -> (
+    None
+):
     parse_report = parse_psm_tsv(
         _psm_fixture("protein_parsimony_variants.tsv"),
         mapping=_default_mapping(),
@@ -74,7 +76,9 @@ def test_protein_parsimony_report_keeps_shared_peptide_only_cases_ambiguous() ->
     )
 
     variant_difference = next(
-        entry for entry in report.unresolved_ambiguities if entry.kind.value == "protein_set"
+        entry
+        for entry in report.unresolved_ambiguities
+        if entry.kind.value == "protein_set"
     )
     assert variant_difference.first_difference_rank == 1
 

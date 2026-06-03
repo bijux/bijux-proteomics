@@ -63,7 +63,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / "cards" / manifest.artifacts.pathway_card_tsv).exists()
     assert (output_dir / "cards" / manifest.artifacts.sample_card_tsv).exists()
     assert (output_dir / "evidence" / manifest.artifacts.supported_claim_tsv).exists()
-    assert (output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv).exists()
+    assert (
+        output_dir / "matrices" / manifest.artifacts.pathway_activity_matrix_tsv
+    ).exists()
     layout_manifest = validate_workflow_artifact_manifest(output_dir)
     summary_entry = next(
         entry
@@ -104,9 +106,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.rejected_claim_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_hypothesis_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_hypothesis_tsv).exists()
-    assert (
-        output_dir / manifest.artifacts.rejected_hypothesis_candidate_tsv
-    ).exists()
+    assert (output_dir / manifest.artifacts.rejected_hypothesis_candidate_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.foreground_background_issue_tsv).exists()
@@ -119,25 +119,33 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.pathway_activity_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_activity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_activity_sample_score_tsv).exists()
-    assert (output_dir / manifest.artifacts.pathway_activity_condition_score_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.pathway_activity_condition_score_tsv
+    ).exists()
     assert (
         output_dir / manifest.artifacts.pathway_activity_condition_comparison_tsv
     ).exists()
     assert (
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
     ).exists()
-    assert (output_dir / manifest.artifacts.pathway_activity_unresolved_member_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.pathway_activity_unresolved_member_tsv
+    ).exists()
     assert (output_dir / manifest.artifacts.complex_activity_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_activity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_activity_sample_score_tsv).exists()
-    assert (output_dir / manifest.artifacts.complex_activity_condition_score_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.complex_activity_condition_score_tsv
+    ).exists()
     assert (
         output_dir / manifest.artifacts.complex_activity_condition_comparison_tsv
     ).exists()
     assert (
         output_dir / manifest.artifacts.complex_activity_member_contribution_tsv
     ).exists()
-    assert (output_dir / manifest.artifacts.complex_activity_unresolved_member_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.complex_activity_unresolved_member_tsv
+    ).exists()
     assert (output_dir / manifest.artifacts.go_term_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
@@ -188,30 +196,36 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "pathway_count" in (
         output_dir / manifest.artifacts.pathway_activity_summary_tsv
     ).read_text(encoding="utf-8")
-    assert "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
-        output_dir / manifest.artifacts.pathway_activity_matrix_tsv
-    ).read_text(encoding="utf-8")
+    assert (
+        "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+        in (output_dir / manifest.artifacts.pathway_activity_matrix_tsv).read_text(
+            encoding="utf-8"
+        )
+    )
     assert "comparison_confidence_status" in (
         output_dir / manifest.artifacts.pathway_card_tsv
     ).read_text(encoding="utf-8")
-    assert "card_kind" in (
-        output_dir / manifest.artifacts.pathway_card_tsv
-    ).read_text(encoding="utf-8")
+    assert "card_kind" in (output_dir / manifest.artifacts.pathway_card_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "member_kind\tmember_id\tresolved_protein_refs" in (
         output_dir / manifest.artifacts.pathway_activity_member_contribution_tsv
     ).read_text(encoding="utf-8")
     assert "global_centroid_outlier" in (
         output_dir / manifest.artifacts.sample_card_tsv
     ).read_text(encoding="utf-8")
-    assert "card_kind" in (
-        output_dir / manifest.artifacts.sample_card_tsv
-    ).read_text(encoding="utf-8")
+    assert "card_kind" in (output_dir / manifest.artifacts.sample_card_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "complex_count" in (
         output_dir / manifest.artifacts.complex_activity_summary_tsv
     ).read_text(encoding="utf-8")
-    assert "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
-        output_dir / manifest.artifacts.complex_activity_matrix_tsv
-    ).read_text(encoding="utf-8")
+    assert (
+        "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+        in (output_dir / manifest.artifacts.complex_activity_matrix_tsv).read_text(
+            encoding="utf-8"
+        )
+    )
     assert "limiting_member_ids" in (
         output_dir / manifest.artifacts.complex_activity_sample_score_tsv
     ).read_text(encoding="utf-8")
@@ -233,9 +247,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "section_key\tsection_title\tconfidence_label\trationale" in (
         output_dir / manifest.artifacts.section_confidence_tsv
     ).read_text(encoding="utf-8")
-    assert "card_id" in (
-        output_dir / manifest.artifacts.protein_card_tsv
-    ).read_text(encoding="utf-8")
+    assert "card_id" in (output_dir / manifest.artifacts.protein_card_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "identity_level" in (
         output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
@@ -278,21 +292,21 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "supporting_protein_refs" in (
         output_dir / manifest.artifacts.context_term_tsv
     ).read_text(encoding="utf-8")
-    assert "gene_symbol" in (
-        output_dir / manifest.artifacts.annotation_tsv
-    ).read_text(encoding="utf-8")
-    assert "go_term_id" in (
-        output_dir / manifest.artifacts.go_term_tsv
-    ).read_text(encoding="utf-8")
+    assert "gene_symbol" in (output_dir / manifest.artifacts.annotation_tsv).read_text(
+        encoding="utf-8"
+    )
+    assert "go_term_id" in (output_dir / manifest.artifacts.go_term_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "pathway_id" in (
         output_dir / manifest.artifacts.pathway_entry_tsv
     ).read_text(encoding="utf-8")
     assert "complex_id" in (
         output_dir / manifest.artifacts.complex_entry_tsv
     ).read_text(encoding="utf-8")
-    assert "raw_p_value" in (
-        output_dir / manifest.artifacts.volcano_tsv
-    ).read_text(encoding="utf-8")
+    assert "raw_p_value" in (output_dir / manifest.artifacts.volcano_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "Protein mechanism cards" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
@@ -354,9 +368,7 @@ def test_biological_report_export_writes_tissue_context_artifacts_and_html(
     assert (
         output_dir / manifest.artifacts.tissue_context_unexpected_signal_tsv
     ).exists()
-    assert (
-        output_dir / manifest.artifacts.tissue_context_interpretation_tsv
-    ).exists()
+    assert (output_dir / manifest.artifacts.tissue_context_interpretation_tsv).exists()
     assert "mismatch_warning_count" in (
         output_dir / manifest.artifacts.tissue_context_summary_tsv
     ).read_text(encoding="utf-8")
@@ -401,14 +413,10 @@ def test_biological_report_export_writes_cohort_stratification_artifacts_and_htm
 
     assert manifest.cohort_stratification_summary_included is True
     assert report.cohort_stratification_report is not None
-    assert (
-        output_dir / manifest.artifacts.cohort_stratification_summary_tsv
-    ).exists()
+    assert (output_dir / manifest.artifacts.cohort_stratification_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.cohort_stratum_tsv).exists()
     assert (output_dir / manifest.artifacts.cohort_subgroup_effect_tsv).exists()
-    assert (
-        output_dir / manifest.artifacts.cohort_interaction_candidate_tsv
-    ).exists()
+    assert (output_dir / manifest.artifacts.cohort_interaction_candidate_tsv).exists()
     assert "blocked_stratum_count" in (
         output_dir / manifest.artifacts.cohort_stratification_summary_tsv
     ).read_text(encoding="utf-8")
@@ -471,12 +479,17 @@ def test_biological_report_export_writes_compartment_biology_assets(
     assert "compartment_count" in (
         output_dir / manifest.artifacts.compartment_biology_summary_tsv
     ).read_text(encoding="utf-8")
-    assert "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in (
-        output_dir / manifest.artifacts.compartment_activity_matrix_tsv
-    ).read_text(encoding="utf-8")
-    assert "localization_scope\tprotein_ref\treason" == (
+    assert (
+        "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+        in (output_dir / manifest.artifacts.compartment_activity_matrix_tsv).read_text(
+            encoding="utf-8"
+        )
+    )
+    assert (
         output_dir / manifest.artifacts.compartment_unknown_localization_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    ).read_text(encoding="utf-8").splitlines()[
+        0
+    ] == "localization_scope\tprotein_ref\treason"
     assert "Compartment biology" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
@@ -489,15 +502,15 @@ def test_biological_report_export_writes_compartment_biology_assets(
     assert "Valid for enrichment" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
-    assert "Graph claim" in (
-        output_dir / manifest.artifacts.report_html
-    ).read_text(encoding="utf-8")
-    assert "Identity" in (
-        output_dir / manifest.artifacts.report_html
-    ).read_text(encoding="utf-8")
-    assert "Evidence tier" in (
-        output_dir / manifest.artifacts.report_html
-    ).read_text(encoding="utf-8")
+    assert "Graph claim" in (output_dir / manifest.artifacts.report_html).read_text(
+        encoding="utf-8"
+    )
+    assert "Identity" in (output_dir / manifest.artifacts.report_html).read_text(
+        encoding="utf-8"
+    )
+    assert "Evidence tier" in (output_dir / manifest.artifacts.report_html).read_text(
+        encoding="utf-8"
+    )
     assert "Downgrade reasons" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
@@ -522,8 +535,12 @@ def test_biological_report_export_writes_regulator_inference_assets(
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
-        regulator_evidence_tsv_path=_fixture("biological_report_regulator_evidence.tsv"),
-        regulator_site_signal_tsv_path=_fixture("biological_report_regulator_sites.tsv"),
+        regulator_evidence_tsv_path=_fixture(
+            "biological_report_regulator_evidence.tsv"
+        ),
+        regulator_site_signal_tsv_path=_fixture(
+            "biological_report_regulator_sites.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -548,9 +565,9 @@ def test_biological_report_export_writes_regulator_inference_assets(
     assert "target_field" in (
         output_dir / manifest.artifacts.regulator_inference_unresolved_tsv
     ).read_text(encoding="utf-8")
-    assert "row_number\treason\tvalues" == (
-        output_dir / manifest.artifacts.regulator_evidence_rejected_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    assert (output_dir / manifest.artifacts.regulator_evidence_rejected_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == "row_number\treason\tvalues"
     assert "Regulator inference" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
@@ -634,9 +651,11 @@ def test_biological_report_export_writes_disease_phenotype_assets(
     assert "context_kind\tterm_id\tterm_name\tsource_name" in (
         output_dir / manifest.artifacts.disease_phenotype_term_tsv
     ).read_text(encoding="utf-8")
-    assert "annotation_scope\tprotein_ref\treason" == (
+    assert (
         output_dir / manifest.artifacts.disease_phenotype_unknown_annotation_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    ).read_text(encoding="utf-8").splitlines()[
+        0
+    ] == "annotation_scope\tprotein_ref\treason"
     assert "Disease and phenotype interpretation" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")

@@ -34,7 +34,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_site_group_quantification_report_preserves_unresolved_group_signal() -> None:
+def test_ptm_site_group_quantification_report_preserves_unresolved_group_signal() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

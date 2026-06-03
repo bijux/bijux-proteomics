@@ -66,7 +66,9 @@ def test_ptm_site_quantification_report_builds_site_by_sample_matrix() -> None:
     assert low_localization.localization_tier.value == "refused"
 
 
-def test_ptm_site_quantification_report_routes_ambiguous_signal_to_group_matrix() -> None:
+def test_ptm_site_quantification_report_routes_ambiguous_signal_to_group_matrix() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

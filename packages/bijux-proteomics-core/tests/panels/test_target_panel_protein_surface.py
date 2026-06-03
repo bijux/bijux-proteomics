@@ -30,7 +30,9 @@ def _quant_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
 
 
-def test_build_diann_protein_target_panel_report_keeps_missing_targets_visible() -> None:
+def test_build_diann_protein_target_panel_report_keeps_missing_targets_visible() -> (
+    None
+):
     report = build_diann_protein_target_panel_report(
         _diann_fixture("diann_library_coverage.tsv"),
         _format_fixture("dia_protein_target_panel.tsv"),
@@ -50,7 +52,9 @@ def test_build_diann_protein_target_panel_report_keeps_missing_targets_visible()
     assert report.missing_targets[0].expected_charge is None
 
 
-def test_build_lfq_protein_target_panel_report_keeps_protein_intensities_visible() -> None:
+def test_build_lfq_protein_target_panel_report_keeps_protein_intensities_visible() -> (
+    None
+):
     report = build_lfq_protein_target_panel_report(
         _quant_fixture("target_panel_ms1_features.tsv"),
         _format_fixture("lfq_protein_target_panel.tsv"),

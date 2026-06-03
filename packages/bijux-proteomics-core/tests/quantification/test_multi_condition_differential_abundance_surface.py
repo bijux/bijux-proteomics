@@ -193,7 +193,9 @@ def test_multi_condition_differential_abundance_builds_all_pairwise_reports() ->
         for contrast in report.reports
         for entry in contrast.entries
     )
-    contrast_pairs = {(entry.condition_a, entry.condition_b) for entry in report.contrasts}
+    contrast_pairs = {
+        (entry.condition_a, entry.condition_b) for entry in report.contrasts
+    }
     assert contrast_pairs == {
         ("case", "control"),
         ("case", "rescue"),

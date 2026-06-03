@@ -10,17 +10,20 @@ from pathlib import Path
 import pytest
 
 import bijux_proteomics._atomic_files as atomic_files
-from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
 from bijux_proteomics._output_tables import OutputTableSchema
-from bijux_proteomics.workflow import AdvancedDiannWorkflowConfig, run_advanced_diann_workflow
+from bijux_proteomics.domain.errors import InvalidWorkflowError, ScientificEvidenceError
+from bijux_proteomics.workflow import (
+    AdvancedDiannWorkflowConfig,
+    run_advanced_diann_workflow,
+)
 from bijux_proteomics.workflow.artifact_layout import (
-    find_workflow_artifact_by_id,
-    find_workflow_artifact_by_legacy_path,
-    index_workflow_artifact_manifest,
     WORKFLOW_ARTIFACT_INVENTORY_NAME,
     WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME,
     WorkflowArtifactFolder,
     WorkflowArtifactKind,
+    find_workflow_artifact_by_id,
+    find_workflow_artifact_by_legacy_path,
+    index_workflow_artifact_manifest,
     load_workflow_artifact_manifest,
     synchronize_workflow_artifact_layout,
     validate_workflow_artifact_inventory,
@@ -74,29 +77,46 @@ def test_synchronize_workflow_artifact_layout_places_representative_outputs_in_f
     assert (tmp_path / "reports" / "advanced_targeted_workflow_manifest.json").exists()
 
     assert manifest.artifacts
-    entries = {
-        entry.legacy_relative_path: entry
-        for entry in manifest.artifacts
-    }
+    entries = {entry.legacy_relative_path: entry for entry in manifest.artifacts}
     assert entries["tmt_validation_summary.tsv"].folder is WorkflowArtifactFolder.QC
     assert entries["tmt_validation_summary.tsv"].artifact_id == (
         "artifact:qc:tsv_table:qc:tmt_validation_summary.tsv"
     )
-    assert entries["tmt_validation_summary.tsv"].artifact_kind is WorkflowArtifactKind.TSV_TABLE
+    assert (
+        entries["tmt_validation_summary.tsv"].artifact_kind
+        is WorkflowArtifactKind.TSV_TABLE
+    )
     assert entries["tmt_validation_summary.tsv"].artifact_schema == "tsv[placeholder]"
     assert entries["tmt_validation_summary.tsv"].artifact_schema_version == "2026-05-26"
     assert entries["tmt_validation_summary.tsv"].output_table_schema is not None
-    assert entries["tmt_validation_summary.tsv"].output_table_schema.schema_version == "2026-05-26"
-    assert entries["tmt_validation_summary.tsv"].output_table_schema.table_name == "tmt_validation_summary"
-    assert entries["tmt_validation_summary.tsv"].output_table_schema.columns[0].name == "placeholder"
-    assert entries["tmt_validation_summary.tsv"].output_table_schema_sidecar_relative_path == (
+    assert (
+        entries["tmt_validation_summary.tsv"].output_table_schema.schema_version
+        == "2026-05-26"
+    )
+    assert (
+        entries["tmt_validation_summary.tsv"].output_table_schema.table_name
+        == "tmt_validation_summary"
+    )
+    assert (
+        entries["tmt_validation_summary.tsv"].output_table_schema.columns[0].name
+        == "placeholder"
+    )
+    assert entries[
+        "tmt_validation_summary.tsv"
+    ].output_table_schema_sidecar_relative_path == (
         "qc/tmt_validation_summary.tsv.schema.json"
     )
     assert (tmp_path / "qc" / "tmt_validation_summary.tsv.schema.json").exists()
     assert entries["tmt_validation_summary.tsv"].row_count == 0
-    assert entries["tmt_validation_summary.tsv"].producer_function == "test_workflow_surface"
+    assert (
+        entries["tmt_validation_summary.tsv"].producer_function
+        == "test_workflow_surface"
+    )
     assert entries["ptm_evidence_cards.tsv"].folder is WorkflowArtifactFolder.CARDS
-    assert entries[WORKFLOW_ARTIFACT_INVENTORY_NAME].folder is WorkflowArtifactFolder.REPORTS
+    assert (
+        entries[WORKFLOW_ARTIFACT_INVENTORY_NAME].folder
+        is WorkflowArtifactFolder.REPORTS
+    )
     payload = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
     assert payload["layout_name"] == "workflow_artifact_layout"
     assert payload["producer_function"] == "test_workflow_surface"
@@ -121,7 +141,10 @@ def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
 
     manifest = validate_workflow_artifact_manifest(tmp_path)
 
-    assert load_workflow_artifact_manifest(tmp_path).producer_function == "test_workflow_surface"
+    assert (
+        load_workflow_artifact_manifest(tmp_path).producer_function
+        == "test_workflow_surface"
+    )
     assert manifest.artifacts[0].row_count == 1
     assert manifest.artifacts[0].artifact_schema == "tsv[metric,value]"
     assert manifest.artifacts[0].artifact_schema_version == "2026-05-26"
@@ -130,9 +153,7 @@ def test_validate_workflow_artifact_manifest_accepts_fresh_layout_manifest(
     assert tuple(
         column.name for column in manifest.artifacts[0].output_table_schema.columns
     ) == ("metric", "value")
-    assert (
-        tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
-    ).exists()
+    assert (tmp_path / "reports" / "biological_report_summary.tsv.schema.json").exists()
 
 
 def test_synchronize_workflow_artifact_layout_emits_inventory_with_matching_tsv_row_counts(
@@ -154,9 +175,9 @@ def test_synchronize_workflow_artifact_layout_emits_inventory_with_matching_tsv_
 
     inventory_rows = tuple(
         csv.DictReader(
-            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_NAME).read_text(
-                encoding="utf-8"
-            ).splitlines(),
+            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_NAME)
+            .read_text(encoding="utf-8")
+            .splitlines(),
             delimiter="\t",
         )
     )
@@ -167,7 +188,12 @@ def test_synchronize_workflow_artifact_layout_emits_inventory_with_matching_tsv_
     assert WORKFLOW_ARTIFACT_INVENTORY_NAME not in inventory_by_legacy_path
     assert WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME not in inventory_by_legacy_path
     assert inventory_by_legacy_path["biological_report_summary.tsv"]["row_count"] == "2"
-    assert inventory_by_legacy_path["advanced_targeted_workflow_manifest.json"]["row_count"] == "1"
+    assert (
+        inventory_by_legacy_path["advanced_targeted_workflow_manifest.json"][
+            "row_count"
+        ]
+        == "1"
+    )
     assert len(inventory_rows) == len(manifest.artifacts) - 2
 
 
@@ -190,9 +216,9 @@ def test_synchronize_workflow_artifact_layout_emits_inventory_summary_with_visib
 
     summary_rows = tuple(
         csv.DictReader(
-            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME).read_text(
-                encoding="utf-8"
-            ).splitlines(),
+            (tmp_path / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME)
+            .read_text(encoding="utf-8")
+            .splitlines(),
             delimiter="\t",
         )
     )
@@ -245,7 +271,9 @@ def test_index_workflow_artifact_manifest_resolves_entries_by_id_and_legacy_path
     artifact_index = index_workflow_artifact_manifest(manifest=manifest)
     artifact = manifest.artifacts[0]
 
-    assert find_workflow_artifact_by_id(artifact_index, artifact.artifact_id) == artifact
+    assert (
+        find_workflow_artifact_by_id(artifact_index, artifact.artifact_id) == artifact
+    )
     assert (
         find_workflow_artifact_by_legacy_path(
             artifact_index,
@@ -371,7 +399,9 @@ def test_validate_workflow_artifact_manifest_rejects_tsv_schema_sidecar_version_
         producer_function="test_workflow_surface",
     )
     sidecar_path = tmp_path / "reports" / "biological_report_summary.tsv.schema.json"
-    sidecar = OutputTableSchema.model_validate_json(sidecar_path.read_text(encoding="utf-8"))
+    sidecar = OutputTableSchema.model_validate_json(
+        sidecar_path.read_text(encoding="utf-8")
+    )
     drifted_sidecar = sidecar.model_copy(update={"schema_version": "2026-05-99"})
     sidecar_path.write_text(drifted_sidecar.to_stable_json() + "\n", encoding="utf-8")
 

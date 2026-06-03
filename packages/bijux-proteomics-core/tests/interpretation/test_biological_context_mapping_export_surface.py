@@ -26,7 +26,9 @@ def _fixture_path(name: str) -> Path:
 def test_biological_context_renderers_emit_summary_mapping_term_unmapped_and_rejected_ledgers() -> (
     None
 ):
-    protein_table = parse_protein_reference_table(_fixture_path("biological_context_input.tsv"))
+    protein_table = parse_protein_reference_table(
+        _fixture_path("biological_context_input.tsv")
+    )
     context_table = parse_biological_context_table(
         _fixture_path("biological_context_annotations.tsv")
     )

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .workflow_golden_support import WORKFLOW_GOLDEN_TARGETS, WORKFLOW_GOLDEN_ROOT
+from .workflow_golden_support import WORKFLOW_GOLDEN_ROOT, WORKFLOW_GOLDEN_TARGETS
 
 
 def test_key_workflow_golden_directories_cover_all_required_workflows() -> None:

@@ -123,10 +123,16 @@ def benchmark_diann_import_memory(tmp_path: Path) -> ParserMemoryBenchmarkReport
         result_path,
         row_count=case.generated_unit_count,
     )
-    config_path.write_text(_diann_fixture("diann_config.json").read_text(encoding="utf-8"))
+    config_path.write_text(
+        _diann_fixture("diann_config.json").read_text(encoding="utf-8")
+    )
 
     accepted_count, peak_memory_mb = _measure_peak_memory_mb(
-        lambda: build_diann_import_report(result_path, config_path=config_path).summary.accepted_precursor_count
+        lambda: (
+            build_diann_import_report(
+                result_path, config_path=config_path
+            ).summary.accepted_precursor_count
+        )
     )
     assert accepted_count == case.generated_unit_count
     return _build_report(
@@ -145,12 +151,14 @@ def benchmark_maxquant_import_memory(tmp_path: Path) -> ParserMemoryBenchmarkRep
         row_count=case.generated_unit_count,
     )
     accepted_count, peak_memory_mb = _measure_peak_memory_mb(
-        lambda: build_maxquant_import_report(
-            paths["evidence"],
-            peptides_txt_path=paths["peptides"],
-            protein_groups_txt_path=paths["protein_groups"],
-            config_path=paths["config"],
-        ).summary.accepted_evidence_count
+        lambda: (
+            build_maxquant_import_report(
+                paths["evidence"],
+                peptides_txt_path=paths["peptides"],
+                protein_groups_txt_path=paths["protein_groups"],
+                config_path=paths["config"],
+            ).summary.accepted_evidence_count
+        )
     )
     assert accepted_count == case.generated_unit_count
     return _build_report(
@@ -169,12 +177,14 @@ def benchmark_fragpipe_import_memory(tmp_path: Path) -> ParserMemoryBenchmarkRep
         row_count=case.generated_unit_count,
     )
     accepted_count, peak_memory_mb = _measure_peak_memory_mb(
-        lambda: build_fragpipe_import_report(
-            paths["psm"],
-            peptide_tsv_path=paths["peptide"],
-            protein_tsv_path=paths["protein"],
-            quant_tsv_path=paths["quant"],
-        ).summary.accepted_psm_count
+        lambda: (
+            build_fragpipe_import_report(
+                paths["psm"],
+                peptide_tsv_path=paths["peptide"],
+                protein_tsv_path=paths["protein"],
+                quant_tsv_path=paths["quant"],
+            ).summary.accepted_psm_count
+        )
     )
     assert accepted_count == case.generated_unit_count
     return _build_report(
@@ -206,7 +216,11 @@ def benchmark_transition_table_matrix_memory(
     path = tmp_path / "large_transition_table.tsv"
     _write_generated_transition_table(path, row_count=case.generated_unit_count)
     retained_count, peak_memory_mb = _measure_peak_memory_mb(
-        lambda: build_transition_table_targeted_matrix_report(path).summary.retained_transition_count
+        lambda: (
+            build_transition_table_targeted_matrix_report(
+                path
+            ).summary.retained_transition_count
+        )
     )
     assert retained_count == case.generated_unit_count
     return _build_report(
@@ -313,17 +327,29 @@ def _write_generated_mzml(path: Path, *, spectrum_count: int) -> None:
             handle.write("        </precursorList>\n")
             handle.write('        <binaryDataArrayList count="2">\n')
             handle.write('          <binaryDataArray encodedLength="44">\n')
-            handle.write('            <cvParam accession="MS:1000514" name="m/z array" />\n')
-            handle.write('            <cvParam accession="MS:1000523" name="64-bit float" />\n')
-            handle.write('            <cvParam accession="MS:1000576" name="no compression" />\n')
+            handle.write(
+                '            <cvParam accession="MS:1000514" name="m/z array" />\n'
+            )
+            handle.write(
+                '            <cvParam accession="MS:1000523" name="64-bit float" />\n'
+            )
+            handle.write(
+                '            <cvParam accession="MS:1000576" name="no compression" />\n'
+            )
             handle.write(
                 "            <binary>AAAAAAAAWUAAAAAAAMBiQAQ3UrZIY2xA8nowKb6Cd0A=</binary>\n"
             )
             handle.write("          </binaryDataArray>\n")
             handle.write('          <binaryDataArray encodedLength="44">\n')
-            handle.write('            <cvParam accession="MS:1000515" name="intensity array" />\n')
-            handle.write('            <cvParam accession="MS:1000523" name="64-bit float" />\n')
-            handle.write('            <cvParam accession="MS:1000576" name="no compression" />\n')
+            handle.write(
+                '            <cvParam accession="MS:1000515" name="intensity array" />\n'
+            )
+            handle.write(
+                '            <cvParam accession="MS:1000523" name="64-bit float" />\n'
+            )
+            handle.write(
+                '            <cvParam accession="MS:1000576" name="no compression" />\n'
+            )
             handle.write(
                 "            <binary>AAAAAAAANEAAAAAAAIBGQAAAAAAAQFVAAAAAAAAAWUA=</binary>\n"
             )

@@ -300,7 +300,9 @@ def test_ptm_motif_credibility_benchmark_report_blocks_small_ambiguous_motif_cla
     assert report.caveats
 
 
-def test_ptm_lab_targeting_rubric_report_preserves_interpretive_only_boundaries() -> None:
+def test_ptm_lab_targeting_rubric_report_preserves_interpretive_only_boundaries() -> (
+    None
+):
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records,

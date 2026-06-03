@@ -5,15 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import bijux_proteomics.targeted as targeted
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     calculate_fragment_ions,
     calculate_peptide_mz,
-)
-from bijux_proteomics.identification.peptide_evidence import (
-    PeptideEvidenceClass,
-    PeptideEvidenceEntry,
 )
 from bijux_proteomics.identification.contracts import (
     TargetDecoyContaminantClass,
@@ -22,20 +17,25 @@ from bijux_proteomics.identification.contracts import (
 from bijux_proteomics.identification.cross_run_reproducibility import (
     CrossRunReproducibilityClass,
 )
+from bijux_proteomics.identification.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
+)
 from bijux_proteomics.io import (
     ExperimentalDesignEntry,
     SpectralLibraryEntry,
     SpectralLibraryFormat,
     SpectrumModel,
     SpectrumPeak,
+    parse_experimental_design_table,
 )
-from bijux_proteomics.io import parse_experimental_design_table
 from bijux_proteomics.sequences import (
     PeptideChemicalLiabilityTier,
     PeptideDetectabilityTier,
     PeptideUniquenessClass,
     parse_fasta_document,
 )
+import bijux_proteomics.targeted as targeted
 
 
 def _format_fixture(name: str) -> Path:
@@ -43,9 +43,7 @@ def _format_fixture(name: str) -> Path:
 
 
 def _protein_records():
-    return parse_fasta_document(
-        ">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n"
-    ).accepted_records
+    return parse_fasta_document(">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n").accepted_records
 
 
 def test_targeted_package_exports_target_matrix_owner_surface() -> None:
@@ -546,7 +544,9 @@ def test_targeted_package_exports_validation_planning_surface() -> None:
                 pooled_log2_stddev=0.25,
             ),
         ),
-        policy=targeted.ValidationExperimentPlanningPolicy(proposed_samples_per_group=6),
+        policy=targeted.ValidationExperimentPlanningPolicy(
+            proposed_samples_per_group=6
+        ),
     )
     rendered = targeted.render_validation_experiment_planning_plan_tsv(report)
 

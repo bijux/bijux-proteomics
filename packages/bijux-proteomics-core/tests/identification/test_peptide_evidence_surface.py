@@ -49,10 +49,7 @@ def test_peptide_evidence_report_classifies_all_owned_primary_classes() -> None:
     assert by_peptide["SHAREDFINEK"].primary_class is PeptideEvidenceClass.SHARED
     assert by_peptide["SHAREDK"].primary_class is PeptideEvidenceClass.WEAK
     assert PeptideEvidenceTag.SHARED in by_peptide["SHAREDK"].tags
-    assert (
-        by_peptide["ACDM[Oxidation]K"].primary_class
-        is PeptideEvidenceClass.MODERATE
-    )
+    assert by_peptide["ACDM[Oxidation]K"].primary_class is PeptideEvidenceClass.MODERATE
     assert PeptideEvidenceTag.MODIFIED in by_peptide["ACDM[Oxidation]K"].tags
     assert by_peptide["AMBIGK"].primary_class is PeptideEvidenceClass.AMBIGUOUS
     assert by_peptide["CONTAMK"].primary_class is PeptideEvidenceClass.CONTAMINANT
@@ -100,7 +97,9 @@ def test_peptide_evidence_report_marks_one_weak_shared_peptide_as_not_strong() -
         strong_q_value=0.01,
     )
 
-    shared = next(entry for entry in report.entries if entry.canonical_peptide == "SHAREDK")
+    shared = next(
+        entry for entry in report.entries if entry.canonical_peptide == "SHAREDK"
+    )
 
     assert shared.primary_class is PeptideEvidenceClass.WEAK
     assert PeptideEvidenceTag.SHARED in shared.tags

@@ -32,14 +32,22 @@ def test_error_rate_annotation_reference_cases_preserve_imported_vs_computed_sem
             score_orientation=case["score_orientation"],
             local_window_size=case["local_window_size"],
         )
-        expected_entries = {entry["spectrum_id"]: entry for entry in case["expected_entries"]}
+        expected_entries = {
+            entry["spectrum_id"]: entry for entry in case["expected_entries"]
+        }
 
-        assert report.summary.imported_pep_count == case["expected_summary"]["imported_pep_count"]
+        assert (
+            report.summary.imported_pep_count
+            == case["expected_summary"]["imported_pep_count"]
+        )
         assert (
             report.summary.computed_local_fdr_count
             == case["expected_summary"]["computed_local_fdr_count"]
         )
-        assert report.summary.unavailable_count == case["expected_summary"]["unavailable_count"]
+        assert (
+            report.summary.unavailable_count
+            == case["expected_summary"]["unavailable_count"]
+        )
         for entry in report.entries:
             expected = expected_entries[entry.psm.spectrum_id]
             assert entry.imported_pep == expected["imported_pep"]

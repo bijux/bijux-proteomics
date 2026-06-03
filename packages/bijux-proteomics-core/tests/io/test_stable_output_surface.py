@@ -24,7 +24,10 @@ def test_stable_json_dumps_sorts_keys() -> None:
 
     rendered = stable_json_dumps(payload, indent=2)
 
-    assert rendered == '{\n  "alpha": {\n    "beta": 3,\n    "gamma": 2\n  },\n  "zeta": 1\n}'
+    assert (
+        rendered
+        == '{\n  "alpha": {\n    "beta": 3,\n    "gamma": 2\n  },\n  "zeta": 1\n}'
+    )
 
 
 def test_sort_rows_by_fields_orders_rows_deterministically() -> None:

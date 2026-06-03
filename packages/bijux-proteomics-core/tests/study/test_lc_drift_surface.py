@@ -83,7 +83,9 @@ def test_detect_lc_drift_flags_gradual_rt_and_intensity_drift_without_promoting_
     rt_rows = [
         row for row in rows if row.affected_qc_dimension is LcDriftDimension.MEDIAN_RT
     ]
-    tic_rows = [row for row in rows if row.affected_qc_dimension is LcDriftDimension.TIC]
+    tic_rows = [
+        row for row in rows if row.affected_qc_dimension is LcDriftDimension.TIC
+    ]
 
     assert rt_rows[0].run_id == "run-03"
     assert rt_rows[-1].run_id == "run-06"
@@ -93,7 +95,10 @@ def test_detect_lc_drift_flags_gradual_rt_and_intensity_drift_without_promoting_
     assert all(row.drift_direction is LcDriftDirection.DECREASING for row in tic_rows)
     assert rt_rows[-1].drift_metric > rt_rows[0].drift_metric
     assert tic_rows[-1].drift_metric > tic_rows[0].drift_metric
-    assert "run_id\tdrift_metric\tdrift_direction\tdrift_severity\taffected_qc_dimension" in rendered
+    assert (
+        "run_id\tdrift_metric\tdrift_direction\tdrift_severity\taffected_qc_dimension"
+        in rendered
+    )
     assert "run-06" in rendered
     assert "median_rt" in rendered
     assert "tic" in rendered

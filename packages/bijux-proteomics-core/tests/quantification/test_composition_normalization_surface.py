@@ -106,6 +106,7 @@ def test_normalization_strategy_downgrades_tic_under_compositional_bias() -> Non
     by_method = {entry.method: entry for entry in report.entries}
 
     assert report.recommended_method is not NormalizationMethod.TIC
-    assert by_method[NormalizationMethod.TIC].balance_score > by_method[
-        NormalizationMethod.MEDIAN
-    ].balance_score
+    assert (
+        by_method[NormalizationMethod.TIC].balance_score
+        > by_method[NormalizationMethod.MEDIAN].balance_score
+    )

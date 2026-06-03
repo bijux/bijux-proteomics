@@ -25,7 +25,9 @@ def _fasta_fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / name
 
 
-def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotations() -> None:
+def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotations() -> (
+    None
+):
     protein_table = parse_protein_reference_table(
         _fixture_path("protein_annotation_input.tsv")
     )
@@ -71,7 +73,9 @@ def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotat
     assert custom_only_entry.custom_annotation == {"source": "curated"}
 
 
-def test_build_protein_annotation_mapping_report_preserves_explicit_unmapped_entries() -> None:
+def test_build_protein_annotation_mapping_report_preserves_explicit_unmapped_entries() -> (
+    None
+):
     fasta_report = parse_fasta_document(
         _fasta_fixture_path("valid_records.fasta").read_text(),
         mode=FastaParseMode.STRICT,
@@ -100,5 +104,7 @@ def test_build_protein_annotation_mapping_report_preserves_explicit_unmapped_ent
     assert len(report.result_entries) == 1
     assert report.unmapped_entries[0].protein_ref == "UNKNOWN123"
     assert "not present" in report.unmapped_entries[0].reason
-    assert report.result_entries[0].annotation_status is ProteinAnnotationStatus.UNMAPPED
+    assert (
+        report.result_entries[0].annotation_status is ProteinAnnotationStatus.UNMAPPED
+    )
     assert report.result_entries[0].unmapped_reason is not None

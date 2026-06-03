@@ -172,7 +172,9 @@ def build_reconstruction_fixture_graph() -> ProteomicsEvidenceGraph:
     return builder.build()
 
 
-def test_reconstruct_protein_evidence_chain_reaches_source_rows_and_final_result() -> None:
+def test_reconstruct_protein_evidence_chain_reaches_source_rows_and_final_result() -> (
+    None
+):
     report = reconstruct_protein_evidence_chain(
         build_reconstruction_fixture_graph(),
         protein_id="P11111",
@@ -182,15 +184,22 @@ def test_reconstruct_protein_evidence_chain_reaches_source_rows_and_final_result
     assert report.claim_node.entity_ref == "P11111"
     assert report.statistical_result is not None
     assert report.statistical_result.entity_ref == "protein:treatment_vs_control:P11111"
-    assert any(item.input_file == "psm.tsv" and item.row_number == "12" for item in report.source_rows)
+    assert any(
+        item.input_file == "psm.tsv" and item.row_number == "12"
+        for item in report.source_rows
+    )
     assert any(
         step.node.entity_ref == "protein:treatment_vs_control:P11111"
         for step in report.chain_nodes
     )
-    assert any(edge.source_row_ref == "protein_stats.tsv:4" for edge in report.chain_edges)
+    assert any(
+        edge.source_row_ref == "protein_stats.tsv:4" for edge in report.chain_edges
+    )
 
 
-def test_reconstruct_ptm_site_evidence_chain_reaches_localization_and_final_result() -> None:
+def test_reconstruct_ptm_site_evidence_chain_reaches_localization_and_final_result() -> (
+    None
+):
     report = reconstruct_ptm_site_evidence_chain(
         build_reconstruction_fixture_graph(),
         ptm_site_id="P11111:S3:Phospho",
@@ -198,15 +207,19 @@ def test_reconstruct_ptm_site_evidence_chain_reaches_localization_and_final_resu
     )
 
     assert report.claim_node.entity_ref == "P11111:S3:Phospho"
-    assert any(item.input_file == "ptm.tsv" and item.row_number == "5" for item in report.source_rows)
     assert any(
-        step.node.entity_ref == "PEPTIDE[Phospho@S3]"
-        for step in report.chain_nodes
+        item.input_file == "ptm.tsv" and item.row_number == "5"
+        for item in report.source_rows
+    )
+    assert any(
+        step.node.entity_ref == "PEPTIDE[Phospho@S3]" for step in report.chain_nodes
     )
     assert any(edge.source_row_ref == "ptm_stats.tsv:6" for edge in report.chain_edges)
 
 
-def test_reconstruct_pathway_evidence_chain_reaches_annotation_and_final_result() -> None:
+def test_reconstruct_pathway_evidence_chain_reaches_annotation_and_final_result() -> (
+    None
+):
     report = reconstruct_pathway_evidence_chain(
         build_reconstruction_fixture_graph(),
         pathway_id="R-HSA-199420",
@@ -214,6 +227,11 @@ def test_reconstruct_pathway_evidence_chain_reaches_annotation_and_final_result(
     )
 
     assert report.claim_node.entity_ref == "R-HSA-199420"
-    assert any(item.input_file == "pathway.tsv" and item.row_number == "11" for item in report.source_rows)
+    assert any(
+        item.input_file == "pathway.tsv" and item.row_number == "11"
+        for item in report.source_rows
+    )
     assert any(step.node.entity_ref == "P11111" for step in report.chain_nodes)
-    assert any(edge.source_row_ref == "pathway_stats.tsv:3" for edge in report.chain_edges)
+    assert any(
+        edge.source_row_ref == "pathway_stats.tsv:3" for edge in report.chain_edges
+    )

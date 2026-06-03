@@ -292,9 +292,7 @@ def test_multi_contrast_consistency_flags_shared_hits_and_magnitude_status() -> 
         is MultiContrastMagnitudeConsistencyStatus.VARIABLE
     )
     assert by_entity["P003"].contrast_specific_hit is True
-    assert by_entity["P003"].contrast_specific_contrast_labels == (
-        "case_vs_control",
-    )
+    assert by_entity["P003"].contrast_specific_contrast_labels == ("case_vs_control",)
     assert "direction_conflict" in render_multi_contrast_consistency_tsv(report)
 
 

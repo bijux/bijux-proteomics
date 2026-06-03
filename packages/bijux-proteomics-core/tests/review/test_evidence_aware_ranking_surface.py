@@ -11,7 +11,9 @@ from bijux_proteomics.review import (
 )
 
 
-def test_evidence_aware_ranking_prioritizes_supported_result_over_low_support_artifact() -> None:
+def test_evidence_aware_ranking_prioritizes_supported_result_over_low_support_artifact() -> (
+    None
+):
     report = build_evidence_aware_ranking_report(
         (
             EvidenceAwareRankingCandidate(
@@ -62,14 +64,19 @@ def test_evidence_aware_ranking_prioritizes_supported_result_over_low_support_ar
     assert report.summary.entry_count == 2
     assert report.entries[0].candidate_id == "protein:P11111"
     assert report.entries[0].priority_rank == 1
-    assert report.entries[0].decomposition.final_score > report.entries[1].decomposition.final_score
+    assert (
+        report.entries[0].decomposition.final_score
+        > report.entries[1].decomposition.final_score
+    )
     assert report.entries[1].penalty_codes == (
         "low_abundance_signal",
         "single_peptide_artifact",
     )
 
 
-def test_evidence_aware_ranking_renderer_preserves_priority_and_component_columns() -> None:
+def test_evidence_aware_ranking_renderer_preserves_priority_and_component_columns() -> (
+    None
+):
     report = build_evidence_aware_ranking_report(
         (
             EvidenceAwareRankingCandidate(

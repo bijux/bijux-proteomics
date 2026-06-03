@@ -10,8 +10,8 @@ from tempfile import TemporaryDirectory
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
-    QuantMeasureKind,
     QuantMatrix,
+    QuantMeasureKind,
     SampleMetadata,
 )
 from bijux_proteomics.quantification.matrix_archive import (
@@ -39,8 +39,7 @@ _SAFE_TEXT = st.text(
     min_size=1,
     max_size=12,
 ).filter(
-    lambda value: value.strip().lower()
-    not in {"", "na", "n/a", "null", "none", "nan"}
+    lambda value: value.strip().lower() not in {"", "na", "n/a", "null", "none", "nan"}
 )
 _OPTIONAL_TEXT = st.one_of(st.none(), _SAFE_TEXT)
 _SMALL_FLOAT = st.integers(min_value=-10_000, max_value=10_000).map(
@@ -54,9 +53,7 @@ _METADATA_MAP = st.dictionaries(_SAFE_TEXT, _SAFE_TEXT, max_size=3)
 def _quant_matrix_strategy(draw: st.DrawFn) -> QuantMatrix:
     entity_ids = tuple(draw(st.lists(_SAFE_TEXT, min_size=1, max_size=4, unique=True)))
     sample_ids = tuple(draw(st.lists(_SAFE_TEXT, min_size=1, max_size=4, unique=True)))
-    values = tuple(
-        tuple(draw(_MATRIX_VALUE) for _ in sample_ids) for _ in entity_ids
-    )
+    values = tuple(tuple(draw(_MATRIX_VALUE) for _ in sample_ids) for _ in entity_ids)
     missing_value_states = tuple(
         tuple(draw(st.sampled_from(tuple(MissingValueState))) for _ in sample_ids)
         for _ in entity_ids
@@ -91,7 +88,9 @@ def _quant_matrix_strategy(draw: st.DrawFn) -> QuantMatrix:
         support_counts=support_counts,
         row_metadata=row_metadata,
         sample_metadata=sample_metadata,
-        transformation_history=tuple(draw(st.lists(_SAFE_TEXT, max_size=3, unique=True))),
+        transformation_history=tuple(
+            draw(st.lists(_SAFE_TEXT, max_size=3, unique=True))
+        ),
         metadata=draw(st.dictionaries(_SAFE_TEXT, _SAFE_TEXT, max_size=3)),
     )
 
@@ -217,9 +216,9 @@ def test_matrix_archive_round_trips_generated_quant_matrices(
         assert first_path.read_bytes() == second_path.read_bytes()
         assert reloaded == archive
         assert reloaded.to_quant_matrix() == matrix
-        assert render_quant_matrix_archive_tsv(matrix) == render_quant_matrix_archive_tsv(
-            reloaded
-        )
+        assert render_quant_matrix_archive_tsv(
+            matrix
+        ) == render_quant_matrix_archive_tsv(reloaded)
 
 
 @given(matrix=_quant_matrix_strategy())

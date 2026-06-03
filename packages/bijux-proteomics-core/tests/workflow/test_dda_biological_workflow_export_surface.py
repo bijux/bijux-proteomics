@@ -61,12 +61,12 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     assert "filter_reasons" in (
         output_dir / manifest.artifacts.filtered_psm_tsv
     ).read_text(encoding="utf-8")
-    assert (
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == (
         "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
         "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
-    ) == (
-        output_dir / manifest.artifacts.rejected_evidence_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    )
     assert "selected_protein_count" in (
         output_dir / manifest.artifacts.parsimony_summary_tsv
     ).read_text(encoding="utf-8")

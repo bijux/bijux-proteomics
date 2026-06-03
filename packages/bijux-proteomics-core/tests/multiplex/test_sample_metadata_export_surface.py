@@ -51,7 +51,15 @@ def test_multiplex_metadata_renderers_and_exports_emit_review_ledgers(
         tmp_path / "metadata.conditions.tsv",
     )
 
-    assert (tmp_path / "metadata.summary.tsv").read_text(encoding="utf-8") == summary_tsv
-    assert (tmp_path / "metadata.channels.tsv").read_text(encoding="utf-8") == channel_tsv
-    assert (tmp_path / "metadata.duplicates.tsv").read_text(encoding="utf-8") == duplicate_tsv
-    assert (tmp_path / "metadata.conditions.tsv").read_text(encoding="utf-8") == missing_condition_tsv
+    assert (tmp_path / "metadata.summary.tsv").read_text(
+        encoding="utf-8"
+    ) == summary_tsv
+    assert (tmp_path / "metadata.channels.tsv").read_text(
+        encoding="utf-8"
+    ) == channel_tsv
+    assert (tmp_path / "metadata.duplicates.tsv").read_text(
+        encoding="utf-8"
+    ) == duplicate_tsv
+    assert (tmp_path / "metadata.conditions.tsv").read_text(
+        encoding="utf-8"
+    ) == missing_condition_tsv

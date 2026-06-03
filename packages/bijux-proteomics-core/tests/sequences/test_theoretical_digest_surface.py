@@ -112,9 +112,9 @@ def test_theoretical_digest_bundle_preserves_modification_policy_and_candidate_m
         peptide.canonical_notation: peptide for peptide in bundle.digest_peptides
     }
 
-    assert bundle.modification_policy.static_modification_names == (
-        "Carbamidomethyl",
-    )
+    assert bundle.modification_policy.static_modification_names == ("Carbamidomethyl",)
     assert bundle.modification_policy.variable_modification_names == ("Oxidation",)
     assert bundle.summary.output_candidate_peptide_count == 2
-    assert by_notation["ACDMK"].neutral_mass < by_notation["ACDM[Oxidation]K"].neutral_mass
+    assert (
+        by_notation["ACDMK"].neutral_mass < by_notation["ACDM[Oxidation]K"].neutral_mass
+    )

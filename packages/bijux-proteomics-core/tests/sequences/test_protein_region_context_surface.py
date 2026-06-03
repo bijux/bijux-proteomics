@@ -7,8 +7,8 @@ from pathlib import Path
 
 from bijux_proteomics.sequences import (
     FastaParseMode,
-    ProteinRegionContextStatus,
     ProteinPeptideRegionReference,
+    ProteinRegionContextStatus,
     ProteinSiteRegionReference,
     build_protein_peptide_region_context_report,
     build_protein_site_region_context_report,
@@ -38,7 +38,9 @@ def _protein_sequences() -> dict[str, str]:
 def test_protein_region_context_parser_preserves_functional_regions_and_rejected_rows() -> (
     None
 ):
-    report = parse_protein_region_context_tsv(_fixture_path("protein_region_context.tsv"))
+    report = parse_protein_region_context_tsv(
+        _fixture_path("protein_region_context.tsv")
+    )
 
     assert report.total_rows == 6
     assert report.summary.accepted_record_count == 5
@@ -58,7 +60,9 @@ def test_protein_region_context_parser_preserves_functional_regions_and_rejected
 def test_protein_region_context_site_report_preserves_domain_signal_and_binding_support() -> (
     None
 ):
-    context = parse_protein_region_context_tsv(_fixture_path("protein_region_context.tsv"))
+    context = parse_protein_region_context_tsv(
+        _fixture_path("protein_region_context.tsv")
+    )
     report = build_protein_site_region_context_report(
         (
             ProteinSiteRegionReference(
@@ -83,22 +87,34 @@ def test_protein_region_context_site_report_preserves_domain_signal_and_binding_
     assert report.summary.site_count == 3
     assert report.summary.context_annotated_site_count == 2
     assert report.summary.outside_annotation_site_count == 1
-    annotated = next(entry for entry in report.entries if entry.site_key == "P11111:S5:Phospho")
+    annotated = next(
+        entry for entry in report.entries if entry.site_key == "P11111:S5:Phospho"
+    )
     assert annotated.context_status is ProteinRegionContextStatus.CONTEXT_ANNOTATED
     assert annotated.domain_names == ("regulatory_head",)
     assert annotated.signal_peptides == ("leader_1",)
     assert annotated.binding_regions == ("14-3-3_site",)
     assert annotated.active_site_labels == ("SP_acceptor",)
     assert annotated.motif_names == ("SP_motif",)
-    assert any(region.supporting_evidence_refs == ("P11111:S5:Phospho",) for region in annotated.functional_regions)
-    outside = next(entry for entry in report.entries if entry.site_key == "Q9DEC1:S5:Phospho")
-    assert outside.context_status is ProteinRegionContextStatus.OUTSIDE_PROVIDED_ANNOTATIONS
+    assert any(
+        region.supporting_evidence_refs == ("P11111:S5:Phospho",)
+        for region in annotated.functional_regions
+    )
+    outside = next(
+        entry for entry in report.entries if entry.site_key == "Q9DEC1:S5:Phospho"
+    )
+    assert (
+        outside.context_status
+        is ProteinRegionContextStatus.OUTSIDE_PROVIDED_ANNOTATIONS
+    )
 
 
 def test_protein_region_context_peptide_report_preserves_sequence_spans_and_unmapped_rows() -> (
     None
 ):
-    context = parse_protein_region_context_tsv(_fixture_path("protein_region_context.tsv"))
+    context = parse_protein_region_context_tsv(
+        _fixture_path("protein_region_context.tsv")
+    )
     report = build_protein_peptide_region_context_report(
         (
             ProteinPeptideRegionReference(

@@ -101,8 +101,7 @@ def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_expli
     assert sheet.acceptance_passed is False
     assert sheet.claim_ahead_of_evidence is True
     assert (
-        sheet.earned_release_language
-        is AcceptanceReleaseLanguage.REVIEW_GRADE_BOUNDED
+        sheet.earned_release_language is AcceptanceReleaseLanguage.REVIEW_GRADE_BOUNDED
     )
     assert criteria["lfq_missingness_burden"].observed_value == "4"
     assert criteria["lfq_normalization_drift"].observed_value == "decision_grade"

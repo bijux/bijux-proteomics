@@ -7,6 +7,8 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
+    QuantEntityLevel,
+    QuantRollupMethod,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,
@@ -21,8 +23,6 @@ from bijux_proteomics.quantification import (
     render_limma_design_matrix_tsv,
     render_limma_sample_annotations_tsv,
     render_msstats_compatible_input_tsv,
-    QuantEntityLevel,
-    QuantRollupMethod,
 )
 
 

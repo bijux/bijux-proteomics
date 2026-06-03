@@ -3,20 +3,28 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.chemistry import FragmentIonSeries, calculate_fragment_ions, parse_modified_peptide
+from bijux_proteomics.chemistry import (
+    FragmentIonSeries,
+    calculate_fragment_ions,
+    parse_modified_peptide,
+)
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.spectra import SpectrumPeak
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord
-from bijux_proteomics.ptm.localization_scoring import build_ptm_localization_scoring_report
 from bijux_proteomics.ptm.localization_risk import (
     PtmLocalizationRisk,
     detect_false_localization,
     render_false_localization_tsv,
 )
+from bijux_proteomics.ptm.localization_scoring import (
+    build_ptm_localization_scoring_report,
+)
 
 
-def test_false_localization_detector_marks_equal_fragment_support_as_ambiguous() -> None:
+def test_false_localization_detector_marks_equal_fragment_support_as_ambiguous() -> (
+    None
+):
     candidates = _competing_localization_candidates()
 
     rows = detect_false_localization(
@@ -26,8 +34,14 @@ def test_false_localization_detector_marks_equal_fragment_support_as_ambiguous()
     rendered = render_false_localization_tsv(rows)
     by_pair = {(row.candidate_site, row.competing_site): row for row in rows}
 
-    assert by_pair[("Phospho@2", "Phospho@4")].localization_risk is PtmLocalizationRisk.AMBIGUOUS
-    assert by_pair[("Phospho@4", "Phospho@2")].localization_risk is PtmLocalizationRisk.AMBIGUOUS
+    assert (
+        by_pair[("Phospho@2", "Phospho@4")].localization_risk
+        is PtmLocalizationRisk.AMBIGUOUS
+    )
+    assert (
+        by_pair[("Phospho@4", "Phospho@2")].localization_risk
+        is PtmLocalizationRisk.AMBIGUOUS
+    )
     assert by_pair[("Phospho@2", "Phospho@4")].site_determining_ions == ()
     assert by_pair[("Phospho@4", "Phospho@2")].site_determining_ions == ()
     assert "localization_risk" in rendered
@@ -46,9 +60,17 @@ def test_false_localization_detector_marks_weaker_candidate_as_likely_false() ->
     )
     by_pair = {(row.candidate_site, row.competing_site): row for row in rows}
 
-    assert by_pair[("Phospho@2", "Phospho@4")].localization_risk is PtmLocalizationRisk.SUPPORTED
-    assert by_pair[("Phospho@2", "Phospho@4")].site_determining_ions == (s2_support_ion,)
-    assert by_pair[("Phospho@4", "Phospho@2")].localization_risk is PtmLocalizationRisk.LIKELY_FALSE_LOCALIZATION
+    assert (
+        by_pair[("Phospho@2", "Phospho@4")].localization_risk
+        is PtmLocalizationRisk.SUPPORTED
+    )
+    assert by_pair[("Phospho@2", "Phospho@4")].site_determining_ions == (
+        s2_support_ion,
+    )
+    assert (
+        by_pair[("Phospho@4", "Phospho@2")].localization_risk
+        is PtmLocalizationRisk.LIKELY_FALSE_LOCALIZATION
+    )
     assert by_pair[("Phospho@4", "Phospho@2")].site_determining_ions == ()
 
 

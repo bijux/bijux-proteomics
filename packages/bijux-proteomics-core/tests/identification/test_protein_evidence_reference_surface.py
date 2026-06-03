@@ -70,9 +70,7 @@ def test_protein_evidence_reference_cases_match_expected_tiers() -> None:
             score_orientation=case.score_orientation,
             run_contexts=case.run_contexts,
         )
-        observed = {
-            entry.representative_protein: entry for entry in report.entries
-        }
+        observed = {entry.representative_protein: entry for entry in report.entries}
 
         assert len(observed) == len(case.expected_entries)
         for expected in case.expected_entries:

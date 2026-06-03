@@ -17,6 +17,8 @@ from bijux_proteomics.chemistry import (
     calculate_peptide_mz,
 )
 from bijux_proteomics.interfaces.cli import cli
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmProteinCorrectionMode,
@@ -26,8 +28,6 @@ from bijux_proteomics.ptm import (
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
 )
-from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.workflow import (
@@ -114,7 +114,9 @@ def _build_real_summary_artifacts(tmp_path: Path) -> tuple[Path, Path, Path]:
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -252,7 +254,9 @@ def test_program_template_writes_manifest() -> None:
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
 
 
-def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal_checks() -> None:
+def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal_checks() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
@@ -287,7 +291,10 @@ def test_public_benchmark_runner_command_emits_suite_summary_failures_and_signal
         assert "ptm_localization_review_package" in summary_tsv
         assert "targeted_transition_review_package" in summary_tsv
         assert "dia_diann_review_snapshot" in summary_tsv
-        assert "missing_required_schema" in failures_tsv or "execution_failed" in failures_tsv
+        assert (
+            "missing_required_schema" in failures_tsv
+            or "execution_failed" in failures_tsv
+        )
         assert "ptm_site_p11111_s5_up" in signal_tsv
         assert "dia_sig_a_up" in signal_tsv
         assert "maxquant_sig_a_up" in signal_tsv
@@ -319,21 +326,29 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert Path("trust_bundle/index.html").exists()
         assert Path("trust_bundle/trust_bundle_manifest.json").exists()
         assert Path("trust_bundle/evidence_graphs/index.tsv").exists()
-        assert "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
-        assert "lfq_sparse_contrast_benchmark_dataset" in Path(
-            "trust_bundle.summary.tsv"
-        ).read_text()
-        assert "multiplex_tmtpro_review_package" in Path(
-            "trust_bundle.summary.tsv"
-        ).read_text()
-        assert "targeted_transition_review_package" in Path(
-            "trust_bundle.summary.tsv"
-        ).read_text()
-        assert "flagship_weak_evidence_benchmark" in Path(
-            "trust_bundle.summary.tsv"
-        ).read_text()
+        assert (
+            "lfq_cohort_review_package" in Path("trust_bundle.summary.tsv").read_text()
+        )
+        assert (
+            "lfq_sparse_contrast_benchmark_dataset"
+            in Path("trust_bundle.summary.tsv").read_text()
+        )
+        assert (
+            "multiplex_tmtpro_review_package"
+            in Path("trust_bundle.summary.tsv").read_text()
+        )
+        assert (
+            "targeted_transition_review_package"
+            in Path("trust_bundle.summary.tsv").read_text()
+        )
+        assert (
+            "flagship_weak_evidence_benchmark"
+            in Path("trust_bundle.summary.tsv").read_text()
+        )
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
-        assert "evidence_graphs/index.tsv" in Path("trust_bundle/index.html").read_text()
+        assert (
+            "evidence_graphs/index.tsv" in Path("trust_bundle/index.html").read_text()
+        )
 
 
 def test_demo_command_runs_from_shipped_inputs_only() -> None:
@@ -366,14 +381,22 @@ def test_demo_command_runs_from_shipped_inputs_only() -> None:
         assert payload["summary"]["supported_claim_count"] >= 1
         assert payload["summary"]["belief_audit_count"] >= 1
         assert Path("proteomics_demo/surprising_demo_report.json").exists()
-        assert Path("proteomics_demo/biological_review/biological_report_manifest.json").exists()
-        assert Path("proteomics_demo/biological_review/biological_evidence_graph_nodes.tsv").exists()
-        assert Path("proteomics_demo/biological_review/biological_protein_cards.tsv").exists()
+        assert Path(
+            "proteomics_demo/biological_review/biological_report_manifest.json"
+        ).exists()
+        assert Path(
+            "proteomics_demo/biological_review/biological_evidence_graph_nodes.tsv"
+        ).exists()
+        assert Path(
+            "proteomics_demo/biological_review/biological_protein_cards.tsv"
+        ).exists()
         assert Path("proteomics_demo/ptm_review/ptm_evidence_cards.tsv").exists()
         assert Path(
             "proteomics_demo/biological_review/biological_pathway_activity_condition_comparisons.tsv"
         ).exists()
-        assert Path("proteomics_demo/biological_review/biological_protein_mechanism_cards.tsv").exists()
+        assert Path(
+            "proteomics_demo/biological_review/biological_protein_mechanism_cards.tsv"
+        ).exists()
         assert Path("proteomics_demo/demo_qc_packets.tsv").exists()
         assert Path("proteomics_demo/demo_matrices.tsv").exists()
         assert Path("proteomics_demo/demo_assay_panel.tsv").exists()
@@ -381,7 +404,10 @@ def test_demo_command_runs_from_shipped_inputs_only() -> None:
         assert Path("proteomics_demo/demo_claim_contradictions.tsv").exists()
         assert Path("proteomics_demo/demo_belief_audit.tsv").exists()
         assert "strong_protein_count" in Path("proteomics_demo.summary.tsv").read_text()
-        assert "weak_or_downgraded_protein" in Path("proteomics_demo.findings.tsv").read_text()
+        assert (
+            "weak_or_downgraded_protein"
+            in Path("proteomics_demo.findings.tsv").read_text()
+        )
         assert "claim_id" in Path("proteomics_demo.claims.tsv").read_text()
         assert "claim_id" in Path("proteomics_demo.belief_audit.tsv").read_text()
 
@@ -407,9 +433,10 @@ def test_demo_query_command_answers_shipped_interrogation_examples() -> None:
         assert payload["summary"]["query_count"] == 4
         assert payload["summary"]["answered_query_count"] == 4
         assert Path("proteomics_demo_query/surprising_demo_report.json").exists()
-        assert "answered_query_count" in Path(
-            "proteomics_demo_query.summary.tsv"
-        ).read_text()
+        assert (
+            "answered_query_count"
+            in Path("proteomics_demo_query.summary.tsv").read_text()
+        )
         answer_tsv = Path("proteomics_demo_query.answers.tsv").read_text()
         assert "evidence_ids" in answer_tsv
         assert "source_row_refs" in answer_tsv
@@ -446,9 +473,10 @@ def test_demo_report_command_emits_integrated_scientific_report_outputs() -> Non
         )
         assert Path("proteomics_demo_report/integrated_scientific_report.json").exists()
         assert Path("proteomics_demo_report/integrated_scientific_report.html").exists()
-        assert "linked_scientific_claim_count" in Path(
-            "proteomics_demo_report.summary.tsv"
-        ).read_text()
+        assert (
+            "linked_scientific_claim_count"
+            in Path("proteomics_demo_report.summary.tsv").read_text()
+        )
         sentence_tsv = Path("proteomics_demo_report.sentences.tsv").read_text()
         assert "scientific_claim" in sentence_tsv
         assert "targeted-evidence-card:protein:P001" in sentence_tsv
@@ -508,13 +536,20 @@ def test_public_dataset_comparison_command_emits_dataset_and_combined_outputs() 
         assert payload["summary"]["passed_dataset_count"] == 2
         assert payload["summary"]["failed_dataset_count"] == 1
         assert payload["summary"]["meta_analysis_entry_count"] > 0
-        assert "lfq_question_a" in Path("public_dataset.dataset_summary.tsv").read_text()
-        assert "missing_required_schema" in Path("public_dataset.failures.tsv").read_text()
-        assert "meta_analysis_entry_count" in Path(
-            "public_dataset.combined_summary.tsv"
-        ).read_text()
+        assert (
+            "lfq_question_a" in Path("public_dataset.dataset_summary.tsv").read_text()
+        )
+        assert (
+            "missing_required_schema" in Path("public_dataset.failures.tsv").read_text()
+        )
+        assert (
+            "meta_analysis_entry_count"
+            in Path("public_dataset.combined_summary.tsv").read_text()
+        )
         assert "comparison_status" in Path("public_dataset.effect.tsv").read_text()
-        assert "combined_log2_fold_change" in Path("public_dataset.meta.tsv").read_text()
+        assert (
+            "combined_log2_fold_change" in Path("public_dataset.meta.tsv").read_text()
+        )
         assert "comparison_status" in Path("public_dataset.pathway.tsv").read_text()
 
 
@@ -563,13 +598,18 @@ def test_public_dataset_evidence_cards_command_emits_card_and_dataset_outputs() 
         assert payload["summary"]["card_count"] > 0
         assert payload["summary"]["failed_dataset_reference_count"] > 0
         assert "card_count" in Path("public_dataset_evidence.summary.tsv").read_text()
-        assert "consistent_replication" in Path(
-            "public_dataset_evidence.cards.tsv"
-        ).read_text()
-        assert "dataset_failed" in Path("public_dataset_evidence.dataset.tsv").read_text()
+        assert (
+            "consistent_replication"
+            in Path("public_dataset_evidence.cards.tsv").read_text()
+        )
+        assert (
+            "dataset_failed" in Path("public_dataset_evidence.dataset.tsv").read_text()
+        )
 
 
-def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary() -> None:
+def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         design_entries = tuple(
@@ -581,8 +621,12 @@ def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary
             _workflow_fixture("biological_report_features.tsv"),
             design_entries,
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
-            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            pathway_membership_tsv_path=_workflow_fixture(
+                "biological_report_pathways.tsv"
+            ),
+            complex_membership_tsv_path=_workflow_fixture(
+                "biological_report_complexes.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )
@@ -596,7 +640,9 @@ def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary
             encoding="utf-8",
         )
 
-        ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+        ptm_evidence = parse_ptm_localization_tsv(
+            _ptm_fixture("localization_results.tsv")
+        )
         ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
         ptm_annotations = parse_ptm_site_annotation_tsv(
             _ptm_fixture("ptm_site_annotations.tsv")
@@ -654,9 +700,9 @@ def test_interactive_result_bundle_command_emits_frontend_ready_json_and_summary
             peptide["source_surface"] == "ptm_peptides" and peptide["site_keys"]
             for peptide in payload["bundle"]["peptides"]
         )
-        assert "sample_count" in Path(
-            "interactive_result_bundle.summary.tsv"
-        ).read_text()
+        assert (
+            "sample_count" in Path("interactive_result_bundle.summary.tsv").read_text()
+        )
 
 
 def test_result_manifest_command_emits_completeness_and_warning_ledgers() -> None:
@@ -773,8 +819,12 @@ def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
             _workflow_fixture("biological_report_features.tsv"),
             design_entries,
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
-            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            pathway_membership_tsv_path=_workflow_fixture(
+                "biological_report_pathways.tsv"
+            ),
+            complex_membership_tsv_path=_workflow_fixture(
+                "biological_report_complexes.tsv"
+            ),
             go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
             condition_a="control",
             condition_b="treatment",
@@ -789,7 +839,9 @@ def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
             encoding="utf-8",
         )
 
-        ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+        ptm_evidence = parse_ptm_localization_tsv(
+            _ptm_fixture("localization_results.tsv")
+        )
         ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
         ptm_annotations = parse_ptm_site_annotation_tsv(
             _ptm_fixture("ptm_site_annotations.tsv")
@@ -846,7 +898,9 @@ def test_result_search_command_emits_object_ids_and_evidence_snippets() -> None:
         assert "site_key" in hit_tsv
 
 
-def test_query_result_command_searches_demo_root_without_internal_report_paths() -> None:
+def test_query_result_command_searches_demo_root_without_internal_report_paths() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         demo = runner.invoke(
@@ -878,12 +932,10 @@ def test_query_result_command_searches_demo_root_without_internal_report_paths()
         assert payload["index"]["summary"]["ptm_site_document_count"] >= 1
         assert payload["report"]["summary"]["hit_count"] >= 1
         assert payload["report"]["hits"][0]["object_id"] == "P11111:S5:Phospho"
-        assert "indexed_document_count" in Path(
-            "query_result.summary.tsv"
-        ).read_text(encoding="utf-8")
-        assert "site_key" in Path("query_result.hits.tsv").read_text(
+        assert "indexed_document_count" in Path("query_result.summary.tsv").read_text(
             encoding="utf-8"
         )
+        assert "site_key" in Path("query_result.hits.tsv").read_text(encoding="utf-8")
 
 
 def test_interactive_result_comparison_command_emits_changed_object_payloads() -> None:
@@ -898,13 +950,19 @@ def test_interactive_result_comparison_command_emits_changed_object_payloads() -
             _workflow_fixture("biological_report_features.tsv"),
             design_entries,
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
-            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            pathway_membership_tsv_path=_workflow_fixture(
+                "biological_report_pathways.tsv"
+            ),
+            complex_membership_tsv_path=_workflow_fixture(
+                "biological_report_complexes.tsv"
+            ),
             go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
             condition_a="control",
             condition_b="treatment",
         )
-        ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+        ptm_evidence = parse_ptm_localization_tsv(
+            _ptm_fixture("localization_results.tsv")
+        )
         ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
         ptm_annotations = parse_ptm_site_annotation_tsv(
             _ptm_fixture("ptm_site_annotations.tsv")
@@ -1054,19 +1112,23 @@ def test_interactive_result_comparison_command_emits_changed_object_payloads() -
             for entry in payload["payload"]["changed_pathways"]
             for reason in entry["reasons"]
         )
-        assert "changed_protein_count" in Path(
-            "interactive_result_comparison.summary.tsv"
-        ).read_text()
-        assert "representative_protein_ref" in Path(
-            "interactive_result_comparison.proteins.tsv"
-        ).read_text()
-        assert "protein_correction_status" in Path(
-            "interactive_result_comparison.ptm_sites.tsv"
-        ).read_text()
+        assert (
+            "changed_protein_count"
+            in Path("interactive_result_comparison.summary.tsv").read_text()
+        )
+        assert (
+            "representative_protein_ref"
+            in Path("interactive_result_comparison.proteins.tsv").read_text()
+        )
+        assert (
+            "protein_correction_status"
+            in Path("interactive_result_comparison.ptm_sites.tsv").read_text()
+        )
         assert "qc_id" in Path("interactive_result_comparison.qc.tsv").read_text()
-        assert "pathway_id" in Path(
-            "interactive_result_comparison.pathways.tsv"
-        ).read_text()
+        assert (
+            "pathway_id"
+            in Path("interactive_result_comparison.pathways.tsv").read_text()
+        )
 
 
 def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
@@ -1125,7 +1187,9 @@ def test_result_question_answer_command_emits_row_and_graph_citations() -> None:
         answer = payload["report"]["answers"][0]
         assert answer["status"] == "answered"
         assert "t2.mzml" in answer["result_row_ids"]
-        assert any(node_id.startswith("sample:") for node_id in answer["graph_node_ids"])
+        assert any(
+            node_id.startswith("sample:") for node_id in answer["graph_node_ids"]
+        )
         assert "answered_query_count" in Path("result_query.summary.tsv").read_text()
         assert "answer_text" in Path("result_query.answers.tsv").read_text()
         assert "graph_node_ids" in Path("result_query.evidence.tsv").read_text()
@@ -1157,7 +1221,9 @@ def test_result_explanation_command_emits_structured_decision_outputs() -> None:
             + "\n",
             encoding="utf-8",
         )
-        (biological_dir / "biological_pathway_activity_condition_comparisons.tsv").write_text(
+        (
+            biological_dir / "biological_pathway_activity_condition_comparisons.tsv"
+        ).write_text(
             "\n".join(
                 (
                     "pathway_id\tpathway_name\tsource_name\tsource_accession\tcondition_a\tcondition_b\tcondition_a_confidence_status\tcondition_b_confidence_status\tcomparison_confidence_status\tmean_activity_score_a\tmean_activity_score_b\tactivity_score_delta",
@@ -1212,11 +1278,14 @@ def test_result_explanation_command_emits_structured_decision_outputs() -> None:
         explanation = payload["report"]["explanations"][0]
         assert explanation["status"] == "answered"
         assert explanation["confidence"] == "low"
-        assert explanation["claim"].startswith("Pathway Cell Cycle shows higher activity")
+        assert explanation["claim"].startswith(
+            "Pathway Cell Cycle shows higher activity"
+        )
         assert explanation["opposing_evidence"]
-        assert "answered_explanation_count" in Path(
-            "result_explanation.summary.tsv"
-        ).read_text()
+        assert (
+            "answered_explanation_count"
+            in Path("result_explanation.summary.tsv").read_text()
+        )
         assert "claim" in Path("result_explanation.explanations.tsv").read_text()
         evidence_tsv = Path("result_explanation.evidence.tsv").read_text()
         assert "evidence_role" in evidence_tsv
@@ -1254,7 +1323,9 @@ def test_belief_audit_command_emits_challengeable_conclusion_outputs() -> None:
             + "\n",
             encoding="utf-8",
         )
-        (biological_dir / "biological_pathway_activity_condition_comparisons.tsv").write_text(
+        (
+            biological_dir / "biological_pathway_activity_condition_comparisons.tsv"
+        ).write_text(
             "\n".join(
                 (
                     "pathway_id\tpathway_name\tsource_name\tsource_accession\tcondition_a\tcondition_b\tcondition_a_confidence_status\tcondition_b_confidence_status\tcomparison_confidence_status\tmean_activity_score_a\tmean_activity_score_b\tactivity_score_delta",
@@ -1451,9 +1522,10 @@ def test_analysis_recommendations_command_emits_condition_tied_actions() -> None
             "failed_run_qc",
             "batch_condition_confounding",
         }
-        assert "triggered_condition_codes" in Path(
-            "analysis_recommendations.summary.tsv"
-        ).read_text()
+        assert (
+            "triggered_condition_codes"
+            in Path("analysis_recommendations.summary.tsv").read_text()
+        )
         recommendation_tsv = Path("analysis_recommendations.tsv").read_text()
         assert "detected_condition_code" in recommendation_tsv
         assert "avoid_batch_correction" in recommendation_tsv
@@ -1488,10 +1560,7 @@ def test_compact_result_summary_command_emits_evidence_constrained_sections() ->
         report = payload["report"]
         assert report["overview"]["section_count"] == 5
         assert report["overview"]["entry_count"] > 0
-        by_kind = {
-            section["section_kind"]: section
-            for section in report["sections"]
-        }
+        by_kind = {section["section_kind"]: section for section in report["sections"]}
         strongest_entries = by_kind["strongest_findings"]["entries"]
         assert strongest_entries
         assert all(
@@ -1507,9 +1576,9 @@ def test_compact_result_summary_command_emits_evidence_constrained_sections() ->
         assert "strongest_finding_count" in Path(
             "compact_result_summary.overview.tsv"
         ).read_text(encoding="utf-8")
-        assert "summary_text" in Path(
-            "compact_result_summary.entries.tsv"
-        ).read_text(encoding="utf-8")
+        assert "summary_text" in Path("compact_result_summary.entries.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_failure_explanation_command_emits_scientific_category_and_fix() -> None:
@@ -1535,9 +1604,10 @@ def test_failure_explanation_command_emits_scientific_category_and_fix() -> None
         assert explanation["status"] == "explained"
         assert explanation["failure_category"] == "invalid_design"
         assert explanation["scientific_condition_code"] == "invalid_study_design"
-        assert "invalid_design_count" in Path(
-            "failure_explanation.summary.tsv"
-        ).read_text()
+        assert (
+            "invalid_design_count"
+            in Path("failure_explanation.summary.tsv").read_text()
+        )
         explanation_tsv = Path("failure_explanation.tsv").read_text()
         assert "scientific_condition_code" in explanation_tsv
         assert "repair rejected design rows" in explanation_tsv
@@ -1628,9 +1698,7 @@ def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -
         payload = json.loads(result.output)
         assert payload["report"]["summary"]["missing_metadata_sample_count"] == 1
         assert payload["report"]["summary"]["metadata_run_mismatch_count"] == 1
-        assert (
-            payload["outputs"]["suggestions_tsv"] == "sample_sheet_repairs.tsv"
-        )
+        assert payload["outputs"]["suggestions_tsv"] == "sample_sheet_repairs.tsv"
         assert "advisory only" in payload["report"]["note"]
         tsv_output = Path("sample_sheet_repairs.tsv").read_text(encoding="utf-8")
         json_output = json.loads(
@@ -1684,15 +1752,13 @@ def test_experiment_feasibility_command_emits_supported_and_unsupported_outputs(
         payload = json.loads(result.output)
         assert payload["report"]["summary"]["valid_contrast_count"] == 1
         assert payload["report"]["summary"]["invalid_contrast_count"] == 2
-        assert (
-            payload["outputs"]["valid_contrasts_tsv"] == "feasibility.valid.tsv"
-        )
+        assert payload["outputs"]["valid_contrasts_tsv"] == "feasibility.valid.tsv"
         assert "control\ttreatment" in Path("feasibility.valid.tsv").read_text(
             encoding="utf-8"
         )
-        assert "insufficient_group_size" in Path(
-            "feasibility.invalid.tsv"
-        ).read_text(encoding="utf-8")
+        assert "insufficient_group_size" in Path("feasibility.invalid.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "underpowered" in Path("feasibility.groups.tsv").read_text(
             encoding="utf-8"
         )
@@ -1761,7 +1827,9 @@ def test_protocol_consistency_report_command_emits_blocking_tmt_diagnostics() ->
         assert saved["report"]["summary"]["blocking_diagnostic_count"] == 1
 
 
-def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
+def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
@@ -1805,11 +1873,16 @@ def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers
         assert payload["mapping_report"]["summary"]["input_entry_count"] == 6
         assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 6
         assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 0
-        assert Path("protein_annotation.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("input_entry_count\tmapped_entry_count")
+        assert (
+            Path("protein_annotation.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("input_entry_count\tmapped_entry_count")
+        )
         assert "TRP53" in Path("protein_annotation.annotated.tsv").read_text()
-        assert "annotation_status" in Path("protein_annotation.annotated.tsv").read_text()
+        assert (
+            "annotation_status" in Path("protein_annotation.annotated.tsv").read_text()
+        )
         assert (
             Path("protein_annotation.unmapped.tsv").read_text().splitlines()[0]
             == "row_number\tsource_row_id\tinput_protein_ref\tprotein_ref\taccession_aliases\tinput_metadata\treason"
@@ -1828,7 +1901,9 @@ def test_map_orthologs_command_emits_mapped_unmapped_and_rejected_ledgers() -> N
     runner = CliRunner()
     with runner.isolated_filesystem():
         interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
-        shutil.copy(interpretation_fixture_dir / "ortholog_input.tsv", "ortholog_input.tsv")
+        shutil.copy(
+            interpretation_fixture_dir / "ortholog_input.tsv", "ortholog_input.tsv"
+        )
         shutil.copy(
             interpretation_fixture_dir / "ortholog_cli.tsv",
             "ortholog_cli.tsv",
@@ -1863,8 +1938,13 @@ def test_map_orthologs_command_emits_mapped_unmapped_and_rejected_ledgers() -> N
         assert payload["mapping_report"]["summary"]["input_entry_count"] == 7
         assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 9
         assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 1
-        assert Path("ortholog.summary.tsv").read_text().splitlines()[0].startswith(
-            "source_species\ttarget_species\tinput_entry_count\tmapped_entry_count"
+        assert (
+            Path("ortholog.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith(
+                "source_species\ttarget_species\tinput_entry_count\tmapped_entry_count"
+            )
         )
         assert "P005\thuman\tmouse\tM005" in Path("ortholog.mapped.tsv").read_text()
         assert "P999\thuman\tmouse" in Path("ortholog.unmapped.tsv").read_text()
@@ -1920,7 +2000,9 @@ def test_map_context_command_emits_mapping_term_unmapped_and_rejected_ledgers() 
         assert payload["mapping_report"]["summary"]["input_entry_count"] == 4
         assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 2
         assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 2
-        assert payload["context_table"]["fixed_context_kind"] == "subcellular_compartment"
+        assert (
+            payload["context_table"]["fixed_context_kind"] == "subcellular_compartment"
+        )
         assert "subcellular_compartment" in Path("context.summary.tsv").read_text()
         assert "GO:0005634" in Path("context.mapped.tsv").read_text()
         assert "supporting_protein_refs" in Path("context.terms.tsv").read_text()
@@ -1933,7 +2015,9 @@ def test_map_context_command_emits_mapping_term_unmapped_and_rejected_ledgers() 
         ]
 
 
-def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers() -> None:
+def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
@@ -2006,12 +2090,17 @@ def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers
         assert "P999" in Path("protein_set_score.unresolved.tsv").read_text(
             encoding="utf-8"
         )
-        assert Path("protein_set_score.rejected.tsv").read_text(encoding="utf-8").splitlines()[
-            0
-        ] == "row_number\tvalues\treason"
+        assert (
+            Path("protein_set_score.rejected.tsv")
+            .read_text(encoding="utf-8")
+            .splitlines()[0]
+            == "row_number\tvalues\treason"
+        )
 
 
-def test_protein_set_enrichment_command_requires_explicit_background_by_default() -> None:
+def test_protein_set_enrichment_command_requires_explicit_background_by_default() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
@@ -2080,17 +2169,24 @@ def test_protein_set_enrichment_command_emits_result_and_universe_gap_ledgers() 
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["report"]["summary"]["background_source"] == "membership_universe"
+        assert (
+            payload["report"]["summary"]["background_source"] == "membership_universe"
+        )
         assert payload["report"]["summary"]["foreground_universe_gap_count"] == 1
         assert payload["outputs"]["result_tsv"] == "protein_set_enrichment.result.tsv"
-        assert Path(
-            "protein_set_enrichment.summary.tsv"
-        ).read_text().splitlines()[0].startswith("foreground_size\tbackground_size")
-        assert "set_id\tset_name\tset_category\tsource_name\tsource_accession" in Path(
-            "protein_set_enrichment.result.tsv"
-        ).read_text()
-        assert "foreground\tP999\tprotein was not present in the membership universe" in (
-            Path("protein_set_enrichment.universe_gap.tsv").read_text()
+        assert (
+            Path("protein_set_enrichment.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("foreground_size\tbackground_size")
+        )
+        assert (
+            "set_id\tset_name\tset_category\tsource_name\tsource_accession"
+            in Path("protein_set_enrichment.result.tsv").read_text()
+        )
+        assert (
+            "foreground\tP999\tprotein was not present in the membership universe"
+            in (Path("protein_set_enrichment.universe_gap.tsv").read_text())
         )
         assert (
             Path("protein_set_enrichment.rejected.tsv").read_text().splitlines()[0]
@@ -2148,16 +2244,17 @@ def test_ppi_modules_command_emits_edges_modules_isolates_and_enrichment() -> No
         assert payload["report"]["summary"]["module_count"] == 1
         assert payload["report"]["summary"]["isolated_protein_count"] == 2
         assert payload["outputs"]["module_tsv"] == "ppi_modules.modules.tsv"
-        assert "ppi_module:P001,P002,P003" in Path(
-            "ppi_modules.modules.tsv"
-        ).read_text(encoding="utf-8")
+        assert "ppi_module:P001,P002,P003" in Path("ppi_modules.modules.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "P004" in Path("ppi_modules.isolated.tsv").read_text(encoding="utf-8")
         assert "stress_panel" in Path("ppi_modules.enrichment.tsv").read_text(
             encoding="utf-8"
         )
-        assert Path("ppi_modules.rejected.tsv").read_text(encoding="utf-8").splitlines()[
-            0
-        ] == "row_number\tvalues\treason"
+        assert (
+            Path("ppi_modules.rejected.tsv").read_text(encoding="utf-8").splitlines()[0]
+            == "row_number\tvalues\treason"
+        )
 
 
 def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
@@ -2203,8 +2300,11 @@ def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
         assert payload["report"]["summary"]["foreground_size"] == 3
         assert payload["report"]["summary"]["background_size"] == 6
         assert payload["report"]["summary"]["evaluated_term_count"] == 3
-        assert Path("go_enrichment.summary.tsv").read_text().splitlines()[0].startswith(
-            "foreground_size\tbackground_size"
+        assert (
+            Path("go_enrichment.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("foreground_size\tbackground_size")
         )
         assert "GO:0006915" in Path("go_enrichment.term.tsv").read_text()
         assert "background\tQ88888" in Path("go_enrichment.unannotated.tsv").read_text()
@@ -2269,9 +2369,12 @@ def test_pathway_enrichment_command_emits_pathway_and_unresolved_ledgers() -> No
         assert payload["report"]["summary"]["foreground_size"] == 3
         assert payload["report"]["summary"]["background_size"] == 6
         assert payload["report"]["summary"]["evaluated_entry_count"] == 5
-        assert Path("pathway_enrichment.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("foreground_size\tbackground_size")
+        assert (
+            Path("pathway_enrichment.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("foreground_size\tbackground_size")
+        )
         assert "hsa04115" in Path("pathway_enrichment.pathway.tsv").read_text()
         assert (
             "background\tQ88888\t"
@@ -2338,20 +2441,29 @@ def test_pathway_activity_command_emits_matrix_contributions_and_contrasts() -> 
         payload = json.loads(result.output)
         assert payload["report"]["summary"]["pathway_count"] == 1
         assert payload["report"]["summary"]["condition_comparison_count"] == 1
-        assert Path("pathway_activity.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("entity_level\tmeasure_kind")
-        assert "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
-            "pathway_activity.matrix.tsv"
-        ).read_text()
-        assert "member_kind\tmember_id\tresolved_protein_refs" in Path(
-            "pathway_activity.members.tsv"
-        ).read_text()
-        assert "condition_a_confidence_status" in Path(
-            "pathway_activity.comparisons.tsv"
-        ).read_text()
-        assert Path("pathway_activity.unresolved.tsv").read_text().splitlines()[0].startswith(
-            "pathway_id\tpathway_name\tsource_name"
+        assert (
+            Path("pathway_activity.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("entity_level\tmeasure_kind")
+        )
+        assert (
+            "pathway_id\tpathway_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+            in Path("pathway_activity.matrix.tsv").read_text()
+        )
+        assert (
+            "member_kind\tmember_id\tresolved_protein_refs"
+            in Path("pathway_activity.members.tsv").read_text()
+        )
+        assert (
+            "condition_a_confidence_status"
+            in Path("pathway_activity.comparisons.tsv").read_text()
+        )
+        assert (
+            Path("pathway_activity.unresolved.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("pathway_id\tpathway_name\tsource_name")
         )
 
 
@@ -2410,9 +2522,12 @@ def test_complex_enrichment_command_emits_complex_and_unresolved_ledgers() -> No
         assert payload["report"]["summary"]["foreground_size"] == 3
         assert payload["report"]["summary"]["background_size"] == 6
         assert payload["report"]["summary"]["evaluated_entry_count"] == 4
-        assert Path("complex_enrichment.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("foreground_size\tbackground_size")
+        assert (
+            Path("complex_enrichment.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("foreground_size\tbackground_size")
+        )
         assert "CORUM:0176" in Path("complex_enrichment.complex.tsv").read_text()
         assert (
             "background\tQ88888\t"
@@ -2424,7 +2539,9 @@ def test_complex_enrichment_command_emits_complex_and_unresolved_ledgers() -> No
         )
 
 
-def test_complex_activity_command_emits_matrix_contributions_and_limiting_members() -> None:
+def test_complex_activity_command_emits_matrix_contributions_and_limiting_members() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         workflow_fixture_dir = FIXTURE_ROOT / "workflow"
@@ -2479,23 +2596,30 @@ def test_complex_activity_command_emits_matrix_contributions_and_limiting_member
         payload = json.loads(result.output)
         assert payload["report"]["summary"]["complex_count"] == 1
         assert payload["report"]["summary"]["condition_comparison_count"] == 1
-        assert Path("complex_activity.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("entity_level\tmeasure_kind")
-        assert "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
-            "complex_activity.matrix.tsv"
-        ).read_text()
-        assert "member_kind\tmember_id\tresolved_protein_refs" in Path(
-            "complex_activity.members.tsv"
-        ).read_text()
-        assert "limiting_member_ids" in Path(
-            "complex_activity.samples.tsv"
-        ).read_text()
-        assert "condition_a_confidence_status" in Path(
-            "complex_activity.comparisons.tsv"
-        ).read_text()
-        assert Path("complex_activity.unresolved.tsv").read_text().splitlines()[0].startswith(
-            "complex_id\tcomplex_name\tsource_name"
+        assert (
+            Path("complex_activity.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("entity_level\tmeasure_kind")
+        )
+        assert (
+            "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+            in Path("complex_activity.matrix.tsv").read_text()
+        )
+        assert (
+            "member_kind\tmember_id\tresolved_protein_refs"
+            in Path("complex_activity.members.tsv").read_text()
+        )
+        assert "limiting_member_ids" in Path("complex_activity.samples.tsv").read_text()
+        assert (
+            "condition_a_confidence_status"
+            in Path("complex_activity.comparisons.tsv").read_text()
+        )
+        assert (
+            Path("complex_activity.unresolved.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("complex_id\tcomplex_name\tsource_name")
         )
 
 
@@ -2553,31 +2677,46 @@ def test_compartment_biology_command_emits_enrichment_activity_and_unknown_local
         assert payload["report"]["summary"]["compartment_count"] == 2
         assert payload["report"]["summary"]["unknown_foreground_protein_count"] == 1
         assert payload["report"]["summary"]["unknown_background_protein_count"] == 2
-        assert Path("compartment_biology.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("compartment_count\tforeground_protein_count")
-        assert "compartment_id\tcompartment_name\tsource_name\tsource_accession" in Path(
-            "compartment_biology.enrichment.tsv"
-        ).read_text()
-        assert "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in Path(
-            "compartment_biology.matrix.tsv"
-        ).read_text()
-        assert "condition_a_confidence_status" in Path(
-            "compartment_biology.comparisons.tsv"
-        ).read_text()
-        assert Path("compartment_biology.unresolved.tsv").read_text().splitlines()[0].startswith(
-            "compartment_id\tcompartment_name\tsource_name"
+        assert (
+            Path("compartment_biology.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("compartment_count\tforeground_protein_count")
         )
-        assert "localization_scope\tprotein_ref\treason" == Path(
-            "compartment_biology.unknown.tsv"
-        ).read_text().splitlines()[0]
+        assert (
+            "compartment_id\tcompartment_name\tsource_name\tsource_accession"
+            in Path("compartment_biology.enrichment.tsv").read_text()
+        )
+        assert (
+            "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+            in Path("compartment_biology.matrix.tsv").read_text()
+        )
+        assert (
+            "condition_a_confidence_status"
+            in Path("compartment_biology.comparisons.tsv").read_text()
+        )
+        assert (
+            Path("compartment_biology.unresolved.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("compartment_id\tcompartment_name\tsource_name")
+        )
+        assert (
+            Path("compartment_biology.unknown.tsv").read_text().splitlines()[0]
+            == "localization_scope\tprotein_ref\treason"
+        )
         assert "rejected rows" not in result.output
-        assert Path("compartment_biology.rejected.tsv").read_text().splitlines()[
-            0
-        ].startswith("row_number")
+        assert (
+            Path("compartment_biology.rejected.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("row_number")
+        )
 
 
-def test_regulator_inference_command_emits_separated_site_and_abundance_outputs() -> None:
+def test_regulator_inference_command_emits_separated_site_and_abundance_outputs() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         workflow_fixture_dir = FIXTURE_ROOT / "workflow"
@@ -2639,24 +2778,32 @@ def test_regulator_inference_command_emits_separated_site_and_abundance_outputs(
         assert payload["report"]["summary"]["entry_count"] == 5
         assert payload["report"]["summary"]["site_regulation_entry_count"] == 1
         assert payload["report"]["summary"]["pathway_activity_entry_count"] == 1
-        assert Path("regulator_inference.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("condition_a\tcondition_b\tregulator_count")
-        assert "regulator\tevidence_type\tsignal_surface" in Path(
-            "regulator_inference.tsv"
-        ).read_text()
-        assert "MAPK14\tkinase_substrate\tsite_regulation" in Path(
-            "regulator_inference.tsv"
-        ).read_text()
-        assert "Stress commander\tpathway\tpathway_activity" in Path(
-            "regulator_inference.tsv"
-        ).read_text()
-        assert "target_field\ttarget_value" in Path(
-            "regulator_inference.unresolved.tsv"
-        ).read_text()
-        assert Path("regulator_inference.rejected.tsv").read_text().splitlines()[
-            0
-        ] == "row_number\treason\tvalues"
+        assert (
+            Path("regulator_inference.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("condition_a\tcondition_b\tregulator_count")
+        )
+        assert (
+            "regulator\tevidence_type\tsignal_surface"
+            in Path("regulator_inference.tsv").read_text()
+        )
+        assert (
+            "MAPK14\tkinase_substrate\tsite_regulation"
+            in Path("regulator_inference.tsv").read_text()
+        )
+        assert (
+            "Stress commander\tpathway\tpathway_activity"
+            in Path("regulator_inference.tsv").read_text()
+        )
+        assert (
+            "target_field\ttarget_value"
+            in Path("regulator_inference.unresolved.tsv").read_text()
+        )
+        assert (
+            Path("regulator_inference.rejected.tsv").read_text().splitlines()[0]
+            == "row_number\treason\tvalues"
+        )
         assert Path("regulator_sites.rejected.tsv").read_text().splitlines()[0] == (
             "row_number\treason\tvalues"
         )
@@ -2706,19 +2853,27 @@ def test_disease_phenotype_command_emits_explicit_annotation_outputs() -> None:
         assert payload["report"]["summary"]["term_count"] == 4
         assert payload["report"]["summary"]["disease_term_count"] == 2
         assert payload["report"]["summary"]["phenotype_term_count"] == 2
-        assert Path("disease_phenotype.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("term_count\tdisease_term_count\tphenotype_term_count")
-        assert "context_kind\tterm_id\tterm_name\tsource_name" in Path(
-            "disease_phenotype.tsv"
-        ).read_text()
+        assert (
+            Path("disease_phenotype.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("term_count\tdisease_term_count\tphenotype_term_count")
+        )
+        assert (
+            "context_kind\tterm_id\tterm_name\tsource_name"
+            in Path("disease_phenotype.tsv").read_text()
+        )
         assert "DOID:162" in Path("disease_phenotype.tsv").read_text()
-        assert Path("disease_phenotype.unknown.tsv").read_text().splitlines()[
-            0
-        ] == "annotation_scope\tprotein_ref\treason"
-        assert Path("disease_phenotype.rejected.tsv").read_text().splitlines()[
-            0
-        ].startswith("row_number")
+        assert (
+            Path("disease_phenotype.unknown.tsv").read_text().splitlines()[0]
+            == "annotation_scope\tprotein_ref\treason"
+        )
+        assert (
+            Path("disease_phenotype.rejected.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("row_number")
+        )
 
 
 def test_drug_target_command_emits_direct_and_indirect_outputs() -> None:
@@ -2779,18 +2934,27 @@ def test_drug_target_command_emits_direct_and_indirect_outputs() -> None:
         assert (
             payload["report"]["summary"]["indirect_pathway_neighbor_entry_count"] == 2
         )
-        assert Path("drug_target.summary.tsv").read_text().splitlines()[
-            0
-        ].startswith("condition_a\tcondition_b\tdrug_count\tentry_count")
+        assert (
+            Path("drug_target.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("condition_a\tcondition_b\tdrug_count\tentry_count")
+        )
         assert "relationship" in Path("drug_target.tsv").read_text()
         assert "direct_target" in Path("drug_target.tsv").read_text()
         assert "indirect_pathway_neighbor" in Path("drug_target.tsv").read_text()
-        assert Path("drug_target.rejected.tsv").read_text().splitlines()[
-            0
-        ].startswith("row_number")
-        assert Path("drug_target.pathways.rejected.tsv").read_text().splitlines()[
-            0
-        ].startswith("row_number")
+        assert (
+            Path("drug_target.rejected.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("row_number")
+        )
+        assert (
+            Path("drug_target.pathways.rejected.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("row_number")
+        )
 
 
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
@@ -2882,7 +3046,10 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         assert profile_payload["summary"]["decoy_count"] == 1
         assert profile_payload["summary"]["contaminant_count"] == 1
         assert profile_payload["summary"]["organism_annotated_count"] == 5
-        assert [row["source_identifier"] for row in profile_payload["invalid_sequence_report"]] == [
+        assert [
+            row["source_identifier"]
+            for row in profile_payload["invalid_sequence_report"]
+        ] == [
             "custom_empty",
             "custom_invalid",
         ]
@@ -3326,10 +3493,7 @@ def test_digest_command_supports_regex_custom_protease_rule() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["protease"] == "acidic_regex"
-        assert (
-            payload["custom_protease"]
-            == "pattern=(?<!P)(?P<site>D);cut_before=site"
-        )
+        assert payload["custom_protease"] == "pattern=(?<!P)(?P<site>D);cut_before=site"
         regex_lines = Path("regex.tsv").read_text().splitlines()
         assert any("\tPEPDA\t" in line for line in regex_lines[1:])
         assert any("\tDAA\t" in line for line in regex_lines[1:])
@@ -3361,9 +3525,7 @@ def test_digest_command_reports_invalid_output_path(
 def test_theoretical_digest_command_writes_governed_bundle() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        Path("proteins.fasta").write_text(
-            ">sp|P12345|CHEM Protein chemistry\nACDMK\n"
-        )
+        Path("proteins.fasta").write_text(">sp|P12345|CHEM Protein chemistry\nACDMK\n")
 
         result = runner.invoke(
             cli,
@@ -3390,7 +3552,9 @@ def test_theoretical_digest_command_writes_governed_bundle() -> None:
         assert Path("digest_bundle/digest_peptides.tsv").exists()
         assert Path("digest_bundle/peptide_to_protein.tsv").exists()
         assert Path("digest_bundle/digest_summary.tsv").exists()
-        assert "ACDM[Oxidation]K" in Path("digest_bundle/digest_peptides.tsv").read_text()
+        assert (
+            "ACDM[Oxidation]K" in Path("digest_bundle/digest_peptides.tsv").read_text()
+        )
         assert "Carbamidomethyl" in Path("digest_bundle/digest_summary.tsv").read_text()
 
 
@@ -3564,9 +3728,10 @@ def test_fragment_ions_command_reports_a_b_y_ions_with_charge_spans_and_tsv() ->
             for ion in payload["ions"]
         )
         assert Path("fragments.tsv").exists()
-        assert "series\tordinal\tcharge\tspan_start\tspan_end\tsequence" in Path(
-            "fragments.tsv"
-        ).read_text()
+        assert (
+            "series\tordinal\tcharge\tspan_start\tspan_end\tsequence"
+            in Path("fragments.tsv").read_text()
+        )
 
 
 def test_peptide_properties_command_reports_filtering_metrics() -> None:
@@ -3737,9 +3902,7 @@ def test_modified_peptide_parse_command_distinguishes_lysine_acetylation() -> No
         payload = json.loads(result.output)
         assert payload["dialect"] == "maxquant"
         assert payload["canonical_notation"] == "PEPK[AcetylLys]IDE"
-        assert payload["modified_peptide_record"]["modification_names"] == [
-            "AcetylLys"
-        ]
+        assert payload["modified_peptide_record"]["modification_names"] == ["AcetylLys"]
 
 
 def test_modified_peptide_parse_command_rejects_malformed_engine_notation() -> None:
@@ -4085,10 +4248,12 @@ def test_fdr_command_marks_unstable_score_separation_and_writes_ledgers() -> Non
         assert "warning_tier\tfdr_unstable" in Path(
             "score_separation.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert Path("score_separation.bins.tsv").read_text(
-            encoding="utf-8"
-        ).startswith(
-            "bin_lower\tbin_upper\ttarget_count\tdecoy_count\tmixed_count\tunknown_count"
+        assert (
+            Path("score_separation.bins.tsv")
+            .read_text(encoding="utf-8")
+            .startswith(
+                "bin_lower\tbin_upper\ttarget_count\tdecoy_count\tmixed_count\tunknown_count"
+            )
         )
 
 
@@ -4118,7 +4283,9 @@ def test_fdr_command_preserves_imported_pep_and_writes_error_rate_ledgers() -> N
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["error_rate_annotation"]["summary"]["imported_pep_count"] == 3
-        assert payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 0
+        assert (
+            payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 0
+        )
         assert Path("error_rate.summary.tsv").exists()
         assert Path("error_rate.entries.tsv").exists()
         assert "imported_pep_count\tcomputed_local_fdr_count" in Path(
@@ -4126,9 +4293,15 @@ def test_fdr_command_preserves_imported_pep_and_writes_error_rate_ledgers() -> N
         ).read_text(encoding="utf-8")
         entries_text = Path("error_rate.entries.tsv").read_text(encoding="utf-8")
         accepted_text = Path("accepted.tsv").read_text(encoding="utf-8")
-        assert "posterior_error_probability\tlocal_fdr\terror_rate_provenance" in entries_text
+        assert (
+            "posterior_error_probability\tlocal_fdr\terror_rate_provenance"
+            in entries_text
+        )
         assert "\t0.002\t\timported_pep\n" in entries_text
-        assert "posterior_error_probability\tlocal_fdr\terror_rate_provenance" in accepted_text
+        assert (
+            "posterior_error_probability\tlocal_fdr\terror_rate_provenance"
+            in accepted_text
+        )
         assert "\t0.008\t\timported_pep\tQ11111" in accepted_text
 
 
@@ -4154,7 +4327,9 @@ def test_fdr_command_computes_local_fdr_when_pep_is_absent() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["error_rate_annotation"]["summary"]["imported_pep_count"] == 0
-        assert payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 5
+        assert (
+            payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 5
+        )
         entries_text = Path("error_rate.entries.tsv").read_text(encoding="utf-8")
         assert "\t\t1.0\tcomputed_local_fdr\n" in entries_text
 
@@ -4499,9 +4674,9 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
         assert "P11111\t2\t13\t19\t7" in Path("protein_coverage.regions.tsv").read_text(
             encoding="utf-8"
         )
-        assert "P11111\t1\t1\t1\t1" in Path(
-            "protein_coverage.uncovered.tsv"
-        ).read_text(encoding="utf-8")
+        assert "P11111\t1\t1\t1\t1" in Path("protein_coverage.uncovered.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "P11111\tPEPTIDEK\tPEPTIDEK\tmatched\t1\t2\t9" in Path(
             "protein_coverage.coordinates.tsv"
         ).read_text(encoding="utf-8")
@@ -5514,7 +5689,10 @@ def test_psm_contaminants_command_exports_burden_and_protein_ledgers() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["contaminant_evidence"]["summary"]["contaminant_psm_count"] == 3
-        assert payload["contaminant_evidence"]["summary"]["contaminant_intensity"] == 1050.0
+        assert (
+            payload["contaminant_evidence"]["summary"]["contaminant_intensity"]
+            == 1050.0
+        )
         assert (
             payload["contaminant_evidence"]["burden_entries"][0][
                 "heavy_contaminant_warning"
@@ -5525,10 +5703,9 @@ def test_psm_contaminants_command_exports_burden_and_protein_ledgers() -> None:
             "run-a\t\t3\t2\t1\t1\t2\t2\t2000.0\t1000.0\t0.6666666666666666\t0.5\ttrue"
             in Path("contaminant_burden.tsv").read_text(encoding="utf-8")
         )
-        assert (
-            "CON__K1C10_HUMAN\trun-a;run-b\t\t2\t2\t850.0"
-            in Path("contaminant_proteins.tsv").read_text(encoding="utf-8")
-        )
+        assert "CON__K1C10_HUMAN\trun-a;run-b\t\t2\t2\t850.0" in Path(
+            "contaminant_proteins.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> None:
@@ -5650,7 +5827,10 @@ def test_xic_extract_command_emits_trace_json_and_tsv() -> None:
         assert len(payload["trace_points"]) == 8
         assert Path("xic_traces.tsv").exists()
         traces_tsv = Path("xic_traces.tsv").read_text(encoding="utf-8")
-        assert "target_beta\tscan=7002\t30\t700.000000\t699.993000\t700.007000\t3000\t1" in traces_tsv
+        assert (
+            "target_beta\tscan=7002\t30\t700.000000\t699.993000\t700.007000\t3000\t1"
+            in traces_tsv
+        )
         assert "scan=7003" not in traces_tsv
 
 
@@ -5754,7 +5934,9 @@ def test_xic_pick_peaks_command_rejects_dual_tolerance_modes() -> None:
         assert "provide either tolerance_da or tolerance_ppm, not both" in result.output
 
 
-def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anchors() -> None:
+def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anchors() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         shutil.copy(
@@ -5795,7 +5977,9 @@ def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anc
         assert payload["reference_run_id"] == "rt_alignment_reference"
         assert len(payload["run_models"]) == 2
         assert payload["run_models"][1]["status"] == "aligned"
-        assert payload["run_models"][1]["alignment_model"] == "confidence_weighted_shift"
+        assert (
+            payload["run_models"][1]["alignment_model"] == "confidence_weighted_shift"
+        )
         assert payload["run_models"][1]["rt_shift"] == 10.0
         assert payload["run_models"][1]["rt_residual_median"] == 0.0
         assert payload["run_models"][1]["failed_anchor_count"] == 1
@@ -5811,18 +5995,16 @@ def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anc
         assert Path("rt.models.tsv").exists()
         assert Path("rt.residuals.tsv").exists()
         assert Path("rt.failed.tsv").exists()
-        assert (
-            "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t"
-            in Path("rt.models.tsv").read_text(encoding="utf-8")
-        )
+        assert "\taligned\t3\tconfidence_weighted_shift\t10\t0\t1\t10\t0\t10\t" in Path(
+            "rt.models.tsv"
+        ).read_text(encoding="utf-8")
         assert (
             "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70\t10\t10\t10\ttrue"
             in Path("rt.residuals.tsv").read_text(encoding="utf-8")
         )
-        assert (
-            "\tanchor_delta\tmissing_run_peak\t1\t0"
-            in Path("rt.failed.tsv").read_text(encoding="utf-8")
-        )
+        assert "\tanchor_delta\tmissing_run_peak\t1\t0" in Path(
+            "rt.failed.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_xic_align_retention_times_command_requires_multiple_runs() -> None:
@@ -5849,7 +6031,9 @@ def test_xic_align_retention_times_command_requires_multiple_runs() -> None:
         )
 
         assert result.exit_code != 0
-        assert "retention-time alignment requires at least two mzML files" in result.output
+        assert (
+            "retention-time alignment requires at least two mzML files" in result.output
+        )
 
 
 def test_xic_score_evidence_command_emits_target_and_peptide_scores() -> None:
@@ -5895,9 +6079,7 @@ def test_xic_score_evidence_command_emits_target_and_peptide_scores() -> None:
         assert len(payload["target_entries"]) == 4
         assert len(payload["peptide_entries"]) == 4
         assert payload["target_entries"][0]["chromatographic_evidence_score"] == 1.0
-        by_target = {
-            entry["target_id"]: entry for entry in payload["target_entries"]
-        }
+        by_target = {entry["target_id"]: entry for entry in payload["target_entries"]}
         assert by_target["anchor_gamma"]["rt_agreement_score"] == 0.0
         assert by_target["anchor_delta"]["missing_run_count"] == 1
         assert payload["outputs"]["target_tsv"] == "chrom.target.tsv"
@@ -5933,7 +6115,10 @@ def test_xic_score_evidence_command_requires_at_least_one_run() -> None:
         )
 
         assert result.exit_code != 0
-        assert "chromatographic evidence scoring requires at least one mzML file" in result.output
+        assert (
+            "chromatographic evidence scoring requires at least one mzML file"
+            in result.output
+        )
 
 
 def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None:
@@ -5974,7 +6159,9 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
         assert len(payload["fragment_entries"]) == 6
         assert payload["fragment_ratio_stability_summary"]["analyte_count"] == 2
         assert payload["fragment_ratio_stability_summary"]["fragment_entry_count"] == 5
-        assert payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 0
+        assert (
+            payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 0
+        )
         assert len(payload["fragment_ratio_fragments"]) == 5
         assert len(payload["fragment_ratio_observations"]) == 5
         by_precursor = {
@@ -5988,7 +6175,9 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
         assert payload["outputs"]["run_tsv"] == "dia.run.tsv"
         assert payload["outputs"]["fragment_tsv"] == "dia.fragment.tsv"
         assert payload["outputs"]["ratio_fragment_tsv"] == "dia.ratio_fragment.tsv"
-        assert payload["outputs"]["ratio_observation_tsv"] == "dia.ratio_observation.tsv"
+        assert (
+            payload["outputs"]["ratio_observation_tsv"] == "dia.ratio_observation.tsv"
+        )
         assert Path("dia.run.tsv").exists()
         assert Path("dia.fragment.tsv").exists()
         assert Path("dia.ratio_fragment.tsv").exists()
@@ -6030,7 +6219,10 @@ def test_dia_fragment_coelution_command_requires_at_least_one_run() -> None:
         )
 
         assert result.exit_code != 0
-        assert "DIA fragment coelution extraction requires at least one mzML file" in result.output
+        assert (
+            "DIA fragment coelution extraction requires at least one mzML file"
+            in result.output
+        )
 
 
 def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> None:
@@ -6095,12 +6287,17 @@ def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> Non
         assert report["summary"]["card_count"] == 1
         assert report["cards"][0]["precursor_id"] == "prec_peptide"
         assert report["cards"][0]["peptide_ref"] == "PEPTIDE"
-        assert report["cards"][0]["retention_time_residuals"][0]["residual_seconds"] == 20.0
+        assert (
+            report["cards"][0]["retention_time_residuals"][0]["residual_seconds"]
+            == 20.0
+        )
         assert report["cards"][0]["fragment_run_entries"][1]["failed_fragment_ids"] == [
             "peptide_b4",
             "peptide_y8",
         ]
-        assert [entry["spectrum_id"] for entry in report["cards"][0]["spectrum_evidence"]] == [
+        assert [
+            entry["spectrum_id"] for entry in report["cards"][0]["spectrum_evidence"]
+        ] == [
             "scan=9001",
             "scan=9002",
         ]
@@ -6469,7 +6666,9 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert payload["canonical_psms"][1]["open_search_candidate"] is True
         assert payload["psm_rows"][1]["open_search_candidate"] is True
         assert payload["open_search_evidence"][0]["mass_difference"] == 42.0106
-        assert payload["protein_quantity_rows"][0]["quantity_kind"] == "maxlfq_intensity"
+        assert (
+            payload["protein_quantity_rows"][0]["quantity_kind"] == "maxlfq_intensity"
+        )
         assert payload["rejected_evidence_rows"] == []
         assert Path("fragpipe.summary.tsv").exists()
         assert Path("fragpipe.canonical_psm.tsv").exists()
@@ -6479,8 +6678,12 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert Path("fragpipe.open_search.tsv").exists()
         assert Path("fragpipe.quant.tsv").exists()
         assert Path("fragpipe.rejected.tsv").exists()
-        assert Path("fragpipe.rejected.tsv").read_text(encoding="utf-8").startswith(
-            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        assert (
+            Path("fragpipe.rejected.tsv")
+            .read_text(encoding="utf-8")
+            .startswith(
+                "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+            )
         )
 
 
@@ -6527,15 +6730,15 @@ def test_fragpipe_benchmark_command_reports_import_fidelity_and_exports() -> Non
         assert Path("fragpipe.benchmark.proteins.tsv").exists()
         assert Path("fragpipe.benchmark.psm_qvalues.tsv").exists()
         assert Path("fragpipe.benchmark.peptide_qvalues.tsv").exists()
-        assert "source_psm_count" in Path(
-            "fragpipe.benchmark.summary.tsv"
-        ).read_text(encoding="utf-8")
-        assert "comparison_id" in Path(
-            "fragpipe.benchmark.counts.tsv"
-        ).read_text(encoding="utf-8")
-        assert "missing_in_import" in Path(
-            "fragpipe.benchmark.proteins.tsv"
-        ).read_text(encoding="utf-8")
+        assert "source_psm_count" in Path("fragpipe.benchmark.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "comparison_id" in Path("fragpipe.benchmark.counts.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "missing_in_import" in Path("fragpipe.benchmark.proteins.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "absolute_difference" in Path(
             "fragpipe.benchmark.psm_qvalues.tsv"
         ).read_text(encoding="utf-8")
@@ -6623,10 +6826,10 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
         assert tabular_payload["summary"]["modified_psm_count"] == 2
         assert tabular_payload["summary"]["xcorr_psm_count"] == 3
         assert tabular_payload["parameter_report"]["enzyme"] == "trypsin"
-        assert (
-            tabular_payload["canonical_psms"][1]["record"]["protein_refs"]
-            == ["sp|P23456|TRANSFER_HUMAN", "sp|P34567|TRANSFER_MOUSE"]
-        )
+        assert tabular_payload["canonical_psms"][1]["record"]["protein_refs"] == [
+            "sp|P23456|TRANSFER_HUMAN",
+            "sp|P34567|TRANSFER_MOUSE",
+        ]
         assert tabular_payload["rejected_evidence_rows"] == []
         assert Path("comet.summary.tsv").exists()
         assert Path("comet.canonical_psm.tsv").exists()
@@ -6743,7 +6946,10 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert payload["precursor_rows"][0]["run_name"] == "raw_A"
         assert payload["precursor_rows"][2]["modified_peptide"] == "ACDM[Oxidation]K"
         assert payload["dia_native_report"]["imported_count"] == 4
-        assert payload["dia_native_report"]["imported_protein_groups"][0]["quantity"] == 3400000.0
+        assert (
+            payload["dia_native_report"]["imported_protein_groups"][0]["quantity"]
+            == 3400000.0
+        )
         assert payload["rejected_evidence_rows"] == []
         assert Path("diann.summary.tsv").exists()
         assert Path("diann.precursors.tsv").exists()
@@ -6782,14 +6988,19 @@ def test_diann_import_command_exports_rejected_rows_without_failing() -> None:
         assert payload["summary"]["accepted_precursor_count"] == 1
         assert payload["summary"]["rejected_precursor_count"] == 1
         assert payload["rejected_evidence_rows"][0]["reason_code"] == "invalid_q_value"
-        assert Path("diann.rejected.tsv").read_text(encoding="utf-8").startswith(
-            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        assert (
+            Path("diann.rejected.tsv")
+            .read_text(encoding="utf-8")
+            .startswith(
+                "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+            )
         )
         assert payload["normalization"] is None
         assert payload["rejected_rows"][0]["issues"][0]["code"] == "invalid_q_value"
-        assert Path("diann.rejected.tsv").read_text(encoding="utf-8").count(
-            "raw_B_BADQ_2"
-        ) == 1
+        assert (
+            Path("diann.rejected.tsv").read_text(encoding="utf-8").count("raw_B_BADQ_2")
+            == 1
+        )
 
 
 def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
@@ -6818,7 +7029,9 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
         payload = json.loads(result.output)
         assert payload["source_name"] == "DIA-NN"
         assert payload["sample_ids"] == ["sample_A", "sample_B"]
-        assert payload["policy"]["q_value_filter_timing"] == "before_matrix_construction"
+        assert (
+            payload["policy"]["q_value_filter_timing"] == "before_matrix_construction"
+        )
         assert payload["summary"]["precursor_row_count"] == 2
         assert payload["summary"]["observed_cell_count"] == 3
         assert payload["summary"]["excluded_decoy_count"] == 1
@@ -6986,7 +7199,10 @@ def test_spectronaut_protein_matrix_command_emits_rollup_outputs() -> None:
         assert payload["source_name"] == "Spectronaut"
         assert payload["sample_ids"] == ["sample_A", "sample_B"]
         assert payload["protein_summary"]["protein_row_count"] == 2
-        assert payload["outputs"]["rollup_evidence_tsv"] == "spectronaut.rollup.evidence.tsv"
+        assert (
+            payload["outputs"]["rollup_evidence_tsv"]
+            == "spectronaut.rollup.evidence.tsv"
+        )
         assert Path("spectronaut.rollup.evidence.tsv").exists()
         assert "rollup_stage\ttarget_entity_level\ttarget_entity_id" in Path(
             "spectronaut.rollup.evidence.tsv"
@@ -7030,14 +7246,14 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         assert payload["run_entries"][2]["weak_run_flag_count"] == 5
         assert payload["run_entries"][2]["flagged"] is True
         assert payload["outlier_runs"][0]["run_name"] == "raw_C"
-        assert payload["outlier_runs"][0]["flags"][0]["threshold_name"] == "high_missing_fraction"
+        assert (
+            payload["outlier_runs"][0]["flags"][0]["threshold_name"]
+            == "high_missing_fraction"
+        )
         assert payload["outputs"]["summary_tsv"] == "diann.run_qc.summary.tsv"
         assert payload["outputs"]["run_tsv"] == "diann.run_qc.runs.tsv"
         assert payload["outputs"]["intensity_tsv"] == "diann.run_qc.intensity.tsv"
-        assert (
-            payload["outputs"]["correlation_tsv"]
-            == "diann.run_qc.correlation.tsv"
-        )
+        assert payload["outputs"]["correlation_tsv"] == "diann.run_qc.correlation.tsv"
         assert payload["outputs"]["outlier_tsv"] == "diann.run_qc.outliers.tsv"
         assert Path("diann.run_qc.summary.tsv").exists()
         assert Path("diann.run_qc.runs.tsv").exists()
@@ -7047,15 +7263,16 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         assert "run_name\tsample_name\tprecursor_id_count" in Path(
             "diann.run_qc.runs.tsv"
         ).read_text(encoding="utf-8")
-        assert "weak_run_flag_count" in Path(
-            "diann.run_qc.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert "weak_run_flag_count" in Path("diann.run_qc.summary.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "run_name_a\tsample_name_a\trun_name_b\tsample_name_b" in Path(
             "diann.run_qc.correlation.tsv"
         ).read_text(encoding="utf-8")
-        assert "reason_code\treason\tthreshold_name\tthreshold_value\tobserved_value" in Path(
-            "diann.run_qc.outliers.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "reason_code\treason\tthreshold_name\tthreshold_value\tobserved_value"
+            in Path("diann.run_qc.outliers.tsv").read_text(encoding="utf-8")
+        )
         assert "raw_C\tsample_C\tlow_precursor_coverage" in Path(
             "diann.run_qc.outliers.tsv"
         ).read_text(encoding="utf-8")
@@ -7156,21 +7373,19 @@ def test_tmt_normalize_command_emits_distribution_and_normalized_matrices() -> N
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["source_kind"] == "maxquant"
-        assert (
-            payload["report"]["summary"]["method"] == "reference_channel"
-        )
+        assert payload["report"]["summary"]["method"] == "reference_channel"
         assert payload["report"]["summary"]["reference_group_count"] == 2
         assert Path("tmt.normalize.summary.tsv").exists()
         assert Path("tmt.normalize.transforms.tsv").exists()
         assert Path("tmt.normalize.distributions.tsv").exists()
         assert Path("tmt.normalize.peptides.tsv").exists()
         assert Path("tmt.normalize.proteins.tsv").exists()
-        assert "reference_group_count" in Path(
-            "tmt.normalize.summary.tsv"
-        ).read_text(encoding="utf-8")
-        assert "reference_channel" in Path(
-            "tmt.normalize.transforms.tsv"
-        ).read_text(encoding="utf-8")
+        assert "reference_group_count" in Path("tmt.normalize.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "reference_channel" in Path("tmt.normalize.transforms.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "stage\tmultiplex_group\tmultiplex_channel" in Path(
             "tmt.normalize.distributions.tsv"
         ).read_text(encoding="utf-8")
@@ -7289,21 +7504,21 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
         assert "quality_entry_count" in (
             report_dir / "label_based_report_summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "assay_axis" in (
-            report_dir / "label_based_sample_qc.tsv"
-        ).read_text(encoding="utf-8")
-        assert "total_intensity" in (
-            report_dir / "tmt_channel_totals.tsv"
-        ).read_text(encoding="utf-8")
+        assert "assay_axis" in (report_dir / "label_based_sample_qc.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "total_intensity" in (report_dir / "tmt_channel_totals.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "threshold_exceeded_count" in (
             report_dir / "tmt_interference_summary.tsv"
         ).read_text(encoding="utf-8")
         assert "mean_interference_fraction" in (
             report_dir / "tmt_interference_channel_summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "ratio" in (
-            report_dir / "tmt_protein_ratios.tsv"
-        ).read_text(encoding="utf-8")
+        assert "ratio" in (report_dir / "tmt_protein_ratios.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> None:
@@ -7351,9 +7566,9 @@ def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> 
         assert "missing_ratio_count" in Path("tmt.ratio.summary.tsv").read_text(
             encoding="utf-8"
         )
-        assert "sample_channel_missing" in Path(
-            "tmt.ratio.peptides.tsv"
-        ).read_text(encoding="utf-8")
+        assert "sample_channel_missing" in Path("tmt.ratio.peptides.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "P001" in Path("tmt.ratio.proteins.tsv").read_text(encoding="utf-8")
 
 
@@ -7462,9 +7677,9 @@ def test_silac_differential_command_emits_matrix_result_and_balance_outputs() ->
         assert "adjusted_p_value" in Path("silac.diff.results.tsv").read_text(
             encoding="utf-8"
         )
-        assert "raw_p_value" in Path(
-            "silac.diff.volcano.tsv"
-        ).read_text(encoding="utf-8")
+        assert "raw_p_value" in Path("silac.diff.volcano.tsv").read_text(
+            encoding="utf-8"
+        )
         assert '"source_kind": "label_based"' in Path(
             "silac.diff.volcano.json"
         ).read_text(encoding="utf-8")
@@ -7512,12 +7727,12 @@ def test_silac_report_command_emits_report_directory_and_manifest() -> None:
         assert "protein_ratio_count" in (
             report_dir / "label_based_report_summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "assay_axis" in (
-            report_dir / "label_based_sample_qc.tsv"
-        ).read_text(encoding="utf-8")
-        assert "reference_label" in (
-            report_dir / "silac_protein_ratios.tsv"
-        ).read_text(encoding="utf-8")
+        assert "assay_axis" in (report_dir / "label_based_sample_qc.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "reference_label" in (report_dir / "silac_protein_ratios.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_silac_validate_command_emits_label_distribution_and_weak_outputs() -> None:
@@ -7557,9 +7772,9 @@ def test_silac_validate_command_emits_label_distribution_and_weak_outputs() -> N
         assert "sample_b\tmedium\t1500.0\t2200.0" in Path(
             "silac.validation.distribution.tsv"
         ).read_text(encoding="utf-8")
-        assert "weak_total_intensity" in Path(
-            "silac.validation.weak.tsv"
-        ).read_text(encoding="utf-8")
+        assert "weak_total_intensity" in Path("silac.validation.weak.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_tmt_validate_command_emits_channel_distribution_and_weak_outputs() -> None:
@@ -7652,7 +7867,9 @@ def test_multiplex_validate_metadata_command_emits_assignment_issue_outputs() ->
         ).read_text(encoding="utf-8")
 
 
-def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> None:
+def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         fixture_dir = FIXTURE_ROOT / "multiplex"
@@ -7693,9 +7910,9 @@ def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs(
         assert Path("tmt.integration.alignment.tsv").exists()
         assert Path("tmt.integration.effects.tsv").exists()
         assert Path("tmt.integration.proteins.tsv").exists()
-        assert "bridge_sample_id" in Path(
-            "tmt.integration.alignment.tsv"
-        ).read_text(encoding="utf-8")
+        assert "bridge_sample_id" in Path("tmt.integration.alignment.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "ratio_to_global_bridge_median" in Path(
             "tmt.integration.effects.tsv"
         ).read_text(encoding="utf-8")
@@ -7758,15 +7975,11 @@ def test_tmt_differential_command_emits_matrix_result_and_balance_outputs() -> N
         assert Path("tmt.diff.volcano.json").exists()
         assert Path("tmt.diff.volcano.svg").exists()
         assert Path("tmt.diff.volcano.html").exists()
-        assert "member_peptides" in Path("tmt.diff.raw.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "member_peptides" in Path("tmt.diff.raw.tsv").read_text(encoding="utf-8")
         assert "adjusted_p_value" in Path("tmt.diff.results.tsv").read_text(
             encoding="utf-8"
         )
-        assert "raw_p_value" in Path("tmt.diff.volcano.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "raw_p_value" in Path("tmt.diff.volcano.tsv").read_text(encoding="utf-8")
         assert '"source_kind": "label_based"' in Path(
             "tmt.diff.volcano.json"
         ).read_text(encoding="utf-8")
@@ -7850,9 +8063,7 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         )
         assert payload["outputs"]["summary_tsv"] == "diann.library.summary.tsv"
         assert payload["outputs"]["sample_tsv"] == "diann.library.samples.tsv"
-        assert (
-            payload["outputs"]["condition_tsv"] == "diann.library.conditions.tsv"
-        )
+        assert payload["outputs"]["condition_tsv"] == "diann.library.conditions.tsv"
         assert payload["outputs"]["peptide_tsv"] == "diann.library.peptides.tsv"
         assert payload["outputs"]["protein_tsv"] == "diann.library.proteins.tsv"
         assert (
@@ -7879,9 +8090,9 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         assert "LIVNLY\tP44444\tfalse\t0\t0" in Path(
             "diann.library.peptides.tsv"
         ).read_text(encoding="utf-8")
-        assert "P44444\tfalse\t0\t0" in Path(
-            "diann.library.proteins.tsv"
-        ).read_text(encoding="utf-8")
+        assert "P44444\tfalse\t0\t0" in Path("diann.library.proteins.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "PEPNOVEL\tP55555\tsample_A\tcontrol\t1\t1" in Path(
             "diann.library.outside.peptides.tsv"
         ).read_text(encoding="utf-8")
@@ -7943,9 +8154,10 @@ def test_target_panel_review_command_emits_dia_panel_outputs() -> None:
         assert "dia-missing-protein\tprotein\t\t\t" in Path(
             "target.missing.tsv"
         ).read_text(encoding="utf-8")
-        assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111" in Path(
-            "target.matrix.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111"
+            in Path("target.matrix.tsv").read_text(encoding="utf-8")
+        )
 
 
 def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
@@ -8003,8 +8215,9 @@ def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
         assert "lfq-p003\tprotein\t\t\tP003\t4" in Path(
             "lfq.target.targets.tsv"
         ).read_text(encoding="utf-8")
-        assert "lfq-apeptide\tpeptide\tAPEPTIDE\t2\tpeptide targets require a peptide-level matrix" in (
-            Path("lfq.target.missing.tsv").read_text(encoding="utf-8")
+        assert (
+            "lfq-apeptide\tpeptide\tAPEPTIDE\t2\tpeptide targets require a peptide-level matrix"
+            in (Path("lfq.target.missing.tsv").read_text(encoding="utf-8"))
         )
 
 
@@ -8053,8 +8266,9 @@ def test_transition_qc_command_emits_transition_and_weak_outputs() -> None:
         assert "tr_y7_a\tprec_a\t2\tPEPTIDEK\tP001\ty7" in Path(
             "transition.rows.tsv"
         ).read_text(encoding="utf-8")
-        assert "tr_y7_a\tprec_a\ts1\trun_a\t120000\t12.5\t0.002\t160000\t0.75\t1\ttrue" in (
-            Path("transition.samples.tsv").read_text(encoding="utf-8")
+        assert (
+            "tr_y7_a\tprec_a\ts1\trun_a\t120000\t12.5\t0.002\t160000\t0.75\t1\ttrue"
+            in (Path("transition.samples.tsv").read_text(encoding="utf-8"))
         )
         assert "tr_y6_b\tprec_b\t1\t3\t0.333333\t0.0789474" in Path(
             "transition.weak.tsv"
@@ -8131,17 +8345,18 @@ def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
         assert Path("targeted.retained.tsv").exists()
         assert Path("targeted.excluded.tsv").exists()
         assert Path("targeted.missingness.tsv").exists()
-        assert "Skyline\t2\t2\t3\t1\t0\t4\t2\t2" in Path("targeted.summary.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "Skyline\t2\t2\t3\t1\t0\t4\t2\t2" in Path(
+            "targeted.summary.tsv"
+        ).read_text(encoding="utf-8")
         assert "skyline_export\ty8\tPEPTIDEK/2\t2\tPEPTIDEK\tsample_B\t8000" in Path(
             "targeted.observations.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\tPEPTIDEK\tP001\ty7;y8\ty7;y8\ty8\t2\t1\t2\t273000" in Path(
             "targeted.targets.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\tsample_B\ty7;y8\ty7\ty8\t2\t1\t1\t115000\t12.4\tinterference\t\ttrue" in (
-            Path("targeted.samples.tsv").read_text(encoding="utf-8")
+        assert (
+            "PEPTIDEK/2\tsample_B\ty7;y8\ty7\ty8\t2\t1\t1\t115000\t12.4\tinterference\t\ttrue"
+            in (Path("targeted.samples.tsv").read_text(encoding="utf-8"))
         )
         assert "PEPTIDEK/2\tPEPTIDEK\tP001\t1\t1" in Path(
             "targeted.flagged.tsv"
@@ -8149,9 +8364,10 @@ def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
         assert "PEPTIDEK/2\tsample_B\ty7\t115000\t12.4\tpass" in Path(
             "targeted.retained.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\tsample_B\ty8\t8000\t12.7\tinterference\tquality_filter" in Path(
-            "targeted.excluded.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "PEPTIDEK/2\tsample_B\ty8\t8000\t12.7\tinterference\tquality_filter"
+            in Path("targeted.excluded.tsv").read_text(encoding="utf-8")
+        )
         assert "ACDMPEP/3\tsample_B\t0\t0\t0\ttrue\tno_observation" in Path(
             "targeted.missingness.tsv"
         ).read_text(encoding="utf-8")
@@ -8212,12 +8428,19 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert payload["assay_qc_summary"]["flagged_coelution_target_entry_count"] == 3
         assert payload["assay_qc_summary"]["flagged_replicate_cv_entry_count"] == 1
         assert payload["fragment_ratio_stability_summary"]["fragment_entry_count"] == 4
-        assert payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 1
         assert (
-            payload["fragment_ratio_stability_summary"]["drift_flagged_observation_count"]
+            payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 1
+        )
+        assert (
+            payload["fragment_ratio_stability_summary"][
+                "drift_flagged_observation_count"
+            ]
             == 2
         )
-        assert payload["transition_coelution_summary"]["coeluting_transition_entry_count"] == 14
+        assert (
+            payload["transition_coelution_summary"]["coeluting_transition_entry_count"]
+            == 14
+        )
         assert payload["outputs"]["summary_tsv"] == "assay.summary.tsv"
         assert payload["outputs"]["target_qc_tsv"] == "assay.targets.tsv"
         assert payload["outputs"]["transition_tsv"] == "assay.transitions.tsv"
@@ -8241,27 +8464,32 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert Path("assay.retention.tsv").exists()
         assert Path("assay.replicate_cv.tsv").exists()
         assert Path("assay.unreliable.tsv").exists()
-        assert "Skyline\t2\t4\t8\t1\t8\t8\t3\t16\t14\t16\t8\t14\t4\t1\t2\t8\t2\t4\t1\t8\t2" in Path(
-            "assay.summary.tsv"
-        ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t2\ty7;y8\t1\ty7\ty8\t102000" in Path(
-            "assay.targets.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "Skyline\t2\t4\t8\t1\t8\t8\t3\t16\t14\t16\t8\t14\t4\t1\t2\t8\t2\t4\t1\t8\t2"
+            in Path("assay.summary.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t2\ty7;y8\t1\ty7\ty8\t102000"
+            in Path("assay.targets.tsv").read_text(encoding="utf-8")
+        )
         assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in Path(
             "assay.transitions.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tinsufficient\tfalse\tfewer than two coeluting transitions support the target" in Path(
-            "assay.coelution.tsv"
-        ).read_text(encoding="utf-8")
-        assert "ACDMPEP/3\ttreat_r2\ty5\ttrue\t20.2\ty5\t20.2\t18.2\t0\t2\ttrue\ttransition is misaligned from the target reference window" in Path(
-            "assay.transition_coelution.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tinsufficient\tfalse\tfewer than two coeluting transitions support the target"
+            in Path("assay.coelution.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "ACDMPEP/3\ttreat_r2\ty5\ttrue\t20.2\ty5\t20.2\t18.2\t0\t2\ttrue\ttransition is misaligned from the target reference window"
+            in Path("assay.transition_coelution.tsv").read_text(encoding="utf-8")
+        )
         assert "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse" in Path(
             "assay.transition_qc.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\t0.396731\ttrue\ttrue\ttrue" in Path(
-            "assay.fragments.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\t0.396731\ttrue\ttrue\ttrue"
+            in Path("assay.fragments.tsv").read_text(encoding="utf-8")
+        )
         assert "ACDMPEP/3\ttreat_r2\t1\t20.2\t18.2\t2\ttrue" in Path(
             "assay.retention.tsv"
         ).read_text(encoding="utf-8")
@@ -8320,9 +8548,9 @@ def test_targeted_carryover_review_command_emits_ordered_candidates() -> None:
         assert payload["candidates"][0]["carryover_score"] == 0.9333
         assert Path("carryover.summary.tsv").exists()
         assert Path("carryover.candidates.tsv").exists()
-        assert "Skyline\t4\t2\t2\t2\t1" in Path(
-            "carryover.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert "Skyline\t4\t2\t2\t2\t1" in Path("carryover.summary.tsv").read_text(
+            encoding="utf-8"
+        )
         assert (
             "source_high.raw\tsource_high\t1\tblank_after_source.raw\tblank_after_source\t2\t1\tCARRYPEP/2\tCARRYPEP\tP100\t200000\t4000\t0.020000\t0.9333\thigh_intensity_previous_run|low_level_repeated_signal|immediate_run_order_followup"
             in Path("carryover.candidates.tsv").read_text(encoding="utf-8")
@@ -8357,7 +8585,9 @@ def test_targeted_carryover_review_command_requires_run_order() -> None:
         assert "run_order is required for carryover analysis" in result.output
 
 
-def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_peptides() -> None:
+def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_peptides() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("protein_cards.tsv").write_text(
@@ -8416,10 +8646,14 @@ def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_p
         assert payload["outputs"]["selected_tsv"] == "selector.selected.tsv"
         assert payload["outputs"]["rejected_tsv"] == "selector.rejected.tsv"
         assert payload["selected_entries"][0]["target_protein_ref"] == "P00001"
-        assert payload["selected_entries"][0]["candidate_source"] == "observed_discovery"
+        assert (
+            payload["selected_entries"][0]["candidate_source"] == "observed_discovery"
+        )
         assert payload["selected_entries"][0]["peptide_sequence"] == "PEPTIDER"
         assert payload["selected_entries"][1]["target_protein_ref"] == "P00002"
-        assert payload["selected_entries"][1]["candidate_source"] == "theoretical_digest"
+        assert (
+            payload["selected_entries"][1]["candidate_source"] == "theoretical_digest"
+        )
         assert payload["selected_entries"][1]["peptide_sequence"] == "AAALIGHTR"
         assert Path("selector.summary.tsv").exists()
         assert Path("selector.selected.tsv").exists()
@@ -8427,20 +8661,15 @@ def test_targeted_peptide_selection_command_emits_ranked_observed_and_fallback_p
         assert "selected_entry_count\t2" in Path("selector.summary.tsv").read_text(
             encoding="utf-8"
         )
-        assert (
-            "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER"
-            in Path("selector.selected.tsv").read_text(encoding="utf-8")
-        )
+        assert "P00001\tprotein_group_1\tKIN1\t1\tobserved_discovery\tPEPTIDER" in Path(
+            "selector.selected.tsv"
+        ).read_text(encoding="utf-8")
         assert (
             "P00002\tprotein_group_2\tKIN2\t1\ttheoretical_digest\tAAALIGHTR"
             in Path("selector.selected.tsv").read_text(encoding="utf-8")
         )
-        assert "AAASHALEDK" in Path("selector.rejected.tsv").read_text(
-            encoding="utf-8"
-        )
-        assert "AAAMMMWNQK" in Path("selector.rejected.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "AAASHALEDK" in Path("selector.rejected.tsv").read_text(encoding="utf-8")
+        assert "AAAMMMWNQK" in Path("selector.rejected.tsv").read_text(encoding="utf-8")
 
 
 def test_targeted_transition_selection_command_emits_ranked_fragments() -> None:
@@ -8505,7 +8734,10 @@ def test_targeted_transition_selection_command_emits_ranked_fragments() -> None:
         assert payload["selection_summary"]["selected_transition_count"] >= 3
         assert payload["peptide_entries"][0]["target_protein_ref"] == "P00001"
         assert payload["peptide_entries"][0]["selected_transition_count"] >= 3
-        assert payload["peptide_entries"][0]["selected_transitions"][0]["fragment_label"] == "y7+1"
+        assert (
+            payload["peptide_entries"][0]["selected_transitions"][0]["fragment_label"]
+            == "y7+1"
+        )
         assert payload["outputs"]["summary_tsv"] == "transition.summary.tsv"
         assert payload["outputs"]["selected_tsv"] == "transition.selected.tsv"
         assert payload["outputs"]["rejected_tsv"] == "transition.rejected.tsv"
@@ -8518,7 +8750,9 @@ def test_targeted_transition_selection_command_emits_ranked_fragments() -> None:
         )
 
 
-def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries() -> None:
+def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("selected_peptides.tsv").write_text(
@@ -8615,7 +8849,9 @@ def test_targeted_assay_interference_command_downgrades_high_risk_panel_entries(
         }
         assert payload["outputs"]["summary_tsv"] == "assay_interference.summary.tsv"
         assert payload["outputs"]["assay_tsv"] == "assay_interference.assays.tsv"
-        assert payload["outputs"]["transition_tsv"] == "assay_interference.transitions.tsv"
+        assert (
+            payload["outputs"]["transition_tsv"] == "assay_interference.transitions.tsv"
+        )
         assert payload["outputs"]["panel_tsv"] == "assay_interference.panel.tsv"
         assert "high_risk_assay_count\t2" in Path(
             "assay_interference.summary.tsv"
@@ -8799,21 +9035,15 @@ def test_validation_experiment_planner_command_flags_underpowered_designs() -> N
         assert payload["summary"]["planned_assay_count"] == 2
         assert payload["summary"]["omitted_candidate_count"] == 1
         assert payload["summary"]["underpowered_assay_count"] == 1
-        by_assay = {
-            entry["assay_entry_id"]: entry for entry in payload["plan_entries"]
-        }
+        by_assay = {entry["assay_entry_id"]: entry for entry in payload["plan_entries"]}
         assert by_assay["assay:P11111:PEPTIDER"]["planning_mode"] == "pilot_backed"
         assert by_assay["assay:P11111:PEPTIDER"]["underpowered"] is False
         assert by_assay["assay:P22222:AAASHALEDK"]["underpowered"] is True
         assert (
-            by_assay["assay:P22222:AAASHALEDK"][
-                "recommended_minimum_samples_per_group"
-            ]
+            by_assay["assay:P22222:AAASHALEDK"]["recommended_minimum_samples_per_group"]
             > 6
         )
-        warning_codes = {
-            entry["warning_code"]: entry for entry in payload["warnings"]
-        }
+        warning_codes = {entry["warning_code"]: entry for entry in payload["warnings"]}
         assert "site_candidate_not_panelized" in warning_codes
         assert Path("validation.summary.tsv").exists()
         assert Path("validation.plan.tsv").exists()
@@ -8829,7 +9059,9 @@ def test_validation_experiment_planner_command_flags_underpowered_designs() -> N
         )
 
 
-def test_targeted_result_validator_command_preserves_confirmed_contradicted_and_inconclusive_targets() -> None:
+def test_targeted_result_validator_command_preserves_confirmed_contradicted_and_inconclusive_targets() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("biomarker.candidates.tsv").write_text(
@@ -8910,12 +9142,20 @@ def test_targeted_result_validator_command_preserves_confirmed_contradicted_and_
         assert payload["summary"]["inconclusive_count"] == 1
         assert payload["confirmed_targets"][0]["candidate_id"] == "protein:P11111"
         assert payload["contradicted_targets"][0]["candidate_id"] == "protein:P22222"
-        assert payload["inconclusive_targets"][0]["candidate_id"] == "ptm_site:P33333:S21"
+        assert (
+            payload["inconclusive_targets"][0]["candidate_id"] == "ptm_site:P33333:S21"
+        )
         assay_evidence_by_candidate = {
             entry["candidate_id"]: entry for entry in payload["assay_evidence"]
         }
-        assert assay_evidence_by_candidate["protein:P11111"]["matched_target_id"] == "PEPTIDER/2"
-        assert assay_evidence_by_candidate["protein:P22222"]["matched_target_id"] == "AAAAK/2"
+        assert (
+            assay_evidence_by_candidate["protein:P11111"]["matched_target_id"]
+            == "PEPTIDER/2"
+        )
+        assert (
+            assay_evidence_by_candidate["protein:P22222"]["matched_target_id"]
+            == "AAAAK/2"
+        )
         assert Path("validation.summary.tsv").exists()
         assert Path("validation.confirmed.tsv").exists()
         assert Path("validation.contradicted.tsv").exists()
@@ -9040,13 +9280,15 @@ def test_biomarker_stability_analysis_command_downgrades_unstable_candidates() -
         entries_by_id = {entry["candidate_id"]: entry for entry in payload["entries"]}
         assert entries_by_id["protein:P11111"]["downgraded"] is False
         assert entries_by_id["protein:P22222"]["downgraded"] is True
-        assert "batch_sensitive_signal" in entries_by_id["protein:P22222"][
-            "instability_reasons"
-        ]
+        assert (
+            "batch_sensitive_signal"
+            in entries_by_id["protein:P22222"]["instability_reasons"]
+        )
         assert entries_by_id["protein:P33333"]["downgraded"] is True
-        assert "single_condition_signal_only" in entries_by_id["protein:P33333"][
-            "instability_reasons"
-        ]
+        assert (
+            "single_condition_signal_only"
+            in entries_by_id["protein:P33333"]["instability_reasons"]
+        )
         assert Path("stability.summary.tsv").exists()
         assert Path("stability.entries.tsv").exists()
         assert Path("stability.subgroups.tsv").exists()
@@ -9065,7 +9307,9 @@ def test_biomarker_stability_analysis_command_downgrades_unstable_candidates() -
         )
 
 
-def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_candidates() -> None:
+def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_candidates() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("biomarker.candidates.tsv").write_text(
@@ -9155,17 +9399,18 @@ def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_c
         }
         assert candidates_by_id["protein:P11111"]["representative"] is True
         assert candidates_by_id["protein:P22222"]["dropped"] is True
-        assert "high_signal_correlation" in candidates_by_id["protein:P22222"][
-            "redundancy_reason_codes"
-        ]
+        assert (
+            "high_signal_correlation"
+            in candidates_by_id["protein:P22222"]["redundancy_reason_codes"]
+        )
         assert payload["outputs"]["summary_tsv"] == "redundancy.summary.tsv"
         assert Path("redundancy.summary.tsv").exists()
         assert Path("redundancy.clusters.tsv").exists()
         assert Path("redundancy.candidates.tsv").exists()
         assert Path("redundancy.dropped.tsv").exists()
-        assert "dropped_candidate_count\t1" in Path(
-            "redundancy.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert "dropped_candidate_count\t1" in Path("redundancy.summary.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "cluster:001" in Path("redundancy.clusters.tsv").read_text(
             encoding="utf-8"
         )
@@ -9174,7 +9419,9 @@ def test_biomarker_panel_redundancy_analysis_command_reduces_highly_correlated_c
         )
 
 
-def test_validation_evidence_cards_command_derives_candidate_status_from_evidence() -> None:
+def test_validation_evidence_cards_command_derives_candidate_status_from_evidence() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("biomarker.candidates.tsv").write_text(
@@ -9272,36 +9519,38 @@ def test_validation_evidence_cards_command_derives_candidate_status_from_evidenc
             == "blocked_by_assay_design"
         )
         assert cards_by_id["protein:P44444"]["final_status"] == "inconclusive"
-        assert "pathway:stress_response" in cards_by_id["protein:P11111"][
-            "biological_role_labels"
-        ]
+        assert (
+            "pathway:stress_response"
+            in cards_by_id["protein:P11111"]["biological_role_labels"]
+        )
         assert payload["outputs"]["card_tsv"] == "validation_cards.cards.tsv"
         assert Path("validation_cards.summary.tsv").exists()
         assert Path("validation_cards.cards.tsv").exists()
         assert Path("validation_cards.assays.tsv").exists()
         assert Path("validation_cards.warnings.tsv").exists()
-        assert "confirmed_count\t1" in Path(
-            "validation_cards.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert "confirmed_count\t1" in Path("validation_cards.summary.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "deprioritized_as_redundant" in Path(
             "validation_cards.cards.tsv"
         ).read_text(encoding="utf-8")
-        assert "assay:P11111:PEPTIDER" in Path(
-            "validation_cards.assays.tsv"
-        ).read_text(encoding="utf-8")
+        assert "assay:P11111:PEPTIDER" in Path("validation_cards.assays.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "stability_downgraded" in Path(
             "validation_cards.warnings.tsv"
         ).read_text(encoding="utf-8")
 
 
-def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> None:
+def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candidates() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         biological_report_dir = Path("biological_report")
         biological_report_dir.mkdir()
         biological_report_dir.joinpath("biological_report_summary.tsv").write_text(
-            "field\tvalue\n"
-            "experiment_confidence_score\t0.92\n",
+            "field\tvalue\nexperiment_confidence_score\t0.92\n",
             encoding="utf-8",
         )
         biological_report_dir.joinpath("biological_protein_cards.tsv").write_text(
@@ -9371,9 +9620,10 @@ def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candid
         assert payload["entries"][0]["candidate_kind"] == "protein"
         assert "assay_ready" in payload["entries"][0]["rank_reason_codes"]
         assert payload["entries"][-1]["candidate_id"] == "protein:protein_group_famous"
-        assert "annotation_outpaces_evidence" in payload["entries"][-1][
-            "rank_reason_codes"
-        ]
+        assert (
+            "annotation_outpaces_evidence"
+            in payload["entries"][-1]["rank_reason_codes"]
+        )
         assert payload["outputs"]["summary_tsv"] == "biomarker.summary.tsv"
         assert payload["outputs"]["candidate_tsv"] == "biomarker.candidates.tsv"
         assert Path("biomarker.summary.tsv").exists()
@@ -9387,7 +9637,9 @@ def test_biomarker_candidate_ranking_command_prioritizes_validation_ready_candid
         assert "annotation_outpaces_evidence" in candidate_tsv
 
 
-def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
+def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         workflow_dir = FIXTURE_ROOT / "workflow"
@@ -9460,15 +9712,17 @@ def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs
         assert Path("dia_dda.exclusive.tsv").exists()
         assert Path("dia_dda.conflicts.tsv").exists()
         assert Path("dia_dda.differential.tsv").exists()
-        assert "DIA-NN\tDDA PSM\t4\t4\t2\t2\t2\t4\t4\t2\t1\t1\t1\t6\t1\t5\t2\t3\t4\t1\t1\t1\t1" in Path(
-            "dia_dda.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "DIA-NN\tDDA PSM\t4\t4\t2\t2\t2\t4\t4\t2\t1\t1\t1\t6\t1\t5\t2\t3\t4\t1\t1\t1\t1"
+            in Path("dia_dda.summary.tsv").read_text(encoding="utf-8")
+        )
         assert "P55555\tdia_only\t2\t0\t2e+06\t0" in Path(
             "dia_dda.protein.tsv"
         ).read_text(encoding="utf-8")
-        assert "CONFLICTSEQ\tconflicting\t2\t2\t1.02e+06\t930000\tP77777\tP88888" in Path(
-            "dia_dda.peptide.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "CONFLICTSEQ\tconflicting\t2\t2\t1.02e+06\t930000\tP77777\tP88888"
+            in Path("dia_dda.peptide.tsv").read_text(encoding="utf-8")
+        )
         assert "protein\tP22222\t2\t1.23e+06\t826000\t1" in Path(
             "dia_dda.correlation.tsv"
         ).read_text(encoding="utf-8")
@@ -9478,9 +9732,10 @@ def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs
         assert "peptide\tCONFLICTSEQ\tconflicting\tprotein_assignment_mismatch" in Path(
             "dia_dda.conflicts.tsv"
         ).read_text(encoding="utf-8")
-        assert "protein\tP44444\tcontrol\ttreatment\ttreatment_vs_control\tconflicting\t1.1\t-1.2\t0.02\t0.03\ttrue\ttrue\topposite\tdifferential_direction_mismatch" in Path(
-            "dia_dda.differential.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "protein\tP44444\tcontrol\ttreatment\ttreatment_vs_control\tconflicting\t1.1\t-1.2\t0.02\t0.03\ttrue\ttrue\topposite\tdifferential_direction_mismatch"
+            in Path("dia_dda.differential.tsv").read_text(encoding="utf-8")
+        )
 
 
 def test_biological_report_command_emits_report_directory_and_manifest() -> None:
@@ -9567,9 +9822,12 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             ]
             >= 1
         )
-        assert payload["report"]["biological_hypothesis_report"]["summary"][
-            "hypothesis_count"
-        ] >= 1
+        assert (
+            payload["report"]["biological_hypothesis_report"]["summary"][
+                "hypothesis_count"
+            ]
+            >= 1
+        )
         assert (
             payload["report"]["experiment_confidence_report"]["summary"][
                 "component_count"
@@ -9626,9 +9884,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert "evidence_node_ids" in (
             report_dir / "biological_hypotheses.tsv"
         ).read_text(encoding="utf-8")
-        assert "card_id" in (
-            report_dir / "biological_protein_cards.tsv"
-        ).read_text(encoding="utf-8")
+        assert "card_id" in (report_dir / "biological_protein_cards.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "context_entry_count" in (
             report_dir / "biological_report_summary.tsv"
         ).read_text(encoding="utf-8")
@@ -9638,21 +9896,21 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert "context_kind" in (
             report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
-        assert "gene_symbol" in (
-            report_dir / "biological_annotations.tsv"
-        ).read_text(encoding="utf-8")
-        assert "go_term_id" in (
-            report_dir / "biological_go_terms.tsv"
-        ).read_text(encoding="utf-8")
+        assert "gene_symbol" in (report_dir / "biological_annotations.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "go_term_id" in (report_dir / "biological_go_terms.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "pathway_id" in (
             report_dir / "biological_pathway_entries.tsv"
         ).read_text(encoding="utf-8")
         assert "complex_id" in (
             report_dir / "biological_complex_entries.tsv"
         ).read_text(encoding="utf-8")
-        assert "Volcano plot:" in (
-            report_dir / "biological_volcano.html"
-        ).read_text(encoding="utf-8")
+        assert "Volcano plot:" in (report_dir / "biological_volcano.html").read_text(
+            encoding="utf-8"
+        )
         assert "Protein mechanism cards" in (
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
@@ -9713,7 +9971,10 @@ def test_biological_report_command_adapts_selection_policy_to_protocol_context()
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["report"]["selection_policy"]["min_absolute_log2_fold_change"] == 0.58
+        assert (
+            payload["report"]["selection_policy"]["min_absolute_log2_fold_change"]
+            == 0.58
+        )
         assert payload["report"]["selection_policy"]["heatmap_max_entity_count"] == 80
 
 
@@ -9793,9 +10054,12 @@ def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets
         assert payload["report"]["summary"]["accepted_psm_count"] == 30
         assert payload["report"]["summary"]["filtered_psm_count"] == 3
         assert payload["report"]["summary"]["inferred_protein_count"] == 5
-        assert payload["report"]["biological_report"]["summary"][
-            "significant_protein_count"
-        ] >= 3
+        assert (
+            payload["report"]["biological_report"]["summary"][
+                "significant_protein_count"
+            ]
+            >= 3
+        )
         report_dir = Path("dda_biological_report")
         assert (report_dir / "dda_biological_report_manifest.json").exists()
         assert (report_dir / "dda_biological_psms.tsv").exists()
@@ -9810,9 +10074,9 @@ def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets
         assert "selected_protein_count" in (
             report_dir / "dda_parsimony_summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "entity_id" in (
-            report_dir / "dda_protein_lfq_matrix.tsv"
-        ).read_text(encoding="utf-8")
+        assert "entity_id" in (report_dir / "dda_protein_lfq_matrix.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "Biological result report" in (
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
@@ -9916,9 +10180,9 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         assert "reason_code" in (
             report_dir / "diann_import_rejected_evidence.tsv"
         ).read_text(encoding="utf-8")
-        assert "card_id" in (
-            report_dir / "biological_protein_cards.tsv"
-        ).read_text(encoding="utf-8")
+        assert "card_id" in (report_dir / "biological_protein_cards.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "context_kind" in (
             report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
@@ -9992,9 +10256,7 @@ def test_diann_benchmark_command_reports_count_and_quantity_fidelity() -> None:
         ).read_text(encoding="utf-8")
 
 
-def test_public_case_study_command_emits_summary_and_biological_report_assets() -> (
-    None
-):
+def test_public_case_study_command_emits_summary_and_biological_report_assets() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
@@ -10148,9 +10410,9 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
         assert "entity_id\tprotein_refs\tmember_peptides" in (
             report_dir / "maxquant_lfq_matrix.tsv"
         ).read_text(encoding="utf-8")
-        assert "card_id" in (
-            report_dir / "biological_protein_cards.tsv"
-        ).read_text(encoding="utf-8")
+        assert "card_id" in (report_dir / "biological_protein_cards.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "context_kind" in (
             report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
@@ -10172,7 +10434,9 @@ def test_proteomics_run_command_emits_diann_result_package() -> None:
             workflow_dir / "biological_report_reference.fasta",
             "biological_report_reference.fasta",
         )
-        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv"
+        )
         shutil.copy(
             workflow_dir / "biological_report_pathways.tsv",
             "biological_report_pathways.tsv",
@@ -10281,7 +10545,9 @@ def test_proteomics_run_command_emits_maxquant_result_package() -> None:
             workflow_dir / "biological_report_reference.fasta",
             "biological_report_reference.fasta",
         )
-        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv"
+        )
         shutil.copy(
             workflow_dir / "biological_report_pathways.tsv",
             "biological_report_pathways.tsv",
@@ -10359,7 +10625,9 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
             workflow_dir / "biological_report_reference.fasta",
             "biological_report_reference.fasta",
         )
-        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv"
+        )
         shutil.copy(
             workflow_dir / "biological_report_pathways.tsv",
             "biological_report_pathways.tsv",
@@ -10400,7 +10668,9 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
         payload = json.loads(result.output)
         assert payload["metadata_rows"] == 6
         assert payload["run"]["engine"] == "fragpipe"
-        assert payload["run"]["fragpipe_workflow"]["summary"]["accepted_psm_count"] == 30
+        assert (
+            payload["run"]["fragpipe_workflow"]["summary"]["accepted_psm_count"] == 30
+        )
         assert (
             payload["run"]["fragpipe_workflow"]["summary"][
                 "protein_group_discrepancy_count"
@@ -10616,12 +10886,10 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         ).read_text(encoding="utf-8")
         assert (
             "sample_id\tcondition\tbatch\tpair_id\tanalysis_sample_id\tbiological_sample_id"
-        ) in Path(
-            "dia.design.tsv"
-        ).read_text(encoding="utf-8")
-        assert "PG001\tcondition[treatment]" in Path(
-            "dia.coefficients.tsv"
-        ).read_text(encoding="utf-8")
+        ) in Path("dia.design.tsv").read_text(encoding="utf-8")
+        assert "PG001\tcondition[treatment]" in Path("dia.coefficients.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "contrast_count\t1" in Path("dia.qc.tsv").read_text(encoding="utf-8")
         assert "raw_p_value" in Path("dia.volcano.tsv").read_text(encoding="utf-8")
         assert "PG001\tP11111\t2.00208\t0.00729495\t0.0136062\t1.86626\ttrue" in Path(
@@ -10691,7 +10959,9 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
         )
         assert payload["precursor_evidence_rows"] == payload["precursor_rows"]
         assert payload["precursor_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
-        assert payload["precursor_quantity_rows"][0]["precursor_id"] == "sn_rawA_pestide_2"
+        assert (
+            payload["precursor_quantity_rows"][0]["precursor_id"] == "sn_rawA_pestide_2"
+        )
         assert payload["protein_group_quantity_rows"][0]["protein_group_id"] == "PG001"
         assert payload["rejected_evidence_rows"] == []
         assert Path("spectronaut.summary.tsv").exists()
@@ -10732,7 +11002,9 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["column_mapping"]["score_orientation"] == "higher_better"
-        assert payload["normalization"]["adapter"]["score_orientation"] == "higher_better"
+        assert (
+            payload["normalization"]["adapter"]["score_orientation"] == "higher_better"
+        )
         assert payload["summary"]["accepted_rows"] == 2
         assert payload["summary"]["mapped_run_count"] == 2
         assert payload["summary"]["unmapped_source_columns"] == [
@@ -10748,8 +11020,12 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
         assert payload["rejected_evidence_rows"] == []
         assert Path("mapped.tsv").exists()
         assert Path("rejected.tsv").exists()
-        assert Path("rejected.tsv").read_text(encoding="utf-8").startswith(
-            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        assert (
+            Path("rejected.tsv")
+            .read_text(encoding="utf-8")
+            .startswith(
+                "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+            )
         )
 
 
@@ -10829,16 +11105,25 @@ def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
         assert payload["protein_rows"][0]["target_decoy_label"] == "decoy"
         assert payload["feature_rows"][2]["peptide_sequence"] == "M[Oxidation]PEPTIDE"
         assert payload["rejected_feature_rows"][0]["row_number"] == 6
-        assert payload["rejected_feature_rows"][0]["issues"][0]["code"] == "invalid_intensity"
-        assert payload["rejected_evidence_rows"][0]["reason_code"] == "invalid_intensity"
+        assert (
+            payload["rejected_feature_rows"][0]["issues"][0]["code"]
+            == "invalid_intensity"
+        )
+        assert (
+            payload["rejected_evidence_rows"][0]["reason_code"] == "invalid_intensity"
+        )
         assert Path("openms.summary.tsv").exists()
         assert Path("openms.psm.tsv").exists()
         assert Path("openms.protein.tsv").exists()
         assert Path("openms.feature.tsv").exists()
         assert Path("openms.rejected_features.tsv").exists()
-        assert Path("openms.rejected_features.tsv").read_text(
-            encoding="utf-8"
-        ).startswith("source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n")
+        assert (
+            Path("openms.rejected_features.tsv")
+            .read_text(encoding="utf-8")
+            .startswith(
+                "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+            )
+        )
 
 
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
@@ -11026,7 +11311,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
             ]
             == "benjamini_hochberg_report_wide_entities"
         )
-        assert payload["differential_abundance"]["contrast_name"] == "control_vs_treatment"
+        assert (
+            payload["differential_abundance"]["contrast_name"] == "control_vs_treatment"
+        )
         assert all(
             "imputation_significance_change_reason" in entry
             and "imputation_dependent_hit" in entry
@@ -11058,8 +11345,7 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["outputs"]["limma_samples_tsv"] == "quantify.limma_samples.tsv"
         assert payload["outputs"]["limma_design_tsv"] == "quantify.limma_design.tsv"
         assert (
-            payload["outputs"]["limma_contrasts_tsv"]
-            == "quantify.limma_contrasts.tsv"
+            payload["outputs"]["limma_contrasts_tsv"] == "quantify.limma_contrasts.tsv"
         )
         assert payload["outputs"]["msstats_input_tsv"] == "quantify.msstats.tsv"
         assert Path("quantify.differential.tsv").exists()
@@ -11194,15 +11480,17 @@ def test_quantify_command_reports_paired_differential_broken_pairs() -> None:
             payload["differential_abundance"]["assumption_report"]["test_type"]
             == "paired_t_test"
         )
-        assert payload["differential_abundance"]["broken_pairs"][0]["pair_id"] == "pair-3"
+        assert (
+            payload["differential_abundance"]["broken_pairs"][0]["pair_id"] == "pair-3"
+        )
         assert payload["outputs"]["differential_tsv"] == "paired.differential.tsv"
         assert "complete_pair_count" in Path("paired.differential.tsv").read_text(
             encoding="utf-8"
         )
         assert "pair-3" in Path("paired.broken.tsv").read_text(encoding="utf-8")
-        assert "P001\tcontrol\ttreatment" in Path(
-            "paired.differential.tsv"
-        ).read_text(encoding="utf-8")
+        assert "P001\tcontrol\ttreatment" in Path("paired.differential.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "contrast_name" in Path("paired.differential.tsv").read_text(
             encoding="utf-8"
         )
@@ -11247,13 +11535,19 @@ def test_quantify_command_reports_log2_normalization_preparation_explicitly() ->
         assert payload["normalization_comparison"]["log_transform_preparation"]
         assert {
             entry["handling_strategy"]
-            for entry in payload["normalization_comparison"]["log_transform_preparation"]
+            for entry in payload["normalization_comparison"][
+                "log_transform_preparation"
+            ]
         } == {"exclude_nonpositive_values_before_log2_centering"}
         assert all(
             entry["zero_count"] == 1
-            for entry in payload["normalization_comparison"]["log_transform_preparation"]
+            for entry in payload["normalization_comparison"][
+                "log_transform_preparation"
+            ]
         )
-        assert [entry["method"] for entry in payload["normalization_strategy"]["entries"]] == [
+        assert [
+            entry["method"] for entry in payload["normalization_strategy"]["entries"]
+        ] == [
             "quantile",
             "log2_median_centering",
             "vsn_like",
@@ -11307,8 +11601,7 @@ def test_quantify_command_reports_group_aware_imputation_provenance() -> None:
         imputed_row = next(
             value
             for value in payload["table"]["values"]
-            if value["entity_id"] == "P004"
-            and value["sample_id"] == "C1"
+            if value["entity_id"] == "P004" and value["sample_id"] == "C1"
         )
         assert imputed_row["imputation_provenance"]["method"] == (
             "group_aware_low_intensity"
@@ -11509,8 +11802,10 @@ def test_quantify_command_emits_time_course_differential_outputs() -> None:
             "endpoint",
         ]
         assert payload["outputs"]["time_course_tsv"] == "time_course.tsv"
-        assert Path("time_course.tsv").read_text(encoding="utf-8").startswith(
-            "entity_id\tcondition\treference_condition"
+        assert (
+            Path("time_course.tsv")
+            .read_text(encoding="utf-8")
+            .startswith("entity_id\tcondition\treference_condition")
         )
         assert "interaction_p_value" in Path("time_course.tsv").read_text(
             encoding="utf-8"
@@ -11676,8 +11971,7 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
         assert payload["accepted_features"] == 32
         assert payload["rejected_features"] == 0
         assert (
-            payload["sample_exploration_report"]["summary"]["entity_level"]
-            == "protein"
+            payload["sample_exploration_report"]["summary"]["entity_level"] == "protein"
         )
         assert (
             payload["sample_exploration_report"]["summary"][
@@ -11686,13 +11980,16 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
             == 6
         )
         assert (
-            payload["sample_exploration_report"]["summary"][
-                "pairwise_distance_count"
-            ]
+            payload["sample_exploration_report"]["summary"]["pairwise_distance_count"]
             == 6
         )
-        assert payload["sample_exploration_report"]["sample_correlation_report"]["entries"]
-        assert "outlier_reasons" in payload["sample_exploration_report"]["sample_pca_report"]["entries"][0]
+        assert payload["sample_exploration_report"]["sample_correlation_report"][
+            "entries"
+        ]
+        assert (
+            "outlier_reasons"
+            in payload["sample_exploration_report"]["sample_pca_report"]["entries"][0]
+        )
         assert payload["outputs"]["summary_tsv"] == "sample_exploration.summary.tsv"
         assert payload["outputs"]["scores_tsv"] == "sample_exploration.scores.tsv"
         assert (
@@ -11703,10 +12000,7 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
             payload["outputs"]["correlations_tsv"]
             == "sample_exploration.correlations.tsv"
         )
-        assert (
-            payload["outputs"]["distances_tsv"]
-            == "sample_exploration.distances.tsv"
-        )
+        assert payload["outputs"]["distances_tsv"] == "sample_exploration.distances.tsv"
         assert payload["outputs"]["clusters_tsv"] == "sample_exploration.clusters.tsv"
         assert payload["outputs"]["outliers_tsv"] == "sample_exploration.outliers.tsv"
         assert Path("sample_exploration.summary.tsv").exists()
@@ -11731,9 +12025,10 @@ def test_sample_exploration_command_emits_scores_distances_and_clusters() -> Non
         assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in Path(
             "sample_exploration.distances.tsv"
         ).read_text(encoding="utf-8")
-        assert "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids" in Path(
-            "sample_exploration.clusters.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids"
+            in Path("sample_exploration.clusters.tsv").read_text(encoding="utf-8")
+        )
         assert "sample_id\tcondition\tbatch\toutlier_reasons" in Path(
             "sample_exploration.outliers.tsv"
         ).read_text(encoding="utf-8")
@@ -11778,7 +12073,9 @@ def test_power_estimate_command_emits_variance_and_effect_size_grid() -> None:
         payload = json.loads(result.output)
         assert payload["accepted_features"] == 32
         assert payload["rejected_features"] == 0
-        assert payload["power_estimation_report"]["summary"]["entity_level"] == "protein"
+        assert (
+            payload["power_estimation_report"]["summary"]["entity_level"] == "protein"
+        )
         assert payload["power_estimation_report"]["variance_entries"]
         assert payload["power_estimation_report"]["effect_size_grid"]
         assert (
@@ -11858,9 +12155,7 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
         assert "P001\tcontrol\trescue" in tsv
         assert "P001\tcontrol\ttreatment" in tsv
         assert "direction_conflict" in consistency_tsv
-        assert (
-            payload["differential_abundance_multi_condition"]["condition_count"] == 3
-        )
+        assert payload["differential_abundance_multi_condition"]["condition_count"] == 3
         assert len(payload["differential_abundance_multi_condition"]["reports"]) == 3
         assert payload["multi_contrast_consistency"]["summary"]["entity_count"] >= 1
         assert all(
@@ -12054,13 +12349,16 @@ def test_peptide_matrix_command_emits_precursor_mask_and_aggregation_ledgers() -
         assert payload["rejected_source_records"] == 0
         assert payload["report"]["summary"]["filtered_cell_count"] == 1
         assert payload["report"]["summary"]["missing_cell_count"] == 1
-        assert payload["report"]["aggregation_entries"][0]["aggregation_method"] == "top_n"
+        assert (
+            payload["report"]["aggregation_entries"][0]["aggregation_method"] == "top_n"
+        )
         assert Path("peptide_matrix_precursor.summary.tsv").exists()
         assert Path("peptide_matrix_precursor.mask.tsv").exists()
         assert Path("peptide_matrix_precursor.aggregation.tsv").exists()
-        assert "precursor\tmodified_peptide\tfalse\ttop_n\t7\t0\t3\t2\t4\t0\t1\t1\t" in Path(
-            "peptide_matrix_precursor.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "precursor\tmodified_peptide\tfalse\ttop_n\t7\t0\t3\t2\t4\t0\t1\t1\t"
+            in Path("peptide_matrix_precursor.summary.tsv").read_text(encoding="utf-8")
+        )
         assert "missing_not_observed" in Path(
             "peptide_matrix_precursor.mask.tsv"
         ).read_text(encoding="utf-8")
@@ -12240,15 +12538,9 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
         disconnected_tsv = Path("protein_lfq.disconnected.tsv").read_text(
             encoding="utf-8"
         )
-        assert (
-            "P2\tprotein\tP2\t1\tS1\tS2;S3\t1\t0\tDISCAAK" in disconnected_tsv
-        )
-        assert (
-            "P2\tprotein\tP2\t2\tS2\tS1;S3\t1\t0\tDISCAAK" in disconnected_tsv
-        )
-        assert (
-            "P2\tprotein\tP2\t3\tS3\tS1;S2\t1\t0\tDISCVVK" in disconnected_tsv
-        )
+        assert "P2\tprotein\tP2\t1\tS1\tS2;S3\t1\t0\tDISCAAK" in disconnected_tsv
+        assert "P2\tprotein\tP2\t2\tS2\tS1;S3\t1\t0\tDISCAAK" in disconnected_tsv
+        assert "P2\tprotein\tP2\t3\tS3\tS1;S2\t1\t0\tDISCVVK" in disconnected_tsv
         assert (
             payload["outputs"]["disconnected_components_tsv"]
             == "protein_lfq.disconnected.tsv"
@@ -12289,7 +12581,10 @@ def test_protein_lfq_command_emits_peptide_profile_inconsistency_output() -> Non
             ]
             == 1
         )
-        assert payload["outputs"]["peptide_profile_tsv"] == "protein_lfq.peptide_profile.tsv"
+        assert (
+            payload["outputs"]["peptide_profile_tsv"]
+            == "protein_lfq.peptide_profile.tsv"
+        )
         peptide_profile_tsv = Path("protein_lfq.peptide_profile.tsv").read_text(
             encoding="utf-8"
         )
@@ -12393,7 +12688,10 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
             for entry in payload["occupancy"]
         )
         assert payload["occupancy_counterpart_report"]["entries"]
-        assert payload["occupancy_counterpart_report"]["missing_unmodified_evidence_count"] >= 0
+        assert (
+            payload["occupancy_counterpart_report"]["missing_unmodified_evidence_count"]
+            >= 0
+        )
         assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
         assert payload["site_group_quantification"]["summary"]["group_row_count"] == 2
         assert any(
@@ -12406,9 +12704,7 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
         )
         assert "entry_count" in Path("ptm.occupancy.summary.tsv").read_text()
         assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
-        assert "counterpart_status" in Path(
-            "ptm.occupancy.counterpart.tsv"
-        ).read_text()
+        assert "counterpart_status" in Path("ptm.occupancy.counterpart.tsv").read_text()
 
 
 def test_ptm_parse_peptide_command_emits_explicit_site_records() -> None:
@@ -12471,14 +12767,18 @@ def test_ptm_parse_peptides_command_emits_review_ledgers() -> None:
             "protein_mapped_site_count": 4,
             "multi_modified_record_count": 1,
         }
-        assert Path("ptm_peptides.summary.tsv").read_text().splitlines()[1] == "3\t2\t5\t4\t1"
+        assert (
+            Path("ptm_peptides.summary.tsv").read_text().splitlines()[1]
+            == "3\t2\t5\t4\t1"
+        )
         assert "AAS[Phospho]PEP" in Path("ptm_peptides.records.tsv").read_text()
-        assert "UNIMOD:21\tS\t3\t6\tanywhere" in Path(
-            "ptm_peptides.sites.tsv"
-        ).read_text()
-        assert "invalid_peptide_start_position" in Path(
-            "ptm_peptides.rejected.tsv"
-        ).read_text()
+        assert (
+            "UNIMOD:21\tS\t3\t6\tanywhere" in Path("ptm_peptides.sites.tsv").read_text()
+        )
+        assert (
+            "invalid_peptide_start_position"
+            in Path("ptm_peptides.rejected.tsv").read_text()
+        )
 
 
 def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
@@ -12532,14 +12832,14 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         assert "shared_peptide" in Path("ptm.mapping.tsv").read_text()
         assert "scan=ptm-001" in Path("ptm.exact.tsv").read_text()
         assert "scan=ptm-005" in Path("ptm.ambiguous.tsv").read_text()
-        assert Path("ptm.unmapped.tsv").read_text().splitlines()[0].startswith(
-            "spectrum_id\tsample_id\tlocalized_peptide"
+        assert (
+            Path("ptm.unmapped.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("spectrum_id\tsample_id\tlocalized_peptide")
         )
         assert "P11111:S5:Phospho" in Path("ptm.site_table.tsv").read_text()
-        assert (
-            "P11111:Phospho:17|18|19"
-            in Path("ptm.ambiguity.tsv").read_text()
-        )
+        assert "P11111:Phospho:17|18|19" in Path("ptm.ambiguity.tsv").read_text()
         assert "S;T;Y" in Path("ptm.ambiguity.tsv").read_text()
         assert "scan=ptm-001" in Path("ptm.coverage.tsv").read_text()
         assert (
@@ -12683,15 +12983,21 @@ def test_ptm_ambiguity_review_command_emits_localized_and_group_quant_ledgers() 
         assert payload["ambiguity_review"]["summary"]["localized_site_count"] == 3
         assert payload["ambiguity_review"]["summary"]["unlocalized_group_count"] == 2
         assert payload["site_group_quantification"]["summary"]["group_row_count"] == 2
-        assert Path("ptm.ambiguity.summary.tsv").read_text().splitlines()[0].startswith(
-            "localized_site_count\tunlocalized_group_count"
+        assert (
+            Path("ptm.ambiguity.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("localized_site_count\tunlocalized_group_count")
         )
         assert "P11111:S5:Phospho" in Path("ptm.localized.tsv").read_text()
         assert "P11111:Phospho:17|18|19" in Path("ptm.unlocalized.tsv").read_text()
-        assert "group_key\tprotein_ref" in Path("ptm.group_quant.matrix.tsv").read_text()
-        assert "sample_id\tobserved_count" in Path(
-            "ptm.group_quant.missingness.tsv"
-        ).read_text()
+        assert (
+            "group_key\tprotein_ref" in Path("ptm.group_quant.matrix.tsv").read_text()
+        )
+        assert (
+            "sample_id\tobserved_count"
+            in Path("ptm.group_quant.missingness.tsv").read_text()
+        )
 
 
 def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
@@ -12738,12 +13044,13 @@ def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
             payload["localization_scoring"]["entries"][0]["localization_tier"]
             == "high_confidence"
         )
-        assert "reported_probability" in Path(
-            "ptm.localization.entries.tsv"
-        ).read_text()
-        assert "localization_tier" in Path(
-            "ptm.localization.entries.tsv"
-        ).read_text().splitlines()[0]
+        assert (
+            "reported_probability" in Path("ptm.localization.entries.tsv").read_text()
+        )
+        assert (
+            "localization_tier"
+            in Path("ptm.localization.entries.tsv").read_text().splitlines()[0]
+        )
         assert Path("ptm.localization.summary.tsv").read_text().splitlines()[0] == (
             "entry_count\tambiguous_entry_count\tconfident_entry_count\t"
             "high_confidence_entry_count\tsupported_entry_count\trefused_entry_count\t"
@@ -12832,9 +13139,7 @@ def test_ptm_quantify_sites_command_emits_site_matrix_outputs() -> None:
         assert payload["feature_rows"] == 12
         assert payload["site_quantification"]["ambiguity_policy"] == "exclude"
         assert "P11111:S5:Phospho" in Path("ptm.site_quant.matrix.tsv").read_text()
-        assert "P11111:S17:Phospho" not in Path(
-            "ptm.site_quant.matrix.tsv"
-        ).read_text()
+        assert "P11111:S17:Phospho" not in Path("ptm.site_quant.matrix.tsv").read_text()
         assert (
             "P11111:S17:Phospho\tP11111:Phospho:17|18|19"
             in Path("ptm.site_quant.excluded.tsv").read_text()
@@ -12876,13 +13181,15 @@ def test_ptm_quantify_sites_command_emits_ambiguity_group_matrix_outputs() -> No
         assert (
             payload["site_quantification"]["summary"]["ambiguous_group_row_count"] == 2
         )
-        assert "P11111:Phospho:17|18|19" in Path(
-            "ptm.site_groups.matrix.tsv"
-        ).read_text()
+        assert (
+            "P11111:Phospho:17|18|19" in Path("ptm.site_groups.matrix.tsv").read_text()
+        )
         assert "group_row_count" in Path("ptm.site_groups.summary.tsv").read_text()
 
 
-def test_ptm_quantify_sites_command_rejects_group_exports_under_exclude_policy() -> None:
+def test_ptm_quantify_sites_command_rejects_group_exports_under_exclude_policy() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         ptm_fixture_dir = FIXTURE_ROOT / "ptm"
@@ -12956,9 +13263,7 @@ def test_ptm_estimate_occupancy_command_emits_occupancy_ledgers() -> None:
         )
         assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
         assert "confidence_tier" in Path("ptm.occupancy.tsv").read_text()
-        assert "counterpart_status" in Path(
-            "ptm.occupancy.counterpart.tsv"
-        ).read_text()
+        assert "counterpart_status" in Path("ptm.occupancy.counterpart.tsv").read_text()
 
 
 def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
@@ -13022,9 +13327,10 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
         )
         assert corrected["protein_correction_status"] == "high_confidence_corrected"
         assert "P11111:S5:Phospho" in Path("ptm.differential.tsv").read_text()
-        assert "localization_tier\tlow_localization" in Path(
-            "ptm.differential.tsv"
-        ).read_text()
+        assert (
+            "localization_tier\tlow_localization"
+            in Path("ptm.differential.tsv").read_text()
+        )
         assert "plotted_log2_fold_change" in Path("ptm.volcano.tsv").read_text()
         assert Path("ptm.volcano.json").exists()
         assert Path("ptm.volcano.svg").exists()
@@ -13033,9 +13339,7 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
             encoding="utf-8"
         )
         assert "<svg" in Path("ptm.volcano.svg").read_text(encoding="utf-8")
-        assert "Volcano plot:" in Path("ptm.volcano.html").read_text(
-            encoding="utf-8"
-        )
+        assert "Volcano plot:" in Path("ptm.volcano.html").read_text(encoding="utf-8")
 
 
 def test_ptm_differential_command_exports_paired_broken_pair_ledger() -> None:
@@ -13087,8 +13391,10 @@ def test_ptm_differential_command_exports_paired_broken_pair_ledger() -> None:
             entry["complete_pair_count"] == 2
             for entry in payload["differential_report"]["entries"]
         )
-        assert Path("ptm.broken.tsv").read_text(encoding="utf-8").startswith(
-            "condition_a\tcondition_b\tpair_id"
+        assert (
+            Path("ptm.broken.tsv")
+            .read_text(encoding="utf-8")
+            .startswith("condition_a\tcondition_b\tpair_id")
         )
 
 
@@ -13204,12 +13510,15 @@ def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() 
         assert payload["rejected_annotation_rows"] == 1
         assert payload["target_species"] == "Homo sapiens"
         assert payload["mapping_report"]["summary"]["matched_annotation_count"] == 3
-        assert "species_mismatch_count" in Path("ptm.annotation.summary.tsv").read_text()
+        assert (
+            "species_mismatch_count" in Path("ptm.annotation.summary.tsv").read_text()
+        )
         assert "P11111:S5:Phospho" in Path("ptm.annotation.mapped.tsv").read_text()
         assert "Mus musculus" in Path("ptm.annotation.unmapped.tsv").read_text()
-        assert "activation-linked phosphosite" in Path(
-            "ptm.annotation.function.tsv"
-        ).read_text()
+        assert (
+            "activation-linked phosphosite"
+            in Path("ptm.annotation.function.tsv").read_text()
+        )
         assert "AKT1" in Path("ptm.annotation.kinase.tsv").read_text()
         assert "PPP2CA" in Path("ptm.annotation.phosphatase.tsv").read_text()
         assert "MAPK signaling" in Path("ptm.annotation.pathway.tsv").read_text()
@@ -13250,10 +13559,13 @@ def test_ptm_annotate_context_command_emits_site_context_outputs() -> None:
         assert payload["accepted_rows"] == 8
         assert payload["context_rows"] == 5
         assert payload["rejected_context_rows"] == 1
-        assert payload["context_report"]["summary"]["outside_annotation_site_count"] == 1
-        assert "outside_annotation_site_count" in Path(
-            "ptm.context.summary.tsv"
-        ).read_text()
+        assert (
+            payload["context_report"]["summary"]["outside_annotation_site_count"] == 1
+        )
+        assert (
+            "outside_annotation_site_count"
+            in Path("ptm.context.summary.tsv").read_text()
+        )
         exported = Path("ptm.context.entries.tsv").read_text()
         assert "Q9DEC1:S5:Phospho" in exported
         assert "outside_provided_annotations" in exported
@@ -13305,15 +13617,17 @@ def test_ptm_regulator_enrichment_command_emits_supporting_site_ledgers() -> Non
         assert payload["accepted_rows"] == 8
         assert payload["annotation_rows"] == 5
         assert (
-            payload["regulator_enrichment_report"]["summary"]["evaluated_regulator_count"]
+            payload["regulator_enrichment_report"]["summary"][
+                "evaluated_regulator_count"
+            ]
             >= 1
         )
         assert "supporting_sites" in Path("ptm.regulator.results.tsv").read_text()
         assert "AKT1" in Path("ptm.regulator.results.tsv").read_text()
         assert "P11111:S5:Phospho" in Path("ptm.regulator.results.tsv").read_text()
-        assert "evaluated_regulator_count" in Path(
-            "ptm.regulator.summary.tsv"
-        ).read_text()
+        assert (
+            "evaluated_regulator_count" in Path("ptm.regulator.summary.tsv").read_text()
+        )
 
 
 def test_ptm_report_command_emits_full_report_bundle() -> None:
@@ -13398,20 +13712,20 @@ def test_ptm_report_command_emits_full_report_bundle() -> None:
         assert (report_dir / "ptm_site_quant_matrix.tsv").exists()
         assert (report_dir / "ptm_differential.tsv").exists()
         assert (report_dir / "ptm_motif_terms.tsv").exists()
-        assert "accepted_evidence_count" in (
-            report_dir / "ptm_site_workflow_summary.tsv"
-        ).read_text()
+        assert (
+            "accepted_evidence_count"
+            in (report_dir / "ptm_site_workflow_summary.tsv").read_text()
+        )
         assert "S[Phospho]PEPTIDEK" in (report_dir / "ptm_peptides.tsv").read_text()
         assert "P11111:S5:Phospho" in (report_dir / "ptm_sites.tsv").read_text()
-        assert "probability_source" in (
-            report_dir / "ptm_localization.tsv"
-        ).read_text()
-        assert "corrected_log2_fold_change" in (
-            report_dir / "ptm_differential.tsv"
-        ).read_text()
-        assert "exclusive_to_regulated" in (
-            report_dir / "ptm_motif_terms.tsv"
-        ).read_text()
+        assert "probability_source" in (report_dir / "ptm_localization.tsv").read_text()
+        assert (
+            "corrected_log2_fold_change"
+            in (report_dir / "ptm_differential.tsv").read_text()
+        )
+        assert (
+            "exclusive_to_regulated" in (report_dir / "ptm_motif_terms.tsv").read_text()
+        )
 
 
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
@@ -13456,8 +13770,10 @@ def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
         assert payload["run_assessment"]["policy_name"] == "production-demo-qc"
         assert payload["run_assessment"]["qc_status"] in {"pass", "caution", "fail"}
         assert isinstance(payload["run_assessment"]["status_reasons"], list)
-        assert Path("qc.tsv").read_text().startswith(
-            "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key"
+        assert (
+            Path("qc.tsv")
+            .read_text()
+            .startswith("scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key")
         )
         assert "Bijux Proteomics QC Report" in Path("qc.html").read_text()
         assert "<strong>Status</strong>:" in Path("qc.html").read_text()

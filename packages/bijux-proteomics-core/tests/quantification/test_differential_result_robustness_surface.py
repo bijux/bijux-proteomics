@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
-    bootstrap_effect_stability,
     DifferentialResultRobustnessQcStatus,
     DifferentialResultRobustnessReasonCode,
     ImputationMethod,
@@ -13,6 +12,7 @@ from bijux_proteomics.quantification import (
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
+    bootstrap_effect_stability,
     build_differential_abundance_report,
     build_differential_abundance_robustness_report,
     build_label_free_intensity_table,
@@ -228,13 +228,9 @@ def test_differential_result_robustness_penalizes_missing_imputed_single_peptide
 
     assert by_entity["PSTRONG"].robustness_score > by_entity["PWEAK"].robustness_score
     assert (
-        by_entity["PSTRONG"].qc_status
-        is DifferentialResultRobustnessQcStatus.CAUTION
+        by_entity["PSTRONG"].qc_status is DifferentialResultRobustnessQcStatus.CAUTION
     )
-    assert (
-        by_entity["PWEAK"].qc_status
-        is DifferentialResultRobustnessQcStatus.CAUTION
-    )
+    assert by_entity["PWEAK"].qc_status is DifferentialResultRobustnessQcStatus.CAUTION
     assert (
         DifferentialResultRobustnessReasonCode.HIGH_MISSINGNESS
         in by_entity["PWEAK"].reason_codes
@@ -252,10 +248,7 @@ def test_differential_result_robustness_penalizes_missing_imputed_single_peptide
         in by_entity["PWEAK"].reason_codes
     )
     assert by_result["PWEAK"].robustness_score == by_entity["PWEAK"].robustness_score
-    assert (
-        by_result["PWEAK"].robustness_reason_codes
-        == by_entity["PWEAK"].reason_codes
-    )
+    assert by_result["PWEAK"].robustness_reason_codes == by_entity["PWEAK"].reason_codes
 
 
 def test_bootstrap_effect_stability_stays_stronger_for_supported_entities() -> None:
@@ -270,4 +263,6 @@ def test_bootstrap_effect_stability_stays_stronger_for_supported_entities() -> N
     by_entity = {entry.entity_id: entry for entry in report.entries}
 
     assert by_entity["PSTRONG"].sign_consistency >= by_entity["PWEAK"].sign_consistency
-    assert abs(by_entity["PSTRONG"].median_log2fc) > abs(by_entity["PWEAK"].median_log2fc)
+    assert abs(by_entity["PSTRONG"].median_log2fc) > abs(
+        by_entity["PWEAK"].median_log2fc
+    )

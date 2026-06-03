@@ -17,9 +17,13 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_render_fragment_ratio_stability_exports_keep_cross_run_ratio_review_visible() -> None:
+def test_render_fragment_ratio_stability_exports_keep_cross_run_ratio_review_visible() -> (
+    None
+):
     report = build_targeted_fragment_ratio_stability_report(
-        build_skyline_result_import_report(_format_fixture("skyline_targeted_qc_results.tsv"))
+        build_skyline_result_import_report(
+            _format_fixture("skyline_targeted_qc_results.tsv")
+        )
     )
 
     fragment_tsv = render_fragment_ratio_stability_fragments_tsv(report)

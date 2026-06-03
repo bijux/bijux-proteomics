@@ -6,8 +6,8 @@ from __future__ import annotations
 from bijux_proteomics.domain import (
     DesignError,
     InvalidWorkflowError,
-    ScientificEvidenceError,
     SchemaError,
+    ScientificEvidenceError,
     UnsupportedFormatError,
 )
 from bijux_proteomics.domain.errors import BijuxProteomicsError

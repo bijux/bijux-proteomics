@@ -96,7 +96,9 @@ def test_cross_run_reproducibility_reference_cases_match_expected_outputs() -> N
             report.summary.single_run_only_count
             == case.expected_summary.single_run_only_count
         )
-        assert report.summary.exploratory_count == case.expected_summary.exploratory_count
+        assert (
+            report.summary.exploratory_count == case.expected_summary.exploratory_count
+        )
         assert (
             report.summary.condition_aware_entry_count
             == case.expected_summary.condition_aware_entry_count

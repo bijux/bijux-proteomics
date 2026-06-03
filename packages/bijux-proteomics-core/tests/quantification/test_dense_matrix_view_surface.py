@@ -71,10 +71,22 @@ def test_dense_label_free_quant_table_view_preserves_abundance_and_missing_codes
     assert view.abundance_matrix[0, 0] == 100.0
     assert math.isnan(view.abundance_matrix[0, 1])
     assert view.abundance_matrix[1, 0] == 0.0
-    assert missing_value_code_to_kind(view.missing_kind_codes[0, 0]) is MissingValueKind.OBSERVED
-    assert missing_value_code_to_kind(view.missing_kind_codes[0, 1]) is MissingValueKind.NOT_OBSERVED
-    assert missing_value_code_to_kind(view.missing_kind_codes[1, 0]) is MissingValueKind.ZERO
-    assert missing_value_code_to_kind(view.missing_kind_codes[1, 1]) is MissingValueKind.FILTERED
+    assert (
+        missing_value_code_to_kind(view.missing_kind_codes[0, 0])
+        is MissingValueKind.OBSERVED
+    )
+    assert (
+        missing_value_code_to_kind(view.missing_kind_codes[0, 1])
+        is MissingValueKind.NOT_OBSERVED
+    )
+    assert (
+        missing_value_code_to_kind(view.missing_kind_codes[1, 0])
+        is MissingValueKind.ZERO
+    )
+    assert (
+        missing_value_code_to_kind(view.missing_kind_codes[1, 1])
+        is MissingValueKind.FILTERED
+    )
     assert view.log2_abundance_matrix[0, 0] > 0.0
     assert view.log2_abundance_matrix[1, 0] == 0.0
 

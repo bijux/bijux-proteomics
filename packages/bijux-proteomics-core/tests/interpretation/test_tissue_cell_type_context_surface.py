@@ -91,11 +91,15 @@ def test_build_tissue_cell_type_context_report_flags_sample_mismatch_warning() -
     }
     assert by_label["liver"].mismatch_warning_count == 1
     assert by_label["liver"].dominant_unexpected_context_id == "neuron"
-    assert "mismatch_warning_count" in render_tissue_cell_type_context_summary_tsv(report)
-    assert "unexpected_marker_context_dominates" in render_tissue_cell_type_sample_consistency_tsv(
+    assert "mismatch_warning_count" in render_tissue_cell_type_context_summary_tsv(
         report
     )
+    assert (
+        "unexpected_marker_context_dominates"
+        in render_tissue_cell_type_sample_consistency_tsv(report)
+    )
     assert "context_kind" in render_tissue_cell_type_unexpected_signal_tsv(report)
-    assert "dominant_unexpected_context_id" in render_tissue_cell_type_interpretation_tsv(
-        report
+    assert (
+        "dominant_unexpected_context_id"
+        in render_tissue_cell_type_interpretation_tsv(report)
     )

@@ -127,17 +127,25 @@ def test_load_annotation_pack_normalizes_supported_tables(tmp_path: Path) -> Non
     assert pack.pathways[0].member_kind is PathwayMemberKind.PROTEIN
     assert pack.pathways[0].member_id == "P04637"
     assert pack.complexes[0].member_kind is ComplexMemberKind.GENE
-    assert pack.compartments[0].context_kind is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
+    assert (
+        pack.compartments[0].context_kind
+        is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
+    )
     assert pack.drug_targets[0].context_kind is BiologicalContextKind.DRUG_TARGET
     assert pack.disease_terms[0].context_kind is BiologicalContextKind.DISEASE_TERM
     assert pack.disease_terms[1].context_kind is BiologicalContextKind.PHENOTYPE_TERM
-    assert pack.kinase_substrates[0].evidence_type is RegulatorEvidenceType.KINASE_SUBSTRATE
+    assert (
+        pack.kinase_substrates[0].evidence_type
+        is RegulatorEvidenceType.KINASE_SUBSTRATE
+    )
     assert pack.kinase_substrates[0].site_key == "P04637:S15"
     assert pack.orthologs[0].source_protein_ref == "P04637"
     assert pack.orthologs[0].target_protein_ref == "P02340"
 
 
-def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path) -> None:
+def test_load_annotation_pack_raises_row_level_validation_errors(
+    tmp_path: Path,
+) -> None:
     pack_path = _write_pack(
         tmp_path / "annotation_pack_invalid.json",
         {
@@ -154,9 +162,7 @@ def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path)
                     "gene_symbol": "TP53",
                 }
             ],
-            "complexes": [
-                ["not", "an", "object"]
-            ],
+            "complexes": [["not", "an", "object"]],
             "compartments": [
                 {
                     "protein_ref": "P04637",
@@ -190,8 +196,7 @@ def test_load_annotation_pack_raises_row_level_validation_errors(tmp_path: Path)
 
     report = exc_info.value.report
     rejected = {
-        (row.table_name, row.row_number): row.reason
-        for row in report.rejected_rows
+        (row.table_name, row.row_number): row.reason for row in report.rejected_rows
     }
 
     assert report.source_path == str(pack_path)
@@ -284,7 +289,7 @@ def test_render_annotation_pack_json_round_trips_loaded_pack(tmp_path: Path) -> 
                     "context_id": "HP:0001250",
                     "context_name": "seizures",
                     "source_name": "HPO",
-                }
+                },
             ],
             "kinase_substrates": [
                 {

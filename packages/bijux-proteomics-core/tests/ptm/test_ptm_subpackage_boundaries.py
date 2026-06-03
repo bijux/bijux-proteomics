@@ -8,7 +8,6 @@ from pathlib import Path
 
 from bijux_proteomics.ptm import cards, localization, parsing, quant, regulation, sites
 
-
 _WRAPPER_MODULES = (
     "ptm/abundance_correction.py",
     "ptm/acetylation.py",
@@ -81,9 +80,14 @@ def test_ptm_root_and_subpackage_surfaces_share_owner_functions() -> None:
 
     assert ptm.parse_ptm_peptide is parsing.parse_ptm_peptide
     assert ptm.score_ptm_fragments is localization.score_ptm_fragments
-    assert ptm.build_ptm_ambiguity_review_report is sites.build_ptm_ambiguity_review_report
+    assert (
+        ptm.build_ptm_ambiguity_review_report is sites.build_ptm_ambiguity_review_report
+    )
     assert ptm.build_ptm_site_group_evidence is sites.build_ptm_site_group_evidence
-    assert ptm.build_ptm_site_quantification_report is quant.build_ptm_site_quantification_report
+    assert (
+        ptm.build_ptm_site_quantification_report
+        is quant.build_ptm_site_quantification_report
+    )
     assert ptm.build_ptm_crosstalk_report is regulation.build_ptm_crosstalk_report
     assert ptm.build_ptm_evidence_card_report is cards.build_ptm_evidence_card_report
 

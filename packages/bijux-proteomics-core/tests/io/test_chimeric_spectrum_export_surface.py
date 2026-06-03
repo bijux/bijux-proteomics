@@ -34,7 +34,9 @@ def _default_mapping() -> SearchResultColumnMapping:
 
 
 def test_render_chimeric_spectrum_exports_keep_competing_evidence_visible() -> None:
-    spectra = parse_mzml(_format_fixture("chimeric_spectrum_review.mzml")).accepted_spectra
+    spectra = parse_mzml(
+        _format_fixture("chimeric_spectrum_review.mzml")
+    ).accepted_spectra
     psm_records = parse_psm_tsv(
         _psm_fixture("chimeric_spectrum_candidates.tsv"),
         mapping=_default_mapping(),

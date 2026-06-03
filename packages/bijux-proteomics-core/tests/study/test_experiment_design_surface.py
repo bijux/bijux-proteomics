@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.io.formats import ExperimentalDesignEntry, ExperimentalDesignSampleRole
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics.study import build_experiment_design, coerce_experiment_design
 
 

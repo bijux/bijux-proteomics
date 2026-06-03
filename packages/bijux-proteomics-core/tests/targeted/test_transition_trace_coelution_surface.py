@@ -10,11 +10,23 @@ from bijux_proteomics.targeted.transition_coelution import (
 )
 
 
-def test_score_transition_coelution_requires_two_passing_transitions_for_reliable_tier() -> None:
+def test_score_transition_coelution_requires_two_passing_transitions_for_reliable_tier() -> (
+    None
+):
     rows = score_transition_coelution(
         (
-            *_trace("PEPTIDEK/2", "treat_r2", "y7", ((10.0, 10.0), (10.4, 60.0), (10.8, 10.0))),
-            *_trace("PEPTIDEK/2", "treat_r2", "y8", ((10.0, 12.0), (11.1, 55.0), (11.6, 12.0))),
+            *_trace(
+                "PEPTIDEK/2",
+                "treat_r2",
+                "y7",
+                ((10.0, 10.0), (10.4, 60.0), (10.8, 10.0)),
+            ),
+            *_trace(
+                "PEPTIDEK/2",
+                "treat_r2",
+                "y8",
+                ((10.0, 12.0), (11.1, 55.0), (11.6, 12.0)),
+            ),
         ),
         coelution_rt_delta_threshold_minutes=0.2,
     )
@@ -26,7 +38,10 @@ def test_score_transition_coelution_requires_two_passing_transitions_for_reliabl
     assert row.passing_transition_count == 1
     assert row.apex_rt_spread == 0.7
     assert row.coelution_tier.value == "insufficient"
-    assert "target_id\tsample_id\ttransition_count\tpassing_transition_count\tapex_rt_spread\tcoelution_tier" in rendered
+    assert (
+        "target_id\tsample_id\ttransition_count\tpassing_transition_count\tapex_rt_spread\tcoelution_tier"
+        in rendered
+    )
     assert "PEPTIDEK/2\ttreat_r2\t2\t1\t0.7\tinsufficient" in rendered
 
 

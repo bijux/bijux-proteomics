@@ -271,8 +271,9 @@ def test_validation_experiment_planning_flags_underpowered_and_omitted_candidate
 
     warning_codes = {entry.warning_code for entry in report.warnings}
     assert ValidationExperimentWarningCode.SITE_CANDIDATE_NOT_PANELIZED in warning_codes
-    assert "recommended_panel_samples_per_group" in render_validation_experiment_planning_summary_tsv(
-        report
+    assert (
+        "recommended_panel_samples_per_group"
+        in render_validation_experiment_planning_summary_tsv(report)
     )
     assert "planning_mode" in render_validation_experiment_planning_plan_tsv(report)
     assert "warning_code" in render_validation_experiment_planning_warning_tsv(report)
@@ -318,5 +319,7 @@ def test_validation_experiment_planning_falls_back_to_heuristic_without_pilot_va
     assert entry.underpowered is True
     assert entry.recommended_minimum_samples_per_group > 5
     assert ValidationExperimentWarningCode.MISSING_PILOT_VARIANCE in entry.warning_codes
-    assert ValidationExperimentWarningCode.MISSING_SELECTION_CONTEXT in entry.warning_codes
+    assert (
+        ValidationExperimentWarningCode.MISSING_SELECTION_CONTEXT in entry.warning_codes
+    )
     assert ValidationExperimentWarningCode.HIGH_ASSAY_RISK in entry.warning_codes

@@ -12,12 +12,12 @@ from bijux_proteomics.dia import (
     DiaSharedPeptidePolicy,
     build_diann_peptide_matrix_report,
     build_diann_protein_matrix_report,
-    render_dia_peptide_missingness_tsv,
     render_dia_peptide_matrix_summary_tsv,
+    render_dia_peptide_missingness_tsv,
     render_dia_peptide_q_value_matrix_tsv,
     render_dia_peptide_quantity_matrix_tsv,
-    render_dia_protein_missingness_tsv,
     render_dia_protein_matrix_summary_tsv,
+    render_dia_protein_missingness_tsv,
     render_dia_protein_q_value_matrix_tsv,
     render_dia_protein_quantity_matrix_tsv,
     render_dia_protein_rollup_evidence_tsv,
@@ -106,11 +106,16 @@ def test_render_dia_protein_matrix_exports() -> None:
     assert summary_tsv.startswith(
         "source_name\ttarget_kind\tshared_peptide_policy\trollup_method"
     )
-    assert "DIA-NN\tprotein_group\tinclude\tsum\t2\t2\t3\t1\t1\t0\t1\t7\t" in summary_tsv
+    assert (
+        "DIA-NN\tprotein_group\tinclude\tsum\t2\t2\t3\t1\t1\t0\t1\t7\t" in summary_tsv
+    )
     assert quantity_tsv.startswith(
         "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count"
     )
-    assert "PG001\tprotein_group\tP11111;P11112\t1\t0\t1\tPESTIDE\t1.25e+06\t1.3e+06" in quantity_tsv
+    assert (
+        "PG001\tprotein_group\tP11111;P11112\t1\t0\t1\tPESTIDE\t1.25e+06\t1.3e+06"
+        in quantity_tsv
+    )
     assert (
         "PG002\tprotein_group\tP22222\t1\t1\t0\tACDM[Oxidation]K\tobserved\tmissing_not_observed"
         in missingness_tsv
@@ -119,7 +124,10 @@ def test_render_dia_protein_matrix_exports() -> None:
     assert evidence_tsv.startswith(
         "rollup_stage\ttarget_entity_level\ttarget_entity_id\tsample_id"
     )
-    assert "precursor_to_peptide\tpeptide\tPESTIDE|PG001\tsample_A\tPESTIDE|z2|PG001" in evidence_tsv
+    assert (
+        "precursor_to_peptide\tpeptide\tPESTIDE|PG001\tsample_A\tPESTIDE|z2|PG001"
+        in evidence_tsv
+    )
     assert "peptide_to_protein\tprotein_group\tPG001\tsample_B" in evidence_tsv
 
 

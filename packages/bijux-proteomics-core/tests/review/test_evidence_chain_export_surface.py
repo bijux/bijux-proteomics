@@ -10,7 +10,9 @@ from bijux_proteomics.review import (
     render_evidence_chain_tsv,
 )
 
-from .test_evidence_chain_reconstruction_surface import build_reconstruction_fixture_graph
+from .test_evidence_chain_reconstruction_surface import (
+    build_reconstruction_fixture_graph,
+)
 
 
 def test_evidence_chain_reports_render_tsv_and_json() -> None:
@@ -35,6 +37,6 @@ def test_evidence_chain_reports_render_tsv_and_json() -> None:
     rendered = render_evidence_chain_tsv(protein)
     assert "claim_kind\tclaim_id\tstatistical_result_id\trelation" in rendered
     assert "protein_stats.tsv" in rendered
-    assert "\"source_row_count\"" in protein.to_stable_json()
-    assert "\"ptm_site\"" in ptm.to_stable_json()
-    assert "\"pathway\"" in pathway.to_stable_json()
+    assert '"source_row_count"' in protein.to_stable_json()
+    assert '"ptm_site"' in ptm.to_stable_json()
+    assert '"pathway"' in pathway.to_stable_json()

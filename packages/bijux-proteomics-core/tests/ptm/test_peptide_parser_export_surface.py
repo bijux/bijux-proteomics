@@ -41,14 +41,12 @@ def test_ptm_peptide_renderers_keep_summary_record_and_site_views() -> None:
         "localized_peptide\tcanonical_peptide\tprotein_ref\tsample_id"
     )
     assert any(
-        "AAS[Phospho]PEP\tAAS[Phospho]PEP\tP11111\tC1\tscan=ptm-peptide-001\tPhospho\tUNIMOD:21\tS\t3\t6\tanywhere"
-        == line
+        line
+        == "AAS[Phospho]PEP\tAAS[Phospho]PEP\tP11111\tC1\tscan=ptm-peptide-001\tPhospho\tUNIMOD:21\tS\t3\t6\tanywhere"
         for line in site_lines
     )
     assert rejected_lines[0] == "row_number\tissues\traw_fields"
     assert any(
-        line.startswith(
-            "5\tinvalid_peptide_start_position\tpeptide=M[Oxidation]PEP"
-        )
+        line.startswith("5\tinvalid_peptide_start_position\tpeptide=M[Oxidation]PEP")
         for line in rejected_lines
     )

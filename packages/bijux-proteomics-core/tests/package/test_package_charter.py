@@ -114,11 +114,12 @@ def test_core_thin_abstractions_stay_limited_to_package_initializers() -> None:
         source = (CORE_SRC_ROOT / path).read_text(encoding="utf-8")
         tree = ast.parse(source, filename=path)
         for node in tree.body:
-            if isinstance(node, ast.Expr) and isinstance(
-                getattr(node, "value", None), ast.Constant
+            if (
+                isinstance(node, ast.Expr)
+                and isinstance(getattr(node, "value", None), ast.Constant)
+                and isinstance(node.value.value, str)
             ):
-                if isinstance(node.value.value, str):
-                    continue
+                continue
             if isinstance(node, ast.ImportFrom) and node.module == "__future__":
                 continue
             assert isinstance(node, ast.ImportFrom), path

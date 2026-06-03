@@ -59,7 +59,9 @@ def test_biological_hypothesis_report_requires_evidence_node_ids() -> None:
     )
 
 
-def test_biological_hypothesis_report_preserves_support_opposition_and_suggestions() -> None:
+def test_biological_hypothesis_report_preserves_support_opposition_and_suggestions() -> (
+    None
+):
     report = build_biological_hypothesis_report(
         (
             BiologicalHypothesisCandidate(
@@ -92,7 +94,6 @@ def test_biological_hypothesis_report_preserves_support_opposition_and_suggestio
     assert hypothesis.opposing_evidence == ("limited peptide support",)
     assert "targeted phosphopeptide assay" in hypothesis.next_experiment_suggestion
     assert "evidence_node_ids" in render_biological_hypothesis_tsv(report)
-    assert (
-        "rejection_reason"
-        in render_rejected_biological_hypothesis_candidate_tsv(report)
+    assert "rejection_reason" in render_rejected_biological_hypothesis_candidate_tsv(
+        report
     )

@@ -31,7 +31,9 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_render_dia_differential_exports_keep_matrix_results_and_plots_visible() -> None:
+def test_render_dia_differential_exports_keep_matrix_results_and_plots_visible() -> (
+    None
+):
     design_report = parse_experimental_design_table(
         _format_fixture("diann_differential.design.tsv")
     )
@@ -58,7 +60,10 @@ def test_render_dia_differential_exports_keep_matrix_results_and_plots_visible()
 
     assert "entity_id\tprotein_refs\tmember_peptides\tC1\tC2\tT1\tT2" in raw_matrix_tsv
     assert "PG001\tP11111\tPESTIDE\t100000\t110000\t400000\t420000" in raw_matrix_tsv
-    assert "PG001\tP11111\tPESTIDE\tobserved\tobserved\tobserved\tobserved" in raw_missingness_tsv
+    assert (
+        "PG001\tP11111\tPESTIDE\tobserved\tobserved\tobserved\tobserved"
+        in raw_missingness_tsv
+    )
     assert "PG001\tP11111\tPESTIDE" in normalized_matrix_tsv
     assert (
         "PG002\tP22222\tACDM[Oxidation]K\tobserved\tobserved\tobserved\tobserved"

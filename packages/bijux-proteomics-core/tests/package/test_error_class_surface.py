@@ -8,7 +8,6 @@ from pathlib import Path
 
 from bijux_proteomics import domain
 
-
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 ERROR_OWNER_PATHS = (
@@ -30,9 +29,12 @@ def test_owned_scientific_failure_surfaces_do_not_raise_bare_value_error() -> No
                 continue
             if node.exc is None:
                 continue
-            if isinstance(node.exc, ast.Call) and isinstance(node.exc.func, ast.Name):
-                if node.exc.func.id == "ValueError":
-                    offenders.append(f"{relative_path}:{node.lineno}")
+            if (
+                isinstance(node.exc, ast.Call)
+                and isinstance(node.exc.func, ast.Name)
+                and node.exc.func.id == "ValueError"
+            ):
+                offenders.append(f"{relative_path}:{node.lineno}")
     assert offenders == []
 
 

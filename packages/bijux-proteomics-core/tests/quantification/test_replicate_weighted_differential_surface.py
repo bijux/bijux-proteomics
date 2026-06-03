@@ -225,8 +225,12 @@ def test_differential_abundance_excludes_failed_sample_from_weighted_statistics(
         sample_weights_report=sample_weights,
     )
 
-    unweighted_p001 = next(entry for entry in unweighted.entries if entry.entity_id == "P001")
-    weighted_p001 = next(entry for entry in weighted.entries if entry.entity_id == "P001")
+    unweighted_p001 = next(
+        entry for entry in unweighted.entries if entry.entity_id == "P001"
+    )
+    weighted_p001 = next(
+        entry for entry in weighted.entries if entry.entity_id == "P001"
+    )
 
     assert weighted.assumption_report.sample_weighting == "reliability_weighted"
     assert sample_weights.excluded_sample_count == 1

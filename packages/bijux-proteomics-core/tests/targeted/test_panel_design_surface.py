@@ -3,9 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.io import SpectralLibraryEntry, SpectralLibraryFormat, SpectrumModel, SpectrumPeak
+from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
+from bijux_proteomics.io import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+    SpectrumModel,
+    SpectrumPeak,
+)
 from bijux_proteomics.sequences import (
     PeptideChemicalLiabilityTier,
     PeptideDetectabilityTier,
@@ -48,7 +53,9 @@ def _selected_peptide(
         replicate_consistency=0.95,
         primary_evidence_class=PeptideEvidenceClass.STRONG,
         uniqueness_class=uniqueness_class,
-        uniqueness_score=1.0 if uniqueness_class is PeptideUniquenessClass.UNIQUE else 0.45,
+        uniqueness_score=1.0
+        if uniqueness_class is PeptideUniquenessClass.UNIQUE
+        else 0.45,
         detectability_score=0.9,
         detectability_tier=PeptideDetectabilityTier.HIGH,
         suitability_score=0.9,
@@ -82,7 +89,9 @@ def _assay(
         precursor_mz=501.25,
         selected_transition_count=selected_transition_count,
         exported_transition_count=exported_transition_count,
-        interference_risk_score=0.08 if interference_tier is TargetedAssayInterferenceRiskTier.LOW else 0.52,
+        interference_risk_score=0.08
+        if interference_tier is TargetedAssayInterferenceRiskTier.LOW
+        else 0.52,
         interference_risk_tier=interference_tier,
         downgrade_reasons=(
             ()
@@ -166,7 +175,9 @@ def _library_entry(
     )
 
 
-def test_targeted_panel_design_builds_reviewable_transition_rows_with_rt_and_warnings() -> None:
+def test_targeted_panel_design_builds_reviewable_transition_rows_with_rt_and_warnings() -> (
+    None
+):
     report = build_targeted_panel_design_report(
         biomarker_candidates=(
             TargetedPanelBiomarkerCandidateInput(
@@ -278,13 +289,31 @@ def test_targeted_panel_design_builds_reviewable_transition_rows_with_rt_and_war
     assert report.assay_entries[0].expected_retention_time_minutes == 18.4
     assert report.assay_entries[0].retention_window_start_minutes == 16.9
     assert report.assay_entries[1].biomarker_candidate_id == "protein:P22222"
-    assert TargetedPanelWarningCode.CANDIDATE_PENALIZED in report.assay_entries[1].warning_codes
-    assert TargetedPanelWarningCode.ELEVATED_INTERFERENCE_RISK in report.assay_entries[1].warning_codes
-    assert TargetedPanelWarningCode.NON_UNIQUE_TARGET in report.assay_entries[1].warning_codes
-    assert TargetedPanelWarningCode.MISSING_EXPECTED_RETENTION_TIME in report.assay_entries[1].warning_codes
-    assert TargetedPanelWarningCode.REDUCED_TRANSITION_SUPPORT in report.assay_entries[1].warning_codes
+    assert (
+        TargetedPanelWarningCode.CANDIDATE_PENALIZED
+        in report.assay_entries[1].warning_codes
+    )
+    assert (
+        TargetedPanelWarningCode.ELEVATED_INTERFERENCE_RISK
+        in report.assay_entries[1].warning_codes
+    )
+    assert (
+        TargetedPanelWarningCode.NON_UNIQUE_TARGET
+        in report.assay_entries[1].warning_codes
+    )
+    assert (
+        TargetedPanelWarningCode.MISSING_EXPECTED_RETENTION_TIME
+        in report.assay_entries[1].warning_codes
+    )
+    assert (
+        TargetedPanelWarningCode.REDUCED_TRANSITION_SUPPORT
+        in report.assay_entries[1].warning_codes
+    )
     assert report.omitted_candidates[0].candidate_id == "ptm_site:P33333:S21"
-    assert "site-specific targeted assay design" in report.omitted_candidates[0].omission_reason
+    assert (
+        "site-specific targeted assay design"
+        in report.omitted_candidates[0].omission_reason
+    )
 
     panel_tsv = render_targeted_panel_design_panel_tsv(report)
     assay_tsv = render_targeted_panel_design_assay_tsv(report)
@@ -295,4 +324,3 @@ def test_targeted_panel_design_builds_reviewable_transition_rows_with_rt_and_war
     assert "PEPTIDER" in panel_tsv
     assert "candidate_penalized" in assay_tsv
     assert "ptm_site:P33333:S21" in omitted_tsv
-

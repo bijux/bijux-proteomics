@@ -92,7 +92,10 @@ def test_psm_record_derives_unified_class_from_compatibility_fields() -> None:
         is TargetDecoyContaminantClass.CONTAMINANT
     )
     assert mixed.target_decoy_contaminant_class is TargetDecoyContaminantClass.MIXED
-    assert is_biological_foreground_class(contaminant.target_decoy_contaminant_class) is False
+    assert (
+        is_biological_foreground_class(contaminant.target_decoy_contaminant_class)
+        is False
+    )
     assert is_biological_foreground_class(mixed.target_decoy_contaminant_class) is False
     assert is_biological_foreground_class(TargetDecoyContaminantClass.TARGET) is True
 

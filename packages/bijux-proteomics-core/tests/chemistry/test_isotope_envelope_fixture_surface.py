@@ -42,7 +42,9 @@ def test_isotope_envelope_prediction_matches_curated_reference_cases() -> None:
             rel_tol=0.0,
             abs_tol=1e-12,
         ), case["case_id"]
-        assert len(envelope.peaks) == len(case["expected_probabilities"]), case["case_id"]
+        assert len(envelope.peaks) == len(case["expected_probabilities"]), case[
+            "case_id"
+        ]
         for peak, expected_probability in zip(
             envelope.peaks,
             case["expected_probabilities"],

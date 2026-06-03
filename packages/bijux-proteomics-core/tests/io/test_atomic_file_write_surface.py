@@ -20,7 +20,9 @@ def test_atomic_write_text_commits_complete_text(tmp_path: Path) -> None:
     assert not tuple(tmp_path.glob(".*.bijux-write-*.tmp"))
 
 
-def test_atomic_write_text_replace_failure_leaves_no_partial_target(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_atomic_write_text_replace_failure_leaves_no_partial_target(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     output_path = tmp_path / "artifact.json"
 
     def interrupted_replace(source: Path, destination: Path) -> None:
@@ -33,6 +35,8 @@ def test_atomic_write_text_replace_failure_leaves_no_partial_target(tmp_path: Pa
 
     assert not output_path.exists()
     assert not tuple(tmp_path.glob(".*.bijux-write-*.tmp"))
+
+
 def test_atomic_copy_file_replace_failure_preserves_previous_target(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

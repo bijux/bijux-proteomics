@@ -14,7 +14,9 @@ from bijux_proteomics.isotope_labeling import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    )
 
 
 def test_silac_validation_report_flags_abnormal_distribution_and_weak_labels() -> None:

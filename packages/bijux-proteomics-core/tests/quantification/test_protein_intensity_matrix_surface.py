@@ -8,19 +8,19 @@ from pathlib import Path
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.quantification import (
     PeptideMatrixGroupingMode,
-    ProteinSharedPeptidePolicy,
     ProteinMatrixTargetKind,
+    ProteinSharedPeptidePolicy,
     QuantRollupMethod,
     build_peptide_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_peptides,
     build_protein_intensity_matrix_from_psms,
     parse_ms1_feature_table,
-    render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_mask_tsv,
     render_protein_intensity_missingness_tsv,
+    render_protein_peptide_contribution_tsv,
 )
 
 

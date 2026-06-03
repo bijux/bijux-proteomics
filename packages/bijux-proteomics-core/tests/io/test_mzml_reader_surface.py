@@ -36,7 +36,9 @@ def test_mzml_reader_parses_compressed_spectra_and_uncompressed_chromatograms() 
     report = parse_mzml(_format_fixture("practical_review.mzml"))
     chromatograms = extract_mzml_chromatograms(_format_fixture("practical_review.mzml"))
     decoding = inspect_mzml_decoding_support(_format_fixture("practical_review.mzml"))
-    review = build_mzml_practical_review_report(_format_fixture("practical_review.mzml"))
+    review = build_mzml_practical_review_report(
+        _format_fixture("practical_review.mzml")
+    )
 
     assert len(report.accepted_spectra) == 2
     assert report.accepted_spectra[0].peaks[0].mz == 100.0

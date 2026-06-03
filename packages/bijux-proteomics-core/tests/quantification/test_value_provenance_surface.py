@@ -26,7 +26,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
 
 
-def test_quant_value_provenance_report_preserves_selected_and_excluded_support() -> None:
+def test_quant_value_provenance_report_preserves_selected_and_excluded_support() -> (
+    None
+):
     records = parse_ms1_feature_table(_fixture("ms1_features.tsv")).accepted_records
     table = build_label_free_intensity_table(
         records,
@@ -54,7 +56,9 @@ def test_quant_value_provenance_report_preserves_selected_and_excluded_support()
     assert missing_row.exclusion_reason_codes == ("missing_value_filtered",)
 
 
-def test_quant_value_provenance_report_marks_imputed_rows_and_renders_tsv(tmp_path: Path) -> None:
+def test_quant_value_provenance_report_marks_imputed_rows_and_renders_tsv(
+    tmp_path: Path,
+) -> None:
     records = parse_ms1_feature_table(_fixture("ms1_features.tsv")).accepted_records
     design_entries = parse_experimental_design_table(
         _fixture("quant.design.tsv")

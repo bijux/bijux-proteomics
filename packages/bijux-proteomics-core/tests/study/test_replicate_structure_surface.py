@@ -80,7 +80,9 @@ def test_replicate_structure_owner_distinguishes_injection_fraction_channel_and_
         minimum_statistical_units_per_condition=2,
     )
 
-    control = next(entry for entry in report.condition_entries if entry.condition == "control")
+    control = next(
+        entry for entry in report.condition_entries if entry.condition == "control"
+    )
     treatment = next(
         entry for entry in report.condition_entries if entry.condition == "treatment"
     )

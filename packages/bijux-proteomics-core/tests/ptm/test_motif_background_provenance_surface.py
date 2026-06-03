@@ -64,12 +64,21 @@ def test_ptm_motif_enrichment_background_report_preserves_provenance() -> None:
     )
 
     assert observed_report.modification_name == "Phospho"
-    assert observed_report.background_mode is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
-    assert whole_proteome_report.background_mode is PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    assert (
+        observed_report.background_mode
+        is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
+    )
+    assert (
+        whole_proteome_report.background_mode
+        is PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    )
     assert observed_report.background_universe == "observed_phosphosite_background"
     assert whole_proteome_report.background_universe == "whole_proteome_background"
     assert observed_report.statistical_test == "fisher_exact"
     assert observed_report.multiple_testing_correction == "benjamini_hochberg"
     assert observed_report.foreground_site_count >= 1
-    assert whole_proteome_report.background_site_count > observed_report.background_site_count
+    assert (
+        whole_proteome_report.background_site_count
+        > observed_report.background_site_count
+    )
     assert any(term.residue == "S" for term in observed_report.terms)

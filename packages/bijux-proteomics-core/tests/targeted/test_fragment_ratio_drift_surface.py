@@ -54,10 +54,14 @@ def test_score_fragment_ratio_drift_flags_unstable_transition_ratios() -> None:
     rendered = render_fragment_ratio_drift_tsv(rows)
 
     stable_row = next(
-        row for row in rows if row.target_id == "PEPTIDEK/2" and row.transition_id == "y7"
+        row
+        for row in rows
+        if row.target_id == "PEPTIDEK/2" and row.transition_id == "y7"
     )
     drifted_row = next(
-        row for row in rows if row.target_id == "PEPTIDEK/2" and row.transition_id == "y8"
+        row
+        for row in rows
+        if row.target_id == "PEPTIDEK/2" and row.transition_id == "y8"
     )
 
     assert round(stable_row.expected_ratio, 6) == 0.82

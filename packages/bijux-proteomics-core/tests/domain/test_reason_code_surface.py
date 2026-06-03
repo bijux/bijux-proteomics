@@ -42,10 +42,6 @@ def test_reason_code_registry_covers_claim_downgrade_enums() -> None:
         if ReasonCodeCategory.CLAIM_DOWNGRADE in entry.categories
     }
 
-    assert {
-        reason.value for reason in ProteinEvidenceDowngradeReason
-    } <= registered
-    assert {
-        reason.value for reason in EvidenceGraphDowngradeReason
-    } <= registered
+    assert {reason.value for reason in ProteinEvidenceDowngradeReason} <= registered
+    assert {reason.value for reason in EvidenceGraphDowngradeReason} <= registered
     assert reason_code_categories("shared_peptide_only")

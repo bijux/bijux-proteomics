@@ -16,8 +16,8 @@ from bijux_proteomics.targeted import (
     render_targeted_assay_qc_summary_tsv,
     render_targeted_assay_qc_target_tsv,
     render_targeted_assay_qc_transition_coelution_tsv,
-    render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_transition_qc_tsv,
+    render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_unreliable_tsv,
 )
 
@@ -46,7 +46,9 @@ def test_render_targeted_assay_qc_exports_keep_review_evidence_visible() -> None
     replicate_tsv = render_targeted_assay_qc_replicate_cv_tsv(report)
     unreliable_tsv = render_targeted_assay_qc_unreliable_tsv(report)
 
-    assert "source_name\ttarget_count\tsample_count\ttarget_qc_entry_count" in summary_tsv
+    assert (
+        "source_name\ttarget_count\tsample_count\ttarget_qc_entry_count" in summary_tsv
+    )
     assert (
         "Skyline\t2\t4\t8\t1\t8\t8\t3\t16\t14\t16\t8\t14\t4\t1\t2\t8\t2\t4\t1\t8\t2"
         in summary_tsv

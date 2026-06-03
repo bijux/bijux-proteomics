@@ -15,7 +15,9 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
 
 
-def test_parse_pathway_membership_table_preserves_gene_and_protein_memberships() -> None:
+def test_parse_pathway_membership_table_preserves_gene_and_protein_memberships() -> (
+    None
+):
     report = parse_pathway_membership_table(_fixture_path("pathway_memberships.tsv"))
 
     assert report.total_rows == 7
@@ -34,9 +36,15 @@ def test_parse_pathway_membership_table_preserves_gene_and_protein_memberships()
     stress = next(
         record
         for record in report.accepted_records
-        if record.pathway_id == "custom:stress" and record.member_kind is PathwayMemberKind.PROTEIN
+        if record.pathway_id == "custom:stress"
+        and record.member_kind is PathwayMemberKind.PROTEIN
     )
     assert stress.member_id == "Q99999"
     rejected_reasons = {row.reason for row in report.rejected_rows}
-    assert "duplicate pathway membership for custom:stress and gene member TP53" in rejected_reasons
-    assert "pathway membership row requires protein_ref or gene_symbol" in rejected_reasons
+    assert (
+        "duplicate pathway membership for custom:stress and gene member TP53"
+        in rejected_reasons
+    )
+    assert (
+        "pathway membership row requires protein_ref or gene_symbol" in rejected_reasons
+    )

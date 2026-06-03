@@ -26,8 +26,8 @@ def test_parse_complex_membership_table_preserves_member_kind_and_source() -> No
     assert report.accepted_records[0].member_kind is ComplexMemberKind.PROTEIN
     assert report.accepted_records[1].member_kind is ComplexMemberKind.GENE
     assert any(
-        "duplicate complex membership for custom:stressosome and gene member TP53"
-        == row.reason
+        row.reason
+        == "duplicate complex membership for custom:stressosome and gene member TP53"
         for row in report.rejected_rows
     )
     assert any(

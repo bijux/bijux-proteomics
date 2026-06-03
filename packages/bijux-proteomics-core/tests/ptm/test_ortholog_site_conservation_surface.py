@@ -44,9 +44,7 @@ def test_parse_ptm_ortholog_site_tsv_preserves_missing_targets_and_rejections() 
     assert report.summary.target_site_count == 2
     assert report.accepted_records[0].source_species == "Homo sapiens"
     rejected_messages = {
-        issue.message
-        for row in report.rejected_rows
-        for issue in row.issues
+        issue.message for row in report.rejected_rows for issue in row.issues
     }
     assert "duplicate PTM ortholog-site relationship" in rejected_messages
     assert (
@@ -55,14 +53,18 @@ def test_parse_ptm_ortholog_site_tsv_preserves_missing_targets_and_rejections() 
     )
 
 
-def test_build_ptm_ortholog_conservation_report_classifies_status_without_guessing() -> None:
+def test_build_ptm_ortholog_conservation_report_classifies_status_without_guessing() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
     )
     site_table = build_ptm_site_table(mappings)
-    ortholog_report = parse_ptm_ortholog_site_tsv(_fixture_path("ptm_ortholog_sites.tsv"))
+    ortholog_report = parse_ptm_ortholog_site_tsv(
+        _fixture_path("ptm_ortholog_sites.tsv")
+    )
 
     report = build_ptm_ortholog_conservation_report(
         site_table,
@@ -78,7 +80,9 @@ def test_build_ptm_ortholog_conservation_report_classifies_status_without_guessi
     assert report.summary.missing_site_count == 1
     assert report.summary.unmapped_site_count == 2
 
-    assert entries["P11111:S5:Phospho"].status is PtmOrthologConservationStatus.CONSERVED
+    assert (
+        entries["P11111:S5:Phospho"].status is PtmOrthologConservationStatus.CONSERVED
+    )
     assert entries["P11111:S5:Phospho"].ortholog_target_site_keys == (
         "M11111:S5:Phospho",
     )

@@ -59,4 +59,7 @@ def test_render_pathway_enrichment_ledgers() -> None:
     assert summary_tsv.splitlines()[0].startswith("foreground_size\tbackground_size")
     assert "hsa04115" in entry_tsv
     assert "background\tQ88888\t" in unresolved_tsv
-    assert "duplicate pathway membership for custom:stress and gene member TP53" in rejected_tsv
+    assert (
+        "duplicate pathway membership for custom:stress and gene member TP53"
+        in rejected_tsv
+    )

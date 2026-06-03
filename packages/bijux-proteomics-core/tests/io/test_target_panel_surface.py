@@ -42,7 +42,9 @@ def test_parse_target_panel_table_rejects_rows_without_primary_target() -> None:
     assert report.rejected_rows[0].reason == "peptide targets require peptide_sequence"
 
 
-def test_parse_target_panel_table_rejects_invalid_target_charge_contract(tmp_path: Path) -> None:
+def test_parse_target_panel_table_rejects_invalid_target_charge_contract(
+    tmp_path: Path,
+) -> None:
     fixture = tmp_path / "invalid_target_panel.tsv"
     fixture.write_text(
         "\n".join(
@@ -61,4 +63,7 @@ def test_parse_target_panel_table_rejects_invalid_target_charge_contract(tmp_pat
     assert report.accepted_entries == ()
     assert len(report.rejected_rows) == 2
     assert report.rejected_rows[0].reason == "expected_charge must be an integer"
-    assert report.rejected_rows[1].reason == "protein targets cannot declare modified_peptide"
+    assert (
+        report.rejected_rows[1].reason
+        == "protein targets cannot declare modified_peptide"
+    )

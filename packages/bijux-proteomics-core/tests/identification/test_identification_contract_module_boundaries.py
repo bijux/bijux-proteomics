@@ -6,7 +6,6 @@ from __future__ import annotations
 from importlib import import_module
 from pathlib import Path
 
-
 _CONTRACT_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
@@ -88,9 +87,9 @@ def test_identification_contract_modules_stay_within_line_ceiling() -> None:
     }
 
     assert line_counts
-    assert all(
-        count <= _MAX_CONTRACT_LINES for count in line_counts.values()
-    ), line_counts
+    assert all(count <= _MAX_CONTRACT_LINES for count in line_counts.values()), (
+        line_counts
+    )
 
 
 def test_identification_contract_modules_expose_owned_surfaces() -> None:

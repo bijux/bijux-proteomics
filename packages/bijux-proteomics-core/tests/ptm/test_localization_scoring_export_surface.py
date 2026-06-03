@@ -17,9 +17,7 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "ptm" / name
 
 
-def test_ptm_localization_scoring_tsv_renderers_preserve_probability_and_ions() -> (
-    None
-):
+def test_ptm_localization_scoring_tsv_renderers_preserve_probability_and_ions() -> None:
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     report = build_ptm_localization_scoring_report(
         parsed.accepted_records,

@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow import load_surprising_demo_manifest, surprising_demo_root
+from bijux_proteomics.workflow import (
+    load_surprising_demo_manifest,
+    surprising_demo_root,
+)
 
 
 def test_surprising_demo_assets_stay_compact_and_self_contained() -> None:
@@ -37,4 +40,7 @@ def test_surprising_demo_assets_stay_compact_and_self_contained() -> None:
     assert manifest.expected_qc_issue_candidate_id == "protein:P001"
     assert manifest.expected_validation_candidate_id == "protein:P001"
     assert all(path.exists() for path in resolved)
-    assert sum(len(path.read_text(encoding="utf-8").splitlines()) for path in resolved) < 250
+    assert (
+        sum(len(path.read_text(encoding="utf-8").splitlines()) for path in resolved)
+        < 250
+    )

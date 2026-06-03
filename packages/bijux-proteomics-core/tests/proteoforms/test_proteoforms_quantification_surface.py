@@ -21,7 +21,9 @@ from bijux_proteomics.proteoforms.quantification import (
 )
 
 
-def test_quantify_supported_proteoforms_requires_unique_support_before_emitting_abundance() -> None:
+def test_quantify_supported_proteoforms_requires_unique_support_before_emitting_abundance() -> (
+    None
+):
     candidates = _assembled_candidates()
     feature_matrix = QuantMatrix(
         matrix_id="proteoform_feature_matrix",
@@ -99,7 +101,9 @@ def test_quantify_supported_proteoforms_requires_unique_support_before_emitting_
     assert "\t\t0\tinsufficient_unique_support\n" in rendered
 
 
-def test_quantify_supported_proteoforms_withholds_shared_only_signal_for_competing_candidates() -> None:
+def test_quantify_supported_proteoforms_withholds_shared_only_signal_for_competing_candidates() -> (
+    None
+):
     candidates = _assembled_candidates()
     feature_matrix = QuantMatrix(
         matrix_id="shared_only_feature_matrix",

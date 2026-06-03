@@ -61,7 +61,5 @@ def test_peptide_chemical_liability_report_flags_extreme_hydrophobicity() -> Non
         protease="trypsin",
     )
 
-    assert (
-        PeptideChemicalLiabilityCode.EXTREME_HYDROPHOBICITY in report.liability_codes
-    )
+    assert PeptideChemicalLiabilityCode.EXTREME_HYDROPHOBICITY in report.liability_codes
     assert report.detectability_report.property_report.hydrophobicity_proxy > 2.5

@@ -45,11 +45,20 @@ def test_run_scale_demo_reports_runtime_memory_row_counts_and_validation(
     assert all(metric.elapsed_seconds >= 0.0 for metric in report.stage_metrics)
     assert all(metric.peak_memory_mib >= 0.0 for metric in report.stage_metrics)
     assert report.validation.outputs_validated is True
-    assert report.validation.manifest_artifact_count == report.summary.exported_artifact_count
+    assert (
+        report.validation.manifest_artifact_count
+        == report.summary.exported_artifact_count
+    )
     assert report.validation.graph_node_row_count == report.summary.graph_node_count
     assert report.validation.graph_edge_row_count == report.summary.graph_edge_count
-    assert report.validation.protein_card_row_count == report.summary.protein_card_row_count
-    assert report.validation.differential_row_count == report.summary.differential_row_count
+    assert (
+        report.validation.protein_card_row_count
+        == report.summary.protein_card_row_count
+    )
+    assert (
+        report.validation.differential_row_count
+        == report.summary.differential_row_count
+    )
     assert report.validation.supported_claim_row_count >= 1
 
     assert (output_dir / report.artifacts.feature_tsv).exists()

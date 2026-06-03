@@ -9,14 +9,11 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics import benchmarks, sequences, workflow
-from bijux_proteomics.identification import contracts as identification_contracts
 from bijux_proteomics.identification import confidence as identification_confidence
+from bijux_proteomics.identification import contracts as identification_contracts
 from bijux_proteomics.quantification import contracts as quantification_contracts
 
-
-SOURCE_ROOT = (
-    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
-)
+SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 ALLOWED_RENDER_SUFFIXES = (
     "_tsv",
@@ -132,9 +129,7 @@ def _assert_wrapper(module_path: str, legacy_name: str, canonical_name: str) -> 
     assert len(payload) == 1, f"{legacy_name} should stay a one-statement wrapper"
     statement = payload[0]
     call = None
-    if isinstance(statement, ast.Return):
-        call = statement.value
-    elif isinstance(statement, ast.Expr):
+    if isinstance(statement, (ast.Return, ast.Expr)):
         call = statement.value
     assert _call_target_name(call) == canonical_name
 
@@ -142,9 +137,7 @@ def _assert_wrapper(module_path: str, legacy_name: str, canonical_name: str) -> 
 @pytest.mark.slow
 def test_renderer_names_use_explicit_format_suffixes_or_wrappers() -> None:
     legacy_wrapper_names = {
-        name
-        for wrappers in LEGACY_RENDER_WRAPPERS.values()
-        for name in wrappers
+        name for wrappers in LEGACY_RENDER_WRAPPERS.values() for name in wrappers
     }
     unexpected: list[str] = []
     for path in SOURCE_ROOT.rglob("*.py"):
@@ -158,7 +151,9 @@ def test_renderer_names_use_explicit_format_suffixes_or_wrappers() -> None:
                 continue
             if node.name.endswith(ALLOWED_RENDER_SUFFIXES):
                 continue
-            unexpected.append(f"{path.relative_to(SOURCE_ROOT)}:{node.lineno}:{node.name}")
+            unexpected.append(
+                f"{path.relative_to(SOURCE_ROOT)}:{node.lineno}:{node.name}"
+            )
     assert unexpected == []
 
 
@@ -174,7 +169,9 @@ def test_render_functions_do_not_write_files() -> None:
     for path in SOURCE_ROOT.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef) or not node.name.startswith("render_"):
+            if not isinstance(node, ast.FunctionDef) or not node.name.startswith(
+                "render_"
+            ):
                 continue
             for child in ast.walk(node):
                 if not isinstance(child, ast.Call):
@@ -214,9 +211,12 @@ def test_bundle_writer_names_use_write_prefix_with_legacy_wrappers() -> None:
     for path in SOURCE_ROOT.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("write_"):
-                if node.name.endswith("_bundle"):
-                    found_write_names.add(node.name)
+            if (
+                isinstance(node, ast.FunctionDef)
+                and node.name.startswith("write_")
+                and node.name.endswith("_bundle")
+            ):
+                found_write_names.add(node.name)
     assert found_write_names == expected_write_names
 
     for module_path, wrappers in LEGACY_BUNDLE_WRAPPERS.items():

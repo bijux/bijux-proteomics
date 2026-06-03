@@ -56,7 +56,10 @@ def test_render_dia_library_coverage_tsv_surfaces_include_identity_ledgers() -> 
     assert "condition\tsample_ids\tdetected_peptide_count" in condition_tsv
     assert "canonical_peptide\tprotein_refs\tdetected_overall" in peptide_tsv
     assert "protein_ref\tdetected_overall\tdetected_sample_count" in protein_tsv
-    assert "canonical_peptide\tprotein_refs\tsample_ids\tcondition_ids" in outside_peptide_tsv
+    assert (
+        "canonical_peptide\tprotein_refs\tsample_ids\tcondition_ids"
+        in outside_peptide_tsv
+    )
     assert "protein_ref\tsample_ids\tcondition_ids" in outside_protein_tsv
     assert "control\tsample_A;sample_B\t4\t4" in condition_tsv
     assert "LIVNLY\tP44444\tfalse\t0\t0" in peptide_tsv

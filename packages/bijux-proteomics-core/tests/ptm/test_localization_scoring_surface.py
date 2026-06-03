@@ -8,8 +8,8 @@ from pathlib import Path
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import (
-    PtmLocalizationConfidenceTier,
     PtmEvidenceRecord,
+    PtmLocalizationConfidenceTier,
     PtmLocalizationProbabilitySource,
     build_ptm_localization_scoring_report,
 )
@@ -19,7 +19,9 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "ptm" / name
 
 
-def test_ptm_localization_scoring_reports_probability_and_site_determining_ions() -> None:
+def test_ptm_localization_scoring_reports_probability_and_site_determining_ions() -> (
+    None
+):
     from bijux_proteomics.ptm import parse_ptm_localization_tsv
 
     report = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
@@ -38,7 +40,9 @@ def test_ptm_localization_scoring_reports_probability_and_site_determining_ions(
     )
 
     assert decisive.localization_probability == 0.99
-    assert decisive.probability_source is PtmLocalizationProbabilitySource.NORMALIZED_SCORE
+    assert (
+        decisive.probability_source is PtmLocalizationProbabilitySource.NORMALIZED_SCORE
+    )
     assert decisive.localization_tier is PtmLocalizationConfidenceTier.SUPPORTED
     assert decisive.ambiguous is False
     assert ambiguous.localization_probability == 0.7
@@ -49,17 +53,23 @@ def test_ptm_localization_scoring_reports_probability_and_site_determining_ions(
     assert ambiguous.supported_site_determining_ions == ("b2",)
 
 
-def test_ptm_localization_high_confidence_requires_probability_or_site_evidence() -> None:
+def test_ptm_localization_high_confidence_requires_probability_or_site_evidence() -> (
+    None
+):
     from bijux_proteomics.ptm import parse_ptm_localization_tsv
 
     report = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     without_support = build_ptm_localization_scoring_report(report.accepted_records)
 
     decisive = next(
-        entry for entry in without_support.entries if entry.spectrum_id == "scan=ptm-001"
+        entry
+        for entry in without_support.entries
+        if entry.spectrum_id == "scan=ptm-001"
     )
     ambiguous = next(
-        entry for entry in without_support.entries if entry.spectrum_id == "scan=ptm-005"
+        entry
+        for entry in without_support.entries
+        if entry.spectrum_id == "scan=ptm-005"
     )
 
     assert decisive.localization_probability == 0.99
@@ -68,10 +78,14 @@ def test_ptm_localization_high_confidence_requires_probability_or_site_evidence(
     assert ambiguous.ambiguous is True
 
 
-def test_ptm_localization_scoring_uses_imported_probability_for_high_confidence() -> None:
+def test_ptm_localization_scoring_uses_imported_probability_for_high_confidence() -> (
+    None
+):
     from bijux_proteomics.ptm import parse_ptm_localization_tsv
 
-    report = parse_ptm_localization_tsv(_fixture_path("localization_probability_results.tsv"))
+    report = parse_ptm_localization_tsv(
+        _fixture_path("localization_probability_results.tsv")
+    )
     scoring = build_ptm_localization_scoring_report(report.accepted_records)
 
     decisive = next(
@@ -79,12 +93,17 @@ def test_ptm_localization_scoring_uses_imported_probability_for_high_confidence(
     )
 
     assert decisive.localization_probability == 0.982
-    assert decisive.probability_source is PtmLocalizationProbabilitySource.REPORTED_PROBABILITY
+    assert (
+        decisive.probability_source
+        is PtmLocalizationProbabilitySource.REPORTED_PROBABILITY
+    )
     assert decisive.localization_tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE
     assert "imported localization probability" in decisive.note
 
 
-def test_ptm_localization_scoring_uses_site_determining_ions_for_high_confidence() -> None:
+def test_ptm_localization_scoring_uses_site_determining_ions_for_high_confidence() -> (
+    None
+):
     report = build_ptm_localization_scoring_report(
         (
             PtmEvidenceRecord(
@@ -131,7 +150,9 @@ def test_ptm_localization_scoring_uses_site_determining_ions_for_high_confidence
                 ),
             ),
         ),
-        fragment_ion_support_by_spectrum={"scan=ion-high": initial.site_determining_ions},
+        fragment_ion_support_by_spectrum={
+            "scan=ion-high": initial.site_determining_ions
+        },
     ).entries[0]
 
     assert initial.localization_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
@@ -203,7 +224,9 @@ def test_ptm_localization_scoring_ignores_invalid_candidate_residues() -> None:
     assert entry.ambiguity_group == "Phospho:2"
 
 
-def test_ptm_localization_scoring_preserves_separate_entries_for_parsed_multi_sites() -> None:
+def test_ptm_localization_scoring_preserves_separate_entries_for_parsed_multi_sites() -> (
+    None
+):
     from bijux_proteomics.ptm import parse_ptm_localization_tsv
 
     parsed = parse_ptm_localization_tsv(_fixture_path("multi_localization_results.tsv"))
@@ -212,4 +235,7 @@ def test_ptm_localization_scoring_preserves_separate_entries_for_parsed_multi_si
     assert len(report.entries) == 2
     assert [entry.peptide_site_index for entry in report.entries] == [2, 4]
     assert all(entry.multi_phosphorylated is True for entry in report.entries)
-    assert all(entry.localization_tier is PtmLocalizationConfidenceTier.AMBIGUOUS for entry in report.entries)
+    assert all(
+        entry.localization_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
+        for entry in report.entries
+    )

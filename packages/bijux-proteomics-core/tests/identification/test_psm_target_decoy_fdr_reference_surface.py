@@ -40,7 +40,9 @@ def test_psm_target_decoy_fdr_engine_matches_curated_reference_cases() -> None:
 
         assert report.summary.q_values_monotonic is True
         assert len(report.entries) == len(case.expected_entries)
-        for observed, expected in zip(report.entries, case.expected_entries, strict=True):
+        for observed, expected in zip(
+            report.entries, case.expected_entries, strict=True
+        ):
             assert observed.rank == expected.rank
             assert observed.psm.spectrum_id == expected.spectrum_id
             assert observed.psm.canonical_peptide == expected.canonical_peptide

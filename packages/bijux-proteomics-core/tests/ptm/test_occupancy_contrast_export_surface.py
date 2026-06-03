@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.ptm import render_ptm_occupancy_contrast_tsv, test_occupancy_contrast
+from bijux_proteomics.ptm import (
+    render_ptm_occupancy_contrast_tsv,
+    test_occupancy_contrast,
+)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
@@ -50,9 +53,7 @@ def test_render_ptm_occupancy_contrast_tsv_preserves_delta_and_confidence() -> N
     assert rendered.startswith(
         "site_id\toccupancy_proxy_case\toccupancy_proxy_control\toccupancy_delta\tp_value\tq_value\tconfidence_tier\n"
     )
-    assert (
-        "\nP11111:S5:Phospho\t0.82\t0.11\t0.71\t" in rendered
-    )
+    assert "\nP11111:S5:Phospho\t0.82\t0.11\t0.71\t" in rendered
     assert rendered.rstrip().endswith("missing_unmodified_evidence")
 
 

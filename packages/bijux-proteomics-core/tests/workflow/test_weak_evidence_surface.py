@@ -32,6 +32,7 @@ def test_run_weak_evidence_benchmark_preserves_refused_claim_section(
         entry.claim_id for entry in report.refused_claims
     )
     assert any(
-        "low_robustness" in entry.reason_codes or "weak_evidence_tier" in entry.reason_codes
+        "low_robustness" in entry.reason_codes
+        or "weak_evidence_tier" in entry.reason_codes
         for entry in report.refused_claims
     )

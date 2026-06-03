@@ -43,7 +43,9 @@ def _entry(
     )
 
 
-def test_design_validity_report_detects_conflicting_sample_identity_and_duplicate_run_ids() -> None:
+def test_design_validity_report_detects_conflicting_sample_identity_and_duplicate_run_ids() -> (
+    None
+):
     design = build_experiment_design(
         (
             _entry(sample_id="S1", condition="control", spectra_file="run-001"),
@@ -64,7 +66,9 @@ def test_design_validity_report_detects_conflicting_sample_identity_and_duplicat
         "conflicting_sample_identity",
         "duplicate_run_id",
     }
-    assert "conflicting_sample_identity" in render_experiment_design_validity_tsv(report)
+    assert "conflicting_sample_identity" in render_experiment_design_validity_tsv(
+        report
+    )
 
 
 def test_design_validity_report_allows_consistent_multi_run_sample_ids() -> None:

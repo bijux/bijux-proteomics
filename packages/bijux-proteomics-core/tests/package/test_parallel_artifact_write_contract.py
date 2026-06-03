@@ -6,7 +6,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 ATOMIC_FILE_OWNER = SOURCE_ROOT / "_atomic_files.py"
@@ -72,7 +71,9 @@ def test_shared_artifact_write_owners_route_through_atomic_helpers() -> None:
     assert _calls_name(artifact_layout_tree, "atomic_copy_file")
 
 
-def test_managed_workflow_write_owners_avoid_direct_write_text_and_copyfile_calls() -> None:
+def test_managed_workflow_write_owners_avoid_direct_write_text_and_copyfile_calls() -> (
+    None
+):
     offenders: list[str] = []
 
     for relative_path in MANAGED_WORKFLOW_WRITE_OWNERS:

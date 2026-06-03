@@ -9,7 +9,10 @@ from bijux_proteomics.domain.records import (
     QuantMatrix,
     QuantMeasureKind,
 )
-from bijux_proteomics.lab import compare_samples_to_blanks, render_background_comparison_tsv
+from bijux_proteomics.lab import (
+    compare_samples_to_blanks,
+    render_background_comparison_tsv,
+)
 
 
 def test_compare_samples_to_blanks_flags_blank_dominated_entities() -> None:

@@ -5,16 +5,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.targeted import (
     TargetedResultImportReport,
     TargetedResultImportSummary,
     TargetedResultObservation,
     TargetedResultSourceKind,
-    build_targeted_matrix_report,
     build_skyline_targeted_matrix_report,
+    build_targeted_matrix_report,
     build_transition_table_targeted_matrix_report,
 )
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 
 
 def _format_fixture(name: str) -> Path:
@@ -22,7 +22,9 @@ def _format_fixture(name: str) -> Path:
 
 
 def test_build_skyline_targeted_matrix_report_rolls_up_precursor_targets() -> None:
-    report = build_skyline_targeted_matrix_report(_format_fixture("skyline_targeted_results.tsv"))
+    report = build_skyline_targeted_matrix_report(
+        _format_fixture("skyline_targeted_results.tsv")
+    )
 
     assert report.source_name == "Skyline"
     assert report.summary.target_count == 2
@@ -55,7 +57,9 @@ def test_build_skyline_targeted_matrix_report_rolls_up_precursor_targets() -> No
     assert missing_entry.missing_reason == "no_observation"
 
 
-def test_build_transition_table_targeted_matrix_report_rolls_up_transition_table_targets() -> None:
+def test_build_transition_table_targeted_matrix_report_rolls_up_transition_table_targets() -> (
+    None
+):
     report = build_transition_table_targeted_matrix_report(
         _format_fixture("targeted_transition_results.tsv")
     )
@@ -75,7 +79,9 @@ def test_build_transition_table_targeted_matrix_report_rolls_up_transition_table
     assert report.rows[1].values[1].missing_reason == "no_observation"
 
 
-def test_build_targeted_matrix_report_marks_zero_passing_transition_cells_missing() -> None:
+def test_build_targeted_matrix_report_marks_zero_passing_transition_cells_missing() -> (
+    None
+):
     import_report = TargetedResultImportReport(
         source_kind=TargetedResultSourceKind.SKYLINE_EXPORT,
         source_name="Skyline",

@@ -93,17 +93,24 @@ def test_ptm_site_occupancy_report_marks_missing_counterparts_and_ambiguity() ->
         if entry.confidence_tier.value == "missing_unmodified_evidence"
     )
     ambiguous_entry = next(
-        entry for entry in report.entries if entry.confidence_tier.value == "ambiguous_site"
+        entry
+        for entry in report.entries
+        if entry.confidence_tier.value == "ambiguous_site"
     )
 
     assert report.summary.high_confidence_count >= 1
     assert report.summary.missing_unmodified_evidence_count >= 1
-    assert missing_entry.unmodified_feature_count == 0 or missing_entry.modified_feature_count == 0
+    assert (
+        missing_entry.unmodified_feature_count == 0
+        or missing_entry.modified_feature_count == 0
+    )
     assert missing_entry.uncertainty.value == "missing_counterpart"
     assert ambiguous_entry.modified_peptides
 
 
-def test_ptm_site_occupancy_report_tracks_missing_modified_evidence_explicitly() -> None:
+def test_ptm_site_occupancy_report_tracks_missing_modified_evidence_explicitly() -> (
+    None
+):
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records,
@@ -116,7 +123,10 @@ def test_ptm_site_occupancy_report_tracks_missing_modified_evidence_explicitly()
     feature_records = tuple(
         record
         for record in feature_records
-        if not (record.sample_id == "C1" and record.canonical_peptide == "S[Phospho]PEPTIDEK")
+        if not (
+            record.sample_id == "C1"
+            and record.canonical_peptide == "S[Phospho]PEPTIDEK"
+        )
     )
 
     report = build_ptm_site_occupancy_report(
@@ -127,8 +137,7 @@ def test_ptm_site_occupancy_report_tracks_missing_modified_evidence_explicitly()
     missing_modified = next(
         entry
         for entry in report.entries
-        if entry.site_key == "P11111:S5:Phospho"
-        and entry.sample_id == "C1"
+        if entry.site_key == "P11111:S5:Phospho" and entry.sample_id == "C1"
     )
 
     assert missing_modified.confidence_tier.value == "missing_modified_evidence"

@@ -21,7 +21,9 @@ def _bundle_fixture(name: str) -> Path:
     return _fixture("maxquant_biological") / name
 
 
-def test_export_proteomics_run_bundle_writes_canonical_outputs_for_diann(tmp_path: Path) -> None:
+def test_export_proteomics_run_bundle_writes_canonical_outputs_for_diann(
+    tmp_path: Path,
+) -> None:
     metadata_entries = tuple(
         parse_experimental_design_table(
             _fixture("diann_biological.design.tsv")
@@ -54,12 +56,17 @@ def test_export_proteomics_run_bundle_writes_canonical_outputs_for_diann(tmp_pat
     assert "source_kind\tsource_name\tentry_id\tentry_name" in (
         tmp_path / manifest.artifacts.enrichment_tsv
     ).read_text(encoding="utf-8")
-    assert "<html" in (tmp_path / manifest.artifacts.report_html).read_text(
-        encoding="utf-8"
-    ).lower()
+    assert (
+        "<html"
+        in (tmp_path / manifest.artifacts.report_html)
+        .read_text(encoding="utf-8")
+        .lower()
+    )
 
 
-def test_export_proteomics_run_bundle_writes_canonical_outputs_for_fragpipe(tmp_path: Path) -> None:
+def test_export_proteomics_run_bundle_writes_canonical_outputs_for_fragpipe(
+    tmp_path: Path,
+) -> None:
     metadata_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")

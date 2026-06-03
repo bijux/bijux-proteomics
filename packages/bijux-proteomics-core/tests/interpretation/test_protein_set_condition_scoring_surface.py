@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.interpretation import (
     build_protein_set_scoring_report,
     parse_protein_set_table,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -57,7 +57,9 @@ def _build_fixture_table():
 
 
 def test_protein_set_condition_scores_preserve_mean_activity_by_condition() -> None:
-    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _quant_fixture_path("quant.design.tsv")
+    )
     protein_sets = parse_protein_set_table(_fixture_path("protein_sets.tsv"))
 
     report = build_protein_set_scoring_report(
@@ -73,13 +75,8 @@ def test_protein_set_condition_scores_preserve_mean_activity_by_condition() -> N
     assert condition_scores[("activation", "treatment")].sample_count == 2
     assert condition_scores[("activation", "control")].scored_sample_count == 2
     assert condition_scores[("activation", "treatment")].scored_sample_count == 2
-    assert (
-        condition_scores[("activation", "control")].low_confidence_sample_count >= 1
-    )
-    assert (
-        condition_scores[("activation", "control")].confidence_status.value
-        == "low"
-    )
+    assert condition_scores[("activation", "control")].low_confidence_sample_count >= 1
+    assert condition_scores[("activation", "control")].confidence_status.value == "low"
     assert condition_scores[("activation", "treatment")].mean_activity_score is not None
     assert condition_scores[("activation", "control")].mean_activity_score is not None
     assert (

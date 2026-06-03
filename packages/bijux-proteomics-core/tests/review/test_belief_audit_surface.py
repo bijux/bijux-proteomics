@@ -171,30 +171,32 @@ def test_belief_audit_engine_makes_major_conclusions_challengeable(
     assert report.summary.biomarker_entry_count == 1
     assert report.summary.qc_decision_entry_count == 1
 
-    entries = {
-        entry.subject_kind: entry
-        for entry in report.entries
-    }
+    entries = {entry.subject_kind: entry for entry in report.entries}
     assert entries[BeliefAuditSubjectKind.PROTEIN].what_would_falsify.startswith(
         "A rerun that removes statistical support"
     )
-    assert "warning code low_sequence_coverage" in entries[
-        BeliefAuditSubjectKind.PROTEIN
-    ].what_weakens
+    assert (
+        "warning code low_sequence_coverage"
+        in entries[BeliefAuditSubjectKind.PROTEIN].what_weakens
+    )
     assert entries[BeliefAuditSubjectKind.PTM_SITE].decision == (
         "site was downgraded on the PTM evidence card"
     )
-    assert entries[BeliefAuditSubjectKind.PATHWAY].graph_node_ids == ("pathway:PWY-001",)
+    assert entries[BeliefAuditSubjectKind.PATHWAY].graph_node_ids == (
+        "pathway:PWY-001",
+    )
     assert entries[BeliefAuditSubjectKind.REGULATOR].result_surfaces == (
         "biological_regulator_inference",
         "biological_regulator_inference_unresolved",
     )
-    assert "unresolved target MCM2" in entries[
-        BeliefAuditSubjectKind.REGULATOR
-    ].what_weakens
-    assert "shared_peptide_liability" in entries[
-        BeliefAuditSubjectKind.BIOMARKER
-    ].what_weakens
+    assert (
+        "unresolved target MCM2"
+        in entries[BeliefAuditSubjectKind.REGULATOR].what_weakens
+    )
+    assert (
+        "shared_peptide_liability"
+        in entries[BeliefAuditSubjectKind.BIOMARKER].what_weakens
+    )
     assert entries[BeliefAuditSubjectKind.QC_DECISION].decision.startswith(
         "sample failed run-level QC"
     )

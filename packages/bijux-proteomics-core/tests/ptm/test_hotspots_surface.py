@@ -84,4 +84,7 @@ def test_detect_ptm_hotspots_scores_direction_consistency_and_renders_surface() 
     assert rendered.startswith(
         "protein_id\tcluster_start\tcluster_end\tsite_ids\tdirection_consistency\thotspot_score\n"
     )
-    assert "P22222\t12\t15\tP22222:S12:Phospho;P22222:T14:Phospho;P22222:Y15:Phospho\t0.666667\t" in rendered
+    assert (
+        "P22222\t12\t15\tP22222:S12:Phospho;P22222:T14:Phospho;P22222:Y15:Phospho\t0.666667\t"
+        in rendered
+    )

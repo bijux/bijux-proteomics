@@ -110,9 +110,7 @@ def test_build_targeted_assay_qc_report_keeps_fragment_ratios_visible() -> None:
     assert failing_transition_qc.ratio_drift_flagged is False
     assert failing_transition_qc.ratio_unstable_transition_flagged is False
     assert failing_transition_qc.passed is False
-    assert failing_transition_qc.failure_reasons == (
-        "source quality flag is not pass",
-    )
+    assert failing_transition_qc.failure_reasons == ("source quality flag is not pass",)
     stable_but_excluded_transition = next(
         entry
         for entry in report.transition_qc

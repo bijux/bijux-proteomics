@@ -24,8 +24,8 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     build_cross_study_pathway_comparison_report_from_observations,
     extract_cross_study_pathway_observations,
     render_cross_study_opposite_pathway_signal_tsv,
-    render_cross_study_shared_pathway_signal_tsv,
     render_cross_study_pathway_comparison_tsv,
+    render_cross_study_shared_pathway_signal_tsv,
 )
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
 
@@ -169,8 +169,13 @@ def test_cross_study_pathway_comparison_reports_shared_enrichment_and_coverage_d
     )
 
     comparison = report.comparisons[0]
-    assert comparison.comparison_id == "enrichment_pathway_r_hsa_123_reactome_stress_response_protein"
-    assert comparison.comparison_status is CrossStudyPathwayComparisonStatus.SHARED_SIGNAL
+    assert (
+        comparison.comparison_id
+        == "enrichment_pathway_r_hsa_123_reactome_stress_response_protein"
+    )
+    assert (
+        comparison.comparison_status is CrossStudyPathwayComparisonStatus.SHARED_SIGNAL
+    )
     assert comparison.shared_signal is True
     assert comparison.minimum_coverage_fraction == 0.5
     assert comparison.maximum_coverage_fraction == 0.9
@@ -178,7 +183,9 @@ def test_cross_study_pathway_comparison_reports_shared_enrichment_and_coverage_d
     assert comparison.minimum_total_member_count == 18
     assert comparison.maximum_total_member_count == 20
     assert "shared_signal" in render_cross_study_shared_pathway_signal_tsv(report)
-    assert "coverage_fraction_range" in render_cross_study_pathway_comparison_tsv(report)
+    assert "coverage_fraction_range" in render_cross_study_pathway_comparison_tsv(
+        report
+    )
 
 
 def test_cross_study_pathway_comparison_marks_opposite_activity_after_reversed_contrast_normalization() -> (
@@ -236,7 +243,10 @@ def test_cross_study_pathway_comparison_marks_opposite_activity_after_reversed_c
         comparison.contrast_alignment_status
         is CrossStudyPathwayContrastAlignmentStatus.REVERSED_ORDER_NORMALIZED
     )
-    assert comparison.comparison_status is CrossStudyPathwayComparisonStatus.OPPOSITE_SIGNAL
+    assert (
+        comparison.comparison_status
+        is CrossStudyPathwayComparisonStatus.OPPOSITE_SIGNAL
+    )
     assert comparison.opposite_signal is True
     assert set(comparison.normalized_significant_directions) == {
         CrossStudyPathwayDirection.UP,
@@ -304,4 +314,6 @@ def test_cross_study_pathway_comparison_keeps_heterogeneous_activity_contrasts_s
         comparison.comparison_status
         is CrossStudyPathwayComparisonStatus.HETEROGENEOUS_CONTRASTS
     )
-    assert "heterogeneous_contrasts" in render_cross_study_pathway_comparison_tsv(report)
+    assert "heterogeneous_contrasts" in render_cross_study_pathway_comparison_tsv(
+        report
+    )

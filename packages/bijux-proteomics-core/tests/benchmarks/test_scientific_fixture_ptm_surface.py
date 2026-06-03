@@ -51,7 +51,9 @@ def test_ambiguous_ptm_fixture_preserves_localized_and_unlocalized_site_meaning(
     manifest = get_scientific_fixture_manifest(
         ScientificFixtureCaseKind.AMBIGUOUS_PTM_SITES
     )
-    evidence = parse_ptm_localization_tsv(_asset_path(manifest, "ptm_localization_table"))
+    evidence = parse_ptm_localization_tsv(
+        _asset_path(manifest, "ptm_localization_table")
+    )
     fasta_report = parse_fasta_document(
         _asset_path(manifest, "protein_fasta").read_text(),
         mode=FastaParseMode.STRICT,

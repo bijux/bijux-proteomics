@@ -17,7 +17,9 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def test_build_targeted_transition_coelution_report_keeps_target_alignment_visible() -> None:
+def test_build_targeted_transition_coelution_report_keeps_target_alignment_visible() -> (
+    None
+):
     import_report = build_skyline_result_import_report(
         _format_fixture("skyline_targeted_qc_results.tsv")
     )
@@ -51,7 +53,9 @@ def test_build_targeted_transition_coelution_report_keeps_target_alignment_visib
     assert acdmpep_treat_r1.alignment_flagged is True
 
 
-def test_build_targeted_transition_coelution_report_flags_transition_shift_and_missingness() -> None:
+def test_build_targeted_transition_coelution_report_flags_transition_shift_and_missingness() -> (
+    None
+):
     import_report = build_skyline_result_import_report(
         _format_fixture("skyline_targeted_qc_results.tsv")
     )

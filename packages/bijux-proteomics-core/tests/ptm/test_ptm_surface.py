@@ -7,11 +7,11 @@ from pathlib import Path
 
 from bijux_proteomics.ptm import (
     PtmMotifBackgroundMode,
-    build_ptm_protein_site_mapping_report,
     PtmSiteGroupEvidenceEntry,
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
     build_ptm_motif_windows,
+    build_ptm_protein_site_mapping_report,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
@@ -71,10 +71,10 @@ def test_ptm_localization_parser_preserves_reported_probability() -> None:
     assert report.accepted_records[1].localization_probability == 0.61
 
 
-def test_ptm_localization_parser_keeps_multiple_modifications_as_separate_site_candidates() -> None:
-    report = parse_ptm_localization_tsv(
-        _ptm_fixture("multi_localization_results.tsv")
-    )
+def test_ptm_localization_parser_keeps_multiple_modifications_as_separate_site_candidates() -> (
+    None
+):
+    report = parse_ptm_localization_tsv(_ptm_fixture("multi_localization_results.tsv"))
 
     assert report.total_rows == 1
     assert len(report.accepted_records) == 1
@@ -160,7 +160,9 @@ def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
 
 
 def test_ptm_site_mapping_keeps_multi_modified_candidates_separate() -> None:
-    evidence = parse_ptm_localization_tsv(_ptm_fixture("multi_localization_results.tsv"))
+    evidence = parse_ptm_localization_tsv(
+        _ptm_fixture("multi_localization_results.tsv")
+    )
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -190,9 +192,9 @@ def test_ptm_mapping_report_separates_exact_ambiguous_and_unmapped_ledgers() -> 
     assert report.unmapped_peptides == ()
     assert all(mapping.ambiguous is False for mapping in report.exact_mappings)
     assert all(mapping.ambiguous is True for mapping in report.ambiguous_mappings)
-    assert {
-        mapping.localized_peptide for mapping in report.ambiguous_mappings
-    } == {"AS[Phospho]TYK"}
+    assert {mapping.localized_peptide for mapping in report.ambiguous_mappings} == {
+        "AS[Phospho]TYK"
+    }
 
 
 def test_ptm_mapping_report_keeps_shared_peptides_exact_when_one_fasta_mapping_survives(
@@ -342,7 +344,9 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     assert background.total_foreground_sites >= 1
     assert background.background_mode == "whole_proteome_background"
     assert observed_background.background_mode == "observed_site_background"
-    assert background.total_background_sites > observed_background.total_background_sites
+    assert (
+        background.total_background_sites > observed_background.total_background_sites
+    )
     assert (
         next(
             entry for entry in background.entries if entry.residue == "S"

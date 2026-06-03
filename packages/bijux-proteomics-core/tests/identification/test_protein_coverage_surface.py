@@ -12,7 +12,9 @@ from bijux_proteomics.identification.protein_coverage import (
 )
 
 
-def test_protein_coverage_report_merges_overlapping_residues_and_tracks_uncovered_regions() -> None:
+def test_protein_coverage_report_merges_overlapping_residues_and_tracks_uncovered_regions() -> (
+    None
+):
     records = (
         PsmRecord(
             spectrum_id="scan=coverage-1",
@@ -73,7 +75,9 @@ def test_protein_coverage_report_merges_overlapping_residues_and_tracks_uncovere
     assert coordinates[2].start_residue is None
 
 
-def test_protein_coverage_report_preserves_repeated_peptide_coordinate_occurrences() -> None:
+def test_protein_coverage_report_preserves_repeated_peptide_coordinate_occurrences() -> (
+    None
+):
     records = (
         PsmRecord(
             spectrum_id="scan=repeat-1",
@@ -134,8 +138,20 @@ def test_protein_coverage_renderers_emit_uncovered_and_coordinate_ledgers() -> N
     uncovered_tsv = render_protein_coverage_uncovered_regions_tsv(report)
     coordinates_tsv = render_protein_coverage_peptide_coordinates_tsv(report)
 
-    assert "protein_ref\tregion_index\tstart_residue\tend_residue\tresidue_count" in uncovered_tsv
+    assert (
+        "protein_ref\tregion_index\tstart_residue\tend_residue\tresidue_count"
+        in uncovered_tsv
+    )
     assert "P10001\t1\t5\t10\t6" in uncovered_tsv
-    assert "protein_ref\tcanonical_peptide\tpeptide_sequence\tcoordinate_status" in coordinates_tsv
-    assert "P10001\tABCD\tABCD\tmatched\t1\t1\t4\ttrue\tfalse\t50.0\t0.01\ttarget\tfalse" in coordinates_tsv
-    assert "P10001\tZZZ\tZZZ\tunmatched\t\t\t\ttrue\tfalse\t48.0\t0.03\ttarget\tfalse" in coordinates_tsv
+    assert (
+        "protein_ref\tcanonical_peptide\tpeptide_sequence\tcoordinate_status"
+        in coordinates_tsv
+    )
+    assert (
+        "P10001\tABCD\tABCD\tmatched\t1\t1\t4\ttrue\tfalse\t50.0\t0.01\ttarget\tfalse"
+        in coordinates_tsv
+    )
+    assert (
+        "P10001\tZZZ\tZZZ\tunmatched\t\t\t\ttrue\tfalse\t48.0\t0.03\ttarget\tfalse"
+        in coordinates_tsv
+    )

@@ -59,7 +59,9 @@ def test_ptm_ambiguity_review_report_separates_localized_sites_from_unlocalized_
     assert report.summary.localized_site_count == 3
     assert report.summary.unlocalized_group_count == 2
     localized = next(
-        entry for entry in report.localized_sites if entry.site_key == "P11111:S5:Phospho"
+        entry
+        for entry in report.localized_sites
+        if entry.site_key == "P11111:S5:Phospho"
     )
     assert localized.confidence_tier.value == "supported"
     ambiguous = next(

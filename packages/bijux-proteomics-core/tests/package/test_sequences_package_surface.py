@@ -206,7 +206,9 @@ def test_sequences_package_exports_protein_identity_resolution_owner_surface() -
 
     assert hasattr(sequences, "build_protein_identity_resolution_report")
     assert hasattr(sequences, "render_protein_identity_resolution_tsv")
-    assert report.entries[0].identity_level is sequences.ProteinIdentityLevel.PROTEIN_LEVEL
+    assert (
+        report.entries[0].identity_level is sequences.ProteinIdentityLevel.PROTEIN_LEVEL
+    )
     assert "shared-isoform" in rendered
 
 

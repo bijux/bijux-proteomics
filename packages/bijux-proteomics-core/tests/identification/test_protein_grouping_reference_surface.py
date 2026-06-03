@@ -45,7 +45,9 @@ def test_protein_grouping_reference_cases_match_expected_groups() -> None:
             encoding="utf-8"
         )
     )
-    cases = tuple(ProteinGroupingReferenceCase.model_validate(case) for case in raw_cases)
+    cases = tuple(
+        ProteinGroupingReferenceCase.model_validate(case) for case in raw_cases
+    )
 
     for case in cases:
         report = build_protein_grouping_report(case.records)

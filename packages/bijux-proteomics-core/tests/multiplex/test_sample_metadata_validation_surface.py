@@ -13,7 +13,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / name
 
 
-def test_multiplex_metadata_validation_report_summarizes_valid_design_assignments() -> None:
+def test_multiplex_metadata_validation_report_summarizes_valid_design_assignments() -> (
+    None
+):
     design_report = parse_experimental_design_table(_fixture("tmt.design.tsv"))
 
     report = build_multiplex_metadata_validation_report(design_report)
@@ -31,8 +33,12 @@ def test_multiplex_metadata_validation_report_summarizes_valid_design_assignment
     assert first.assigned is True
 
 
-def test_multiplex_metadata_validation_report_preserves_missing_group_channel_assignments() -> None:
-    design_report = parse_experimental_design_table(_fixture("tmt_missing_channel.design.tsv"))
+def test_multiplex_metadata_validation_report_preserves_missing_group_channel_assignments() -> (
+    None
+):
+    design_report = parse_experimental_design_table(
+        _fixture("tmt_missing_channel.design.tsv")
+    )
 
     report = build_multiplex_metadata_validation_report(design_report)
 
@@ -49,8 +55,12 @@ def test_multiplex_metadata_validation_report_preserves_missing_group_channel_as
     assert missing.assigned is False
 
 
-def test_multiplex_metadata_validation_report_flags_duplicate_assignments_and_missing_conditions() -> None:
-    design_report = parse_experimental_design_table(_fixture("tmt_metadata_issues.design.tsv"))
+def test_multiplex_metadata_validation_report_flags_duplicate_assignments_and_missing_conditions() -> (
+    None
+):
+    design_report = parse_experimental_design_table(
+        _fixture("tmt_metadata_issues.design.tsv")
+    )
 
     report = build_multiplex_metadata_validation_report(design_report)
 

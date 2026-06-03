@@ -38,16 +38,12 @@ def test_tmt_reporter_matrix_report_builds_channel_totals_and_matrices() -> None
     assert report.summary.peptide_row_count == 2
     assert report.summary.protein_row_count == 2
     plex_a_sample = next(
-        entry
-        for entry in report.channel_totals
-        if entry.sample_id == "plex_a_126"
+        entry for entry in report.channel_totals if entry.sample_id == "plex_a_126"
     )
     assert plex_a_sample.total_intensity == 2000.0
     assert plex_a_sample.observed_row_count == 2
     plex_a_missing = next(
-        entry
-        for entry in report.channel_totals
-        if entry.sample_id == "plex_a_129N"
+        entry for entry in report.channel_totals if entry.sample_id == "plex_a_129N"
     )
     assert plex_a_missing.total_intensity == 0.0
     assert plex_a_missing.observed_row_count == 0

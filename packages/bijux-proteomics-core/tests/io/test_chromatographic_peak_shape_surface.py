@@ -15,13 +15,29 @@ def test_score_peak_shape_distinguishes_gaussian_like_and_jagged_traces() -> Non
     gaussian_like = score_peak_shape(
         _trace(
             "smooth_peak",
-            ((0.0, 0.0), (10.0, 25.0), (20.0, 90.0), (30.0, 160.0), (40.0, 90.0), (50.0, 25.0), (60.0, 0.0)),
+            (
+                (0.0, 0.0),
+                (10.0, 25.0),
+                (20.0, 90.0),
+                (30.0, 160.0),
+                (40.0, 90.0),
+                (50.0, 25.0),
+                (60.0, 0.0),
+            ),
         )
     )
     jagged_noisy = score_peak_shape(
         _trace(
             "jagged_peak",
-            ((0.0, 0.0), (10.0, 60.0), (20.0, 35.0), (30.0, 150.0), (40.0, 45.0), (50.0, 110.0), (60.0, 0.0)),
+            (
+                (0.0, 0.0),
+                (10.0, 60.0),
+                (20.0, 35.0),
+                (30.0, 150.0),
+                (40.0, 45.0),
+                (50.0, 110.0),
+                (60.0, 0.0),
+            ),
         )
     )
     rendered = render_peak_shape_score_tsv((gaussian_like, jagged_noisy))

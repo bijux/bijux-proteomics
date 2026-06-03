@@ -13,7 +13,9 @@ from bijux_proteomics.review import (
 )
 
 
-def test_failure_explanation_engine_distinguishes_expected_scientific_failures() -> None:
+def test_failure_explanation_engine_distinguishes_expected_scientific_failures() -> (
+    None
+):
     report = build_failure_explanation_report(
         (
             FailureExplanationRequest(
@@ -86,6 +88,7 @@ def test_failure_explanation_engine_refuses_to_invent_unknown_categories() -> No
     explanation = report.explanations[0]
     assert explanation.status is FailureExplanationStatus.UNCLASSIFIED
     assert explanation.failure_category is None
-    assert "did not match a known scientific category" in format_failure_explanation_for_cli(
-        explanation
+    assert (
+        "did not match a known scientific category"
+        in format_failure_explanation_for_cli(explanation)
     )

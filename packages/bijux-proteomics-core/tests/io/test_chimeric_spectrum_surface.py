@@ -30,7 +30,9 @@ def _default_mapping() -> SearchResultColumnMapping:
 
 
 def test_score_chimeric_spectra_from_psms_separates_mixed_and_clean_spectra() -> None:
-    spectra = parse_mzml(_format_fixture("chimeric_spectrum_review.mzml")).accepted_spectra
+    spectra = parse_mzml(
+        _format_fixture("chimeric_spectrum_review.mzml")
+    ).accepted_spectra
     psm_records = parse_psm_tsv(
         _psm_fixture("chimeric_spectrum_candidates.tsv"),
         mapping=_default_mapping(),
@@ -70,11 +72,15 @@ def test_score_chimeric_spectra_from_psms_separates_mixed_and_clean_spectra() ->
 
 
 def test_score_chimeric_spectra_from_psms_requires_candidates() -> None:
-    spectra = parse_mzml(_format_fixture("chimeric_spectrum_review.mzml")).accepted_spectra
+    spectra = parse_mzml(
+        _format_fixture("chimeric_spectrum_review.mzml")
+    ).accepted_spectra
 
     try:
         score_chimeric_spectra_from_psms(spectra, ())
     except ValueError as exc:
         assert "candidate annotation" in str(exc)
     else:
-        raise AssertionError("expected chimeric scoring to reject an empty candidate set")
+        raise AssertionError(
+            "expected chimeric scoring to reject an empty candidate set"
+        )

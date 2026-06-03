@@ -54,9 +54,9 @@ def test_demo_scale_command_runs_generated_local_scale_validation() -> None:
         assert Path(
             "proteomics_scale_demo/biological_report/biological_protein_cards.tsv"
         ).exists()
-        assert "peak_memory_mib" in Path(
-            "proteomics_scale_demo.summary.tsv"
-        ).read_text(encoding="utf-8")
+        assert "peak_memory_mib" in Path("proteomics_scale_demo.summary.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "build_report_bundle" in Path(
             "proteomics_scale_demo.stages.tsv"
         ).read_text(encoding="utf-8")

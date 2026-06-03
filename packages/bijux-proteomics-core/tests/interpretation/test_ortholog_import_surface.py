@@ -23,7 +23,9 @@ def test_parse_ortholog_table_preserves_species_pairs_and_rejected_rows() -> Non
     assert report.summary.distinct_source_protein_ref_count == 3
     assert report.summary.distinct_target_protein_ref_count == 3
     accepted_record = next(
-        record for record in report.accepted_records if record.source_protein_ref == "P67890"
+        record
+        for record in report.accepted_records
+        if record.source_protein_ref == "P67890"
     )
     assert accepted_record.source_species == "human"
     assert accepted_record.target_species == "mouse"

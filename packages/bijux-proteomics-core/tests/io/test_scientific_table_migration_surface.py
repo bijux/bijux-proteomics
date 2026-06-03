@@ -24,7 +24,10 @@ def test_scientific_table_migration_surface_warns_and_forwards_private_owner() -
         public_module.ScientificTableValidationError
         is private_module.ScientificTableValidationError
     )
-    assert public_module.validate_scientific_table is private_module.validate_scientific_table
+    assert (
+        public_module.validate_scientific_table
+        is private_module.validate_scientific_table
+    )
     assert tuple(public_module.__all__) == compatibility_export_names(
         public_module.MIGRATION_SURFACE
     )

@@ -20,7 +20,9 @@ from bijux_proteomics.quantification import (
 )
 
 
-def _sample_exploration_inputs() -> tuple[tuple[Ms1FeatureRecord, ...], tuple[ExperimentalDesignEntry, ...]]:
+def _sample_exploration_inputs() -> tuple[
+    tuple[Ms1FeatureRecord, ...], tuple[ExperimentalDesignEntry, ...]
+]:
     records = (
         Ms1FeatureRecord(
             feature_id="explore-001",
@@ -145,7 +147,10 @@ def test_sample_pca_variance_report_tracks_component_contribution() -> None:
     assert report.entity_level is QuantEntityLevel.PEPTIDE
     assert report.entries
     assert report.entries[0].component_label == "PC1"
-    assert report.entries[0].explained_variance_ratio > report.entries[1].explained_variance_ratio
+    assert (
+        report.entries[0].explained_variance_ratio
+        > report.entries[1].explained_variance_ratio
+    )
     assert math.isclose(
         report.entries[-1].cumulative_explained_variance_ratio,
         1.0,
@@ -188,7 +193,9 @@ def test_sample_correlation_report_orders_highest_pairs_first() -> None:
     assert len(report.entries) == 6
     assert report.entries[0].sample_id_a == "case-1"
     assert report.entries[0].sample_id_b == "case-2"
-    assert report.entries[0].pearson_correlation >= report.entries[-1].pearson_correlation
+    assert (
+        report.entries[0].pearson_correlation >= report.entries[-1].pearson_correlation
+    )
     assert report.entries[0].same_condition is True
 
 
@@ -372,9 +379,7 @@ def test_sample_exploration_report_preserves_metric_labeled_outliers() -> None:
     )
 
     report = build_sample_exploration_report(table, design)
-    by_sample = {
-        entry.sample_id: entry for entry in report.sample_pca_report.entries
-    }
+    by_sample = {entry.sample_id: entry for entry in report.sample_pca_report.entries}
 
     assert report.summary.pairwise_correlation_count == 10
     assert report.sample_correlation_report.entries

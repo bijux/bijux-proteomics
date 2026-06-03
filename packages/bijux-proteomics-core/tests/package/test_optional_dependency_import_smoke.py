@@ -5,7 +5,6 @@ from pathlib import Path
 import subprocess
 import sys
 
-
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents

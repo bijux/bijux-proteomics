@@ -8,6 +8,7 @@ import warnings
 
 from bijux_proteomics_foundation.compatibility import compatibility_export_names
 
+
 def test_tabular_migration_surface_warns_and_forwards_private_owner() -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")

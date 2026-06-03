@@ -66,19 +66,36 @@ def test_build_diann_library_coverage_report_summarizes_library_scope() -> None:
     assert report.protein_entries[-1].detected_condition_count == 0
 
     assert len(report.observed_outside_library_peptide_entries) == 1
-    assert report.observed_outside_library_peptide_entries[0].canonical_peptide == "PEPNOVEL"
-    assert report.observed_outside_library_peptide_entries[0].protein_refs == ("P55555",)
-    assert report.observed_outside_library_peptide_entries[0].sample_ids == ("sample_A",)
-    assert report.observed_outside_library_peptide_entries[0].condition_ids == ("control",)
+    assert (
+        report.observed_outside_library_peptide_entries[0].canonical_peptide
+        == "PEPNOVEL"
+    )
+    assert report.observed_outside_library_peptide_entries[0].protein_refs == (
+        "P55555",
+    )
+    assert report.observed_outside_library_peptide_entries[0].sample_ids == (
+        "sample_A",
+    )
+    assert report.observed_outside_library_peptide_entries[0].condition_ids == (
+        "control",
+    )
     assert report.observed_outside_library_peptide_entries[0].detected_sample_count == 1
-    assert report.observed_outside_library_peptide_entries[0].detected_condition_count == 1
+    assert (
+        report.observed_outside_library_peptide_entries[0].detected_condition_count == 1
+    )
 
     assert len(report.observed_outside_library_protein_entries) == 1
     assert report.observed_outside_library_protein_entries[0].protein_ref == "P55555"
-    assert report.observed_outside_library_protein_entries[0].sample_ids == ("sample_A",)
-    assert report.observed_outside_library_protein_entries[0].condition_ids == ("control",)
+    assert report.observed_outside_library_protein_entries[0].sample_ids == (
+        "sample_A",
+    )
+    assert report.observed_outside_library_protein_entries[0].condition_ids == (
+        "control",
+    )
     assert report.observed_outside_library_protein_entries[0].detected_sample_count == 1
-    assert report.observed_outside_library_protein_entries[0].detected_condition_count == 1
+    assert (
+        report.observed_outside_library_protein_entries[0].detected_condition_count == 1
+    )
 
     assert report.sample_entries[0].sample_id == "sample_A"
     assert report.sample_entries[0].detected_peptide_count == 4

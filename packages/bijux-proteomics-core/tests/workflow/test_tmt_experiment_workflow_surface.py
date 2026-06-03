@@ -46,8 +46,14 @@ def test_build_tmt_experiment_workflow_bundle_preserves_import_metadata_and_repo
     assert report.metadata_validation_report.summary.missing_condition_count == 0
     assert report.interference_report.summary.threshold_exceeded_count == 6
     assert report.report.tmt_matrix_report is not None
-    assert report.report.tmt_matrix_report.source_report.summary.reporter_channel_count == 3
-    assert report.report.differential_analysis_report.differential_abundance_report is not None
+    assert (
+        report.report.tmt_matrix_report.source_report.summary.reporter_channel_count
+        == 3
+    )
+    assert (
+        report.report.differential_analysis_report.differential_abundance_report
+        is not None
+    )
 
 
 def test_build_tmt_experiment_workflow_bundle_preserves_rejected_reporter_review() -> (
@@ -63,10 +69,14 @@ def test_build_tmt_experiment_workflow_bundle_preserves_rejected_reporter_review
     assert report.summary.accepted_input_row_count == 4
     assert report.summary.rejected_input_row_count == 1
     assert report.report.tmt_matrix_report is not None
-    assert report.report.tmt_matrix_report.source_report.rejected_rows[0].row_number == 6
+    assert (
+        report.report.tmt_matrix_report.source_report.rejected_rows[0].row_number == 6
+    )
     assert {
         issue.code
-        for issue in report.report.tmt_matrix_report.source_report.rejected_rows[0].issues
+        for issue in report.report.tmt_matrix_report.source_report.rejected_rows[
+            0
+        ].issues
     } == {"missing_peptide", "invalid_reporter_intensity"}
 
 
@@ -83,7 +93,9 @@ def test_build_tmt_experiment_workflow_bundle_rejects_invalid_metadata() -> None
         )
 
 
-def test_build_tmt_experiment_workflow_bundle_rejects_missing_channel_coverage() -> None:
+def test_build_tmt_experiment_workflow_bundle_rejects_missing_channel_coverage() -> (
+    None
+):
     with pytest.raises(
         ValueError,
         match="complete multiplex channel coverage",

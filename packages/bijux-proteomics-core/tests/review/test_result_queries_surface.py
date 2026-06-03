@@ -20,8 +20,8 @@ from bijux_proteomics.ptm import (
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.review import (
     ResultQueryKind,
-    ResultQueryStatus,
     ResultQueryRequest,
+    ResultQueryStatus,
     build_result_query_report_from_artifacts,
     render_result_query_answer_tsv,
     render_result_query_evidence_tsv,
@@ -43,7 +43,10 @@ def _ptm_fixture(name: str) -> Path:
 
 def _protein_sequences() -> dict[str, str]:
     fasta = (
-        Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / "ptm_sites.fasta"
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "fasta"
+        / "ptm_sites.fasta"
     )
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
     return {
@@ -94,7 +97,9 @@ def test_result_query_engine_answers_protein_qc_and_ptm_questions_with_row_and_g
 
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ortholog_sites = parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
     ptm_report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
@@ -169,12 +174,21 @@ def test_result_query_engine_answers_protein_qc_and_ptm_questions_with_row_and_g
     assert answers_by_id["protein-significance"].status is ResultQueryStatus.ANSWERED
     assert answers_by_id["protein-peptides"].status is ResultQueryStatus.ANSWERED
     assert answers_by_id["sample-qc"].status is ResultQueryStatus.ANSWERED
-    assert significant_protein.card_id in answers_by_id["protein-significance"].result_row_ids
-    assert significant_protein.graph_claim_node_id in answers_by_id["protein-significance"].graph_node_ids
+    assert (
+        significant_protein.card_id
+        in answers_by_id["protein-significance"].result_row_ids
+    )
+    assert (
+        significant_protein.graph_claim_node_id
+        in answers_by_id["protein-significance"].graph_node_ids
+    )
     assert "significant" in answers_by_id["protein-significance"].answer_text
     assert "peptides" in answers_by_id["protein-peptides"].answer_text
     assert "t2.mzml" in answers_by_id["sample-qc"].result_row_ids
-    assert any(node_id.startswith("sample:") for node_id in answers_by_id["sample-qc"].graph_node_ids)
+    assert any(
+        node_id.startswith("sample:")
+        for node_id in answers_by_id["sample-qc"].graph_node_ids
+    )
     assert answers_by_id["ptm-downgrade"].status is ResultQueryStatus.UNSUPPORTED
     assert "graph node anchor" in answers_by_id["ptm-downgrade"].answer_text
     assert answers_by_id["ptm-downgrade"].result_row_ids == ()

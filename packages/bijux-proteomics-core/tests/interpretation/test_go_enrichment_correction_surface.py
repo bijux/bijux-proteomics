@@ -18,7 +18,9 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
 
 
-def test_apply_go_enrichment_multiple_testing_preserves_monotonic_adjusted_p_values() -> None:
+def test_apply_go_enrichment_multiple_testing_preserves_monotonic_adjusted_p_values() -> (
+    None
+):
     foreground = parse_protein_reference_table(_fixture_path("go_foreground.tsv"))
     background = parse_protein_reference_table(_fixture_path("go_background.tsv"))
     annotations = parse_go_annotation_table(_fixture_path("go_annotations.tsv"))

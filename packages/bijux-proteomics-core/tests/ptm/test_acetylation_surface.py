@@ -6,15 +6,17 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics.ptm import (
+    PtmAcetylationType,
     PtmAcetylProteinContext,
     PtmAcetylSiteCandidate,
-    PtmAcetylationType,
     analyze_acetylation_sites,
     render_acetylation_site_analysis_tsv,
 )
 
 
-def test_analyze_acetylation_sites_separates_n_terminal_and_lysine_acetylation() -> None:
+def test_analyze_acetylation_sites_separates_n_terminal_and_lysine_acetylation() -> (
+    None
+):
     entries = analyze_acetylation_sites(
         (
             PtmAcetylSiteCandidate(
@@ -67,7 +69,9 @@ def test_analyze_acetylation_sites_separates_n_terminal_and_lysine_acetylation()
     assert lysine.abundance_corrected_effect == 0.5
 
 
-def test_analyze_acetylation_sites_renders_surface_and_preserves_missing_baselines() -> None:
+def test_analyze_acetylation_sites_renders_surface_and_preserves_missing_baselines() -> (
+    None
+):
     entries = analyze_acetylation_sites(
         (
             PtmAcetylSiteCandidate(
@@ -89,7 +93,10 @@ def test_analyze_acetylation_sites_renders_surface_and_preserves_missing_baselin
     )
     rendered = render_acetylation_site_analysis_tsv(entries)
 
-    assert entries[0].acetylation_type is PtmAcetylationType.NONCANONICAL_RESIDUE_ACETYLATION
+    assert (
+        entries[0].acetylation_type
+        is PtmAcetylationType.NONCANONICAL_RESIDUE_ACETYLATION
+    )
     assert entries[0].n_terminal is False
     assert entries[0].lysine_position is None
     assert entries[0].domain_context == "regulatory_loop"
@@ -97,7 +104,10 @@ def test_analyze_acetylation_sites_renders_surface_and_preserves_missing_baselin
     assert rendered.startswith(
         "site_id\tacetylation_type\tlysine_position\tn_terminal\tdomain_context\tabundance_corrected_effect\n"
     )
-    assert "P2:S4:Acetyl\tnoncanonical_residue_acetylation\t\tfalse\tregulatory_loop\t\n" in rendered
+    assert (
+        "P2:S4:Acetyl\tnoncanonical_residue_acetylation\t\tfalse\tregulatory_loop\t\n"
+        in rendered
+    )
 
 
 def test_analyze_acetylation_sites_requires_unique_site_ids() -> None:

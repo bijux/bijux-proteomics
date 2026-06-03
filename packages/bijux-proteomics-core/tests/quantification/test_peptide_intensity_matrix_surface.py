@@ -15,9 +15,9 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     parse_precursor_intensity_table,
     render_peptide_intensity_aggregation_tsv,
-    render_peptide_intensity_missingness_mask_tsv,
     render_peptide_intensity_matrix_summary_tsv,
     render_peptide_intensity_matrix_tsv,
+    render_peptide_intensity_missingness_mask_tsv,
     render_peptide_intensity_missingness_tsv,
 )
 

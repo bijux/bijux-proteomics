@@ -185,20 +185,32 @@ def test_detect_evidence_graph_contradictions_finds_backlog_example_patterns() -
     assert "protein_unchanged_with_changed_peptides" in kinds
     assert "ptm_change_explained_by_protein" in kinds
     assert "pathway_enrichment_with_weak_proteins" in kinds
-    assert any("protein_stats.tsv:4" in entry.source_row_refs for entry in report.entries)
+    assert any(
+        "protein_stats.tsv:4" in entry.source_row_refs for entry in report.entries
+    )
     entries_by_kind = {entry.kind.value: entry for entry in report.entries}
-    assert entries_by_kind["protein_unchanged_with_changed_peptides"].severity.value == "fail"
-    assert entries_by_kind["protein_unchanged_with_changed_peptides"].source_row_refs == (
+    assert (
+        entries_by_kind["protein_unchanged_with_changed_peptides"].severity.value
+        == "fail"
+    )
+    assert entries_by_kind[
+        "protein_unchanged_with_changed_peptides"
+    ].source_row_refs == (
         "peptide_stats.tsv:4",
         "peptide_stats.tsv:5",
         "protein_stats.tsv:4",
     )
-    assert entries_by_kind["ptm_change_explained_by_protein"].severity.value == "caution"
+    assert (
+        entries_by_kind["ptm_change_explained_by_protein"].severity.value == "caution"
+    )
     assert entries_by_kind["ptm_change_explained_by_protein"].source_row_refs == (
         "protein_stats.tsv:5",
         "ptm_stats.tsv:6",
     )
-    assert entries_by_kind["pathway_enrichment_with_weak_proteins"].severity.value == "fail"
+    assert (
+        entries_by_kind["pathway_enrichment_with_weak_proteins"].severity.value
+        == "fail"
+    )
     assert entries_by_kind["pathway_enrichment_with_weak_proteins"].source_row_refs == (
         "pathway.tsv:11",
         "pathway.tsv:12",
@@ -206,7 +218,9 @@ def test_detect_evidence_graph_contradictions_finds_backlog_example_patterns() -
     )
 
 
-def test_detect_evidence_graph_contradictions_skips_pathway_when_support_is_not_uniformly_weak() -> None:
+def test_detect_evidence_graph_contradictions_skips_pathway_when_support_is_not_uniformly_weak() -> (
+    None
+):
     builder = ProteomicsEvidenceGraphBuilder()
     pathway = builder.add_pathway("R-HSA-199420", label="Apoptosis")
     weak_protein = builder.add_protein("Q22222", label="Q22222", trust_class="low")

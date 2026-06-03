@@ -22,9 +22,9 @@ def _mz_from_neutral_mass(neutral_mass: float, charge: int) -> float:
     return (neutral_mass + (charge * _PROTON_MONOISOTOPIC_MASS)) / charge
 
 
-def _window(precursor_id: str, *, rt: float, monoisotopic_mz: float, charge: int) -> (
-    PrecursorValidationWindow
-):
+def _window(
+    precursor_id: str, *, rt: float, monoisotopic_mz: float, charge: int
+) -> PrecursorValidationWindow:
     return PrecursorValidationWindow(
         precursor_id=precursor_id,
         rt=rt,
@@ -121,5 +121,8 @@ def test_validate_precursor_isotope_charge_preserves_validated_and_unsupported_r
     assert validated.precursor_validation_tier is PrecursorValidationTier.VALIDATED
     assert missing.precursor_validation_tier is PrecursorValidationTier.UNSUPPORTED
     assert "precursor_id\tassigned_charge\tinferred_charge" in entries_tsv
-    assert "precursor_count\tmismatch_count\tvalidated_count\tweak_count\tunsupported_count" in summary_tsv
+    assert (
+        "precursor_count\tmismatch_count\tvalidated_count\tweak_count\tunsupported_count"
+        in summary_tsv
+    )
     assert summary_tsv.splitlines()[1] == "2\t0\t1\t0\t1"

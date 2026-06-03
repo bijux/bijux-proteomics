@@ -26,7 +26,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_biological_result_report_bundle_preserves_differential_and_review_surfaces() -> None:
+def test_build_biological_result_report_bundle_preserves_differential_and_review_surfaces() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -112,14 +114,25 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     )
     assert report.protein_cards.summary.protein_result_count == 5
     assert report.protein_mechanism_cards.summary.card_count == 5
-    assert report.protein_mechanism_cards.summary.card_count == report.summary.protein_count
-    assert any(card.card_id.startswith("protein-card:") for card in report.protein_cards.cards)
+    assert (
+        report.protein_mechanism_cards.summary.card_count
+        == report.summary.protein_count
+    )
+    assert any(
+        card.card_id.startswith("protein-card:") for card in report.protein_cards.cards
+    )
     assert any(
         card.card_id.startswith("protein-mechanism-card:")
         for card in report.protein_mechanism_cards.cards
     )
-    assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.protein_cards.cards)
-    assert all(card.graph_subject_node_id.startswith("protein:") for card in report.protein_cards.cards)
+    assert all(
+        card.graph_claim_node_id.startswith("statistical_result:")
+        for card in report.protein_cards.cards
+    )
+    assert all(
+        card.graph_subject_node_id.startswith("protein:")
+        for card in report.protein_cards.cards
+    )
     assert all(
         card.graph_claim_node_id.startswith("statistical_result:")
         for card in report.protein_mechanism_cards.cards
@@ -162,13 +175,12 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         "moderate",
         "weak",
     }
-    assert (
-        by_section["biological_hypotheses"].confidence_label.value == "exploratory"
-    )
-    assert (
-        by_section["enrichment_foreground_background"].confidence_label.value
-        in {"high", "moderate", "weak"}
-    )
+    assert by_section["biological_hypotheses"].confidence_label.value == "exploratory"
+    assert by_section["enrichment_foreground_background"].confidence_label.value in {
+        "high",
+        "moderate",
+        "weak",
+    }
     assert by_section["pathway_activity"].confidence_label.value in {
         "high",
         "moderate",
@@ -200,8 +212,12 @@ def test_build_biological_result_report_bundle_preserves_compartment_biology() -
 
     assert report.compartment_biology_report is not None
     assert report.compartment_biology_report.summary.compartment_count == 2
-    assert report.compartment_biology_report.summary.unknown_foreground_protein_count == 1
-    assert report.compartment_biology_report.summary.unknown_background_protein_count == 2
+    assert (
+        report.compartment_biology_report.summary.unknown_foreground_protein_count == 1
+    )
+    assert (
+        report.compartment_biology_report.summary.unknown_background_protein_count == 2
+    )
     assert any(
         entry.localization_scope.value == "foreground" and entry.protein_ref == "Q9Y243"
         for entry in report.compartment_biology_report.unknown_localization_entries
@@ -212,7 +228,9 @@ def test_build_biological_result_report_bundle_preserves_compartment_biology() -
     )
 
 
-def test_build_biological_result_report_bundle_preserves_tissue_context_warnings() -> None:
+def test_build_biological_result_report_bundle_preserves_tissue_context_warnings() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report_tissue_context.design.tsv")
@@ -250,7 +268,9 @@ def test_build_biological_result_report_bundle_preserves_tissue_context_warnings
     assert by_section["tissue_cell_type_context"].confidence_label.value == "weak"
 
 
-def test_build_biological_result_report_bundle_preserves_cohort_stratification() -> None:
+def test_build_biological_result_report_bundle_preserves_cohort_stratification() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report_cohort_stratification.design.tsv")
@@ -269,7 +289,8 @@ def test_build_biological_result_report_bundle_preserves_cohort_stratification()
     assert report.summary.cohort_subgroup_effect_count >= 4
     assert report.summary.cohort_interaction_candidate_count >= 2
     by_entity = {
-        entry.entity_id: entry for entry in report.cohort_stratification_report.interaction_candidates
+        entry.entity_id: entry
+        for entry in report.cohort_stratification_report.interaction_candidates
     }
     assert by_entity["P04637"].field_name.value == "sex"
     assert "P62993" in by_entity
@@ -290,8 +311,12 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
         build_experiment_design(design_entries),
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
-        regulator_evidence_tsv_path=_fixture("biological_report_regulator_evidence.tsv"),
-        regulator_site_signal_tsv_path=_fixture("biological_report_regulator_sites.tsv"),
+        regulator_evidence_tsv_path=_fixture(
+            "biological_report_regulator_evidence.tsv"
+        ),
+        regulator_site_signal_tsv_path=_fixture(
+            "biological_report_regulator_sites.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -318,14 +343,17 @@ def test_build_biological_result_report_bundle_preserves_regulator_inference() -
         for entry in report.regulator_inference_report.unresolved_targets
     )
     supported_claims = {
-        entry.subject_id: entry for entry in report.claim_validation_report.supported_claims
+        entry.subject_id: entry
+        for entry in report.claim_validation_report.supported_claims
     }
     rejected_claims = {
-        entry.subject_id: entry for entry in report.claim_validation_report.rejected_claims
+        entry.subject_id: entry
+        for entry in report.claim_validation_report.rejected_claims
     }
     assert supported_claims["MAPK14"].claim_text.startswith("Kinase MAPK14 active")
     supported_hypotheses = {
-        entry.subject_id: entry for entry in report.biological_hypothesis_report.hypotheses
+        entry.subject_id: entry
+        for entry in report.biological_hypothesis_report.hypotheses
     }
     assert supported_hypotheses["MAPK14"].supporting_site_keys == (
         "P04637:S15:Phospho",
@@ -417,9 +445,30 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
     )
     values: list[QuantValue] = []
     abundances = {
-        "PG001": {"C1": 200.0, "C2": 220.0, "C3": 210.0, "T1": 1600.0, "T2": 1550.0, "T3": 1650.0},
-        "PG002": {"C1": 1800.0, "C2": 1750.0, "C3": 1850.0, "T1": 200.0, "T2": 220.0, "T3": 210.0},
-        "PG003": {"C1": 150.0, "C2": 160.0, "C3": 140.0, "T1": 1400.0, "T2": 1450.0, "T3": 1500.0},
+        "PG001": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+        "PG002": {
+            "C1": 1800.0,
+            "C2": 1750.0,
+            "C3": 1850.0,
+            "T1": 200.0,
+            "T2": 220.0,
+            "T3": 210.0,
+        },
+        "PG003": {
+            "C1": 150.0,
+            "C2": 160.0,
+            "C3": 140.0,
+            "T1": 1400.0,
+            "T2": 1450.0,
+            "T3": 1500.0,
+        },
     }
     for entity_id, entity_values in abundances.items():
         for sample_id, abundance in entity_values.items():
@@ -460,13 +509,17 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
         condition_b="treatment",
     )
 
-    mapped_refs = {entry.protein_ref for entry in report.annotation_report.mapped_entries}
+    mapped_refs = {
+        entry.protein_ref for entry in report.annotation_report.mapped_entries
+    }
     assert mapped_refs == {"P04637", "Q9Y243", "O14920"}
     assert report.summary.annotation_entry_count == 3
     assert report.experiment_confidence_report.summary.component_count == 7
     assert report.protein_mechanism_cards.summary.card_count == 3
     assert report.evidence_aware_ranking_report is not None
-    assert report.evidence_aware_ranking_report.entries[0].entity_kind.value == "protein"
+    assert (
+        report.evidence_aware_ranking_report.entries[0].entity_kind.value == "protein"
+    )
 
 
 def test_biological_result_report_bundle_from_quant_table_preserves_functional_regions_on_cards(
@@ -479,9 +532,30 @@ def test_biological_result_report_bundle_from_quant_table_preserves_functional_r
     )
     values: list[QuantValue] = []
     abundances = {
-        "PG001": {"C1": 200.0, "C2": 220.0, "C3": 210.0, "T1": 1600.0, "T2": 1550.0, "T3": 1650.0},
-        "PG002": {"C1": 1800.0, "C2": 1750.0, "C3": 1850.0, "T1": 200.0, "T2": 220.0, "T3": 210.0},
-        "PG003": {"C1": 150.0, "C2": 160.0, "C3": 140.0, "T1": 1400.0, "T2": 1450.0, "T3": 1500.0},
+        "PG001": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+        "PG002": {
+            "C1": 1800.0,
+            "C2": 1750.0,
+            "C3": 1850.0,
+            "T1": 200.0,
+            "T2": 220.0,
+            "T3": 210.0,
+        },
+        "PG003": {
+            "C1": 150.0,
+            "C2": 160.0,
+            "C3": 140.0,
+            "T1": 1400.0,
+            "T2": 1450.0,
+            "T3": 1500.0,
+        },
     }
     for entity_id, entity_values in abundances.items():
         for sample_id, abundance in entity_values.items():
@@ -707,7 +781,9 @@ def test_biological_result_report_bundle_from_quant_table_preserves_proteogenomi
     assert report.protein_cards.summary.proteogenomic_annotated_card_count == 2
 
 
-def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> None:
+def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -715,8 +791,22 @@ def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_r
     )
     values: list[QuantValue] = []
     abundances = {
-        "PG001": {"C1": 200.0, "C2": 220.0, "C3": 210.0, "T1": 1600.0, "T2": 1550.0, "T3": 1650.0},
-        "PG999": {"C1": 300.0, "C2": 320.0, "C3": 310.0, "T1": 350.0, "T2": 360.0, "T3": 340.0},
+        "PG001": {
+            "C1": 200.0,
+            "C2": 220.0,
+            "C3": 210.0,
+            "T1": 1600.0,
+            "T2": 1550.0,
+            "T3": 1650.0,
+        },
+        "PG999": {
+            "C1": 300.0,
+            "C2": 320.0,
+            "C3": 310.0,
+            "T1": 350.0,
+            "T2": 360.0,
+            "T3": 340.0,
+        },
     }
     for entity_id, entity_values in abundances.items():
         for sample_id, abundance in entity_values.items():

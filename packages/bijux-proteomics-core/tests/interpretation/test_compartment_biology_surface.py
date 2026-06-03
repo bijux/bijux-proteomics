@@ -60,7 +60,9 @@ def _build_fixture_table():
     )
 
 
-def test_build_compartment_biology_report_preserves_unknown_localization_and_activity() -> None:
+def test_build_compartment_biology_report_preserves_unknown_localization_and_activity() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _workflow_fixture("biological_report.design.tsv")
@@ -173,5 +175,5 @@ def test_compartment_biology_renderers_expose_compartment_and_unknown_outputs() 
     assert matrix_tsv.splitlines()[0].startswith(
         "compartment_id\tcompartment_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
     )
-    assert "localization_scope\tprotein_ref\treason" == unknown_tsv.splitlines()[0]
+    assert unknown_tsv.splitlines()[0] == "localization_scope\tprotein_ref\treason"
     assert "foreground\tQ9Y243\t" in unknown_tsv

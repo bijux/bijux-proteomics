@@ -76,7 +76,8 @@ def test_extract_cross_study_protein_observations_preserves_biological_and_tmt_s
     assert extraction.summary.observation_count >= 2
     assert extraction.unsupported_studies == ()
     assert any(
-        entry.source_kind is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
+        entry.source_kind
+        is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
         for entry in extraction.observations
     )
     assert any(
@@ -126,9 +127,9 @@ def test_cross_study_protein_harmonization_keeps_gene_symbol_only_matches_unreso
 
     assert report.harmonized_entries == ()
     assert len(report.unresolved_entries) == 2
-    assert {
-        entry.reason for entry in report.unresolved_entries
-    } == {CrossStudyProteinUnresolvedReason.GENE_SYMBOL_ONLY_MATCH}
+    assert {entry.reason for entry in report.unresolved_entries} == {
+        CrossStudyProteinUnresolvedReason.GENE_SYMBOL_ONLY_MATCH
+    }
     assert report.summary.gene_symbol_only_unresolved_count == 2
     assert "gene_symbol_only_match" in render_cross_study_protein_unresolved_tsv(report)
 
@@ -200,10 +201,12 @@ def test_cross_study_protein_harmonization_links_exact_and_unique_ortholog_suppo
     assert report.unresolved_entries == ()
     assert report.summary.harmonized_group_count == 1
     assert report.summary.ortholog_linked_group_count == 1
-    assert {
-        entry.match_basis for entry in report.harmonized_entries
-    } == {CrossStudyProteinMatchBasis.EXACT_ACCESSION_AND_UNIQUE_ORTHOLOG}
-    assert "harmonized_protein_001" in render_cross_study_protein_harmonization_tsv(report)
+    assert {entry.match_basis for entry in report.harmonized_entries} == {
+        CrossStudyProteinMatchBasis.EXACT_ACCESSION_AND_UNIQUE_ORTHOLOG
+    }
+    assert "harmonized_protein_001" in render_cross_study_protein_harmonization_tsv(
+        report
+    )
 
 
 def test_cross_study_protein_harmonization_keeps_one_to_many_orthologs_ambiguous() -> (
@@ -279,12 +282,14 @@ def test_cross_study_protein_harmonization_keeps_one_to_many_orthologs_ambiguous
 
     assert report.harmonized_entries == ()
     assert len(report.unresolved_entries) == 3
-    assert {
-        entry.reason for entry in report.unresolved_entries
-    } == {CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING}
+    assert {entry.reason for entry in report.unresolved_entries} == {
+        CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING
+    }
     assert report.summary.ambiguous_ortholog_entry_count == 3
     human_entry = next(
         entry for entry in report.unresolved_entries if entry.study_id == "human"
     )
-    assert set(human_entry.candidate_observation_ids) == {"mouse:card_2", "mouse:card_3"}
-
+    assert set(human_entry.candidate_observation_ids) == {
+        "mouse:card_2",
+        "mouse:card_3",
+    }

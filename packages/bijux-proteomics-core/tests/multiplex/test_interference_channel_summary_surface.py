@@ -32,9 +32,7 @@ def test_tmt_interference_report_summarizes_interference_by_sample_channel() -> 
     assert report.summary.filtered_channel_row_count == 6
     assert report.summary.channel_summary_count == 6
     plex_a_126 = next(
-        entry
-        for entry in report.channel_summaries
-        if entry.sample_id == "plex_a_126"
+        entry for entry in report.channel_summaries if entry.sample_id == "plex_a_126"
     )
     assert plex_a_126.observed_row_count == 2
     assert round(plex_a_126.mean_interference_fraction or 0.0, 6) == 0.215

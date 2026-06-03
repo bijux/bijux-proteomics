@@ -8,7 +8,6 @@ from pathlib import Path
 
 from bijux_proteomics.identification import adapters, fdr, peptide, protein, psm
 
-
 _WRAPPER_MODULES = (
     "identification/calibration_benchmarks.py",
     "identification/calibration_drift.py",
@@ -104,4 +103,6 @@ def test_identification_root_and_subpackage_surfaces_share_owner_functions() -> 
         identification.build_psm_target_decoy_fdr_report
         is fdr.build_psm_target_decoy_fdr_report
     )
-    assert identification.build_diann_import_report is adapters.build_diann_import_report
+    assert (
+        identification.build_diann_import_report is adapters.build_diann_import_report
+    )

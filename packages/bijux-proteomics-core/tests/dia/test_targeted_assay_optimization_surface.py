@@ -36,7 +36,9 @@ def test_optimize_targeted_assay_candidates_prioritizes_stronger_candidates() ->
     assert report.entries[0].chemical_liability_penalty >= 0.0
 
 
-def test_optimize_targeted_assay_candidates_penalizes_chemically_risky_peptides() -> None:
+def test_optimize_targeted_assay_candidates_penalizes_chemically_risky_peptides() -> (
+    None
+):
     report = optimize_targeted_assay_candidates(
         (
             TargetedAssayOptimizationCandidate(

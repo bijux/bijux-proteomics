@@ -144,9 +144,7 @@ def test_build_quant_design_matrix_report_preserves_condition_batch_pairing_and_
     )
     assert len(report.contrasts) == 1
     assert report.contrasts[0].contrast_name == "control_vs_treatment"
-    assert report.contrasts[0].coefficient_weights == {
-        "condition[treatment]": -1.0
-    }
+    assert report.contrasts[0].coefficient_weights == {"condition[treatment]": -1.0}
     assert report.contrasts[0].coefficient_vector == (
         0.0,
         -1.0,
@@ -216,7 +214,9 @@ def test_build_quant_design_matrix_report_blocks_confounded_designs() -> None:
         )
 
 
-def test_build_quant_design_matrix_report_combines_multi_run_samples_by_default() -> None:
+def test_build_quant_design_matrix_report_combines_multi_run_samples_by_default() -> (
+    None
+):
     report = build_quant_design_matrix_report(
         (
             ExperimentalDesignEntry(

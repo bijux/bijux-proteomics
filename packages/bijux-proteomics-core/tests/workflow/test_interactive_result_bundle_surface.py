@@ -83,7 +83,9 @@ def test_interactive_result_bundle_preserves_real_report_surfaces(
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -99,7 +101,9 @@ def test_interactive_result_bundle_preserves_real_report_surfaces(
 
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ptm_report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),

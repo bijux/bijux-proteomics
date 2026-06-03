@@ -12,7 +12,9 @@ from bijux_proteomics.proteoforms import (
 )
 
 
-def test_assemble_proteoform_candidates_separates_incompatible_peptide_and_ptm_evidence() -> None:
+def test_assemble_proteoform_candidates_separates_incompatible_peptide_and_ptm_evidence() -> (
+    None
+):
     entries = assemble_proteoform_candidates(
         (
             ProteoformPeptideEvidence(
@@ -58,7 +60,9 @@ def test_assemble_proteoform_candidates_separates_incompatible_peptide_and_ptm_e
     )
 
 
-def test_assemble_proteoform_candidates_renders_surface_and_marks_ambiguous_support() -> None:
+def test_assemble_proteoform_candidates_renders_surface_and_marks_ambiguous_support() -> (
+    None
+):
     entries = assemble_proteoform_candidates(
         (
             ProteoformPeptideEvidence(

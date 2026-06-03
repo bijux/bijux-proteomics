@@ -198,8 +198,7 @@ def test_cohort_stratification_blocks_sparse_batch_strata_and_preserves_supporte
     }
     assert set(sex_entries) == {"female", "male"}
     assert all(
-        entry.status is CohortStratumStatus.SUPPORTED
-        for entry in sex_entries.values()
+        entry.status is CohortStratumStatus.SUPPORTED for entry in sex_entries.values()
     )
     assert sex_entries["male"].sample_count_a == 2
     assert sex_entries["male"].sample_count_b == 2

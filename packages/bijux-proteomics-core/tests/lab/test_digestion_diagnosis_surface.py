@@ -65,7 +65,9 @@ def test_classify_digestion_flags_wrong_declared_enzyme_as_mismatch() -> None:
     assert mismatch.non_specific_rate == 0.0
 
 
-def test_classify_digestion_separates_low_specificity_and_inefficient_digestion() -> None:
+def test_classify_digestion_separates_low_specificity_and_inefficient_digestion() -> (
+    None
+):
     rows = classify_digestion(
         (
             DigestionPeptideObservation(

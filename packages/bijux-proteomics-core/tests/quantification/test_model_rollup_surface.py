@@ -71,7 +71,9 @@ def test_fit_peptide_bias_model_learns_constant_peptide_offsets_without_distorti
     abundance_lookup = {
         (entry.protein_id, entry.sample_id): entry for entry in report.protein_abundance
     }
-    bias_lookup = {(entry.protein_id, entry.peptide_id): entry for entry in report.peptide_bias}
+    bias_lookup = {
+        (entry.protein_id, entry.peptide_id): entry for entry in report.peptide_bias
+    }
 
     assert len(report.protein_abundance) == 2
     assert len(report.peptide_bias) == 2
@@ -97,9 +99,14 @@ def test_fit_peptide_bias_model_learns_constant_peptide_offsets_without_distorti
         -1.0,
         abs_tol=1e-6,
     )
-    assert math.isclose(bias_lookup[("P001", "PEPG")].peptide_bias_log2, 1.0, abs_tol=1e-6)
+    assert math.isclose(
+        bias_lookup[("P001", "PEPG")].peptide_bias_log2, 1.0, abs_tol=1e-6
+    )
     assert all(abs(entry.residual_log2) <= 1e-6 for entry in report.residuals)
-    assert "protein_id\tsample_id\tabundance\tlog2_abundance\tsupporting_peptide_count" in render_protein_abundance_tsv(report)
+    assert (
+        "protein_id\tsample_id\tabundance\tlog2_abundance\tsupporting_peptide_count"
+        in render_protein_abundance_tsv(report)
+    )
     assert "peptide_bias_log2" in render_peptide_bias_tsv(report)
     assert "residual_log2" in render_rollup_residuals_tsv(report)
 

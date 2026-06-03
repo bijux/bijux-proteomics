@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import hashlib
 import json
-from dataclasses import dataclass
 from pathlib import Path
 import time
 
@@ -154,7 +154,9 @@ def benchmark_enrichment_runtime() -> CoreAlgorithmPerformanceBenchmarkReport:
     return _build_report(case, observed_seconds=observed_seconds)
 
 
-def benchmark_graph_query_runtime(tmp_path: Path) -> CoreAlgorithmPerformanceBenchmarkReport:
+def benchmark_graph_query_runtime(
+    tmp_path: Path,
+) -> CoreAlgorithmPerformanceBenchmarkReport:
     """Benchmark repeated lazy evidence-graph protein-summary queries."""
 
     case = CORE_ALGORITHM_BENCHMARK_CASES["graph_query"]

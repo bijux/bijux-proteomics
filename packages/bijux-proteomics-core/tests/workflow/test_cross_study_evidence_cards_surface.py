@@ -40,7 +40,9 @@ from bijux_proteomics.workflow.public_dataset_comparison import (
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
 
 
-def _suite_report(*, passed_count: int, failed_count: int) -> PublicBenchmarkSuiteReport:
+def _suite_report(
+    *, passed_count: int, failed_count: int
+) -> PublicBenchmarkSuiteReport:
     return PublicBenchmarkSuiteReport(
         benchmark_root="synthetic_benchmarks",
         output_root="synthetic_runs",
@@ -71,14 +73,22 @@ def _dataset_summary(
         study_kind=ProteomicsStudyKind.LABEL_FREE
         if status is PublicDatasetComparisonDatasetStatus.PASSED
         else None,
-        design_entry_count=4 if status is PublicDatasetComparisonDatasetStatus.PASSED else None,
+        design_entry_count=4
+        if status is PublicDatasetComparisonDatasetStatus.PASSED
+        else None,
         significant_entity_count=1
         if status is PublicDatasetComparisonDatasetStatus.PASSED
         else None,
-        protein_card_count=1 if status is PublicDatasetComparisonDatasetStatus.PASSED else None,
-        conclusion_count=1 if status is PublicDatasetComparisonDatasetStatus.PASSED else None,
-        effect_comparison_supported=status is PublicDatasetComparisonDatasetStatus.PASSED,
-        pathway_comparison_supported=status is PublicDatasetComparisonDatasetStatus.PASSED,
+        protein_card_count=1
+        if status is PublicDatasetComparisonDatasetStatus.PASSED
+        else None,
+        conclusion_count=1
+        if status is PublicDatasetComparisonDatasetStatus.PASSED
+        else None,
+        effect_comparison_supported=status
+        is PublicDatasetComparisonDatasetStatus.PASSED,
+        pathway_comparison_supported=status
+        is PublicDatasetComparisonDatasetStatus.PASSED,
         note="synthetic dataset summary",
     )
 
@@ -209,9 +219,7 @@ def test_cross_study_evidence_cards_preserve_conflicting_protein_and_failed_data
     assert card.failed_dataset_ids == ("study_failed",)
     assert card.source_row_refs == ()
     assert card.derived_no_source_reason is not None
-    assert {
-        entry.dataset_state for entry in card.dataset_entries
-    } == {
+    assert {entry.dataset_state for entry in card.dataset_entries} == {
         CrossStudyEvidenceDatasetState.POSITIVE_SIGNAL,
         CrossStudyEvidenceDatasetState.NEGATIVE_SIGNAL,
         CrossStudyEvidenceDatasetState.DATASET_FAILED,

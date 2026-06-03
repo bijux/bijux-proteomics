@@ -44,7 +44,9 @@ def test_fragpipe_import_benchmark_report_preserves_q_value_counts_and_ordering(
         "runA.1002.1002.3",
         "runA.1003.1003.2",
     )
-    assert tuple(entry.entity_id for entry in report.q_value_behavior.peptide_entries) == (
+    assert tuple(
+        entry.entity_id for entry in report.q_value_behavior.peptide_entries
+    ) == (
         "ACDMK|AC[+57.021464]DM[+15.994915]K|3",
         "PEPTIDE|PEP[+15.994915]TIDE|2",
     )

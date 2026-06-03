@@ -139,6 +139,4 @@ def test_cross_run_reproducibility_without_run_context_keeps_multi_spectrum_supp
     assert entry.detected_run_count == 1
     assert entry.run_ids == ()
     assert entry.replicate_consistency == 1.0
-    assert (
-        entry.reproducibility_class is CrossRunReproducibilityClass.REPRODUCIBLE
-    )
+    assert entry.reproducibility_class is CrossRunReproducibilityClass.REPRODUCIBLE

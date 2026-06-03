@@ -16,12 +16,6 @@ from bijux_proteomics.identification.diann_import import (
     render_diann_protein_group_tsv,
     render_diann_rejected_row_tsv,
 )
-from bijux_proteomics.identification.maxquant_import import (
-    build_maxquant_import_report,
-    render_maxquant_lfq_candidate_tsv,
-    render_maxquant_peptide_tsv,
-    render_maxquant_protein_group_tsv,
-)
 from bijux_proteomics.identification.fragpipe_import import (
     build_fragpipe_import_report,
     render_fragpipe_canonical_psm_tsv,
@@ -35,6 +29,12 @@ from bijux_proteomics.identification.generic_psm_mapper import (
     build_generic_psm_mapper_report,
     render_generic_psm_mapper_tsv,
     render_generic_psm_rejected_row_tsv,
+)
+from bijux_proteomics.identification.maxquant_import import (
+    build_maxquant_import_report,
+    render_maxquant_lfq_candidate_tsv,
+    render_maxquant_peptide_tsv,
+    render_maxquant_protein_group_tsv,
 )
 from bijux_proteomics.identification.openms_import import (
     build_openms_import_report,
@@ -118,15 +118,15 @@ def test_comet_and_sage_psm_exports_ignore_input_row_order() -> None:
     assert render_comet_canonical_psm_tsv(
         comet_report.canonical_psms
     ) == render_comet_canonical_psm_tsv(_reversed_rows(comet_report.canonical_psms))
-    assert render_comet_psm_tsv(report_rows := comet_report.psm_rows) == render_comet_psm_tsv(
-        _reversed_rows(report_rows)
-    )
+    assert render_comet_psm_tsv(
+        report_rows := comet_report.psm_rows
+    ) == render_comet_psm_tsv(_reversed_rows(report_rows))
     assert render_sage_canonical_psm_tsv(
         sage_report.canonical_psms
     ) == render_sage_canonical_psm_tsv(_reversed_rows(sage_report.canonical_psms))
-    assert render_sage_psm_tsv(report_rows := sage_report.psm_rows) == render_sage_psm_tsv(
-        _reversed_rows(report_rows)
-    )
+    assert render_sage_psm_tsv(
+        report_rows := sage_report.psm_rows
+    ) == render_sage_psm_tsv(_reversed_rows(report_rows))
 
 
 def test_openms_export_renderers_ignore_input_row_order() -> None:
@@ -139,15 +139,17 @@ def test_openms_export_renderers_ignore_input_row_order() -> None:
     assert render_openms_psm_tsv(report.psm_rows) == render_openms_psm_tsv(
         _reversed_rows(report.psm_rows)
     )
-    assert render_openms_protein_tsv(
-        report.protein_rows
-    ) == render_openms_protein_tsv(_reversed_rows(report.protein_rows))
-    assert render_openms_feature_tsv(
-        report.feature_rows
-    ) == render_openms_feature_tsv(_reversed_rows(report.feature_rows))
+    assert render_openms_protein_tsv(report.protein_rows) == render_openms_protein_tsv(
+        _reversed_rows(report.protein_rows)
+    )
+    assert render_openms_feature_tsv(report.feature_rows) == render_openms_feature_tsv(
+        _reversed_rows(report.feature_rows)
+    )
     assert render_openms_rejected_feature_tsv(
         report.rejected_feature_rows
-    ) == render_openms_rejected_feature_tsv(_reversed_rows(report.rejected_feature_rows))
+    ) == render_openms_rejected_feature_tsv(
+        _reversed_rows(report.rejected_feature_rows)
+    )
 
 
 def test_generic_mapper_export_renderers_ignore_input_row_order(tmp_path: Path) -> None:
@@ -230,9 +232,7 @@ def test_maxquant_export_renderers_ignore_input_row_order() -> None:
     ) == render_maxquant_protein_group_tsv(_reversed_rows(report.protein_group_rows))
     assert render_maxquant_lfq_candidate_tsv(
         report.lfq_matrix_candidates
-    ) == render_maxquant_lfq_candidate_tsv(
-        _reversed_rows(report.lfq_matrix_candidates)
-    )
+    ) == render_maxquant_lfq_candidate_tsv(_reversed_rows(report.lfq_matrix_candidates))
 
 
 def test_spectronaut_export_renderers_ignore_input_row_order() -> None:
@@ -252,9 +252,7 @@ def test_spectronaut_export_renderers_ignore_input_row_order() -> None:
     )
     assert render_spectronaut_protein_group_tsv(
         report.protein_group_rows
-    ) == render_spectronaut_protein_group_tsv(
-        _reversed_rows(report.protein_group_rows)
-    )
+    ) == render_spectronaut_protein_group_tsv(_reversed_rows(report.protein_group_rows))
     assert render_spectronaut_protein_group_quantity_tsv(
         report.protein_group_quantity_rows
     ) == render_spectronaut_protein_group_quantity_tsv(

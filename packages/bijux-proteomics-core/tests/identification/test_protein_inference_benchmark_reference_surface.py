@@ -77,7 +77,8 @@ def test_protein_inference_benchmark_reference_cases_match_expected_outputs() ->
         ).read_text(encoding="utf-8")
     )
     cases = tuple(
-        ProteinInferenceBenchmarkReferenceCase.model_validate(case) for case in raw_cases
+        ProteinInferenceBenchmarkReferenceCase.model_validate(case)
+        for case in raw_cases
     )
 
     case = cases[0]
@@ -97,12 +98,17 @@ def test_protein_inference_benchmark_reference_cases_match_expected_outputs() ->
         suite.contaminant_scenario_count
         == case.expected_summary.contaminant_scenario_count
     )
-    assert suite.all_decoy_scenario_count == case.expected_summary.all_decoy_scenario_count
+    assert (
+        suite.all_decoy_scenario_count == case.expected_summary.all_decoy_scenario_count
+    )
     assert (
         suite.all_target_scenario_count
         == case.expected_summary.all_target_scenario_count
     )
-    assert suite.tied_score_scenario_count == case.expected_summary.tied_score_scenario_count
+    assert (
+        suite.tied_score_scenario_count
+        == case.expected_summary.tied_score_scenario_count
+    )
     assert (
         suite.missing_fasta_scenario_count
         == case.expected_summary.missing_fasta_scenario_count
@@ -134,19 +140,29 @@ def test_protein_inference_benchmark_reference_cases_match_expected_outputs() ->
             observed_report.missing_fasta_pressure
             is expected_report.missing_fasta_pressure
         )
-        assert len(observed_report.method_assessments) == len(expected_report.assessments)
+        assert len(observed_report.method_assessments) == len(
+            expected_report.assessments
+        )
         for observed_assessment, expected_assessment in zip(
             observed_report.method_assessments,
             expected_report.assessments,
             strict=True,
         ):
-            assert observed_assessment.strategy_kind is expected_assessment.strategy_kind
-            assert observed_assessment.selected_proteins == expected_assessment.selected_proteins
+            assert (
+                observed_assessment.strategy_kind is expected_assessment.strategy_kind
+            )
+            assert (
+                observed_assessment.selected_proteins
+                == expected_assessment.selected_proteins
+            )
             assert (
                 observed_assessment.false_positive_proteins
                 == expected_assessment.false_positive_proteins
             )
-            assert observed_assessment.missed_proteins == expected_assessment.missed_proteins
+            assert (
+                observed_assessment.missed_proteins
+                == expected_assessment.missed_proteins
+            )
             assert (
                 observed_assessment.selected_missing_fasta_proteins
                 == expected_assessment.selected_missing_fasta_proteins

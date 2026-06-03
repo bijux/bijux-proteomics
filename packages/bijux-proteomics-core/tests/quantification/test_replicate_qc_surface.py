@@ -413,6 +413,5 @@ def test_condition_clustering_report_recognizes_condition_separation() -> None:
     assert report.mean_within_condition_distance is not None
     assert report.mean_between_condition_distance is not None
     assert (
-        report.mean_within_condition_distance
-        < report.mean_between_condition_distance
+        report.mean_within_condition_distance < report.mean_between_condition_distance
     )

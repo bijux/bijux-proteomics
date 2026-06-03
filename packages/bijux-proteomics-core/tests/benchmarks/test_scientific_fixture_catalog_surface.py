@@ -33,7 +33,9 @@ def test_scientific_fixture_catalog_covers_all_hard_biological_cases() -> None:
 
 
 def test_scientific_fixture_manifest_lookup_preserves_missing_sample_assets() -> None:
-    manifest = get_scientific_fixture_manifest(ScientificFixtureCaseKind.MISSING_SAMPLES)
+    manifest = get_scientific_fixture_manifest(
+        ScientificFixtureCaseKind.MISSING_SAMPLES
+    )
 
     assert manifest.fixture_id == "scientific_fixture:missing_samples"
     assert manifest.owner_surface == "quantification.missingness_review"

@@ -16,7 +16,9 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     normalize_label_free_table,
 )
-from bijux_proteomics.quantification.matrix.core_matrix import quant_matrix_to_dense_array
+from bijux_proteomics.quantification.matrix.core_matrix import (
+    quant_matrix_to_dense_array,
+)
 from bijux_proteomics.quantification.normalization.normalization import (
     _normalize_intensity_matrix_pure,
     _normalize_intensity_matrix_vectorized,

@@ -59,9 +59,14 @@ def test_ptm_review_renderers_keep_ambiguity_and_coverage_explicit() -> None:
         "localized peptide is shared across multiple protein references" in line
         for line in ambiguity_lines
     )
-    assert coverage_lines[0] == "site_key\tspectrum_count\tpeptide_count\tsample_count\tspectra\tpeptides"
+    assert (
+        coverage_lines[0]
+        == "site_key\tspectrum_count\tpeptide_count\tsample_count\tspectra\tpeptides"
+    )
     assert any(
-        line.startswith("P11111:S5:Phospho\t4\t1\t4\tscan=ptm-001;scan=ptm-002;scan=ptm-003;scan=ptm-004")
+        line.startswith(
+            "P11111:S5:Phospho\t4\t1\t4\tscan=ptm-001;scan=ptm-002;scan=ptm-003;scan=ptm-004"
+        )
         for line in coverage_lines
     )
 

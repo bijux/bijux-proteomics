@@ -63,15 +63,15 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     assert "localized_peptide" in (
         output_dir / manifest.artifacts.accepted_evidence_tsv
     ).read_text(encoding="utf-8")
-    assert (
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == (
         "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
         "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
-    ) == (
-        output_dir / manifest.artifacts.rejected_evidence_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
-    assert "row_number\tissue_codes\tissue_messages\traw_fields" == (
-        output_dir / manifest.artifacts.parse_rejected_evidence_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    )
+    assert (output_dir / manifest.artifacts.parse_rejected_evidence_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == "row_number\tissue_codes\tissue_messages\traw_fields"
     assert (output_dir / manifest.ptm_report_manifest.artifacts.peptide_tsv).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.site_tsv).exists()
     assert (
@@ -83,9 +83,15 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     assert (
         output_dir / manifest.ptm_report_manifest.artifacts.site_group_missingness_tsv
     ).exists()
-    assert (output_dir / manifest.ptm_report_manifest.artifacts.differential_tsv).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.differential_tsv
+    ).exists()
     assert (
         output_dir / manifest.ptm_report_manifest.artifacts.regulator_enrichment_tsv
     ).exists()
-    assert (output_dir / manifest.ptm_report_manifest.artifacts.evidence_card_tsv).exists()
-    assert (output_dir / manifest.ptm_report_manifest.artifacts.evidence_claim_tsv).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.evidence_card_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.ptm_report_manifest.artifacts.evidence_claim_tsv
+    ).exists()

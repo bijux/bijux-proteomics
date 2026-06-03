@@ -17,7 +17,10 @@ def test_enrichment_runtime_stays_within_baseline_threshold() -> None:
 
     assert report.algorithm_id == "enrichment"
     assert report.workload_unit == "membership_rows"
-    assert report.generated_unit_count == CORE_ALGORITHM_BENCHMARK_CASES["enrichment"].generated_unit_count
+    assert (
+        report.generated_unit_count
+        == CORE_ALGORITHM_BENCHMARK_CASES["enrichment"].generated_unit_count
+    )
     assert report.regression_detected is False
 
 
@@ -26,5 +29,8 @@ def test_graph_query_runtime_stays_within_baseline_threshold(tmp_path: Path) -> 
 
     assert report.algorithm_id == "graph_query"
     assert report.workload_unit == "protein_queries"
-    assert report.generated_unit_count == CORE_ALGORITHM_BENCHMARK_CASES["graph_query"].generated_unit_count
+    assert (
+        report.generated_unit_count
+        == CORE_ALGORITHM_BENCHMARK_CASES["graph_query"].generated_unit_count
+    )
     assert report.regression_detected is False

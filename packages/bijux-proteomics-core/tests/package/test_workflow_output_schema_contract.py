@@ -6,7 +6,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 ARTIFACT_LAYOUT_OWNER = SOURCE_ROOT / "workflow" / "exports" / "artifact_layout.py"
@@ -43,15 +42,15 @@ def test_artifact_layout_owner_self_validates_written_workflow_outputs() -> None
     source_text = ARTIFACT_LAYOUT_OWNER.read_text(encoding="utf-8")
     tree = ast.parse(source_text)
 
-    assert _calls_function(
-        tree, "validate_workflow_artifact_manifest"
-    ), "workflow artifact layout owner must validate managed outputs after writing"
-    assert _calls_function(
-        tree, "validate_workflow_artifact_completeness"
-    ), "workflow artifact layout owner must validate workflow completeness from owned manifests"
-    assert _calls_function(
-        tree, "validate_workflow_artifact_inventory"
-    ), "workflow artifact layout owner must validate emitted artifact inventories"
+    assert _calls_function(tree, "validate_workflow_artifact_manifest"), (
+        "workflow artifact layout owner must validate managed outputs after writing"
+    )
+    assert _calls_function(tree, "validate_workflow_artifact_completeness"), (
+        "workflow artifact layout owner must validate workflow completeness from owned manifests"
+    )
+    assert _calls_function(tree, "validate_workflow_artifact_inventory"), (
+        "workflow artifact layout owner must validate emitted artifact inventories"
+    )
     assert "artifact_inventory.tsv" in source_text
     assert "artifact_inventory_summary.tsv" in source_text
     assert "artifact_schema_version:" in source_text

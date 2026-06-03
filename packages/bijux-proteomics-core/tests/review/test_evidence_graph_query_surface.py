@@ -6,8 +6,8 @@ from __future__ import annotations
 from bijux_proteomics.review import (
     EvidenceGraphEdge,
     EvidenceGraphNode,
-    ProteomicsEvidenceEdgeKind,
     EvidenceGraphQuery,
+    ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceNodeKind,
     ProteomicsEvidenceType,
     query_evidence_graph,

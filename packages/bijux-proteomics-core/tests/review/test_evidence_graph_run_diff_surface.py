@@ -12,11 +12,19 @@ from bijux_proteomics.review import (
 )
 
 
-def build_run_diff_fixture_graphs() -> tuple[ProteomicsEvidenceGraph, ProteomicsEvidenceGraph]:
+def build_run_diff_fixture_graphs() -> tuple[
+    ProteomicsEvidenceGraph, ProteomicsEvidenceGraph
+]:
     left = ProteomicsEvidenceGraphBuilder()
     right = ProteomicsEvidenceGraphBuilder()
 
-    _add_protein_claim(left, protein_id="P10001", peptide_id="PEPA", claim_state="changed", row_suffix="10")
+    _add_protein_claim(
+        left,
+        protein_id="P10001",
+        peptide_id="PEPA",
+        claim_state="changed",
+        row_suffix="10",
+    )
     _add_protein_claim(
         right,
         protein_id="P10001",
@@ -25,11 +33,27 @@ def build_run_diff_fixture_graphs() -> tuple[ProteomicsEvidenceGraph, Proteomics
         row_suffix="10",
         shared_only=True,
     )
-    _add_protein_claim(left, protein_id="P20002", peptide_id="PEPB", claim_state="changed", row_suffix="20")
-    _add_protein_claim(right, protein_id="P30003", peptide_id="PEPC", claim_state="changed", row_suffix="30")
+    _add_protein_claim(
+        left,
+        protein_id="P20002",
+        peptide_id="PEPB",
+        claim_state="changed",
+        row_suffix="20",
+    )
+    _add_protein_claim(
+        right,
+        protein_id="P30003",
+        peptide_id="PEPC",
+        claim_state="changed",
+        row_suffix="30",
+    )
 
-    _add_peptide_claim(left, peptide_id="PEPDIFF", claim_state="upregulated", row_suffix="40")
-    _add_peptide_claim(right, peptide_id="PEPDIFF", claim_state="unchanged", row_suffix="40")
+    _add_peptide_claim(
+        left, peptide_id="PEPDIFF", claim_state="upregulated", row_suffix="40"
+    )
+    _add_peptide_claim(
+        right, peptide_id="PEPDIFF", claim_state="unchanged", row_suffix="40"
+    )
 
     _add_ptm_claim(
         left,
@@ -92,13 +116,18 @@ def test_compare_evidence_graph_runs_reports_scientific_conclusion_changes() -> 
         "removed": 1,
     }
 
-    by_key = {(entry.category.value, entry.entity_ref): entry for entry in report.entries}
+    by_key = {
+        (entry.category.value, entry.entity_ref): entry for entry in report.entries
+    }
     assert by_key[("protein", "P10001")].change_kind.value == "changed"
     assert by_key[("protein", "P20002")].change_kind.value == "removed"
     assert by_key[("protein", "P30003")].change_kind.value == "added"
     assert by_key[("peptide", "PEPDIFF")].left_claim_state == "upregulated"
     assert by_key[("peptide", "PEPDIFF")].right_claim_state == "unchanged"
-    assert by_key[("ptm_site", "P40004:S3:Phospho")].left_evidence_tier == "high_confidence"
+    assert (
+        by_key[("ptm_site", "P40004:S3:Phospho")].left_evidence_tier
+        == "high_confidence"
+    )
     assert by_key[("ptm_site", "P40004:S3:Phospho")].right_evidence_tier == "weak"
     assert by_key[("qc_decision", "R1")].left_claim_state == "accepted"
     assert by_key[("qc_decision", "R1")].right_claim_state == "caution"
@@ -106,7 +135,9 @@ def test_compare_evidence_graph_runs_reports_scientific_conclusion_changes() -> 
     assert by_key[("pathway", "R-HSA-50005")].right_evidence_tier == "weak"
 
 
-def test_compare_evidence_graph_runs_preserves_row_provenance_for_changed_claims() -> None:
+def test_compare_evidence_graph_runs_preserves_row_provenance_for_changed_claims() -> (
+    None
+):
     left_graph, right_graph = build_run_diff_fixture_graphs()
 
     report = compare_evidence_graph_runs(left_graph, right_graph)
@@ -147,8 +178,12 @@ def _add_protein_claim(
             ),
         ),
     )
-    spectrum = builder.add_spectrum(f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high")
-    psm = builder.add_psm(f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high")
+    spectrum = builder.add_spectrum(
+        f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high"
+    )
+    psm = builder.add_psm(
+        f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high"
+    )
     builder.add_spectrum_supports_psm(
         spectrum.node_id,
         psm.node_id,
@@ -185,7 +220,9 @@ def _add_protein_claim(
         reason=f"{peptide_id} maps to {protein_id}",
     )
     if shared_only:
-        alternate = builder.add_protein(f"{protein_id}:alt", label=f"{protein_id}:alt", trust_class="high")
+        alternate = builder.add_protein(
+            f"{protein_id}:alt", label=f"{protein_id}:alt", trust_class="high"
+        )
         builder.add_peptide_maps_to_protein(
             peptide.node_id,
             alternate.node_id,
@@ -252,8 +289,12 @@ def _add_ptm_claim(
             ),
         ),
     )
-    spectrum = builder.add_spectrum(f"scan={row_suffix}p", label=f"scan={row_suffix}p", trust_class="high")
-    psm = builder.add_psm(f"psm:{row_suffix}p", label=f"psm:{row_suffix}p", trust_class="high")
+    spectrum = builder.add_spectrum(
+        f"scan={row_suffix}p", label=f"scan={row_suffix}p", trust_class="high"
+    )
+    psm = builder.add_psm(
+        f"psm:{row_suffix}p", label=f"psm:{row_suffix}p", trust_class="high"
+    )
     builder.add_spectrum_supports_psm(
         spectrum.node_id,
         psm.node_id,
@@ -337,10 +378,16 @@ def _add_pathway_claim(
     protein_trust_class: str,
     row_suffix: str,
 ) -> None:
-    protein = builder.add_protein(protein_id, label=protein_id, trust_class=protein_trust_class)
+    protein = builder.add_protein(
+        protein_id, label=protein_id, trust_class=protein_trust_class
+    )
     peptide = builder.add_peptide(peptide_id, label=peptide_id, trust_class="high")
-    spectrum = builder.add_spectrum(f"scan={row_suffix}p", label=f"scan={row_suffix}p", trust_class="high")
-    psm = builder.add_psm(f"psm:{row_suffix}p", label=f"psm:{row_suffix}p", trust_class="high")
+    spectrum = builder.add_spectrum(
+        f"scan={row_suffix}p", label=f"scan={row_suffix}p", trust_class="high"
+    )
+    psm = builder.add_psm(
+        f"psm:{row_suffix}p", label=f"psm:{row_suffix}p", trust_class="high"
+    )
     builder.add_spectrum_supports_psm(
         spectrum.node_id,
         psm.node_id,

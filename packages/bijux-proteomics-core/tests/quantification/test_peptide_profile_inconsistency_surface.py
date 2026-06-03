@@ -37,10 +37,7 @@ def test_peptide_profile_inconsistency_flags_directionally_inverted_peptides() -
     assert report.summary.evaluated_entry_count == 4
     assert report.summary.inconsistent_entry_count == 1
     assert by_peptide["PEPVVK"].inconsistent_with_protein_profile is True
-    assert (
-        by_peptide["PEPVVK"].outlier_reason.value
-        == "directional_profile_inversion"
-    )
+    assert by_peptide["PEPVVK"].outlier_reason.value == "directional_profile_inversion"
     assert math.isclose(
         by_peptide["PEPVVK"].correlation_to_protein_profile or 0.0,
         -1.0,

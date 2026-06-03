@@ -86,15 +86,15 @@ def test_experiment_feasibility_report_lists_supported_and_unsupported_contrasts
     )
     assert report.model_support[0].supported is True
     assert any(
-        entry.analysis_family is ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
+        entry.analysis_family
+        is ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
         and not entry.supported
         for entry in report.model_support
     )
-    assert "condition_a" in render_experiment_feasibility_valid_contrasts_tsv(
-        report
-    )
-    assert "insufficient_group_size" in render_experiment_feasibility_invalid_contrasts_tsv(
-        report
+    assert "condition_a" in render_experiment_feasibility_valid_contrasts_tsv(report)
+    assert (
+        "insufficient_group_size"
+        in render_experiment_feasibility_invalid_contrasts_tsv(report)
     )
     assert "effective_statistical_unit_count" in (
         render_experiment_feasibility_group_sizes_tsv(report)
@@ -132,8 +132,9 @@ def test_experiment_feasibility_report_detects_missing_metadata_and_rejected_row
         "missing_pairing_metadata",
         "missing_timepoint_metadata",
     }
-    assert "missing_timepoint_metadata" in render_experiment_feasibility_missing_metadata_tsv(
-        report
+    assert (
+        "missing_timepoint_metadata"
+        in render_experiment_feasibility_missing_metadata_tsv(report)
     )
 
 

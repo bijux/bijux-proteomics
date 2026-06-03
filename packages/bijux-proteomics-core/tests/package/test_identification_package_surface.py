@@ -553,8 +553,7 @@ def test_identification_package_exports_protein_parsimony_owner_surface() -> Non
         records,
         variant=identification.ParsimonyVariant(case["variant"]),
         review_variants=tuple(
-            identification.ParsimonyVariant(value)
-            for value in case["review_variants"]
+            identification.ParsimonyVariant(value) for value in case["review_variants"]
         ),
     )
     rendered = identification.render_protein_parsimony_summary_tsv(report)
@@ -628,9 +627,7 @@ def test_identification_package_exports_error_rate_annotation_owner_surface() ->
     assert "reproducibility_hash" in rendered
 
 
-def test_identification_package_exports_rejected_evidence_table_owner_surface() -> (
-    None
-):
+def test_identification_package_exports_rejected_evidence_table_owner_surface() -> None:
     rejected_rows = (
         identification.RejectedPsmRow(
             row_number=7,

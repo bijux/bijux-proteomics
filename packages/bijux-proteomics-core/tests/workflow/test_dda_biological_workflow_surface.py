@@ -49,11 +49,11 @@ def test_build_dda_biological_workflow_bundle_preserves_fdr_inference_lfq_and_bi
     assert report.summary.significant_protein_count >= 3
     assert report.summary.sample_count == 6
     assert len({row.spectrum_id for row in report.accepted_psms}) == 30
-    assert {
-        reason.value
-        for row in report.filtered_psms
-        for reason in row.reasons
-    } == {"q_value_above_threshold", "decoy", "contaminant"}
+    assert {reason.value for row in report.filtered_psms for reason in row.reasons} == {
+        "q_value_above_threshold",
+        "decoy",
+        "contaminant",
+    }
     assert report.protein_lfq_report.summary.protein_row_count == 5
     assert report.biological_report.summary.go_enriched_term_count == 1
     assert report.biological_report.summary.pathway_enriched_entry_count == 1

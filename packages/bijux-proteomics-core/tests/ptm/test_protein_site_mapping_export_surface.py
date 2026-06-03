@@ -86,7 +86,9 @@ def test_ptm_unmapped_peptide_renderer_preserves_reason_ledgers(tmp_path: Path) 
         protein_sequences=_protein_sequences(),
     )
 
-    lines = render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides).splitlines()
+    lines = render_ptm_unmapped_peptide_tsv(
+        mapping_report.unmapped_peptides
+    ).splitlines()
 
     assert lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide\tprotein_refs"

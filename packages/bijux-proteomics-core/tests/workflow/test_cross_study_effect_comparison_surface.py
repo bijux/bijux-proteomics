@@ -8,8 +8,10 @@ from pathlib import Path
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.study import build_experiment_design
-from bijux_proteomics.workflow.cross_study_protein_harmonization import (
-    CrossStudyProteinObservationSourceKind,
+from bijux_proteomics.workflow import (
+    build_biological_result_report_bundle,
+    build_proteomics_study_result,
+    build_tmt_experiment_workflow_bundle,
 )
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
@@ -20,14 +22,12 @@ from bijux_proteomics.workflow.cross_study_effect_comparison import (
     build_cross_study_effect_comparison_report_from_observations,
     extract_cross_study_protein_effect_observations,
     render_cross_study_conflicting_hit_tsv,
-    render_cross_study_effect_detail_tsv,
     render_cross_study_effect_comparison_tsv,
+    render_cross_study_effect_detail_tsv,
     render_cross_study_replicated_hit_tsv,
 )
-from bijux_proteomics.workflow import (
-    build_biological_result_report_bundle,
-    build_proteomics_study_result,
-    build_tmt_experiment_workflow_bundle,
+from bijux_proteomics.workflow.cross_study_protein_harmonization import (
+    CrossStudyProteinObservationSourceKind,
 )
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
 
@@ -83,7 +83,9 @@ def test_extract_cross_study_protein_effect_observations_preserves_biological_an
     assert extraction.summary.observation_count >= 2
     assert extraction.unsupported_studies == ()
     protein_card_entry = next(
-        entry for entry in extraction.observations if entry.source_surface == "protein_cards"
+        entry
+        for entry in extraction.observations
+        if entry.source_surface == "protein_cards"
     )
     label_based_entry = next(
         entry
@@ -227,10 +229,14 @@ def test_cross_study_effect_comparison_marks_replicated_hits_after_reversed_cont
         comparison.contrast_alignment_status
         is CrossStudyEffectContrastAlignmentStatus.REVERSED_ORDER_NORMALIZED
     )
-    assert comparison.comparison_status is CrossStudyEffectComparisonStatus.REPLICATED_HIT
+    assert (
+        comparison.comparison_status is CrossStudyEffectComparisonStatus.REPLICATED_HIT
+    )
     assert comparison.replicated_hit is True
     assert comparison.conflicting_hit is False
-    assert set(comparison.normalized_significant_directions) == {CrossStudyEffectDirection.UP}
+    assert set(comparison.normalized_significant_directions) == {
+        CrossStudyEffectDirection.UP
+    }
     assert "replicated_hit" in render_cross_study_replicated_hit_tsv(report)
 
 
@@ -287,7 +293,9 @@ def test_cross_study_effect_comparison_marks_conflicting_hits_explicitly() -> No
     )
 
     comparison = report.comparisons[0]
-    assert comparison.comparison_status is CrossStudyEffectComparisonStatus.CONFLICTING_HIT
+    assert (
+        comparison.comparison_status is CrossStudyEffectComparisonStatus.CONFLICTING_HIT
+    )
     assert comparison.conflicting_hit is True
     assert set(comparison.conflicting_study_ids) == {"study_a", "study_b"}
     assert "conflicting_hit" in render_cross_study_conflicting_hit_tsv(report)

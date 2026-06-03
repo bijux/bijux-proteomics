@@ -18,7 +18,9 @@ def _fixture(name: str) -> Path:
     )
 
 
-def test_silac_label_based_report_bundle_preserves_ratio_validation_and_differential_surfaces() -> None:
+def test_silac_label_based_report_bundle_preserves_ratio_validation_and_differential_surfaces() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("silac_differential.design.tsv")

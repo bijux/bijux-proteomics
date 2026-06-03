@@ -94,12 +94,12 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert "reason_code" in (
         output_dir / manifest.artifacts.import_rejected_evidence_tsv
     ).read_text(encoding="utf-8")
-    assert (
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == (
         "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
         "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
-    ) == (
-        output_dir / manifest.artifacts.rejected_evidence_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    )
     assert "precursor_key" in (
         output_dir / manifest.artifacts.precursor_quantity_matrix_tsv
     ).read_text(encoding="utf-8")
@@ -139,9 +139,9 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert "contrast_count" in (
         output_dir / manifest.artifacts.differential_qc_summary_tsv
     ).read_text(encoding="utf-8")
-    assert "card_id" in (
-        output_dir / manifest.artifacts.protein_card_tsv
-    ).read_text(encoding="utf-8")
+    assert "card_id" in (output_dir / manifest.artifacts.protein_card_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "annotation_status" in (
         output_dir / manifest.artifacts.annotation_tsv
     ).read_text(encoding="utf-8")

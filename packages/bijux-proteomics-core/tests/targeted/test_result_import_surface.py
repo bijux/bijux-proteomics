@@ -18,7 +18,9 @@ def _format_fixture(name: str) -> Path:
 
 
 def test_build_skyline_result_import_report_reads_targeted_identifiers() -> None:
-    report = build_skyline_result_import_report(_format_fixture("skyline_targeted_results.tsv"))
+    report = build_skyline_result_import_report(
+        _format_fixture("skyline_targeted_results.tsv")
+    )
 
     assert report.source_kind is TargetedResultSourceKind.SKYLINE_EXPORT
     assert report.summary.observation_count == 6
@@ -37,7 +39,9 @@ def test_build_skyline_result_import_report_reads_targeted_identifiers() -> None
     assert "source_engine" in render_targeted_result_observation_tsv(report)
 
 
-def test_build_transition_table_result_import_report_reads_transition_table_metadata() -> None:
+def test_build_transition_table_result_import_report_reads_transition_table_metadata() -> (
+    None
+):
     report = build_transition_table_result_import_report(
         _format_fixture("targeted_transition_results.tsv")
     )

@@ -76,7 +76,9 @@ def test_detect_carryover_flags_known_injected_followup_signal() -> None:
 
 
 def test_detect_carryover_requires_explicit_run_order() -> None:
-    with pytest.raises(ValueError, match="run_order is required for carryover analysis"):
+    with pytest.raises(
+        ValueError, match="run_order is required for carryover analysis"
+    ):
         detect_carryover(
             (),
             (

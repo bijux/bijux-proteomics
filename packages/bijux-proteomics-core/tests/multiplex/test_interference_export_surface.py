@@ -45,8 +45,9 @@ def test_tmt_interference_exports_write_summary_observations_and_channel_review(
     export_tmt_interference_channel_summary_tsv(report, channel_summary_path)
 
     assert "filtered_channel_row_count" in summary_path.read_text(encoding="utf-8")
-    assert "source_row_id\tmultiplex_group\tmultiplex_channel" in observation_path.read_text(
-        encoding="utf-8"
+    assert (
+        "source_row_id\tmultiplex_group\tmultiplex_channel"
+        in observation_path.read_text(encoding="utf-8")
     )
     assert "threshold and should be considered unreliable" in filtered_path.read_text(
         encoding="utf-8"

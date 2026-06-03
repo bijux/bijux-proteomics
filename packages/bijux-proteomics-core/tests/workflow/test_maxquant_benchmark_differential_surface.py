@@ -51,16 +51,15 @@ def test_build_maxquant_benchmark_report_preserves_differential_results() -> Non
     }
     assert comparison_lookup["P04637"].source_log2_fold_change > 0.0
     assert comparison_lookup["Q9Y243"].source_log2_fold_change < 0.0
-    assert comparison_lookup["P04637"].imported_adjusted_p_value == comparison_lookup[
-        "P04637"
-    ].source_adjusted_p_value
+    assert (
+        comparison_lookup["P04637"].imported_adjusted_p_value
+        == comparison_lookup["P04637"].source_adjusted_p_value
+    )
 
 
 def test_build_maxquant_benchmark_report_blocks_invalid_contrasts() -> None:
     design_report = parse_experimental_design_table(_bundle_fixture("design.tsv"))
-    experiment_design = build_experiment_design(
-        tuple(design_report.accepted_entries)
-    )
+    experiment_design = build_experiment_design(tuple(design_report.accepted_entries))
 
     try:
         build_maxquant_benchmark_report(

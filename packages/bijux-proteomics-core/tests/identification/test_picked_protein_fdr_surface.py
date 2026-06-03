@@ -96,7 +96,9 @@ def _picked_records() -> tuple[PsmRecord, ...]:
     )
 
 
-def test_picked_protein_fdr_report_records_pair_winners_and_decoy_win_rejection() -> None:
+def test_picked_protein_fdr_report_records_pair_winners_and_decoy_win_rejection() -> (
+    None
+):
     report = build_picked_protein_fdr_report_from_psm_records(
         _picked_records(),
         threshold=0.1,
@@ -143,4 +145,7 @@ def test_picked_protein_fdr_pair_renderer_emits_competition_ledgers() -> None:
     assert rendered.startswith(
         "pair_id\tbase_accession\ttarget_ref\tdecoy_ref\ttarget_score\tdecoy_score"
     )
-    assert "picked:P55555\tP55555\tP55555\tDECOY_P55555\t89.0\t92.0\tDECOY_P55555" in rendered
+    assert (
+        "picked:P55555\tP55555\tP55555\tDECOY_P55555\t89.0\t92.0\tDECOY_P55555"
+        in rendered
+    )

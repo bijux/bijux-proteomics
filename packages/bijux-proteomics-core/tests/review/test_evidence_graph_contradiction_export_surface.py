@@ -25,4 +25,4 @@ def test_evidence_graph_contradictions_render_contradictions_tsv() -> None:
     assert lines[1].startswith(
         "contradiction:pathway:treatment_vs_control:R-HSA-199420:weak-support\t"
     )
-    assert "\"contradiction_count\": 3" in report.to_stable_json()
+    assert '"contradiction_count": 3' in report.to_stable_json()

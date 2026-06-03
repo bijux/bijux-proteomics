@@ -167,9 +167,7 @@ def _table():
     )
 
 
-def test_bootstrap_effect_stability_marks_direction_switching_entity_unstable() -> (
-    None
-):
+def test_bootstrap_effect_stability_marks_direction_switching_entity_unstable() -> None:
     report = bootstrap_effect_stability(
         _table(),
         _design(),
@@ -180,15 +178,9 @@ def test_bootstrap_effect_stability_marks_direction_switching_entity_unstable() 
     )
     by_entity = {entry.entity_id: entry for entry in report.entries}
 
-    assert (
-        by_entity["PSTABLE"].robustness_tier
-        is BootstrapEffectRobustnessTier.STABLE
-    )
+    assert by_entity["PSTABLE"].robustness_tier is BootstrapEffectRobustnessTier.STABLE
     assert by_entity["PSTABLE"].sign_consistency > 0.95
-    assert (
-        by_entity["PSWING"].robustness_tier
-        is BootstrapEffectRobustnessTier.UNSTABLE
-    )
+    assert by_entity["PSWING"].robustness_tier is BootstrapEffectRobustnessTier.UNSTABLE
     assert by_entity["PSWING"].sign_consistency < 0.75
 
 
@@ -206,7 +198,9 @@ def test_bootstrap_effect_stability_surfaces_q_value_stability_and_tsv_columns()
     by_entity = {entry.entity_id: entry for entry in report.entries}
     rendered = render_bootstrap_effect_stability_tsv(report)
 
-    assert by_entity["PSTABLE"].q_value_stability > by_entity["PSWING"].q_value_stability
+    assert (
+        by_entity["PSTABLE"].q_value_stability > by_entity["PSWING"].q_value_stability
+    )
     assert rendered.startswith(
         "entity_id\tmedian_log2fc\tsign_consistency\tq_value_stability\trobustness_tier\n"
     )

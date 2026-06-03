@@ -5,13 +5,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.interpretation import (
     ComplexActivityPolicy,
     ComplexMemberKind,
     ComplexMembershipRecord,
     build_complex_activity_report,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -59,7 +59,9 @@ def test_build_complex_activity_report_scores_complexes_with_limiting_members() 
         _workflow_fixture("biological_report.design.tsv")
     ).accepted_entries
     fasta_records = parse_fasta_document(
-        _workflow_fixture("biological_report_reference.fasta").read_text(encoding="utf-8"),
+        _workflow_fixture("biological_report_reference.fasta").read_text(
+            encoding="utf-8"
+        ),
         mode=FastaParseMode.STRICT,
     ).accepted_records
     complex_records = (

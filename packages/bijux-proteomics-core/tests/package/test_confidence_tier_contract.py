@@ -8,10 +8,11 @@ from pathlib import Path
 
 import pytest
 
-
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 CANONICAL_OWNER = SOURCE_ROOT / "domain" / "confidence.py"
-IDENTIFICATION_LABEL_OWNER = SOURCE_ROOT / "identification" / "contracts" / "confidence.py"
+IDENTIFICATION_LABEL_OWNER = (
+    SOURCE_ROOT / "identification" / "contracts" / "confidence.py"
+)
 ALIAS_OWNERS = {
     "review/evidence_graph/evidence_graph_confidence.py": "EvidenceGraphConfidenceTier",
     "review/claims/biological_hypotheses.py": "BiologicalHypothesisConfidenceTier",
@@ -117,5 +118,7 @@ def test_shared_confidence_tier_owner_normalizes_legacy_labels() -> None:
     source_text = CANONICAL_OWNER.read_text(encoding="utf-8")
 
     assert 'if normalized in {"high", "high_confidence"}:' in source_text
-    assert 'if normalized in {"moderate", "moderate_confidence", "medium"}:' in source_text
+    assert (
+        'if normalized in {"moderate", "moderate_confidence", "medium"}:' in source_text
+    )
     assert 'if normalized in {"low", "low_confidence"}:' in source_text

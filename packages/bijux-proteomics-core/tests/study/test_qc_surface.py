@@ -23,9 +23,9 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.study.qc import (
     QcAssessmentSeverity,
-    QcStatus,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
+    QcStatus,
     QcThresholdPolicy,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
@@ -444,7 +444,9 @@ def test_build_lcms_run_qc_report_tracks_charge_and_contaminant_distribution() -
     )
 
 
-def test_build_lcms_run_qc_report_warns_for_contaminant_heavy_intensity_burden() -> None:
+def test_build_lcms_run_qc_report_warns_for_contaminant_heavy_intensity_burden() -> (
+    None
+):
     design_entry = _design_entries()["S1"]
     spectra = (
         _spectrum_for_peptide(
@@ -491,8 +493,7 @@ def test_build_lcms_run_qc_report_warns_for_contaminant_heavy_intensity_burden()
     assert report.contaminant_summary.total_psm_intensity == 1000.0
     assert report.contaminant_summary.contaminant_intensity_fraction == 0.9
     assert any(
-        entry.code == "elevated_contaminant_fraction"
-        for entry in report.run_anomalies
+        entry.code == "elevated_contaminant_fraction" for entry in report.run_anomalies
     )
 
 
@@ -725,7 +726,13 @@ def test_qc_run_assessment_emits_pass_caution_fail_statuses_with_reason_codes() 
             ),
         ),
         (
-            _psm("pass:scan-001", "ACDEFGK", charge=2, score=120.0, protein_refs=("P11111",)),
+            _psm(
+                "pass:scan-001",
+                "ACDEFGK",
+                charge=2,
+                score=120.0,
+                protein_refs=("P11111",),
+            ),
             _psm(
                 "pass:scan-002",
                 "FGHIK",

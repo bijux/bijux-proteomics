@@ -3,17 +3,19 @@
 
 from __future__ import annotations
 
-import time
 from pathlib import Path
+import time
 
 import bijux_proteomics.review as review
-import bijux_proteomics.workflow as workflow
 from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdgeKind,
 )
+import bijux_proteomics.workflow as workflow
 
 
-def _write_large_evidence_graph_artifacts(path: Path, *, entity_count: int) -> tuple[Path, Path]:
+def _write_large_evidence_graph_artifacts(
+    path: Path, *, entity_count: int
+) -> tuple[Path, Path]:
     path.mkdir(parents=True, exist_ok=True)
     nodes_path = path / "evidence_graph_nodes.tsv"
     edges_path = path / "evidence_graph_edges.tsv"
@@ -158,28 +160,26 @@ def _write_large_result_artifacts(
         gene_symbol = f"GENE{index:05d}"
         card_id = f"protein-card-{protein_ref}"
         graph_rows.append(f"subject:{protein_ref}\tprotein\t{protein_ref}\t")
-        graph_rows.append(f"claim:{protein_ref}\tclaim\t{card_id}\tsubject:{protein_ref}")
-        graph_rows.append(f"support:{protein_ref}\tpeptide\tPEP{index}\tsubject:{protein_ref}")
+        graph_rows.append(
+            f"claim:{protein_ref}\tclaim\t{card_id}\tsubject:{protein_ref}"
+        )
+        graph_rows.append(
+            f"support:{protein_ref}\tpeptide\tPEP{index}\tsubject:{protein_ref}"
+        )
         protein_rows.append(
-            (
-                f"{card_id}\tclaim:{protein_ref}\tsubject:{protein_ref}\tsupport:{protein_ref}\t"
-                f"protein-row:{protein_ref}\tpg-{protein_ref}\t{protein_ref}\t{protein_ref}\t{gene_symbol}\t"
-                f"PEP{index};PEP{index}B\t2\t1\t1\t6\t0\tcontrol\ttreated\t1.2\t0.01\ttrue\thigh\t"
-            )
+            f"{card_id}\tclaim:{protein_ref}\tsubject:{protein_ref}\tsupport:{protein_ref}\t"
+            f"protein-row:{protein_ref}\tpg-{protein_ref}\t{protein_ref}\t{protein_ref}\t{gene_symbol}\t"
+            f"PEP{index};PEP{index}B\t2\t1\t1\t6\t0\tcontrol\ttreated\t1.2\t0.01\ttrue\thigh\t"
         )
         ptm_rows.append(
-            (
-                f"ptm-card-{protein_ref}\t{protein_ref}:S3:Phospho\t{protein_ref}\tcontrol\ttreated\t0.02\t"
-                f"0.8\t0.5\thigh\t5\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\t"
-                f"ptm-claim-{protein_ref}\tptm.tsv:{index + 1}\t"
-            )
+            f"ptm-card-{protein_ref}\t{protein_ref}:S3:Phospho\t{protein_ref}\tcontrol\ttreated\t0.02\t"
+            f"0.8\t0.5\thigh\t5\tsubtracted_unmodified_protein\tcontext_supported\tshared_peptide_liability\t"
+            f"ptm-claim-{protein_ref}\tptm.tsv:{index + 1}\t"
         )
         rejected_claim_rows.append(
-            (
-                f"rejected-claim-{protein_ref}\tprotein_abundance_change\trejected\t{protein_ref}\t{gene_symbol}\t"
-                f"{gene_symbol} was rejected\tcontrol\ttreated\tdown\t0.2\t0.5\t0.6\tfalse\tmoderate\tmoderate\t\t\t\t\t\t"
-                f"shared_peptide_liability\t{card_id}\tprotein-row:{protein_ref}\t\tclaim rejected after review"
-            )
+            f"rejected-claim-{protein_ref}\tprotein_abundance_change\trejected\t{protein_ref}\t{gene_symbol}\t"
+            f"{gene_symbol} was rejected\tcontrol\ttreated\tdown\t0.2\t0.5\t0.6\tfalse\tmoderate\tmoderate\t\t\t\t\t\t"
+            f"shared_peptide_liability\t{card_id}\tprotein-row:{protein_ref}\t\tclaim rejected after review"
         )
     for index in range(sample_count):
         sample_id = f"S{index:04d}"
@@ -212,10 +212,8 @@ def _write_large_result_artifacts(
     ]
     for index in range(sample_count):
         qc_rows.append(
-            (
-                f"run\trun-{index:04d}\tfail\tidentification_rate_low\tidentification_rate\t"
-                f"Identification rate\t0.05\tfraction\tfailed\tblock\ttrue\tfailed qc for run-{index:04d}"
-            )
+            f"run\trun-{index:04d}\tfail\tidentification_rate_low\tidentification_rate\t"
+            f"Identification rate\t0.05\tfraction\tfailed\tblock\ttrue\tfailed qc for run-{index:04d}"
         )
     qc_path.write_text("\n".join(qc_rows) + "\n", encoding="utf-8")
     return biological_dir, ptm_dir, qc_path
@@ -229,10 +227,8 @@ def _write_large_standard_card_tsv(path: Path, *, card_count: int) -> Path:
     ]
     for index in range(card_count):
         rows.append(
-            (
-                f"card:{index}\tprotein\tprotein\tP{index:05d}\tP{index:05d}\tclaim {index}\t"
-                f"support {index}\topposition {index}\thigh\twarning_{index % 7}\tsource:{index};source:{index + 1}"
-            )
+            f"card:{index}\tprotein\tprotein\tP{index:05d}\tP{index:05d}\tclaim {index}\t"
+            f"support {index}\topposition {index}\thigh\twarning_{index % 7}\tsource:{index};source:{index + 1}"
         )
     card_path.write_text("\n".join(rows) + "\n", encoding="utf-8")
     return card_path
@@ -267,34 +263,39 @@ def test_indexed_large_result_archive_queries_stay_below_latency_threshold(
         protein_count=1800,
         sample_count=600,
     )
-    requests = tuple(
-        review.ResultQueryRequest(
-            query_id=f"protein-significance-{offset}",
-            query_kind=review.ResultQueryKind.PROTEIN_SIGNIFICANCE,
-            subject_id=f"P{offset:05d}",
+    requests = (
+        tuple(
+            review.ResultQueryRequest(
+                query_id=f"protein-significance-{offset}",
+                query_kind=review.ResultQueryKind.PROTEIN_SIGNIFICANCE,
+                subject_id=f"P{offset:05d}",
+            )
+            for offset in range(0, 300, 3)
         )
-        for offset in range(0, 300, 3)
-    ) + tuple(
-        review.ResultQueryRequest(
-            query_id=f"protein-peptides-{offset}",
-            query_kind=review.ResultQueryKind.PROTEIN_PEPTIDE_SUPPORT,
-            subject_id=f"P{offset:05d}",
+        + tuple(
+            review.ResultQueryRequest(
+                query_id=f"protein-peptides-{offset}",
+                query_kind=review.ResultQueryKind.PROTEIN_PEPTIDE_SUPPORT,
+                subject_id=f"P{offset:05d}",
+            )
+            for offset in range(0, 300, 3)
         )
-        for offset in range(0, 300, 3)
-    ) + tuple(
-        review.ResultQueryRequest(
-            query_id=f"sample-qc-{offset}",
-            query_kind=review.ResultQueryKind.SAMPLE_QC_FAILURE,
-            subject_id=f"S{offset:04d}",
+        + tuple(
+            review.ResultQueryRequest(
+                query_id=f"sample-qc-{offset}",
+                query_kind=review.ResultQueryKind.SAMPLE_QC_FAILURE,
+                subject_id=f"S{offset:04d}",
+            )
+            for offset in range(0, 180, 3)
         )
-        for offset in range(0, 180, 3)
-    ) + tuple(
-        review.ResultQueryRequest(
-            query_id=f"ptm-downgrade-{offset}",
-            query_kind=review.ResultQueryKind.PTM_SITE_DOWNGRADE,
-            subject_id=f"P{offset:05d}:S3:Phospho",
+        + tuple(
+            review.ResultQueryRequest(
+                query_id=f"ptm-downgrade-{offset}",
+                query_kind=review.ResultQueryKind.PTM_SITE_DOWNGRADE,
+                subject_id=f"P{offset:05d}:S3:Phospho",
+            )
+            for offset in range(0, 180, 3)
         )
-        for offset in range(0, 180, 3)
     )
 
     result_query_start = time.perf_counter()
@@ -322,11 +323,16 @@ def test_indexed_large_result_archive_queries_stay_below_latency_threshold(
     )
     explanation_elapsed = time.perf_counter() - explanation_start
 
-    card_path = _write_large_standard_card_tsv(tmp_path / "standard_cards", card_count=2500)
+    card_path = _write_large_standard_card_tsv(
+        tmp_path / "standard_cards", card_count=2500
+    )
     card_index = review.load_standard_card_index(card_path)
     card_lookup_start = time.perf_counter()
     for offset in range(0, 1500, 3):
-        assert review.find_standard_card_by_card_id(card_index, f"card:{offset}") is not None
+        assert (
+            review.find_standard_card_by_card_id(card_index, f"card:{offset}")
+            is not None
+        )
         assert review.find_standard_cards_by_subject_id(card_index, f"P{offset:05d}")
         assert review.find_standard_cards_by_source_id(card_index, f"source:{offset}")
     card_lookup_elapsed = time.perf_counter() - card_lookup_start
@@ -355,14 +361,20 @@ def test_indexed_large_result_archive_queries_stay_below_latency_threshold(
     artifact_index = workflow.index_workflow_artifact_manifest(manifest=manifest)
     artifact_lookup_start = time.perf_counter()
     for offset in range(0, 2000, 2):
-        assert workflow.find_workflow_artifact_by_id(
-            artifact_index,
-            f"artifact:reports:tsv_table:reports:artifact_{offset}.tsv",
-        ) is not None
-        assert workflow.find_workflow_artifact_by_legacy_path(
-            artifact_index,
-            f"artifact_{offset}.tsv",
-        ) is not None
+        assert (
+            workflow.find_workflow_artifact_by_id(
+                artifact_index,
+                f"artifact:reports:tsv_table:reports:artifact_{offset}.tsv",
+            )
+            is not None
+        )
+        assert (
+            workflow.find_workflow_artifact_by_legacy_path(
+                artifact_index,
+                f"artifact_{offset}.tsv",
+            )
+            is not None
+        )
     artifact_lookup_elapsed = time.perf_counter() - artifact_lookup_start
 
     assert result_query_report.summary.answered_query_count == len(requests)

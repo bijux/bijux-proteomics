@@ -114,9 +114,7 @@ def test_build_site_groups_assigns_ambiguous_signal_once_per_candidate_group() -
     assert grouped.site_group_id == "P11111:Phospho:17|18|19"
     assert grouped.candidate_sites == (17, 18, 19)
     assert grouped.localized_site is None
-    assert grouped.ambiguity_class is (
-        PtmSiteGroupAmbiguityClass.AMBIGUOUS_SITE_GROUP
-    )
+    assert grouped.ambiguity_class is (PtmSiteGroupAmbiguityClass.AMBIGUOUS_SITE_GROUP)
 
 
 def test_render_ptm_site_group_tsv_exposes_required_surface() -> None:
@@ -152,7 +150,9 @@ def test_render_ptm_site_group_tsv_exposes_required_surface() -> None:
     assert rendered.startswith(
         "site_group_id\tprotein_id\tcandidate_sites\tlocalized_site\tambiguity_class\n"
     )
-    assert "P11111:Phospho:17|18|19\tP11111\t17;18;19\t\tambiguous_site_group" in rendered
+    assert (
+        "P11111:Phospho:17|18|19\tP11111\t17;18;19\t\tambiguous_site_group" in rendered
+    )
 
 
 def test_build_ptm_site_group_evidence_uses_canonical_site_group_owner() -> None:

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import bijux_proteomics.ptm as ptm
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     calculate_fragment_ions,
@@ -18,6 +17,7 @@ from bijux_proteomics.io.formats import (
     parse_experimental_design_table,
 )
 from bijux_proteomics.io.spectra import SpectrumPeak
+import bijux_proteomics.ptm as ptm
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.quantification.contracts import (
@@ -78,9 +78,7 @@ def test_ptm_package_exports_site_group_owner_surface() -> None:
     assert hasattr(ptm, "build_site_groups")
     assert hasattr(ptm, "render_ptm_site_group_tsv")
     ambiguous = next(
-        entry
-        for entry in entries
-        if entry.site_group_id == "P11111:Phospho:17|18|19"
+        entry for entry in entries if entry.site_group_id == "P11111:Phospho:17|18|19"
     )
     assert ambiguous.localized_site is None
     assert ambiguous.candidate_sites == (17, 18, 19)
@@ -192,7 +190,9 @@ def test_ptm_package_exports_fragment_scoring_owner_surface() -> None:
     b2 = next(
         ion
         for ion in ions
-        if ion.series is FragmentIonSeries.B and ion.ordinal == 2 and ion.neutral_loss is None
+        if ion.series is FragmentIonSeries.B
+        and ion.ordinal == 2
+        and ion.neutral_loss is None
     )
     b2_neutral_loss = next(
         ion
@@ -310,9 +310,7 @@ def test_ptm_package_exports_oxidation_artifact_owner_surface() -> None:
                 site_localized=True,
             ),
         ),
-        (
-            ptm.PtmOxidationSampleQcEntry(sample_id="S1", qc_score=0.92),
-        ),
+        (ptm.PtmOxidationSampleQcEntry(sample_id="S1", qc_score=0.92),),
     )
     rendered = ptm.render_ptm_oxidation_artifact_tsv(rows)
 
@@ -535,7 +533,9 @@ def test_ptm_package_exports_motif_owner_surface() -> None:
 
     assert hasattr(ptm, "build_ptm_phosphosite_motif_enrichment_report")
     assert hasattr(ptm, "PtmMotifBackgroundMode")
-    assert report.background_mode is ptm.PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    assert (
+        report.background_mode is ptm.PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    )
     assert report.background_site_count > report.regulated_site_count
 
 
@@ -593,7 +593,9 @@ def test_ptm_package_exports_regulator_enrichment_owner_surface() -> None:
         design.accepted_entries,
         batch_field="",
     )
-    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = ptm.parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     mapping_report = ptm.build_ptm_site_annotation_mapping_report(
         site_table,
         annotations.accepted_records,
@@ -648,10 +650,15 @@ def test_ptm_package_exports_crosstalk_owner_surface() -> None:
     design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
     differential = ptm.build_ptm_differential_analysis_report(
         site_quantification,
-        tuple(entry.model_copy(update={"batch": None}) for entry in design.accepted_entries),
+        tuple(
+            entry.model_copy(update={"batch": None})
+            for entry in design.accepted_entries
+        ),
         batch_field="",
     )
-    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = ptm.parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     annotation_mapping = ptm.build_ptm_site_annotation_mapping_report(
         site_table,
         annotations.accepted_records,
@@ -676,7 +683,9 @@ def test_ptm_package_exports_ortholog_site_conservation_owner_surface() -> None:
         protein_sequences=_protein_sequences(),
     )
     site_table = ptm.build_ptm_site_table(mappings)
-    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
+    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(
+        _ptm_fixture("ptm_ortholog_sites.tsv")
+    )
     report = ptm.build_ptm_ortholog_conservation_report(
         site_table,
         ortholog_sites.accepted_records,
@@ -720,21 +729,28 @@ def test_ptm_package_exports_mechanism_classification_owner_surface() -> None:
     assert hasattr(ptm, "build_ptm_mechanism_classification_report")
     assert hasattr(ptm, "render_ptm_mechanism_classification_tsv")
     assert report.summary.site_specific_count == 1
-    assert "corrected_log2_fold_change" in ptm.render_ptm_mechanism_classification_tsv(report)
+    assert "corrected_log2_fold_change" in ptm.render_ptm_mechanism_classification_tsv(
+        report
+    )
 
 
 def test_ptm_package_exports_evidence_card_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
     design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
-    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
-    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(_ptm_fixture("ptm_ortholog_sites.tsv"))
+    annotations = ptm.parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
+    ortholog_sites = ptm.parse_ptm_ortholog_site_tsv(
+        _ptm_fixture("ptm_ortholog_sites.tsv")
+    )
     report = ptm.build_ptm_report_bundle(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
         feature_records=features.accepted_records,
         design_entries=tuple(
-            entry.model_copy(update={"batch": None}) for entry in design.accepted_entries
+            entry.model_copy(update={"batch": None})
+            for entry in design.accepted_entries
         ),
         batch_field="",
         motif_selection_policy=ptm.PtmPhosphositeSelectionPolicy(

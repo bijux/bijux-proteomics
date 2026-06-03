@@ -35,7 +35,10 @@ def test_render_dia_run_qc_summary_and_run_table_tsv() -> None:
     assert run_table_tsv.startswith(
         "run_name\tsample_name\tprecursor_id_count\tprecursor_key_count"
     )
-    assert "raw_C\tsample_C\t1\t1\t1\t1\t1\t1\t4.8451\t0.75\t0.75\t5\ttrue" in run_table_tsv
+    assert (
+        "raw_C\tsample_C\t1\t1\t1\t1\t1\t1\t4.8451\t0.75\t0.75\t5\ttrue"
+        in run_table_tsv
+    )
 
 
 def test_render_dia_run_qc_distribution_correlation_and_outlier_tsv() -> None:
@@ -54,5 +57,11 @@ def test_render_dia_run_qc_distribution_correlation_and_outlier_tsv() -> None:
     assert "raw_A\tsample_A\traw_B\tsample_B\t4\t0.995812" in correlation_tsv
     assert "raw_A\tsample_A\traw_C\tsample_C\t1\t" in correlation_tsv
     assert outlier_tsv.startswith("run_name\tsample_name\treason_code\treason")
-    assert "raw_C\tsample_C\tlow_precursor_coverage\tprecursor coverage is far below the study median\tlow_precursor_count_fraction\t0.5\t0.25" in outlier_tsv
-    assert "raw_C\tsample_C\tinsufficient_shared_precursor_overlap\tshared precursor overlap is too small for stable correlation review\tminimum_shared_precursor_key_count\t2\t1" in outlier_tsv
+    assert (
+        "raw_C\tsample_C\tlow_precursor_coverage\tprecursor coverage is far below the study median\tlow_precursor_count_fraction\t0.5\t0.25"
+        in outlier_tsv
+    )
+    assert (
+        "raw_C\tsample_C\tinsufficient_shared_precursor_overlap\tshared precursor overlap is too small for stable correlation review\tminimum_shared_precursor_key_count\t2\t1"
+        in outlier_tsv
+    )

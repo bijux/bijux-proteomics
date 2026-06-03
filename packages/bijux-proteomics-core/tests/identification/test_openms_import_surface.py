@@ -69,7 +69,10 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert feature_rows_by_id["feature-002"].protein_refs == ("P11111", "P22222")
     assert feature_rows_by_id["feature-004"].peptide_sequence == "M[Oxidation]PEPTIDE"
     assert feature_rows_by_id["feature-004"].canonical_peptide == "M[Oxidation]PEPTIDE"
-    assert feature_rows_by_id["feature-001"].provenance.source_engine == "ms1-feature-table"
+    assert (
+        feature_rows_by_id["feature-001"].provenance.source_engine
+        == "ms1-feature-table"
+    )
     assert report.rejected_feature_rows[0].row_number == 6
     assert report.rejected_feature_rows[0].issues[0].code == "invalid_intensity"
     assert report.rejected_evidence_rows[0].source_file == "openms_features.tsv"
@@ -86,7 +89,9 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     )
 
 
-def test_openms_import_rejects_malformed_idxml_with_clear_location(tmp_path: Path) -> None:
+def test_openms_import_rejects_malformed_idxml_with_clear_location(
+    tmp_path: Path,
+) -> None:
     root = _bundle_root()
     malformed_idxml = tmp_path / "malformed.idxml"
     malformed_idxml.write_text(
@@ -95,7 +100,7 @@ def test_openms_import_rejects_malformed_idxml_with_clear_location(tmp_path: Pat
                 '<?xml version="1.0" encoding="UTF-8"?>',
                 "<IdXML>",
                 '  <ProteinIdentification id="openms-run-01">',
-                "    <ProteinHit accession=\"P11111\" score=\"0.002\">",
+                '    <ProteinHit accession="P11111" score="0.002">',
                 "  </ProteinIdentification>",
                 "</IdXML>",
             )

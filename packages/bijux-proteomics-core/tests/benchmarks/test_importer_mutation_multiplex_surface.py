@@ -25,6 +25,6 @@ def test_tmt_reporter_negative_intensity_and_malformed_modification_mutation_fix
 
     assert report.summary.accepted_row_count == fixture.expected_accepted_count
     assert report.summary.rejected_row_count == fixture.expected_rejected_count
-    assert {
-        issue.code for row in report.rejected_rows for issue in row.issues
-    } == set(fixture.expected_issue_codes)
+    assert {issue.code for row in report.rejected_rows for issue in row.issues} == set(
+        fixture.expected_issue_codes
+    )

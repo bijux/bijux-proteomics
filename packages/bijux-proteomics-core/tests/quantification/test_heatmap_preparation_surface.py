@@ -9,12 +9,12 @@ from bijux_proteomics.quantification import (
     HeatmapPreparationPolicy,
     MissingValueKind,
     Ms1FeatureRecord,
+    NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
     build_heatmap_preparation_report,
     build_label_free_intensity_table,
     normalize_label_free_table,
-    NormalizationMethod,
 )
 
 
@@ -189,13 +189,12 @@ def test_heatmap_preparation_report_applies_missing_value_policy() -> None:
     )
 
     assert any(row.entity_id == "P3" for row in median_report.rows)
-    p3_metadata = next(row for row in median_report.row_metadata if row.entity_id == "P3")
+    p3_metadata = next(
+        row for row in median_report.row_metadata if row.entity_id == "P3"
+    )
     assert p3_metadata.missing_sample_count == 1
     assert p3_metadata.filled_missing_sample_count == 1
-    assert (
-        p3_metadata.missing_value_policy
-        is HeatmapMissingValuePolicy.FILL_ROW_MEDIAN
-    )
+    assert p3_metadata.missing_value_policy is HeatmapMissingValuePolicy.FILL_ROW_MEDIAN
     assert all(row.entity_id != "P3" for row in drop_report.rows)
     assert drop_report.summary.filtered_missing_policy_count == 1
 

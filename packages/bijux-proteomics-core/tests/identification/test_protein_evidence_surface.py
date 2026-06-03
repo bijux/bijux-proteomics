@@ -47,7 +47,10 @@ def test_protein_evidence_report_counts_exact_owned_tiers() -> None:
     )
 
     assert ambiguous.evidence_tier is ProteinEvidenceTier.AMBIGUOUS
-    assert ProteinEvidenceDowngradeReason.SHARED_PEPTIDE_ONLY in ambiguous.downgrade_reasons
+    assert (
+        ProteinEvidenceDowngradeReason.SHARED_PEPTIDE_ONLY
+        in ambiguous.downgrade_reasons
+    )
 
     case = _reference_case()
     reference_records = tuple(

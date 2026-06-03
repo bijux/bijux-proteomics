@@ -6,19 +6,19 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.sequences import (
-    build_builtin_contaminant_records,
-    canonicalize_protein_reference,
     DecoyGenerationMode,
     DuplicateAccessionPolicy,
     FastaParseMode,
     ResiduePolicyState,
     append_contaminant_database,
+    build_builtin_contaminant_records,
     build_decoy_generation_manifest,
     build_decoy_generation_report,
     build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
     build_sequence_residue_policy,
+    canonicalize_protein_reference,
     compute_decoy_generation_reproducibility_hash,
     deduplicate_fasta_records,
     filter_fasta_records,
@@ -28,8 +28,8 @@ from bijux_proteomics.sequences import (
     parse_fasta_records,
     parse_uniprot_accession,
     relabel_contaminant_records,
-    render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_invalid_sequence_tsv,
+    render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
     sequence_checksum,
@@ -218,9 +218,13 @@ def test_parse_uniprot_accession_rejects_invalid_tokens() -> None:
         parse_uniprot_accession("TP53_HUMAN")
 
 
-def test_canonicalize_protein_reference_normalizes_supported_accession_families() -> None:
+def test_canonicalize_protein_reference_normalizes_supported_accession_families() -> (
+    None
+):
     assert canonicalize_protein_reference("sp|P04637|P53_HUMAN") == "P04637"
-    assert canonicalize_protein_reference("ref|NP_000537.3|CALM1_HUMAN") == "NP_000537.3"
+    assert (
+        canonicalize_protein_reference("ref|NP_000537.3|CALM1_HUMAN") == "NP_000537.3"
+    )
     assert canonicalize_protein_reference("ENSP00000354587.5") == "ENSP00000354587"
     assert canonicalize_protein_reference("lab_bait_001") == "lab_bait_001"
 
@@ -281,9 +285,7 @@ def test_parse_fasta_document_extracts_biological_headers_across_supported_famil
     assert by_identifier["ref|NP_000537.3|TP53"].accession_namespace == "refseq"
     assert by_identifier["ref|NP_000537.3|TP53"].canonical_accession == "NP_000537.3"
 
-    assert (
-        by_identifier["ENSP00000354587.5"].accession_namespace == "ensembl"
-    )
+    assert by_identifier["ENSP00000354587.5"].accession_namespace == "ensembl"
     assert by_identifier["ENSP00000354587.5"].canonical_accession == "ENSP00000354587"
     assert by_identifier["ENSP00000354587.5"].gene == "CALM1"
     assert by_identifier["ENSP00000354587.5"].description == "Calmodulin-1"
@@ -336,9 +338,7 @@ def test_build_fasta_stats_reports_target_and_decoy_counts(
 
 def test_load_builtin_contaminant_records_returns_labeled_builtin_panel() -> None:
     records = build_builtin_contaminant_records()
-    with pytest.warns(
-        DeprecationWarning, match="build_builtin_contaminant_records"
-    ):
+    with pytest.warns(DeprecationWarning, match="build_builtin_contaminant_records"):
         legacy_records = load_builtin_contaminant_records()
 
     assert len(records) == 4

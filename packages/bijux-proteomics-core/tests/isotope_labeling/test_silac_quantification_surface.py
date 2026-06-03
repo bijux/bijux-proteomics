@@ -8,8 +8,8 @@ from pathlib import Path
 from bijux_proteomics.isotope_labeling import (
     SilacLabel,
     SilacQuantificationPolicy,
-    parse_silac_feature_table,
     build_silac_ratio_report,
+    parse_silac_feature_table,
 )
 
 
@@ -108,4 +108,7 @@ def test_silac_import_rejects_invalid_labels_and_duplicate_feature_ids(
     assert len(report.accepted_rows) == 0
     assert len(report.rejected_rows) == 2
     assert "duplicates identifier" in report.rejected_rows[0].reason
-    assert "unsupported value" in report.rejected_rows[1].reason or "negative" in report.rejected_rows[1].reason
+    assert (
+        "unsupported value" in report.rejected_rows[1].reason
+        or "negative" in report.rejected_rows[1].reason
+    )

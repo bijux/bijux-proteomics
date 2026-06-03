@@ -38,10 +38,16 @@ def test_run_advanced_maxquant_workflow_excludes_reverse_and_contaminants_from_b
                 / "interpretation"
                 / "protein_annotation_custom.tsv"
             ),
-            context_annotation_tsv_path=_workflow_fixture("biological_report_context.tsv"),
+            context_annotation_tsv_path=_workflow_fixture(
+                "biological_report_context.tsv"
+            ),
             go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
-            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            pathway_membership_tsv_path=_workflow_fixture(
+                "biological_report_pathways.tsv"
+            ),
+            complex_membership_tsv_path=_workflow_fixture(
+                "biological_report_complexes.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )

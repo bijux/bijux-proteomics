@@ -5,13 +5,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.targeted import (
     TargetedPanelCandidateKind,
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
     TargetedValidationVerdict,
 )
-from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.workflow import (
     AdvancedTargetedAssayReliabilityStatus,
     TargetedResultSourceKind,
@@ -208,12 +208,21 @@ def test_run_targeted_validation_workflow_exports_confirmed_contradicted_and_inc
     assert report.summary.contradicted_count == 1
     assert report.summary.inconclusive_count == 1
     assert report.summary.evidence_card_count == 3
-    assert report.evidence_cards[0].validation_verdict is TargetedValidationVerdict.CONFIRMED
+    assert (
+        report.evidence_cards[0].validation_verdict
+        is TargetedValidationVerdict.CONFIRMED
+    )
     assert report.evidence_cards[0].assay_reliability_status is (
         AdvancedTargetedAssayReliabilityStatus.RELIABLE
     )
-    assert report.evidence_cards[1].validation_verdict is TargetedValidationVerdict.CONTRADICTED
-    assert report.evidence_cards[2].validation_verdict is TargetedValidationVerdict.INCONCLUSIVE
+    assert (
+        report.evidence_cards[1].validation_verdict
+        is TargetedValidationVerdict.CONTRADICTED
+    )
+    assert (
+        report.evidence_cards[2].validation_verdict
+        is TargetedValidationVerdict.INCONCLUSIVE
+    )
     assert report.evidence_cards[2].assay_reliability_status is (
         AdvancedTargetedAssayReliabilityStatus.NOT_ASSAYED
     )
@@ -357,6 +366,10 @@ def test_run_targeted_validation_workflow_preserves_assay_reliability_coelution_
     assert "coelution_issue_count" in evidence_card_tsv
     assert (output_dir / report.manifest.artifacts.matrix_targets_tsv).exists()
     assert (output_dir / report.manifest.artifacts.assay_qc_coelution_tsv).exists()
-    assert (output_dir / report.manifest.artifacts.assay_qc_transition_coelution_tsv).exists()
-    assert (output_dir / report.manifest.artifacts.assay_qc_fragment_ratios_tsv).exists()
+    assert (
+        output_dir / report.manifest.artifacts.assay_qc_transition_coelution_tsv
+    ).exists()
+    assert (
+        output_dir / report.manifest.artifacts.assay_qc_fragment_ratios_tsv
+    ).exists()
     assert (output_dir / report.manifest.artifacts.assay_qc_targets_tsv).exists()

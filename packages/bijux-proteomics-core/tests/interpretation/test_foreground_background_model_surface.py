@@ -25,7 +25,9 @@ def _entry(protein_ref: str, row_id: str) -> ProteinReferenceEntry:
     )
 
 
-def test_foreground_background_model_warns_when_background_comes_from_annotation_universe() -> None:
+def test_foreground_background_model_warns_when_background_comes_from_annotation_universe() -> (
+    None
+):
     model = build_biological_foreground_background_model(
         (_entry("P11111", "foreground:1"),),
         (
@@ -51,12 +53,15 @@ def test_foreground_background_model_warns_when_background_comes_from_annotation
     assert model.summary.valid_for_enrichment is True
     assert model.summary.issue_count == 1
     assert model.issues[0].code == "annotation_universe_background"
-    assert "annotation or membership universe" in render_biological_foreground_background_issue_tsv(
-        model
+    assert (
+        "annotation or membership universe"
+        in render_biological_foreground_background_issue_tsv(model)
     )
 
 
-def test_foreground_background_model_rejects_invalid_background_when_requested() -> None:
+def test_foreground_background_model_rejects_invalid_background_when_requested() -> (
+    None
+):
     model = build_biological_foreground_background_model(
         (_entry("P11111", "foreground:1"),),
         (_entry("P22222", "background:1"),),

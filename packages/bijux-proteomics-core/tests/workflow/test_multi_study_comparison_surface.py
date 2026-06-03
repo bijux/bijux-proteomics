@@ -32,7 +32,9 @@ def _fixture(name: str) -> Path:
 
 def _base_biological_report():
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     return build_biological_result_report_bundle(
         _fixture("biological_report_features.tsv"),
@@ -149,14 +151,20 @@ def _report_with_changed_effects_and_pathways(base_report):
 
 def _single_protein_report(base_report, protein_ref: str):
     cards = tuple(
-        card for card in base_report.protein_cards.cards if card.representative_protein_ref == protein_ref
+        card
+        for card in base_report.protein_cards.cards
+        if card.representative_protein_ref == protein_ref
     )
     entries = tuple(
-        entry for entry in base_report.differential_report.entries if entry.entity_id == protein_ref
+        entry
+        for entry in base_report.differential_report.entries
+        if entry.entity_id == protein_ref
     )
     return base_report.model_copy(
         update={
-            "protein_cards": base_report.protein_cards.model_copy(update={"cards": cards}),
+            "protein_cards": base_report.protein_cards.model_copy(
+                update={"cards": cards}
+            ),
             "differential_report": base_report.differential_report.model_copy(
                 update={"entries": entries}
             ),
@@ -168,10 +176,14 @@ def _single_protein_report(base_report, protein_ref: str):
 
 def _ambiguous_mouse_report(base_report):
     source_card = next(
-        card for card in base_report.protein_cards.cards if card.representative_protein_ref == "P04637"
+        card
+        for card in base_report.protein_cards.cards
+        if card.representative_protein_ref == "P04637"
     )
     source_entry = next(
-        entry for entry in base_report.differential_report.entries if entry.entity_id == "P04637"
+        entry
+        for entry in base_report.differential_report.entries
+        if entry.entity_id == "P04637"
     )
     mouse_cards = (
         source_card.model_copy(
@@ -211,7 +223,9 @@ def _ambiguous_mouse_report(base_report):
     )
     return base_report.model_copy(
         update={
-            "protein_cards": base_report.protein_cards.model_copy(update={"cards": mouse_cards}),
+            "protein_cards": base_report.protein_cards.model_copy(
+                update={"cards": mouse_cards}
+            ),
             "differential_report": base_report.differential_report.model_copy(
                 update={"entries": mouse_entries}
             ),
@@ -225,7 +239,9 @@ def test_multi_study_comparison_outputs_harmonized_shared_conflicting_and_study_
     None
 ):
     base_report = _base_biological_report()
-    study_b_report, study_a_report = _report_with_changed_effects_and_pathways(base_report)
+    study_b_report, study_a_report = _report_with_changed_effects_and_pathways(
+        base_report
+    )
 
     report = compare_studies(
         (
@@ -235,27 +251,48 @@ def test_multi_study_comparison_outputs_harmonized_shared_conflicting_and_study_
     )
 
     assert report.summary.harmonized_protein_group_count >= 5
-    assert any("P04637" in entry.representative_protein_refs for entry in report.shared_effects)
-    assert any("Q9Y243" in entry.representative_protein_refs for entry in report.conflicting_effects)
-    assert any(entry.pathway_id == "custom:response" for entry in report.shared_pathways)
     assert any(
-        entry.pathway_id == "custom:study_specific" for entry in report.study_specific_pathways
+        "P04637" in entry.representative_protein_refs for entry in report.shared_effects
     )
-    assert report.manifest.artifacts.harmonized_proteins_tsv == "multi_study_harmonized_proteins.tsv"
-    assert report.artifacts["conflicting_effects_tsv"] == "multi_study_conflicting_effects.tsv"
+    assert any(
+        "Q9Y243" in entry.representative_protein_refs
+        for entry in report.conflicting_effects
+    )
+    assert any(
+        entry.pathway_id == "custom:response" for entry in report.shared_pathways
+    )
+    assert any(
+        entry.pathway_id == "custom:study_specific"
+        for entry in report.study_specific_pathways
+    )
+    assert (
+        report.manifest.artifacts.harmonized_proteins_tsv
+        == "multi_study_harmonized_proteins.tsv"
+    )
+    assert (
+        report.artifacts["conflicting_effects_tsv"]
+        == "multi_study_conflicting_effects.tsv"
+    )
     assert {warning.warning_code for warning in report.warnings} == {
         "conflicting_effects_present"
     }
     assert report.rejected_evidence == ()
-    assert "harmonized_protein_group_count" in render_multi_study_comparison_summary_tsv(report)
+    assert (
+        "harmonized_protein_group_count"
+        in render_multi_study_comparison_summary_tsv(report)
+    )
     assert "harmonized_id" in render_multi_study_harmonized_proteins_tsv(report)
     assert "replicated_hit" in render_multi_study_shared_effects_tsv(report)
     assert "conflicting_hit" in render_multi_study_conflicting_effects_tsv(report)
     assert "shared_signal" in render_multi_study_shared_pathways_tsv(report)
-    assert "study_specific_signal" in render_multi_study_study_specific_pathways_tsv(report)
+    assert "study_specific_signal" in render_multi_study_study_specific_pathways_tsv(
+        report
+    )
 
 
-def test_multi_study_comparison_keeps_ambiguous_cross_species_mappings_unresolved() -> None:
+def test_multi_study_comparison_keeps_ambiguous_cross_species_mappings_unresolved() -> (
+    None
+):
     base_report = _base_biological_report()
     human_report = _single_protein_report(base_report, "P04637")
     mouse_report = _ambiguous_mouse_report(base_report)
@@ -289,16 +326,16 @@ def test_multi_study_comparison_keeps_ambiguous_cross_species_mappings_unresolve
     assert report.shared_effects == ()
     assert report.conflicting_effects == ()
     assert report.summary.ambiguous_ortholog_unresolved_count == 3
-    assert {
-        entry.reason for entry in report.unresolved_proteins
-    } == {CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING}
+    assert {entry.reason for entry in report.unresolved_proteins} == {
+        CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING
+    }
     assert {warning.warning_code for warning in report.warnings} == {
         "ambiguous_ortholog_unresolved"
     }
     assert len(report.rejected_evidence) == 3
-    assert {
-        entry.reason_code for entry in report.rejected_evidence
-    } == {"ambiguous_ortholog_mapping"}
+    assert {entry.reason_code for entry in report.rejected_evidence} == {
+        "ambiguous_ortholog_mapping"
+    }
     unresolved_tsv = render_multi_study_unresolved_proteins_tsv(report)
     assert "ambiguous_ortholog_mapping" in unresolved_tsv
     assert "Q9MOUSE1" in unresolved_tsv

@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.domain import ImportedEvidenceProvenance
 from bijux_proteomics.dia import DiaNnImportRow, import_dia_nn_rows
+from bijux_proteomics.domain import ImportedEvidenceProvenance
 
 
 def test_import_dia_nn_rows_builds_precursor_and_protein_group_quantities() -> None:

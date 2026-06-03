@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
 import re
 import shlex
 
@@ -18,11 +18,7 @@ REPO_ROOT = next(
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
 TUTORIAL_PATH = (
-    REPO_ROOT
-    / "packages"
-    / "bijux-proteomics-core"
-    / "docs"
-    / "SHIPPED-DEMO-CLI.md"
+    REPO_ROOT / "packages" / "bijux-proteomics-core" / "docs" / "SHIPPED-DEMO-CLI.md"
 )
 
 
@@ -55,7 +51,9 @@ def test_shipped_demo_cli_tutorial_runs_from_clean_checkout() -> None:
 
         demo_root = Path("demo_result")
         assert (demo_root / "surprising_demo_report.json").exists()
-        assert (demo_root / "biological_review" / "biological_report_manifest.json").exists()
+        assert (
+            demo_root / "biological_review" / "biological_report_manifest.json"
+        ).exists()
         assert (demo_root / "biological_review" / "biological_report.html").exists()
         assert (demo_root / "ptm_review" / "ptm_report_manifest.json").exists()
 

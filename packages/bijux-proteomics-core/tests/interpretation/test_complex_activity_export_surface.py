@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.interpretation import (
     ComplexMemberKind,
     ComplexMembershipRecord,
@@ -18,6 +17,7 @@ from bijux_proteomics.interpretation import (
     render_complex_activity_unresolved_member_tsv,
     render_complex_member_contribution_tsv,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -113,7 +113,10 @@ def test_render_complex_activity_ledgers() -> None:
     unresolved_tsv = render_complex_activity_unresolved_member_tsv(report)
 
     assert summary_tsv.splitlines()[0].startswith("entity_level\tmeasure_kind")
-    assert "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3" in matrix_tsv
+    assert (
+        "complex_id\tcomplex_name\tsource_name\tsource_accession\tC1\tC2\tC3\tT1\tT2\tT3"
+        in matrix_tsv
+    )
     assert "sample_id\tcondition\tbatch\tactivity_score" in sample_tsv
     assert "limiting_member_ids" in sample_tsv.splitlines()[0]
     assert "condition_a_confidence_status" in comparison_tsv.splitlines()[0]

@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.domain import (
-    ConfidenceTier,
     STANDARD_CARD_TSV_COLUMNS,
+    ConfidenceTier,
     StandardCardEntry,
     StandardCardKind,
     StandardCardSubjectKind,
@@ -69,7 +69,9 @@ def test_shared_card_loader_requires_governed_columns(tmp_path: Path) -> None:
         load_standard_card_tsv(path)
 
 
-def test_shared_card_loader_normalizes_legacy_confidence_aliases(tmp_path: Path) -> None:
+def test_shared_card_loader_normalizes_legacy_confidence_aliases(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "cards.tsv"
     path.write_text(
         "\n".join(

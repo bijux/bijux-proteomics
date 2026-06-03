@@ -242,9 +242,10 @@ def test_time_course_differential_infers_numeric_prefixed_order_and_interactions
     assert report.ordered_timepoints == ("t0", "t1")
     assert report.reference_condition == "control"
     assert report.timepoint_positions == {"t0": 0.0, "t1": 1.0}
-    assert lookup[("P001", "treatment")].slope_per_timepoint > lookup[
-        ("P001", "control")
-    ].slope_per_timepoint
+    assert (
+        lookup[("P001", "treatment")].slope_per_timepoint
+        > lookup[("P001", "control")].slope_per_timepoint
+    )
     assert lookup[("P001", "treatment")].interaction_effect is not None
     assert lookup[("P001", "treatment")].interaction_effect > 0.0
     assert lookup[("P001", "treatment")].interaction_p_value is not None
@@ -253,13 +254,13 @@ def test_time_course_differential_infers_numeric_prefixed_order_and_interactions
     assert lookup[("P001", "treatment")].robustness_qc_status is not None
     assert lookup[("P002", "treatment")].interaction_effect is not None
     assert "numeric labels" in report.note
-    assert (
-        "interaction_adjusted_p_value" in render_time_course_differential_tsv(report)
-    )
+    assert "interaction_adjusted_p_value" in render_time_course_differential_tsv(report)
     assert "robustness_score" in render_time_course_differential_tsv(report)
 
 
-def test_time_course_differential_requires_explicit_order_for_unordered_labels() -> None:
+def test_time_course_differential_requires_explicit_order_for_unordered_labels() -> (
+    None
+):
     try:
         build_time_course_differential_report(
             _protein_table(),

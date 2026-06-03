@@ -13,7 +13,9 @@ from bijux_proteomics.io.dia_fragment_coelution import (
 def test_score_fragment_coelution_lists_shifted_fragments_and_lowers_score() -> None:
     rows = score_fragment_coelution(
         (
-            *_trace("prec_alpha", "frag_y7", ((10.0, 10.0), (20.0, 60.0), (30.0, 10.0))),
+            *_trace(
+                "prec_alpha", "frag_y7", ((10.0, 10.0), (20.0, 60.0), (30.0, 10.0))
+            ),
             *_trace("prec_alpha", "frag_b4", ((10.0, 8.0), (20.0, 55.0), (30.0, 8.0))),
             *_trace("prec_alpha", "frag_y8", ((20.0, 9.0), (30.0, 50.0), (40.0, 9.0))),
         ),
@@ -28,7 +30,10 @@ def test_score_fragment_coelution_lists_shifted_fragments_and_lowers_score() -> 
     assert row.apex_rt_spread == 10.0
     assert row.failed_fragments == ("frag_y8",)
     assert row.coelution_score < 0.8
-    assert "precursor_id\tfragment_count\tapex_rt_spread\tmean_trace_correlation\tfailed_fragments\tcoelution_score" in rendered
+    assert (
+        "precursor_id\tfragment_count\tapex_rt_spread\tmean_trace_correlation\tfailed_fragments\tcoelution_score"
+        in rendered
+    )
     assert "prec_alpha\t3\t10.0000" in rendered
 
 

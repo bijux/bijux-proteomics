@@ -64,8 +64,12 @@ def _psm_mapping() -> SearchResultColumnMapping:
 
 
 def test_shared_peptide_fixture_keeps_non_unique_protein_support_visible() -> None:
-    manifest = get_scientific_fixture_manifest(ScientificFixtureCaseKind.SHARED_PEPTIDES)
-    psm_report = parse_psm_tsv(_asset_path(manifest, "psm_table"), mapping=_psm_mapping())
+    manifest = get_scientific_fixture_manifest(
+        ScientificFixtureCaseKind.SHARED_PEPTIDES
+    )
+    psm_report = parse_psm_tsv(
+        _asset_path(manifest, "psm_table"), mapping=_psm_mapping()
+    )
     fasta_report = parse_fasta_document(
         _asset_path(manifest, "protein_fasta").read_text(),
         mode=FastaParseMode.STRICT,
@@ -121,7 +125,9 @@ def test_isoform_fixture_preserves_distinct_isoform_identity_under_deduplication
 
 def test_contaminant_fixture_separates_pure_and_mixed_carryover() -> None:
     manifest = get_scientific_fixture_manifest(ScientificFixtureCaseKind.CONTAMINANTS)
-    psm_report = parse_psm_tsv(_asset_path(manifest, "psm_table"), mapping=_psm_mapping())
+    psm_report = parse_psm_tsv(
+        _asset_path(manifest, "psm_table"), mapping=_psm_mapping()
+    )
     contaminant_report = build_contaminant_peptide_match_report(
         psm_report.accepted_records
     )

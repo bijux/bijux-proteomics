@@ -52,7 +52,9 @@ def _temporary_reason(relative_path: str) -> str:
     return "temporary large-file allowance for a core scientific owner that still needs narrower boundaries."
 
 
-def _exception(relative_path: str, allowed_line_count: int) -> SourceFileLineCountException:
+def _exception(
+    relative_path: str, allowed_line_count: int
+) -> SourceFileLineCountException:
     return SourceFileLineCountException(
         relative_path=relative_path,
         allowed_line_count=allowed_line_count,

@@ -7,7 +7,6 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
-    build_ptm_protein_site_mapping_report,
     PtmCoordinateValidationIssue,
     PtmCoordinateValidationReport,
     PtmProteinCorrectionMode,
@@ -15,6 +14,7 @@ from bijux_proteomics.ptm import (
     build_ptm_ambiguity_review_report,
     build_ptm_differential_analysis_report,
     build_ptm_localization_scoring_report,
+    build_ptm_protein_site_mapping_report,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_group_quantification_report,
@@ -35,8 +35,8 @@ from bijux_proteomics.ptm import (
     render_ptm_site_quant_matrix_tsv,
     render_ptm_site_quant_missingness_tsv,
     render_ptm_site_table_tsv,
-    render_ptm_unmapped_peptide_tsv,
     render_ptm_unlocalized_group_review_tsv,
+    render_ptm_unmapped_peptide_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
@@ -109,9 +109,7 @@ def test_ptm_quantification_renderers_are_deterministic_under_equivalent_tuple_o
                 )
             ),
             "ambiguous_group_quantification": report.ambiguous_group_quantification,
-            "excluded_ambiguous_rows": tuple(
-                reversed(report.excluded_ambiguous_rows)
-            ),
+            "excluded_ambiguous_rows": tuple(reversed(report.excluded_ambiguous_rows)),
             "excluded_ambiguous_site_keys": tuple(
                 reversed(report.excluded_ambiguous_site_keys)
             ),
@@ -164,7 +162,9 @@ def test_ptm_mapping_and_review_renderers_are_deterministic_under_equivalent_tup
                 entry.model_copy(
                     update={
                         "sample_ids": tuple(reversed(entry.sample_ids)),
-                        "candidate_positions": tuple(reversed(entry.candidate_positions)),
+                        "candidate_positions": tuple(
+                            reversed(entry.candidate_positions)
+                        ),
                     }
                 )
                 for entry in site_table
@@ -176,7 +176,9 @@ def test_ptm_mapping_and_review_renderers_are_deterministic_under_equivalent_tup
             [
                 entry.model_copy(
                     update={
-                        "candidate_positions": tuple(reversed(entry.candidate_positions)),
+                        "candidate_positions": tuple(
+                            reversed(entry.candidate_positions)
+                        ),
                         "localized_peptides": tuple(reversed(entry.localized_peptides)),
                     }
                 )

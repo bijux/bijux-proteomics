@@ -29,14 +29,19 @@ def test_intensity_agreement_keeps_matching_library_pattern_aligned() -> None:
     )
     rendered = render_spectral_library_intensity_agreement_tsv((agreement,))
 
-    assert agreement.intensity_agreement_tier is SpectralLibraryIntensityAgreementTier.ALIGNED
+    assert (
+        agreement.intensity_agreement_tier
+        is SpectralLibraryIntensityAgreementTier.ALIGNED
+    )
     assert agreement.cosine_similarity > 0.99
     assert agreement.ranked_fragment_agreement == 1.0
     assert agreement.missing_dominant_fragments == ()
     assert "intensity_agreement_tier" in rendered
 
 
-def test_intensity_agreement_downgrades_wrong_fragment_pattern_at_same_precursor() -> None:
+def test_intensity_agreement_downgrades_wrong_fragment_pattern_at_same_precursor() -> (
+    None
+):
     agreement = compare_observed_to_library(
         _observed_spectrum(
             "observed-mismatched",
@@ -48,7 +53,10 @@ def test_intensity_agreement_downgrades_wrong_fragment_pattern_at_same_precursor
         ),
     )
 
-    assert agreement.intensity_agreement_tier is SpectralLibraryIntensityAgreementTier.DOWNGRADED
+    assert (
+        agreement.intensity_agreement_tier
+        is SpectralLibraryIntensityAgreementTier.DOWNGRADED
+    )
     assert agreement.cosine_similarity < 0.8
     assert agreement.ranked_fragment_agreement < 0.6
     assert agreement.missing_dominant_fragments == ()
@@ -62,7 +70,9 @@ def _observed_spectrum(
         spectrum_id=spectrum_id,
         precursor_mz=500.2,
         precursor_charge=2,
-        peaks=tuple(SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks),
+        peaks=tuple(
+            SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks
+        ),
     )
 
 

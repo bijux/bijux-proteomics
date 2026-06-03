@@ -14,7 +14,9 @@ from bijux_proteomics.ptm import (
 )
 
 
-def test_detect_oxidation_artifacts_downgrades_site_specific_claims_under_high_global_oxidation() -> None:
+def test_detect_oxidation_artifacts_downgrades_site_specific_claims_under_high_global_oxidation() -> (
+    None
+):
     entries = detect_oxidation_artifacts(
         (
             PtmOxidizedPeptideObservation(
@@ -55,14 +57,21 @@ def test_detect_oxidation_artifacts_downgrades_site_specific_claims_under_high_g
 
     assert by_sample["S1"].methionine_oxidation_fraction == 0.1
     assert by_sample["S1"].global_oxidation_warning is False
-    assert by_sample["S1"].site_specific_confidence is PtmOxidationSiteConfidence.SUPPORTED
+    assert (
+        by_sample["S1"].site_specific_confidence is PtmOxidationSiteConfidence.SUPPORTED
+    )
 
     assert by_sample["S2"].methionine_oxidation_fraction == 0.45
     assert by_sample["S2"].global_oxidation_warning is True
-    assert by_sample["S2"].site_specific_confidence is PtmOxidationSiteConfidence.DOWNGRADED
+    assert (
+        by_sample["S2"].site_specific_confidence
+        is PtmOxidationSiteConfidence.DOWNGRADED
+    )
 
 
-def test_detect_oxidation_artifacts_renders_surface_and_honors_sample_qc_blocks() -> None:
+def test_detect_oxidation_artifacts_renders_surface_and_honors_sample_qc_blocks() -> (
+    None
+):
     entries = detect_oxidation_artifacts(
         (
             PtmOxidizedPeptideObservation(

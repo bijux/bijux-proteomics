@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from bijux_proteomics._scientific_tables import ScientificTableValidationError
 from bijux_proteomics.identification.maxquant_import import (
     build_maxquant_import_report,
     render_maxquant_evidence_tsv,
@@ -15,7 +16,6 @@ from bijux_proteomics.identification.maxquant_import import (
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
 )
-from bijux_proteomics._scientific_tables import ScientificTableValidationError
 
 
 def _bundle_root() -> Path:
@@ -125,9 +125,7 @@ def test_maxquant_import_rejects_invalid_peptide_and_protein_group_tables(
         )
 
     issue_codes = {
-        issue.code
-        for row in excinfo.value.report.rejected_rows
-        for issue in row.issues
+        issue.code for row in excinfo.value.report.rejected_rows for issue in row.issues
     }
     assert "invalid_q_value" in issue_codes or "negative_intensity" in issue_codes
 

@@ -9,16 +9,16 @@ from bijux_proteomics.ptm import (
     PtmCrosstalkEvidenceSource,
     PtmCrosstalkRelationship,
     PtmLocalizationConfidenceTier,
+    PtmMappedSiteAnnotationEntry,
     PtmSiteAnnotationMappingReport,
     PtmSiteAnnotationMappingSummary,
-    PtmMappedSiteAnnotationEntry,
     PtmSiteDifferentialEntry,
     PtmSiteDifferentialReport,
     PtmSiteEntry,
     build_ptm_crosstalk_report,
 )
-from bijux_proteomics.quantification.contracts import DifferentialAbundanceTestType
 from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.quantification.contracts import DifferentialAbundanceTestType
 
 
 def _site_entry(
@@ -281,7 +281,10 @@ def test_ptm_crosstalk_report_preserves_exact_site_pairs_and_evidence() -> None:
     )
     assert opposing_pathway_pair.relationship is PtmCrosstalkRelationship.OPPOSING
     assert opposing_pathway_pair.shared_pathways == ("MAPK signaling",)
-    assert PtmCrosstalkEvidenceSource.SHARED_PATHWAY in opposing_pathway_pair.evidence_sources
+    assert (
+        PtmCrosstalkEvidenceSource.SHARED_PATHWAY
+        in opposing_pathway_pair.evidence_sources
+    )
 
     pathway_only_pair = next(
         entry

@@ -9,8 +9,8 @@ from pathlib import Path
 from bijux_proteomics.io.chromatographic_peak_picking import (
     ChromatographicPeakQuality,
     extract_mzml_chromatographic_peaks,
-    pick_peak,
     pick_chromatographic_peaks,
+    pick_peak,
     render_chromatographic_peaks_tsv,
     render_picked_chromatographic_peaks_tsv,
 )
@@ -38,8 +38,12 @@ def test_pick_chromatographic_peaks_detects_boundaries_apex_and_overlap_flags() 
 
     assert len(report.peaks) == 3
 
-    overlap_peaks = [peak for peak in report.peaks if peak.target_id == "target_overlap"]
-    single_peak = next(peak for peak in report.peaks if peak.target_id == "target_single")
+    overlap_peaks = [
+        peak for peak in report.peaks if peak.target_id == "target_overlap"
+    ]
+    single_peak = next(
+        peak for peak in report.peaks if peak.target_id == "target_single"
+    )
 
     assert len(overlap_peaks) == 2
     assert overlap_peaks[0].start_time_seconds == 0.0
@@ -60,7 +64,9 @@ def test_pick_chromatographic_peaks_detects_boundaries_apex_and_overlap_flags() 
 
 
 def test_pick_peak_flags_overlapping_fixture_instead_of_one_clean_peak() -> None:
-    spectra = tuple(stream_mzml_spectra(_format_fixture("chromatographic_peak_profile.mzml")))
+    spectra = tuple(
+        stream_mzml_spectra(_format_fixture("chromatographic_peak_profile.mzml"))
+    )
     targets = parse_xic_target_table(
         _format_fixture("chromatographic_peak_targets.tsv")
     ).accepted_entries
@@ -92,7 +98,9 @@ def test_pick_peak_flags_overlapping_fixture_instead_of_one_clean_peak() -> None
     assert "peak_quality" in rendered
 
 
-def test_pick_chromatographic_peaks_uses_baseline_corrected_area_instead_of_window_sum() -> None:
+def test_pick_chromatographic_peaks_uses_baseline_corrected_area_instead_of_window_sum() -> (
+    None
+):
     trace_report = extract_mzml_xic_traces(
         _format_fixture("chromatographic_peak_profile.mzml"),
         _format_fixture("chromatographic_peak_targets.tsv"),
@@ -102,21 +110,21 @@ def test_pick_chromatographic_peaks_uses_baseline_corrected_area_instead_of_wind
     report = pick_chromatographic_peaks(trace_report)
 
     first_overlap_peak = next(
-        peak
-        for peak in report.peaks
-        if peak.peak_id == "target_overlap_peak_001"
+        peak for peak in report.peaks if peak.peak_id == "target_overlap_peak_001"
     )
     second_overlap_peak = next(
-        peak
-        for peak in report.peaks
-        if peak.peak_id == "target_overlap_peak_002"
+        peak for peak in report.peaks if peak.peak_id == "target_overlap_peak_002"
     )
-    single_peak = next(peak for peak in report.peaks if peak.target_id == "target_single")
+    single_peak = next(
+        peak for peak in report.peaks if peak.target_id == "target_single"
+    )
 
     assert isclose(first_overlap_peak.baseline_at_apex, 60.0, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(first_overlap_peak.height, 60.0, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(first_overlap_peak.area, 700.0, rel_tol=0.0, abs_tol=1e-9)
-    assert isclose(second_overlap_peak.baseline_at_apex, 60.0, rel_tol=0.0, abs_tol=1e-9)
+    assert isclose(
+        second_overlap_peak.baseline_at_apex, 60.0, rel_tol=0.0, abs_tol=1e-9
+    )
     assert isclose(second_overlap_peak.height, 80.0, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(second_overlap_peak.area, 850.0, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(single_peak.baseline_at_apex, 0.0, rel_tol=0.0, abs_tol=1e-9)

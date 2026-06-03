@@ -102,8 +102,7 @@ def test_render_precursor_isotope_fit_ledgers_preserve_summary_entry_and_peak_re
     assert summary_tsv.splitlines()[1] == "3\t3\t2\t0\t1\t0"
     assert (
         "precursor_isotope_fit_shifted\tprec_peptide_ms1\tprec_peptide\tPEPTIDE\t2\t"
-        "scan=8403\t30.0000\t400.687258\t400.707246\t0.019988\t49.8831"
-        in entries_tsv
+        "scan=8403\t30.0000\t400.687258\t400.707246\t0.019988\t49.8831" in entries_tsv
     )
     assert (
         "precursor_isotope_fit_wrong_charge\tprec_peptide_ms1\tprec_peptide\tPEPTIDE\t1\t401.188936\t0.267350"

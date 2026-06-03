@@ -39,7 +39,9 @@ def test_builtin_modification_registry_covers_terminal_residue_and_isotope_defin
 def test_modification_registry_resolves_name_accession_mass_delta_and_custom_entries() -> (
     None
 ):
-    registry = load_modification_registry(_modification_fixture("resolution_registry.json"))
+    registry = load_modification_registry(
+        _modification_fixture("resolution_registry.json")
+    )
 
     named = resolve_modification(
         token="Oxidation",

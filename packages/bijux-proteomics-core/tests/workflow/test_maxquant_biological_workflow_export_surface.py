@@ -41,7 +41,9 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
         context_annotation_tsv_path=_workflow_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         condition_a="control",
         condition_b="treatment",
     )
@@ -89,26 +91,26 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert "entity_id" in (
         output_dir / manifest.artifacts.filtered_protein_groups_tsv
     ).read_text(encoding="utf-8")
-    assert (
+    assert (output_dir / manifest.artifacts.rejected_evidence_tsv).read_text(
+        encoding="utf-8"
+    ).splitlines()[0] == (
         "rejected_evidence_id\tsource_surface\tsource_file\trow_number\t"
         "entity_type\tentity_id\treason_code\tdetail\trelated_artifact"
-    ) == (
-        output_dir / manifest.artifacts.rejected_evidence_tsv
-    ).read_text(encoding="utf-8").splitlines()[0]
+    )
     foreground_tsv = (
         output_dir / manifest.artifacts.enrichment_foreground_tsv
     ).read_text(encoding="utf-8")
     assert "card_id" in foreground_tsv
     assert "\ttrue\t" not in foreground_tsv
-    assert "entity_id" in (
-        output_dir / manifest.artifacts.lfq_matrix_tsv
-    ).read_text(encoding="utf-8")
+    assert "entity_id" in (output_dir / manifest.artifacts.lfq_matrix_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "observed" in (
         output_dir / manifest.artifacts.lfq_missingness_tsv
     ).read_text(encoding="utf-8")
-    assert "card_id" in (
-        output_dir / manifest.artifacts.protein_card_tsv
-    ).read_text(encoding="utf-8")
+    assert "card_id" in (output_dir / manifest.artifacts.protein_card_tsv).read_text(
+        encoding="utf-8"
+    )
     assert "context_kind" in (
         output_dir / manifest.artifacts.context_mapping_tsv
     ).read_text(encoding="utf-8")

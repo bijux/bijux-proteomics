@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+)
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
     SearchResultValidationIssue,
@@ -11,10 +15,6 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     build_rejected_evidence_rows_from_psm_rows,
     build_rejected_evidence_rows_from_scientific_rows,
     render_rejected_evidence_tsv,
-)
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
 )
 
 
@@ -54,7 +54,10 @@ def test_rejected_evidence_table_preserves_required_columns_and_reason_codes() -
     assert rendered.startswith(
         "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
     )
-    assert "generic.tsv\t4\tpsm\tscan-004\tinvalid_charge\tcharge must be an integer" in rendered
+    assert (
+        "generic.tsv\t4\tpsm\tscan-004\tinvalid_charge\tcharge must be an integer"
+        in rendered
+    )
 
 
 def test_rejected_evidence_table_builds_precursor_and_feature_rows_from_scientific_rejections() -> (

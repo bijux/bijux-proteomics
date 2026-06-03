@@ -8,9 +8,14 @@ from bijux_proteomics.chemistry import (
     calculate_fragment_ions,
     calculate_peptide_mz,
 )
-from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.io import SpectralLibraryEntry, SpectralLibraryFormat, SpectrumModel, SpectrumPeak
+from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
+from bijux_proteomics.io import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+    SpectrumModel,
+    SpectrumPeak,
+)
 from bijux_proteomics.sequences import (
     PeptideChemicalLiabilityTier,
     PeptideDetectabilityTier,
@@ -53,7 +58,9 @@ def _selected_peptide(
         replicate_consistency=0.95,
         primary_evidence_class=PeptideEvidenceClass.STRONG,
         uniqueness_class=uniqueness_class,
-        uniqueness_score=1.0 if uniqueness_class is PeptideUniquenessClass.UNIQUE else 0.4,
+        uniqueness_score=1.0
+        if uniqueness_class is PeptideUniquenessClass.UNIQUE
+        else 0.4,
         detectability_score=0.9,
         detectability_tier=PeptideDetectabilityTier.HIGH,
         suitability_score=0.9,
@@ -112,7 +119,9 @@ def _library_entry(
     )
 
 
-def test_targeted_assay_interference_downgrades_isobaric_competitors_before_panel_export() -> None:
+def test_targeted_assay_interference_downgrades_isobaric_competitors_before_panel_export() -> (
+    None
+):
     selected_peptides = (
         _selected_peptide(
             protein_ref="P00001",
@@ -163,24 +172,45 @@ def test_targeted_assay_interference_downgrades_isobaric_competitors_before_pane
         for entry in report.assay_entries
         if entry.peptide_sequence in {"AAALIGHTR", "AAAIIGHTR"}
     }
-    assert risky["AAALIGHTR"].interference_risk_tier is TargetedAssayInterferenceRiskTier.HIGH
+    assert (
+        risky["AAALIGHTR"].interference_risk_tier
+        is TargetedAssayInterferenceRiskTier.HIGH
+    )
     assert risky["AAALIGHTR"].panel_export_allowed is False
-    assert TargetedAssayInterferenceReason.PANEL_FRAGMENT_OVERLAP in risky["AAALIGHTR"].downgrade_reasons
-    assert TargetedAssayInterferenceReason.BACKGROUND_PEPTIDE_OVERLAP in risky["AAALIGHTR"].downgrade_reasons
-    assert TargetedAssayInterferenceReason.LIBRARY_FRAGMENT_OVERLAP in risky["AAALIGHTR"].downgrade_reasons
-    assert TargetedAssayInterferenceReason.LIBRARY_COELUTION_COMPETITOR in risky["AAALIGHTR"].downgrade_reasons
+    assert (
+        TargetedAssayInterferenceReason.PANEL_FRAGMENT_OVERLAP
+        in risky["AAALIGHTR"].downgrade_reasons
+    )
+    assert (
+        TargetedAssayInterferenceReason.BACKGROUND_PEPTIDE_OVERLAP
+        in risky["AAALIGHTR"].downgrade_reasons
+    )
+    assert (
+        TargetedAssayInterferenceReason.LIBRARY_FRAGMENT_OVERLAP
+        in risky["AAALIGHTR"].downgrade_reasons
+    )
+    assert (
+        TargetedAssayInterferenceReason.LIBRARY_COELUTION_COMPETITOR
+        in risky["AAALIGHTR"].downgrade_reasons
+    )
 
-    safe = next(entry for entry in report.assay_entries if entry.peptide_sequence == "PEPTIDER")
+    safe = next(
+        entry for entry in report.assay_entries if entry.peptide_sequence == "PEPTIDER"
+    )
     assert safe.panel_export_allowed is True
     assert safe.exported_transition_count >= 3
     assert {entry.peptide_sequence for entry in report.panel_entries} == {"PEPTIDER"}
 
-    assert "panel_export_allowed" in render_targeted_assay_interference_assay_tsv(report)
+    assert "panel_export_allowed" in render_targeted_assay_interference_assay_tsv(
+        report
+    )
     assert "fragment_label" in render_targeted_assay_interference_transition_tsv(report)
     assert "PEPTIDER" in render_targeted_assay_interference_panel_tsv(report)
 
 
-def test_targeted_assay_interference_keeps_shared_peptide_risk_visible_before_export() -> None:
+def test_targeted_assay_interference_keeps_shared_peptide_risk_visible_before_export() -> (
+    None
+):
     selected_peptides = (
         _selected_peptide(
             protein_ref="P00004",
@@ -195,8 +225,7 @@ def test_targeted_assay_interference_keeps_shared_peptide_risk_visible_before_ex
         maximum_transition_count=3,
     )
     protein_records = parse_fasta_document(
-        ">sp|P00004|KIN4 GN=KIN4\nAAASHALEDK\n"
-        ">sp|O00005|OFF5 GN=OFF5\nAAASHALEDK\n"
+        ">sp|P00004|KIN4 GN=KIN4\nAAASHALEDK\n>sp|O00005|OFF5 GN=OFF5\nAAASHALEDK\n"
     ).accepted_records
 
     report = build_targeted_assay_interference_report(

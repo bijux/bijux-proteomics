@@ -5,6 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.interpretation.ortholog_mapping import (
+    OrthologMappingCardinality,
+    OrthologRecord,
+)
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import TmtSearchResultSourceKind
 from bijux_proteomics.study import build_experiment_design
@@ -28,10 +32,6 @@ from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyProteinStudyInput,
 )
 from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
-from bijux_proteomics.interpretation.ortholog_mapping import (
-    OrthologMappingCardinality,
-    OrthologRecord,
-)
 
 
 def _workflow_fixture(name: str) -> Path:
@@ -295,10 +295,15 @@ def test_cross_species_effect_comparison_preserves_many_to_many_ortholog_rows() 
     assert {entry.ambiguity_status for entry in matched_rows} == {
         CrossSpeciesOrthologAmbiguityStatus.MANY_TO_MANY_ORTHOLOG
     }
-    assert all(entry.evidence_status is CrossSpeciesEffectEvidenceStatus.CONSERVED_EFFECT for entry in matched_rows)
+    assert all(
+        entry.evidence_status is CrossSpeciesEffectEvidenceStatus.CONSERVED_EFFECT
+        for entry in matched_rows
+    )
 
 
-def test_cross_species_effect_comparison_does_not_use_gene_symbol_as_orthology() -> None:
+def test_cross_species_effect_comparison_does_not_use_gene_symbol_as_orthology() -> (
+    None
+):
     report = build_cross_species_effect_comparison_report_from_observations(
         (
             CrossStudyProteinEffectObservation(
@@ -360,7 +365,9 @@ def test_cross_species_effect_comparison_does_not_use_gene_symbol_as_orthology()
     )
 
 
-def test_cross_species_effect_comparison_marks_missing_species_studies_unsupported() -> None:
+def test_cross_species_effect_comparison_marks_missing_species_studies_unsupported() -> (
+    None
+):
     biological_design = tuple(
         parse_experimental_design_table(
             _workflow_fixture("biological_report.design.tsv")
@@ -402,7 +409,9 @@ def test_cross_species_effect_comparison_marks_missing_species_studies_unsupport
     assert "explicit study species" in report.unsupported_studies[0].reason
 
 
-def test_cross_species_effect_comparison_marks_heterogeneous_contrasts_explicitly() -> None:
+def test_cross_species_effect_comparison_marks_heterogeneous_contrasts_explicitly() -> (
+    None
+):
     report = build_cross_species_effect_comparison_report_from_observations(
         (
             CrossStudyProteinEffectObservation(

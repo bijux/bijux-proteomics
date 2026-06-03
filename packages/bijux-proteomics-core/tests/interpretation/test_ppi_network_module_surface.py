@@ -17,7 +17,9 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
 
 
-def test_build_ppi_network_module_report_keeps_isolated_proteins_outside_modules() -> None:
+def test_build_ppi_network_module_report_keeps_isolated_proteins_outside_modules() -> (
+    None
+):
     significant = parse_protein_reference_table(_fixture_path("ppi_significant.tsv"))
     edges = parse_ppi_edge_table(_fixture_path("ppi_edges.tsv"))
     protein_sets = parse_protein_set_table(_fixture_path("protein_set_enrichment.tsv"))

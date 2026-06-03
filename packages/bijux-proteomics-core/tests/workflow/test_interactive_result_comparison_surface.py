@@ -222,7 +222,9 @@ def _build_minimal_bundle(
     )
 
 
-def _build_real_artifact_pair(tmp_path: Path) -> tuple[Path, Path, Path, Path, Path, Path]:
+def _build_real_artifact_pair(
+    tmp_path: Path,
+) -> tuple[Path, Path, Path, Path, Path, Path]:
     design_entries = tuple(
         parse_experimental_design_table(
             _workflow_fixture("biological_report.design.tsv")
@@ -233,14 +235,18 @@ def _build_real_artifact_pair(tmp_path: Path) -> tuple[Path, Path, Path, Path, P
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
     )
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     ptm_report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -341,7 +347,9 @@ def _build_real_artifact_pair(tmp_path: Path) -> tuple[Path, Path, Path, Path, P
     )
 
 
-def test_interactive_result_comparison_payload_preserves_changed_entities_and_reasons() -> None:
+def test_interactive_result_comparison_payload_preserves_changed_entities_and_reasons() -> (
+    None
+):
     left_bundle = _build_minimal_bundle(
         report_dir="left",
         protein_log2_fold_change=1.2,
@@ -365,34 +373,27 @@ def test_interactive_result_comparison_payload_preserves_changed_entities_and_re
     assert payload.summary.changed_ptm_site_count == 1
     assert payload.summary.changed_qc_entry_count == 1
     assert payload.summary.changed_pathway_count == 1
-    assert {
-        reason.code for reason in payload.changed_proteins[0].reasons
-    } >= {
+    assert {reason.code for reason in payload.changed_proteins[0].reasons} >= {
         InteractiveResultComparisonReasonCode.LOG2_FOLD_CHANGE_CHANGED,
         InteractiveResultComparisonReasonCode.EVIDENCE_TIER_CHANGED,
     }
-    assert {
-        reason.code for reason in payload.changed_ptm_sites[0].reasons
-    } >= {
+    assert {reason.code for reason in payload.changed_ptm_sites[0].reasons} >= {
         InteractiveResultComparisonReasonCode.PROTEIN_CORRECTION_STATUS_CHANGED,
     }
-    assert {
-        reason.code for reason in payload.changed_qc_entries[0].reasons
-    } >= {
+    assert {reason.code for reason in payload.changed_qc_entries[0].reasons} >= {
         InteractiveResultComparisonReasonCode.QC_STATUS_CHANGED,
         InteractiveResultComparisonReasonCode.QC_SEVERITY_CHANGED,
     }
-    assert {
-        reason.code for reason in payload.changed_pathways[0].reasons
-    } >= {
+    assert {reason.code for reason in payload.changed_pathways[0].reasons} >= {
         InteractiveResultComparisonReasonCode.ENRICHMENT_RATIO_CHANGED,
     }
     assert "changed_protein_count" in render_interactive_result_comparison_summary_tsv(
         payload
     )
     assert "reasons" in render_interactive_result_comparison_protein_tsv(payload)
-    assert "protein_correction_status" in render_interactive_result_comparison_ptm_site_tsv(
-        payload
+    assert (
+        "protein_correction_status"
+        in render_interactive_result_comparison_ptm_site_tsv(payload)
     )
     assert "qc_id" in render_interactive_result_comparison_qc_tsv(payload)
     assert "pathway_id" in render_interactive_result_comparison_pathway_tsv(payload)

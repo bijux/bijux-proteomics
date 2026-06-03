@@ -67,8 +67,7 @@ def test_peptide_evidence_review_reports_primary_classes_and_tags() -> None:
     assert "shared_count\t1" in summary_tsv
     assert "ambiguous_count\t1" in summary_tsv
     assert (
-        "ACDM[Oxidation]K\tACDM[Oxidation]K\tmoderate\tunique;modified"
-        in entries_tsv
+        "ACDM[Oxidation]K\tACDM[Oxidation]K\tmoderate\tunique;modified" in entries_tsv
     )
     assert "CONTAMK\tCONTAMK\tcontaminant\tunique;contaminant" in entries_tsv
 

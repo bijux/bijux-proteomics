@@ -13,7 +13,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_biological_result_report_bundle_preserves_annotation_and_enrichment() -> None:
+def test_build_biological_result_report_bundle_preserves_annotation_and_enrichment() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")

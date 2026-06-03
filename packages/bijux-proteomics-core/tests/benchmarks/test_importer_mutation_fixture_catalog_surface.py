@@ -13,7 +13,9 @@ def test_importer_mutation_fixture_catalog_keeps_unique_file_backed_owners() -> 
     fixtures = build_importer_mutation_fixture_catalog()
 
     assert len({fixture.fixture_id for fixture in fixtures}) == len(fixtures)
-    assert len({fixture.mutated_repo_relative_path for fixture in fixtures}) == len(fixtures)
+    assert len({fixture.mutated_repo_relative_path for fixture in fixtures}) == len(
+        fixtures
+    )
 
     for fixture in fixtures:
         assert fixture.source_path.is_file(), fixture.source_repo_relative_path

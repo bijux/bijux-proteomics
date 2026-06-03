@@ -42,8 +42,12 @@ def _format_fixture(name: str) -> Path:
 def build_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
     builder = ProteomicsEvidenceGraphBuilder()
 
-    strong_spectrum = builder.add_spectrum("scan=1001", label="scan=1001", trust_class="high")
-    weak_spectrum = builder.add_spectrum("scan=1002", label="scan=1002", trust_class="low")
+    strong_spectrum = builder.add_spectrum(
+        "scan=1001", label="scan=1001", trust_class="high"
+    )
+    weak_spectrum = builder.add_spectrum(
+        "scan=1002", label="scan=1002", trust_class="low"
+    )
     strong_psm = builder.add_psm("psm:1001", label="psm:1001", trust_class="high")
     weak_psm = builder.add_psm("psm:1002", label="psm:1002", trust_class="low")
     strong_peptide = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
@@ -247,8 +251,12 @@ def build_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
 def build_precursor_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
     builder = ProteomicsEvidenceGraphBuilder()
 
-    strong_spectrum = builder.add_spectrum("scan=2001", label="scan=2001", trust_class="high")
-    shifted_spectrum = builder.add_spectrum("scan=2002", label="scan=2002", trust_class="high")
+    strong_spectrum = builder.add_spectrum(
+        "scan=2001", label="scan=2001", trust_class="high"
+    )
+    shifted_spectrum = builder.add_spectrum(
+        "scan=2002", label="scan=2002", trust_class="high"
+    )
     strong_precursor = builder.add_precursor(
         "prec_alpha",
         label="prec_alpha",
@@ -353,15 +361,28 @@ def test_propagate_evidence_graph_confidence_depends_on_upstream_quality() -> No
     assert len(report.tier_counts) > 1
 
     by_claim = {entry.claim_node_ref: entry for entry in report.entries}
-    assert by_claim["protein:treatment_vs_control:P11111"].confidence_tier.value == "high"
-    assert by_claim["protein:treatment_vs_control:P22222"].confidence_tier.value == "low"
+    assert (
+        by_claim["protein:treatment_vs_control:P11111"].confidence_tier.value == "high"
+    )
+    assert (
+        by_claim["protein:treatment_vs_control:P22222"].confidence_tier.value == "low"
+    )
     assert (
         by_claim["protein:treatment_vs_control:P11111"].propagated_score
         > by_claim["protein:treatment_vs_control:P22222"].propagated_score
     )
-    assert by_claim["ptm:treatment_vs_control:P11111:S3:Phospho"].confidence_tier.value == "high"
-    assert by_claim["pathway:treatment_vs_control:R-HSA-199420"].confidence_tier.value == "high"
-    assert by_claim["pathway:treatment_vs_control:R-HSA-6802957"].confidence_tier.value == "low"
+    assert (
+        by_claim["ptm:treatment_vs_control:P11111:S3:Phospho"].confidence_tier.value
+        == "high"
+    )
+    assert (
+        by_claim["pathway:treatment_vs_control:R-HSA-199420"].confidence_tier.value
+        == "high"
+    )
+    assert (
+        by_claim["pathway:treatment_vs_control:R-HSA-6802957"].confidence_tier.value
+        == "low"
+    )
 
 
 def test_propagate_evidence_graph_confidence_preserves_upstream_provenance() -> None:
@@ -404,7 +425,9 @@ def test_propagate_evidence_graph_confidence_penalizes_shifted_dia_fragments() -
     assert shifted_entry.confidence_tier.value in {"moderate", "low"}
 
 
-def test_propagate_evidence_graph_confidence_penalizes_unstable_fragment_ratios() -> None:
+def test_propagate_evidence_graph_confidence_penalizes_unstable_fragment_ratios() -> (
+    None
+):
     ratio_report = FragmentRatioStabilityReport(
         data_kind=FragmentRatioDataKind.DIA,
         fragment_entries=(
@@ -526,7 +549,9 @@ def test_propagate_evidence_graph_confidence_penalizes_unstable_fragment_ratios(
         note="synthetic dia fragment ratio stability report",
     )
 
-    baseline = propagate_evidence_graph_confidence(build_precursor_confidence_fixture_graph())
+    baseline = propagate_evidence_graph_confidence(
+        build_precursor_confidence_fixture_graph()
+    )
     with_ratio_stability = propagate_evidence_graph_confidence(
         build_precursor_confidence_fixture_graph(),
         dia_fragment_ratio_stability_report=ratio_report,
@@ -545,16 +570,23 @@ def test_propagate_evidence_graph_confidence_penalizes_unstable_fragment_ratios(
         with_ratio_by_claim["protein:treatment_vs_control:P33333"].propagated_score
         > with_ratio_by_claim["protein:treatment_vs_control:P44444"].propagated_score
     )
-    assert "fragment-ratio stability" in with_ratio_by_claim[
-        "protein:treatment_vs_control:P33333"
-    ].rationale
+    assert (
+        "fragment-ratio stability"
+        in with_ratio_by_claim["protein:treatment_vs_control:P33333"].rationale
+    )
 
 
-def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_scores() -> None:
+def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_scores() -> (
+    None
+):
     builder = ProteomicsEvidenceGraphBuilder()
 
-    spectrum_a = builder.add_spectrum("scan=2001", label="scan=2001", trust_class="high")
-    spectrum_b = builder.add_spectrum("scan=2002", label="scan=2002", trust_class="high")
+    spectrum_a = builder.add_spectrum(
+        "scan=2001", label="scan=2001", trust_class="high"
+    )
+    spectrum_b = builder.add_spectrum(
+        "scan=2002", label="scan=2002", trust_class="high"
+    )
     psm_a = builder.add_psm("psm:2001", label="psm:2001", trust_class="high")
     psm_b = builder.add_psm("psm:2002", label="psm:2002", trust_class="high")
     peptide_a = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
@@ -652,26 +684,37 @@ def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_sco
     )
     assert (
         chromatographic_by_claim["protein:treatment_vs_control:P30001"].propagated_score
-        > chromatographic_by_claim["protein:treatment_vs_control:P30002"].propagated_score
+        > chromatographic_by_claim[
+            "protein:treatment_vs_control:P30002"
+        ].propagated_score
     )
     assert (
-        chromatographic_by_claim["protein:treatment_vs_control:P30001"].confidence_tier.value
+        chromatographic_by_claim[
+            "protein:treatment_vs_control:P30001"
+        ].confidence_tier.value
         == "high"
     )
     assert (
-        chromatographic_by_claim["protein:treatment_vs_control:P30002"].confidence_tier.value
+        chromatographic_by_claim[
+            "protein:treatment_vs_control:P30002"
+        ].confidence_tier.value
         == "moderate"
     )
-    assert "peptide chromatographic evidence" in chromatographic_by_claim[
-        "protein:treatment_vs_control:P30001"
-    ].rationale
+    assert (
+        "peptide chromatographic evidence"
+        in chromatographic_by_claim["protein:treatment_vs_control:P30001"].rationale
+    )
 
 
 def test_propagate_evidence_graph_confidence_uses_peptide_chemical_liability() -> None:
     builder = ProteomicsEvidenceGraphBuilder()
 
-    safe_spectrum = builder.add_spectrum("scan=3001", label="scan=3001", trust_class="high")
-    risky_spectrum = builder.add_spectrum("scan=3002", label="scan=3002", trust_class="high")
+    safe_spectrum = builder.add_spectrum(
+        "scan=3001", label="scan=3001", trust_class="high"
+    )
+    risky_spectrum = builder.add_spectrum(
+        "scan=3002", label="scan=3002", trust_class="high"
+    )
     safe_psm = builder.add_psm("psm:3001", label="psm:3001", trust_class="high")
     risky_psm = builder.add_psm("psm:3002", label="psm:3002", trust_class="high")
     safe_peptide = builder.add_peptide("ATIDEAR", label="ATIDEAR", trust_class="high")
@@ -755,10 +798,14 @@ def test_propagate_evidence_graph_confidence_uses_peptide_chemical_liability() -
     assert "peptide chemical liability" in risky_entry.rationale
 
 
-def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_profiles() -> None:
+def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_profiles() -> (
+    None
+):
     builder = ProteomicsEvidenceGraphBuilder()
 
-    strong_spectrum = builder.add_spectrum("scan=4001", label="scan=4001", trust_class="high")
+    strong_spectrum = builder.add_spectrum(
+        "scan=4001", label="scan=4001", trust_class="high"
+    )
     inconsistent_spectrum = builder.add_spectrum(
         "scan=4002",
         label="scan=4002",
@@ -806,7 +853,14 @@ def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_prof
     )
 
     for row_number, spectrum, psm, peptide, protein, result in (
-        (41, strong_spectrum, strong_psm, strong_peptide, strong_protein, strong_result),
+        (
+            41,
+            strong_spectrum,
+            strong_psm,
+            strong_peptide,
+            strong_protein,
+            strong_result,
+        ),
         (
             42,
             inconsistent_spectrum,
@@ -917,6 +971,7 @@ def test_propagate_evidence_graph_confidence_penalizes_inconsistent_peptide_prof
         inconsistency_by_claim["protein:treatment_vs_control:P77771"].propagated_score
         > inconsistency_by_claim["protein:treatment_vs_control:P77772"].propagated_score
     )
-    assert "peptide profile inconsistency" in inconsistency_by_claim[
-        "protein:treatment_vs_control:P77772"
-    ].rationale
+    assert (
+        "peptide profile inconsistency"
+        in inconsistency_by_claim["protein:treatment_vs_control:P77772"].rationale
+    )

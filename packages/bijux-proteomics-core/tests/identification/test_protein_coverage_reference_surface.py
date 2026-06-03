@@ -78,7 +78,9 @@ def test_protein_coverage_reference_cases_match_expected_outputs() -> None:
             encoding="utf-8"
         )
     )
-    cases = tuple(ProteinCoverageReferenceCase.model_validate(case) for case in raw_cases)
+    cases = tuple(
+        ProteinCoverageReferenceCase.model_validate(case) for case in raw_cases
+    )
 
     for case in cases:
         report = build_protein_coverage_report(
@@ -89,7 +91,9 @@ def test_protein_coverage_reference_cases_match_expected_outputs() -> None:
         )
 
         assert len(report.entries) == len(case.expected_entries)
-        for observed, expected in zip(report.entries, case.expected_entries, strict=True):
+        for observed, expected in zip(
+            report.entries, case.expected_entries, strict=True
+        ):
             assert observed.protein_ref == expected.protein_ref
             assert observed.covered_residue_count == expected.covered_residue_count
             assert observed.coverage_fraction == expected.coverage_fraction

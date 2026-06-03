@@ -11,18 +11,18 @@ from bijux_proteomics.ptm import (
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
-    build_ptm_mechanism_classification_report,
-    build_ptm_ortholog_conservation_report,
     build_ptm_differential_analysis_report,
     build_ptm_evidence_card_report,
     build_ptm_localization_scoring_report,
+    build_ptm_mechanism_classification_report,
+    build_ptm_ortholog_conservation_report,
     build_ptm_phosphosite_motif_enrichment_report,
     build_ptm_regulator_enrichment_report,
     build_ptm_site_annotation_mapping_report,
     build_ptm_site_quantification_report,
     build_ptm_site_table,
-    export_ptm_evidence_card_tsv,
     export_ptm_evidence_card_summary_tsv,
+    export_ptm_evidence_card_tsv,
     export_ptm_evidence_claim_tsv,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
@@ -94,7 +94,9 @@ def _build_evidence_card_report():
             min_absolute_log2_fold_change=0.0,
         ),
     )
-    annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     annotation_mapping = build_ptm_site_annotation_mapping_report(
         site_table,
         annotations.accepted_records,
@@ -140,7 +142,9 @@ def _build_evidence_card_report():
     )
 
 
-def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path) -> None:
+def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(
+    tmp_path: Path,
+) -> None:
     report = _build_evidence_card_report()
 
     summary_path = tmp_path / "ptm.evidence_cards.summary.tsv"
@@ -160,6 +164,6 @@ def test_ptm_evidence_card_exports_preserve_cards_and_claim_links(tmp_path: Path
     assert "ortholog_conservation_status" in cards_path.read_text()
     assert "identity_level" in cards_path.read_text()
     assert (
-        "claim_id\tcard_id\tsite_key\tclaim_kind\ttext\tsource_row_refs\tderived_no_source_reason"
-        == claims_path.read_text().splitlines()[0]
+        claims_path.read_text().splitlines()[0]
+        == "claim_id\tcard_id\tsite_key\tclaim_kind\ttext\tsource_row_refs\tderived_no_source_reason"
     )

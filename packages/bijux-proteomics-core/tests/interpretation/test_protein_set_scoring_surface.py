@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.interpretation import (
     build_protein_set_scoring_report,
     parse_protein_set_table,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -57,7 +57,9 @@ def _build_fixture_table():
 
 
 def test_build_protein_set_scoring_report_scores_programs_per_sample() -> None:
-    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _quant_fixture_path("quant.design.tsv")
+    )
     protein_sets = parse_protein_set_table(_fixture_path("protein_sets.tsv"))
 
     report = build_protein_set_scoring_report(
@@ -78,7 +80,9 @@ def test_build_protein_set_scoring_report_scores_programs_per_sample() -> None:
     }
     assert activation_scores["C1"].activity_score is not None
     assert activation_scores["T2"].activity_score is not None
-    assert activation_scores["T2"].activity_score > activation_scores["C1"].activity_score
+    assert (
+        activation_scores["T2"].activity_score > activation_scores["C1"].activity_score
+    )
     assert activation_scores["C1"].observed_member_count == 1
     assert activation_scores["C1"].missing_member_count == 2
     assert activation_scores["C1"].confidence_status.value == "low"
@@ -89,7 +93,9 @@ def test_build_protein_set_scoring_report_scores_programs_per_sample() -> None:
 
 
 def test_build_protein_set_scoring_report_emits_condition_deltas() -> None:
-    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _quant_fixture_path("quant.design.tsv")
+    )
     protein_sets = parse_protein_set_table(_fixture_path("protein_sets.tsv"))
 
     report = build_protein_set_scoring_report(

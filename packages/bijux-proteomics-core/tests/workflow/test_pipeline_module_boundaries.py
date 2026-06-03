@@ -7,7 +7,6 @@ import ast
 import importlib
 from pathlib import Path
 
-
 _PIPELINE_MODULES = (
     "advanced_workflow_family",
     "advanced_diann",
@@ -56,12 +55,7 @@ _APPROVED_ASSEMBLY_HELPERS = {
 
 
 def _workflow_source_root() -> Path:
-    return (
-        Path(__file__).resolve().parents[2]
-        / "src"
-        / "bijux_proteomics"
-        / "workflow"
-    )
+    return Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 
 
 def _significant_nodes(path: Path) -> list[ast.stmt]:
@@ -77,10 +71,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
     return [
         node
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom)
-            and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     ]
 
 
@@ -117,8 +108,7 @@ def test_workflow_pipelines_avoid_low_level_algorithm_helpers() -> None:
             for name in defs
             if name.startswith("_")
             and any(token in name for token in _FORBIDDEN_HELPER_TOKENS)
-            and name
-            not in _APPROVED_ASSEMBLY_HELPERS.get(module_name, set())
+            and name not in _APPROVED_ASSEMBLY_HELPERS.get(module_name, set())
         ]
         assert not offending, (
             f"{path} should orchestrate domain owners instead of defining low-level "

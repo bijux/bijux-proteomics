@@ -15,7 +15,6 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
 )
 
-
 _ENGINE_CASES = (
     {
         "adapter_kind": SearchAdapterKind.COMET,
@@ -106,7 +105,9 @@ def test_engine_output_corpus_reports_preserve_schema_contract(
         assert entry.rejected_rows == 0
 
 
-@pytest.mark.parametrize("case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES])
+@pytest.mark.parametrize(
+    "case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES]
+)
 def test_engine_normalization_preserves_invalid_row_rejections(
     case: dict[str, object],
     tmp_path: Path,
@@ -132,10 +133,14 @@ def test_engine_normalization_preserves_invalid_row_rejections(
 
     assert len(report.parse_report.rejected_rows) == 1
     assert report.evidence_rows[1].accepted is False
-    assert {issue.code for issue in report.evidence_rows[1].issues} == {"invalid_charge"}
+    assert {issue.code for issue in report.evidence_rows[1].issues} == {
+        "invalid_charge"
+    }
 
 
-@pytest.mark.parametrize("case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES])
+@pytest.mark.parametrize(
+    "case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES]
+)
 def test_engine_provenance_manifests_hash_source_and_config(
     case: dict[str, object],
 ) -> None:

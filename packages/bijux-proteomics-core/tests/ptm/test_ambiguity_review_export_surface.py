@@ -76,7 +76,9 @@ def test_ptm_ambiguity_review_renderers_keep_localized_and_unlocalized_ledgers_s
     assert any("\tS;T;Y\t" in line for line in unlocalized_lines)
 
 
-def test_ptm_site_group_quant_renderers_keep_group_matrix_and_missingness_explicit() -> None:
+def test_ptm_site_group_quant_renderers_keep_group_matrix_and_missingness_explicit() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,

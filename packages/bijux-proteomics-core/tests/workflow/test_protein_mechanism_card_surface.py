@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.ptm.differential_analysis import PtmProteinCorrectionMode
 from bijux_proteomics.ptm.evidence_cards import (
     PtmEvidenceCard,
     PtmEvidenceCardClaim,
@@ -21,7 +22,6 @@ from bijux_proteomics.ptm.evidence_cards import (
     PtmEvidenceCardReport,
     PtmEvidenceCardSummary,
 )
-from bijux_proteomics.ptm.differential_analysis import PtmProteinCorrectionMode
 from bijux_proteomics.ptm.localization_scoring import (
     PtmLocalizationConfidenceTier,
     PtmLocalizationProbabilitySource,
@@ -48,16 +48,16 @@ from bijux_proteomics.sequences import ProteinIdentityLevel
 from bijux_proteomics.workflow import (
     build_biological_result_report_bundle_from_quant_table,
 )
-from bijux_proteomics_lab.handoffs.qc_feedback import (
-    LabRunQcObservation,
-    build_lab_run_qc_feedback_report,
-)
-from bijux_proteomics_lab.outcomes.observations import AssayObservationRecord, QcState
 from bijux_proteomics.workflow.protein_mechanism_cards import (
     ProteinMechanismDirection,
     build_protein_mechanism_card_report,
     render_protein_mechanism_card_tsv,
 )
+from bijux_proteomics_lab.handoffs.qc_feedback import (
+    LabRunQcObservation,
+    build_lab_run_qc_feedback_report,
+)
+from bijux_proteomics_lab.outcomes.observations import AssayObservationRecord, QcState
 
 
 def _fixture(name: str) -> Path:
@@ -113,7 +113,9 @@ def _synthetic_ptm_evidence_card_report() -> PtmEvidenceCardReport:
                 motif_evidence=PtmEvidenceCardMotifEvidence(),
                 mechanism_classification=PtmEvidenceCardMechanismClassification(
                     mechanism_class=PtmMechanismClass.SITE_SPECIFIC,
-                    reason_codes=(PtmMechanismReasonCode.RESIDUAL_SITE_EFFECT_AFTER_CORRECTION,),
+                    reason_codes=(
+                        PtmMechanismReasonCode.RESIDUAL_SITE_EFFECT_AFTER_CORRECTION,
+                    ),
                     raw_log2_fold_change=2.0,
                     corrected_log2_fold_change=1.5,
                     note="corrected site effect remains strong after accounting for the protein baseline",
@@ -271,7 +273,9 @@ def test_build_protein_mechanism_card_report_summarizes_graph_backed_abundance_p
     assert mechanism_report.summary.complex_annotated_card_count >= 1
 
 
-def test_build_protein_mechanism_card_report_keeps_shared_peptide_only_results_distinct_from_strong_cards() -> None:
+def test_build_protein_mechanism_card_report_keeps_shared_peptide_only_results_distinct_from_strong_cards() -> (
+    None
+):
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")

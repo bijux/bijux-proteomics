@@ -13,8 +13,8 @@ from bijux_proteomics.study import (
     DigestionEnzyme,
     EnrichmentType,
     FractionationMode,
-    LabProtocolContextEntry,
     LabelingMethod,
+    LabProtocolContextEntry,
     ProtocolConsistencySeverity,
     ProtocolConsistencyStatus,
     build_lcms_run_qc_report,
@@ -151,9 +151,7 @@ def test_protocol_consistency_report_blocks_phospho_protocol_without_phosphosite
         encoding="utf-8",
     )
     ptm_report = SimpleNamespace(
-        accepted_records=(
-            SimpleNamespace(modification_names=("Acetyl",)),
-        ),
+        accepted_records=(SimpleNamespace(modification_names=("Acetyl",)),),
     )
 
     report = build_protocol_consistency_report(
@@ -204,6 +202,8 @@ def test_protocol_consistency_report_renders_and_requires_non_blocking_consisten
 
     assert report.summary.status is ProtocolConsistencyStatus.PASSED
     assert require_protocol_consistency_without_blockers(report) is report
-    assert render_protocol_consistency_tsv(report).splitlines()[0].startswith(
-        "protocol_id\taxis\tcode\tseverity"
+    assert (
+        render_protocol_consistency_tsv(report)
+        .splitlines()[0]
+        .startswith("protocol_id\taxis\tcode\tseverity")
     )

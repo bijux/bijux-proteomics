@@ -9,8 +9,8 @@ import pytest
 
 from bijux_proteomics.workflow import (
     build_flagship_trust_bundle_descriptors,
-    build_trust_bundle,
     build_public_benchmark_trust_bundle,
+    build_trust_bundle,
     public_benchmark_root,
 )
 
@@ -100,7 +100,9 @@ def test_build_trust_bundle_uses_explicit_descriptor_set(
     tmp_path: Path,
 ) -> None:
     report = build_trust_bundle(
-        build_flagship_trust_bundle_descriptors(tmp_path / "descriptor_bound_trust_bundle"),
+        build_flagship_trust_bundle_descriptors(
+            tmp_path / "descriptor_bound_trust_bundle"
+        ),
         tmp_path / "descriptor_bound_trust_bundle",
     )
 

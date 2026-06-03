@@ -93,7 +93,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -110,7 +112,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
 def _write_ptm_report_dir(tmp_path: Path) -> Path:
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -213,9 +217,7 @@ def test_result_archive_rehydrates_mixed_queries_without_workflow_rerun(
     assert "identification depth" in run_packet[0].recommended_action
 
     bundle = result.interactive_result_bundle
-    protein = result.query_archived_protein(
-        object_id=bundle.proteins[0].object_id
-    )
+    protein = result.query_archived_protein(object_id=bundle.proteins[0].object_id)
     peptide = result.query_archived_peptide(peptide_id=bundle.peptides[0].peptide_id)
     ptm_site = result.query_archived_ptm_site(site_key=bundle.ptm_sites[0].site_key)
     pathway = result.query_archived_pathway(pathway_id=bundle.pathways[0].pathway_id)
@@ -232,14 +234,21 @@ def test_result_archive_rehydrates_mixed_queries_without_workflow_rerun(
     peptide_node_id = next(
         node.entity_ref for node in graph.nodes if node.entity_type.value == "peptide"
     )
-    assert query_protein_evidence_summary(graph, protein_id=protein_node_id).support_edge_count > 0
+    assert (
+        query_protein_evidence_summary(
+            graph, protein_id=protein_node_id
+        ).support_edge_count
+        > 0
+    )
     assert query_peptide_support_chain(graph, peptide_id=peptide_node_id).step_count > 0
     pathway_nodes = tuple(
         node.entity_ref for node in graph.nodes if node.entity_type.value == "pathway"
     )
     if pathway_nodes:
         assert (
-            query_pathway_support_proteins(graph, pathway_id=pathway_nodes[0]).support_edge_count
+            query_pathway_support_proteins(
+                graph, pathway_id=pathway_nodes[0]
+            ).support_edge_count
             > 0
         )
 

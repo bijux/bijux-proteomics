@@ -11,7 +11,9 @@ import bijux_proteomics._atomic_files as atomic_files
 from bijux_proteomics.interfaces.support import output_protocol
 
 
-def test_emit_json_writes_sorted_json_document(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_emit_json_writes_sorted_json_document(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     output_path = tmp_path / "artifact.json"
     echoed: list[str] = []
     monkeypatch.setattr(output_protocol.click, "echo", echoed.append)

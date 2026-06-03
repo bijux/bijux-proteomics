@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.pipelines.advanced_diann import AdvancedDiannWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_diann import (
+    AdvancedDiannWorkflowReport,
+)
 from bijux_proteomics.workflow.pipelines.advanced_fragpipe import (
     AdvancedFragpipeWorkflowReport,
 )
@@ -15,7 +17,9 @@ from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowReport,
 )
 from bijux_proteomics.workflow.pipelines.advanced_tmt import AdvancedTmtWorkflowReport
-from bijux_proteomics.workflow.pipelines.discovery_to_assay import DiscoveryToAssayReport
+from bijux_proteomics.workflow.pipelines.discovery_to_assay import (
+    DiscoveryToAssayReport,
+)
 from bijux_proteomics.workflow.pipelines.multi_study import MultiStudyComparisonReport
 from bijux_proteomics.workflow.pipelines.orchestrator import (
     WorkflowResult as OrchestratorWorkflowResult,

@@ -61,9 +61,10 @@ def test_panel_redundancy_clusters_same_target_and_highly_correlated_candidates(
         in candidates_by_id["protein:P22222"].redundancy_reason_codes
     )
     assert candidates_by_id["protein:P33333"].representative is True
-    assert candidates_by_id["protein:P33333"].cluster_id != candidates_by_id[
-        "protein:P11111"
-    ].cluster_id
+    assert (
+        candidates_by_id["protein:P33333"].cluster_id
+        != candidates_by_id["protein:P11111"].cluster_id
+    )
 
 
 def test_panel_redundancy_candidate_tsv_preserves_representative_and_dropped_markers(

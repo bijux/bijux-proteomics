@@ -3,13 +3,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import pytest
 import yaml
 
-from bijux_proteomics.domain.errors import DesignError, InvalidWorkflowError, SchemaError
+from bijux_proteomics.domain.errors import (
+    DesignError,
+    InvalidWorkflowError,
+    SchemaError,
+)
 from bijux_proteomics.workflow import (
     PublicBenchmarkExpectedSignalAssessmentStatus,
     PublicBenchmarkFailureKind,
@@ -17,9 +21,9 @@ from bijux_proteomics.workflow import (
     PublicBenchmarkSearchEngine,
     load_public_benchmark_descriptor,
     public_benchmark_root,
+    render_public_benchmark_suite_signal_assessments_tsv,
     resolve_public_benchmark_path,
     resolve_public_benchmark_root,
-    render_public_benchmark_suite_signal_assessments_tsv,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -90,7 +94,9 @@ def _write_clean_targeted_results(path: Path) -> None:
     )
 
 
-def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> None:
+def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limitation_contracts() -> (
+    None
+):
     descriptor = load_public_benchmark_descriptor(
         public_benchmark_root() / "ptm_localization_review_package" / "dataset.yml"
     )
@@ -106,7 +112,10 @@ def test_public_benchmark_descriptor_loads_real_sample_metadata_signal_and_limit
     assert len(descriptor.sample_metadata) == 4
     assert descriptor.expected_biological_signals[0].subject_id == "P11111:S5:Phospho"
     assert descriptor.expected_approximate_counts[2].metric_id == "ambiguous_site_count"
-    assert descriptor.expected_approximate_counts[3].metric_id == "ambiguous_group_row_count"
+    assert (
+        descriptor.expected_approximate_counts[3].metric_id
+        == "ambiguous_group_row_count"
+    )
     assert descriptor.known_limitations[0].severity is (
         PublicBenchmarkKnownLimitationSeverity.ADVISORY
     )
@@ -258,7 +267,9 @@ def test_public_benchmark_descriptor_loads_runnable_targeted_contracts() -> None
 
 def test_public_benchmark_descriptor_loads_weak_evidence_lfq_contracts() -> None:
     descriptor = load_public_benchmark_descriptor(
-        public_benchmark_root() / "lfq_sparse_contrast_benchmark_dataset" / "dataset.yml"
+        public_benchmark_root()
+        / "lfq_sparse_contrast_benchmark_dataset"
+        / "dataset.yml"
     )
 
     assert descriptor.search_engine is PublicBenchmarkSearchEngine.LFQ
@@ -290,9 +301,9 @@ def test_public_benchmark_runner_validates_expected_signal_assessments_for_real_
     assert report.verified_counts["ambiguous_group_row_count"] == 2
     assert report.verified_counts["motif_term_count"] == 22
     assert report.verified_counts["evidence_card_count"] == 3
-    assert {
-        assessment.status for assessment in report.expected_signal_assessments
-    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert {assessment.status for assessment in report.expected_signal_assessments} == {
+        PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+    }
     assert Path(report.output_dir, "ptm_regulator_enrichment_summary.tsv").exists()
     assert Path(report.output_dir, "ptm_regulator_enrichment.tsv").exists()
     assert Path(report.output_dir, "ptm_evidence_cards.tsv").exists()
@@ -312,9 +323,9 @@ def test_public_benchmark_runner_executes_runnable_maxquant_descriptor(
     assert report.status == "passed"
     assert report.verified_counts["imported_evidence_count"] == 8
     assert report.verified_counts["accepted_protein_group_count"] == 5
-    assert {
-        assessment.status for assessment in report.expected_signal_assessments
-    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert {assessment.status for assessment in report.expected_signal_assessments} == {
+        PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+    }
     assert Path(report.output_dir, "maxquant_lfq_matrix.tsv").exists()
     assert Path(report.output_dir, "maxquant_filtered_protein_groups.tsv").exists()
 
@@ -323,16 +334,18 @@ def test_public_benchmark_runner_executes_runnable_fragpipe_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        public_benchmark_root() / "fragpipe_msfragger_benchmark_dataset" / "dataset.yml",
+        public_benchmark_root()
+        / "fragpipe_msfragger_benchmark_dataset"
+        / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
     assert report.status == "passed"
     assert report.verified_counts["accepted_psm_count"] == 30
     assert report.verified_counts["protein_group_discrepancy_count"] == 2
-    assert {
-        assessment.status for assessment in report.expected_signal_assessments
-    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert {assessment.status for assessment in report.expected_signal_assessments} == {
+        PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+    }
     assert Path(report.output_dir, "dda_biological_psms.tsv").exists()
     assert Path(report.output_dir, "dda_source_protein_discrepancies.tsv").exists()
 
@@ -348,9 +361,9 @@ def test_public_benchmark_runner_executes_runnable_diann_descriptor(
     assert report.status == "passed"
     assert report.verified_counts["imported_precursor_count"] == 31
     assert report.verified_counts["protein_matrix_row_count"] == 5
-    assert {
-        assessment.status for assessment in report.expected_signal_assessments
-    } == {PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED}
+    assert {assessment.status for assessment in report.expected_signal_assessments} == {
+        PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+    }
     assert Path(report.output_dir, "diann_precursor_quantity_matrix.tsv").exists()
     assert Path(report.output_dir, "diann_import_rejected_evidence.tsv").exists()
 
@@ -431,7 +444,9 @@ def test_public_benchmark_runner_executes_weak_evidence_lfq_descriptor(
     tmp_path: Path,
 ) -> None:
     report = run_public_benchmark_descriptor(
-        public_benchmark_root() / "lfq_sparse_contrast_benchmark_dataset" / "dataset.yml",
+        public_benchmark_root()
+        / "lfq_sparse_contrast_benchmark_dataset"
+        / "dataset.yml",
         output_root=tmp_path / "runs",
     )
 
@@ -445,7 +460,9 @@ def test_public_benchmark_runner_executes_weak_evidence_lfq_descriptor(
     assert not report.expected_signal_assessments
     assert Path(report.output_dir, "biological_rejected_claims.tsv").exists()
     assert Path(report.output_dir, "biological_report_section_confidence.tsv").exists()
-    assert Path(report.output_dir, "biological_cohort_stratification_summary.tsv").exists()
+    assert Path(
+        report.output_dir, "biological_cohort_stratification_summary.tsv"
+    ).exists()
 
 
 def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts_with_design(
@@ -454,7 +471,9 @@ def test_public_benchmark_runner_fails_when_descriptor_sample_metadata_conflicts
     descriptor_path = _write_descriptor_copy(
         tmp_path,
         "lfq_cohort_review_package",
-        mutate=lambda payload: payload["sample_metadata"][0].update({"batch": "batch-z"}),
+        mutate=lambda payload: payload["sample_metadata"][0].update(
+            {"batch": "batch-z"}
+        ),
     )
 
     report = run_public_benchmark_descriptor(
@@ -473,7 +492,10 @@ def test_public_benchmark_runner_blocks_tmt_descriptor_with_missing_channel_mapp
     tmp_path: Path,
 ) -> None:
     missing_design = (
-        Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / "tmt_missing_channel.design.tsv"
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "multiplex"
+        / "tmt_missing_channel.design.tsv"
     )
     descriptor_path = _write_descriptor_copy(
         tmp_path,

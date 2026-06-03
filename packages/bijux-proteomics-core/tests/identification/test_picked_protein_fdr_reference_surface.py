@@ -71,7 +71,9 @@ def test_picked_protein_reference_cases_match_expected_pair_competition() -> Non
 
         assert report.summary.q_values_monotonic is True
         assert len(report.entries) == len(case.expected_entries)
-        for observed, expected in zip(report.entries, case.expected_entries, strict=True):
+        for observed, expected in zip(
+            report.entries, case.expected_entries, strict=True
+        ):
             assert observed.rank == expected.rank
             assert observed.pair_id == expected.pair_id
             assert observed.target_ref == expected.target_ref
@@ -80,8 +82,7 @@ def test_picked_protein_reference_cases_match_expected_pair_competition() -> Non
             assert observed.decoy_score == expected.decoy_score
             assert observed.winner_ref == expected.winner_ref
             assert (
-                observed.winner_target_decoy_label
-                is expected.winner_target_decoy_label
+                observed.winner_target_decoy_label is expected.winner_target_decoy_label
             )
             assert observed.raw_fdr == expected.raw_fdr
             assert observed.q_value == expected.q_value

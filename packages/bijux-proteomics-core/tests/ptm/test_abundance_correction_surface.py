@@ -4,15 +4,17 @@
 from __future__ import annotations
 
 from bijux_proteomics.ptm import (
-    PtmSiteProteinCorrectionStatus,
-    PtmSiteCorrectionCandidate,
     PtmProteinCorrectionReference,
+    PtmSiteCorrectionCandidate,
+    PtmSiteProteinCorrectionStatus,
     correct_site_by_protein,
     render_site_protein_correction_tsv,
 )
 
 
-def test_correct_site_by_protein_blocks_high_confidence_claims_without_matched_protein() -> None:
+def test_correct_site_by_protein_blocks_high_confidence_claims_without_matched_protein() -> (
+    None
+):
     rows = correct_site_by_protein(
         (
             PtmSiteCorrectionCandidate(
@@ -82,7 +84,4 @@ def test_render_site_protein_correction_tsv_exposes_required_surface() -> None:
     assert rendered.startswith(
         "site_id\traw_site_log2fc\tprotein_log2fc\tcorrected_site_log2fc\tcorrection_status\n"
     )
-    assert (
-        "\nP11111:S5:Phospho\t1.8\t0.5\t1.3\thigh_confidence_corrected\n"
-        in rendered
-    )
+    assert "\nP11111:S5:Phospho\t1.8\t0.5\t1.3\thigh_confidence_corrected\n" in rendered

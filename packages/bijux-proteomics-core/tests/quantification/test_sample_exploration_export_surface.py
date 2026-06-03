@@ -55,17 +55,23 @@ def test_sample_exploration_exports_preserve_summary_scores_and_clusters(
     assert "sample_id\tcondition\tbatch\tpc1\tpc2" in scores_path.read_text(
         encoding="utf-8"
     )
-    assert "component_index\tcomponent_label\texplained_variance_ratio" in variance_path.read_text(
-        encoding="utf-8"
+    assert (
+        "component_index\tcomponent_label\texplained_variance_ratio"
+        in variance_path.read_text(encoding="utf-8")
     )
-    assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in correlations_path.read_text(
-        encoding="utf-8"
+    assert (
+        "sample_id_a\tsample_id_b\tcondition_a\tcondition_b"
+        in correlations_path.read_text(encoding="utf-8")
     )
-    assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in distances_path.read_text(
-        encoding="utf-8"
+    assert (
+        "sample_id_a\tsample_id_b\tcondition_a\tcondition_b"
+        in distances_path.read_text(encoding="utf-8")
     )
     clusters_tsv = clusters_path.read_text(encoding="utf-8")
-    assert "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids" in clusters_tsv
+    assert (
+        "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids"
+        in clusters_tsv
+    )
     assert "case-1;case-2;ctrl-1;ctrl-2" in clusters_tsv
     assert "sample_id\tcondition\tbatch\toutlier_reasons" in outliers_path.read_text(
         encoding="utf-8"

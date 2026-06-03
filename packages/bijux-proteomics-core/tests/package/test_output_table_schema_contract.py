@@ -8,10 +8,7 @@ from pathlib import Path
 
 import pytest
 
-
-SOURCE_ROOT = (
-    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
-)
+SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 MODULE_LOCAL_TSV_WRITE_HELPERS = {
     "workflow/targeted_review_workflow.py": {"_write_text"},
@@ -83,5 +80,7 @@ def test_tsv_exporters_route_rendered_tables_through_output_table_helper() -> No
             }
             if allowed_helpers.intersection(rendered_tsv_calls):
                 continue
-            offenders.append(f"{path.relative_to(SOURCE_ROOT)}:{node.lineno}:{node.name}")
+            offenders.append(
+                f"{path.relative_to(SOURCE_ROOT)}:{node.lineno}:{node.name}"
+            )
     assert offenders == []

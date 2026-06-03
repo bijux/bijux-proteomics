@@ -71,12 +71,19 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
     )
 
-    result_lines = render_ptm_site_differential_tsv(report.differential_report).splitlines()
-    volcano_lines = render_ptm_differential_volcano_tsv(report.volcano_plot).splitlines()
+    result_lines = render_ptm_site_differential_tsv(
+        report.differential_report
+    ).splitlines()
+    volcano_lines = render_ptm_differential_volcano_tsv(
+        report.volcano_plot
+    ).splitlines()
 
     assert result_lines[0].startswith("site_key\tprotein_ref\tresidue\tposition")
     assert "localization_tier\tlow_localization" in result_lines[0]
-    assert "imputation_significance_change_reason\timputation_dependent_hit" in result_lines[0]
+    assert (
+        "imputation_significance_change_reason\timputation_dependent_hit"
+        in result_lines[0]
+    )
     assert any(
         "P11111:S5:Phospho" in line and "high_confidence_corrected" in line
         for line in result_lines

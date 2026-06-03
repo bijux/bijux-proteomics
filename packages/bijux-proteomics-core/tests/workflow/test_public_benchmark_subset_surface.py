@@ -16,20 +16,21 @@ from bijux_proteomics.workflow.public_benchmark_subset import (
 
 
 def _subset_input_rows(report, source_id: str) -> tuple[dict[str, str], ...]:
-    subset_input = next(item for item in report.subset_inputs if item.source_id == source_id)
+    subset_input = next(
+        item for item in report.subset_inputs if item.source_id == source_id
+    )
     reader = csv.DictReader(StringIO(subset_input.content), delimiter="\t")
     if reader.fieldnames is None:
         raise AssertionError(f"subset input {source_id!r} is missing a header row")
     return tuple(
-        {
-            str(key or "").strip(): str(value or "").strip()
-            for key, value in row.items()
-        }
+        {str(key or "").strip(): str(value or "").strip() for key, value in row.items()}
         for row in reader
     )
 
 
-def test_public_benchmark_subset_preserves_conditions_signal_and_integrity_rows() -> None:
+def test_public_benchmark_subset_preserves_conditions_signal_and_integrity_rows() -> (
+    None
+):
     descriptor = load_public_benchmark_descriptor(
         public_benchmark_root() / "maxquant_lfq_benchmark_dataset" / "dataset.yml"
     )
@@ -53,7 +54,10 @@ def test_public_benchmark_subset_preserves_conditions_signal_and_integrity_rows(
     evidence_rows = _subset_input_rows(report, "maxquant_evidence")
     assert {row["Experiment"] for row in evidence_rows} == {"C1", "C2", "T1", "T2"}
     assert any(row["Proteins"] == "P04637" for row in evidence_rows)
-    assert any(row["Proteins"] == "REV__P77777" and row["Reverse"] == "+" for row in evidence_rows)
+    assert any(
+        row["Proteins"] == "REV__P77777" and row["Reverse"] == "+"
+        for row in evidence_rows
+    )
 
     protein_group_rows = _subset_input_rows(report, "maxquant_protein_groups")
     assert any(row["Protein IDs"] == "P04637" for row in protein_group_rows)
@@ -77,7 +81,10 @@ def test_public_benchmark_subset_preserves_conditions_signal_and_integrity_rows(
         "LFQ intensity T2",
     }
 
-    expected_ranges = {item.metric_id: (item.min_expected, item.max_expected) for item in report.expected_count_ranges}
+    expected_ranges = {
+        item.metric_id: (item.min_expected, item.max_expected)
+        for item in report.expected_count_ranges
+    }
     assert expected_ranges["lfq_experiment_count"] == (4, 4)
     assert expected_ranges["significant_protein_count"] == (2, 3)
 
@@ -100,7 +107,10 @@ def test_public_benchmark_subset_preserves_ptm_signal_and_decoy_support() -> Non
     localization_rows = _subset_input_rows(report, "ptm_localization_results")
     assert {row["sample_id"] for row in localization_rows} == {"C1", "T1"}
     assert any(row["proteins"] == "P11111" for row in localization_rows)
-    assert any(row["decoy_label"] == "decoy" and row["proteins"] == "Q9DEC1" for row in localization_rows)
+    assert any(
+        row["decoy_label"] == "decoy" and row["proteins"] == "Q9DEC1"
+        for row in localization_rows
+    )
 
     annotation_rows = _subset_input_rows(report, "ptm_site_annotations")
     assert any(

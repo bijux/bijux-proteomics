@@ -117,10 +117,14 @@ def _config() -> SyntheticQuantTruthConfig:
 
 
 def _truth_rows(dataset) -> tuple[dict[str, str], ...]:
-    reader = csv.DictReader(StringIO(render_synthetic_quant_truth_tsv(dataset)), delimiter="\t")
+    reader = csv.DictReader(
+        StringIO(render_synthetic_quant_truth_tsv(dataset)), delimiter="\t"
+    )
     if reader.fieldnames is None:
         raise AssertionError("synthetic quant truth TSV is missing a header row")
-    return tuple({str(key): str(value or "") for key, value in row.items()} for row in reader)
+    return tuple(
+        {str(key): str(value or "") for key, value in row.items()} for row in reader
+    )
 
 
 def _observation(dataset, protein_id: str, peptide_id: str, sample_id: str):

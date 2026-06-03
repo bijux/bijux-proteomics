@@ -46,4 +46,3 @@ def test_fragpipe_import_benchmark_report_preserves_source_row_counts_and_protei
         "sp|P12345|KINASE_HUMAN",
         "sp|P23456|TRANSFER_HUMAN",
     )
-

@@ -20,8 +20,8 @@ from bijux_proteomics.interpretation.pathway_enrichment import (
     parse_pathway_membership_table,
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
-    build_protein_annotation_mapping_report,
     ProteinReferenceEntry,
+    build_protein_annotation_mapping_report,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
@@ -88,9 +88,13 @@ def _build_annotation_report(protein_table, differential_report):
     )
 
 
-def test_build_drug_target_interpretation_report_separates_direct_and_indirect_rows() -> None:
+def test_build_drug_target_interpretation_report_separates_direct_and_indirect_rows() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(
@@ -104,7 +108,9 @@ def test_build_drug_target_interpretation_report_separates_direct_and_indirect_r
     context_report = parse_biological_context_table(
         _fixture("biological_report_drug_targets.tsv")
     )
-    pathway_report = parse_pathway_membership_table(_fixture("biological_report_pathways.tsv"))
+    pathway_report = parse_pathway_membership_table(
+        _fixture("biological_report_pathways.tsv")
+    )
     annotation_report = _build_annotation_report(protein_table, differential_report)
 
     report = build_drug_target_interpretation_report(
@@ -121,7 +127,9 @@ def test_build_drug_target_interpretation_report_separates_direct_and_indirect_r
     assert report.summary.direct_target_entry_count == 1
     assert report.summary.indirect_pathway_neighbor_entry_count == 2
     direct_entry = next(
-        entry for entry in report.entries if entry.relationship is DrugTargetRelationship.DIRECT_TARGET
+        entry
+        for entry in report.entries
+        if entry.relationship is DrugTargetRelationship.DIRECT_TARGET
     )
     assert direct_entry.drug_id == "DB0001"
     assert direct_entry.protein_ref == "P04637"
@@ -144,9 +152,13 @@ def test_build_drug_target_interpretation_report_separates_direct_and_indirect_r
     )
 
 
-def test_drug_target_interpretation_renderers_expose_direct_and_indirect_support() -> None:
+def test_drug_target_interpretation_renderers_expose_direct_and_indirect_support() -> (
+    None
+):
     design_entries = tuple(
-        parse_experimental_design_table(_fixture("biological_report.design.tsv")).accepted_entries
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
     )
     protein_table = _build_fixture_table()
     differential_report = apply_benjamini_hochberg(
@@ -160,7 +172,9 @@ def test_drug_target_interpretation_renderers_expose_direct_and_indirect_support
     context_report = parse_biological_context_table(
         _fixture("biological_report_drug_targets.tsv")
     )
-    pathway_report = parse_pathway_membership_table(_fixture("biological_report_pathways.tsv"))
+    pathway_report = parse_pathway_membership_table(
+        _fixture("biological_report_pathways.tsv")
+    )
     annotation_report = _build_annotation_report(protein_table, differential_report)
     report = build_drug_target_interpretation_report(
         protein_table,

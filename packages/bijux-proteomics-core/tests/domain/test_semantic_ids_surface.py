@@ -9,8 +9,8 @@ from bijux_proteomics.domain.semantic_ids import (
     SemanticIdNamespace,
     build_artifact_id,
     build_cross_study_card_id,
-    build_mechanism_card_id,
     build_matrix_id,
+    build_mechanism_card_id,
     build_pathway_claim_id,
     build_peptide_id,
     build_protein_card_id,
@@ -39,9 +39,9 @@ def test_scientific_semantic_ids_are_deterministic_for_core_output_families() ->
     assert build_pathway_claim_id("R-HSA-199420", "control", "treated") == (
         "pathway-claim:R-HSA-199420:control:treated"
     )
-    assert build_regulator_claim_id("MAPK14", "kinase_substrate", "site_regulation") == (
-        "regulator-claim:MAPK14:kinase_substrate:site_regulation"
-    )
+    assert build_regulator_claim_id(
+        "MAPK14", "kinase_substrate", "site_regulation"
+    ) == ("regulator-claim:MAPK14:kinase_substrate:site_regulation")
     assert build_ptm_card_id(site_id, "control", "treated") == (
         "ptm-card:ptm_site:P04637:S15:Phospho:control:treated"
     )
@@ -58,21 +58,25 @@ def test_scientific_semantic_ids_are_deterministic_for_core_output_families() ->
     assert build_cross_study_card_id("protein", "P04637") == (
         "cross-study-protein-card:P04637"
     )
-    assert build_raw_signal_card_id("prec_peptide") == (
-        "raw-signal-card:prec_peptide"
+    assert build_raw_signal_card_id("prec_peptide") == ("raw-signal-card:prec_peptide")
+    assert (
+        build_matrix_id(
+            "protein",
+            "intensity",
+            aggregation_method="sum",
+            normalization_method="median",
+            imputation_method="none",
+        )
+        == "matrix:protein:intensity:sum:median:none"
     )
-    assert build_matrix_id(
-        "protein",
-        "intensity",
-        aggregation_method="sum",
-        normalization_method="median",
-        imputation_method="none",
-    ) == "matrix:protein:intensity:sum:median:none"
-    assert build_artifact_id(
-        "cards/ptm_evidence_cards.tsv",
-        folder="cards",
-        artifact_kind="tsv_table",
-    ) == "artifact:cards:tsv_table:cards:ptm_evidence_cards.tsv"
+    assert (
+        build_artifact_id(
+            "cards/ptm_evidence_cards.tsv",
+            folder="cards",
+            artifact_kind="tsv_table",
+        )
+        == "artifact:cards:tsv_table:cards:ptm_evidence_cards.tsv"
+    )
 
 
 def test_scientific_semantic_ids_are_unique_within_scope() -> None:

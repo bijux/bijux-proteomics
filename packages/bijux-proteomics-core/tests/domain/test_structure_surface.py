@@ -10,7 +10,6 @@ from bijux_proteomics.domain import (
     parse_structure_from_pdb_text,
 )
 
-
 _MINIMAL_PDB = """\
 ATOM      1  N   ALA A   1      11.104  13.207  14.100  1.00 42.00           N
 ATOM      2  CA  ALA A   1      12.560  13.207  14.100  1.00 55.00           C

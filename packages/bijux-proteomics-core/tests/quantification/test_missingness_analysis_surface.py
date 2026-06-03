@@ -10,11 +10,11 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
-    classify_missingness,
     build_missingness_classifier_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
+    classify_missingness,
 )
 
 
@@ -306,9 +306,7 @@ def test_missingness_classifier_report_distinguishes_condition_specific_and_rand
     assert report.entity_summary.entries
     assert report.condition_summary.entries
     assert report.intensity_dependence.bins
-    assert (
-        mechanism_by_entity["PEPA"].mechanism.value == "condition_specific_absence"
-    )
+    assert mechanism_by_entity["PEPA"].mechanism.value == "condition_specific_absence"
     assert mechanism_by_entity["PEPA"].missing_conditions == ("ctrl",)
     assert mechanism_by_entity["PEPB"].mechanism.value == "likely_technical_failure"
 
@@ -359,9 +357,7 @@ def test_missingness_classifier_report_distinguishes_condition_specific_and_rand
         design_entries=design,
     )
     random_entry = random_report.mechanism_report.entries[0]
-    assert (
-        random_entry.mechanism.value == "missing_completely_at_random"
-    )
+    assert random_entry.mechanism.value == "missing_completely_at_random"
 
 
 def test_classify_missingness_preserves_condition_specific_absence_outside_random_bucket() -> (
@@ -376,7 +372,9 @@ def test_classify_missingness_preserves_condition_specific_absence_outside_rando
     classification = classify_missingness(table, design)
     labels = {entry.entity_id: entry.label.value for entry in classification.entries}
 
-    ctrl_entry = next(entry for entry in condition_summary.entries if entry.condition == "ctrl")
+    ctrl_entry = next(
+        entry for entry in condition_summary.entries if entry.condition == "ctrl"
+    )
 
     assert ctrl_entry.condition_specific_absence_entity_ids == ("PEPA",)
     assert labels["PEPA"] == "condition_specific"

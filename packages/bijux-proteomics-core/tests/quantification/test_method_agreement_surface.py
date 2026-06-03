@@ -171,9 +171,7 @@ def test_compare_quant_methods_rejects_mixed_contrasts() -> None:
         rollup_method=QuantRollupMethod.SUM,
         differential_report=_report(
             normalization_method=NormalizationMethod.MEDIAN,
-            entries=(
-                _entry("P001", log2_fold_change=1.0, adjusted_p_value=0.01),
-            ),
+            entries=(_entry("P001", log2_fold_change=1.0, adjusted_p_value=0.01),),
         ),
     )
     rescue_vs_ctrl = QuantMethodDifferentialResult(
@@ -181,17 +179,15 @@ def test_compare_quant_methods_rejects_mixed_contrasts() -> None:
         rollup_method=QuantRollupMethod.TOP_N,
         differential_report=_report(
             normalization_method=NormalizationMethod.MEDIAN,
-            entries=(
-                _entry("P001", log2_fold_change=1.1, adjusted_p_value=0.02),
-            ),
+            entries=(_entry("P001", log2_fold_change=1.1, adjusted_p_value=0.02),),
         ).model_copy(
             update={
                 "condition_a": "rescue",
                 "contrast_name": "rescue_vs_ctrl",
                 "entries": (
-                    _entry("P001", log2_fold_change=1.1, adjusted_p_value=0.02).model_copy(
-                        update={"condition_a": "rescue"}
-                    ),
+                    _entry(
+                        "P001", log2_fold_change=1.1, adjusted_p_value=0.02
+                    ).model_copy(update={"condition_a": "rescue"}),
                 ),
             }
         ),

@@ -30,7 +30,9 @@ def _write_descriptor_copy(
     dataset_id: str,
     accession: str,
 ) -> None:
-    payload = yaml.safe_load(_benchmark_descriptor(source_name).read_text(encoding="utf-8"))
+    payload = yaml.safe_load(
+        _benchmark_descriptor(source_name).read_text(encoding="utf-8")
+    )
     payload["dataset_id"] = dataset_id
     payload["accession"] = accession
     target_dir = benchmark_root / dataset_id
@@ -79,7 +81,10 @@ def test_build_public_dataset_comparison_report_preserves_per_dataset_and_combin
     assert report.summary.meta_analysis_entry_count > 0
 
     dataset_by_id = {entry.dataset_id: entry for entry in report.dataset_summaries}
-    assert dataset_by_id["lfq_question_a"].status is PublicDatasetComparisonDatasetStatus.PASSED
+    assert (
+        dataset_by_id["lfq_question_a"].status
+        is PublicDatasetComparisonDatasetStatus.PASSED
+    )
     assert dataset_by_id["lfq_question_a"].effect_comparison_supported is True
     assert dataset_by_id["lfq_question_a"].pathway_comparison_supported is False
     assert dataset_by_id["maxquant_missing_bundle"].status is (
@@ -87,7 +92,9 @@ def test_build_public_dataset_comparison_report_preserves_per_dataset_and_combin
     )
     assert dataset_by_id["maxquant_missing_bundle"].failure_count == 3
 
-    failure_messages = {(entry.failure_kind, entry.subject) for entry in report.failure_entries}
+    failure_messages = {
+        (entry.failure_kind, entry.subject) for entry in report.failure_entries
+    }
     assert ("missing_required_schema", "evidence_txt") in failure_messages
     assert ("missing_required_schema", "peptides_txt") in failure_messages
     assert ("missing_required_schema", "protein_groups_txt") in failure_messages
@@ -146,6 +153,7 @@ def test_build_public_dataset_comparison_report_keeps_passed_targeted_benchmarks
     )
     assert dataset_by_id["targeted_validation"].effect_comparison_supported is False
     assert dataset_by_id["targeted_validation"].pathway_comparison_supported is False
-    assert "public benchmark descriptor executed through the owned workflow orchestrator" in (
-        dataset_by_id["targeted_validation"].note
+    assert (
+        "public benchmark descriptor executed through the owned workflow orchestrator"
+        in (dataset_by_id["targeted_validation"].note)
     )

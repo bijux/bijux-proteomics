@@ -12,7 +12,9 @@ from bijux_proteomics.lab import (
 )
 
 
-def test_classify_contamination_distinguishes_keratin_enzyme_standard_and_unknown() -> None:
+def test_classify_contamination_distinguishes_keratin_enzyme_standard_and_unknown() -> (
+    None
+):
     rows = classify_contamination(
         (
             ContaminantEvidenceEntry(

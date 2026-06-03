@@ -9,10 +9,10 @@ from bijux_proteomics.domain import (
     Contrast,
     ContrastKind,
     MissingValueState,
-    PSMRecord,
-    PTMSite,
     ProteinGroup,
     ProteinRecord,
+    PSMRecord,
+    PTMSite,
     QuantEntityKind,
     QuantMatrix,
     QuantMeasureKind,
@@ -51,7 +51,9 @@ def test_quant_matrix_requires_aligned_sample_metadata_and_shapes() -> None:
         entity_ids=("P001",),
         sample_ids=("sample-a", "sample-b"),
         values=((10.0, None),),
-        missing_value_states=((MissingValueState.OBSERVED, MissingValueState.NOT_OBSERVED),),
+        missing_value_states=(
+            (MissingValueState.OBSERVED, MissingValueState.NOT_OBSERVED),
+        ),
         support_counts=((2, 0),),
         row_metadata=({"protein_refs": "P001"},),
         sample_metadata=(
@@ -113,35 +115,50 @@ def test_quant_matrix_requires_aligned_sample_metadata_and_shapes() -> None:
 
 
 def test_domain_records_cover_shared_scientific_boundaries() -> None:
-    assert SpectrumRecord(
-        spectrum_id="scan=1",
-        precursor_mz=523.2,
-        peak_count=24,
-    ).spectrum_id == "scan=1"
-    assert TransitionRecord(
-        transition_id="y7",
-        precursor_id="PEPTIDE/2",
-        sample_id="sample-a",
-        intensity=1250.0,
-        peptide_sequence="PEPTIDE",
-    ).intensity == 1250.0
-    assert PTMSite(
-        site_key="P001:S15:Phospho",
-        protein_ref="P001",
-        residue="S",
-        position=15,
-        modification_name="Phospho",
-    ).position == 15
-    assert ProteinGroup(
-        group_id="group-1",
-        representative_protein="P001",
-        unique_peptide_count=1,
-        shared_peptide_count=0,
-    ).representative_protein == "P001"
-    assert RejectedEvidence(
-        record_kind="psm",
-        rejection_reason="missing score",
-    ).record_kind == "psm"
+    assert (
+        SpectrumRecord(
+            spectrum_id="scan=1",
+            precursor_mz=523.2,
+            peak_count=24,
+        ).spectrum_id
+        == "scan=1"
+    )
+    assert (
+        TransitionRecord(
+            transition_id="y7",
+            precursor_id="PEPTIDE/2",
+            sample_id="sample-a",
+            intensity=1250.0,
+            peptide_sequence="PEPTIDE",
+        ).intensity
+        == 1250.0
+    )
+    assert (
+        PTMSite(
+            site_key="P001:S15:Phospho",
+            protein_ref="P001",
+            residue="S",
+            position=15,
+            modification_name="Phospho",
+        ).position
+        == 15
+    )
+    assert (
+        ProteinGroup(
+            group_id="group-1",
+            representative_protein="P001",
+            unique_peptide_count=1,
+            shared_peptide_count=0,
+        ).representative_protein
+        == "P001"
+    )
+    assert (
+        RejectedEvidence(
+            record_kind="psm",
+            rejection_reason="missing score",
+        ).record_kind
+        == "psm"
+    )
     assert TargetDecoyState.TARGET.value == "target"
 
 

@@ -12,7 +12,9 @@ def _workflow_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_diann_vs_dda_psm_comparison_report_keeps_protein_overlap_visible() -> None:
+def test_build_diann_vs_dda_psm_comparison_report_keeps_protein_overlap_visible() -> (
+    None
+):
     report = build_diann_vs_dda_psm_comparison_report(
         _workflow_fixture("dia_dda_comparison_diann.tsv"),
         _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
@@ -26,34 +28,28 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_protein_overlap_visible(
     assert report.protein_overlap[0].protein_ref == "P11111"
     assert report.protein_overlap[0].overlap_class == "shared"
     dia_only_entry = next(
-        entry
-        for entry in report.protein_overlap
-        if entry.protein_ref == "P55555"
+        entry for entry in report.protein_overlap if entry.protein_ref == "P55555"
     )
     assert dia_only_entry.overlap_class == "dia_only"
     assert dia_only_entry.dia_total_intensity == 2000000.0
     dda_only_entry = next(
-        entry
-        for entry in report.protein_overlap
-        if entry.protein_ref == "P33333"
+        entry for entry in report.protein_overlap if entry.protein_ref == "P33333"
     )
     assert dda_only_entry.overlap_class == "dda_only"
     assert dda_only_entry.dda_total_intensity == 1340000.0
     conflicting_support_dia_only = next(
-        entry
-        for entry in report.protein_overlap
-        if entry.protein_ref == "P77777"
+        entry for entry in report.protein_overlap if entry.protein_ref == "P77777"
     )
     assert conflicting_support_dia_only.overlap_class == "dia_only"
     conflicting_support_dda_only = next(
-        entry
-        for entry in report.protein_overlap
-        if entry.protein_ref == "P88888"
+        entry for entry in report.protein_overlap if entry.protein_ref == "P88888"
     )
     assert conflicting_support_dda_only.overlap_class == "dda_only"
 
 
-def test_build_diann_vs_dda_psm_comparison_report_keeps_peptide_overlap_visible() -> None:
+def test_build_diann_vs_dda_psm_comparison_report_keeps_peptide_overlap_visible() -> (
+    None
+):
     report = build_diann_vs_dda_psm_comparison_report(
         _workflow_fixture("dia_dda_comparison_diann.tsv"),
         _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
@@ -66,22 +62,16 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_peptide_overlap_visible(
     assert report.summary.dda_only_peptide_count == 1
     assert report.summary.conflicting_peptide_count == 1
     shared_entry = next(
-        entry
-        for entry in report.peptide_overlap
-        if entry.peptide_sequence == "PESTIDE"
+        entry for entry in report.peptide_overlap if entry.peptide_sequence == "PESTIDE"
     )
     assert shared_entry.overlap_class == "shared"
     assert shared_entry.dia_protein_refs == ("P11111",)
     dia_only_entry = next(
-        entry
-        for entry in report.peptide_overlap
-        if entry.peptide_sequence == "DIAONLY"
+        entry for entry in report.peptide_overlap if entry.peptide_sequence == "DIAONLY"
     )
     assert dia_only_entry.overlap_class == "dia_only"
     dda_only_entry = next(
-        entry
-        for entry in report.peptide_overlap
-        if entry.peptide_sequence == "DDAONLY"
+        entry for entry in report.peptide_overlap if entry.peptide_sequence == "DDAONLY"
     )
     assert dda_only_entry.overlap_class == "dda_only"
     conflicting_entry = next(
@@ -94,7 +84,9 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_peptide_overlap_visible(
     assert conflicting_entry.dda_protein_refs == ("P88888",)
 
 
-def test_build_diann_vs_dda_psm_comparison_report_keeps_exclusive_and_conflicting_evidence_visible() -> None:
+def test_build_diann_vs_dda_psm_comparison_report_keeps_exclusive_and_conflicting_evidence_visible() -> (
+    None
+):
     report = build_diann_vs_dda_psm_comparison_report(
         _workflow_fixture("dia_dda_comparison_diann.tsv"),
         _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
@@ -126,7 +118,9 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_exclusive_and_conflictin
     assert conflicting_peptide.dda_protein_refs == ("P88888",)
 
 
-def test_build_diann_vs_dda_psm_comparison_report_keeps_shared_intensity_correlation_visible() -> None:
+def test_build_diann_vs_dda_psm_comparison_report_keeps_shared_intensity_correlation_visible() -> (
+    None
+):
     report = build_diann_vs_dda_psm_comparison_report(
         _workflow_fixture("dia_dda_comparison_diann.tsv"),
         _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
@@ -151,7 +145,9 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_shared_intensity_correla
     assert protein_entry.pearson_correlation == 1.0
 
 
-def test_build_diann_vs_dda_psm_comparison_report_keeps_differential_disagreement_visible() -> None:
+def test_build_diann_vs_dda_psm_comparison_report_keeps_differential_disagreement_visible() -> (
+    None
+):
     report = build_diann_vs_dda_psm_comparison_report(
         _workflow_fixture("dia_dda_comparison_diann.tsv"),
         _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
@@ -169,29 +165,21 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_differential_disagreemen
     assert report.summary.dda_only_differential_count == 1
     assert report.summary.conflicting_differential_count == 1
     shared_entry = next(
-        entry
-        for entry in report.differential_comparison
-        if entry.entity_id == "P11111"
+        entry for entry in report.differential_comparison if entry.entity_id == "P11111"
     )
     assert shared_entry.comparison_class == "shared"
     dia_only_entry = next(
-        entry
-        for entry in report.differential_comparison
-        if entry.entity_id == "P22222"
+        entry for entry in report.differential_comparison if entry.entity_id == "P22222"
     )
     assert dia_only_entry.comparison_class == "dia_only"
     assert dia_only_entry.reason_code == "significant_only_in_dia"
     dda_only_entry = next(
-        entry
-        for entry in report.differential_comparison
-        if entry.entity_id == "P33333"
+        entry for entry in report.differential_comparison if entry.entity_id == "P33333"
     )
     assert dda_only_entry.comparison_class == "dda_only"
     assert dda_only_entry.reason_code == "significant_only_in_dda"
     conflicting_entry = next(
-        entry
-        for entry in report.differential_comparison
-        if entry.entity_id == "P44444"
+        entry for entry in report.differential_comparison if entry.entity_id == "P44444"
     )
     assert conflicting_entry.comparison_class == "conflicting"
     assert conflicting_entry.reason_code == "differential_direction_mismatch"

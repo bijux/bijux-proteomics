@@ -75,7 +75,9 @@ def test_peptide_target_decoy_reference_cases_match_expected_q_values() -> None:
         )
 
         assert len(report.entries) == len(case.expected_entries)
-        for observed, expected in zip(report.entries, case.expected_entries, strict=True):
+        for observed, expected in zip(
+            report.entries, case.expected_entries, strict=True
+        ):
             assert observed.rank == expected.rank
             assert observed.evidence.canonical_peptide == expected.canonical_peptide
             assert observed.evidence.psm_count == expected.psm_count

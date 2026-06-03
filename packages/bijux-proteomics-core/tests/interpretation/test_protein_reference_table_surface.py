@@ -12,8 +12,12 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
 
 
-def test_parse_protein_reference_table_canonicalizes_supported_reference_families() -> None:
-    report = parse_protein_reference_table(_fixture_path("protein_annotation_input.tsv"))
+def test_parse_protein_reference_table_canonicalizes_supported_reference_families() -> (
+    None
+):
+    report = parse_protein_reference_table(
+        _fixture_path("protein_annotation_input.tsv")
+    )
 
     assert report.total_rows == 6
     assert report.summary.accepted_entry_count == 6
@@ -27,4 +31,7 @@ def test_parse_protein_reference_table_canonicalizes_supported_reference_familie
     assert accepted_by_row[("row-2", "ref|NP_000537.3|CALM1_HUMAN")] == "NP_000537.3"
     assert accepted_by_row[("row-3", "ENSP00000354587")] == "ENSP00000354587"
     assert accepted_by_row[("row-6", "lab_bait_001")] == "lab_bait_001"
-    assert report.rejected_rows[0].reason == "protein row requires at least one protein reference"
+    assert (
+        report.rejected_rows[0].reason
+        == "protein row requires at least one protein reference"
+    )

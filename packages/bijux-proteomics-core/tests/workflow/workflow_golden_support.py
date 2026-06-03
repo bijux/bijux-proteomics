@@ -68,7 +68,9 @@ def assert_workflow_golden_outputs_match(workflow_name: str, output_dir: Path) -
         _assert_text_matches(expected_path, actual_path)
 
 
-def _assert_json_matches(expected_path: Path, actual_path: Path, workflow_name: str) -> None:
+def _assert_json_matches(
+    expected_path: Path, actual_path: Path, workflow_name: str
+) -> None:
     expected_payload = _reduce_manifest_payload(
         json.loads(expected_path.read_text(encoding="utf-8")),
         workflow_name,

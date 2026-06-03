@@ -359,4 +359,7 @@ def test_quant_decision_readiness_report_blocks_fully_confounded_batch_correctio
 
     assert report.readiness_state is QuantDecisionReadinessState.BLOCKED
     assert report.batch_effect_posture is BatchEffectDecisionPosture.BLOCKED
-    assert QuantDecisionBlockingReasonCode.BATCH_CONDITION_CONFOUNDING in report.blocking_reasons
+    assert (
+        QuantDecisionBlockingReasonCode.BATCH_CONDITION_CONFOUNDING
+        in report.blocking_reasons
+    )

@@ -10,6 +10,7 @@ from bijux_proteomics import domain, study
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 from bijux_proteomics.quantification.contracts import (
     MissingnessConditionSummaryEntry,
     MissingnessConditionSummaryReport,
@@ -23,7 +24,6 @@ from bijux_proteomics.quantification.power_estimation import (
     PowerEstimationReport,
     PowerEstimationSummary,
 )
-from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 
 
 def test_study_package_exports_lab_qc_status_surface() -> None:
@@ -363,8 +363,10 @@ def test_study_package_exports_lab_protocol_context_surface(tmp_path: Path) -> N
     assert hasattr(study, "build_lab_protocol_interpretation_profile")
     assert hasattr(study, "build_protocol_aware_qc_threshold_policy")
     assert profile.interpretation_focus == "dia_discovery"
-    assert study.render_lab_protocol_context_tsv(report).splitlines()[1].startswith(
-        "prot-001\ttrypsin\tdia"
+    assert (
+        study.render_lab_protocol_context_tsv(report)
+        .splitlines()[1]
+        .startswith("prot-001\ttrypsin\tdia")
     )
 
 
@@ -397,8 +399,10 @@ def test_study_package_exports_protocol_consistency_surface() -> None:
     assert hasattr(study, "render_protocol_consistency_tsv")
     assert hasattr(study, "require_protocol_consistency_without_blockers")
     assert report.summary.status is study.ProtocolConsistencyStatus.PASSED
-    assert study.render_protocol_consistency_tsv(report).splitlines()[0].startswith(
-        "protocol_id\taxis\tcode\tseverity"
+    assert (
+        study.render_protocol_consistency_tsv(report)
+        .splitlines()[0]
+        .startswith("protocol_id\taxis\tcode\tseverity")
     )
 
 
@@ -553,7 +557,9 @@ def test_study_package_exports_replicate_structure_surface() -> None:
     assert hasattr(study, "build_replicate_structure_report")
     assert hasattr(study, "count_effective_statistical_units_by_condition")
     assert report.summary.repeated_measure_subject_count == 1
-    assert study.count_effective_statistical_units_by_condition(report.experiment_design) == {
+    assert study.count_effective_statistical_units_by_condition(
+        report.experiment_design
+    ) == {
         "control": 1,
         "treatment": 2,
     }

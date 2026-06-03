@@ -38,10 +38,11 @@ def test_parse_biological_context_table_preserves_supported_kinds_and_rejects_in
     }
     assert report.accepted_records[0].context_kind is BiologicalContextKind.DRUG_TARGET
     assert report.accepted_records[0].metadata == {"curator": "team-a"}
-    assert any("duplicate biological context mapping" in row.reason for row in report.rejected_rows)
     assert any(
-        "requires protein_ref" in row.reason for row in report.rejected_rows
+        "duplicate biological context mapping" in row.reason
+        for row in report.rejected_rows
     )
+    assert any("requires protein_ref" in row.reason for row in report.rejected_rows)
     assert any(
         "unsupported biological context kind" in row.reason
         for row in report.rejected_rows
@@ -51,7 +52,9 @@ def test_parse_biological_context_table_preserves_supported_kinds_and_rejects_in
 def test_build_biological_context_mapping_report_preserves_supporting_proteins_and_unmapped_entries() -> (
     None
 ):
-    protein_table = parse_protein_reference_table(_fixture_path("biological_context_input.tsv"))
+    protein_table = parse_protein_reference_table(
+        _fixture_path("biological_context_input.tsv")
+    )
     context_table = parse_biological_context_table(
         _fixture_path("biological_context_annotations.tsv")
     )
@@ -73,7 +76,10 @@ def test_build_biological_context_mapping_report_preserves_supporting_proteins_a
         "subcellular_compartment": 1,
     }
     assert report.unmapped_entries[0].protein_ref == "UNKNOWN123"
-    assert "no user-supplied biological context annotation" in report.unmapped_entries[0].reason
+    assert (
+        "no user-supplied biological context annotation"
+        in report.unmapped_entries[0].reason
+    )
 
     drug_term = next(
         entry

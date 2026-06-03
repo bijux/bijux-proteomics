@@ -8,9 +8,14 @@ from bijux_proteomics.chemistry import (
     calculate_fragment_ions,
     calculate_peptide_mz,
 )
-from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
-from bijux_proteomics.io import SpectralLibraryEntry, SpectralLibraryFormat, SpectrumModel, SpectrumPeak
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
+from bijux_proteomics.io import (
+    SpectralLibraryEntry,
+    SpectralLibraryFormat,
+    SpectrumModel,
+    SpectrumPeak,
+)
 from bijux_proteomics.sequences import (
     PeptideChemicalLiabilityTier,
     PeptideDetectabilityTier,
@@ -61,7 +66,9 @@ def _selected_peptide(
 
 def _library_entry_for_peptide(peptide: str) -> SpectralLibraryEntry:
     precursor_mz = calculate_peptide_mz(peptide, charge=2)
-    theoretical = calculate_fragment_ions(peptide, charges=(1,), series=(FragmentIonSeries.Y, FragmentIonSeries.B))
+    theoretical = calculate_fragment_ions(
+        peptide, charges=(1,), series=(FragmentIonSeries.Y, FragmentIonSeries.B)
+    )
     mz_by_label = {
         f"{fragment.series.value}{fragment.ordinal}+{fragment.charge}": fragment.mz_monoisotopic
         for fragment in theoretical
@@ -94,9 +101,17 @@ def _library_entry_for_peptide(peptide: str) -> SpectralLibraryEntry:
     )
 
 
-def test_targeted_transition_selection_produces_ranked_candidates_with_library_intensity() -> None:
+def test_targeted_transition_selection_produces_ranked_candidates_with_library_intensity() -> (
+    None
+):
     report = build_targeted_transition_selection_report(
-        (_selected_peptide(protein_ref="P00001", protein_group_id="protein_group_1", peptide="PEPTIDER"),),
+        (
+            _selected_peptide(
+                protein_ref="P00001",
+                protein_group_id="protein_group_1",
+                peptide="PEPTIDER",
+            ),
+        ),
         spectral_library_entries=(_library_entry_for_peptide("PEPTIDER"),),
         maximum_transition_count=4,
     )
@@ -111,26 +126,37 @@ def test_targeted_transition_selection_produces_ranked_candidates_with_library_i
     assert selected.sufficient_transition_support is True
     assert selected.selected_transition_count == 4
     assert selected.source_library_entry_id is not None
-    assert [fragment.fragment_label for fragment in selected.selected_transitions[:2]] == [
+    assert [
+        fragment.fragment_label for fragment in selected.selected_transitions[:2]
+    ] == [
         "y7+1",
         "y6+1",
     ]
     assert selected.selected_transitions[0].expected_relative_intensity == 1.0
-    assert selected.selected_transitions[0].selection_score >= selected.selected_transitions[1].selection_score
+    assert (
+        selected.selected_transitions[0].selection_score
+        >= selected.selected_transitions[1].selection_score
+    )
 
     rejected_codes = {
-        code
-        for entry in report.rejected_transitions
-        for code in entry.rejection_codes
+        code for entry in report.rejected_transitions for code in entry.rejection_codes
     }
     assert TargetedTransitionSelectionRejectionCode.FRAGMENT_TOO_SHORT in rejected_codes
     assert "fragment_label" in render_targeted_transition_selection_selected_tsv(report)
-    assert "rejection_codes" in render_targeted_transition_selection_rejected_tsv(report)
+    assert "rejection_codes" in render_targeted_transition_selection_rejected_tsv(
+        report
+    )
 
 
-def test_targeted_transition_selection_keeps_short_peptides_visible_when_chemistry_limits_support() -> None:
+def test_targeted_transition_selection_keeps_short_peptides_visible_when_chemistry_limits_support() -> (
+    None
+):
     report = build_targeted_transition_selection_report(
-        (_selected_peptide(protein_ref="P00002", protein_group_id="protein_group_2", peptide="PEPT"),),
+        (
+            _selected_peptide(
+                protein_ref="P00002", protein_group_id="protein_group_2", peptide="PEPT"
+            ),
+        ),
         spectral_library_entries=(),
         maximum_transition_count=5,
     )

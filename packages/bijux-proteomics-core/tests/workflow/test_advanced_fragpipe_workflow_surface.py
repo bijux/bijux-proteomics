@@ -29,8 +29,12 @@ def test_run_advanced_fragpipe_workflow_exports_exact_discrepancy_reasons(
                 "fragpipe_biological_proteins.tsv"
             ),
             go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
-            pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-            complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+            pathway_membership_tsv_path=_workflow_fixture(
+                "biological_report_pathways.tsv"
+            ),
+            complex_membership_tsv_path=_workflow_fixture(
+                "biological_report_complexes.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )
@@ -93,5 +97,9 @@ def test_run_advanced_fragpipe_workflow_skips_discrepancy_export_without_source_
 
     assert report.summary.protein_group_discrepancy_count == 0
     assert report.manifest.artifacts.discrepancy_reason_tsv is None
-    assert (tmp_path / "advanced_fragpipe_without_source_summary" / report.manifest.artifacts.rejected_evidence_tsv).exists()
+    assert (
+        tmp_path
+        / "advanced_fragpipe_without_source_summary"
+        / report.manifest.artifacts.rejected_evidence_tsv
+    ).exists()
     assert report.discrepancy_reasons == ()

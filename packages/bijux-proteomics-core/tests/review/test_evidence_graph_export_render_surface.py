@@ -23,8 +23,13 @@ def test_evidence_graph_export_renders_external_inspection_assets() -> None:
     compact_json = render_proteomics_evidence_graph_compact_json(bundle)
     payload = json.loads(compact_json)
 
-    assert "node_id\tentity_type\tentity_ref\tlabel\tclaim_state\ttrust_class" in node_tsv
-    assert "protein:P11111\tprotein\tP11111\tP11111\tobserved\treviewed\tcx-1\tsample:S1" in node_tsv
+    assert (
+        "node_id\tentity_type\tentity_ref\tlabel\tclaim_state\ttrust_class" in node_tsv
+    )
+    assert (
+        "protein:P11111\tprotein\tP11111\tP11111\tobserved\treviewed\tcx-1\tsample:S1"
+        in node_tsv
+    )
     assert (
         "source_node_id\ttarget_node_id\trelation\tsource_row_ref\tconfidence\tevidence_type\treason\tsupport_count"
         in edge_tsv

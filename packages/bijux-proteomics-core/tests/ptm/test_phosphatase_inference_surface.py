@@ -12,7 +12,9 @@ from bijux_proteomics.ptm import (
 )
 
 
-def test_infer_phosphatases_requires_exact_site_evidence_and_ignores_gene_only_rows() -> None:
+def test_infer_phosphatases_requires_exact_site_evidence_and_ignores_gene_only_rows() -> (
+    None
+):
     entries = infer_phosphatases(
         (
             PtmPhosphataseSiteResult(

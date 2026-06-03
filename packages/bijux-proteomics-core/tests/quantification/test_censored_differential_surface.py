@@ -166,16 +166,17 @@ def test_censored_two_group_differs_from_ordinary_low_intensity_imputation() -> 
         "condition_specific_absence",
         "left_censored_condition_a",
     }
-    assert (
-        censored_lookup["P_LOW_CASE"].log2fc_estimate
-        != round(ordinary_lookup["P_LOW_CASE"].log2_fold_change, 6)
+    assert censored_lookup["P_LOW_CASE"].log2fc_estimate != round(
+        ordinary_lookup["P_LOW_CASE"].log2_fold_change, 6
     )
-    assert (
-        censored_lookup["P_LOW_CASE"].censored_p_value
-        != round(ordinary_lookup["P_LOW_CASE"].adjusted_p_value or 1.0, 6)
+    assert censored_lookup["P_LOW_CASE"].censored_p_value != round(
+        ordinary_lookup["P_LOW_CASE"].adjusted_p_value or 1.0, 6
     )
     assert censored_lookup["P_STABLE"].censoring_status.value == "uncensored"
-    assert "entity_id\tlog2fc_estimate\tcensored_p_value\tq_value\tcensoring_status" in rendered
+    assert (
+        "entity_id\tlog2fc_estimate\tcensored_p_value\tq_value\tcensoring_status"
+        in rendered
+    )
 
 
 def test_censored_two_group_requires_two_conditions_without_explicit_names() -> None:

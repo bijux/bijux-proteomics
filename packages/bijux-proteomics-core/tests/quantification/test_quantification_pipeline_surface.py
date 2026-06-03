@@ -7,11 +7,11 @@ from pathlib import Path
 
 import numpy as np
 
+from bijux_proteomics.domain import MissingValueState, QuantEntityKind
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
-from bijux_proteomics.domain import MissingValueState, QuantEntityKind
 from bijux_proteomics.quantification import (
     DifferentialReplicatePolicy,
     ImputationMethod,
@@ -24,8 +24,8 @@ from bijux_proteomics.quantification import (
     MissingChannelPolicy,
     MissingDataMechanism,
     MissingDataMechanismReport,
-    MissingValueKind,
     MissingValueCorrectionPolicy,
+    MissingValueKind,
     MissingValueSummaryPolicy,
     Ms1FeatureRecord,
     MultiplexChannelBalanceReport,
@@ -46,30 +46,29 @@ from bijux_proteomics.quantification import (
     build_batch_effect_advisory,
     build_batch_effect_estimator_report,
     build_differential_abundance_report,
-    build_limma_compatible_quant_package,
-    build_quant_design_matrix_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_limma_compatible_quant_package,
     build_missing_data_mechanism_report,
     build_missingness_classifier_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
-    build_multi_condition_differential_abundance_report,
     build_msstats_compatible_input_report,
+    build_multi_condition_differential_abundance_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_artifact_bundle,
+    build_quant_design_matrix_report,
     build_quant_matrix_export,
     build_quant_reproducibility_manifest,
     build_replicate_and_batch_qc_report,
-    fit_quant_design_matrix_model,
     build_replicate_correlation_report,
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
@@ -79,6 +78,7 @@ from bijux_proteomics.quantification import (
     export_quant_artifact_bundle,
     export_quant_matrix_tsv,
     export_quant_reproducibility_manifest,
+    fit_quant_design_matrix_model,
     impute_label_free_table,
     normalize_label_free_table,
     normalize_multiplex_quant_table,
@@ -307,7 +307,9 @@ def test_quant_matrix_export_preserves_per_cell_imputation_provenance() -> None:
         if row.entity_id == "P004" and row.sample_metadata.sample_id == "C1"
     )
     assert row.imputation_provenance is not None
-    assert row.imputation_provenance.method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY
+    assert (
+        row.imputation_provenance.method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY
+    )
     assert row.imputation_provenance.reference_group == "control"
     assert row.value_provenance is not None
     assert row.value_provenance.value_origin is QuantValueOrigin.IMPUTED
@@ -357,7 +359,8 @@ def test_label_free_intensity_table_preserves_per_value_provenance_and_exclusion
         for excluded in value.value_provenance.excluded_contributors
     ) == ("f005",)
     assert tuple(
-        excluded.reason_code for excluded in value.value_provenance.excluded_contributors
+        excluded.reason_code
+        for excluded in value.value_provenance.excluded_contributors
     ) == ("excluded_by_top_n_rollup",)
 
     missing_value = next(
@@ -520,14 +523,19 @@ def test_log_transform_normalization_reports_nonpositive_handling_explicitly() -
     assert log2_comparison.method is NormalizationMethod.LOG2_MEDIAN_CENTERING
     assert vsn_comparison.method is NormalizationMethod.VSN_LIKE
     zero_before = {
-        entry.sample_id: entry.zero_count for entry in log2_comparison.before_distributions
+        entry.sample_id: entry.zero_count
+        for entry in log2_comparison.before_distributions
     }
     assert zero_before["C1"] == 1
     assert zero_before["C2"] == 1
     assert zero_before["T1"] == 1
     assert zero_before["T2"] == 1
-    assert all(entry.negative_count == 0 for entry in log2_comparison.before_distributions)
-    assert all(entry.negative_count == 0 for entry in vsn_comparison.before_distributions)
+    assert all(
+        entry.negative_count == 0 for entry in log2_comparison.before_distributions
+    )
+    assert all(
+        entry.negative_count == 0 for entry in vsn_comparison.before_distributions
+    )
     assert {
         entry.handling_strategy for entry in log2_comparison.log_transform_preparation
     } == {"exclude_nonpositive_values_before_log2_centering"}
@@ -535,15 +543,15 @@ def test_log_transform_normalization_reports_nonpositive_handling_explicitly() -
         entry.handling_strategy for entry in vsn_comparison.log_transform_preparation
     } == {"floor_nonpositive_values_then_add_pseudocount"}
     assert all(
-        entry.pseudocount is None
-        for entry in log2_comparison.log_transform_preparation
+        entry.pseudocount is None for entry in log2_comparison.log_transform_preparation
     )
     assert all(
         entry.pseudocount is not None and entry.pseudocount > 0.0
         for entry in vsn_comparison.log_transform_preparation
     )
     log2_zero_after = {
-        entry.sample_id: entry.zero_count for entry in log2_comparison.after_distributions
+        entry.sample_id: entry.zero_count
+        for entry in log2_comparison.after_distributions
     }
     assert log2_zero_after["C1"] == 1
     assert log2_zero_after["C2"] == 1
@@ -973,9 +981,12 @@ def test_missingness_classifier_report_bundles_owned_tables_and_mechanisms() -> 
     assert report.entity_summary.entries
     assert report.condition_summary.entries
     assert report.intensity_dependence.plot_points
-    assert report.mechanism_report.summary_counts[
-        MissingDataMechanism.CONDITION_SPECIFIC_ABSENCE
-    ] == 1
+    assert (
+        report.mechanism_report.summary_counts[
+            MissingDataMechanism.CONDITION_SPECIFIC_ABSENCE
+        ]
+        == 1
+    )
 
 
 def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:

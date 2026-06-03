@@ -3,16 +3,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification.peptide_evidence import (
-    PeptideEvidenceClass,
-    PeptideEvidenceEntry,
-)
 from bijux_proteomics.identification.contracts import (
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
 )
 from bijux_proteomics.identification.cross_run_reproducibility import (
     CrossRunReproducibilityClass,
+)
+from bijux_proteomics.identification.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
 )
 from bijux_proteomics.sequences import parse_fasta_document
 from bijux_proteomics.targeted import (
@@ -105,7 +105,9 @@ def _observed_entries() -> tuple[PeptideEvidenceEntry, ...]:
     )
 
 
-def test_discovery_targeted_peptide_selection_prefers_observed_unique_and_falls_back_to_theoretical() -> None:
+def test_discovery_targeted_peptide_selection_prefers_observed_unique_and_falls_back_to_theoretical() -> (
+    None
+):
     report = build_discovery_targeted_peptide_selection_report(
         (
             DiscoveryTargetProteinEntry(
@@ -136,7 +138,9 @@ def test_discovery_targeted_peptide_selection_prefers_observed_unique_and_falls_
     observed = report.selected_entries[0]
     assert observed.target_protein_ref == "P00001"
     assert observed.rank == 1
-    assert observed.candidate_source is TargetedPeptideCandidateSource.OBSERVED_DISCOVERY
+    assert (
+        observed.candidate_source is TargetedPeptideCandidateSource.OBSERVED_DISCOVERY
+    )
     assert observed.peptide_sequence == "PEPTIDER"
     assert observed.observed_in_discovery is True
     assert observed.observed_psm_count == 6
@@ -145,7 +149,10 @@ def test_discovery_targeted_peptide_selection_prefers_observed_unique_and_falls_
     theoretical = report.selected_entries[1]
     assert theoretical.target_protein_ref == "P00002"
     assert theoretical.rank == 1
-    assert theoretical.candidate_source is TargetedPeptideCandidateSource.THEORETICAL_DIGEST
+    assert (
+        theoretical.candidate_source
+        is TargetedPeptideCandidateSource.THEORETICAL_DIGEST
+    )
     assert theoretical.peptide_sequence == "AAALIGHTR"
     assert theoretical.observed_in_discovery is False
 
@@ -161,7 +168,9 @@ def test_discovery_targeted_peptide_selection_prefers_observed_unique_and_falls_
     )
 
 
-def test_discovery_targeted_peptide_selection_keeps_missing_fasta_targets_visible() -> None:
+def test_discovery_targeted_peptide_selection_keeps_missing_fasta_targets_visible() -> (
+    None
+):
     report = build_discovery_targeted_peptide_selection_report(
         (
             DiscoveryTargetProteinEntry(

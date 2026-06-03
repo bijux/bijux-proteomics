@@ -133,9 +133,7 @@ def test_low_intensity_imputation_fills_missing_abundances_and_preserves_ledger(
     assert lookup[("PEPB", "s2")].abundance == 200.0
     assert lookup[("PEPC", "s2")].abundance == 200.0
     assert lookup[("PEPC", "s1")].abundance == 0.0
-    assert (
-        lookup[("PEPB", "s2")].imputation_provenance is not None
-    )
+    assert lookup[("PEPB", "s2")].imputation_provenance is not None
     assert (
         lookup[("PEPB", "s2")].imputation_provenance.method
         is ImputationMethod.LOW_INTENSITY
@@ -654,9 +652,9 @@ def test_imputation_sensitivity_report_matches_supported_policy_comparison_hits(
         }
     )
 
-    assert {
-        entry.entity_id for entry in sensitivity.imputation_dependent_hits
-    } == {
+    assert {entry.entity_id for entry in sensitivity.imputation_dependent_hits} == {
         entry.entity_id for entry in comparison.entries if entry.imputation_dependent
     }
-    assert any(entry.entity_id == "PEPA" for entry in sensitivity.imputation_dependent_hits)
+    assert any(
+        entry.entity_id == "PEPA" for entry in sensitivity.imputation_dependent_hits
+    )

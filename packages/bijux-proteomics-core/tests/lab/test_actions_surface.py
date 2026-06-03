@@ -90,7 +90,10 @@ def test_build_lab_action_packets_ties_every_recommendation_to_specific_failure_
         )
     )
 
-    lookup = {(packet.entity_type, packet.entity_id, packet.problem): packet for packet in packets}
+    lookup = {
+        (packet.entity_type, packet.entity_id, packet.problem): packet
+        for packet in packets
+    }
 
     run_packet = lookup[("run", "run-01", "low_identification_yield")]
     assert run_packet.severity == "high"
@@ -104,7 +107,9 @@ def test_build_lab_action_packets_ties_every_recommendation_to_specific_failure_
     assert contamination_packet.severity == "high"
     assert "KRT1;KRT10" in contamination_packet.evidence_rows[2]
 
-    background_packet = lookup[("sample_entity", "sample-bg:P001", "blank_dominated_background")]
+    background_packet = lookup[
+        ("sample_entity", "sample-bg:P001", "blank_dominated_background")
+    ]
     assert "background_ratio=0.8000" in background_packet.evidence_rows
 
     internal_standard_packet = lookup[

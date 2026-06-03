@@ -53,9 +53,7 @@ def test_build_protein_index_reloads_with_identical_protein_and_peptide_queries(
     assert lookup_protein_sequence(reloaded, "P22222") == lookup_protein_sequence(
         built, "P22222"
     )
-    assert lookup_accession(reloaded, "P11111-2") == lookup_accession(
-        built, "P11111-2"
-    )
+    assert lookup_accession(reloaded, "P11111-2") == lookup_accession(built, "P11111-2")
 
 
 def test_build_protein_index_preserves_decoy_and_contaminant_flags(

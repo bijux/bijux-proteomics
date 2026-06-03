@@ -82,47 +82,82 @@ def build_downgrade_fixture_graph() -> ProteomicsEvidenceGraph:
     return builder.build()
 
 
-def test_build_evidence_graph_final_result_table_applies_graph_downgrade_rules() -> None:
+def test_build_evidence_graph_final_result_table_applies_graph_downgrade_rules() -> (
+    None
+):
     report = build_evidence_graph_final_result_table(build_downgrade_fixture_graph())
 
     assert report.entry_count == 7
     by_claim = {entry.claim_node_ref: entry for entry in report.entries}
 
-    assert by_claim["protein:treatment_vs_control:P10001"].evidence_tier.value == "high_confidence"
+    assert (
+        by_claim["protein:treatment_vs_control:P10001"].evidence_tier.value
+        == "high_confidence"
+    )
     assert by_claim["protein:treatment_vs_control:P10001"].downgrade_reasons == ()
 
-    assert by_claim["protein:treatment_vs_control:P10002"].evidence_tier.value == "ambiguous"
-    assert [reason.value for reason in by_claim["protein:treatment_vs_control:P10002"].downgrade_reasons] == [
-        "shared_peptide_only"
-    ]
+    assert (
+        by_claim["protein:treatment_vs_control:P10002"].evidence_tier.value
+        == "ambiguous"
+    )
+    assert [
+        reason.value
+        for reason in by_claim["protein:treatment_vs_control:P10002"].downgrade_reasons
+    ] == ["shared_peptide_only"]
 
-    assert by_claim["protein:treatment_vs_control:P10003"].evidence_tier.value == "moderate"
-    assert [reason.value for reason in by_claim["protein:treatment_vs_control:P10003"].downgrade_reasons] == [
-        "contaminant_overlap"
-    ]
+    assert (
+        by_claim["protein:treatment_vs_control:P10003"].evidence_tier.value
+        == "moderate"
+    )
+    assert [
+        reason.value
+        for reason in by_claim["protein:treatment_vs_control:P10003"].downgrade_reasons
+    ] == ["contaminant_overlap"]
 
-    assert by_claim["protein:treatment_vs_control:P10004"].evidence_tier.value == "moderate"
-    assert [reason.value for reason in by_claim["protein:treatment_vs_control:P10004"].downgrade_reasons] == [
-        "poor_run_qc"
-    ]
+    assert (
+        by_claim["protein:treatment_vs_control:P10004"].evidence_tier.value
+        == "moderate"
+    )
+    assert [
+        reason.value
+        for reason in by_claim["protein:treatment_vs_control:P10004"].downgrade_reasons
+    ] == ["poor_run_qc"]
 
-    assert by_claim["protein:treatment_vs_control:P10005"].evidence_tier.value == "moderate"
-    assert [reason.value for reason in by_claim["protein:treatment_vs_control:P10005"].downgrade_reasons] == [
-        "imputation_dependence"
-    ]
+    assert (
+        by_claim["protein:treatment_vs_control:P10005"].evidence_tier.value
+        == "moderate"
+    )
+    assert [
+        reason.value
+        for reason in by_claim["protein:treatment_vs_control:P10005"].downgrade_reasons
+    ] == ["imputation_dependence"]
 
-    assert by_claim["ptm:treatment_vs_control:P10006:S3:Phospho"].evidence_tier.value == "weak"
-    assert [reason.value for reason in by_claim["ptm:treatment_vs_control:P10006:S3:Phospho"].downgrade_reasons] == [
-        "low_localization"
-    ]
+    assert (
+        by_claim["ptm:treatment_vs_control:P10006:S3:Phospho"].evidence_tier.value
+        == "weak"
+    )
+    assert [
+        reason.value
+        for reason in by_claim[
+            "ptm:treatment_vs_control:P10006:S3:Phospho"
+        ].downgrade_reasons
+    ] == ["low_localization"]
 
-    assert by_claim["pathway:treatment_vs_control:R-HSA-10007"].evidence_tier.value == "weak"
-    assert [reason.value for reason in by_claim["pathway:treatment_vs_control:R-HSA-10007"].downgrade_reasons] == [
-        "poor_reproducibility"
-    ]
+    assert (
+        by_claim["pathway:treatment_vs_control:R-HSA-10007"].evidence_tier.value
+        == "weak"
+    )
+    assert [
+        reason.value
+        for reason in by_claim[
+            "pathway:treatment_vs_control:R-HSA-10007"
+        ].downgrade_reasons
+    ] == ["poor_reproducibility"]
 
 
-def test_build_evidence_graph_final_result_table_preserves_final_result_provenance() -> None:
+def test_build_evidence_graph_final_result_table_preserves_final_result_provenance() -> (
+    None
+):
     report = build_evidence_graph_final_result_table(build_downgrade_fixture_graph())
 
     imputed = next(
@@ -139,8 +174,12 @@ def test_build_evidence_graph_final_result_table_preserves_final_result_provenan
     )
 
 
-def test_build_evidence_graph_final_result_table_downgrades_fail_contradictions_to_low_confidence() -> None:
-    report = build_evidence_graph_final_result_table(build_contradiction_fixture_graph())
+def test_build_evidence_graph_final_result_table_downgrades_fail_contradictions_to_low_confidence() -> (
+    None
+):
+    report = build_evidence_graph_final_result_table(
+        build_contradiction_fixture_graph()
+    )
 
     by_claim = {entry.claim_node_ref: entry for entry in report.entries}
     protein_entry = by_claim["protein:treatment_vs_control:P11111"]
@@ -159,8 +198,12 @@ def test_build_evidence_graph_final_result_table_downgrades_fail_contradictions_
     ]
 
 
-def test_build_evidence_graph_final_result_table_marks_caution_contradictions_without_hiding_claims() -> None:
-    report = build_evidence_graph_final_result_table(build_contradiction_fixture_graph())
+def test_build_evidence_graph_final_result_table_marks_caution_contradictions_without_hiding_claims() -> (
+    None
+):
+    report = build_evidence_graph_final_result_table(
+        build_contradiction_fixture_graph()
+    )
 
     by_claim = {entry.claim_node_ref: entry for entry in report.entries}
     ptm_entry = by_claim["ptm:treatment_vs_control:P11111:S3:Phospho"]
@@ -206,7 +249,9 @@ def _add_shared_only_protein_claim(
         claim_ref=claim_ref,
         row_suffix=row_suffix,
     )
-    alternate = builder.add_protein(alternate_protein_id, label=alternate_protein_id, trust_class="high")
+    alternate = builder.add_protein(
+        alternate_protein_id, label=alternate_protein_id, trust_class="high"
+    )
     builder.add_peptide_maps_to_protein(
         peptide.node_id,
         alternate.node_id,
@@ -259,13 +304,17 @@ def _add_contaminant_overlap_protein_claim(
         confidence=0.95,
         reason=f"{peptide_id} also overlaps contaminant {contaminant_id}",
     )
-    unique_peptide = builder.add_peptide(f"{peptide_id}U", label=f"{peptide_id}U", trust_class="high")
+    unique_peptide = builder.add_peptide(
+        f"{peptide_id}U", label=f"{peptide_id}U", trust_class="high"
+    )
     unique_spectrum = builder.add_spectrum(
         f"scan={row_suffix}u",
         label=f"scan={row_suffix}u",
         trust_class="high",
     )
-    unique_psm = builder.add_psm(f"psm:{row_suffix}u", label=f"psm:{row_suffix}u", trust_class="high")
+    unique_psm = builder.add_psm(
+        f"psm:{row_suffix}u", label=f"psm:{row_suffix}u", trust_class="high"
+    )
     builder.add_spectrum_supports_psm(
         unique_spectrum.node_id,
         unique_psm.node_id,
@@ -314,8 +363,12 @@ def _add_poor_qc_protein_claim(
         with_run=True,
     )
     run = builder.add_run(f"R{row_suffix}", label=f"R{row_suffix}", trust_class="high")
-    spectrum = builder.add_spectrum(f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high")
-    psm = builder.add_psm(f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high")
+    spectrum = builder.add_spectrum(
+        f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high"
+    )
+    psm = builder.add_psm(
+        f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high"
+    )
     qc = builder.add_qc_decision(
         f"qc:R{row_suffix}:caution",
         label=f"QC caution R{row_suffix}",
@@ -509,8 +562,12 @@ def _add_protein_claim_support(
     row_suffix: str,
     with_run: bool = False,
     protein_trust_class: str = "high",
-) -> tuple[ProteomicsEvidenceNode, ProteomicsEvidenceNode, ProteomicsEvidenceNode | None]:
-    protein = builder.add_protein(protein_id, label=protein_id, trust_class=protein_trust_class)
+) -> tuple[
+    ProteomicsEvidenceNode, ProteomicsEvidenceNode, ProteomicsEvidenceNode | None
+]:
+    protein = builder.add_protein(
+        protein_id, label=protein_id, trust_class=protein_trust_class
+    )
     peptide = builder.add_peptide(peptide_id, label=peptide_id, trust_class="high")
     claim = None
     if claim_ref is not None:
@@ -541,8 +598,12 @@ def _add_protein_claim_support(
             reason=f"{protein_id} supports final protein result",
         )
     if not with_run:
-        spectrum = builder.add_spectrum(f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high")
-        psm = builder.add_psm(f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high")
+        spectrum = builder.add_spectrum(
+            f"scan={row_suffix}", label=f"scan={row_suffix}", trust_class="high"
+        )
+        psm = builder.add_psm(
+            f"psm:{row_suffix}", label=f"psm:{row_suffix}", trust_class="high"
+        )
         builder.add_spectrum_supports_psm(
             spectrum.node_id,
             psm.node_id,

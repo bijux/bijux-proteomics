@@ -42,9 +42,7 @@ def test_tmt_plex_integration_report_builds_bridge_normalized_protein_matrix() -
         "plex_b_127N",
     )
     row = next(
-        row
-        for row in report.integrated_protein_matrix.rows
-        if row.entity_id == "P001"
+        row for row in report.integrated_protein_matrix.rows if row.entity_id == "P001"
     )
     values = {value.sample_id: value.abundance for value in row.values}
     assert round(values["plex_a_126"] or 0.0, 6) == round(1200.0 / 6000.0, 6)

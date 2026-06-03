@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 MISSINGNESS_COMPANION_OWNERS = {
@@ -64,11 +63,7 @@ def test_matrix_renderers_define_missingness_companion_surfaces() -> None:
 
     for relative_path, required_tokens in MISSINGNESS_COMPANION_OWNERS.items():
         source_text = (SOURCE_ROOT / relative_path).read_text(encoding="utf-8")
-        missing = [
-            token
-            for token in required_tokens
-            if token not in source_text
-        ]
+        missing = [token for token in required_tokens if token not in source_text]
         if missing:
             offenders.append(f"{relative_path}: missing {', '.join(missing)}")
 
@@ -80,11 +75,7 @@ def test_workflow_matrix_export_owners_write_missingness_sidecars() -> None:
 
     for relative_path, required_tokens in MISSINGNESS_SIDE_CAR_EXPORT_OWNERS.items():
         source_text = (SOURCE_ROOT / relative_path).read_text(encoding="utf-8")
-        missing = [
-            token
-            for token in required_tokens
-            if token not in source_text
-        ]
+        missing = [token for token in required_tokens if token not in source_text]
         if missing:
             offenders.append(f"{relative_path}: missing {', '.join(missing)}")
 

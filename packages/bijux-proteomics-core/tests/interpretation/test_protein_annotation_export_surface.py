@@ -9,11 +9,11 @@ from bijux_proteomics.interpretation import (
     ProteinAnnotationRecord,
     ProteinReferenceEntry,
     build_protein_annotation_mapping_report,
-    render_protein_annotation_tsv,
     parse_protein_annotation_table,
     parse_protein_reference_table,
     render_mapped_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
+    render_protein_annotation_tsv,
     render_rejected_protein_annotation_tsv,
     render_rejected_protein_reference_tsv,
     render_unmapped_protein_annotation_tsv,
@@ -29,7 +29,9 @@ def _fasta_fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / name
 
 
-def test_protein_annotation_renderers_emit_summary_result_mapped_unmapped_and_rejected_ledgers() -> None:
+def test_protein_annotation_renderers_emit_summary_result_mapped_unmapped_and_rejected_ledgers() -> (
+    None
+):
     protein_table = parse_protein_reference_table(
         _fixture_path("protein_annotation_input.tsv")
     )
@@ -67,7 +69,9 @@ def test_protein_annotation_renderers_emit_summary_result_mapped_unmapped_and_re
     rejected_input_tsv = render_rejected_protein_reference_tsv(protein_table)
     rejected_annotation_tsv = render_rejected_protein_annotation_tsv(custom_table)
 
-    assert summary_tsv.splitlines()[0].startswith("input_entry_count\tmapped_entry_count")
+    assert summary_tsv.splitlines()[0].startswith(
+        "input_entry_count\tmapped_entry_count"
+    )
     assert "annotation_status" in result_tsv.splitlines()[0]
     assert "row-missing\tUNKNOWN123\tUNKNOWN123" in result_tsv
     assert "unmapped" in result_tsv

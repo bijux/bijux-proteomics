@@ -63,9 +63,10 @@ def test_spectronaut_import_preserves_samples_quantities_and_modified_peptides()
     assert report.precursor_rows[3].target_decoy_label.value == "decoy"
     assert report.protein_group_rows[0].protein_group_id == "PG001"
     assert report.protein_group_rows[0].source_precursor_count == 1
-    assert report.protein_group_rows[0].provenance.original_identifiers[
-        "protein_group_id"
-    ] == "PG001"
+    assert (
+        report.protein_group_rows[0].provenance.original_identifiers["protein_group_id"]
+        == "PG001"
+    )
     assert report.precursor_quantity_rows[0].precursor_id == "sn_rawA_pestide_2"
     assert report.precursor_quantity_rows[0].precursor_quantity == 1420000
     assert report.precursor_quantity_rows[0].provenance.source_engine == "spectronaut"

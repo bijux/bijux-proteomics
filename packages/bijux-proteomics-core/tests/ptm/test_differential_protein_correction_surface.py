@@ -65,7 +65,10 @@ def test_ptm_differential_analysis_can_apply_unmodified_protein_correction() -> 
         if entry.site_key == "P11111:S5:Phospho"
     )
 
-    assert report.protein_correction_mode is PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN
+    assert (
+        report.protein_correction_mode
+        is PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN
+    )
     assert target.protein_correction_status == "high_confidence_corrected"
     assert target.protein_log2_fold_change is not None
     assert target.corrected_log2_fold_change is not None
@@ -79,7 +82,9 @@ def test_ptm_differential_analysis_can_apply_unmodified_protein_correction() -> 
     assert unresolved.corrected_log2_fold_change is None
 
 
-def test_ptm_differential_analysis_marks_low_localization_correction_as_review_only() -> None:
+def test_ptm_differential_analysis_marks_low_localization_correction_as_review_only() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -145,9 +150,7 @@ def test_ptm_differential_analysis_blocks_broken_pairs_before_statistics() -> No
         entry.model_copy(
             update={
                 "pair_id": (
-                    f"pair-{entry.replicate}"
-                    if entry.sample_id != "T2"
-                    else None
+                    f"pair-{entry.replicate}" if entry.sample_id != "T2" else None
                 )
             }
         )

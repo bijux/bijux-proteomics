@@ -18,7 +18,9 @@ def _format_fixture(name: str) -> Path:
 
 
 def test_build_transition_qc_report_links_transitions_to_precursors() -> None:
-    report = build_transition_qc_report_from_table(_format_fixture("transition_quant.tsv"))
+    report = build_transition_qc_report_from_table(
+        _format_fixture("transition_quant.tsv")
+    )
 
     assert report.summary.precursor_count == 2
     assert report.summary.transition_count == 4
@@ -37,7 +39,9 @@ def test_build_transition_qc_report_links_transitions_to_precursors() -> None:
 
 
 def test_build_transition_qc_report_summarizes_transition_intensities() -> None:
-    report = build_transition_qc_report_from_table(_format_fixture("transition_quant.tsv"))
+    report = build_transition_qc_report_from_table(
+        _format_fixture("transition_quant.tsv")
+    )
 
     first_entry = report.entries[0]
     assert first_entry.detected_sample_count == 2
@@ -55,7 +59,9 @@ def test_build_transition_qc_report_summarizes_transition_intensities() -> None:
 
 
 def test_build_transition_qc_report_flags_weak_transitions() -> None:
-    report = build_transition_qc_report_from_table(_format_fixture("transition_quant.tsv"))
+    report = build_transition_qc_report_from_table(
+        _format_fixture("transition_quant.tsv")
+    )
 
     assert len(report.weak_transitions) == 1
     assert report.weak_transitions[0].transition_id == "tr_y6_b"
@@ -71,7 +77,9 @@ def test_build_transition_qc_report_flags_weak_transitions() -> None:
     assert weak_entry.weak is True
 
 
-def test_build_transition_qc_report_keeps_same_transition_id_separate_by_precursor() -> None:
+def test_build_transition_qc_report_keeps_same_transition_id_separate_by_precursor() -> (
+    None
+):
     parse_report = parse_transition_table(_format_fixture("transition_quant.tsv"))
     extra_entry = TransitionTableEntry(
         transition_id="tr_y7_a",
@@ -86,7 +94,9 @@ def test_build_transition_qc_report_keeps_same_transition_id_separate_by_precurs
         fragment_mz=801.2,
     )
 
-    split_report = build_transition_qc_report(parse_report.accepted_entries + (extra_entry,))
+    split_report = build_transition_qc_report(
+        parse_report.accepted_entries + (extra_entry,)
+    )
 
     split_entries = [
         entry for entry in split_report.entries if entry.transition_id == "tr_y7_a"

@@ -19,8 +19,7 @@ def test_lfq_cohort_biological_case_study_keeps_public_data_and_biology_inputs_v
     case_study = build_lfq_cohort_biological_case_study()
 
     assert (
-        case_study.case_study_id
-        == "public_case_study:lfq_cohort_biological_case_study"
+        case_study.case_study_id == "public_case_study:lfq_cohort_biological_case_study"
     )
     assert case_study.workflow_family == "lfq"
     assert (

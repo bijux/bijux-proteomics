@@ -20,9 +20,7 @@ def test_render_lab_review_packet_bundles_required_lab_review_sections() -> None
         capacity_summary="12 instrument-hours available, 10 required",
         handoff_files=("handoff.tsv", "handoff.json"),
     )
-    packet = build_lab_review_packet_rendering(
-        payload
-    )
+    packet = build_lab_review_packet_rendering(payload)
     assert render_lab_review_packet(payload) == packet
 
     assert packet.packet_id == "lab-packet-1"

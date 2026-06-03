@@ -43,7 +43,9 @@ def test_ppi_network_module_renderers_emit_edge_module_isolated_and_enrichment_l
     enrichment_tsv = render_ppi_module_enrichment_tsv(report)
     rejected_tsv = render_rejected_ppi_edge_tsv(invalid_edges)
 
-    assert summary_tsv.splitlines()[0].startswith("significant_protein_count\tretained_edge_count")
+    assert summary_tsv.splitlines()[0].startswith(
+        "significant_protein_count\tretained_edge_count"
+    )
     assert "ppi_module:P001,P002,P003" in edge_tsv
     assert "hub_protein_refs" in module_tsv.splitlines()[0]
     assert "P004" in isolated_tsv
