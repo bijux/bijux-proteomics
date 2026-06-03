@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 import string
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from bijux_proteomics.domain.records import (
     MissingValueState,
@@ -21,18 +22,19 @@ from bijux_proteomics.quantification.matrix_archive import (
     save_matrix_archive,
 )
 from bijux_proteomics_foundation.testing.skip_policy import (
-    SkipCategory,
-    import_or_skip,
+    import_hypothesis_or_skip,
 )
 
-hypothesis = import_or_skip(
-    "hypothesis",
-    category=SkipCategory.OPTIONAL_DEPENDENCY,
-    reason="hypothesis is required for the matrix archive property-based surface",
-)
-given = hypothesis.given
-settings = hypothesis.settings
-st = hypothesis.strategies
+if TYPE_CHECKING:
+    from hypothesis import given, settings
+    from hypothesis import strategies as st
+else:
+    hypothesis = import_hypothesis_or_skip(
+        reason="hypothesis is required for the matrix archive property-based surface",
+    )
+    given = hypothesis.given
+    settings = hypothesis.settings
+    st = hypothesis.strategies
 
 _SAFE_TEXT = st.text(
     alphabet=string.ascii_letters + string.digits + "-_./",

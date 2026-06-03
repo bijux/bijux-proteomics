@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 import string
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
@@ -16,18 +17,19 @@ from bijux_proteomics._tabular import (
     render_tsv_rows,
 )
 from bijux_proteomics_foundation.testing.skip_policy import (
-    SkipCategory,
-    import_or_skip,
+    import_hypothesis_or_skip,
 )
 
-hypothesis = import_or_skip(
-    "hypothesis",
-    category=SkipCategory.OPTIONAL_DEPENDENCY,
-    reason="hypothesis is required for the delimited table property-based surface",
-)
-given = hypothesis.given
-settings = hypothesis.settings
-st = hypothesis.strategies
+if TYPE_CHECKING:
+    from hypothesis import given, settings
+    from hypothesis import strategies as st
+else:
+    hypothesis = import_hypothesis_or_skip(
+        reason="hypothesis is required for the delimited table property-based surface",
+    )
+    given = hypothesis.given
+    settings = hypothesis.settings
+    st = hypothesis.strategies
 
 _SAFE_TEXT = st.text(
     alphabet=string.ascii_letters + string.digits + "-_./",
@@ -343,11 +345,10 @@ def test_parse_delimited_table_preserves_generated_rejection_invariants(
         )
         assert report.header == ("sample_id", "replicate", "intensity", "contaminant")
         assert len(report.accepted_rows) + len(report.rejected_rows) == len(rows)
-        assert tuple(
-            sorted(
-                row.row_number for row in (*report.accepted_rows, *report.rejected_rows)
-            )
-        ) == tuple(range(2, len(rows) + 2))
+        all_rows = report.accepted_rows + report.rejected_rows
+        assert tuple(sorted(row.row_number for row in all_rows)) == tuple(
+            range(2, len(rows) + 2)
+        )
         assert tuple(
             tuple(issue.code for issue in rejected_row.issues)
             for rejected_row in report.rejected_rows

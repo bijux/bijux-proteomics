@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.review import (
     export_proteomics_evidence_graph,
     load_lazy_proteomics_evidence_graph,
@@ -61,7 +63,7 @@ def test_evidence_graph_query_reports_render_tsv_and_json() -> None:
 
 
 def test_lazy_evidence_graph_queries_render_identical_export_artifacts(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     graph = build_review_query_fixture_graph()
     bundle = export_proteomics_evidence_graph(graph)

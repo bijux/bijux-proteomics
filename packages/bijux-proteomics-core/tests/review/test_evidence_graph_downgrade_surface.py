@@ -435,12 +435,22 @@ def _add_imputed_protein_claim(
     )
     builder.add_quant_value_supports_statistical_result(
         quant_value.node_id,
-        claim.node_id,
+        (
+            claim.node_id
+            if claim is not None
+            else (_raise_missing_claim_for_quant_support(protein_id))
+        ),
         source_row_ref=f"quant_stats.tsv:{row_suffix}",
         confidence=0.92,
         reason=f"imputed quant value supports final statistic for {protein_id}",
     )
     return True
+
+
+def _raise_missing_claim_for_quant_support(protein_id: str) -> str:
+    raise AssertionError(
+        f"imputed quant support requires a statistical claim for {protein_id}"
+    )
 
 
 def _add_low_localization_ptm_claim(

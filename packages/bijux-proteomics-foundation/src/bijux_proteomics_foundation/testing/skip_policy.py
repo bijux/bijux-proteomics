@@ -8,17 +8,27 @@ from __future__ import annotations
 from enum import StrEnum
 import importlib
 from types import ModuleType
-from typing import NoReturn
+from typing import Any, NoReturn, Protocol, cast
 
 __all__ = [
+    "HypothesisModule",
     "SkipCategory",
     "format_skip_reason",
+    "import_hypothesis_or_skip",
     "import_or_skip",
     "skip_test",
     "validate_skip_reason",
 ]
 
 _FORBIDDEN_REASON_PHRASES = frozenset({"not ready"})
+
+
+class HypothesisModule(Protocol):
+    """Typed surface for optional Hypothesis imports inside test suites."""
+
+    given: Any
+    settings: Any
+    strategies: Any
 
 
 class SkipCategory(StrEnum):
@@ -84,3 +94,16 @@ def import_or_skip(
             reason=validated_reason.split(": ", 1)[1],
             allow_module_level=True,
         )
+
+
+def import_hypothesis_or_skip(*, reason: str) -> HypothesisModule:
+    """Import Hypothesis with a typed test-surface contract or skip cleanly."""
+
+    return cast(
+        HypothesisModule,
+        import_or_skip(
+            "hypothesis",
+            category=SkipCategory.OPTIONAL_DEPENDENCY,
+            reason=reason,
+        ),
+    )
