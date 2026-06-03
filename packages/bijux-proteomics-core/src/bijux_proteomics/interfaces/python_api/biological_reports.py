@@ -6,8 +6,18 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
+    DdaBiologicalWorkflowBundle,
+    DdaBiologicalWorkflowExportManifest,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
+)
 
 def run_biological_report_command(
     input_tsv: Path,
@@ -100,8 +110,15 @@ def run_biological_report_command(
     )
     report = result.report
     manifest = result.export_manifest
-    if manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(report, BiologicalResultReportBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected biological report bundle"
+        )
+    if not isinstance(manifest, BiologicalResultReportExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected biological report manifest"
+        )
+    report = cast(BiologicalResultReportBundle, report)
 
     _emit_json(
         {
@@ -195,8 +212,15 @@ def run_dda_biological_report_command(
     )
     report = result.report
     manifest = result.export_manifest
-    if manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(report, DdaBiologicalWorkflowBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected DDA biological bundle"
+        )
+    if not isinstance(manifest, DdaBiologicalWorkflowExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected DDA biological manifest"
+        )
+    report = cast(DdaBiologicalWorkflowBundle, report)
 
     _emit_json(
         {

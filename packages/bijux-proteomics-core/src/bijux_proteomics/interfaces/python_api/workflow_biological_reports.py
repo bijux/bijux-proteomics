@@ -6,8 +6,18 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
+    DiannBiologicalWorkflowBundle,
+    DiannBiologicalWorkflowExportManifest,
+)
+from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
+    MaxquantBiologicalWorkflowBundle,
+    MaxquantBiologicalWorkflowExportManifest,
+)
 
 def run_diann_biological_report_command(
     result_tsv: Path,
@@ -86,8 +96,15 @@ def run_diann_biological_report_command(
     )
     report = result.report
     manifest = result.export_manifest
-    if manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(report, DiannBiologicalWorkflowBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected DIA-NN biological bundle"
+        )
+    if not isinstance(manifest, DiannBiologicalWorkflowExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected DIA-NN biological manifest"
+        )
+    report = cast(DiannBiologicalWorkflowBundle, report)
 
     _emit_json(
         {
@@ -174,8 +191,15 @@ def run_maxquant_biological_report_command(
     )
     report = result.report
     manifest = result.export_manifest
-    if manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(report, MaxquantBiologicalWorkflowBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected MaxQuant biological bundle"
+        )
+    if not isinstance(manifest, MaxquantBiologicalWorkflowExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected MaxQuant biological manifest"
+        )
+    report = cast(MaxquantBiologicalWorkflowBundle, report)
 
     _emit_json(
         {
