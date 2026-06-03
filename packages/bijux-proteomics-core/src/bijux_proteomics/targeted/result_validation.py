@@ -14,7 +14,7 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.errors import DesignError
+from bijux_proteomics.domain.errors import DesignError, ScientificEvidenceError
 from bijux_proteomics.io import ExperimentalDesignEntry
 from bijux_proteomics.sequences import PeptideUniquenessClass
 from bijux_proteomics.targeted.assay_qc import (
@@ -568,7 +568,7 @@ def _build_assay_evidence_entry(
                 case_mean_log2_intensity is None
                 or control_mean_log2_intensity is None
             ):
-                raise ValueError(
+                raise ScientificEvidenceError(
                     "targeted validation requires condition means when reliable replicate thresholds are satisfied"
                 )
             validation_log2_effect = (
