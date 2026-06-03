@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -112,6 +113,20 @@ class DrugTargetInterpretationReport(JsonModel):
     entries: tuple[DrugTargetInterpretationEntry, ...] = Field(default_factory=tuple)
     summary: DrugTargetInterpretationSummary
     note: str = Field(..., min_length=1)
+
+
+class _ChangedPathwayState(TypedDict):
+    pathway_name: str | None
+    members: set[str]
+
+
+class _IndirectDrugSupport(TypedDict):
+    drug_name: str | None
+    source_name: str | None
+    source_accession: str | None
+    direct_targets: set[str]
+    pathway_ids: set[str]
+    pathway_names: set[str]
 
 
 def build_drug_target_interpretation_report(
@@ -501,12 +516,12 @@ def _build_changed_pathway_index(
     *,
     gene_symbol_by_protein: dict[str, str],
     changed_protein_refs: tuple[str, ...],
-) -> dict[str, dict[str, object]]:
+) -> dict[str, _ChangedPathwayState]:
     proteins_by_gene_symbol: dict[str, set[str]] = {}
     for protein_ref, gene_symbol in gene_symbol_by_protein.items():
         proteins_by_gene_symbol.setdefault(gene_symbol, set()).add(protein_ref)
     changed_set = {canonicalize_protein_reference(protein_ref) for protein_ref in changed_protein_refs}
-    pathway_index: dict[str, dict[str, object]] = {}
+    pathway_index: dict[str, _ChangedPathwayState] = {}
     for record in pathway_records:
         if record.member_kind is PathwayMemberKind.PROTEIN:
             member_refs = {
@@ -535,9 +550,9 @@ def _build_indirect_support(
     *,
     direct_pairs: set[tuple[str, str]],
     changed_effects: dict[str, DifferentialAbundanceEntry],
-    pathway_index: dict[str, dict[str, object]],
-) -> dict[tuple[str, str], dict[str, object]]:
-    support: dict[tuple[str, str], dict[str, object]] = {}
+    pathway_index: dict[str, _ChangedPathwayState],
+) -> dict[tuple[str, str], _IndirectDrugSupport]:
+    support: dict[tuple[str, str], _IndirectDrugSupport] = {}
     for drug_id, records in direct_target_map.items():
         first = records[0]
         direct_refs = {

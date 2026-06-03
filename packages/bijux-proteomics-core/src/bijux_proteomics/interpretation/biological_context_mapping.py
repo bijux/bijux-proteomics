@@ -12,6 +12,7 @@ from enum import StrEnum
 import json
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -171,6 +172,16 @@ class BiologicalContextMappingReport(JsonModel):
     term_entries: tuple[BiologicalContextTermEntry, ...] = Field(default_factory=tuple)
     summary: BiologicalContextMappingSummary
     note: str = Field(..., min_length=1)
+
+
+class _BiologicalContextTermSupport(TypedDict):
+    context_kind: BiologicalContextKind
+    context_id: str
+    context_name: str | None
+    source_name: str | None
+    source_accession: str | None
+    evidence_values: set[str]
+    supporting_protein_refs: set[str]
 
 
 def parse_biological_context_table(
@@ -380,7 +391,7 @@ def build_biological_context_mapping_report(
     unmapped_entries: list[UnmappedBiologicalContextEntry] = []
     term_support: dict[
         tuple[str, str, str | None, str | None, str | None],
-        dict[str, object],
+        _BiologicalContextTermSupport,
     ] = {}
     context_kind_counts: dict[str, int] = {}
     for entry in protein_entries:

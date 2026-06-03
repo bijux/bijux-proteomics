@@ -88,9 +88,13 @@ def build_program_brief(program: ProgramSpec) -> ProgramBrief:
         for criterion in program.success_criteria
         if criterion.direction is MeasurementDirection.MINIMIZE
     )
-    blocked_outcome_codes = tuple(
-        code for code in target_context.get("high_risk_block_codes", []) if isinstance(code, str)
-    )
+    blocked_code_values = target_context.get("high_risk_block_codes", ())
+    if isinstance(blocked_code_values, (list, tuple)):
+        blocked_outcome_codes = tuple(
+            code for code in blocked_code_values if isinstance(code, str)
+        )
+    else:
+        blocked_outcome_codes = ()
     return ProgramBrief(
         program_id=program.program_id,
         stage=program.stage,

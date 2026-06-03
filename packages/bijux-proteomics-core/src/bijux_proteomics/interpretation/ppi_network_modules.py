@@ -238,7 +238,11 @@ def parse_ppi_edge_table(
                 )
             )
             continue
-        edge_key = tuple(sorted((protein_ref_a, protein_ref_b)))
+        edge_key: tuple[str, str]
+        if protein_ref_a <= protein_ref_b:
+            edge_key = (protein_ref_a, protein_ref_b)
+        else:
+            edge_key = (protein_ref_b, protein_ref_a)
         if edge_key in seen_edges:
             rejected_rows.append(
                 RejectedPpiEdgeRow(
