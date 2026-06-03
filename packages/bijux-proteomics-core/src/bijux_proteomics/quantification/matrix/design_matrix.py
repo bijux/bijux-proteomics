@@ -12,6 +12,7 @@ from io import StringIO
 from itertools import combinations
 import math
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 
@@ -36,7 +37,7 @@ from bijux_proteomics.study.sample_run_identity import (
 
 
 def _resolve_design_value(entry: ExperimentalDesignEntry, field: str) -> str | None:
-    direct_values = {
+    direct_values: dict[str, str | None] = {
         "sample_id": entry.sample_id,
         "cohort": entry.cohort,
         "condition": entry.condition,
@@ -54,7 +55,7 @@ def _resolve_design_value(entry: ExperimentalDesignEntry, field: str) -> str | N
     }
     if field in direct_values:
         return direct_values[field]
-    return entry.metadata.get(field)
+    return cast(str | None, entry.metadata.get(field))
 
 
 def _require_populated_design_field(
@@ -381,10 +382,15 @@ def _required_consistency_fields(
         timepoint_field,
         *covariate_fields,
     ]
-    return tuple(
-        field
-        for field in dict.fromkeys(field for field in fields if field not in (None, ""))
-    )
+    resolved_fields: list[str] = []
+    for field in fields:
+        if field in (None, ""):
+            continue
+        resolved_field = str(field)
+        if resolved_field in resolved_fields:
+            continue
+        resolved_fields.append(resolved_field)
+    return tuple(resolved_fields)
 
 
 def fit_quant_design_matrix_model(

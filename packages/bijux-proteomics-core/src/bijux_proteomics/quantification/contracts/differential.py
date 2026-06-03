@@ -401,7 +401,7 @@ def build_differential_abundance_report(
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
     sample_weights_report: SampleReliabilityWeightReport | None = None,
-    sample_run_policy: "SampleRunAnalysisPolicy" = None,
+    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
     from bijux_proteomics.quantification.differential_abundance import (
@@ -505,7 +505,7 @@ def build_time_course_differential_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     policy: TimeCourseTestingPolicy | None = None,
-    sample_run_policy: "SampleRunAnalysisPolicy" = None,
+    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
 ) -> TimeCourseDifferentialReport:
     """Build one ordered time-course differential report over a quant table."""
     from bijux_proteomics.quantification.time_course_differential import (

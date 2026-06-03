@@ -624,6 +624,10 @@ def build_sample_cluster_report(
             raise RuntimeError(
                 "sample exploration clustering could not select a pair despite multiple active clusters"
             )
+        if best_distance is None:
+            raise RuntimeError(
+                "sample exploration clustering selected a pair without a linkage distance"
+            )
         left_cluster = active_clusters[best_pair[0]]
         right_cluster = active_clusters[best_pair[1]]
         merged_indexes = tuple(

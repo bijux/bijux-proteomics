@@ -143,7 +143,7 @@ def build_quant_design_matrix_report(
     pairing_field: str | None = None,
     timepoint_field: str | None = None,
     condition_field: str = "condition",
-    sample_run_policy: "SampleRunAnalysisPolicy" = None,
+    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
 ) -> QuantDesignMatrixReport:
     """Build an explicit design matrix over one quantification study design."""
     from bijux_proteomics.quantification.design_matrix import (
