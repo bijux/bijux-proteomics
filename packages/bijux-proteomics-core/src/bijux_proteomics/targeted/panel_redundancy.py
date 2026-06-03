@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import csv
 from dataclasses import dataclass
 from enum import StrEnum
@@ -16,7 +17,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io import ExperimentalDesignEntry
 from bijux_proteomics.sequences import PeptideUniquenessClass
-from bijux_proteomics.targeted.assay_qc import build_targeted_assay_qc_report
+from bijux_proteomics.targeted.assay_qc import (
+    TargetedTargetQcEntry,
+    build_targeted_assay_qc_report,
+)
 from bijux_proteomics.targeted.panel_design import TargetedPanelCandidateKind
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics.targeted.result_validation import TargetedValidationPanelAssayInput
@@ -624,7 +628,7 @@ def _build_candidate_vector(
     candidate: PanelRedundancyCandidateInput,
     assays: tuple[TargetedValidationPanelAssayInput, ...],
     descriptors: tuple[_ImportedTargetDescriptor, ...],
-    qc_by_target_sample: dict[tuple[str, str], object],
+    qc_by_target_sample: Mapping[tuple[str, str], TargetedTargetQcEntry],
     design_by_sample: dict[str, ExperimentalDesignEntry],
 ) -> dict[str, float]:
     target_ids: set[str] = set()

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 import csv
 from dataclasses import dataclass
 from enum import StrEnum
@@ -16,7 +17,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io import ExperimentalDesignEntry
 from bijux_proteomics.sequences import PeptideUniquenessClass
-from bijux_proteomics.targeted.assay_qc import build_targeted_assay_qc_report
+from bijux_proteomics.targeted.assay_qc import (
+    TargetedTargetQcEntry,
+    build_targeted_assay_qc_report,
+)
 from bijux_proteomics.targeted.panel_design import TargetedPanelCandidateKind
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics.targeted.result_validation import (
@@ -518,7 +522,7 @@ def _build_candidate_entry(
     candidate: TargetedValidationDiscoveryClaimInput,
     assays: tuple[TargetedValidationPanelAssayInput, ...],
     descriptors: tuple[_ImportedTargetDescriptor, ...],
-    qc_by_target_sample: dict[tuple[str, str], object],
+    qc_by_target_sample: Mapping[tuple[str, str], TargetedTargetQcEntry],
     design_by_sample: dict[str, ExperimentalDesignEntry],
     total_sample_ids: tuple[str, ...],
     total_condition_values: tuple[str, ...],
@@ -622,14 +626,11 @@ def _build_candidate_entry(
     timepoint_dimension = _build_subgroup_dimension_entries(
         candidate_id=candidate.candidate_id,
         dimension=BiomarkerStabilityDimension.TIMEPOINT,
-        group_values={
-            sample_id: _design_dimension_value(
-                design_by_sample[sample_id], policy.timepoint_field
-            )
-            for sample_id in candidate_sample_values
-            if sample_id in design_by_sample
-            and _design_dimension_value(design_by_sample[sample_id], policy.timepoint_field)
-        },
+        group_values=_group_values_for_dimension(
+            sample_ids=candidate_sample_values,
+            design_by_sample=design_by_sample,
+            field_name=policy.timepoint_field,
+        ),
         sample_values=candidate_sample_values,
         reliable_sample_ids=reliable_sample_ids,
         minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
@@ -642,14 +643,11 @@ def _build_candidate_entry(
     sample_type_dimension = _build_subgroup_dimension_entries(
         candidate_id=candidate.candidate_id,
         dimension=BiomarkerStabilityDimension.SAMPLE_TYPE,
-        group_values={
-            sample_id: _design_dimension_value(
-                design_by_sample[sample_id], policy.sample_type_field
-            )
-            for sample_id in candidate_sample_values
-            if sample_id in design_by_sample
-            and _design_dimension_value(design_by_sample[sample_id], policy.sample_type_field)
-        },
+        group_values=_group_values_for_dimension(
+            sample_ids=candidate_sample_values,
+            design_by_sample=design_by_sample,
+            field_name=policy.sample_type_field,
+        ),
         sample_values=candidate_sample_values,
         reliable_sample_ids=reliable_sample_ids,
         minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
@@ -864,10 +862,11 @@ def _build_batch_entries(
     bool,
 ]:
     group_values = {
-        sample_id: _design_dimension_value(design_by_sample[sample_id], batch_field)
+        sample_id: group_value
         for sample_id in sample_values
         if sample_id in design_by_sample
-        and _design_dimension_value(design_by_sample[sample_id], batch_field)
+        for group_value in [_design_dimension_value(design_by_sample[sample_id], batch_field)]
+        if group_value is not None
     }
     if not group_values:
         return [], None, None, False
@@ -1006,14 +1005,31 @@ def _group_sample_ids_by_condition(
     return grouped
 
 
+def _group_values_for_dimension(
+    *,
+    sample_ids: Iterable[str],
+    design_by_sample: dict[str, ExperimentalDesignEntry],
+    field_name: str,
+) -> dict[str, str]:
+    grouped: dict[str, str] = {}
+    for sample_id in sample_ids:
+        design_entry = design_by_sample.get(sample_id)
+        if design_entry is None:
+            continue
+        group_value = _design_dimension_value(design_entry, field_name)
+        if group_value is not None:
+            grouped[sample_id] = group_value
+    return grouped
+
+
 def _design_dimension_value(
     design_entry: ExperimentalDesignEntry,
     field_name: str,
 ) -> str | None:
     if field_name == "condition":
-        return design_entry.condition
+        return str(design_entry.condition)
     if field_name == "batch":
-        return design_entry.batch
+        return None if design_entry.batch is None else str(design_entry.batch)
     direct = getattr(design_entry, field_name, None)
     if isinstance(direct, str) and direct.strip():
         return direct.strip()

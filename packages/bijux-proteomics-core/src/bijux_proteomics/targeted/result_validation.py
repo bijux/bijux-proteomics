@@ -564,6 +564,13 @@ def _build_assay_evidence_entry(
             if case_reliable_sample_count == 0 or control_reliable_sample_count == 0:
                 reasons.append(TargetedValidationReasonCode.VALIDATION_SIGNAL_MISSING)
         else:
+            if (
+                case_mean_log2_intensity is None
+                or control_mean_log2_intensity is None
+            ):
+                raise ValueError(
+                    "targeted validation requires condition means when reliable replicate thresholds are satisfied"
+                )
             validation_log2_effect = (
                 case_mean_log2_intensity - control_mean_log2_intensity
             )
