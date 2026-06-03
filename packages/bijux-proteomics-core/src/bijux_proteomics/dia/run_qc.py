@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 
+from collections.abc import Sequence
 import csv
 import math
 from enum import StrEnum
@@ -648,7 +649,7 @@ def _fraction(numerator: int, denominator: int) -> float:
 
 
 def _intensity_distribution(
-    observed_precursor_quantities: list[float | None],
+    observed_precursor_quantities: Sequence[float | None],
 ) -> dict[str, int]:
     distribution = {
         "<1e5": 0,

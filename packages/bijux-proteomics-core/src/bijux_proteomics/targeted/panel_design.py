@@ -327,10 +327,10 @@ def build_targeted_panel_design_report(
     ):
         if not assay.panel_export_allowed:
             continue
-        candidate = _best_candidate_for_protein(
+        protein_candidate = _best_candidate_for_protein(
             protein_candidates_by_ref.get(assay.target_protein_ref, ())
         )
-        if candidate is None:
+        if protein_candidate is None:
             continue
         retained_transitions = tuple(
             sorted(
@@ -356,13 +356,13 @@ def build_targeted_panel_design_report(
             radius_minutes=retention_window_radius_minutes,
         )
         warning_codes = _warning_codes_for_assay(
-            candidate=candidate,
+            candidate=protein_candidate,
             selected_peptide=selected_peptide,
             assay=assay,
             expected_retention_time_minutes=expected_retention_time_minutes,
         )
         warning_note = _warning_note_for_assay(
-            candidate=candidate,
+            candidate=protein_candidate,
             selected_peptide=selected_peptide,
             assay=assay,
             expected_retention_time_minutes=expected_retention_time_minutes,
@@ -371,10 +371,10 @@ def build_targeted_panel_design_report(
         assay_rows.append(
             TargetedPanelAssayEntry(
                 assay_entry_id=assay.assay_entry_id,
-                biomarker_candidate_id=candidate.candidate_id,
-                biomarker_candidate_kind=candidate.candidate_kind,
-                biomarker_display_label=candidate.display_label,
-                biomarker_priority_rank=candidate.priority_rank,
+                biomarker_candidate_id=protein_candidate.candidate_id,
+                biomarker_candidate_kind=protein_candidate.candidate_kind,
+                biomarker_display_label=protein_candidate.display_label,
+                biomarker_priority_rank=protein_candidate.priority_rank,
                 target_protein_ref=assay.target_protein_ref,
                 target_protein_group_id=assay.target_protein_group_id,
                 gene_symbol=assay.gene_symbol,
@@ -409,9 +409,9 @@ def build_targeted_panel_design_report(
                     ),
                     precursor_id=assay.assay_entry_id,
                     assay_entry_id=assay.assay_entry_id,
-                    biomarker_candidate_id=candidate.candidate_id,
-                    biomarker_candidate_kind=candidate.candidate_kind,
-                    biomarker_priority_rank=candidate.priority_rank,
+                    biomarker_candidate_id=protein_candidate.candidate_id,
+                    biomarker_candidate_kind=protein_candidate.candidate_kind,
+                    biomarker_priority_rank=protein_candidate.priority_rank,
                     target_protein_ref=assay.target_protein_ref,
                     target_protein_group_id=assay.target_protein_group_id,
                     gene_symbol=assay.gene_symbol,
@@ -443,7 +443,7 @@ def build_targeted_panel_design_report(
                     warning_note=warning_note,
                 )
             )
-        matched_candidate_ids.add(candidate.candidate_id)
+        matched_candidate_ids.add(protein_candidate.candidate_id)
 
     for candidate in biomarker_candidates:
         if candidate.candidate_id in matched_candidate_ids:
@@ -764,7 +764,7 @@ def _expected_retention_time_minutes(
     library_entry = library_by_id.get(source_library_entry_id)
     if library_entry is None or library_entry.spectrum.retention_time_seconds is None:
         return None
-    return library_entry.spectrum.retention_time_seconds / 60.0
+    return float(library_entry.spectrum.retention_time_seconds) / 60.0
 
 
 def _retention_window(

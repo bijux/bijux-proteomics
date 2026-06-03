@@ -22,6 +22,7 @@ from bijux_proteomics.sequences import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.sequences.digestion import (
+    DigestedPeptide,
     PeptideDigestionMode,
     ProteaseRule,
     digest_protein_records,
@@ -753,9 +754,9 @@ def _selected_peptide_key(
 
 
 def _group_digested_peptides(
-    peptides: tuple[object, ...],
-) -> dict[str, tuple[object, ...]]:
-    grouped: dict[str, list[object]] = {}
+    peptides: tuple[DigestedPeptide, ...],
+) -> dict[str, tuple[DigestedPeptide, ...]]:
+    grouped: dict[str, list[DigestedPeptide]] = {}
     for peptide in peptides:
         grouped.setdefault(peptide.sequence, []).append(peptide)
     return {key: tuple(value) for key, value in grouped.items()}
@@ -764,7 +765,7 @@ def _group_digested_peptides(
 def _background_competitor_peptides(
     assay_entry: TargetedTransitionSelectionPeptideEntry,
     *,
-    digested_by_sequence: dict[str, tuple[object, ...]],
+    digested_by_sequence: dict[str, tuple[DigestedPeptide, ...]],
     precursor_tolerance_da: float,
 ) -> tuple[str, ...]:
     competing_sequences: list[str] = []

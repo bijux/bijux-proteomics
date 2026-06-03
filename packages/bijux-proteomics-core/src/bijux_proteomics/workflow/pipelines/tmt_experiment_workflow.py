@@ -21,6 +21,7 @@ from bijux_proteomics.io.formats import (
 from bijux_proteomics.multiplex import (
     MultiplexMetadataValidationReport,
     TmtInterferenceReport,
+    TmtNormalizationMethod,
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
@@ -35,6 +36,7 @@ from bijux_proteomics.multiplex import (
     export_tmt_interference_observation_tsv,
     export_tmt_interference_summary_tsv,
 )
+from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
@@ -43,7 +45,6 @@ from bijux_proteomics.workflow.pipelines.label_based_differential_analysis impor
 from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     LabelBasedReportBundle,
     LabelBasedReportExportManifest,
-    TmtNormalizationMethod,
     build_tmt_label_based_report_bundle,
     write_label_based_report_bundle,
 )
@@ -439,7 +440,7 @@ def export_tmt_experiment_workflow_bundle(
     return write_tmt_experiment_workflow_bundle(report, output_dir)
 
 
-def _source_report(report: TmtExperimentWorkflowBundle):
+def _source_report(report: TmtExperimentWorkflowBundle) -> TmtReporterImportReport:
     matrix_report = report.report.tmt_matrix_report
     if matrix_report is None:
         raise ValueError("tmt workflow requires reporter-matrix review in the report")
