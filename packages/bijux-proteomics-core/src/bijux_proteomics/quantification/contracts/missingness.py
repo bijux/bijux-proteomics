@@ -190,7 +190,7 @@ def summarize_missing_values(
     policy: MissingValueSummaryPolicy | None = None,
 ) -> MissingValueSummaryReport:
     """Summarize missing values with explicit correction and sparse-entity filters."""
-    from bijux_proteomics.quantification.missingness import (
+    from bijux_proteomics.quantification.missingness.missingness import (
         summarize_missing_values as _implementation,
     )
 
@@ -201,7 +201,7 @@ def build_missing_data_mechanism_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> MissingDataMechanismReport:
     """Classify missingness patterns with explicit mechanism labels."""
-    from bijux_proteomics.quantification.missingness import (
+    from bijux_proteomics.quantification.missingness.missingness import (
         build_missing_data_mechanism_report as _implementation,
     )
 
@@ -215,7 +215,7 @@ def build_missingness_classifier_report(
     bin_count: int = 4,
 ) -> MissingnessClassifierReport:
     """Bundle sample, entity, condition, intensity, and mechanism missingness views."""
-    from bijux_proteomics.quantification.missingness import (
+    from bijux_proteomics.quantification.missingness.missingness import (
         build_missingness_classifier_report as _implementation,
     )
 

@@ -901,7 +901,9 @@ def _infer_artifact_schema_version(
 ) -> str:
     if artifact_kind is WorkflowArtifactKind.TSV_TABLE and output_table_schema is not None:
         return output_table_schema.schema_version
-    return WorkflowArtifactLayoutManifest.model_fields["manifest_schema_version"].default
+    return str(
+        WorkflowArtifactLayoutManifest.model_fields["manifest_schema_version"].default
+    )
 
 
 def _classify_artifact_kind(path: Path) -> WorkflowArtifactKind:

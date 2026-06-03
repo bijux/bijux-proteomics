@@ -603,11 +603,12 @@ def _pure_reexport_targets(module_path: str) -> tuple[str, ...]:
     tree = ast.parse(content, filename=module_path)
     targets: list[str] = []
     for node in tree.body:
-        if isinstance(node, ast.Expr) and isinstance(
-            getattr(node, "value", None), ast.Constant
+        if (
+            isinstance(node, ast.Expr)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
         ):
-            if isinstance(node.value.value, str):
-                continue
+            continue
         if isinstance(node, ast.ImportFrom) and node.module == "__future__":
             continue
         if (

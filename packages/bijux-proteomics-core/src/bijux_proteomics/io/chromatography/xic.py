@@ -230,3 +230,18 @@ def _matched_peak_count(
     return sum(
         1 for peak in spectrum.peaks if row.mz_lower <= peak.mz <= row.mz_upper
     )
+
+
+__all__ = [
+    "XicExtractionPoint",
+    "XicTargetEntry",
+    "XicTargetRejectedRow",
+    "XicToleranceUnit",
+    "XicTracePoint",
+    "XicTraceReport",
+    "_matched_peak_count",
+    "_resolve_tolerance",
+    "extract_xic",
+    "render_xic_extraction_tsv",
+    "render_xic_traces_tsv",
+]

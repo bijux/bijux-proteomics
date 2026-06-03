@@ -210,7 +210,7 @@ def build_normalization_comparison_report(
     after: LabelFreeQuantTable,
 ) -> NormalizationComparisonReport:
     """Build a before/after normalization summary over sample totals and spread."""
-    from bijux_proteomics.quantification.normalization import (
+    from bijux_proteomics.quantification.normalization.normalization import (
         build_normalization_comparison_report as _implementation,
     )
 
@@ -229,7 +229,7 @@ def build_normalization_strategy_comparison_report(
     ),
 ) -> NormalizationStrategyComparisonReport:
     """Compare normalization methods using stable sample-balance summary metrics."""
-    from bijux_proteomics.quantification.normalization import (
+    from bijux_proteomics.quantification.normalization.normalization import (
         build_normalization_strategy_comparison_report as _implementation,
     )
 
@@ -241,7 +241,7 @@ def normalize_label_free_table(
     method: NormalizationMethod = NormalizationMethod.MEDIAN,
 ) -> LabelFreeQuantTable:
     """Normalize a label-free intensity table with one stable baseline method."""
-    from bijux_proteomics.quantification.normalization import (
+    from bijux_proteomics.quantification.normalization.normalization import (
         normalize_label_free_table as _implementation,
     )
 
