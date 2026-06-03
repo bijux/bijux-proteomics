@@ -43,6 +43,7 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
     TargetedWorkflowConfig,
     TargetedWorkflowStage,
     TmtWorkflowConfig,
+    WorkflowConfig,
     WorkflowMode,
     WorkflowResult,
     run_proteomics_workflow,
@@ -452,7 +453,7 @@ def _build_workflow_config(
     *,
     source_map: dict[str, Path],
     output_dir: Path,
-):
+) -> WorkflowConfig:
     condition_a = descriptor.contrast.condition_a
     condition_b = descriptor.contrast.condition_b
     parameters = descriptor.command.parameters
@@ -1116,3 +1117,17 @@ def _direction_from_effect_size(value: float | None) -> str | None:
     if value < 0:
         return PublicBenchmarkExpectedSignalDirection.DOWN.value
     return "flat"
+
+
+__all__ = [
+    "PublicBenchmarkDescriptorRunReport",
+    "PublicBenchmarkExpectedSignalAssessment",
+    "PublicBenchmarkExpectedSignalAssessmentStatus",
+    "PublicBenchmarkFailureDetail",
+    "PublicBenchmarkFailureKind",
+    "PublicBenchmarkRunStatus",
+    "PublicBenchmarkSuiteReport",
+    "load_public_benchmark_descriptor",
+    "run_public_benchmark_descriptor",
+    "run_public_benchmark_descriptor_suite",
+]

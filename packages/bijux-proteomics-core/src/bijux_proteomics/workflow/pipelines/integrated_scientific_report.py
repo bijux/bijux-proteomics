@@ -462,7 +462,10 @@ def _build_sections_and_sentences(
     tuple[IntegratedScientificReportSentence, ...],
 ]:
     design = source_report.study_result.design
-    graph = source_report.study_result.biological_report.graph_report.graph
+    biological_report = source_report.study_result.biological_report
+    if biological_report is None:
+        raise ValueError("surprising demo report is missing the biological report bundle")
+    graph = biological_report.graph_report.graph
     contract = source_report.intelligence_report_contract
     top_supported = tuple(_top_supported_claim_entries(source_report))
     rejected = tuple(_rejected_claim_entries(source_report))

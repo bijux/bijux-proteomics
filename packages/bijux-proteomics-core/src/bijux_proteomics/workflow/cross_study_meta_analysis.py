@@ -16,6 +16,7 @@ import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectContrastAlignmentStatus,
     CrossStudyEffectDirection,
@@ -193,7 +194,7 @@ class CrossStudyMetaAnalysisReport(JsonModel):
 def build_cross_study_meta_analysis_report(
     studies: tuple[CrossStudyProteinStudyInput, ...],
     *,
-    ortholog_records: tuple = (),
+    ortholog_records: tuple[OrthologRecord, ...] = (),
     significance_threshold: float = 0.05,
     low_robustness_threshold: float = 0.5,
     policy: CrossStudyMetaAnalysisPolicy | None = None,
@@ -216,7 +217,7 @@ def build_cross_study_meta_analysis_report_from_observations(
     observations: tuple[CrossStudyProteinEffectObservation, ...],
     *,
     unsupported_studies: tuple[CrossStudyEffectUnsupportedStudy, ...] = (),
-    ortholog_records: tuple = (),
+    ortholog_records: tuple[OrthologRecord, ...] = (),
     input_study_count: int | None = None,
     significance_threshold: float = 0.05,
     low_robustness_threshold: float = 0.5,

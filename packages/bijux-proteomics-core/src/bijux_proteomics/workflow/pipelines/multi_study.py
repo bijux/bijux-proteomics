@@ -39,6 +39,8 @@ from bijux_proteomics.workflow.cross_study_protein_harmonization import (
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entry,
     build_result_warning,
@@ -291,7 +293,7 @@ def render_multi_study_study_specific_pathways_tsv(
 def _build_multi_study_warnings(
     summary: MultiStudyComparisonSummary,
     manifest: MultiStudyComparisonManifest,
-):
+) -> tuple[ResultWarningEntry, ...]:
     warnings = []
     if summary.conflicting_effect_count:
         warnings.append(
@@ -325,7 +327,7 @@ def _build_multi_study_warnings(
 def _build_multi_study_rejected_evidence(
     unresolved_proteins: tuple[CrossStudyProteinUnresolvedEntry, ...],
     manifest: MultiStudyComparisonManifest,
-):
+) -> tuple[RejectedEvidenceEntry, ...]:
     return tuple(
         build_rejected_evidence_entry(
             evidence_id=f"multi_study:{entry.observation_id}",

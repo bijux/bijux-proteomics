@@ -15,6 +15,7 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.quantification.contracts import DifferentialResultRobustnessQcStatus
 from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     CrossStudyProteinHarmonizationReport,
@@ -293,7 +294,7 @@ def extract_cross_study_protein_effect_observations(
 def build_cross_study_effect_comparison_report(
     studies: tuple[CrossStudyProteinStudyInput, ...],
     *,
-    ortholog_records: tuple = (),
+    ortholog_records: tuple[OrthologRecord, ...] = (),
     significance_threshold: float = 0.05,
     low_robustness_threshold: float = 0.5,
 ) -> CrossStudyProteinEffectComparisonReport:
@@ -317,7 +318,7 @@ def build_cross_study_effect_comparison_report_from_observations(
     observations: tuple[CrossStudyProteinEffectObservation, ...],
     *,
     unsupported_studies: tuple[CrossStudyEffectUnsupportedStudy, ...] = (),
-    ortholog_records: tuple = (),
+    ortholog_records: tuple[OrthologRecord, ...] = (),
     input_study_count: int | None = None,
     significance_threshold: float = 0.05,
     low_robustness_threshold: float = 0.5,
@@ -1127,6 +1128,7 @@ __all__ = [
     "CrossStudyProteinEffectExtractionReport",
     "CrossStudyProteinEffectExtractionSummary",
     "CrossStudyProteinEffectObservation",
+    "CrossStudyProteinStudyInput",
     "CrossStudyProteinEffectStudyEntry",
     "build_cross_study_effect_comparison_report",
     "build_cross_study_effect_comparison_report_from_observations",
