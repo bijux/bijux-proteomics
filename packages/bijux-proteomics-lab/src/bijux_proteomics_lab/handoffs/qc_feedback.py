@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Sequence
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -13,6 +14,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_lab.outcomes.observations import (
     AssayObservationRecord,
+    ObservationQualityProfile,
     QcState,
     assess_observation_quality,
 )
@@ -129,19 +131,13 @@ def build_lab_run_qc_feedback_report(
     return LabRunQcFeedbackReport(
         entries=tuple(entries),
         passed_count=sum(
-            1
-            for entry in entries
-            if entry.status is LabRunQcFeedbackStatus.PASSED
+            1 for entry in entries if entry.status is LabRunQcFeedbackStatus.PASSED
         ),
         caution_count=sum(
-            1
-            for entry in entries
-            if entry.status is LabRunQcFeedbackStatus.CAUTION
+            1 for entry in entries if entry.status is LabRunQcFeedbackStatus.CAUTION
         ),
         failed_count=sum(
-            1
-            for entry in entries
-            if entry.status is LabRunQcFeedbackStatus.FAILED
+            1 for entry in entries if entry.status is LabRunQcFeedbackStatus.FAILED
         ),
         note=(
             "lab run qc feedback condenses assay-level qc observations into one typed "
@@ -155,8 +151,7 @@ def _status_for_run(
     observations: list[LabRunQcObservation],
 ) -> LabRunQcFeedbackStatus:
     if any(
-        item.observation.qc_state is QcState.FAILED
-        or not item.observation.qc_passed
+        item.observation.qc_state is QcState.FAILED or not item.observation.qc_passed
         for item in observations
     ):
         return LabRunQcFeedbackStatus.FAILED
@@ -167,29 +162,23 @@ def _status_for_run(
 
 def _reason_codes_for_run(
     observations: list[LabRunQcObservation],
-    quality_profiles: list[object],
+    quality_profiles: Sequence[ObservationQualityProfile],
 ) -> tuple[LabRunQcFeedbackReasonCode, ...]:
     reasons: set[LabRunQcFeedbackReasonCode] = set()
     if any(
-        item.observation.qc_state is QcState.FAILED
-        or not item.observation.qc_passed
+        item.observation.qc_state is QcState.FAILED or not item.observation.qc_passed
         for item in observations
     ):
         reasons.add(LabRunQcFeedbackReasonCode.QC_FAILED)
     if any(item.observation.qc_state is QcState.WARNING for item in observations):
         reasons.add(LabRunQcFeedbackReasonCode.QC_WARNING)
-    if any(
-        (item.observation.dispersion or 0.0) >= 0.25 for item in observations
-    ):
+    if any((item.observation.dispersion or 0.0) >= 0.25 for item in observations):
         reasons.add(LabRunQcFeedbackReasonCode.LOW_REPRODUCIBILITY)
     if any(item.observation.below_detection_limit for item in observations):
         reasons.add(LabRunQcFeedbackReasonCode.BELOW_DETECTION_LIMIT)
     if any(item.observation.batch_effect_note for item in observations):
         reasons.add(LabRunQcFeedbackReasonCode.BATCH_EFFECT)
-    if any(
-        profile.interpretability < 0.6  # type: ignore[attr-defined]
-        for profile in quality_profiles
-    ):
+    if any(profile.interpretability < 0.6 for profile in quality_profiles):
         reasons.add(LabRunQcFeedbackReasonCode.LOW_INTERPRETABILITY)
     return tuple(sorted(reasons, key=lambda reason: reason.value))
 

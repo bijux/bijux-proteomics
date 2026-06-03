@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Protocol
 
@@ -307,7 +308,7 @@ def forecast_cycle_workload(
     *,
     program_id: str,
     feedback_records: list[LabFeedbackRecord],
-    review_entries: list[ReviewQueueEntryLike],
+    review_entries: Sequence[ReviewQueueEntryLike],
 ) -> CycleWorkloadForecast:
     """Forecast next-cycle workload from recent cycle volumes."""
     feedback_filtered = [

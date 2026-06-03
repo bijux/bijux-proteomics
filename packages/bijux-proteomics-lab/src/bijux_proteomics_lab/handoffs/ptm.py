@@ -13,10 +13,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
-    from bijux_proteomics.ptm import PtmSiteEntry
-    from bijux_proteomics.ptm.review import (
+    from bijux_proteomics.ptm import (
         PtmCooccurrenceCautionReport,
         PtmOccupancyCounterpartEvidenceReport,
+        PtmSiteEntry,
     )
 
 

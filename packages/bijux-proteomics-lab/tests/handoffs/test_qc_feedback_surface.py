@@ -82,6 +82,9 @@ def test_build_lab_run_qc_feedback_report_groups_observations_by_run_status_and_
     assert LabRunQcFeedbackReasonCode.QC_FAILED in failed.reason_codes
     assert LabRunQcFeedbackReasonCode.BELOW_DETECTION_LIMIT in failed.reason_codes
     assert LabRunQcFeedbackReasonCode.LOW_REPRODUCIBILITY in failed.reason_codes
-    assert all(source_ref.startswith("lab_qc:run-control-1.raw:") for source_ref in failed.source_refs)
+    assert all(
+        source_ref.startswith("lab_qc:run-control-1.raw:")
+        for source_ref in failed.source_refs
+    )
     assert "qc_failed" in failed.note
     assert passed.status is LabRunQcFeedbackStatus.PASSED

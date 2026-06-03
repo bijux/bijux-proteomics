@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import inspect
 
-import bijux_proteomics_lab
 from bijux_proteomics_foundation.testing.public_function_docstrings import (
     build_public_function_docstring_report,
 )
+import bijux_proteomics_lab
 from bijux_proteomics_lab.public_api import list_lab_root_api_entries
 
 

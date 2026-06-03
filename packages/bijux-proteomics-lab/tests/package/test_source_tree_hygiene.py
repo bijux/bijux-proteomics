@@ -18,6 +18,8 @@ LAB_TEST_FAMILIES = {
     "readiness",
     "reconciliation",
 }
+
+
 def test_lab_tests_tree_uses_operational_family_boundaries() -> None:
     family_directories = {
         path.name
