@@ -158,9 +158,7 @@ def _build_rejected_evidence_rows(
             for issue in issues:
                 issue_like = cast(_IssueLike, issue)
                 reason_code = str(issue_like.code).strip() or default_reason_code
-                detail = (
-                    str(issue_like.message).strip() or "rejected evidence row"
-                )
+                detail = str(issue_like.message).strip() or "rejected evidence row"
                 entries.append(
                     RejectedEvidenceTableEntry(
                         source_file=source_file,

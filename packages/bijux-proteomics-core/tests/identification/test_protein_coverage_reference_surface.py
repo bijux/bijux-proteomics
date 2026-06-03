@@ -138,7 +138,9 @@ def test_protein_coverage_reference_cases_match_expected_outputs() -> None:
                 observed_coordinate.occurrence_index
                 == expected_coordinate.occurrence_index
             )
-            assert observed_coordinate.start_residue == expected_coordinate.start_residue
+            assert (
+                observed_coordinate.start_residue == expected_coordinate.start_residue
+            )
             assert observed_coordinate.end_residue == expected_coordinate.end_residue
 
 
