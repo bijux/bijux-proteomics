@@ -88,23 +88,30 @@ def test_compare_advanced_diann_runtime_outputs_reports_threshold_drift(
     report = compare_advanced_diann_runtime_outputs(low_threshold, high_threshold)
 
     assert report.equivalent is False
-    assert [entry.parameter_name for entry in report.parameter_changes] == ["max_q_value"]
+    assert [entry.parameter_name for entry in report.parameter_changes] == [
+        "max_q_value"
+    ]
     assert [entry.protein_group_id for entry in report.changed_proteins] == ["PG005"]
-    assert report.changed_proteins[0].left_state is AdvancedDiannProteinComparisonState.ABSENT
+    assert (
+        report.changed_proteins[0].left_state
+        is AdvancedDiannProteinComparisonState.ABSENT
+    )
     assert (
         report.changed_proteins[0].right_state
         is AdvancedDiannProteinComparisonState.ACCEPTED
     )
-    assert [entry.claim_id for entry in report.changed_claims] == ["protein-claim:PG005"]
-    assert report.changed_claims[0].left_state is AdvancedDiannClaimComparisonState.ABSENT
+    assert [entry.claim_id for entry in report.changed_claims] == [
+        "protein-claim:PG005"
+    ]
+    assert (
+        report.changed_claims[0].left_state is AdvancedDiannClaimComparisonState.ABSENT
+    )
     assert (
         report.changed_claims[0].right_state
         is AdvancedDiannClaimComparisonState.SUPPORTED
     )
     assert len(report.changed_rejected_rows) == 6
-    assert {
-        entry.precursor_id for entry in report.changed_rejected_rows
-    } == {
+    assert {entry.precursor_id for entry in report.changed_rejected_rows} == {
         "raw_C1_PEPEEE_2",
         "raw_C2_PEPEEE_2",
         "raw_C3_PEPEEE_2",
@@ -132,7 +139,9 @@ def test_compare_advanced_diann_runtime_outputs_is_equivalent_for_matching_runs(
     )
     left = run_resumable_advanced_diann_workflow(config)
     right = run_resumable_advanced_diann_workflow(
-        config.model_copy(update={"output_dir": tmp_path / "advanced_diann_baseline_copy"})
+        config.model_copy(
+            update={"output_dir": tmp_path / "advanced_diann_baseline_copy"}
+        )
     )
 
     report = compare_advanced_diann_runtime_outputs(left, right)

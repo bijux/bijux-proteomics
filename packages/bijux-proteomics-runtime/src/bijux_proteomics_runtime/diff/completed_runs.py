@@ -160,7 +160,9 @@ def _build_confidence_tier_changes(
                 left_confidence_tier=left_tier,
                 right_confidence_tier=right_tier,
                 left_confidence_score=None if left_entry is None else left_entry.score,
-                right_confidence_score=None if right_entry is None else right_entry.score,
+                right_confidence_score=None
+                if right_entry is None
+                else right_entry.score,
                 note=_confidence_change_note(left_entry, right_entry),
             )
         )
@@ -176,7 +178,9 @@ def _confidence_change_note(
     right_entry: ProteomicsStudyConclusionEntry | None,
 ) -> str:
     if left_entry is None and right_entry is not None:
-        return "biological hypothesis confidence appears only in the right completed run"
+        return (
+            "biological hypothesis confidence appears only in the right completed run"
+        )
     if left_entry is not None and right_entry is None:
         return "biological hypothesis confidence appears only in the left completed run"
     if left_entry is None or right_entry is None:

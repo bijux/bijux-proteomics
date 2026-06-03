@@ -353,7 +353,9 @@ def require_human_decision(
     selection = select_candidates(
         [candidate_to_domain(candidate) for candidate in candidates], top_n=top_n
     )
-    _write_json(workspace.candidate_selection_path, selection_as_dict(selection).to_dict())
+    _write_json(
+        workspace.candidate_selection_path, selection_as_dict(selection).to_dict()
+    )
     _write_json(
         workspace.human_decision_path,
         {

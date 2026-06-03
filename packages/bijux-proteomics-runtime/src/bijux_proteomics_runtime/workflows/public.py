@@ -19,12 +19,6 @@ if TYPE_CHECKING:
         build_flagship_workflow_failure_taxonomy,
         build_minimum_real_workflow_proof_bar,
     )
-    from bijux_proteomics_runtime.workflows.architecture_demo import (
-        RuntimeArchitectureDemoArtifacts,
-        RuntimeArchitectureDemoConfig,
-        RuntimeArchitectureDemoWorkflowReport,
-        run_runtime_architecture_demo,
-    )
     from bijux_proteomics_runtime.workflows.advanced_diann import (
         AdvancedDiannDryRunInputCheck,
         AdvancedDiannDryRunIssue,
@@ -59,6 +53,12 @@ if TYPE_CHECKING:
         AdvancedDiannRejectedRowChangeEntry,
         AdvancedDiannRejectedRowComparisonState,
         AdvancedDiannRuntimeComparisonReport,
+    )
+    from bijux_proteomics_runtime.workflows.architecture_demo import (
+        RuntimeArchitectureDemoArtifacts,
+        RuntimeArchitectureDemoConfig,
+        RuntimeArchitectureDemoWorkflowReport,
+        run_runtime_architecture_demo,
     )
     from bijux_proteomics_runtime.workflows.assurance import (
         FlagshipOperatorPath,
@@ -201,7 +201,6 @@ if TYPE_CHECKING:
         ExternalToolCapabilityReport,
         ProteomicsDagPlan,
         ReproducibleWorkflowBlueprint,
-        WorkflowOutputKind,
         WorkflowCacheMissReason,
         WorkflowCacheReuseDecision,
         WorkflowCacheReuseDisposition,
@@ -218,6 +217,7 @@ if TYPE_CHECKING:
         WorkflowInputRole,
         WorkflowManifestExplanationEntry,
         WorkflowManifestExplanationReport,
+        WorkflowOutputKind,
         WorkflowPathKind,
         WorkflowResumeKind,
         WorkflowSchedulerKind,

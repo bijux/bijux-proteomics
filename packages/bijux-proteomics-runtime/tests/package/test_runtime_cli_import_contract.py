@@ -39,9 +39,7 @@ def test_runtime_cli_import_contract_succeeds_from_clean_checkout() -> None:
     assert result.returncode == 0, result.stderr
 
 
-def test_runtime_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> (
-    None
-):
+def test_runtime_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> None:
     code = """
 import builtins
 import sys

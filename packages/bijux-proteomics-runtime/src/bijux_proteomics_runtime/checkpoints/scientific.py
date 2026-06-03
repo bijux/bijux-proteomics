@@ -108,7 +108,9 @@ def build_scientific_checkpoints(
 ) -> ScientificCheckpointReport:
     """Build scientific checkpoints that block invalid statistics and downgrade weak biology."""
 
-    design_valid = checkpoint_input.design_validity.summary.valid_for_differential_analysis
+    design_valid = (
+        checkpoint_input.design_validity.summary.valid_for_differential_analysis
+    )
     qc_status = checkpoint_input.qc_status
     statistics_blocked = not design_valid
     biology_downgraded = qc_status is ScientificCheckpointQcStatus.FAIL
@@ -119,7 +121,9 @@ def build_scientific_checkpoints(
     entries = (
         ScientificCheckpointEntry(
             stage=ScientificCheckpointStage.IMPORT,
-            entity_counts=dict(sorted(checkpoint_input.import_stage.entity_counts.items())),
+            entity_counts=dict(
+                sorted(checkpoint_input.import_stage.entity_counts.items())
+            ),
             rejected_counts=dict(
                 sorted(checkpoint_input.import_stage.rejected_counts.items())
             ),
@@ -131,7 +135,9 @@ def build_scientific_checkpoints(
         ScientificCheckpointEntry(
             stage=ScientificCheckpointStage.QC,
             entity_counts=dict(sorted(checkpoint_input.qc_stage.entity_counts.items())),
-            rejected_counts=dict(sorted(checkpoint_input.qc_stage.rejected_counts.items())),
+            rejected_counts=dict(
+                sorted(checkpoint_input.qc_stage.rejected_counts.items())
+            ),
             qc_status=qc_status,
             confidence_status=(
                 ScientificCheckpointConfidenceStatus.DOWNGRADED
@@ -185,11 +191,15 @@ def build_scientific_checkpoints(
                 if statistics_blocked
                 else ScientificCheckpointDecision.CONTINUE
             ),
-            note=_statistics_note(checkpoint_input.design_validity, qc_status=qc_status),
+            note=_statistics_note(
+                checkpoint_input.design_validity, qc_status=qc_status
+            ),
         ),
         ScientificCheckpointEntry(
             stage=ScientificCheckpointStage.BIOLOGY,
-            entity_counts=dict(sorted(checkpoint_input.biology_stage.entity_counts.items())),
+            entity_counts=dict(
+                sorted(checkpoint_input.biology_stage.entity_counts.items())
+            ),
             rejected_counts=dict(
                 sorted(checkpoint_input.biology_stage.rejected_counts.items())
             ),
@@ -227,7 +237,8 @@ def build_scientific_checkpoints(
         downgraded_stage_ids=tuple(
             entry.stage.value
             for entry in entries
-            if entry.confidence_status is ScientificCheckpointConfidenceStatus.DOWNGRADED
+            if entry.confidence_status
+            is ScientificCheckpointConfidenceStatus.DOWNGRADED
         ),
     )
 
@@ -271,7 +282,9 @@ def _counts_text(counts: dict[str, int]) -> str:
 
 def _qc_note(qc_status: ScientificCheckpointQcStatus) -> str:
     if qc_status is ScientificCheckpointQcStatus.FAIL:
-        return "failed QC does not stop import review, but it downgrades downstream claims"
+        return (
+            "failed QC does not stop import review, but it downgrades downstream claims"
+        )
     if qc_status is ScientificCheckpointQcStatus.WARN:
         return "QC warnings preserve execution while keeping caution visible"
     return "QC passed without a governed downgrade trigger"

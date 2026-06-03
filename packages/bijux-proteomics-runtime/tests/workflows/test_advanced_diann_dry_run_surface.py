@@ -49,14 +49,12 @@ def test_advanced_diann_dry_run_reports_expected_stages_and_output_plan(
         AdvancedDiannRuntimeStage.BIOLOGY,
         AdvancedDiannRuntimeStage.REVIEW,
     )
-    assert (
-        "advanced_diann_workflow_manifest.json"
-        in {entry.relative_path for entry in report.output_plan}
-    )
-    assert (
-        "checkpoints/advanced_diann_runtime/advanced-diann-import.json"
-        in {entry.relative_path for entry in report.output_plan}
-    )
+    assert "advanced_diann_workflow_manifest.json" in {
+        entry.relative_path for entry in report.output_plan
+    }
+    assert "checkpoints/advanced_diann_runtime/advanced-diann-import.json" in {
+        entry.relative_path for entry in report.output_plan
+    }
     assert report.supported_contrasts == ("control_vs_treatment",)
     assert not output_dir.exists()
 

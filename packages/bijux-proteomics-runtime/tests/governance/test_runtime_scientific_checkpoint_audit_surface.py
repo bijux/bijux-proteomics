@@ -11,7 +11,9 @@ from bijux_proteomics_runtime.governance.charter import (
 )
 
 
-def test_runtime_scientific_checkpoint_owner_is_required_for_workflow_execution() -> None:
+def test_runtime_scientific_checkpoint_owner_is_required_for_workflow_execution() -> (
+    None
+):
     execution_entry = next(
         entry
         for entry in DEFAULT_RUNTIME_CHARTER_ENTRIES

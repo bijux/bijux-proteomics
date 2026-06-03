@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia.precursor_matrix import DiaPrecursorExclusionReason
-from bijux_proteomics.dia.precursor_matrix import DiaPrecursorExclusionEntry
+from bijux_proteomics.dia.precursor_matrix import (
+    DiaPrecursorExclusionEntry,
+    DiaPrecursorExclusionReason,
+)
 from bijux_proteomics.review.claims.biological_claim_validation import (
     BiologicalClaimValidationEntry,
 )
@@ -147,9 +149,7 @@ def _protein_changes(
                 representative_protein_ref=representative,
                 left_state=left_state,
                 right_state=right_state,
-                note=(
-                    "protein-level advanced dia-nn decision changed between runs"
-                ),
+                note=("protein-level advanced dia-nn decision changed between runs"),
             )
         )
     return tuple(changes)

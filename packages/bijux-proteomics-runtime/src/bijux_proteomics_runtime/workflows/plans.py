@@ -1098,30 +1098,18 @@ def _workflow_step_output_types(
     step_kind: WorkflowStepKind,
 ) -> tuple[WorkflowDataType, ...]:
     mapping = {
-        WorkflowStepKind.VALIDATE_INPUTS: (
-            WorkflowDataType.VALIDATED_INPUT_INVENTORY,
-        ),
-        WorkflowStepKind.DIGEST_DATABASE: (
-            WorkflowDataType.DIGESTED_PEPTIDE_SPACE,
-        ),
-        WorkflowStepKind.RUN_SEARCH_ENGINE: (
-            WorkflowDataType.SEARCH_RESULT_TABLE,
-        ),
+        WorkflowStepKind.VALIDATE_INPUTS: (WorkflowDataType.VALIDATED_INPUT_INVENTORY,),
+        WorkflowStepKind.DIGEST_DATABASE: (WorkflowDataType.DIGESTED_PEPTIDE_SPACE,),
+        WorkflowStepKind.RUN_SEARCH_ENGINE: (WorkflowDataType.SEARCH_RESULT_TABLE,),
         WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: (
             WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
         ),
         WorkflowStepKind.CALCULATE_FDR: (
             WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
         ),
-        WorkflowStepKind.QUANTIFY_FEATURES: (
-            WorkflowDataType.PEPTIDE_QUANT_MATRIX,
-        ),
-        WorkflowStepKind.RUN_QC: (
-            WorkflowDataType.QC_SUMMARY_REPORT,
-        ),
-        WorkflowStepKind.BUILD_RUN_BUNDLE: (
-            WorkflowDataType.NORMALIZED_RUN_BUNDLE,
-        ),
+        WorkflowStepKind.QUANTIFY_FEATURES: (WorkflowDataType.PEPTIDE_QUANT_MATRIX,),
+        WorkflowStepKind.RUN_QC: (WorkflowDataType.QC_SUMMARY_REPORT,),
+        WorkflowStepKind.BUILD_RUN_BUNDLE: (WorkflowDataType.NORMALIZED_RUN_BUNDLE,),
     }
     return mapping[step_kind]
 
@@ -1420,12 +1408,16 @@ def _workflow_cache_surface_specs(
     ]
     if any(asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets):
         quant_roles: list[WorkflowInputRole] = [WorkflowInputRole.FEATURES]
-        if any(asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets):
+        if any(
+            asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets
+        ):
             quant_roles.append(WorkflowInputRole.DESIGN)
         specs.append(
             _WorkflowCacheSurfaceSpec(
                 surface="quant-parse",
-                producer_step_id=step_by_kind[WorkflowStepKind.QUANTIFY_FEATURES].step_id,
+                producer_step_id=step_by_kind[
+                    WorkflowStepKind.QUANTIFY_FEATURES
+                ].step_id,
                 source_roles=tuple(quant_roles),
                 expected_artifacts=(WorkflowOutputKind.QUANT_REPORT,),
                 schema_refs=_cache_schema_refs((WorkflowOutputKind.QUANT_REPORT,)),
@@ -2004,7 +1996,8 @@ def validate_proteomics_workflow_step_types(
 
     issues: list[WorkflowStepTypeValidationIssue] = []
     available_input_types = {
-        asset.role: _workflow_input_data_type(asset.role) for asset in manifest.input_assets
+        asset.role: _workflow_input_data_type(asset.role)
+        for asset in manifest.input_assets
     }
     produced_types_by_step: dict[str, tuple[WorkflowDataType, ...]] = {}
     identifications_attached = any(
@@ -2959,7 +2952,8 @@ def build_workflow_runtime_cache(
         schema_sha256 = _stable_sequence_sha256(spec.schema_refs)
         parameter_sha256 = _stable_sequence_sha256(spec.parameter_assumptions)
         dependency_cache_keys = tuple(
-            entries_by_surface[surface].cache_key for surface in spec.dependency_surfaces
+            entries_by_surface[surface].cache_key
+            for surface in spec.dependency_surfaces
         )
         dependency_sha256 = _stable_sequence_sha256(dependency_cache_keys)
         tool_versions = _workflow_tool_versions(manifest)
@@ -3064,9 +3058,7 @@ def build_workflow_cache_miss_explanation_report(
             detail = "cache schema or governed output schema changed for this reusable surface"
         elif observed_entry.dependency_sha256 != expected_entry.dependency_sha256:
             reason = WorkflowCacheMissReason.DEPENDENCY_CHANGED
-            detail = (
-                "an upstream cache surface changed, so this dependent reusable surface must rerun"
-            )
+            detail = "an upstream cache surface changed, so this dependent reusable surface must rerun"
         elif observed_entry.policy_assumptions != expected_entry.policy_assumptions:
             reason = WorkflowCacheMissReason.POLICY_CHANGED
             detail = (
@@ -3113,7 +3105,8 @@ def build_workflow_cache_reuse_plan(
     miss_report = build_workflow_cache_miss_explanation_report(expected, observed)
     miss_by_surface = {entry.surface: entry for entry in miss_report.entries}
     surface_by_step_id = {
-        spec.producer_step_id: spec.surface for spec in _workflow_cache_surface_specs(manifest)
+        spec.producer_step_id: spec.surface
+        for spec in _workflow_cache_surface_specs(manifest)
     }
     cacheable_steps = tuple(step for step in manifest.steps if step.cacheable)
 

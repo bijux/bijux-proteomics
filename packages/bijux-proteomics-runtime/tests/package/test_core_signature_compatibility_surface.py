@@ -1,19 +1,14 @@
 from __future__ import annotations
 
+from importlib import import_module
 import inspect
 import json
-from importlib import import_module
 from pathlib import Path
 from typing import Any
 
 
 def _compatibility_fixture_path(name: str) -> Path:
-    return (
-        Path(__file__).resolve().parent.parent
-        / "fixtures"
-        / "compatibility"
-        / name
-    )
+    return Path(__file__).resolve().parent.parent / "fixtures" / "compatibility" / name
 
 
 def _load_symbol(symbol_path: str) -> Any:
@@ -44,19 +39,14 @@ def _build_signature_snapshot(symbol_path: str) -> dict[str, object]:
 
 
 def _assert_signature_snapshot_fixture_matches(name: str) -> None:
-    expected = json.loads(
-        _compatibility_fixture_path(name).read_text(encoding="utf-8")
-    )
+    expected = json.loads(_compatibility_fixture_path(name).read_text(encoding="utf-8"))
     assert {
-        symbol_path: _build_signature_snapshot(symbol_path)
-        for symbol_path in expected
+        symbol_path: _build_signature_snapshot(symbol_path) for symbol_path in expected
     } == expected
 
 
 def test_runtime_core_signature_snapshots_match_archive_and_smoke_surfaces() -> None:
-    _assert_signature_snapshot_fixture_matches(
-        "core_archive_signature_snapshots.json"
-    )
+    _assert_signature_snapshot_fixture_matches("core_archive_signature_snapshots.json")
 
 
 def test_runtime_core_signature_snapshots_match_advanced_diann_surfaces() -> None:

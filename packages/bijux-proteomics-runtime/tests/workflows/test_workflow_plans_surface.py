@@ -10,8 +10,8 @@ import pytest
 from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.workflows.plans import (
     ExternalToolCapabilityReport,
-    WorkflowDataType,
     WorkflowDagValidationReport,
+    WorkflowDataType,
     WorkflowExecutionMode,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
@@ -26,12 +26,12 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_reproducible_workflow_blueprint,
-    validate_proteomics_workflow_step_types,
-    validate_proteomics_dag_plan,
     build_workflow_manifest_explanation_report,
     build_workflow_replay_proof_report,
     build_workflow_runtime_export_bundle,
     build_workflow_step_provenance_report,
+    validate_proteomics_dag_plan,
+    validate_proteomics_workflow_step_types,
 )
 
 
@@ -147,9 +147,9 @@ def test_workflow_dag_projection_makes_execution_order_and_surfaces_explicit() -
         WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
         WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE,
     )
-    assert node_by_id[f"{manifest.workflow_id}-quantify-features"].output_data_types == (
-        WorkflowDataType.PEPTIDE_QUANT_MATRIX,
-    )
+    assert node_by_id[
+        f"{manifest.workflow_id}-quantify-features"
+    ].output_data_types == (WorkflowDataType.PEPTIDE_QUANT_MATRIX,)
     assert any(
         edge.source_node_id == f"{manifest.workflow_id}-calculate-fdr"
         and edge.target_node_id == f"{manifest.workflow_id}-build-run-bundle"
@@ -157,7 +157,9 @@ def test_workflow_dag_projection_makes_execution_order_and_surfaces_explicit() -
     )
 
 
-def test_workflow_step_type_validation_makes_quant_and_bundle_contracts_explicit() -> None:
+def test_workflow_step_type_validation_makes_quant_and_bundle_contracts_explicit() -> (
+    None
+):
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_fixture("proteins.fasta"),
         spectra_path=_fixture("spectra.mgf"),
@@ -200,20 +202,20 @@ def test_workflow_dag_rejects_cycles_before_parallel_execution() -> None:
         if step.kind is WorkflowStepKind.VALIDATE_INPUTS:
             mutated_steps.append(
                 step.model_copy(
-                    update={
-                        "depends_on": (
-                            f"{manifest.workflow_id}-build-run-bundle",
-                        )
-                    }
+                    update={"depends_on": (f"{manifest.workflow_id}-build-run-bundle",)}
                 )
             )
             continue
         mutated_steps.append(step)
     cyclic_manifest = manifest.model_copy(update={"steps": tuple(mutated_steps)})
 
-    with pytest.raises(ValueError, match="cannot be projected into a deterministic dag"):
+    with pytest.raises(
+        ValueError, match="cannot be projected into a deterministic dag"
+    ):
         build_proteomics_dag_plan(cyclic_manifest)
-    with pytest.raises(ValueError, match="cannot be projected into a deterministic dag"):
+    with pytest.raises(
+        ValueError, match="cannot be projected into a deterministic dag"
+    ):
         build_parallel_execution_plan(cyclic_manifest)
 
 
@@ -234,9 +236,7 @@ def test_workflow_dag_rejects_protein_matrix_when_peptide_matrix_is_required() -
             mutated_steps.append(
                 step.model_copy(
                     update={
-                        "output_data_types": (
-                            WorkflowDataType.PROTEIN_QUANT_MATRIX,
-                        )
+                        "output_data_types": (WorkflowDataType.PROTEIN_QUANT_MATRIX,)
                     }
                 )
             )

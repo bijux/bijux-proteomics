@@ -47,9 +47,7 @@ def test_archive_completed_advanced_diann_run_writes_manifest_and_rehydrates_que
         runtime_report=runtime_report,
     )
     study_result = load_completed_run(config.output_dir)
-    protein = study_result.query_archived_protein(
-        representative_protein_ref="O14920"
-    )
+    protein = study_result.query_archived_protein(representative_protein_ref="O14920")
 
     assert archive_report.archive_validated is True
     assert archive_report.runtime_report is not None

@@ -31,7 +31,9 @@ def test_workflow_failure_report_preserves_reason_codes_and_category() -> None:
     assert report.reason_codes == ("invalid_design_row", "missing_design_value")
 
 
-def test_write_workflow_failure_report_persists_failure_report_json(tmp_path: Path) -> None:
+def test_write_workflow_failure_report_persists_failure_report_json(
+    tmp_path: Path,
+) -> None:
     report = build_workflow_failure_report(
         workflow_id="advanced-diann-runtime-deadbeef",
         workflow_name="advanced_diann",

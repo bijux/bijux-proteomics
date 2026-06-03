@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from enum import StrEnum
 import csv
+from enum import StrEnum
 import hashlib
 import io
 import json
@@ -47,10 +47,7 @@ class ParallelStepFile(JsonModel):
             if self.json_payload is not None:
                 raise ValueError("tsv parallel step files cannot carry json_payload")
             unexpected_columns = {
-                key
-                for row in self.rows
-                for key in row
-                if key not in self.columns
+                key for row in self.rows for key in row if key not in self.columns
             }
             if unexpected_columns:
                 raise ValueError(
@@ -141,7 +138,10 @@ def _serialize_step_file(file: ParallelStepFile) -> str:
     writer.writeheader()
     for row in file.rows:
         writer.writerow(
-            {column: "" if row.get(column) is None else row.get(column, "") for column in file.columns}
+            {
+                column: "" if row.get(column) is None else row.get(column, "")
+                for column in file.columns
+            }
         )
     return buffer.getvalue()
 
@@ -169,7 +169,9 @@ def _execute_step(step: ParallelStep) -> ParallelStepResult:
     return ParallelStepResult(step_id=step.step_id, artifacts=tuple(artifacts))
 
 
-def _build_parallel_groups(steps: tuple[ParallelStep, ...]) -> tuple[ParallelRunGroup, ...]:
+def _build_parallel_groups(
+    steps: tuple[ParallelStep, ...],
+) -> tuple[ParallelRunGroup, ...]:
     step_by_id = {step.step_id: step for step in steps}
     if len(step_by_id) != len(steps):
         raise ValueError("parallel step ids must be unique")
@@ -183,7 +185,9 @@ def _build_parallel_groups(steps: tuple[ParallelStep, ...]) -> tuple[ParallelRun
         for step_id in sorted(unresolved):
             step = step_by_id[step_id]
             missing_dependencies = [
-                dependency for dependency in step.depends_on if dependency not in step_by_id
+                dependency
+                for dependency in step.depends_on
+                if dependency not in step_by_id
             ]
             if missing_dependencies:
                 raise ValueError(

@@ -13,8 +13,8 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowCacheMissReason,
     WorkflowCacheReuseDisposition,
     WorkflowCheckpointStatus,
-    WorkflowDataType,
     WorkflowDagValidationReport,
+    WorkflowDataType,
     WorkflowDiffCategory,
     WorkflowDiffReport,
     WorkflowExecutionMode,
@@ -40,9 +40,9 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_proteomics_workflow_template,
-    build_workflow_cache_reuse_plan,
     build_reproducible_workflow_blueprint,
     build_workflow_cache_miss_explanation_report,
+    build_workflow_cache_reuse_plan,
     build_workflow_checkpoint,
     build_workflow_diff_report,
     build_workflow_execution_readiness_report,
@@ -58,8 +58,8 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_workflow_step_provenance_report,
     import_workflow_runtime_archive_bundle,
     instantiate_proteomics_workflow_template,
-    validate_proteomics_workflow_step_types,
     validate_proteomics_dag_plan,
+    validate_proteomics_workflow_step_types,
 )
 
 
@@ -747,7 +747,9 @@ def test_workflow_manifest_records_fdr_threshold_in_policies_and_bundle_command_
         step for step in manifest.steps if step.kind is WorkflowStepKind.CALCULATE_FDR
     )
     bundle_step = next(
-        step for step in manifest.steps if step.kind is WorkflowStepKind.BUILD_RUN_BUNDLE
+        step
+        for step in manifest.steps
+        if step.kind is WorkflowStepKind.BUILD_RUN_BUNDLE
     )
     assert "--q-value-threshold" in fdr_step.command_preview
     assert "0.05" in fdr_step.command_preview
@@ -778,13 +780,18 @@ def test_workflow_cache_keys_track_semantic_fdr_parameters_and_dependent_bundle_
     )
 
     baseline_entries = {
-        entry.surface: entry for entry in build_workflow_runtime_cache(baseline_manifest).entries
+        entry.surface: entry
+        for entry in build_workflow_runtime_cache(baseline_manifest).entries
     }
     changed_entries = {
-        entry.surface: entry for entry in build_workflow_runtime_cache(changed_manifest).entries
+        entry.surface: entry
+        for entry in build_workflow_runtime_cache(changed_manifest).entries
     }
 
-    assert baseline_entries["digestion"].cache_key == changed_entries["digestion"].cache_key
+    assert (
+        baseline_entries["digestion"].cache_key
+        == changed_entries["digestion"].cache_key
+    )
     assert (
         baseline_entries["search-normalization"].cache_key
         == changed_entries["search-normalization"].cache_key
@@ -838,7 +845,9 @@ def test_workflow_cache_miss_explanations_identify_parameter_and_dependency_chan
     reasons_by_surface = {entry.surface: entry.reason for entry in report.entries}
 
     assert reasons_by_surface["fdr-score"] is WorkflowCacheMissReason.PARAMETERS_CHANGED
-    assert reasons_by_surface["run-bundle"] is WorkflowCacheMissReason.DEPENDENCY_CHANGED
+    assert (
+        reasons_by_surface["run-bundle"] is WorkflowCacheMissReason.DEPENDENCY_CHANGED
+    )
 
 
 def test_workflow_cache_miss_explanations_identify_scientific_input_checksum_changes(
@@ -846,9 +855,9 @@ def test_workflow_cache_miss_explanations_identify_scientific_input_checksum_cha
 ) -> None:
     changed_design = tmp_path / "design.changed.tsv"
     changed_design.write_text(
-        _fixture("design.tsv").read_text(encoding="utf-8").replace(
-            "control", "control_shifted"
-        ),
+        _fixture("design.tsv")
+        .read_text(encoding="utf-8")
+        .replace("control", "control_shifted"),
         encoding="utf-8",
     )
 
@@ -908,16 +917,26 @@ def test_workflow_cache_reuse_plan_reruns_fdr_and_bundle_when_q_value_threshold_
         observed=build_workflow_runtime_cache(baseline_manifest),
     )
 
-    assert any(step_id.endswith("digest-database") for step_id in reuse_plan.reused_step_ids)
+    assert any(
+        step_id.endswith("digest-database") for step_id in reuse_plan.reused_step_ids
+    )
     assert any(
         step_id.endswith("normalize-identifications")
         for step_id in reuse_plan.reused_step_ids
     )
-    assert any(step_id.endswith("quantify-features") for step_id in reuse_plan.reused_step_ids)
-    assert any(step_id.endswith("calculate-fdr") for step_id in reuse_plan.rerun_step_ids)
-    assert any(step_id.endswith("build-run-bundle") for step_id in reuse_plan.rerun_step_ids)
+    assert any(
+        step_id.endswith("quantify-features") for step_id in reuse_plan.reused_step_ids
+    )
+    assert any(
+        step_id.endswith("calculate-fdr") for step_id in reuse_plan.rerun_step_ids
+    )
+    assert any(
+        step_id.endswith("build-run-bundle") for step_id in reuse_plan.rerun_step_ids
+    )
 
-    decisions_by_surface = {decision.surface: decision for decision in reuse_plan.decisions}
+    decisions_by_surface = {
+        decision.surface: decision for decision in reuse_plan.decisions
+    }
     assert (
         decisions_by_surface["fdr-score"].disposition
         is WorkflowCacheReuseDisposition.RERUN

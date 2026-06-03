@@ -143,13 +143,13 @@ def test_runtime_surface_area_exposes_workflow_cache_reuse_planning() -> None:
 def test_runtime_surface_area_exposes_workflow_dag_planning() -> None:
     from bijux_proteomics_runtime.workflows import (
         ProteomicsDagPlan,
-        WorkflowDataType,
         WorkflowDagValidationReport,
+        WorkflowDataType,
         WorkflowStepTypeValidationReport,
         build_parallel_execution_plan,
         build_proteomics_dag_plan,
-        validate_proteomics_workflow_step_types,
         validate_proteomics_dag_plan,
+        validate_proteomics_workflow_step_types,
     )
 
     assert ProteomicsDagPlan is not None

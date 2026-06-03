@@ -42,8 +42,8 @@ from bijux_proteomics_runtime.resume import (
     write_workflow_resume_state,
 )
 from bijux_proteomics_runtime.support.primitives import deterministic_id
-from bijux_proteomics_runtime.support.workspace import write_text_atomic
 from bijux_proteomics_runtime.support.primitives.failures import FailureType
+from bijux_proteomics_runtime.support.workspace import write_text_atomic
 from bijux_proteomics_runtime.workflows.failure_reports import (
     WorkflowFailureReport,
     build_workflow_failure_report,
@@ -118,7 +118,9 @@ class AdvancedDiannRuntimeRunReport(JsonModel):
     rerun_stage_ids: tuple[str, ...] = Field(default_factory=tuple)
     resume_state_path: str = Field(..., min_length=1)
     failure_report_path: str | None = None
-    decisions: tuple[AdvancedDiannRuntimeStageDecision, ...] = Field(default_factory=tuple)
+    decisions: tuple[AdvancedDiannRuntimeStageDecision, ...] = Field(
+        default_factory=tuple
+    )
     advanced_report: AdvancedDiannWorkflowReport | None = None
     failure_report: WorkflowFailureReport | None = None
     note: str = Field(..., min_length=1)
@@ -188,10 +190,14 @@ class AdvancedDiannDryRunReport(JsonModel):
     run_identity: AdvancedDiannRuntimeRunIdentity
     status: AdvancedDiannDryRunStatus
     output_dir: str = Field(..., min_length=1)
-    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...] = Field(default_factory=tuple)
+    input_checks: tuple[AdvancedDiannDryRunInputCheck, ...] = Field(
+        default_factory=tuple
+    )
     issues: tuple[AdvancedDiannDryRunIssue, ...] = Field(default_factory=tuple)
     stage_plan: tuple[AdvancedDiannDryRunStagePlan, ...] = Field(default_factory=tuple)
-    output_plan: tuple[AdvancedDiannDryRunOutputPlan, ...] = Field(default_factory=tuple)
+    output_plan: tuple[AdvancedDiannDryRunOutputPlan, ...] = Field(
+        default_factory=tuple
+    )
     supported_contrasts: tuple[str, ...] = Field(default_factory=tuple)
     invalid_contrasts: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
@@ -205,18 +211,68 @@ _STAGE_ORDER = (
 )
 
 _PLANNED_REVIEW_OUTPUTS = (
-    ("diann_biological_report_manifest.json", AdvancedDiannRuntimeStage.REVIEW, True, "governed base biological workflow manifest"),
-    ("advanced_diann_graph_final_results.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "graph-backed final result review table"),
-    ("advanced_diann_accepted_proteins.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "accepted protein decision table"),
-    ("advanced_diann_downgraded_proteins.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "downgraded protein decision table"),
-    ("advanced_diann_belief_audit_summary.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "belief audit summary table"),
-    ("advanced_diann_belief_audit.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "belief audit detail table"),
-    ("advanced_diann_summary.tsv", AdvancedDiannRuntimeStage.REVIEW, True, "advanced dia-nn workflow summary table"),
-    ("advanced_diann_workflow_manifest.json", AdvancedDiannRuntimeStage.REVIEW, True, "advanced dia-nn top-level workflow manifest"),
+    (
+        "diann_biological_report_manifest.json",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "governed base biological workflow manifest",
+    ),
+    (
+        "advanced_diann_graph_final_results.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "graph-backed final result review table",
+    ),
+    (
+        "advanced_diann_accepted_proteins.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "accepted protein decision table",
+    ),
+    (
+        "advanced_diann_downgraded_proteins.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "downgraded protein decision table",
+    ),
+    (
+        "advanced_diann_belief_audit_summary.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "belief audit summary table",
+    ),
+    (
+        "advanced_diann_belief_audit.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "belief audit detail table",
+    ),
+    (
+        "advanced_diann_summary.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "advanced dia-nn workflow summary table",
+    ),
+    (
+        "advanced_diann_workflow_manifest.json",
+        AdvancedDiannRuntimeStage.REVIEW,
+        True,
+        "advanced dia-nn top-level workflow manifest",
+    ),
 )
 _PLANNED_FRAGMENT_OUTPUTS = (
-    ("advanced_diann_fragment_coelution_runs.tsv", AdvancedDiannRuntimeStage.REVIEW, False, "optional fragment coelution run summary"),
-    ("advanced_diann_fragment_coelution_fragments.tsv", AdvancedDiannRuntimeStage.REVIEW, False, "optional fragment coelution fragment evidence"),
+    (
+        "advanced_diann_fragment_coelution_runs.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        False,
+        "optional fragment coelution run summary",
+    ),
+    (
+        "advanced_diann_fragment_coelution_fragments.tsv",
+        AdvancedDiannRuntimeStage.REVIEW,
+        False,
+        "optional fragment coelution fragment evidence",
+    ),
 )
 
 _ADVANCED_DIANN_RUNTIME_WORKFLOW_TYPE = "advanced_diann_runtime"
@@ -253,7 +309,9 @@ def dry_run_resumable_advanced_diann_workflow(
         issues=issues,
         stage_plan=_build_dry_run_stage_plan(config),
         output_plan=_build_dry_run_output_plan(config),
-        supported_contrasts=_dry_run_supported_contrasts(config, issue_codes=issue_codes),
+        supported_contrasts=_dry_run_supported_contrasts(
+            config, issue_codes=issue_codes
+        ),
         invalid_contrasts=_dry_run_invalid_contrasts(config, issue_codes=issue_codes),
         note=(
             "advanced dia-nn dry run validates input presence, design and contrast "
@@ -316,7 +374,9 @@ def run_resumable_advanced_diann_workflow(
     )
     reused_stage_ids: tuple[str, ...] = ()
     reused_stage_outputs: dict[AdvancedDiannRuntimeStage, JsonModel] = {}
-    resume_decisions_by_stage: dict[str, tuple[WorkflowResumeDisposition, tuple[str, ...]]] = {}
+    resume_decisions_by_stage: dict[
+        str, tuple[WorkflowResumeDisposition, tuple[str, ...]]
+    ] = {}
     if persisted_state is not None:
         resume_report = resume_workflow(
             runtime_dir,
@@ -563,9 +623,7 @@ def _load_valid_design_entries(
     if report.rejected_rows:
         reason_codes = tuple(
             dict.fromkeys(
-                issue.code
-                for row in report.rejected_rows
-                for issue in row.issues
+                issue.code for row in report.rejected_rows for issue in row.issues
             )
         )
         raise _AdvancedDiannExpectedFailure(
@@ -603,17 +661,72 @@ def _build_dry_run_input_checks(
 ) -> tuple[AdvancedDiannDryRunInputCheck, ...]:
     checks: list[AdvancedDiannDryRunInputCheck] = []
     for input_name, path, required, note in (
-        ("result_tsv_path", config.result_tsv_path, True, "required DIA-NN report table"),
-        ("design_tsv_path", config.design_tsv_path, True, "required experimental design table"),
-        ("proteins_fasta_path", config.proteins_fasta_path, True, "required protein FASTA database"),
-        ("protocol_context_tsv_path", config.protocol_context_tsv_path, False, "optional protocol context table"),
-        ("config_path", config.config_path, False, "optional DIA-NN configuration snapshot"),
-        ("annotation_tsv_path", config.annotation_tsv_path, False, "optional annotation table"),
-        ("context_annotation_tsv_path", config.context_annotation_tsv_path, False, "optional context annotation table"),
-        ("go_annotation_tsv_path", config.go_annotation_tsv_path, False, "optional gene ontology annotation table"),
-        ("pathway_membership_tsv_path", config.pathway_membership_tsv_path, False, "optional pathway membership table"),
-        ("complex_membership_tsv_path", config.complex_membership_tsv_path, False, "optional complex membership table"),
-        ("fragment_target_tsv_path", config.fragment_target_tsv_path, False, "optional fragment target table"),
+        (
+            "result_tsv_path",
+            config.result_tsv_path,
+            True,
+            "required DIA-NN report table",
+        ),
+        (
+            "design_tsv_path",
+            config.design_tsv_path,
+            True,
+            "required experimental design table",
+        ),
+        (
+            "proteins_fasta_path",
+            config.proteins_fasta_path,
+            True,
+            "required protein FASTA database",
+        ),
+        (
+            "protocol_context_tsv_path",
+            config.protocol_context_tsv_path,
+            False,
+            "optional protocol context table",
+        ),
+        (
+            "config_path",
+            config.config_path,
+            False,
+            "optional DIA-NN configuration snapshot",
+        ),
+        (
+            "annotation_tsv_path",
+            config.annotation_tsv_path,
+            False,
+            "optional annotation table",
+        ),
+        (
+            "context_annotation_tsv_path",
+            config.context_annotation_tsv_path,
+            False,
+            "optional context annotation table",
+        ),
+        (
+            "go_annotation_tsv_path",
+            config.go_annotation_tsv_path,
+            False,
+            "optional gene ontology annotation table",
+        ),
+        (
+            "pathway_membership_tsv_path",
+            config.pathway_membership_tsv_path,
+            False,
+            "optional pathway membership table",
+        ),
+        (
+            "complex_membership_tsv_path",
+            config.complex_membership_tsv_path,
+            False,
+            "optional complex membership table",
+        ),
+        (
+            "fragment_target_tsv_path",
+            config.fragment_target_tsv_path,
+            False,
+            "optional fragment target table",
+        ),
     ):
         exists = path is not None and path.exists()
         checks.append(
@@ -702,7 +815,9 @@ def _fragment_input_issues(
     missing_fragment_paths = tuple(
         check.path
         for check in input_checks
-        if check.input_name.startswith("fragment_mzml_paths[") and not check.exists and check.path
+        if check.input_name.startswith("fragment_mzml_paths[")
+        and not check.exists
+        and check.path
     )
     if missing_fragment_paths:
         issues.append(
@@ -722,9 +837,7 @@ def _design_and_contrast_issues(
     input_checks: tuple[AdvancedDiannDryRunInputCheck, ...],
 ) -> tuple[AdvancedDiannDryRunIssue, ...]:
     required_inputs_present = {
-        check.input_name: check.exists
-        for check in input_checks
-        if check.required
+        check.input_name: check.exists for check in input_checks if check.required
     }
     if not required_inputs_present.get("design_tsv_path", False):
         return ()
@@ -898,7 +1011,9 @@ def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, ob
         ),
         "fragment_tolerance_da": config.fragment_tolerance_da,
         "fragment_tolerance_ppm": config.fragment_tolerance_ppm,
-        "go_annotation_tsv_sha256": _optional_file_sha256(config.go_annotation_tsv_path),
+        "go_annotation_tsv_sha256": _optional_file_sha256(
+            config.go_annotation_tsv_path
+        ),
         "include_decoys": config.include_decoys,
         "max_q_value": config.max_q_value,
         "normalization_method": config.normalization_method.value,
@@ -912,7 +1027,9 @@ def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, ob
         ),
         "result_tsv_sha256": _file_sha256(config.result_tsv_path),
         "selection_policy_sha256": hash_payload(
-            None if config.selection_policy is None else config.selection_policy.to_dict()
+            None
+            if config.selection_policy is None
+            else config.selection_policy.to_dict()
         ),
         "shared_peptide_policy": config.shared_peptide_policy.value,
         "target_kind": config.target_kind.value,
@@ -984,7 +1101,9 @@ def _run_identity_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, obj
         ),
         "fragment_tolerance_da": config.fragment_tolerance_da,
         "fragment_tolerance_ppm": config.fragment_tolerance_ppm,
-        "go_annotation_tsv_sha256": _optional_file_sha256(config.go_annotation_tsv_path),
+        "go_annotation_tsv_sha256": _optional_file_sha256(
+            config.go_annotation_tsv_path
+        ),
         "include_decoys": config.include_decoys,
         "max_q_value": config.max_q_value,
         "normalization_method": config.normalization_method.value,
@@ -992,13 +1111,17 @@ def _run_identity_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, obj
             config.pathway_membership_tsv_path
         ),
         "peptide_rollup_method": config.peptide_rollup_method.value,
-        "proteins_fasta_sha256": _missing_tolerant_file_sha256(config.proteins_fasta_path),
+        "proteins_fasta_sha256": _missing_tolerant_file_sha256(
+            config.proteins_fasta_path
+        ),
         "protocol_context_tsv_sha256": _optional_file_sha256(
             config.protocol_context_tsv_path
         ),
         "result_tsv_sha256": _missing_tolerant_file_sha256(config.result_tsv_path),
         "selection_policy_sha256": hash_payload(
-            None if config.selection_policy is None else config.selection_policy.to_dict()
+            None
+            if config.selection_policy is None
+            else config.selection_policy.to_dict()
         ),
         "shared_peptide_policy": config.shared_peptide_policy.value,
         "target_kind": config.target_kind.value,
@@ -1244,14 +1367,20 @@ def _stage_entity_count(stage: AdvancedDiannRuntimeStage, payload: JsonModel) ->
         raise TypeError(
             "advanced dia-nn review stage payload must be an advanced DIA-NN workflow report"
         )
-    return report.summary.accepted_protein_count + report.summary.downgraded_protein_count
+    return (
+        report.summary.accepted_protein_count + report.summary.downgraded_protein_count
+    )
 
 
 def _load_reusable_stage_outputs(
     config: AdvancedDiannWorkflowConfig,
     *,
-    resume_decisions_by_stage: dict[str, tuple[WorkflowResumeDisposition, tuple[str, ...]]],
-) -> tuple[tuple[AdvancedDiannRuntimeStage, ...], dict[AdvancedDiannRuntimeStage, JsonModel]]:
+    resume_decisions_by_stage: dict[
+        str, tuple[WorkflowResumeDisposition, tuple[str, ...]]
+    ],
+) -> tuple[
+    tuple[AdvancedDiannRuntimeStage, ...], dict[AdvancedDiannRuntimeStage, JsonModel]
+]:
     runtime_dir = config.output_dir / "checkpoints" / "advanced_diann_runtime"
     reusable: list[AdvancedDiannRuntimeStage] = []
     outputs: dict[AdvancedDiannRuntimeStage, JsonModel] = {}

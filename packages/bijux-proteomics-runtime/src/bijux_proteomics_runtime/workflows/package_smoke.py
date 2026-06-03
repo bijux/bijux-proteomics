@@ -10,9 +10,9 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.workflow import (
+    ProteomicsStudyResultSummary,
     ResultManifestReport,
     ScaleDemoConfig,
-    ProteomicsStudyResultSummary,
     build_result_manifest_from_artifacts,
     run_scale_demo,
 )
@@ -109,7 +109,9 @@ def run_runtime_package_smoke_workflow(
         ),
         biological_report_dir=str(biological_report_dir),
         result_manifest_json=str(result_manifest_path.resolve()),
-        smoke_report_json=str((output_dir / "runtime_package_smoke_report.json").resolve()),
+        smoke_report_json=str(
+            (output_dir / "runtime_package_smoke_report.json").resolve()
+        ),
     )
     report = RuntimePackageSmokeWorkflowReport(
         config=config,
@@ -125,7 +127,9 @@ def run_runtime_package_smoke_workflow(
             "run through the runtime archive loader"
         ),
     )
-    write_text_atomic(output_dir / "runtime_package_smoke_report.json", report.to_stable_json() + "\n")
+    write_text_atomic(
+        output_dir / "runtime_package_smoke_report.json", report.to_stable_json() + "\n"
+    )
     return report
 
 

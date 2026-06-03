@@ -125,7 +125,9 @@ def _write_biological_report_dir(
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -137,8 +139,13 @@ def _write_biological_report_dir(
         encoding="utf-8",
     )
     if protein_updates is not None:
-        _rewrite_first_tsv_row(output_dir / manifest.artifacts.protein_card_tsv, protein_updates)
-    if pathway_updates is not None and manifest.artifacts.pathway_activity_condition_comparison_tsv:
+        _rewrite_first_tsv_row(
+            output_dir / manifest.artifacts.protein_card_tsv, protein_updates
+        )
+    if (
+        pathway_updates is not None
+        and manifest.artifacts.pathway_activity_condition_comparison_tsv
+    ):
         _rewrite_first_tsv_row(
             output_dir / manifest.artifacts.pathway_activity_condition_comparison_tsv,
             pathway_updates,
@@ -159,7 +166,9 @@ def _write_ptm_report_dir(
 ) -> Path:
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -301,9 +310,7 @@ def test_diff_completed_runs_reports_scientific_changes_across_rehydrated_output
         for entry in report.changed_proteins
         if entry.left_protein is not None and entry.right_protein is not None
     )
-    assert {
-        reason.code for reason in protein_entry.reasons
-    } & {
+    assert {reason.code for reason in protein_entry.reasons} & {
         InteractiveResultComparisonReasonCode.LOG2_FOLD_CHANGE_CHANGED,
         InteractiveResultComparisonReasonCode.EVIDENCE_TIER_CHANGED,
     }
@@ -313,9 +320,7 @@ def test_diff_completed_runs_reports_scientific_changes_across_rehydrated_output
         for entry in report.changed_ptm_sites
         if entry.left_site is not None and entry.right_site is not None
     )
-    assert {
-        reason.code for reason in ptm_entry.reasons
-    } & {
+    assert {reason.code for reason in ptm_entry.reasons} & {
         InteractiveResultComparisonReasonCode.LOCALIZATION_TIER_CHANGED,
         InteractiveResultComparisonReasonCode.PROTEIN_CORRECTION_STATUS_CHANGED,
     }
@@ -325,9 +330,7 @@ def test_diff_completed_runs_reports_scientific_changes_across_rehydrated_output
         for entry in report.changed_pathways
         if entry.left_pathway is not None and entry.right_pathway is not None
     )
-    assert {
-        reason.code for reason in pathway_entry.reasons
-    } & {
+    assert {reason.code for reason in pathway_entry.reasons} & {
         InteractiveResultComparisonReasonCode.ACTIVITY_SCORE_CHANGED,
         InteractiveResultComparisonReasonCode.PATHWAY_CONFIDENCE_CHANGED,
     }

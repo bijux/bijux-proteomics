@@ -93,7 +93,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -110,7 +112,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
 def _write_ptm_report_dir(tmp_path: Path) -> Path:
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -180,7 +184,9 @@ def test_load_completed_run_rehydrates_queries_and_regenerates_bundle_summary_wi
     )
 
     def _forbid_rerun(*args, **kwargs):  # noqa: ANN002, ANN003
-        raise AssertionError("scientific report builders must not rerun during rehydration")
+        raise AssertionError(
+            "scientific report builders must not rerun during rehydration"
+        )
 
     monkeypatch.setattr(
         "bijux_proteomics.workflow.build_biological_result_report_bundle",
@@ -204,7 +210,12 @@ def test_load_completed_run_rehydrates_queries_and_regenerates_bundle_summary_wi
     protein_node_id = next(
         node.entity_ref for node in graph.nodes if node.entity_type.value == "protein"
     )
-    assert query_protein_evidence_summary(graph, protein_id=protein_node_id).support_edge_count > 0
+    assert (
+        query_protein_evidence_summary(
+            graph, protein_id=protein_node_id
+        ).support_edge_count
+        > 0
+    )
     summary_tsv = render_interactive_result_bundle_summary_tsv(
         result.interactive_result_bundle
     )
@@ -212,7 +223,9 @@ def test_load_completed_run_rehydrates_queries_and_regenerates_bundle_summary_wi
     assert manifest_path.exists()
 
 
-def test_load_completed_run_resolves_nested_archive_manifest_directory(tmp_path: Path) -> None:
+def test_load_completed_run_resolves_nested_archive_manifest_directory(
+    tmp_path: Path,
+) -> None:
     biological_report_dir = _write_biological_report_dir(tmp_path)
     run_dir = tmp_path / "artifacts" / "completed-run"
     _write_result_manifest_json(

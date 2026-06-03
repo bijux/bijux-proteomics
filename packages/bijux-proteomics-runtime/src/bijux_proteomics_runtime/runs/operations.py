@@ -95,7 +95,9 @@ def resume_candidate_operation(
     execution_mode: str,
 ) -> dict[str, Any]:
     """Resume one runtime candidate through the canonical runtime manager."""
-    store = _candidate_store_type()(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
+    store = _candidate_store_type()(
+        RunWorkspace.for_run(base_dir, "noop").candidate_store_dir
+    )
     candidate = store.get_candidate(candidate_id)
     config = build_runtime_run_config(
         rounds=rounds,
@@ -137,7 +139,9 @@ def compare_run_operation(run_a: Path, run_b: Path) -> dict[str, Any]:
 
 def inspect_candidate_operation(base_dir: Path, candidate_id: str) -> Candidate:
     """Load one candidate through the canonical runtime candidate store."""
-    store = _candidate_store_type()(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
+    store = _candidate_store_type()(
+        RunWorkspace.for_run(base_dir, "noop").candidate_store_dir
+    )
     return store.get_candidate(candidate_id)
 
 

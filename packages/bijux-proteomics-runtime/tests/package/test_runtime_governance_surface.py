@@ -26,7 +26,9 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.checkpoints"]
         == StabilityLevel.SEALED
     )
-    assert STABILITY_EXPECTATIONS["bijux_proteomics_runtime.diff"] == StabilityLevel.SEALED
+    assert (
+        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.diff"] == StabilityLevel.SEALED
+    )
     assert (
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.handoff"]
         == StabilityLevel.SEALED

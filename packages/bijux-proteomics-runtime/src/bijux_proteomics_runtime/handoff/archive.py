@@ -78,7 +78,9 @@ class CollaboratorHandoffArchive(JsonModel):
         return self.result.query_archived_pathway(pathway_id=pathway_id)
 
 
-def build_handoff_archive(run_dir: Path, out_archive: Path) -> CollaboratorHandoffArchive:
+def build_handoff_archive(
+    run_dir: Path, out_archive: Path
+) -> CollaboratorHandoffArchive:
     """Persist a self-contained collaborator handoff archive for one completed run."""
 
     result = load_completed_run(run_dir)

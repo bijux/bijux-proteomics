@@ -56,8 +56,8 @@ from bijux_proteomics.sequences.core import (
     parse_fasta_document,
 )
 from bijux_proteomics.sequences.digestion import digest_protein_records
-from bijux_proteomics_runtime.artifacts import StepArtifact, build_step_artifact
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_runtime.artifacts import StepArtifact, build_step_artifact
 
 
 class _PtmLabValidationEntryLike(Protocol):
@@ -520,9 +520,7 @@ def run_sequence_to_digest_workflow_end_to_end(
                     },
                     output_payloads={
                         "accepted_records": (),
-                        "rejected_records": (
-                            {"reason": str(error)},
-                        ),
+                        "rejected_records": ({"reason": str(error)},),
                     },
                     entity_counts={"accepted_records": 0},
                     schema_names=("fasta_record", "fasta_parse_rejection"),
@@ -851,7 +849,10 @@ def run_dia_import_workflow_end_to_end(
                 step_id="aggregate-protein",
                 description="aggregate peptide evidence to protein level",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                input_payloads={"peptide_ids": peptides, "precursor_rows": precursor_rows},
+                input_payloads={
+                    "peptide_ids": peptides,
+                    "precursor_rows": precursor_rows,
+                },
                 output_payloads={"protein_refs": proteins},
                 entity_counts={"protein_refs": len(proteins)},
                 schema_names=("dia_protein_quant_summary",),
@@ -939,7 +940,10 @@ def run_quant_workflow_end_to_end(
                     "outlier_samples": review_bundle.qc_report.outlier_samples,
                 },
                 entity_counts={"normalized_conditions": len(conditions)},
-                schema_names=("experimental_design_entry", "normalized_condition_group"),
+                schema_names=(
+                    "experimental_design_entry",
+                    "normalized_condition_group",
+                ),
             ),
             _step_artifact(
                 step_id="differential-abundance",
@@ -986,7 +990,9 @@ def run_quant_workflow_end_to_end(
                         f"{artifact_root}/review_bundle.json",
                     ),
                 },
-                entity_counts={"evidence_pointers": len(review_bundle.evidence_pointers)},
+                entity_counts={
+                    "evidence_pointers": len(review_bundle.evidence_pointers)
+                },
                 schema_names=("quant_review_bundle",),
             ),
         ),
@@ -1054,7 +1060,9 @@ def run_ptm_workflow_end_to_end(
                 description="parse PTM identification/localization evidence table",
                 status=RuntimeWorkflowStatus.COMPLETED,
                 input_payloads={"ptm_evidence_path": str(ptm_evidence_path)},
-                output_payloads={"accepted_identifications": parse_report.accepted_records},
+                output_payloads={
+                    "accepted_identifications": parse_report.accepted_records
+                },
                 entity_counts={
                     "accepted_identifications": len(parse_report.accepted_records)
                 },
@@ -1255,7 +1263,9 @@ def run_multiplex_workflow_end_to_end(
                     "design_entries": design_entries,
                 },
                 output_payloads={"review_bundle": review_bundle},
-                entity_counts={"evidence_pointers": len(review_bundle.evidence_pointers)},
+                entity_counts={
+                    "evidence_pointers": len(review_bundle.evidence_pointers)
+                },
                 schema_names=("quant_review_bundle", "multiplex_review_bundle"),
             ),
         ),
@@ -1400,7 +1410,9 @@ def run_targeted_workflow_end_to_end(
                 step_id="publish-follow-up-consequences",
                 description="publish the observed targeted follow-up outcomes that remain usable downstream",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                input_payloads={"supported_follow_up_payload": supported_follow_up_payload},
+                input_payloads={
+                    "supported_follow_up_payload": supported_follow_up_payload
+                },
                 output_payloads={
                     "assay_outcomes": supported_follow_up_payload.get("outcome", {})
                 },
@@ -1493,7 +1505,9 @@ def run_knowledge_review_workflow_end_to_end(
                 description="flag contradictory evidence pairs for review",
                 status=RuntimeWorkflowStatus.COMPLETED,
                 input_payloads={"ranked_evidence": ranked},
-                output_payloads={"contradiction_pairs": tuple(sorted(contradiction_pairs))},
+                output_payloads={
+                    "contradiction_pairs": tuple(sorted(contradiction_pairs))
+                },
                 entity_counts={"contradiction_pairs": len(contradiction_pairs)},
                 schema_names=("knowledge_contradiction_pair",),
                 allowed_empty_reason=(
@@ -1610,7 +1624,9 @@ def run_lab_handoff_workflow_end_to_end(
                     "unresolved_risk_count": packet.unresolved_risk_count,
                 },
                 output_payloads={
-                    "unresolved_risk_count": max(unresolved, packet.unresolved_risk_count)
+                    "unresolved_risk_count": max(
+                        unresolved, packet.unresolved_risk_count
+                    )
                 },
                 entity_counts={
                     "unresolved_risk_entries": max(

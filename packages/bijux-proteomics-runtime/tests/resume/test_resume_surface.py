@@ -82,7 +82,9 @@ def _persist_resume_state(run_dir: Path) -> None:
     biology_step = _step(
         step_id="build-biology",
         description="assemble pathway-level biology from protein statistics",
-        input_payloads={"upstream:run-statistics": statistics_step.artifact.output_checksums},
+        input_payloads={
+            "upstream:run-statistics": statistics_step.artifact.output_checksums
+        },
         output_payloads={"biology_rows": biology_rows},
         depends_on=("run-statistics",),
     )
@@ -117,7 +119,9 @@ def test_resume_workflow_reuses_completed_valid_steps_and_invalidates_downstream
     assert report.reused_step_ids == ("parse-fasta", "build-protein-matrix")
     assert report.rerun_step_ids == ("run-statistics", "build-biology")
     statistics_decision = next(
-        decision for decision in report.decisions if decision.step_id == "run-statistics"
+        decision
+        for decision in report.decisions
+        if decision.step_id == "run-statistics"
     )
     biology_decision = next(
         decision for decision in report.decisions if decision.step_id == "build-biology"
@@ -152,7 +156,9 @@ def test_resume_workflow_reruns_from_incomplete_upstream_step_boundary(
             _step(
                 step_id="build-biology",
                 description="assemble biology from parsed records",
-                input_payloads={"upstream:parse-fasta": parse_step.artifact.output_checksums},
+                input_payloads={
+                    "upstream:parse-fasta": parse_step.artifact.output_checksums
+                },
                 output_payloads={"biology_rows": ({"protein_id": "P1"},)},
                 depends_on=("parse-fasta",),
             ),

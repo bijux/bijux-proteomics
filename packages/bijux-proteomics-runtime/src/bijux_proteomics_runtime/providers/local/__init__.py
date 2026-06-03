@@ -5,8 +5,7 @@
 
 from __future__ import annotations
 
-from importlib import import_module
-from importlib import util
+from importlib import import_module, util
 
 __all__ = []
 

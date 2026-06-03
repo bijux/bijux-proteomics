@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceNodeKind
 from bijux_proteomics.review.evidence_graph_confidence import (
     EvidenceGraphConfidenceEntry,
     EvidenceGraphConfidenceReport,
     EvidenceGraphConfidenceTier,
 )
-from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceNodeKind
 from bijux_proteomics.study.design_validity import (
     ExperimentDesignValidityIssue,
     ExperimentDesignValidityReport,
@@ -104,7 +104,9 @@ def _design(valid: bool) -> ExperimentDesignValidityReport:
     )
 
 
-def _biology_confidence(*tiers: EvidenceGraphConfidenceTier) -> EvidenceGraphConfidenceReport:
+def _biology_confidence(
+    *tiers: EvidenceGraphConfidenceTier,
+) -> EvidenceGraphConfidenceReport:
     entries = tuple(
         EvidenceGraphConfidenceEntry(
             claim_node_id=f"claim-{index}",

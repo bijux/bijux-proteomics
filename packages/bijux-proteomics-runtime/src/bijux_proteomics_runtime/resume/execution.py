@@ -69,7 +69,9 @@ class WorkflowResumeState(JsonModel):
         for step in self.steps:
             if step.step_id in seen:
                 raise ValueError("resume state step ids must be unique")
-            missing = tuple(dependency for dependency in step.depends_on if dependency not in seen)
+            missing = tuple(
+                dependency for dependency in step.depends_on if dependency not in seen
+            )
             if missing:
                 raise ValueError(
                     "resume state dependencies must reference an earlier step: "
@@ -152,11 +154,15 @@ def _expected_input_checksums(
             )
         expected[f"config:{input_key}"] = hash_payload(config.input_payloads[input_key])
     for dependency in step.depends_on:
-        expected[f"upstream:{dependency}"] = _dependency_output_checksum(step_by_id[dependency])
+        expected[f"upstream:{dependency}"] = _dependency_output_checksum(
+            step_by_id[dependency]
+        )
     return expected
 
 
-def resume_workflow(run_dir: Path, config: WorkflowResumeConfig) -> WorkflowResumeReport:
+def resume_workflow(
+    run_dir: Path, config: WorkflowResumeConfig
+) -> WorkflowResumeReport:
     """Reuse valid completed steps and rerun only invalidated downstream steps."""
     state = load_workflow_resume_state(run_dir)
     if state.workflow_id != config.workflow_id:

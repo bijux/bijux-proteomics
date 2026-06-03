@@ -120,12 +120,9 @@ def test_run_parallel_steps_keeps_serial_and_parallel_outputs_byte_identical(
         result.step_id for result in parallel_report.step_results
     ]
     assert _collect_bytes(serial_root) == _collect_bytes(parallel_root)
-    assert (
-        (serial_root / "reports" / "summary.tsv").read_text(encoding="utf-8")
-        == "artifact\trow_count\n"
-        "targets\t2\n"
-        "decoys\t2\n"
-    )
+    assert (serial_root / "reports" / "summary.tsv").read_text(
+        encoding="utf-8"
+    ) == "artifact\trow_count\ntargets\t2\ndecoys\t2\n"
 
 
 def test_run_parallel_steps_refuses_duplicate_output_paths_across_steps(

@@ -117,9 +117,14 @@ def _resolve_tsv_record_id(
     row_index: int,
     id_column: str | None,
 ) -> str:
-    candidate_columns = (
-        (id_column,) if id_column is not None else ()
-    ) + ("record_id", "spectrum_id", "sample_id", "peptide", "protein_id", "id")
+    candidate_columns = ((id_column,) if id_column is not None else ()) + (
+        "record_id",
+        "spectrum_id",
+        "sample_id",
+        "peptide",
+        "protein_id",
+        "id",
+    )
     for column in candidate_columns:
         value = row.get(column)
         if value is not None and value != "":
@@ -245,9 +250,7 @@ def run_streaming_import_step(
         total_records=total_records,
         subset_limit=subset_limit,
         subset_records=subset_tuple,
-        subset_sha256=hash_payload(
-            tuple(record.to_dict() for record in subset_tuple)
-        ),
+        subset_sha256=hash_payload(tuple(record.to_dict() for record in subset_tuple)),
         peak_memory_bytes=peak_memory_bytes,
         memory_limit_bytes=step.memory_limit_bytes,
         diagnostics=(

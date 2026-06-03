@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
+import shutil
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
@@ -97,7 +97,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
         design_entries,
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
-        complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
+        complex_membership_tsv_path=_workflow_fixture(
+            "biological_report_complexes.tsv"
+        ),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         condition_a="control",
         condition_b="treatment",
@@ -114,7 +116,9 @@ def _write_biological_report_dir(tmp_path: Path) -> Path:
 def _write_ptm_report_dir(tmp_path: Path) -> Path:
     ptm_evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
-    ptm_annotations = parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    ptm_annotations = parse_ptm_site_annotation_tsv(
+        _ptm_fixture("ptm_site_annotations.tsv")
+    )
     report = build_ptm_report_bundle(
         ptm_evidence.accepted_records,
         protein_sequences=_protein_sequences(),
@@ -204,7 +208,9 @@ def test_build_handoff_archive_loads_and_queries_without_original_run_tree(
         object_id=loaded_archive.result.interactive_result_bundle.proteins[0].object_id
     )
     pathway = loaded_archive.query_archived_pathway(
-        pathway_id=loaded_archive.result.interactive_result_bundle.pathways[0].pathway_id
+        pathway_id=loaded_archive.result.interactive_result_bundle.pathways[
+            0
+        ].pathway_id
     )
 
     assert protein.representative_protein_ref

@@ -27,8 +27,7 @@ from bijux_proteomics_runtime.rehydrate.loading import load_completed_run
 from bijux_proteomics_runtime.support.workspace import write_text_atomic
 
 _ARCHITECTURE_DEMO_COMMAND = (
-    "bijux_proteomics_runtime.workflows.architecture_demo."
-    "run_runtime_architecture_demo"
+    "bijux_proteomics_runtime.workflows.architecture_demo.run_runtime_architecture_demo"
 )
 
 
@@ -154,7 +153,9 @@ def run_runtime_architecture_demo(
 
     artifacts = RuntimeArchitectureDemoArtifacts(
         demo_output_dir=str(demo_output_dir.resolve()),
-        demo_report_json=str((demo_output_dir / demo_report.artifacts.report_json).resolve()),
+        demo_report_json=str(
+            (demo_output_dir / demo_report.artifacts.report_json).resolve()
+        ),
         biological_report_dir=str(biological_report_dir),
         workflow_output_validation_json=str(workflow_output_validation_path.resolve()),
         runtime_step_artifacts_json=str(runtime_step_artifacts_path.resolve()),

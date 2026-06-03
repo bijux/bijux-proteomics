@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import hashlib
-import importlib.metadata
 from importlib import import_module
+import importlib.metadata
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, cast
@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 try:
     import click
 except ModuleNotFoundError:
+
     class _ClickDecoratorShim:
         def __call__(self, func: Any) -> Any:
             return func
@@ -346,12 +347,16 @@ def _emit_api_envelope(
     )
     if meta:
         base_meta.update(meta)
-    payload = _api_schema_module().ApiEnvelope(
-        status="error" if error is not None else "ok",
-        data=data,
-        error=error,
-        meta=base_meta,
-    ).model_dump(mode="json")
+    payload = (
+        _api_schema_module()
+        .ApiEnvelope(
+            status="error" if error is not None else "ok",
+            data=data,
+            error=error,
+            meta=base_meta,
+        )
+        .model_dump(mode="json")
+    )
     _emit_json_payload(payload, pretty=pretty)
 
 
@@ -802,8 +807,9 @@ def api() -> None:
 @click.option("--no-docs", is_flag=True, help="Disable OpenAPI docs.")
 def api_serve(host: str, port: int, reload: bool, no_docs: bool) -> None:
     """api_serve."""
-    from bijux_proteomics_runtime.api import AppConfig, create_app
     import uvicorn
+
+    from bijux_proteomics_runtime.api import AppConfig, create_app
 
     config = AppConfig(base_dir=Path.cwd(), docs_enabled=not no_docs)
     app = create_app(config)
