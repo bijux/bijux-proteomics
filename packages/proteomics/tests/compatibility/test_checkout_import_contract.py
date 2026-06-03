@@ -4,6 +4,10 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 def _source_pythonpath() -> str:
     repo_root = Path(__file__).resolve().parents[4]
