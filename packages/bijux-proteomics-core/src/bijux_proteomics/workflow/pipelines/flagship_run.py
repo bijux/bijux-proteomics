@@ -42,9 +42,11 @@ from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
     write_diann_biological_workflow_bundle,
-    render_dia_differential_matrix_tsv,
-    render_dia_run_qc_summary_tsv,
 )
+from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+    render_dia_differential_matrix_tsv,
+)
+from bijux_proteomics.dia.run_qc import render_dia_run_qc_summary_tsv
 from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,

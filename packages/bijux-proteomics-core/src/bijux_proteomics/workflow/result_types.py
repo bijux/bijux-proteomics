@@ -109,12 +109,23 @@ class WorkflowResult(_StandardResult):
 
 
 class _RejectedEvidenceTableRow(Protocol):
-    source_file: str | None
-    row_number: int | None
-    entity_type: str | None
-    entity_id: str | None
-    reason_code: str
-    detail: str
+    @property
+    def source_file(self) -> str | None: ...
+
+    @property
+    def row_number(self) -> int | None: ...
+
+    @property
+    def entity_type(self) -> str | None: ...
+
+    @property
+    def entity_id(self) -> str | None: ...
+
+    @property
+    def reason_code(self) -> str: ...
+
+    @property
+    def detail(self) -> str: ...
 
 
 def artifact_name_map(artifacts: JsonModel) -> dict[str, str]:

@@ -58,6 +58,8 @@ from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entries_from_table_rows,
     build_result_warning,
@@ -464,7 +466,7 @@ def _build_advanced_diann_warnings(
     report: DiannBiologicalWorkflowBundle,
     summary: AdvancedDiannWorkflowSummary,
     manifest: AdvancedDiannWorkflowManifest,
-) -> tuple:
+) -> tuple[ResultWarningEntry, ...]:
     warnings = []
     if summary.rejected_evidence_count > 0:
         warnings.append(
@@ -510,7 +512,7 @@ def _build_advanced_diann_rejected_evidence(
     *,
     report: DiannBiologicalWorkflowBundle,
     manifest: AdvancedDiannWorkflowManifest,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     return build_rejected_evidence_entries_from_table_rows(
         report.import_report.rejected_evidence_rows,
         source_surface="diann_import",
@@ -627,7 +629,7 @@ def _is_downgraded_entry(entry: EvidenceGraphFinalResultEntry) -> bool:
 def _claim_state_by_node_id(graph: ProteomicsEvidenceGraph, node_id: str) -> str | None:
     for node in graph.nodes:
         if node.node_id == node_id:
-            return node.claim_state
+            return None if node.claim_state is None else str(node.claim_state)
     return None
 
 

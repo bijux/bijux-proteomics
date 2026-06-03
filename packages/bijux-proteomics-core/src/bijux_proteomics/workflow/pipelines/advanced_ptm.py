@@ -31,8 +31,8 @@ from bijux_proteomics.ptm import (
     render_ptm_site_group_quant_matrix_tsv,
     render_ptm_site_group_quant_missingness_tsv,
     render_ptm_site_group_quant_summary_tsv,
-    render_ptm_site_quant_excluded_tsv,
 )
+from bijux_proteomics.ptm.quant.site_quantification import render_ptm_site_quant_excluded_tsv
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
@@ -42,6 +42,8 @@ from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entries_from_issue_rows,
     build_result_warning,
@@ -393,7 +395,7 @@ def _build_advanced_ptm_warnings(
     *,
     summary: AdvancedPtmWorkflowSummary,
     manifest: AdvancedPtmWorkflowManifest,
-) -> tuple:
+) -> tuple[ResultWarningEntry, ...]:
     warnings = []
     if summary.rejected_evidence_count > 0:
         warnings.append(
@@ -441,7 +443,7 @@ def _build_advanced_ptm_rejected_evidence(
     *,
     report: PtmSiteWorkflowBundle,
     manifest: AdvancedPtmWorkflowManifest,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     return build_rejected_evidence_entries_from_issue_rows(
         report.evidence_parse_report.rejected_rows,
         source_surface="advanced_ptm_workflow",

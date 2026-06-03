@@ -32,6 +32,8 @@ from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entry,
     build_result_warning,
@@ -348,7 +350,7 @@ def _build_advanced_maxquant_warnings(
     *,
     summary: AdvancedMaxquantWorkflowSummary,
     manifest: AdvancedMaxquantWorkflowManifest,
-) -> tuple:
+) -> tuple[ResultWarningEntry, ...]:
     warnings = []
     if summary.excluded_reverse_or_contaminant_count > 0:
         warnings.append(
@@ -382,7 +384,7 @@ def _build_advanced_maxquant_rejected_evidence(
     *,
     filtered_groups: tuple[MaxquantFilteredProteinGroupEntry, ...],
     related_artifact: str,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     entries = []
     for group in filtered_groups:
         if group.reasons:

@@ -34,6 +34,8 @@ from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     artifact_name_map,
     build_rejected_evidence_entries_from_reason_rows,
     build_result_warning,
@@ -430,7 +432,7 @@ def _build_advanced_fragpipe_warnings(
     *,
     summary: AdvancedFragpipeWorkflowSummary,
     manifest: AdvancedFragpipeWorkflowManifest,
-) -> tuple:
+) -> tuple[ResultWarningEntry, ...]:
     warnings = []
     if summary.filtered_psm_count > 0:
         warnings.append(
@@ -465,7 +467,7 @@ def _build_advanced_fragpipe_rejected_evidence(
     report: DdaBiologicalWorkflowBundle,
     discrepancy_reasons: tuple[AdvancedFragpipeDiscrepancyEntry, ...],
     related_artifact: str,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     return (
         build_dda_workflow_rejected_evidence_entries(report)
         + build_rejected_evidence_entries_from_reason_rows(
