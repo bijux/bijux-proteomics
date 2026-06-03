@@ -847,10 +847,7 @@ class RunManager:
             status = "failure" if failure_type != FailureType.NONE.value else "success"
             if _result_tool_status(result) == "dry_run":
                 status = "partial"
-            if (
-                _result_lifecycle_state(result)
-                == RunLifecycleState.HUMAN_REVIEW.value
-            ):
+            if _result_lifecycle_state(result) == RunLifecycleState.HUMAN_REVIEW.value:
                 status = "partial"
         except KeyboardInterrupt:
             status = "failure"

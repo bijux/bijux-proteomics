@@ -102,6 +102,7 @@ __all__ = [
     "cli",
 ]
 
+
 class _RunsOperationsModule(Protocol):
     def build_runtime_run_config(
         self,
