@@ -15,6 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.review.claims.result_queries import (
+    _QcRunArtifact,
     _ResultArtifactContext,
     _empty_to_none,
     _find_protein_card,
@@ -709,10 +710,11 @@ def _explain_sample_qc_decision(
     sample_to_runs = _sample_to_failed_qc_runs(context.base_context)
     failed_runs = sample_to_runs.get(request.subject_id or "", ())
     if failed_runs:
+        sample_subject_id = request.subject_id or failed_runs[0].run_id
         sample_node_ids = _node_ids_for_entity(
             context.base_context.graph_node_index,
             entity_type="sample",
-            entity_ref=request.subject_id or "",
+            entity_ref=sample_subject_id,
         )
         graph_node_ids = tuple(
             dict.fromkeys(
@@ -748,8 +750,8 @@ def _explain_sample_qc_decision(
         )
         return _answered_explanation(
             request,
-            subject_label=request.subject_id,
-            claim=f"Sample {request.subject_id} failed QC.",
+            subject_label=sample_subject_id,
+            claim=f"Sample {sample_subject_id} failed QC.",
             evidence=evidence,
             opposing_evidence=(),
             decision="sample failed run-level QC and should stay blocked or reviewed",
@@ -1176,7 +1178,7 @@ def _pathway_unresolved_members(
 def _find_failed_qc_run(
     context: _ResultArtifactContext,
     subject_id: str | None,
-):
+) -> _QcRunArtifact | None:
     if subject_id is None:
         return None
     return next(

@@ -19,7 +19,11 @@ from bijux_proteomics.domain import (
     build_sample_card_id,
     render_standard_card_row,
 )
-from bijux_proteomics.quantification import SampleExplorationReport, SampleOutlierEntry
+from bijux_proteomics.quantification import (
+    SampleExplorationReport,
+    SampleOutlierEntry,
+    SamplePcaEntry,
+)
 
 
 def build_sample_evidence_cards(
@@ -102,7 +106,7 @@ def export_sample_evidence_card_tsv(
 
 
 def _build_sample_card(
-    entry,
+    entry: SamplePcaEntry,
     *,
     report: SampleExplorationReport,
     outlier: SampleOutlierEntry | None,
@@ -138,7 +142,7 @@ def _build_sample_card(
     )
 
 
-def _claim_text(entry) -> str:
+def _claim_text(entry: SamplePcaEntry) -> str:
     if entry.outlier:
         return (
             f"Sample {entry.sample_id} deviates from its expected study neighborhood and "
@@ -148,7 +152,7 @@ def _claim_text(entry) -> str:
 
 
 def _evidence_against_text(
-    entry,
+    entry: SamplePcaEntry,
     *,
     outlier: SampleOutlierEntry | None,
     clustered_by_condition: bool,
@@ -163,7 +167,11 @@ def _evidence_against_text(
     return ". ".join(parts) + "."
 
 
-def _confidence(entry, *, clustered_by_condition: bool) -> ConfidenceTier:
+def _confidence(
+    entry: SamplePcaEntry,
+    *,
+    clustered_by_condition: bool,
+) -> ConfidenceTier:
     if entry.outlier:
         return ConfidenceTier.LOW
     if not clustered_by_condition:
@@ -171,7 +179,11 @@ def _confidence(entry, *, clustered_by_condition: bool) -> ConfidenceTier:
     return ConfidenceTier.HIGH
 
 
-def _warning_codes(entry, *, clustered_by_condition: bool) -> tuple[str, ...]:
+def _warning_codes(
+    entry: SamplePcaEntry,
+    *,
+    clustered_by_condition: bool,
+) -> tuple[str, ...]:
     warnings = set(entry.outlier_reasons)
     if not clustered_by_condition:
         warnings.add("condition_not_clustered")

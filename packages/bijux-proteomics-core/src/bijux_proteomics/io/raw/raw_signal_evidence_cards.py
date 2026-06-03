@@ -58,7 +58,10 @@ from bijux_proteomics.io.spectra.chimeric_spectrum import (
     ChimericSpectrumReport,
     score_chimeric_spectra_from_psms,
 )
-from bijux_proteomics.io.tables.xic_target_table import parse_xic_target_table
+from bijux_proteomics.io.tables.xic_target_table import (
+    XicTargetParseReport,
+    parse_xic_target_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -915,7 +918,9 @@ def _run_id_from_peak_report(report: ChromatographicPeakPickingReport) -> str:
     return Path(report.trace_report.source_path).stem
 
 
-def _targets_support_precursor_isotope_fit(target_report) -> bool:
+def _targets_support_precursor_isotope_fit(
+    target_report: XicTargetParseReport,
+) -> bool:
     if not target_report.accepted_entries:
         return False
     return all(

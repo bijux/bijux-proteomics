@@ -132,7 +132,7 @@ def _build_pathway_card(
             entry,
             unresolved_members=unresolved_members,
         ),
-        confidence=coerce_confidence_tier(entry.comparison_confidence_status),
+        confidence=_comparison_confidence(entry),
         warning_codes=_warning_codes(entry, unresolved_members=unresolved_members),
         source_ids=tuple(
             sorted(
@@ -226,6 +226,15 @@ def _warning_codes(
     if unresolved_members:
         warnings.add("unresolved_members")
     return tuple(sorted(warnings))
+
+
+def _comparison_confidence(
+    entry: PathwayConditionComparisonEntry,
+) -> ConfidenceTier:
+    confidence = coerce_confidence_tier(entry.comparison_confidence_status)
+    if confidence is None:
+        raise ValueError("pathway comparison confidence status cannot be empty")
+    return confidence
 
 
 def _member_ids_by_pathway(
