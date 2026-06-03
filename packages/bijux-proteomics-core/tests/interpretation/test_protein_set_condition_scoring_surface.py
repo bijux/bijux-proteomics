@@ -11,6 +11,7 @@ from bijux_proteomics.interpretation import (
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,
@@ -29,7 +30,7 @@ def _quant_fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
 
 
-def _build_fixture_table():
+def _build_fixture_table() -> LabelFreeQuantTable:
     parse_report = parse_ms1_feature_table(
         _quant_fixture_path("ms1_features.tsv"),
         mapping=Ms1FeatureColumnMapping(
