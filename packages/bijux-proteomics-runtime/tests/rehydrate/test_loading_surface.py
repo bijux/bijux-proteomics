@@ -4,8 +4,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import NoReturn
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+import pytest
+
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmProteinCorrectionMode,
@@ -60,7 +66,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _ptm_design_entries():
+def _ptm_design_entries() -> tuple[ExperimentalDesignEntry, ...]:
     return tuple(
         entry.model_copy(update={"batch": None})
         for entry in parse_experimental_design_table(
@@ -169,7 +175,7 @@ def _write_result_manifest_json(
 
 def test_load_completed_run_rehydrates_queries_and_regenerates_bundle_summary_without_workflow_rerun(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     biological_report_dir = _write_biological_report_dir(tmp_path)
     ptm_report_dir = _write_ptm_report_dir(tmp_path)
@@ -183,7 +189,7 @@ def test_load_completed_run_rehydrates_queries_and_regenerates_bundle_summary_wi
         run_qc_paths=(run_qc_path,),
     )
 
-    def _forbid_rerun(*args, **kwargs):  # noqa: ANN002, ANN003
+    def _forbid_rerun(*args: object, **kwargs: object) -> NoReturn:
         raise AssertionError(
             "scientific report builders must not rerun during rehydration"
         )

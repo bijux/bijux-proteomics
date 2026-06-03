@@ -16,6 +16,8 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.workflow import (
     InteractiveResultCard,
+    InteractiveResultPathway,
+    InteractiveResultProtein,
     InteractiveResultQcEntry,
     ProteomicsEvidenceGraph,
     ProteomicsStudyConclusionEntry,
@@ -64,7 +66,7 @@ class CollaboratorHandoffArchive(JsonModel):
         *,
         object_id: str | None = None,
         representative_protein_ref: str | None = None,
-    ):
+    ) -> InteractiveResultProtein:
         """Query one archived protein from the embedded result object."""
 
         return self.result.query_archived_protein(
@@ -72,7 +74,7 @@ class CollaboratorHandoffArchive(JsonModel):
             representative_protein_ref=representative_protein_ref,
         )
 
-    def query_archived_pathway(self, *, pathway_id: str):
+    def query_archived_pathway(self, *, pathway_id: str) -> InteractiveResultPathway:
         """Query one archived pathway from the embedded result object."""
 
         return self.result.query_archived_pathway(pathway_id=pathway_id)

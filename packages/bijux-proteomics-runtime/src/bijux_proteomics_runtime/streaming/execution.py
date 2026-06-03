@@ -250,7 +250,9 @@ def run_streaming_import_step(
         total_records=total_records,
         subset_limit=subset_limit,
         subset_records=subset_tuple,
-        subset_sha256=hash_payload(tuple(record.to_dict() for record in subset_tuple)),
+        subset_sha256=hash_payload(
+            {"records": tuple(record.to_dict() for record in subset_tuple)}
+        ),
         peak_memory_bytes=peak_memory_bytes,
         memory_limit_bytes=step.memory_limit_bytes,
         diagnostics=(
