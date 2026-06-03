@@ -166,7 +166,7 @@ def diann_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build one DIA-NN-to-biology report bundle."
+    """Build one DIA-NN-to-biology report bundle."""
     return run_diann_biological_report_command(
         result_tsv,
         design_tsv,
@@ -330,7 +330,7 @@ def maxquant_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build one MaxQuant-to-biology report bundle."
+    """Build one MaxQuant-to-biology report bundle."""
     return run_maxquant_biological_report_command(
         evidence_txt,
         peptides_txt,

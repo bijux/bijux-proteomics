@@ -44,7 +44,7 @@ def multiplex_validate_metadata_command(
     missing_condition_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Validate multiplex sample metadata mappings from the design table."
+    """Validate multiplex sample metadata mappings from the design table."""
     return run_multiplex_validate_metadata_command(
         design_path,
         summary_tsv_out,
@@ -116,7 +116,7 @@ def tmt_reporter_matrix_command(
     protein_matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import TMT reporter-ion search results and build sample-channel matrices."
+    """Import TMT reporter-ion search results and build sample-channel matrices."""
     return run_tmt_reporter_matrix_command(
         input_tsv,
         design_path,
@@ -202,7 +202,7 @@ def tmt_interference_command(
     channel_summary_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review TMT reporter-ion isolation interference and export filter ledgers."
+    """Review TMT reporter-ion isolation interference and export filter ledgers."""
     return run_tmt_interference_command(
         input_tsv,
         design_path,
@@ -292,7 +292,7 @@ def tmt_normalize_command(
     protein_matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Normalize TMT reporter-channel evidence and export before/after review ledgers."
+    """Normalize TMT reporter-channel evidence and export before/after review ledgers."""
     return run_tmt_normalize_command(
         input_tsv,
         design_path,

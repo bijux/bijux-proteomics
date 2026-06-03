@@ -117,7 +117,7 @@ def map_orthologs_command(
     rejected_ortholog_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map input proteins onto a selected ortholog species pair."
+    """Map input proteins onto a selected ortholog species pair."""
     return run_map_orthologs_command(
         protein_tsv,
         ortholog_tsv,
@@ -270,7 +270,7 @@ def protein_set_score_command(
     rejected_set_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score user-defined protein sets across normalized study samples."
+    """Score user-defined protein sets across normalized study samples."""
     return run_protein_set_score_command(
         input_table,
         protein_set_tsv,

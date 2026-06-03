@@ -51,7 +51,7 @@ def fasta_provenance_command(
     operation: str,
     out_path: Path,
 ) -> None:
-    "Write a provenance manifest for one FASTA processing step."
+    """Write a provenance manifest for one FASTA processing step."""
     return run_fasta_provenance_command(
         input_fasta, mode, duplicate_accession_policy, operation, out_path
     )
@@ -110,7 +110,7 @@ def fasta_decoy_command(
     report_out: Path | None,
     manifest_out: Path | None,
 ) -> None:
-    "Generate target/decoy FASTA output and validate the result."
+    """Generate target/decoy FASTA output and validate the result."""
     return run_fasta_decoy_command(
         input_fasta,
         mode,
@@ -148,7 +148,7 @@ def target_decoy_validate_command(
     prefix: str,
     out_path: Path | None,
 ) -> None:
-    "Validate target/decoy pairing completeness for a FASTA collection."
+    """Validate target/decoy pairing completeness for a FASTA collection."""
     return run_target_decoy_validate_command(input_fasta, mode, prefix, out_path)
 
 
@@ -224,7 +224,7 @@ def digest_command(
     manifest_out: Path | None,
     peptide_protein_table_out: Path | None,
 ) -> None:
-    "Digest FASTA records into peptide exports."
+    """Digest FASTA records into peptide exports."""
     return run_digest_command(
         input_fasta,
         mode,
@@ -341,7 +341,7 @@ def theoretical_digest_command(
     max_variants_per_peptide: int,
     out_dir: Path,
 ) -> None:
-    "Build the governed theoretical digest TSV bundle."
+    """Build the governed theoretical digest TSV bundle."""
     return run_theoretical_digest_command(
         input_fasta,
         mode,

@@ -76,7 +76,7 @@ def protein_groups_command(
     group_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review grouped protein evidence from FDR-filtered PSM rows."
+    """Review grouped protein evidence from FDR-filtered PSM rows."""
     return run_protein_groups_command(
         input_tsv,
         threshold,
@@ -162,7 +162,7 @@ def protein_ambiguity_command(
     ambiguity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review ambiguous protein groups from FDR-filtered PSM rows."
+    """Review ambiguous protein groups from FDR-filtered PSM rows."""
     return run_protein_ambiguity_command(
         input_tsv,
         threshold,
@@ -213,7 +213,7 @@ def protein_inference_benchmarks_command(
     assessments_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review the owned protein-inference benchmark catalog."
+    """Review the owned protein-inference benchmark catalog."""
     return run_protein_inference_benchmarks_command(
         picked_threshold,
         summary_tsv_out,

@@ -47,7 +47,7 @@ def xic_extract_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Extract precursor XIC traces directly from mzML MS1 spectra."
+    """Extract precursor XIC traces directly from mzML MS1 spectra."""
     return run_xic_extract_command(
         input_mzml, target_table, tolerance_da, tolerance_ppm, tsv_out, out_path
     )
@@ -84,7 +84,7 @@ def xic_pick_peaks_command(
     peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Extract XIC traces and detect chromatographic peaks from mzML."
+    """Extract XIC traces and detect chromatographic peaks from mzML."""
     return run_xic_pick_peaks_command(
         input_mzml,
         target_table,
@@ -152,7 +152,7 @@ def xic_align_retention_times_command(
     failed_anchor_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Align run-to-run retention times from common chromatographic anchors."
+    """Align run-to-run retention times from common chromatographic anchors."""
     return run_xic_align_retention_times_command(
         target_table,
         input_mzml,
@@ -210,7 +210,7 @@ def xic_score_evidence_command(
     peptide_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score chromatographic precursor and peptide evidence across mzML runs."
+    """Score chromatographic precursor and peptide evidence across mzML runs."""
     return run_xic_score_evidence_command(
         target_table,
         input_mzml,
@@ -282,7 +282,7 @@ def dia_fragment_coelution_command(
     ratio_observation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score coelution among DIA fragment traces assigned to one precursor."
+    """Score coelution among DIA fragment traces assigned to one precursor."""
     return run_dia_fragment_coelution_command(
         target_table,
         input_mzml,

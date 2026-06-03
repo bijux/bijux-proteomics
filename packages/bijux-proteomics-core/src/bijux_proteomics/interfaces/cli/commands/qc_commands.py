@@ -85,7 +85,7 @@ def qc_report_command(
     manifest_out: Path | None,
     benchmark_out: Path | None,
 ) -> None:
-    "Build QC summaries, threshold assessments, evidence manifests, and benchmark artifacts."
+    """Build QC summaries, threshold assessments, evidence manifests, and benchmark artifacts."""
     return run_qc_report_command(
         spectra_path,
         psm_path,

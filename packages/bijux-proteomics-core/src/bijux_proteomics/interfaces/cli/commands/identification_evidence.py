@@ -50,7 +50,7 @@ def psm_map_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map a lab-local PSM table through an explicit YAML or JSON column map."
+    """Map a lab-local PSM table through an explicit YAML or JSON column map."""
     return run_psm_map_command(
         input_tsv, mapping_path, normalized_tsv_out, rejected_tsv_out, out_path
     )
@@ -143,7 +143,7 @@ def psm_inspect_command(
     missed_cleavage_distribution_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Inspect a generic PSM TSV and emit normalized summaries."
+    """Inspect a generic PSM TSV and emit normalized summaries."""
     return run_psm_inspect_command(
         input_tsv,
         spectrum_id_column,
@@ -234,7 +234,7 @@ def peptide_evidence_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review classified peptide evidence with strong, moderate, shared, and weak states."
+    """Review classified peptide evidence with strong, moderate, shared, and weak states."""
     return run_peptide_evidence_command(
         input_tsv,
         threshold,
@@ -327,7 +327,7 @@ def protein_evidence_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review final protein evidence tiers with explicit downgrade reasons."
+    """Review final protein evidence tiers with explicit downgrade reasons."""
     return run_protein_evidence_command(
         input_tsv,
         high_q_value,
@@ -415,7 +415,7 @@ def cross_run_reproducibility_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score peptide or protein evidence by cross-run detection consistency."
+    """Score peptide or protein evidence by cross-run detection consistency."""
     return run_cross_run_reproducibility_command(
         input_tsv,
         entity_type,

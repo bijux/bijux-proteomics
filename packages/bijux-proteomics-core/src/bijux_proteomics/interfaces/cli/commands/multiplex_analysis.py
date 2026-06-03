@@ -82,7 +82,7 @@ def tmt_ratio_command(
     protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compute governed TMT sample/control ratios across multiplex channels."
+    """Compute governed TMT sample/control ratios across multiplex channels."""
     return run_tmt_ratio_command(
         input_tsv,
         design_path,
@@ -160,7 +160,7 @@ def tmt_integrate_plexes_command(
     protein_matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Integrate multiple TMT plexes through bridge-normalized protein matrices."
+    """Integrate multiple TMT plexes through bridge-normalized protein matrices."""
     return run_tmt_integrate_plexes_command(
         input_tsv,
         design_path,
@@ -289,7 +289,7 @@ def tmt_differential_command(
     volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
-    "Run differential analysis over governed TMT protein matrices."
+    """Run differential analysis over governed TMT protein matrices."""
     return run_tmt_differential_command(
         input_tsv,
         design_path,
@@ -396,7 +396,7 @@ def tmt_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build a governed TMT report directory with channel quality, ratios, and protein changes."
+    """Build a governed TMT report directory with channel quality, ratios, and protein changes."""
     return run_tmt_report_command(
         input_tsv,
         design_path,

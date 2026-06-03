@@ -123,7 +123,7 @@ def dia_differential_command(
     sample_balance_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run DIA-native differential analysis from DIA-NN or Spectronaut evidence."
+    """Run DIA-native differential analysis from DIA-NN or Spectronaut evidence."""
     return run_dia_differential_command(
         input_path,
         design_path,
@@ -211,7 +211,7 @@ def dia_dda_compare_command(
     differential_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare DIA-NN and DDA evidence, conflicts, and optional differential results."
+    """Compare DIA-NN and DDA evidence, conflicts, and optional differential results."""
     return run_dia_dda_compare_command(
         diann_report_path,
         dda_psm_path,
@@ -279,7 +279,7 @@ def target_panel_review_command(
     matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review a user-defined peptide or protein panel against DIA or LFQ matrices."
+    """Review a user-defined peptide or protein panel against DIA or LFQ matrices."""
     return run_target_panel_review_command(
         input_path,
         panel_path,

@@ -56,7 +56,7 @@ def public_benchmark_runner_command(
     signal_assessments_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run one public benchmark descriptor or a whole public benchmark root."
+    """Run one public benchmark descriptor or a whole public benchmark root."""
     return run_public_benchmark_runner_command(
         benchmark_path,
         run_output_root,
@@ -92,7 +92,7 @@ def build_trust_bundle_command(
     summary_tsv_out: Path | None,
     manifest_json_out: Path | None,
 ) -> None:
-    "Build a regenerable trust bundle from public benchmark descriptors."
+    """Build a regenerable trust bundle from public benchmark descriptors."""
     return run_build_trust_bundle_command(
         benchmark_root, output_dir, summary_tsv_out, manifest_json_out
     )
@@ -132,7 +132,7 @@ def surprising_demo_command(
     belief_audit_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run the shipped proteomics demo from local example data only."
+    """Run the shipped proteomics demo from local example data only."""
     return run_surprising_demo_command(
         output_dir,
         summary_tsv_out,
@@ -182,7 +182,7 @@ def scale_demo_command(
     validation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Generate a local scale dataset and run owned parsing, quant, graph, and report validation."
+    """Generate a local scale dataset and run owned parsing, quant, graph, and report validation."""
     return run_scale_demo_command(
         output_dir,
         protein_count,
@@ -226,7 +226,7 @@ def surprising_demo_query_command(
     answers_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Answer deterministic shipped-demo questions from owned local outputs."
+    """Answer deterministic shipped-demo questions from owned local outputs."""
     return run_surprising_demo_query_command(
         output_dir, query_kind, subject_id, summary_tsv_out, answers_tsv_out, out_path
     )
@@ -256,7 +256,7 @@ def surprising_demo_report_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build the shipped integrated scientific report from owned local outputs."
+    """Build the shipped integrated scientific report from owned local outputs."""
     return run_surprising_demo_report_command(
         output_dir, summary_tsv_out, sentences_tsv_out, html_out, out_path
     )
@@ -316,7 +316,7 @@ def public_dataset_comparison_command(
     pathway_comparison_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run one biological question across multiple public dataset descriptors."
+    """Run one biological question across multiple public dataset descriptors."""
     return run_public_dataset_comparison_command(
         benchmark_root,
         run_output_root,
@@ -363,7 +363,7 @@ def public_dataset_evidence_cards_command(
     dataset_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build cross-study evidence cards over public dataset descriptors."
+    """Build cross-study evidence cards over public dataset descriptors."""
     return run_public_dataset_evidence_cards_command(
         benchmark_root,
         run_output_root,
@@ -392,7 +392,7 @@ def public_case_study_command(
     report_dir: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run the owned public LFQ case study through final biological reporting."
+    """Run the owned public LFQ case study through final biological reporting."""
     return run_public_case_study_command(summary_tsv_out, report_dir, out_path)
 
 

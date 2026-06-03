@@ -67,7 +67,7 @@ def silac_quantify_command(
     protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Quantify SILAC pair or triplet evidence from labeled feature tables."
+    """Quantify SILAC pair or triplet evidence from labeled feature tables."""
     return run_silac_quantify_command(
         input_tsv,
         sample_id_column,
@@ -202,7 +202,7 @@ def silac_differential_command(
     volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
-    "Run differential analysis over governed SILAC protein ratios."
+    """Run differential analysis over governed SILAC protein ratios."""
     return run_silac_differential_command(
         input_tsv,
         design_path,
@@ -306,7 +306,7 @@ def silac_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build a governed SILAC report directory with ratios, QC, and differential results."
+    """Build a governed SILAC report directory with ratios, QC, and differential results."""
     return run_silac_report_command(
         input_tsv,
         design_path,
@@ -374,7 +374,7 @@ def silac_validate_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Validate expected SILAC labels and weak labeling evidence."
+    """Validate expected SILAC labels and weak labeling evidence."""
     return run_silac_validate_command(
         input_tsv,
         sample_id_column,
@@ -442,7 +442,7 @@ def tmt_validate_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Validate expected TMT channels and weak reporter evidence."
+    """Validate expected TMT channels and weak reporter evidence."""
     return run_tmt_validate_command(
         input_tsv,
         design_path,

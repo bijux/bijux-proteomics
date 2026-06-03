@@ -113,7 +113,7 @@ def ptm_ambiguity_review_command(
     group_quant_missingness_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review PTM localization ambiguity and optional ambiguity-group quantification."
+    """Review PTM localization ambiguity and optional ambiguity-group quantification."""
     return run_ptm_ambiguity_review_command(
         evidence_tsv,
         proteins_fasta,
@@ -244,7 +244,7 @@ def ptm_quantify_sites_command(
     excluded_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Quantify PTM sites across samples from localized evidence and feature intensities."
+    """Quantify PTM sites across samples from localized evidence and feature intensities."""
     return run_ptm_quantify_sites_command(
         evidence_tsv,
         proteins_fasta,

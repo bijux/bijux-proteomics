@@ -119,7 +119,7 @@ def fdr_command(
     error_rate_entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Apply basic target-decoy FDR and emit filtered PSM summaries."
+    """Apply basic target-decoy FDR and emit filtered PSM summaries."""
     return run_fdr_command(
         input_tsv,
         threshold,
@@ -176,7 +176,7 @@ def fdr_reference_check_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Validate curated target-decoy reference cases against the owned FDR surface."
+    """Validate curated target-decoy reference cases against the owned FDR surface."""
     return run_fdr_reference_check_command(
         reference_json, summary_tsv_out, entries_tsv_out, out_path
     )
@@ -247,7 +247,7 @@ def fdr_levels_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare PSM, peptide, and protein FDR counts across explicit thresholds."
+    """Compare PSM, peptide, and protein FDR counts across explicit thresholds."""
     return run_fdr_levels_command(
         input_tsv,
         thresholds,
@@ -336,7 +336,7 @@ def picked_protein_fdr_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review picked target-decoy protein FDR across explicit thresholds."
+    """Review picked target-decoy protein FDR across explicit thresholds."""
     return run_picked_protein_fdr_command(
         input_tsv,
         thresholds,

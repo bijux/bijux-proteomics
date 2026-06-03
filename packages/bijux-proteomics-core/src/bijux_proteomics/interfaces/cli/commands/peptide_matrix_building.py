@@ -130,7 +130,7 @@ def peptide_matrix_command(
     aggregation_table_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build one peptide-by-sample intensity matrix from feature, precursor, or PSM evidence."
+    """Build one peptide-by-sample intensity matrix from feature, precursor, or PSM evidence."""
     return run_peptide_matrix_command(
         input_table,
         input_kind,

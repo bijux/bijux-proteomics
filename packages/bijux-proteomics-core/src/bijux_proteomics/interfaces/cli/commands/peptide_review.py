@@ -96,7 +96,7 @@ def peptide_detectability_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score peptide observability from owned sequence and chemistry semantics."
+    """Score peptide observability from owned sequence and chemistry semantics."""
     return run_peptide_detectability_command(
         sequence,
         modifications,
@@ -176,7 +176,7 @@ def precursor_mass_error_command(
     isotope_distribution_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Report precursor mass error from peptide plus observed-m/z tables."
+    """Report precursor mass error from peptide plus observed-m/z tables."""
     return run_precursor_mass_error_command(
         input_tsv,
         peptide_column,
@@ -222,7 +222,7 @@ def modified_peptide_parse_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Normalize one search-engine modified peptide notation."
+    """Normalize one search-engine modified peptide notation."""
     return run_modified_peptide_parse_command(
         notation, dialect, registry_path, out_path
     )
@@ -255,7 +255,7 @@ def modification_resolve_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Resolve one modification token against builtin or custom registries."
+    """Resolve one modification token against builtin or custom registries."""
     return run_modification_resolve_command(token, residue, registry_path, out_path)
 
 

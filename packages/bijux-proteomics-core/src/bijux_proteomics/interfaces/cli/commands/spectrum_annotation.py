@@ -60,7 +60,7 @@ def spectrum_annotate_command(
     unmatched_peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Annotate one spectrum against a peptide sequence."
+    """Annotate one spectrum against a peptide sequence."""
     return run_spectrum_annotate_command(
         input_mgf,
         peptide,
@@ -128,7 +128,7 @@ def spectrum_score_chimeric_command(
     competition_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score spectra for competing peptide evidence that suggests chimeric MS/MS."
+    """Score spectra for competing peptide evidence that suggests chimeric MS/MS."""
     return run_spectrum_score_chimeric_command(
         input_path,
         psm_path,
@@ -244,7 +244,7 @@ def raw_signal_evidence_card_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build one structured raw-signal evidence-card review for selected precursors."
+    """Build one structured raw-signal evidence-card review for selected precursors."""
     return run_raw_signal_evidence_card_command(
         xic_target_table,
         chromatogram_mzml,
@@ -319,7 +319,7 @@ def precursor_isotope_fit_command(
     peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare predicted precursor isotope envelopes against observed MS1 peaks."
+    """Compare predicted precursor isotope envelopes against observed MS1 peaks."""
     return run_precursor_isotope_fit_command(
         target_table,
         input_mzml,

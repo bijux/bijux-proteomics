@@ -65,7 +65,7 @@ def belief_audit_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Audit why governed conclusions were retained, weakened, and falsifiable."
+    """Audit why governed conclusions were retained, weakened, and falsifiable."""
     return run_belief_audit_command(
         biological_report_dir,
         ptm_report_dir,
@@ -124,7 +124,7 @@ def targeted_panel_builder_command(
     omitted_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build a targeted transition-list panel from ranked candidates and retained assays."
+    """Build a targeted transition-list panel from ranked candidates and retained assays."""
     return run_targeted_panel_builder_command(
         biomarker_candidate_tsv,
         selected_peptide_tsv,
@@ -193,7 +193,7 @@ def validation_experiment_planner_command(
     warning_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Plan targeted validation experiments from biomarker, peptide, and panel evidence."
+    """Plan targeted validation experiments from biomarker, peptide, and panel evidence."""
     return run_validation_experiment_planner_command(
         biomarker_candidate_tsv,
         selected_peptide_tsv,

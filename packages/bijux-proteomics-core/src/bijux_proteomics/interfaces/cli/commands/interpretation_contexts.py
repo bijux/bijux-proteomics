@@ -174,7 +174,7 @@ def compartment_biology_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Interpret changed proteins through explicit subcellular compartment context."
+    """Interpret changed proteins through explicit subcellular compartment context."""
     return run_compartment_biology_command(
         input_table,
         context_annotation_tsv,
@@ -375,7 +375,7 @@ def drug_target_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Interpret regulated proteins as explicit drug targets or pathway neighbors."
+    """Interpret regulated proteins as explicit drug targets or pathway neighbors."""
     return run_drug_target_command(
         input_table,
         context_tsv,

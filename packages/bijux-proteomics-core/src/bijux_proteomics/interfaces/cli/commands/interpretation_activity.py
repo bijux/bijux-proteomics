@@ -157,7 +157,7 @@ def pathway_activity_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score pathway activity across normalized study samples."
+    """Score pathway activity across normalized study samples."""
     return run_pathway_activity_command(
         input_table,
         pathway_membership_tsv,
@@ -342,7 +342,7 @@ def complex_activity_command(
     rejected_complex_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score protein complex activity across normalized study samples."
+    """Score protein complex activity across normalized study samples."""
     return run_complex_activity_command(
         input_table,
         complex_membership_tsv,

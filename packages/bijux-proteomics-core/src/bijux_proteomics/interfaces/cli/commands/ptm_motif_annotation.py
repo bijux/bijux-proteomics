@@ -195,7 +195,7 @@ def ptm_motif_enrichment_command(
     logo_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare regulated phosphosite sequence motifs against a PTM background set."
+    """Compare regulated phosphosite sequence motifs against a PTM background set."""
     return run_ptm_motif_enrichment_command(
         evidence_tsv,
         proteins_fasta,
@@ -385,7 +385,7 @@ def ptm_annotate_sites_command(
     pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map imported PTM site annotations onto observed PTM sites."
+    """Map imported PTM site annotations onto observed PTM sites."""
     return run_ptm_annotate_sites_command(
         evidence_tsv,
         proteins_fasta,

@@ -55,7 +55,7 @@ def transition_qc_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review transition-level quantitative evidence from one canonical table."
+    """Review transition-level quantitative evidence from one canonical table."""
     return run_transition_qc_command(
         transition_table,
         weak_detection_fraction_threshold,
@@ -108,7 +108,7 @@ def targeted_target_matrix_command(
     missingness_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import targeted assay results and build a precursor-target matrix review."
+    """Import targeted assay results and build a precursor-target matrix review."""
     return run_targeted_target_matrix_command(
         input_path,
         source_kind,
@@ -176,7 +176,7 @@ def targeted_assay_qc_command(
     unreliable_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import targeted assay results and build assay-QC review ledgers."
+    """Import targeted assay results and build assay-QC review ledgers."""
     return run_targeted_assay_qc_command(
         input_path,
         design_path,
@@ -223,7 +223,7 @@ def targeted_carryover_review_command(
     candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review ordered targeted runs for carryover candidates."
+    """Review ordered targeted runs for carryover candidates."""
     return run_targeted_carryover_review_command(
         input_path,
         design_path,

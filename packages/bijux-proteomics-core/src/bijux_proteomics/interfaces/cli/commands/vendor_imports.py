@@ -57,7 +57,7 @@ def spectronaut_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one Spectronaut report with explicit precursor and protein-group review."
+    """Import one Spectronaut report with explicit precursor and protein-group review."""
     return run_spectronaut_import_command(
         result_tsv,
         config_path,
@@ -104,7 +104,7 @@ def openms_import_command(
     rejected_feature_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one OpenMS idXML bundle with practical exported feature evidence."
+    """Import one OpenMS idXML bundle with practical exported feature evidence."""
     return run_openms_import_command(
         idxml_path,
         feature_table_path,

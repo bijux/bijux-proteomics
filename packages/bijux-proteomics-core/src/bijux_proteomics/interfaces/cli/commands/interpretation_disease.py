@@ -153,7 +153,7 @@ def disease_phenotype_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Interpret changed proteins through explicit disease and phenotype annotation."
+    """Interpret changed proteins through explicit disease and phenotype annotation."""
     return run_disease_phenotype_command(
         input_table,
         context_tsv,

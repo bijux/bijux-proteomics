@@ -36,7 +36,7 @@ def ptm_parse_peptide_command(
     spectrum_id: str | None,
     out_path: Path | None,
 ) -> None:
-    "Parse one PTM peptide into explicit site-local records."
+    """Parse one PTM peptide into explicit site-local records."""
     return run_ptm_parse_peptide_command(
         modified_peptide,
         protein_ref,
@@ -96,7 +96,7 @@ def ptm_parse_peptides_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Parse a PTM peptide table into peptide and site review ledgers."
+    """Parse a PTM peptide table into peptide and site review ledgers."""
     return run_ptm_parse_peptides_command(
         peptide_tsv,
         peptide_column,
@@ -213,7 +213,7 @@ def ptm_map_sites_command(
     validation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map localized PTM peptides onto protein coordinates and export site tables."
+    """Map localized PTM peptides onto protein coordinates and export site tables."""
     return run_ptm_map_sites_command(
         evidence_tsv,
         proteins_fasta,
@@ -304,7 +304,7 @@ def ptm_score_localization_command(
     entry_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score PTM localization confidence and export probability review ledgers."
+    """Score PTM localization confidence and export probability review ledgers."""
     return run_ptm_score_localization_command(
         evidence_tsv,
         sample_column,

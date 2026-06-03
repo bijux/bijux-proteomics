@@ -64,7 +64,7 @@ def diann_precursor_matrix_command(
     metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build a DIA precursor-by-sample matrix from one DIA-NN report."
+    """Build a DIA precursor-by-sample matrix from one DIA-NN report."""
     return run_diann_precursor_matrix_command(
         result_tsv,
         config_path,
@@ -126,7 +126,7 @@ def spectronaut_precursor_matrix_command(
     metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build a DIA precursor-by-sample matrix from one Spectronaut report."
+    """Build a DIA precursor-by-sample matrix from one Spectronaut report."""
     return run_spectronaut_precursor_matrix_command(
         result_tsv,
         config_path,

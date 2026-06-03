@@ -96,7 +96,7 @@ def protein_coverage_command(
     peptide_coordinate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review protein sequence coverage from accepted peptide evidence."
+    """Review protein sequence coverage from accepted peptide evidence."""
     return run_protein_coverage_command(
         input_tsv,
         fasta_path,
@@ -195,7 +195,7 @@ def protein_coverage_plot_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build plot-ready peptide-to-protein coverage payloads and static plots."
+    """Build plot-ready peptide-to-protein coverage payloads and static plots."""
     return run_protein_coverage_plot_command(
         input_tsv,
         fasta_path,
@@ -304,7 +304,7 @@ def protein_parsimony_command(
     ambiguity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Review one parsimony-selected protein set and its remaining ambiguity."
+    """Review one parsimony-selected protein set and its remaining ambiguity."""
     return run_protein_parsimony_command(
         input_tsv,
         threshold,
@@ -378,7 +378,7 @@ def infer_proteins_command(
     fasta_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Infer proteins, group evidence, and emit multi-level FDR artifacts."
+    """Infer proteins, group evidence, and emit multi-level FDR artifacts."""
     return run_infer_proteins_command(
         input_tsv,
         threshold,

@@ -135,7 +135,7 @@ def protein_matrix_command(
     contributions_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build one protein-by-sample intensity matrix from feature or PSM evidence."
+    """Build one protein-by-sample intensity matrix from feature or PSM evidence."""
     return run_protein_matrix_command(
         input_table,
         input_kind,
@@ -302,7 +302,7 @@ def protein_lfq_command(
     peptide_profile_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence."
+    """Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence."""
     return run_protein_lfq_command(
         input_table,
         input_kind,

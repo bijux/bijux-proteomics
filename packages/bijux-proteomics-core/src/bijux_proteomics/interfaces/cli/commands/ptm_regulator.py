@@ -186,7 +186,7 @@ def ptm_regulator_enrichment_command(
     results_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score kinase and phosphatase substrate annotations over regulated PTM sites."
+    """Score kinase and phosphatase substrate annotations over regulated PTM sites."""
     return run_ptm_regulator_enrichment_command(
         evidence_tsv,
         proteins_fasta,

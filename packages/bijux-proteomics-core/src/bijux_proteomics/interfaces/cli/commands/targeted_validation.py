@@ -96,7 +96,7 @@ def targeted_result_validator_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Validate targeted PRM/SRM results back against discovery biomarker claims."
+    """Validate targeted PRM/SRM results back against discovery biomarker claims."""
     return run_targeted_result_validator_command(
         biomarker_candidate_tsv,
         panel_assay_tsv,
@@ -212,7 +212,7 @@ def biomarker_stability_analysis_command(
     adjusted_candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Assess biomarker stability across targeted-study subgroups."
+    """Assess biomarker stability across targeted-study subgroups."""
     return run_biomarker_stability_analysis_command(
         biomarker_candidate_tsv,
         panel_assay_tsv,
@@ -300,7 +300,7 @@ def biomarker_panel_redundancy_analysis_command(
     dropped_candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Detect redundant targeted biomarker candidates and keep explicit representatives."
+    """Detect redundant targeted biomarker candidates and keep explicit representatives."""
     return run_biomarker_panel_redundancy_analysis_command(
         biomarker_candidate_tsv,
         panel_assay_tsv,
@@ -387,7 +387,7 @@ def validation_evidence_cards_command(
     warning_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Assemble candidate-level validation evidence cards from governed TSV outputs."
+    """Assemble candidate-level validation evidence cards from governed TSV outputs."""
     return run_validation_evidence_cards_command(
         biomarker_candidate_tsv,
         panel_assay_tsv,

@@ -121,7 +121,7 @@ def ptm_annotate_context_command(
     context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Annotate observed PTM sites with provided protein-region context."
+    """Annotate observed PTM sites with provided protein-region context."""
     return run_ptm_annotate_context_command(
         evidence_tsv,
         proteins_fasta,

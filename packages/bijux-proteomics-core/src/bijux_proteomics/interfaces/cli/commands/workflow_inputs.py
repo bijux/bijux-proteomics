@@ -51,7 +51,7 @@ def validate_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    "Validate one FASTA, PSM TSV, MGF, mzML, design table, or modification registry input."
+    """Validate one FASTA, PSM TSV, MGF, mzML, design table, or modification registry input."""
     return run_validate_command(input_path, input_kind, mode, out_path)
 
 
@@ -85,7 +85,7 @@ def summarize_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    "Summarize one FASTA, PSM TSV, MGF, mzML, or design-table input."
+    """Summarize one FASTA, PSM TSV, MGF, mzML, or design-table input."""
     return run_summarize_command(input_path, input_kind, mode, out_path)
 
 
@@ -153,7 +153,7 @@ def experiment_feasibility_command(
     model_support_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Report what a study design can and cannot support before analysis."
+    """Report what a study design can and cannot support before analysis."""
     return run_experiment_feasibility_command(
         design_path,
         condition_a,
@@ -226,7 +226,7 @@ def protocol_consistency_report_command(
     diagnostics_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Check whether observed evidence matches the declared lab protocol context."
+    """Check whether observed evidence matches the declared lab protocol context."""
     return run_protocol_consistency_report_command(
         protocol_context_tsv,
         spectra_path,
@@ -288,7 +288,7 @@ def sample_sheet_repair_suggestions_command(
     suggestions_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Suggest exact sample-sheet repairs without rewriting study metadata."
+    """Suggest exact sample-sheet repairs without rewriting study metadata."""
     return run_sample_sheet_repair_suggestions_command(
         design_path,
         observed_sample_ids,
@@ -325,7 +325,7 @@ def format_convert_command(
     target_format: str,
     out_path: Path,
 ) -> None:
-    "Convert one supported input into a normalized Bijux output surface."
+    """Convert one supported input into a normalized Bijux output surface."""
     return run_format_convert_command(input_path, input_kind, target_format, out_path)
 
 

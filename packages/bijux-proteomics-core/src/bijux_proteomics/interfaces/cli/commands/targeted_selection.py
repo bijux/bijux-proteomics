@@ -54,7 +54,7 @@ def targeted_peptide_selection_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Select targeted assay peptides from discovery protein and peptide evidence."
+    """Select targeted assay peptides from discovery protein and peptide evidence."""
     return run_targeted_peptide_selection_command(
         protein_card_tsv,
         peptide_evidence_tsv,
@@ -141,7 +141,7 @@ def targeted_transition_selection_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Select chemistry-driven fragment transitions for targeted assay peptides."
+    """Select chemistry-driven fragment transitions for targeted assay peptides."""
     return run_targeted_transition_selection_command(
         selected_peptide_tsv,
         spectral_library_path,
@@ -232,7 +232,7 @@ def targeted_assay_interference_command(
     panel_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Score targeted assay interference before panel export."
+    """Score targeted assay interference before panel export."""
     return run_targeted_assay_interference_command(
         selected_peptide_tsv,
         selected_transition_tsv,
@@ -291,7 +291,7 @@ def biomarker_candidate_ranking_command(
     candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Rank protein and PTM validation candidates from governed report artifacts."
+    """Rank protein and PTM validation candidates from governed report artifacts."""
     return run_biomarker_candidate_ranking_command(
         biological_report_dir,
         ptm_report_dir,

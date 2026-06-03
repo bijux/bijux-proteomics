@@ -130,7 +130,7 @@ def heatmap_matrix_command(
     column_metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Prepare one normalized matrix for heatmaps and clustering."
+    """Prepare one normalized matrix for heatmaps and clustering."""
     return run_heatmap_matrix_command(
         input_table,
         entity_level,
@@ -257,7 +257,7 @@ def power_estimate_command(
     effect_size_grid_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Estimate pilot variance and detectable effect sizes across replicate counts."
+    """Estimate pilot variance and detectable effect sizes across replicate counts."""
     return run_power_estimate_command(
         input_table,
         entity_level,
@@ -393,7 +393,7 @@ def sample_exploration_command(
     outliers_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Prepare sample-level PCA, correlation, distance, clustering, and outlier outputs."
+    """Prepare sample-level PCA, correlation, distance, clustering, and outlier outputs."""
     return run_sample_exploration_command(
         input_table,
         entity_level,

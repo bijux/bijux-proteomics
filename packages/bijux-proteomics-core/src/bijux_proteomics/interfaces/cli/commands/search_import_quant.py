@@ -52,7 +52,7 @@ def comet_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one Comet tabular or pepXML result file with explicit score review."
+    """Import one Comet tabular or pepXML result file with explicit score review."""
     return run_comet_import_command(
         result_path,
         config_path,
@@ -113,7 +113,7 @@ def maxquant_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one MaxQuant evidence, peptide, and protein-group bundle."
+    """Import one MaxQuant evidence, peptide, and protein-group bundle."""
     return run_maxquant_import_command(
         evidence_txt,
         peptides_txt,
@@ -191,7 +191,7 @@ def maxquant_benchmark_command(
     differential_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Benchmark governed MaxQuant import and LFQ behavior against source tables."
+    """Benchmark governed MaxQuant import and LFQ behavior against source tables."""
     return run_maxquant_benchmark_command(
         evidence_txt,
         peptides_txt,
@@ -240,7 +240,7 @@ def diann_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one DIA-NN report with explicit precursor and protein-group review."
+    """Import one DIA-NN report with explicit precursor and protein-group review."""
     return run_diann_import_command(
         result_tsv,
         config_path,
@@ -285,7 +285,7 @@ def diann_benchmark_command(
     protein_quantities_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Benchmark governed DIA-NN import and protein matrix behavior against source rows."
+    """Benchmark governed DIA-NN import and protein matrix behavior against source rows."""
     return run_diann_benchmark_command(
         result_tsv,
         config_path,

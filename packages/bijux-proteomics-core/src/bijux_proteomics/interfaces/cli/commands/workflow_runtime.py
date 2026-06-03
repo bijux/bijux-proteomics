@@ -52,7 +52,7 @@ def bundle_run_command(
     design_path: Path | None,
     out_dir: Path,
 ) -> None:
-    "Build one normalized run bundle from spectra, IDs, and optional design metadata."
+    """Build one normalized run bundle from spectra, IDs, and optional design metadata."""
     return run_bundle_run_command(
         spectra_path, identifications_path, design_path, out_dir
     )
@@ -209,7 +209,7 @@ def proteomics_run_command(
     output_dir: Path,
     json_out: Path | None,
 ) -> None:
-    "Run one flagship proteomics workflow from engine output to final biology report."
+    """Run one flagship proteomics workflow from engine output to final biology report."""
     return run_proteomics_run_command(
         engine,
         report_path,
@@ -319,7 +319,7 @@ def workflow_plan_command(
     job_out: Path | None,
     checkpoint_out: Path | None,
 ) -> None:
-    "Build a workflow-runtime bundle for digest/search/FDR/quant/QC execution."
+    """Build a workflow-runtime bundle for digest/search/FDR/quant/QC execution."""
     return run_workflow_plan_command(
         proteins_path,
         spectra_path,
@@ -409,7 +409,7 @@ def workflow_validate_command(
     completed_steps: tuple[str, ...],
     out_path: Path | None,
 ) -> None:
-    "Validate workflow runtime integrity without executing the workflow."
+    """Validate workflow runtime integrity without executing the workflow."""
     return run_workflow_validate_command(
         proteins_path,
         spectra_path,

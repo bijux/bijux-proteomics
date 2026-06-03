@@ -86,7 +86,7 @@ def ptm_estimate_occupancy_command(
     counterpart_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Estimate PTM occupancy and export counterpart-coverage review ledgers."
+    """Estimate PTM occupancy and export counterpart-coverage review ledgers."""
     return run_ptm_estimate_occupancy_command(
         evidence_tsv,
         proteins_fasta,
@@ -258,7 +258,7 @@ def ptm_differential_command(
     volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
-    "Test PTM site changes across conditions from localized evidence and feature intensities."
+    """Test PTM site changes across conditions from localized evidence and feature intensities."""
     return run_ptm_differential_command(
         evidence_tsv,
         proteins_fasta,

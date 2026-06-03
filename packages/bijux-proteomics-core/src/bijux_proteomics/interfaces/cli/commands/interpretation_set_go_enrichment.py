@@ -110,7 +110,7 @@ def protein_set_enrichment_command(
     rejected_set_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run generic enrichment over compartment and custom protein-set definitions."
+    """Run generic enrichment over compartment and custom protein-set definitions."""
     return run_protein_set_enrichment_command(
         foreground_tsv,
         protein_set_tsv,
@@ -211,7 +211,7 @@ def go_enrichment_command(
     rejected_annotation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run GO term enrichment over foreground and background protein sets."
+    """Run GO term enrichment over foreground and background protein sets."""
     return run_go_enrichment_command(
         foreground_tsv,
         background_tsv,

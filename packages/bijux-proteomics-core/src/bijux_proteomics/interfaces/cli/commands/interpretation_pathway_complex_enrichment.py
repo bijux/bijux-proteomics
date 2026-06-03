@@ -142,7 +142,7 @@ def pathway_enrichment_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run pathway enrichment over foreground and background protein sets."
+    """Run pathway enrichment over foreground and background protein sets."""
     return run_pathway_enrichment_command(
         foreground_tsv,
         background_tsv,
@@ -298,7 +298,7 @@ def complex_enrichment_command(
     rejected_complex_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run protein complex enrichment over foreground and background protein sets."
+    """Run protein complex enrichment over foreground and background protein sets."""
     return run_complex_enrichment_command(
         foreground_tsv,
         background_tsv,

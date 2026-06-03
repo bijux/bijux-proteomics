@@ -107,7 +107,7 @@ def annotate_proteins_command(
     rejected_annotation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map protein tables onto FASTA and optional custom biological annotations."
+    """Map protein tables onto FASTA and optional custom biological annotations."""
     return run_annotate_proteins_command(
         protein_tsv,
         proteins_fasta,
@@ -217,7 +217,7 @@ def map_context_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Map protein tables onto user-supplied drug, disease, phenotype, or compartment context."
+    """Map protein tables onto user-supplied drug, disease, phenotype, or compartment context."""
     return run_map_context_command(
         protein_tsv,
         context_tsv,

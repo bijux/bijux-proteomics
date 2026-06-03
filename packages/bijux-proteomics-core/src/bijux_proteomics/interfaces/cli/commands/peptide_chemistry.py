@@ -88,7 +88,7 @@ def peptide_index_command(
     protein_group_map: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Index peptide queries against a digested FASTA database."
+    """Index peptide queries against a digested FASTA database."""
     return run_peptide_index_command(
         input_fasta,
         peptides,
@@ -146,7 +146,7 @@ def peptide_mass_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Emit peptide chemistry diagnostics for one sequence plus optional modifications."
+    """Emit peptide chemistry diagnostics for one sequence plus optional modifications."""
     return run_peptide_mass_command(
         sequence,
         modifications,
@@ -210,7 +210,7 @@ def isotope_envelope_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Predict M+0 through M+n isotope envelopes for one peptide."
+    """Predict M+0 through M+n isotope envelopes for one peptide."""
     return run_isotope_envelope_command(
         sequence,
         modifications,
@@ -275,7 +275,7 @@ def fragment_ions_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Emit one dedicated theoretical fragment-ion review report."
+    """Emit one dedicated theoretical fragment-ion review report."""
     return run_fragment_ions_command(
         sequence,
         modifications,
@@ -337,7 +337,7 @@ def peptide_properties_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Emit peptide property diagnostics for filtering and review."
+    """Emit peptide property diagnostics for filtering and review."""
     return run_peptide_properties_command(
         sequence,
         modifications,

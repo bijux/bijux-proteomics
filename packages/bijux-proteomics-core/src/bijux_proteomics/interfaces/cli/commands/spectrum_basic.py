@@ -49,7 +49,7 @@ def spectrum_parse_command(
     rejected_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Parse one MGF file and report accepted spectra, rejections, and streaming facts."
+    """Parse one MGF file and report accepted spectra, rejections, and streaming facts."""
     return run_spectrum_parse_command(
         input_mgf, chunk_size, accepted_jsonl_out, rejected_json_out, out_path
     )
@@ -74,7 +74,7 @@ def spectrum_stats_command(
     provenance_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Summarize one MGF collection."
+    """Summarize one MGF collection."""
     return run_spectrum_stats_command(input_mgf, provenance_out, out_path)
 
 
@@ -124,7 +124,7 @@ def spectrum_summary_command(
     peak_count_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build reviewable summary tables over one MGF or mzML spectra file."
+    """Build reviewable summary tables over one MGF or mzML spectra file."""
     return run_spectrum_summary_command(
         input_path,
         kind,
@@ -219,7 +219,7 @@ def spectrum_qc_command(
     plot_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build run-level QC directly from one MGF or mzML spectra file."
+    """Build run-level QC directly from one MGF or mzML spectra file."""
     return run_spectrum_qc_command(
         input_path,
         kind,
@@ -264,7 +264,7 @@ def mzml_inspect_command(
     chromatograms_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Inspect one mzML run with practical spectra, decoding, and chromatogram review."
+    """Inspect one mzML run with practical spectra, decoding, and chromatogram review."""
     return run_mzml_inspect_command(
         input_mzml, spectra_jsonl_out, chromatograms_json_out, out_path
     )

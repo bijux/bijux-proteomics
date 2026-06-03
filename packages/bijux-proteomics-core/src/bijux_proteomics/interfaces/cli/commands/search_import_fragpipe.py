@@ -55,7 +55,7 @@ def psm_contaminants_command(
     protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Separate contaminant-carrying peptide-spectrum matches from target-only evidence."
+    """Separate contaminant-carrying peptide-spectrum matches from target-only evidence."""
     return run_psm_contaminants_command(
         input_tsv,
         contaminant_prefixes,
@@ -127,7 +127,7 @@ def fragpipe_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one FragPipe result bundle with explicit PSM, peptide, and protein review."
+    """Import one FragPipe result bundle with explicit PSM, peptide, and protein review."""
     return run_fragpipe_import_command(
         psm_tsv,
         peptide_tsv,
@@ -191,7 +191,7 @@ def fragpipe_benchmark_command(
     peptide_qvalues_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Benchmark governed FragPipe import behavior against the source FragPipe bundle."
+    """Benchmark governed FragPipe import behavior against the source FragPipe bundle."""
     return run_fragpipe_benchmark_command(
         psm_tsv,
         peptide_tsv,
@@ -237,7 +237,7 @@ def sage_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one Sage result table with explicit score, q-value, and modification review."
+    """Import one Sage result table with explicit score, q-value, and modification review."""
     return run_sage_import_command(
         result_tsv,
         config_path,

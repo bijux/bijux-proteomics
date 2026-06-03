@@ -87,7 +87,7 @@ def diann_protein_matrix_command(
     rollup_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build DIA peptide and protein matrices from one DIA-NN report."
+    """Build DIA peptide and protein matrices from one DIA-NN report."""
     return run_diann_protein_matrix_command(
         result_tsv,
         config_path,
@@ -173,7 +173,7 @@ def spectronaut_protein_matrix_command(
     rollup_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build DIA peptide and protein matrices from one Spectronaut report."
+    """Build DIA peptide and protein matrices from one Spectronaut report."""
     return run_spectronaut_protein_matrix_command(
         result_tsv,
         config_path,
@@ -230,7 +230,7 @@ def diann_run_qc_command(
     outlier_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build DIA run-level QC from one DIA-NN report."
+    """Build DIA run-level QC from one DIA-NN report."""
     return run_diann_run_qc_command(
         result_tsv,
         config_path,
@@ -305,7 +305,7 @@ def diann_library_coverage_command(
     outside_library_protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare DIA-NN observations against spectral-library peptide and protein scope."
+    """Compare DIA-NN observations against spectral-library peptide and protein scope."""
     return run_diann_library_coverage_command(
         result_tsv,
         library_path,

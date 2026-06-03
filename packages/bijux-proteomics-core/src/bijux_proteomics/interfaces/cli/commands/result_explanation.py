@@ -63,7 +63,7 @@ def result_question_answer_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Answer deterministic result questions from governed report artifacts."
+    """Answer deterministic result questions from governed report artifacts."""
     return run_result_question_answer_command(
         biological_report_dir,
         ptm_report_dir,
@@ -123,7 +123,7 @@ def result_explanation_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Explain deterministic result decisions from governed report artifacts."
+    """Explain deterministic result decisions from governed report artifacts."""
     return run_result_explanation_command(
         biological_report_dir,
         ptm_report_dir,
@@ -158,7 +158,7 @@ def failure_explanation_command(
     explanation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Explain one expected scientific workflow failure deterministically."
+    """Explain one expected scientific workflow failure deterministically."""
     return run_failure_explanation_command(
         failure_text, workflow_name, summary_tsv_out, explanation_tsv_out, out_path
     )
@@ -206,7 +206,7 @@ def analysis_recommendations_command(
     recommendation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Recommend deterministic next analysis actions from governed artifacts."
+    """Recommend deterministic next analysis actions from governed artifacts."""
     return run_analysis_recommendations_command(
         biological_report_dir,
         ptm_report_dir,
@@ -259,7 +259,7 @@ def compact_result_summary_command(
     markdown_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Render a short collaborator summary constrained to governed evidence surfaces."
+    """Render a short collaborator summary constrained to governed evidence surfaces."""
     return run_compact_result_summary_command(
         biological_report_dir,
         ptm_report_dir,

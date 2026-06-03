@@ -157,7 +157,7 @@ def biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build one biological interpretation report bundle over governed LFQ results."
+    """Build one biological interpretation report bundle over governed LFQ results."""
     return run_biological_report_command(
         input_tsv,
         design_tsv,
@@ -353,7 +353,7 @@ def dda_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build one DDA search-result-to-biology report bundle."
+    """Build one DDA search-result-to-biology report bundle."""
     return run_dda_biological_report_command(
         search_result_tsv,
         design_tsv,

@@ -188,7 +188,7 @@ def regulator_inference_command(
     rejected_site_signal_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Infer upstream regulators from explicit target evidence and observed signal."
+    """Infer upstream regulators from explicit target evidence and observed signal."""
     return run_regulator_inference_command(
         input_table,
         regulator_evidence_tsv,
@@ -333,7 +333,7 @@ def ppi_modules_command(
     rejected_edge_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build a significant-protein PPI subnetwork and connected modules."
+    """Build a significant-protein PPI subnetwork and connected modules."""
     return run_ppi_modules_command(
         significant_tsv,
         ppi_edge_tsv,

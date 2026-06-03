@@ -188,7 +188,7 @@ def ptm_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    "Build one governed PTM report directory over peptide, site, quant, and motif surfaces."
+    """Build one governed PTM report directory over peptide, site, quant, and motif surfaces."""
     return run_ptm_report_command(
         evidence_tsv,
         proteins_fasta,
@@ -318,7 +318,7 @@ def ptm_summarize_command(
     occupancy_counterpart_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Summarize PTM site evidence from localized peptides and optional feature intensities."
+    """Summarize PTM site evidence from localized peptides and optional feature intensities."""
     return run_ptm_summarize_command(
         evidence_tsv,
         proteins_fasta,

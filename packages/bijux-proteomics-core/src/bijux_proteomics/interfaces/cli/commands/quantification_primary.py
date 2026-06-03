@@ -237,7 +237,7 @@ def quantify_command(
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Build a quantification matrix and optional differential report from MS1 features."
+    """Build a quantification matrix and optional differential report from MS1 features."""
     return run_quantify_command(
         input_table,
         measure,

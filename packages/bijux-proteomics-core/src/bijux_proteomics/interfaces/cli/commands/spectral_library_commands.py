@@ -81,7 +81,7 @@ def spectrum_similarity_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare one query spectrum against one spectrum or a reference library."
+    """Compare one query spectrum against one spectrum or a reference library."""
     return run_spectrum_similarity_command(
         query_path,
         reference_path,
@@ -140,7 +140,7 @@ def spectral_library_import_command(
     candidates_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Import one practical spectral library and optionally retrieve candidates."
+    """Import one practical spectral library and optionally retrieve candidates."""
     return run_spectral_library_import_command(
         input_path,
         kind,
@@ -229,7 +229,7 @@ def spectral_library_search_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Search one query spectrum against a practical MSP or MGF library."
+    """Search one query spectrum against a practical MSP or MGF library."""
     return run_spectral_library_search_command(
         query_path,
         library_path,

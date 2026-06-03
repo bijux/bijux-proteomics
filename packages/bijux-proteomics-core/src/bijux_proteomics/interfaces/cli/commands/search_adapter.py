@@ -24,7 +24,7 @@ from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 @click.command("inspect")
 @click.option("--adapter", "adapter_name", type=_search_adapter_choice(), default=None)
 def search_adapter_inspect_command(adapter_name: str | None) -> None:
-    "Inspect one adapter manifest or the full capability matrix."
+    """Inspect one adapter manifest or the full capability matrix."""
     return run_search_adapter_inspect_command(adapter_name)
 
 
@@ -41,7 +41,7 @@ def search_adapter_params_command(
     config_path: Path,
     out_path: Path | None,
 ) -> None:
-    "Parse one supported search-engine parameter file."
+    """Parse one supported search-engine parameter file."""
     return run_search_adapter_params_command(adapter_name, config_path, out_path)
 
 
@@ -58,7 +58,7 @@ def search_adapter_validate_config_command(
     config_path: Path,
     out_path: Path | None,
 ) -> None:
-    "Validate one supported search-engine parameter file."
+    """Validate one supported search-engine parameter file."""
     return run_search_adapter_validate_config_command(
         adapter_name, config_path, out_path
     )
@@ -104,7 +104,7 @@ def search_adapter_normalize_command(
     provenance_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Normalize one engine-specific search-result table into stable PSM records."
+    """Normalize one engine-specific search-result table into stable PSM records."""
     return run_search_adapter_normalize_command(
         adapter_name,
         input_path,
@@ -148,7 +148,7 @@ def search_adapter_compare_command(
     right_mapping_json: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Compare two normalized adapter outputs on a shared score scale."
+    """Compare two normalized adapter outputs on a shared score scale."""
     return run_search_adapter_compare_command(
         left_adapter_name,
         left_input_path,
@@ -179,7 +179,7 @@ def search_adapter_conformance_command(
     mapping_json: Path | None,
     out_path: Path | None,
 ) -> None:
-    "Run the built-in adapter conformance checks on one search-result table."
+    """Run the built-in adapter conformance checks on one search-result table."""
     return run_search_adapter_conformance_command(
         adapter_name, input_path, mapping_json, out_path
     )

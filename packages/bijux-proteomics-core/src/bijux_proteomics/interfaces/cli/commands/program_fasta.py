@@ -51,7 +51,7 @@ def program_template(
     mechanism: str,
     out_path: Path,
 ) -> None:
-    "Write a starter program manifest."
+    """Write a starter program manifest."""
     return run_program_template(
         program_id,
         name,
@@ -68,7 +68,7 @@ def program_template(
 @click.command("summarize-program")
 @click.argument("program_file", type=click.Path(exists=True, path_type=Path))
 def summarize_program(program_file: Path) -> None:
-    "Print a compact summary for a program document."
+    """Print a compact summary for a program document."""
     return run_summarize_program(program_file)
 
 
@@ -77,7 +77,7 @@ def summarize_program(program_file: Path) -> None:
     "--sequence", required=True, help="Protein sequence to normalize and hash."
 )
 def sequence_checksum_command(sequence: str) -> None:
-    "Emit the normalized sequence checksum for one protein sequence string."
+    """Emit the normalized sequence checksum for one protein sequence string."""
     return run_sequence_checksum_command(sequence)
 
 
@@ -110,7 +110,7 @@ def fasta_parse_command(
     duplicate_accession_policy: str,
     out_path: Path | None,
 ) -> None:
-    "Parse FASTA input and emit normalized acceptance and rejection details."
+    """Parse FASTA input and emit normalized acceptance and rejection details."""
     return run_fasta_parse_command(
         input_fasta, mode, duplicate_accession_policy, out_path
     )
@@ -151,7 +151,7 @@ def fasta_dedup_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    "Deduplicate FASTA records by accession and normalized sequence digest."
+    """Deduplicate FASTA records by accession and normalized sequence digest."""
     return run_fasta_dedup_command(
         input_fasta, mode, duplicate_accession_policy, out_fasta, report_out
     )
@@ -207,7 +207,7 @@ def fasta_contaminants_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    "Append labeled contaminant proteins to one target FASTA database."
+    """Append labeled contaminant proteins to one target FASTA database."""
     return run_fasta_contaminants_command(
         input_fasta,
         mode,
@@ -270,7 +270,7 @@ def fasta_filter_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    "Filter FASTA records while emitting explicit exclusion counts."
+    """Filter FASTA records while emitting explicit exclusion counts."""
     return run_fasta_filter_command(
         input_fasta,
         mode,
@@ -314,7 +314,7 @@ def fasta_stats_command(
     duplicate_accession_policy: str,
     out_path: Path | None,
 ) -> None:
-    "Report FASTA record, composition, residue, duplication, and contaminant metrics."
+    """Report FASTA record, composition, residue, duplication, and contaminant metrics."""
     return run_fasta_stats_command(
         input_fasta, mode, duplicate_accession_policy, out_path
     )
@@ -377,7 +377,7 @@ def fasta_profile_command(
     organism_tsv_out: Path | None,
     invalid_sequence_tsv_out: Path | None,
 ) -> None:
-    "Profile one FASTA database with composition, organism, and rejection ledgers."
+    """Profile one FASTA database with composition, organism, and rejection ledgers."""
     return run_fasta_profile_command(
         input_fasta,
         mode,
