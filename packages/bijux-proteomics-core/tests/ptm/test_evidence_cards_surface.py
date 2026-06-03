@@ -136,23 +136,23 @@ def _build_evidence_card_report() -> PtmEvidenceCardReport:
             evidence.accepted_records,
             site_table,
             localization,
-        differential,
-        site_quantification=site_quantification,
-        motif_enrichment=motif_enrichment,
-        regulator_enrichment=regulator_enrichment,
-        annotation_mapping_report=annotation_mapping,
-        mechanism_classification_report=build_ptm_mechanism_classification_report(
-            differential
-        ),
-        ortholog_conservation_report=build_ptm_ortholog_conservation_report(
-            site_table,
-            ortholog_sites.accepted_records,
-            source_species="Homo sapiens",
-            target_species="Mus musculus",
-        ),
-        protein_records=_protein_report().accepted_records,
-        protein_sequences=_protein_sequences(),
-        protein_region_context_records=protein_regions.accepted_records,
+            differential,
+            site_quantification=site_quantification,
+            motif_enrichment=motif_enrichment,
+            regulator_enrichment=regulator_enrichment,
+            annotation_mapping_report=annotation_mapping,
+            mechanism_classification_report=build_ptm_mechanism_classification_report(
+                differential
+            ),
+            ortholog_conservation_report=build_ptm_ortholog_conservation_report(
+                site_table,
+                ortholog_sites.accepted_records,
+                source_species="Homo sapiens",
+                target_species="Mus musculus",
+            ),
+            protein_records=_protein_report().accepted_records,
+            protein_sequences=_protein_sequences(),
+            protein_region_context_records=protein_regions.accepted_records,
             policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
         ),
     )
