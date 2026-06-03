@@ -70,21 +70,25 @@ class ProteaseRule(JsonModel):
             raise ValueError(
                 "regex protease rules must encode blocking behavior inside cleavage_pattern"
             )
+        cleavage_pattern = self.cleavage_pattern
+        if cleavage_pattern is None:
+            raise ValueError("regex protease rules must declare cleavage_pattern")
         try:
-            compiled = re.compile(self.cleavage_pattern)
+            compiled = re.compile(cleavage_pattern)
         except re.error as exc:
             raise ValueError(
-                f"invalid regex cleavage_pattern {self.cleavage_pattern!r}: {exc}"
+                f"invalid regex cleavage_pattern {cleavage_pattern!r}: {exc}"
             ) from exc
-        if self.cleavage_group not in (None, "", "0"):
-            if self.cleavage_group.isdigit():
-                if int(self.cleavage_group) > compiled.groups:
+        cleavage_group = self.cleavage_group
+        if cleavage_group is not None and cleavage_group not in ("", "0"):
+            if cleavage_group.isdigit():
+                if int(cleavage_group) > compiled.groups:
                     raise ValueError(
-                        f"regex cleavage_group {self.cleavage_group!r} is not present in cleavage_pattern"
+                        f"regex cleavage_group {cleavage_group!r} is not present in cleavage_pattern"
                     )
-            elif self.cleavage_group not in compiled.groupindex:
+            elif cleavage_group not in compiled.groupindex:
                 raise ValueError(
-                    f"regex cleavage_group {self.cleavage_group!r} is not present in cleavage_pattern"
+                    f"regex cleavage_group {cleavage_group!r} is not present in cleavage_pattern"
                 )
         return self
 
@@ -1054,15 +1058,17 @@ def _regex_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ..
     if rule.cleavage_pattern is None or rule.cleavage_cut_side is None:
         return ()
     compiled = re.compile(rule.cleavage_pattern)
-    group = rule.cleavage_group
+    group = (
+        None
+        if rule.cleavage_group in (None, "", "0")
+        else rule.cleavage_group
+    )
     boundaries: list[int] = []
     for match in compiled.finditer(sequence):
         if rule.cleavage_cut_side == "after":
-            boundary = match.end() if group in (None, "", "0") else match.end(group)
+            boundary = match.end() if group is None else match.end(group)
         else:
-            boundary = (
-                match.start() if group in (None, "", "0") else match.start(group)
-            )
+            boundary = match.start() if group is None else match.start(group)
         if 0 < boundary < len(sequence):
             boundaries.append(boundary)
     return tuple(boundaries)

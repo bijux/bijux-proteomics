@@ -17,6 +17,7 @@ from bijux_proteomics.chemistry import (
     ParsedModifiedPeptide,
     parse_modified_peptide,
 )
+from bijux_proteomics.chemistry.contracts import AppliedModification
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -402,7 +403,7 @@ def render_ptm_peptide_rejected_tsv(report: PtmPeptideParseReport) -> str:
 
 def _build_ptm_site_entry(
     *,
-    modification,
+    modification: AppliedModification,
     parsed: ParsedModifiedPeptide,
     peptide_start_position: int | None,
 ) -> PtmPeptideSiteEntry:
@@ -422,11 +423,14 @@ def _build_ptm_site_entry(
     )
 
 
-def _peptide_position_for_modification(modification, sequence: str) -> int:
+def _peptide_position_for_modification(
+    modification: AppliedModification,
+    sequence: str,
+) -> int:
     if modification.site is ModificationPosition.ANYWHERE:
         if modification.site_index is None:
             raise ValueError("residue-local PTM modification is missing a peptide position")
-        return modification.site_index
+        return int(modification.site_index)
     if modification.site in (
         ModificationPosition.PEPTIDE_N_TERM,
         ModificationPosition.PROTEIN_N_TERM,

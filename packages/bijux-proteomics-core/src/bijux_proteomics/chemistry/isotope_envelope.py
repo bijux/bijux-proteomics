@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry.amino_acid_mass import _PROTON_MONOISOTOPIC_MASS
 from bijux_proteomics.chemistry.contracts import (
+    AppliedModification,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
     build_modified_peptide,
@@ -258,7 +259,7 @@ def _ensure_parsed_peptide(
 
 
 def _resolve_modification_elemental_delta(
-    modification,
+    modification: AppliedModification,
     *,
     peptide: ParsedModifiedPeptide,
     registry: ModificationRegistryDocument | None,
