@@ -8,6 +8,7 @@ from __future__ import annotations
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
+from collections.abc import Iterable, Sequence
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
@@ -399,7 +400,7 @@ def parse_ptm_ortholog_site_tsv(
         total_rows=len(accepted_records) + len(rejected_rows),
         accepted_records=tuple(
             sort_rows_by_fields(
-                accepted_records,
+                tuple(accepted_records),
                 "source_species",
                 "source_protein_ref",
                 "source_position",
@@ -721,7 +722,7 @@ def _group_ortholog_site_records(
     return {
         site_key: tuple(
             sort_rows_by_fields(
-                entries,
+                tuple(entries),
                 "source_protein_ref",
                 "source_position",
                 "target_protein_ref",
@@ -739,7 +740,7 @@ def _optional_row_value(raw_fields: dict[str, str], column_name: str | None) -> 
     return None if not value else value
 
 
-def _stable_tuple(values: object) -> tuple[str, ...]:
+def _stable_tuple(values: Iterable[str | None]) -> tuple[str, ...]:
     return tuple(sorted({value for value in values if value is not None}))
 
 
@@ -756,7 +757,7 @@ def _row_issue(
 
 
 def _validate_required_columns(
-    fieldnames: list[str],
+    fieldnames: Sequence[str],
     mapping: PtmOrthologSiteColumnMapping,
 ) -> None:
     required_columns = (

@@ -380,7 +380,11 @@ def _classify_mechanism_entry(
             "baseline needed for correction is missing"
         )
     else:
-        corrected_fraction = 0.0 if raw_effect == 0.0 else corrected_effect / raw_effect
+        corrected_fraction = (
+            0.0
+            if raw_effect == 0.0 or corrected_effect is None
+            else corrected_effect / raw_effect
+        )
         if (
             same_direction
             and protein_significant

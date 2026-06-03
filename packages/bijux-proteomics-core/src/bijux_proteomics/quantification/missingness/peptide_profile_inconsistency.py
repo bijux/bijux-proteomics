@@ -178,7 +178,7 @@ def build_peptide_profile_inconsistency_report(
                 insufficient_overlap_entry_count += 1
 
     sorted_entries = tuple(
-        sort_rows_by_fields(entries, "entity_id", "peptide_id")
+        sort_rows_by_fields(tuple(entries), "entity_id", "peptide_id")
     )
     return PeptideProfileInconsistencyReport(
         source_kind=peptide_matrix.source_kind,

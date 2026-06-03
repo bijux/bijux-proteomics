@@ -19,6 +19,7 @@ from bijux_proteomics.review.explanations.result_explanations import (
     ResultExplanationKind,
     ResultExplanationRequest,
     ResultExplanationStatus,
+    _ResultExplanationArtifactContext,
     build_result_explanation_report_from_artifacts,
     _load_result_explanation_artifact_context,
 )
@@ -354,19 +355,19 @@ def render_belief_audit_html(report: BeliefAuditReport) -> str:
 
 def _build_explanation_entries(
     *,
-    explanation_context,
+    explanation_context: _ResultExplanationArtifactContext,
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
     run_qc_assessment_tsv_paths: tuple[Path, ...],
 ) -> tuple[BeliefAuditEntry, ...]:
     requests = list[ResultExplanationRequest]()
     if biological_report_dir is not None:
-        for card in explanation_context.base_context.protein_cards:
+        for protein_card in explanation_context.base_context.protein_cards:
             requests.append(
                 ResultExplanationRequest(
-                    explanation_id=f"protein:{card.card_id}",
+                    explanation_id=f"protein:{protein_card.card_id}",
                     explanation_kind=ResultExplanationKind.PROTEIN_RESULT,
-                    subject_id=card.card_id,
+                    subject_id=protein_card.card_id,
                 )
             )
         for comparison in explanation_context.pathway_comparisons:
@@ -378,12 +379,12 @@ def _build_explanation_entries(
                 )
             )
     if biological_report_dir is not None and ptm_report_dir is not None:
-        for card in explanation_context.base_context.ptm_cards:
+        for ptm_card in explanation_context.base_context.ptm_cards:
             requests.append(
                 ResultExplanationRequest(
-                    explanation_id=f"ptm:{card.card_id}",
+                    explanation_id=f"ptm:{ptm_card.card_id}",
                     explanation_kind=ResultExplanationKind.PTM_SITE_RESULT,
-                    subject_id=card.card_id,
+                    subject_id=ptm_card.card_id,
                 )
             )
     if biological_report_dir is not None and run_qc_assessment_tsv_paths:
@@ -443,7 +444,7 @@ def _belief_entry_from_explanation(explanation: ResultExplanation) -> BeliefAudi
 
 def _build_regulator_entries(
     *,
-    explanation_context,
+    explanation_context: _ResultExplanationArtifactContext,
     biological_report_dir: Path | None,
 ) -> tuple[BeliefAuditEntry, ...]:
     if biological_report_dir is None:
@@ -511,7 +512,7 @@ def _build_regulator_entries(
             inference.row_id,
             *tuple(entry.row_id for entry in related_unresolved),
         )
-        surfaces = ("biological_regulator_inference",)
+        surfaces: tuple[str, ...] = ("biological_regulator_inference",)
         if related_unresolved:
             surfaces = (
                 "biological_regulator_inference",
@@ -584,7 +585,7 @@ def _build_regulator_entries(
 
 def _build_biomarker_entries(
     *,
-    explanation_context,
+    explanation_context: _ResultExplanationArtifactContext,
     validation_evidence_card_tsv: Path | None,
     validation_evidence_warning_tsv: Path | None,
 ) -> tuple[BeliefAuditEntry, ...]:
@@ -666,7 +667,7 @@ def _build_biomarker_entries(
             card.candidate_id,
             *tuple(warning.warning_id for warning in candidate_warnings),
         )
-        result_surfaces = ("validation_evidence_cards",)
+        result_surfaces: tuple[str, ...] = ("validation_evidence_cards",)
         if candidate_warnings:
             result_surfaces = (
                 "validation_evidence_cards",

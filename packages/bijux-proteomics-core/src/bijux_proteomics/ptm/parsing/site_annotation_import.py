@@ -8,6 +8,7 @@ from __future__ import annotations
 from bijux_proteomics._output_tables import write_output_table_tsv
 
 import csv
+from collections.abc import Sequence
 from io import StringIO
 from pathlib import Path
 
@@ -287,33 +288,34 @@ def parse_ptm_site_annotation_tsv(
                 )
                 continue
 
-            accepted.append(
-                PtmSiteAnnotationRecord(
-                    species=species,
-                    protein_ref=protein_ref,
-                    residue=residue,
-                    position=position,
-                    modification_name=modification_name,
-                    site_function=_row_value(raw_fields, active_mapping.site_function),
-                    kinases=_split_multi_value(
-                        _row_value(raw_fields, active_mapping.kinases),
-                        separator=kinase_separator,
-                    ),
-                    phosphatases=_split_multi_value(
-                        _row_value(raw_fields, active_mapping.phosphatases),
-                        separator=phosphatase_separator,
-                    ),
-                    pathways=_split_multi_value(
-                        _row_value(raw_fields, active_mapping.pathways),
-                        separator=pathway_separator,
-                    ),
-                    source_name=_row_value(raw_fields, active_mapping.source_name),
-                    source_accession=_row_value(
-                        raw_fields,
-                        active_mapping.source_accession,
-                    ),
+            if position is not None:
+                accepted.append(
+                    PtmSiteAnnotationRecord(
+                        species=species,
+                        protein_ref=protein_ref,
+                        residue=residue,
+                        position=position,
+                        modification_name=modification_name,
+                        site_function=_row_value(raw_fields, active_mapping.site_function),
+                        kinases=_split_multi_value(
+                            _row_value(raw_fields, active_mapping.kinases),
+                            separator=kinase_separator,
+                        ),
+                        phosphatases=_split_multi_value(
+                            _row_value(raw_fields, active_mapping.phosphatases),
+                            separator=phosphatase_separator,
+                        ),
+                        pathways=_split_multi_value(
+                            _row_value(raw_fields, active_mapping.pathways),
+                            separator=pathway_separator,
+                        ),
+                        source_name=_row_value(raw_fields, active_mapping.source_name),
+                        source_accession=_row_value(
+                            raw_fields,
+                            active_mapping.source_accession,
+                        ),
+                    )
                 )
-            )
 
     accepted_records = tuple(
         sorted(
@@ -683,7 +685,7 @@ def export_ptm_site_annotation_biology_tsv(
 
 
 def _validate_required_columns(
-    fieldnames: list[str],
+    fieldnames: Sequence[str],
     mapping: PtmSiteAnnotationColumnMapping,
 ) -> None:
     required = (
