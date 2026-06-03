@@ -399,10 +399,10 @@ def build_tmt_validation_report(
         )
 
     totals_by_channel: dict[str, list[float]] = {}
-    for entry in channel_entries:
-        if entry.total_intensity > 0.0:
-            totals_by_channel.setdefault(entry.multiplex_channel, []).append(
-                entry.total_intensity
+    for validation_entry in channel_entries:
+        if validation_entry.total_intensity > 0.0:
+            totals_by_channel.setdefault(validation_entry.multiplex_channel, []).append(
+                validation_entry.total_intensity
             )
 
     distribution_entries: list[TmtChannelDistributionEntry] = []
@@ -410,14 +410,14 @@ def build_tmt_validation_report(
     max_total_by_channel = {
         channel: max(values) for channel, values in totals_by_channel.items()
     }
-    for entry in channel_entries:
+    for validation_entry in channel_entries:
         channel_median_total_intensity = None
-        if entry.multiplex_channel in totals_by_channel:
+        if validation_entry.multiplex_channel in totals_by_channel:
             channel_median_total_intensity = _median(
-                sorted(totals_by_channel[entry.multiplex_channel])
+                sorted(totals_by_channel[validation_entry.multiplex_channel])
             )
         ratio_to_channel_median = _ratio_or_none(
-            numerator=entry.total_intensity,
+            numerator=validation_entry.total_intensity,
             denominator=channel_median_total_intensity,
         )
         abnormal_distribution = (
@@ -429,11 +429,11 @@ def build_tmt_validation_report(
         )
         distribution_entries.append(
             TmtChannelDistributionEntry(
-                multiplex_group=entry.multiplex_group,
-                multiplex_channel=entry.multiplex_channel,
-                sample_id=entry.sample_id,
-                channel_role=entry.channel_role,
-                total_intensity=entry.total_intensity,
+                multiplex_group=validation_entry.multiplex_group,
+                multiplex_channel=validation_entry.multiplex_channel,
+                sample_id=validation_entry.sample_id,
+                channel_role=validation_entry.channel_role,
+                total_intensity=validation_entry.total_intensity,
                 channel_median_total_intensity=channel_median_total_intensity,
                 ratio_to_channel_median=ratio_to_channel_median,
                 abnormal_distribution=abnormal_distribution,
@@ -444,19 +444,26 @@ def build_tmt_validation_report(
                 ),
             )
         )
-        channel_max_total_intensity = max_total_by_channel.get(entry.multiplex_channel, 0.0)
+        channel_max_total_intensity = max_total_by_channel.get(
+            validation_entry.multiplex_channel,
+            0.0,
+        )
         total_intensity_ratio_to_channel_max = (
-            float(entry.total_intensity) / float(channel_max_total_intensity)
+            float(validation_entry.total_intensity)
+            / float(channel_max_total_intensity)
             if channel_max_total_intensity > 0.0
             else 0.0
         )
-        if not entry.source_column_present or entry.observed_row_count == 0:
+        if (
+            not validation_entry.source_column_present
+            or validation_entry.observed_row_count == 0
+        ):
             weak_evidence.append(
                 TmtWeakEvidenceEntry(
-                    multiplex_group=entry.multiplex_group,
-                    multiplex_channel=entry.multiplex_channel,
-                    sample_id=entry.sample_id,
-                    channel_role=entry.channel_role,
+                    multiplex_group=validation_entry.multiplex_group,
+                    multiplex_channel=validation_entry.multiplex_channel,
+                    sample_id=validation_entry.sample_id,
+                    channel_role=validation_entry.channel_role,
                     issue_kind="channel_missing",
                     total_intensity_ratio_to_channel_max=total_intensity_ratio_to_channel_max,
                     note="expected multiplex channel is missing from the source table or has no observed reporter evidence",
@@ -465,10 +472,10 @@ def build_tmt_validation_report(
         elif total_intensity_ratio_to_channel_max < active_policy.weak_channel_ratio_floor:
             weak_evidence.append(
                 TmtWeakEvidenceEntry(
-                    multiplex_group=entry.multiplex_group,
-                    multiplex_channel=entry.multiplex_channel,
-                    sample_id=entry.sample_id,
-                    channel_role=entry.channel_role,
+                    multiplex_group=validation_entry.multiplex_group,
+                    multiplex_channel=validation_entry.multiplex_channel,
+                    sample_id=validation_entry.sample_id,
+                    channel_role=validation_entry.channel_role,
                     issue_kind="weak_channel_intensity",
                     total_intensity_ratio_to_channel_max=total_intensity_ratio_to_channel_max,
                     note="channel total intensity is weak relative to the strongest observation for the same channel",

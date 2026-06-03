@@ -28,6 +28,7 @@ from bijux_proteomics.interpretation.protein_set_enrichment import (
 )
 from bijux_proteomics.interpretation.protein_set_scoring import (
     ProteinSetRecord,
+    ProteinSetSampleScoreEntry,
     ProteinSetScoringPolicy,
     ProteinSetScoringReport,
     build_protein_set_scoring_report,
@@ -301,8 +302,8 @@ def render_compartment_activity_matrix_tsv(report: CompartmentBiologyReport) -> 
     """Render one compartment-by-sample activity matrix as TSV."""
 
     sample_ids = report.activity_report.sample_ids
-    grouped_entries: dict[str, dict[str, object]] = {}
-    metadata_by_compartment: dict[str, object] = {}
+    grouped_entries: dict[str, dict[str, ProteinSetSampleScoreEntry]] = {}
+    metadata_by_compartment: dict[str, ProteinSetSampleScoreEntry] = {}
     for entry in report.activity_report.sample_scores:
         grouped_entries.setdefault(entry.set_id, {})[entry.sample_id] = entry
         metadata_by_compartment.setdefault(entry.set_id, entry)

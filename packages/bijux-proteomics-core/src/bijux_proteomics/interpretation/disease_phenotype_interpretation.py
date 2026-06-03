@@ -18,6 +18,7 @@ from bijux_proteomics.interpretation.biological_context_mapping import (
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import ProteinReferenceEntry
 from bijux_proteomics.interpretation.protein_set_enrichment import (
+    ProteinSetEnrichmentEntry,
     ProteinSetEnrichmentPolicy,
     build_protein_set_enrichment_report,
 )
@@ -419,11 +420,13 @@ def _build_evidence_lookup(
 
 
 def _build_interpretation_entry(
-    entry,
+    entry: ProteinSetEnrichmentEntry,
     *,
     evidence_values: tuple[str, ...],
     policy: DiseasePhenotypeInterpretationPolicy,
 ) -> DiseasePhenotypeInterpretationEntry:
+    if entry.set_category is None:
+        raise ValueError("disease phenotype interpretation requires set_category")
     context_kind = BiologicalContextKind(entry.set_category)
     passes_filter = _passes_interpretation_filter(entry, policy)
     confidence_status, confidence_note = _resolve_confidence(entry, policy=policy)
@@ -450,7 +453,7 @@ def _build_interpretation_entry(
 
 
 def _resolve_confidence(
-    entry,
+    entry: ProteinSetEnrichmentEntry,
     *,
     policy: DiseasePhenotypeInterpretationPolicy,
 ) -> tuple[DiseasePhenotypeConfidenceStatus, str]:
@@ -479,7 +482,7 @@ def _resolve_confidence(
 
 
 def _passes_interpretation_filter(
-    entry,
+    entry: ProteinSetEnrichmentEntry,
     policy: DiseasePhenotypeInterpretationPolicy,
 ) -> bool:
     return (

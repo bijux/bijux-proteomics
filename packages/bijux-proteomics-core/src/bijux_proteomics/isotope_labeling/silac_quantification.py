@@ -309,9 +309,13 @@ def build_silac_ratio_report(
         peptide_ratios=tuple(peptide_ratios),
         policy=active_policy,
     )
+    all_ratio_entries: tuple[SilacPeptideRatioEntry | SilacProteinRatioEntry, ...] = (
+        *peptide_ratios,
+        *protein_ratios,
+    )
     missing_ratio_count = sum(
         1
-        for entry in (*peptide_ratios, *protein_ratios)
+        for entry in all_ratio_entries
         if entry.missing_reason is not None
     )
     return SilacRatioReport(
