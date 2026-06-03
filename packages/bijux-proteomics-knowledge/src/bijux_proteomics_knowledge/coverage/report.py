@@ -5,10 +5,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 import csv
 from enum import StrEnum
 from io import StringIO
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from pydantic import ConfigDict, Field
 
@@ -16,6 +17,16 @@ from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
 )
+from bijux_proteomics.interpretation.biological_context_mapping import (
+    BiologicalContextRecord,
+)
+from bijux_proteomics.interpretation.complex_enrichment import ComplexMembershipRecord
+from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
+from bijux_proteomics.interpretation.pathway_enrichment import PathwayMembershipRecord
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinAnnotationRecord,
+)
+from bijux_proteomics.interpretation.regulator_inference import RegulatorEvidenceRecord
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_knowledge.identity.proteins import (
     ProteinIdentityResolutionStatus,
@@ -117,7 +128,9 @@ def compute_knowledge_coverage(
     normalized_packs = _normalize_packs(packs)
     merged_pack = _merge_annotation_packs(normalized_packs)
     pathway_ids = {record.pathway_id for record in merged_pack.pathways}
-    regulator_ids = {record.regulator.strip().casefold() for record in merged_pack.kinase_substrates}
+    regulator_ids = {
+        record.regulator.strip().casefold() for record in merged_pack.kinase_substrates
+    }
 
     entries: list[KnowledgeCoverageEntry] = []
     for entity_set in result_entities:
@@ -128,9 +141,7 @@ def compute_knowledge_coverage(
             pathway_ids=pathway_ids,
             regulator_ids=regulator_ids,
         )
-        coverage_fraction = (
-            annotated_count / total_count if total_count > 0 else 0.0
-        )
+        coverage_fraction = annotated_count / total_count if total_count > 0 else 0.0
         entries.append(
             KnowledgeCoverageEntry(
                 entity_type=entity_set.entity_type,
@@ -206,7 +217,9 @@ def render_knowledge_coverage_tsv(
     return handle.getvalue()
 
 
-def _normalize_packs(packs: AnnotationPack | tuple[AnnotationPack, ...]) -> tuple[AnnotationPack, ...]:
+def _normalize_packs(
+    packs: AnnotationPack | tuple[AnnotationPack, ...],
+) -> tuple[AnnotationPack, ...]:
     if isinstance(packs, AnnotationPack):
         return (packs,)
     return packs
@@ -229,103 +242,71 @@ def _merge_annotation_packs(packs: tuple[AnnotationPack, ...]) -> AnnotationPack
             ),
         )
 
-    protein_features = _dedupe_records(
-        (
-            feature
-            for pack in packs
-            for feature in pack.protein_features
-        ),
+    protein_features: tuple[ProteinAnnotationRecord, ...] = _dedupe_records(
+        (feature for pack in packs for feature in pack.protein_features),
         key_fn=lambda feature: feature.protein_ref,
     )
-    pathways = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.pathways
-        ),
+    pathways: tuple[PathwayMembershipRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.pathways),
         key_fn=lambda record: (
             record.pathway_id,
             record.member_kind.value,
             record.member_id,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    complexes = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.complexes
-        ),
+    complexes: tuple[ComplexMembershipRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.complexes),
         key_fn=lambda record: (
             record.complex_id,
             record.member_kind.value,
             record.member_id,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    compartments = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.compartments
-        ),
+    compartments: tuple[BiologicalContextRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.compartments),
         key_fn=lambda record: (
             record.protein_ref,
             record.context_kind.value,
             record.context_id,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    drug_targets = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.drug_targets
-        ),
+    drug_targets: tuple[BiologicalContextRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.drug_targets),
         key_fn=lambda record: (
             record.protein_ref,
             record.context_kind.value,
             record.context_id,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    disease_terms = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.disease_terms
-        ),
+    disease_terms: tuple[BiologicalContextRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.disease_terms),
         key_fn=lambda record: (
             record.protein_ref,
             record.context_kind.value,
             record.context_id,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    kinase_substrates = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.kinase_substrates
-        ),
+    kinase_substrates: tuple[RegulatorEvidenceRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.kinase_substrates),
         key_fn=lambda record: (
             record.regulator,
             record.site_key,
-            record.source_accession or "",
-            record.source_name or "",
+            record.source_accession,
+            record.source_name,
         ),
     )
-    orthologs = _dedupe_records(
-        (
-            record
-            for pack in packs
-            for record in pack.orthologs
-        ),
+    orthologs: tuple[OrthologRecord, ...] = _dedupe_records(
+        (record for pack in packs for record in pack.orthologs),
         key_fn=lambda record: (
             record.source_species,
             record.source_protein_ref,
@@ -382,7 +363,11 @@ def _annotated_count(
     if entity_set.entity_type is KnowledgeCoverageEntityType.PTM_SITE:
         report = resolve_kinase_substrates(entity_set.entity_ids, merged_pack)
         return report.summary.resolved_site_count
-    return sum(1 for entity_id in entity_set.entity_ids if entity_id.strip().casefold() in regulator_ids)
+    return sum(
+        1
+        for entity_id in entity_set.entity_ids
+        if entity_id.strip().casefold() in regulator_ids
+    )
 
 
 def _low_coverage_warning(
@@ -410,7 +395,7 @@ def _low_coverage_warning(
 
 
 def _dedupe_records(
-    records: object,
+    records: Iterable[RecordT],
     *,
     key_fn: Callable[[RecordT], object],
 ) -> tuple[RecordT, ...]:

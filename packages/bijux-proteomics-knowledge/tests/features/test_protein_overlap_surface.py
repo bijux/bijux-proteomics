@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences.protein_region_context import (
+    ProteinRegionContextColumnMapping,
     ProteinRegionContextImportReport,
     ProteinRegionContextImportSummary,
     ProteinRegionContextRecord,
@@ -107,11 +108,11 @@ def test_overlap_protein_features_accepts_import_reports_and_renders_tsv() -> No
             ),
         ),
         rejected_rows=(),
-        column_mapping={
-            "protein_ref": "protein_ref",
-            "start": "start",
-            "end": "end",
-        },
+        column_mapping=ProteinRegionContextColumnMapping(
+            protein_ref="protein_ref",
+            start="start",
+            end="end",
+        ),
         summary=ProteinRegionContextImportSummary(
             accepted_record_count=2,
             rejected_row_count=0,

@@ -26,7 +26,9 @@ from bijux_proteomics_knowledge.complexes.members import (
 )
 
 
-def test_resolve_complex_members_tracks_observed_missing_and_unresolved_inputs() -> None:
+def test_resolve_complex_members_tracks_observed_missing_and_unresolved_inputs() -> (
+    None
+):
     report = resolve_complex_members(
         ("P04637", "Q9Y243", "UNKNOWN1"),
         _annotation_pack(),

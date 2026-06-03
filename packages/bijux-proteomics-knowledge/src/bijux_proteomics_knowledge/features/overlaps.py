@@ -43,7 +43,9 @@ class ProteinFeatureQueryInterval(JsonModel):
     @model_validator(mode="after")
     def _validate_interval(self) -> ProteinFeatureQueryInterval:
         if self.end < self.start:
-            raise ValueError("query interval end must be greater than or equal to start")
+            raise ValueError(
+                "query interval end must be greater than or equal to start"
+            )
         return self
 
 
@@ -64,7 +66,8 @@ class ProteinFeatureOverlapEntry(JsonModel):
 def overlap_protein_features(
     protein_id: str,
     intervals: tuple[ProteinFeatureQueryInterval, ...],
-    feature_pack: ProteinRegionContextImportReport | tuple[ProteinRegionContextRecord, ...],
+    feature_pack: ProteinRegionContextImportReport
+    | tuple[ProteinRegionContextRecord, ...],
 ) -> tuple[ProteinFeatureOverlapEntry, ...]:
     """Resolve inclusive overlaps between query intervals and curated features.
 
@@ -92,7 +95,10 @@ def overlap_protein_features(
     overlaps: list[ProteinFeatureOverlapEntry] = []
     for interval in intervals:
         for record in context_records:
-            if canonicalize_protein_reference(record.protein_ref) != canonical_protein_id:
+            if (
+                canonicalize_protein_reference(record.protein_ref)
+                != canonical_protein_id
+            ):
                 continue
             overlap_start = max(interval.start, record.start)
             overlap_end = min(interval.end, record.end)
@@ -180,7 +186,8 @@ def render_protein_feature_overlaps_tsv(
 
 
 def _normalize_feature_pack(
-    feature_pack: ProteinRegionContextImportReport | tuple[ProteinRegionContextRecord, ...],
+    feature_pack: ProteinRegionContextImportReport
+    | tuple[ProteinRegionContextRecord, ...],
 ) -> tuple[ProteinRegionContextRecord, ...]:
     if isinstance(feature_pack, ProteinRegionContextImportReport):
         return feature_pack.accepted_records
@@ -223,6 +230,4 @@ def _feature_id(
     identity_root = record.source_accession or canonicalize_protein_reference(
         record.protein_ref
     )
-    return (
-        f"{identity_root}:{feature_type.value}:{record.start}-{record.end}:{label}"
-    )
+    return f"{identity_root}:{feature_type.value}:{record.start}-{record.end}:{label}"

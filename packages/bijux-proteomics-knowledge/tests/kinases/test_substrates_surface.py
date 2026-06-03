@@ -26,7 +26,9 @@ from bijux_proteomics_knowledge.kinases.substrates import (
 )
 
 
-def test_resolve_kinase_substrates_prefers_exact_accession_site_to_gene_equivalent() -> None:
+def test_resolve_kinase_substrates_prefers_exact_accession_site_to_gene_equivalent() -> (
+    None
+):
     report = resolve_kinase_substrates(
         (
             "P04637:S15:Phospho",
@@ -57,7 +59,9 @@ def test_resolve_kinase_substrates_prefers_exact_accession_site_to_gene_equivale
     assert report.summary.annotation_identifier_match_count == 0
 
 
-def test_resolve_kinase_substrates_supports_annotation_identifiers_and_tsv_output() -> None:
+def test_resolve_kinase_substrates_supports_annotation_identifiers_and_tsv_output() -> (
+    None
+):
     report = resolve_kinase_substrates(
         (
             "UniProtKB:P04637:S15:Phospho",

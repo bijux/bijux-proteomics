@@ -21,8 +21,8 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
 from bijux_proteomics_knowledge.pathways.members import (
     PathwayCoverageConfidenceStatus,
     PathwayMembershipResolutionEntry,
-    resolve_pathway_members,
     render_pathway_membership_resolution_tsv,
+    resolve_pathway_members,
 )
 
 
@@ -62,17 +62,19 @@ def test_resolve_pathway_members_tracks_matched_missing_and_unresolved_inputs() 
     assert report.summary.unresolved_input_count == 1
 
 
-def test_resolve_pathway_members_uses_coverage_to_downgrade_pathway_confidence() -> None:
+def test_resolve_pathway_members_uses_coverage_to_downgrade_pathway_confidence() -> (
+    None
+):
     report = resolve_pathway_members(
         ("P04637",),
         _annotation_pack(),
     )
 
-    confidence_by_pathway = {entry.pathway_id: entry for entry in report.confidence_entries}
+    confidence_by_pathway = {
+        entry.pathway_id: entry for entry in report.confidence_entries
+    }
 
-    assert (
-        confidence_by_pathway["pathway:guardian_response"].coverage_fraction == 0.5
-    )
+    assert confidence_by_pathway["pathway:guardian_response"].coverage_fraction == 0.5
     assert (
         confidence_by_pathway["pathway:guardian_response"].confidence_status
         is PathwayCoverageConfidenceStatus.HIGH_CONFIDENCE

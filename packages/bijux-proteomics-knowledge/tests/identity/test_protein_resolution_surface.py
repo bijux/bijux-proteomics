@@ -70,12 +70,12 @@ def test_resolve_protein_ids_keeps_ambiguous_aliases_explicit(
     assert {entry.ambiguity_count for entry in tp53_rows} == {2}
 
     p04637_row = next(entry for entry in entries if entry.input_id == "P04637")
-    assert p04637_row.resolution_status is ProteinIdentityResolutionStatus.EXACT_ACCESSION
+    assert (
+        p04637_row.resolution_status is ProteinIdentityResolutionStatus.EXACT_ACCESSION
+    )
     assert p04637_row.gene == "TP53"
 
-    ensp_row = next(
-        entry for entry in entries if entry.input_id == "ENSP00000288602"
-    )
+    ensp_row = next(entry for entry in entries if entry.input_id == "ENSP00000288602")
     assert ensp_row.resolved_accession == "P15056"
     assert (
         ensp_row.resolution_status
@@ -84,7 +84,9 @@ def test_resolve_protein_ids_keeps_ambiguous_aliases_explicit(
 
     unresolved_row = next(entry for entry in entries if entry.input_id == "UNKNOWN")
     assert unresolved_row.resolved_accession is None
-    assert unresolved_row.resolution_status is ProteinIdentityResolutionStatus.UNRESOLVED
+    assert (
+        unresolved_row.resolution_status is ProteinIdentityResolutionStatus.UNRESOLVED
+    )
     assert unresolved_row.ambiguity_count == 0
 
 

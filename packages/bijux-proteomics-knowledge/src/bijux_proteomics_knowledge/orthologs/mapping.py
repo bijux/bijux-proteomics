@@ -16,8 +16,8 @@ from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_knowledge.identity.proteins import (
-    ProteinIdResolutionEntry,
     ProteinIdentityResolutionStatus,
+    ProteinIdResolutionEntry,
     resolve_protein_ids,
 )
 
@@ -111,13 +111,15 @@ def map_cross_species_orthologs(
     filtered_records = tuple(
         record
         for record in ortholog_records
-        if _normalize_species(record.source_species) == _normalize_species(source_species)
-        and _normalize_species(record.target_species) == _normalize_species(target_species)
+        if _normalize_species(record.source_species)
+        == _normalize_species(source_species)
+        and _normalize_species(record.target_species)
+        == _normalize_species(target_species)
     )
     source_to_targets: dict[str, tuple[OrthologRecord, ...]] = {}
     target_to_sources: dict[str, set[str]] = {}
     for record in filtered_records:
-        source_to_targets.setdefault(record.source_protein_ref, tuple())
+        source_to_targets.setdefault(record.source_protein_ref, ())
         source_to_targets[record.source_protein_ref] = source_to_targets[
             record.source_protein_ref
         ] + (record,)
@@ -164,7 +166,9 @@ def map_cross_species_orthologs(
 
         source_match_count = len(relationships)
         for relationship in relationships:
-            target_match_count = len(target_to_sources.get(relationship.target_protein_ref, set()))
+            target_match_count = len(
+                target_to_sources.get(relationship.target_protein_ref, set())
+            )
             entries.append(
                 CrossSpeciesOrthologEntry(
                     source_protein=source_protein,
@@ -185,7 +189,9 @@ def map_cross_species_orthologs(
             input_identifier_count=len(protein_ids),
             emitted_entry_count=len(entries),
             mapped_entry_count=sum(1 for entry in entries if entry.target_ortholog),
-            unmapped_entry_count=sum(1 for entry in entries if entry.target_ortholog is None),
+            unmapped_entry_count=sum(
+                1 for entry in entries if entry.target_ortholog is None
+            ),
             ambiguous_source_identifier_count=sum(
                 1
                 for entry in entries

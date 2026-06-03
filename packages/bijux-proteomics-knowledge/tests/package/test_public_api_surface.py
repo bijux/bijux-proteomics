@@ -3,62 +3,23 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import DocumentSchema
-from bijux_proteomics_knowledge.public_api import list_knowledge_root_api_entries
-from bijux_proteomics_knowledge import (
-    ComplexMembershipConfidence,
-    CrossSpeciesOrthologAmbiguity,
-    CrossSpeciesOrthologEvidenceStatus,
-    DiseaseTermResolutionEntry,
-    KnowledgeCoverageEntitySet,
-    KnowledgeCoverageEntityType,
-    KnowledgeCoverageEntry,
-    DrugTargetRelationshipType,
-    EvidenceBundle,
-    EvidenceClaim,
-    EvidenceRecord,
-    KnowledgeDecisionBrief,
-    KinaseSubstrateMatchType,
-    PathwayCoverageConfidenceStatus,
-    ProteinFeatureType,
-    ProteinIdentityResolutionStatus,
-    evaluate_schema_compatibility,
-    overlap_protein_features,
-    render_complex_membership_resolution_tsv,
-    render_disease_term_resolution_tsv,
-    render_drug_target_resolution_tsv,
-    render_kinase_substrate_resolution_tsv,
-    render_cross_species_ortholog_tsv,
-    render_knowledge_coverage_tsv,
-    render_pathway_membership_resolution_tsv,
-    render_protein_feature_overlaps_tsv,
-    render_protein_id_resolution_tsv,
-    compute_knowledge_coverage,
-    map_cross_species_orthologs,
-    resolve_complex_members,
-    resolve_disease_terms,
-    resolve_drug_targets,
-    resolve_kinase_substrates,
-    resolve_pathway_members,
-    resolve_protein_ids,
-)
 from bijux_proteomics.interpretation.annotation_packs import (
     AnnotationPack,
     AnnotationPackSummary,
-)
-from bijux_proteomics.interpretation.complex_enrichment import (
-    ComplexMemberKind,
-    ComplexMembershipRecord,
 )
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
     BiologicalContextRecord,
 )
+from bijux_proteomics.interpretation.complex_enrichment import (
+    ComplexMemberKind,
+    ComplexMembershipRecord,
+)
+from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMemberKind,
     PathwayMembershipRecord,
 )
-from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
 )
@@ -67,12 +28,51 @@ from bijux_proteomics.interpretation.regulator_inference import (
     RegulatorEvidenceType,
 )
 from bijux_proteomics.sequences.protein_region_context import ProteinRegionContextRecord
+from bijux_proteomics_foundation import DocumentSchema
+from bijux_proteomics_knowledge import (
+    ComplexMembershipConfidence,
+    CrossSpeciesOrthologAmbiguity,
+    CrossSpeciesOrthologEvidenceStatus,
+    DiseaseTermResolutionEntry,
+    DrugTargetRelationshipType,
+    EvidenceBundle,
+    EvidenceClaim,
+    EvidenceRecord,
+    KinaseSubstrateMatchType,
+    KnowledgeCoverageEntitySet,
+    KnowledgeCoverageEntityType,
+    KnowledgeCoverageEntry,
+    KnowledgeDecisionBrief,
+    PathwayCoverageConfidenceStatus,
+    ProteinFeatureType,
+    ProteinIdentityResolutionStatus,
+    compute_knowledge_coverage,
+    evaluate_schema_compatibility,
+    map_cross_species_orthologs,
+    overlap_protein_features,
+    render_complex_membership_resolution_tsv,
+    render_cross_species_ortholog_tsv,
+    render_disease_term_resolution_tsv,
+    render_drug_target_resolution_tsv,
+    render_kinase_substrate_resolution_tsv,
+    render_knowledge_coverage_tsv,
+    render_pathway_membership_resolution_tsv,
+    render_protein_feature_overlaps_tsv,
+    render_protein_id_resolution_tsv,
+    resolve_complex_members,
+    resolve_disease_terms,
+    resolve_drug_targets,
+    resolve_kinase_substrates,
+    resolve_pathway_members,
+    resolve_protein_ids,
+)
+from bijux_proteomics_knowledge.features import ProteinFeatureQueryInterval
 from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceKind,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.features import ProteinFeatureQueryInterval
+from bijux_proteomics_knowledge.public_api import list_knowledge_root_api_entries
 
 
 def test_knowledge_public_api_module_matches_root_exports() -> None:
@@ -115,7 +115,9 @@ def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
     assert KnowledgeDecisionBrief.__name__ == "KnowledgeDecisionBrief"
     assert ProteinIdentityResolutionStatus.EXACT_ACCESSION.value == "exact_accession"
     assert resolve_protein_ids.__name__ == "resolve_protein_ids"
-    assert render_protein_id_resolution_tsv.__name__ == "render_protein_id_resolution_tsv"
+    assert (
+        render_protein_id_resolution_tsv.__name__ == "render_protein_id_resolution_tsv"
+    )
     assert report.compatible is True
 
 
@@ -270,7 +272,10 @@ def test_knowledge_public_root_exposes_kinase_substrate_resolution_surface() -> 
     )
 
     assert report.entries[0].match_type is KinaseSubstrateMatchType.EXACT_ACCESSION_SITE
-    assert report.entries[1].match_type is KinaseSubstrateMatchType.GENE_SYMBOL_SITE_EQUIVALENT
+    assert (
+        report.entries[1].match_type
+        is KinaseSubstrateMatchType.GENE_SYMBOL_SITE_EQUIVALENT
+    )
     assert render_kinase_substrate_resolution_tsv(report.entries).splitlines()[0] == (
         "site_id\tkinase\tmatch_type\tannotation_source"
     )
@@ -324,8 +329,13 @@ def test_knowledge_public_root_exposes_drug_target_resolution_surface() -> None:
         ),
     )
 
-    assert report.entries[0].relationship_type is DrugTargetRelationshipType.DIRECT_TARGET
-    assert report.entries[1].relationship_type is DrugTargetRelationshipType.INDIRECT_PATHWAY_NEIGHBOR
+    assert (
+        report.entries[0].relationship_type is DrugTargetRelationshipType.DIRECT_TARGET
+    )
+    assert (
+        report.entries[1].relationship_type
+        is DrugTargetRelationshipType.INDIRECT_PATHWAY_NEIGHBOR
+    )
     assert render_drug_target_resolution_tsv(report.entries).splitlines()[0] == (
         "protein_id\tdrug\trelationship_type\tdirect_target\tannotation_source"
     )
@@ -475,7 +485,10 @@ def test_knowledge_public_root_exposes_cross_species_ortholog_surface() -> None:
         target_species="Mus musculus",
     )
 
-    assert report.entries[0].evidence_status is CrossSpeciesOrthologEvidenceStatus.CURATED_ALIAS
+    assert (
+        report.entries[0].evidence_status
+        is CrossSpeciesOrthologEvidenceStatus.CURATED_ALIAS
+    )
     assert report.entries[0].ambiguity is CrossSpeciesOrthologAmbiguity.ONE_TO_ONE
     assert render_cross_species_ortholog_tsv(report.entries).splitlines()[0] == (
         "source_protein\ttarget_ortholog\tevidence_status\tambiguity"

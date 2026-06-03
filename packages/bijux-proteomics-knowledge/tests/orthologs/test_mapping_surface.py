@@ -13,13 +13,16 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
 )
 from bijux_proteomics_knowledge.orthologs.mapping import (
     CrossSpeciesOrthologAmbiguity,
+    CrossSpeciesOrthologEntry,
     CrossSpeciesOrthologEvidenceStatus,
     map_cross_species_orthologs,
     render_cross_species_ortholog_tsv,
 )
 
 
-def test_map_cross_species_orthologs_preserves_one_to_many_and_many_to_many_edges() -> None:
+def test_map_cross_species_orthologs_preserves_one_to_many_and_many_to_many_edges() -> (
+    None
+):
     report = map_cross_species_orthologs(
         ("P11111", "KIN1"),
         _ortholog_pack(),
@@ -104,9 +107,7 @@ def _entry(
     target_ortholog: str | None,
     evidence_status: CrossSpeciesOrthologEvidenceStatus,
     ambiguity: CrossSpeciesOrthologAmbiguity,
-):
-    from bijux_proteomics_knowledge.orthologs.mapping import CrossSpeciesOrthologEntry
-
+) -> CrossSpeciesOrthologEntry:
     return CrossSpeciesOrthologEntry(
         source_protein=source_protein,
         target_ortholog=target_ortholog,

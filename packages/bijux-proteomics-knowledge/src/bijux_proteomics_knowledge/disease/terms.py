@@ -97,7 +97,9 @@ def resolve_disease_terms(
     for protein_id in protein_ids:
         direct_matches = lookup.get(canonicalize_protein_reference(protein_id), ())
         if direct_matches:
-            entries.extend(_build_entries(protein_id=protein_id, matches=tuple(direct_matches)))
+            entries.extend(
+                _build_entries(protein_id=protein_id, matches=tuple(direct_matches))
+            )
             continue
         if annotation_pack is None:
             continue
@@ -142,10 +144,16 @@ def resolve_disease_terms(
         entries=deduplicated_entries,
         summary=DiseaseTermResolutionSummary(
             protein_count=len(protein_ids),
-            resolved_protein_count=len({entry.protein_id for entry in deduplicated_entries}),
-            term_count=len({(entry.term_id, entry.source) for entry in deduplicated_entries}),
+            resolved_protein_count=len(
+                {entry.protein_id for entry in deduplicated_entries}
+            ),
+            term_count=len(
+                {(entry.term_id, entry.source) for entry in deduplicated_entries}
+            ),
             disease_term_count=sum(
-                1 for entry in deduplicated_entries if entry.evidence_type == "disease_term"
+                1
+                for entry in deduplicated_entries
+                if entry.evidence_type == "disease_term"
             ),
             phenotype_term_count=sum(
                 1

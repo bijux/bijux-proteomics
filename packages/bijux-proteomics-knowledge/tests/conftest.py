@@ -8,6 +8,7 @@ import shutil
 import sys
 
 import pytest
+
 from bijux_proteomics_foundation.testing.pytest_markers import (
     apply_default_test_markers,
 )

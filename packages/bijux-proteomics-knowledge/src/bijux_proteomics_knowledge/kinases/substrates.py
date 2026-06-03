@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 import csv
-import re
 from enum import StrEnum
 from io import StringIO
+import re
 
 from pydantic import ConfigDict, Field
 
@@ -122,11 +122,16 @@ def resolve_kinase_substrates(
             continue
         if annotation_pack is None:
             continue
-        resolved_entries = resolve_protein_ids((site_parts.protein_id,), annotation_pack)
+        resolved_entries = resolve_protein_ids(
+            (site_parts.protein_id,), annotation_pack
+        )
         for resolved in resolved_entries:
             if resolved.resolved_accession is None:
                 continue
-            if resolved.resolution_status is ProteinIdentityResolutionStatus.EXACT_ACCESSION:
+            if (
+                resolved.resolution_status
+                is ProteinIdentityResolutionStatus.EXACT_ACCESSION
+            ):
                 continue
             resolved_matches = exact_lookup.get(
                 (
@@ -263,6 +268,8 @@ def _parse_site_id(site_id: str | None) -> _ParsedSiteId | None:
     if not protein_id:
         return None
     match = re.fullmatch(r"[A-Za-z]+(\d+)", residue_position)
+    if match is None:
+        return None
     return _ParsedSiteId(
         site_id=site_id,
         protein_id=protein_id,

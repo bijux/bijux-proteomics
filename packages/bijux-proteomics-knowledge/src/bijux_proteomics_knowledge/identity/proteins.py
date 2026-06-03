@@ -69,9 +69,7 @@ def resolve_protein_ids(
 
     normalized_species = _normalize_species(species)
     features = annotation_pack.protein_features
-    by_accession = {
-        feature.protein_ref: feature for feature in features
-    }
+    by_accession = {feature.protein_ref: feature for feature in features}
     by_annotation_identifier: dict[str, list[ProteinAnnotationRecord]] = {}
     by_gene_symbol: dict[str, list[ProteinAnnotationRecord]] = {}
     for feature in features:

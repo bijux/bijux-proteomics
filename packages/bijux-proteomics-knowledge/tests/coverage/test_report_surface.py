@@ -27,7 +27,9 @@ from bijux_proteomics_knowledge.coverage.report import (
 )
 
 
-def test_compute_knowledge_coverage_warns_when_pathway_ptm_and_regulator_coverage_is_sparse() -> None:
+def test_compute_knowledge_coverage_warns_when_pathway_ptm_and_regulator_coverage_is_sparse() -> (
+    None
+):
     report = compute_knowledge_coverage(
         (
             KnowledgeCoverageEntitySet(

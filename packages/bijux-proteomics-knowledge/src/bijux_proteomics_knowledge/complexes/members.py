@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
+import csv
 from enum import StrEnum
 from io import StringIO
 
@@ -127,7 +127,9 @@ def resolve_complex_members(
         total_member_count = len(records)
         observed_member_count = len(observed_members)
         member_coverage = (
-            observed_member_count / total_member_count if total_member_count > 0 else 0.0
+            observed_member_count / total_member_count
+            if total_member_count > 0
+            else 0.0
         )
         entries.append(
             ComplexMembershipResolutionEntry(
@@ -150,12 +152,14 @@ def resolve_complex_members(
             high_confidence_complex_count=sum(
                 1
                 for entry in entries
-                if entry.complex_confidence is ComplexMembershipConfidence.HIGH_CONFIDENCE
+                if entry.complex_confidence
+                is ComplexMembershipConfidence.HIGH_CONFIDENCE
             ),
             low_confidence_complex_count=sum(
                 1
                 for entry in entries
-                if entry.complex_confidence is ComplexMembershipConfidence.LOW_CONFIDENCE
+                if entry.complex_confidence
+                is ComplexMembershipConfidence.LOW_CONFIDENCE
             ),
             unresolved_input_count=len(unresolved_inputs),
         ),
@@ -269,7 +273,9 @@ def _resolved_inputs(
             raise RuntimeError(
                 "resolved protein identity entries must include an accession"
             )
-        resolved_protein_refs.add(canonicalize_protein_reference(entry.resolved_accession))
+        resolved_protein_refs.add(
+            canonicalize_protein_reference(entry.resolved_accession)
+        )
         if entry.gene:
             resolved_gene_symbols.add(entry.gene)
     return resolved_protein_refs, resolved_gene_symbols, unresolved_inputs

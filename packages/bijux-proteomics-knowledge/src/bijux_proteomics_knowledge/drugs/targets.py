@@ -95,9 +95,13 @@ def resolve_drug_targets(
 
     entries: list[DrugTargetResolutionEntry] = []
     for protein_id in protein_ids:
-        direct_matches = direct_lookup.get(canonicalize_protein_reference(protein_id), ())
+        direct_matches = direct_lookup.get(
+            canonicalize_protein_reference(protein_id), ()
+        )
         if direct_matches:
-            entries.extend(_build_entries(protein_id=protein_id, matches=tuple(direct_matches)))
+            entries.extend(
+                _build_entries(protein_id=protein_id, matches=tuple(direct_matches))
+            )
             continue
         if annotation_pack is None:
             continue
@@ -142,9 +146,13 @@ def resolve_drug_targets(
         entries=deduplicated_entries,
         summary=DrugTargetResolutionSummary(
             protein_count=len(protein_ids),
-            resolved_protein_count=len({entry.protein_id for entry in deduplicated_entries}),
+            resolved_protein_count=len(
+                {entry.protein_id for entry in deduplicated_entries}
+            ),
             drug_count=len({entry.drug for entry in deduplicated_entries}),
-            direct_target_count=sum(1 for entry in deduplicated_entries if entry.direct_target),
+            direct_target_count=sum(
+                1 for entry in deduplicated_entries if entry.direct_target
+            ),
             indirect_pathway_neighbor_count=sum(
                 1 for entry in deduplicated_entries if not entry.direct_target
             ),
