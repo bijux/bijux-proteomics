@@ -8,6 +8,12 @@ from __future__ import annotations
 
 from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.lab.protocol_consistency import ProtocolConsistencyReport
+from bijux_proteomics.lab.protocol_context import LabProtocolContextEntry
+from bijux_proteomics.lab.qc import LcmsRunQcReport
+from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
+from bijux_proteomics.ptm.contracts import PtmEvidenceParseReport
+from bijux_proteomics.workflow.pipelines.orchestrator import WorkflowConfig, WorkflowResult
 
 from .imports import *  # noqa: F401,F403
 from .workflow import *  # noqa: F401,F403
@@ -48,7 +54,9 @@ def _build_volcano_review_policy(
         top_label_count=top_label_count,
     )
 
-def _load_protocol_context(protocol_context_tsv_path: Path | None):
+def _load_protocol_context(
+    protocol_context_tsv_path: Path | None,
+) -> LabProtocolContextEntry | None:
     if protocol_context_tsv_path is None:
         return None
     return require_single_lab_protocol_context(
@@ -58,21 +66,21 @@ def _load_protocol_context(protocol_context_tsv_path: Path | None):
 def _build_protocol_consistency_report_from_inputs(
     *,
     protocol_context_tsv_path: Path,
-    run_qc_report=None,
+    run_qc_report: LcmsRunQcReport | None = None,
     reporter_table_path: Path | None = None,
     ptm_evidence_tsv_path: Path | None = None,
-):
+) -> ProtocolConsistencyReport:
     protocol_context = _load_protocol_context(protocol_context_tsv_path)
     if protocol_context is None:  # pragma: no cover
         raise ValueError("protocol context is required")
-    reporter_import_report = None
+    reporter_import_report: TmtReporterImportReport | None = None
     reporter_input_issue = None
     if reporter_table_path is not None:
         try:
             reporter_import_report = parse_tmt_reporter_table(reporter_table_path)
         except Exception as exc:  # noqa: BLE001
             reporter_input_issue = str(exc)
-    ptm_evidence_report = None
+    ptm_evidence_report: PtmEvidenceParseReport | None = None
     ptm_input_issue = None
     if ptm_evidence_tsv_path is not None:
         try:
@@ -147,7 +155,7 @@ def _build_protocol_aware_selection_policy(
         }
     )
 
-def _run_orchestrated_workflow(config):
+def _run_orchestrated_workflow(config: WorkflowConfig) -> WorkflowResult:
     try:
         return run_proteomics_workflow(config)
     except Exception as exc:  # noqa: BLE001

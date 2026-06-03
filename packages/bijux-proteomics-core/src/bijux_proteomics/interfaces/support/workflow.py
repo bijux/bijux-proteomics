@@ -114,15 +114,17 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
     TargetedWorkflowConfig,
     TargetedWorkflowStage,
     TmtWorkflowConfig,
+    WorkflowConfig,
     WorkflowMode,
+    WorkflowResult,
     run_proteomics_workflow as _orchestrator_run_proteomics_workflow,
 )
 
 
-def run_proteomics_workflow(*args, **kwargs):
+def run_proteomics_workflow(config: WorkflowConfig) -> WorkflowResult:
     """Delegate workflow orchestration through the canonical scientific owner."""
 
-    return _orchestrator_run_proteomics_workflow(*args, **kwargs)
+    return _orchestrator_run_proteomics_workflow(config)
 __all__ = [
     'BiologicalResultSelectionPolicy',
     'DdaWorkflowConfig',
@@ -140,7 +142,9 @@ __all__ = [
     'TargetedWorkflowConfig',
     'TargetedWorkflowStage',
     'TmtWorkflowConfig',
+    'WorkflowConfig',
     'WorkflowMode',
+    'WorkflowResult',
     '_orchestrator_run_proteomics_workflow',
     'build_dia_differential_volcano_plot',
     'build_diann_benchmark_report',

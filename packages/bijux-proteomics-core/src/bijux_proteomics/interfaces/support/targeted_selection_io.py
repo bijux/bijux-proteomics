@@ -6,7 +6,27 @@
 
 from __future__ import annotations
 
+from typing import TypedDict, cast
+
 from .imports import *  # noqa: F401,F403
+
+
+class _SelectedTransitionAssayPayload(TypedDict):
+    target_protein_ref: str
+    target_protein_group_id: str
+    gene_symbol: str | None
+    peptide_sequence: str
+    canonical_peptide: str
+    peptide_rank: int
+    precursor_charge: int
+    precursor_mz: float
+    source_library_entry_id: str | None
+    chemistry_supported_transition_count: int
+    selected_transition_count: int
+    sufficient_transition_support: bool
+    instrument_caveats: tuple[str, ...]
+    selected_transitions: list[TargetedTransitionSelectionFragment]
+
 
 def _load_similarity_spectra(
     input_path: Path, *, kind: str
@@ -24,9 +44,11 @@ def _load_similarity_spectra(
                 "use --query-kind/--reference-kind mgf or mzml"
             )
     if resolved_kind == "mgf":
-        return parse_mgf(input_path).accepted_spectra
+        return cast(tuple[SpectrumModel, ...], parse_mgf(input_path).accepted_spectra)
     if resolved_kind == "mzml":
-        return parse_mzml(input_path).accepted_spectra
+        return cast(
+            tuple[SpectrumModel, ...], parse_mzml(input_path).accepted_spectra
+        )
     raise ValueError("spectrum similarity supports only mgf and mzml inputs")
 
 def _select_similarity_spectrum(
@@ -395,7 +417,7 @@ def _load_selected_targeted_transitions(
                 "selected-transition TSV is missing required columns for targeted assay interference review: "
                 + ", ".join(sorted(missing_columns))
             )
-        entries_by_assay: dict[str, dict[str, object]] = {}
+        entries_by_assay: dict[str, _SelectedTransitionAssayPayload] = {}
         assay_order: list[str] = []
         for row_number, row in enumerate(reader, start=2):
             try:
@@ -452,10 +474,6 @@ def _load_selected_targeted_transitions(
                 selected_transitions = entries_by_assay[assay_entry_id][
                     "selected_transitions"
                 ]
-                if not isinstance(selected_transitions, list):
-                    raise TypeError(
-                        "targeted selection entries must preserve selected transitions as a list"
-                    )
                 selected_transitions.append(
                     TargetedTransitionSelectionFragment(
                         rank=int(str(row.get("transition_rank", "")).strip()),
@@ -506,7 +524,7 @@ def _load_selected_targeted_transitions(
     entries: list[TargetedTransitionSelectionPeptideEntry] = []
     for assay_entry_id in assay_order:
         assay_payload = entries_by_assay[assay_entry_id]
-        selected_transitions = tuple(
+        ordered_transitions = tuple(
             sorted(
                 assay_payload["selected_transitions"],
                 key=lambda fragment: (fragment.rank, fragment.fragment_mz),
@@ -534,7 +552,7 @@ def _load_selected_targeted_transitions(
                     "sufficient_transition_support"
                 ],
                 instrument_caveats=assay_payload["instrument_caveats"],
-                selected_transitions=selected_transitions,
+                selected_transitions=ordered_transitions,
             )
         )
     return tuple(entries)
