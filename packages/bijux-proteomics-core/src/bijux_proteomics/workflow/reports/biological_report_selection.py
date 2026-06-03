@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable
 from enum import StrEnum
 from html import escape
 from io import StringIO
@@ -321,7 +322,7 @@ def _build_differential_reference_entries(
 
 
 def _build_background_reference_entries(
-    normalized_table,
+    normalized_table: LabelFreeQuantTable,
 ) -> tuple[ProteinReferenceEntry, ...]:
     return _build_protein_reference_entries(
         (
@@ -389,9 +390,7 @@ def _build_protein_reference_entries_from_biological_set(
 
 
 def _build_protein_reference_entries(
-    entity_rows: tuple[tuple[str, dict[str, tuple[str, ...]]], ...]
-    | list[tuple[str, dict[str, tuple[str, ...]]]]
-    | object,
+    entity_rows: Iterable[tuple[str, dict[str, tuple[str, ...]]]],
 ) -> tuple[ProteinReferenceEntry, ...]:
     entries: list[ProteinReferenceEntry] = []
     row_number = 2

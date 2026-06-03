@@ -129,6 +129,9 @@ from bijux_proteomics.interpretation.compartment_biology import (
     render_compartment_enrichment_tsv,
     render_unknown_compartment_localization_tsv,
 )
+from bijux_proteomics.interpretation.pathway_activity import (
+    PathwayConditionComparisonEntry,
+)
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -202,6 +205,9 @@ from bijux_proteomics.review import (
     score_adjusted_p_value,
     score_effect_size,
     score_support_count,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    FinalClaimEvidenceTier,
 )
 from bijux_proteomics.sequences import (
     FastaParseMode,
@@ -741,7 +747,7 @@ def _graph_node_ids_from_cards(cards: tuple[ProteinMechanismCard, ...]) -> tuple
 
 
 def _protein_hypothesis_base_confidence(
-    claim,
+    claim: BiologicalClaimCandidate,
     *,
     card: ProteinMechanismCard | None,
 ) -> float:
@@ -754,19 +760,19 @@ def _protein_hypothesis_base_confidence(
 
 
 def _pathway_hypothesis_base_confidence(
-    claim,
+    claim: BiologicalClaimCandidate,
     *,
-    comparison,
+    comparison: PathwayConditionComparisonEntry | None,
 ) -> float:
     delta_score = min(1.0, abs(claim.pathway_delta or 0.0) / 1.0)
     comparison_score = _pathway_confidence_score(
         None if comparison is None else comparison.comparison_confidence_status.value
     )
-    return round((delta_score + comparison_score) / 2.0, 3)
+    return float(round((delta_score + comparison_score) / 2.0, 3))
 
 
 def _regulator_hypothesis_base_confidence(
-    claim,
+    claim: BiologicalClaimCandidate,
     *,
     regulator_score: float | None,
 ) -> float:
@@ -776,7 +782,7 @@ def _regulator_hypothesis_base_confidence(
     return round(score, 3)
 
 
-def _evidence_tier_score(evidence_tier) -> float:
+def _evidence_tier_score(evidence_tier: FinalClaimEvidenceTier | None) -> float:
     if evidence_tier is None:
         return 0.55
     if evidence_tier.value == "high_confidence":
@@ -837,7 +843,7 @@ def _pathway_hypothesis_supporting_protein_refs(
 def _pathway_hypothesis_opposing_evidence(
     pathway_activity_report: PathwayActivityReport,
     *,
-    comparison,
+    comparison: PathwayConditionComparisonEntry,
 ) -> tuple[str, ...]:
     unresolved_member_ids = {
         unresolved.member_id

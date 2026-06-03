@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable, Sequence
 from enum import StrEnum
 from html import escape
 from io import StringIO
@@ -222,6 +223,7 @@ from bijux_proteomics.lab.protocol_context import (
     require_single_lab_protocol_context,
 )
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
+    ProteinEvidenceCard,
     ProteinEvidenceCardReport,
     ProteinEvidenceCardSelectionPolicy,
     build_protein_evidence_card_report,
@@ -519,7 +521,7 @@ def _build_biological_pathway_ranking_candidates(
     return tuple(candidates)
 
 
-def _mean(value_groups: object) -> float:
+def _mean(value_groups: Iterable[Sequence[float]]) -> float:
     values: list[float] = []
     for group in value_groups:
         values.extend(group)
@@ -539,7 +541,7 @@ def _tier_score(value: str) -> float:
     }.get(value, 0.5)
 
 
-def _biological_result_uncertainty(card) -> float:
+def _biological_result_uncertainty(card: ProteinEvidenceCard) -> float:
     uncertainty = 0.0
     if card.differential_result.adjusted_p_value is None:
         uncertainty += 0.08

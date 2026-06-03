@@ -76,7 +76,7 @@ def query_evidence_graph(
         requested = entity_filters.get(node.entity_type)
         if requested is None:
             return not any(entity_filters.values())
-        return node.entity_ref == requested
+        return bool(node.entity_ref == requested)
 
     matched = [node for node in nodes if _matches_entity(node)]
     if query.claim_state is not None:
