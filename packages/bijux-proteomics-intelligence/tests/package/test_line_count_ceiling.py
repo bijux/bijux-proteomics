@@ -37,7 +37,6 @@ def _exception(
 INTELLIGENCE_LINE_COUNT_EXCEPTIONS = (
     _exception("candidates/lifecycle.py", 1104),
     _exception("candidates/ranking.py", 1589),
-    _exception("reviews/benchmarks.py", 1982),
 )
 
 
