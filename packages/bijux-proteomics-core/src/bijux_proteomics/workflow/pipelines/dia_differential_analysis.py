@@ -909,7 +909,7 @@ def export_dia_differential_volcano_plot_tsv(
 def _condition_names(
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[str, ...]:
-    return coerce_experiment_design(design_entries).conditions
+    return tuple(coerce_experiment_design(design_entries).conditions)
 
 
 def _resolve_selected_contrast(

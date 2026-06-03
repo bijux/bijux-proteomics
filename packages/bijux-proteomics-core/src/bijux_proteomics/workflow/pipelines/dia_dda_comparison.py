@@ -207,6 +207,12 @@ class DiaDdaComparisonReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+@dataclass(frozen=True)
+class _PeptideAbundanceEntry:
+    values: dict[str, float]
+    protein_refs: tuple[str, ...]
+
+
 def build_dia_dda_comparison_report(
     dia_report: DiaNnBundleImportReport,
     dda_records: tuple[PsmRecord, ...],
@@ -258,18 +264,18 @@ def build_dia_dda_comparison_report(
     for peptide_sequence in peptide_ids:
         dia_entry = dia_peptides.get(peptide_sequence)
         dda_entry = dda_peptides.get(peptide_sequence)
-        dia_values = {} if dia_entry is None else dia_entry["values"]
-        dda_values = {} if dda_entry is None else dda_entry["values"]
-        if dia_values and dda_values:
-            dia_protein_refs = () if dia_entry is None else dia_entry["protein_refs"]
-            dda_protein_refs = () if dda_entry is None else dda_entry["protein_refs"]
+        peptide_dia_values: dict[str, float] = {} if dia_entry is None else dia_entry.values
+        peptide_dda_values: dict[str, float] = {} if dda_entry is None else dda_entry.values
+        if peptide_dia_values and peptide_dda_values:
+            dia_protein_refs = () if dia_entry is None else dia_entry.protein_refs
+            dda_protein_refs = () if dda_entry is None else dda_entry.protein_refs
             if dia_protein_refs != dda_protein_refs:
                 overlap_class = WorkflowOverlapClass.CONFLICTING
                 conflicting_peptide_count += 1
             else:
                 overlap_class = WorkflowOverlapClass.SHARED
                 shared_peptide_count += 1
-        elif dia_values:
+        elif peptide_dia_values:
             overlap_class = WorkflowOverlapClass.DIA_ONLY
             dia_only_peptide_count += 1
         else:
@@ -279,12 +285,12 @@ def build_dia_dda_comparison_report(
             DiaDdaPeptideOverlapEntry(
                 peptide_sequence=peptide_sequence,
                 overlap_class=overlap_class,
-                dia_sample_count=len(dia_values),
-                dda_sample_count=len(dda_values),
-                dia_total_intensity=sum(dia_values.values()),
-                dda_total_intensity=sum(dda_values.values()),
-                dia_protein_refs=() if dia_entry is None else dia_entry["protein_refs"],
-                dda_protein_refs=() if dda_entry is None else dda_entry["protein_refs"],
+                dia_sample_count=len(peptide_dia_values),
+                dda_sample_count=len(peptide_dda_values),
+                dia_total_intensity=sum(peptide_dia_values.values()),
+                dda_total_intensity=sum(peptide_dda_values.values()),
+                dia_protein_refs=() if dia_entry is None else dia_entry.protein_refs,
+                dda_protein_refs=() if dda_entry is None else dda_entry.protein_refs,
             )
         )
     exclusive_evidence = tuple(
@@ -382,8 +388,8 @@ def build_dia_dda_comparison_report(
                     _build_correlation_entry(
                         entity_level=ComparisonEntityLevel.PEPTIDE,
                         entity_id=peptide_sequence,
-                        dia_values=dia_peptides[peptide_sequence]["values"],
-                        dda_values=dda_peptides[peptide_sequence]["values"],
+                        dia_values=dia_peptides[peptide_sequence].values,
+                        dda_values=dda_peptides[peptide_sequence].values,
                     )
                     for peptide_sequence in sorted(set(dia_peptides) & set(dda_peptides))
                 ],
@@ -549,8 +555,8 @@ def _dia_peptide_abundance(
     report: DiaNnBundleImportReport,
     *,
     max_q_value: float,
-) -> dict[str, dict[str, object]]:
-    abundance_by_peptide: dict[str, dict[str, object]] = {}
+) -> dict[str, _PeptideAbundanceEntry]:
+    abundance_by_peptide: dict[str, _PeptideAbundanceEntry] = {}
     for row in report.precursor_rows:
         if row.target_decoy_label is not TargetDecoyLabel.TARGET or row.q_value > max_q_value:
             continue
@@ -559,32 +565,24 @@ def _dia_peptide_abundance(
             continue
         peptide_bucket = abundance_by_peptide.setdefault(
             row.peptide_sequence,
-            {"values": {}, "protein_refs": set()},
+            _PeptideAbundanceEntry(values={}, protein_refs=()),
         )
-        values = peptide_bucket["values"]
-        if not isinstance(values, dict):
-            raise TypeError("DIA/DDA peptide abundance buckets must preserve values as a mapping")
-        values[row.sample_name] = values.get(row.sample_name, 0.0) + quantity
-        protein_refs = peptide_bucket["protein_refs"]
-        if not isinstance(protein_refs, set):
-            raise TypeError(
-                "DIA/DDA peptide abundance buckets must preserve protein refs as a set"
-            )
-        protein_refs.update(row.protein_refs)
-    return {
-        peptide_sequence: {
-            "values": bucket["values"],
-            "protein_refs": tuple(sorted(bucket["protein_refs"])),
-        }
-        for peptide_sequence, bucket in abundance_by_peptide.items()
-    }
+        updated_values = dict(peptide_bucket.values)
+        updated_values[row.sample_name] = updated_values.get(row.sample_name, 0.0) + quantity
+        abundance_by_peptide[row.peptide_sequence] = _PeptideAbundanceEntry(
+            values=updated_values,
+            protein_refs=tuple(
+                sorted(set(peptide_bucket.protein_refs) | set(row.protein_refs))
+            ),
+        )
+    return abundance_by_peptide
 
 
 def _dda_peptide_abundance(
     records: tuple[PsmRecord, ...],
     *,
     max_q_value: float,
-) -> dict[str, dict[str, object]]:
+) -> dict[str, _PeptideAbundanceEntry]:
     filtered_records = tuple(
         record
         for record in records
@@ -598,17 +596,17 @@ def _dda_peptide_abundance(
         filtered_records,
         grouping_mode=PeptideMatrixGroupingMode.PEPTIDE_SEQUENCE,
     )
-    abundance_by_peptide: dict[str, dict[str, object]] = {}
+    abundance_by_peptide: dict[str, _PeptideAbundanceEntry] = {}
     for row in peptide_matrix.rows:
         sample_values: dict[str, float] = {}
         for value in row.values:
             if value.abundance is not None:
                 sample_values[value.sample_id] = value.abundance
         if sample_values:
-            abundance_by_peptide[row.entity_id] = {
-                "values": sample_values,
-                "protein_refs": row.protein_refs,
-            }
+            abundance_by_peptide[row.entity_id] = _PeptideAbundanceEntry(
+                values=sample_values,
+                protein_refs=row.protein_refs,
+            )
     return abundance_by_peptide
 
 
@@ -665,7 +663,7 @@ def _pearson_correlation(
     if left_scale == 0.0 or right_scale == 0.0:
         return None
     raw_correlation = numerator / (left_scale * right_scale)
-    return max(-1.0, min(1.0, raw_correlation))
+    return float(max(-1.0, min(1.0, raw_correlation)))
 
 
 @dataclass(frozen=True)

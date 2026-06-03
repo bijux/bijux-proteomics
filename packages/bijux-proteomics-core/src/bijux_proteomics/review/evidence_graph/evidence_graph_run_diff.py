@@ -137,7 +137,7 @@ def compare_evidence_graph_runs(
 def render_evidence_graph_run_diff_tsv(report: EvidenceGraphRunDiffReport) -> str:
     """Render run-diff scientific conclusion changes as TSV."""
 
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "category": entry.category.value,
             "change_kind": entry.change_kind.value,
