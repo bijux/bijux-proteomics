@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -20,14 +21,18 @@ from bijux_proteomics.sequences import (
 )
 from bijux_proteomics.targeted import (
     DiscoveryTargetProteinEntry,
+    DiscoveryTargetedPeptideSelectionEntry,
     DiscoveryTargetedPeptideSelectionReport,
     TargetedAssayInterferenceReport,
     TargetedPanelAssayInput,
+    TargetedPanelAssayEntry,
     TargetedPanelBiomarkerCandidateInput,
     TargetedPanelCandidateKind,
     TargetedPanelDesignReport,
     TargetedPanelSelectedPeptideInput,
+    TargetedPanelTransitionEntry,
     TargetedPanelTransitionInput,
+    TargetedTransitionSelectionPeptideEntry,
     TargetedTransitionSelectionReport,
     ValidationEvidenceCardReport,
     ValidationEvidenceDiscoveryInput,
@@ -52,6 +57,8 @@ from bijux_proteomics.targeted import (
 )
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics.workflow.result_types import (
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     WorkflowResult,
     artifact_name_map,
     build_rejected_evidence_entry,
@@ -425,8 +432,11 @@ def render_discovery_to_assay_selected_peptides_tsv(
 ) -> str:
     """Render selected peptide rows from the composed workflow report."""
 
-    return render_discovery_targeted_peptide_selection_selected_tsv(
-        report.peptide_selection_report
+    return cast(
+        str,
+        render_discovery_targeted_peptide_selection_selected_tsv(
+            report.peptide_selection_report
+        ),
     )
 
 
@@ -435,8 +445,11 @@ def render_discovery_to_assay_rejected_peptides_tsv(
 ) -> str:
     """Render rejected peptide rows from the composed workflow report."""
 
-    return render_discovery_targeted_peptide_selection_rejected_tsv(
-        report.peptide_selection_report
+    return cast(
+        str,
+        render_discovery_targeted_peptide_selection_rejected_tsv(
+            report.peptide_selection_report
+        ),
     )
 
 
@@ -445,8 +458,11 @@ def render_discovery_to_assay_selected_transitions_tsv(
 ) -> str:
     """Render selected transition rows from the composed workflow report."""
 
-    return render_targeted_transition_selection_selected_tsv(
-        report.transition_selection_report
+    return cast(
+        str,
+        render_targeted_transition_selection_selected_tsv(
+            report.transition_selection_report
+        ),
     )
 
 
@@ -455,27 +471,33 @@ def render_discovery_to_assay_rejected_transitions_tsv(
 ) -> str:
     """Render rejected transition rows from the composed workflow report."""
 
-    return render_targeted_transition_selection_rejected_tsv(
-        report.transition_selection_report
+    return cast(
+        str,
+        render_targeted_transition_selection_rejected_tsv(
+            report.transition_selection_report
+        ),
     )
 
 
 def render_discovery_to_assay_assay_tsv(report: DiscoveryToAssayReport) -> str:
     """Render retained assay rows from the composed workflow report."""
 
-    return render_targeted_panel_design_assay_tsv(report.panel_design_report)
+    return cast(str, render_targeted_panel_design_assay_tsv(report.panel_design_report))
 
 
 def render_discovery_to_assay_panel_tsv(report: DiscoveryToAssayReport) -> str:
     """Render retained panel transition rows from the composed workflow report."""
 
-    return render_targeted_panel_design_panel_tsv(report.panel_design_report)
+    return cast(str, render_targeted_panel_design_panel_tsv(report.panel_design_report))
 
 
 def render_discovery_to_assay_omitted_targets_tsv(report: DiscoveryToAssayReport) -> str:
     """Render omitted-target rows from the composed workflow report."""
 
-    return render_targeted_panel_design_omitted_candidate_tsv(report.panel_design_report)
+    return cast(
+        str,
+        render_targeted_panel_design_omitted_candidate_tsv(report.panel_design_report),
+    )
 
 
 def render_discovery_to_assay_validation_candidate_summary_tsv(
@@ -483,7 +505,10 @@ def render_discovery_to_assay_validation_candidate_summary_tsv(
 ) -> str:
     """Render validation-candidate summary rows from the composed workflow report."""
 
-    return render_validation_evidence_card_summary_tsv(report.validation_candidate_cards)
+    return cast(
+        str,
+        render_validation_evidence_card_summary_tsv(report.validation_candidate_cards),
+    )
 
 
 def render_discovery_to_assay_validation_candidate_cards_tsv(
@@ -491,7 +516,10 @@ def render_discovery_to_assay_validation_candidate_cards_tsv(
 ) -> str:
     """Render validation-candidate card rows from the composed workflow report."""
 
-    return render_validation_evidence_card_tsv(report.validation_candidate_cards)
+    return cast(
+        str,
+        render_validation_evidence_card_tsv(report.validation_candidate_cards),
+    )
 
 
 def render_discovery_to_assay_validation_candidate_assays_tsv(
@@ -499,7 +527,10 @@ def render_discovery_to_assay_validation_candidate_assays_tsv(
 ) -> str:
     """Render validation-candidate assay rows from the composed workflow report."""
 
-    return render_validation_evidence_card_assay_tsv(report.validation_candidate_cards)
+    return cast(
+        str,
+        render_validation_evidence_card_assay_tsv(report.validation_candidate_cards),
+    )
 
 
 def render_discovery_to_assay_validation_candidate_warnings_tsv(
@@ -507,14 +538,17 @@ def render_discovery_to_assay_validation_candidate_warnings_tsv(
 ) -> str:
     """Render validation-candidate warning rows from the composed workflow report."""
 
-    return render_validation_evidence_card_warning_tsv(report.validation_candidate_cards)
+    return cast(
+        str,
+        render_validation_evidence_card_warning_tsv(report.validation_candidate_cards),
+    )
 
 
 def _build_discovery_to_assay_warnings(
     summary: DiscoveryToAssaySummary,
     manifest: DiscoveryToAssayManifest,
-):
-    warnings = []
+) -> tuple[ResultWarningEntry, ...]:
+    warnings: list[ResultWarningEntry] = []
     if summary.blocked_target_count:
         warnings.append(
             build_result_warning(
@@ -547,7 +581,7 @@ def _build_discovery_to_assay_warnings(
 def _build_discovery_to_assay_rejected_evidence(
     target_entries: tuple[DiscoveryAssayTargetEntry, ...],
     manifest: DiscoveryToAssayManifest,
-):
+) -> tuple[RejectedEvidenceEntry, ...]:
     return tuple(
         build_rejected_evidence_entry(
             evidence_id=f"discovery_to_assay:{entry.candidate_id}",
@@ -694,7 +728,7 @@ def _panel_candidates(
 
 
 def _panel_selected_peptides(
-    selected_entries: tuple,
+    selected_entries: tuple[DiscoveryTargetedPeptideSelectionEntry, ...],
 ) -> tuple[TargetedPanelSelectedPeptideInput, ...]:
     return tuple(
         TargetedPanelSelectedPeptideInput(
@@ -789,16 +823,16 @@ def _build_target_entries(
     transition_selection_report: TargetedTransitionSelectionReport,
     panel_design_report: TargetedPanelDesignReport,
 ) -> tuple[DiscoveryAssayTargetEntry, ...]:
-    selected_by_protein: dict[str, list] = {}
+    selected_by_protein: dict[str, list[DiscoveryTargetedPeptideSelectionEntry]] = {}
     for entry in peptide_selection_report.selected_entries:
         selected_by_protein.setdefault(entry.target_protein_ref, []).append(entry)
-    transitions_by_protein: dict[str, list] = {}
+    transitions_by_protein: dict[str, list[TargetedTransitionSelectionPeptideEntry]] = {}
     for entry in transition_selection_report.peptide_entries:
         transitions_by_protein.setdefault(entry.target_protein_ref, []).append(entry)
-    assays_by_candidate: dict[str, list] = {}
+    assays_by_candidate: dict[str, list[TargetedPanelAssayEntry]] = {}
     for entry in panel_design_report.assay_entries:
         assays_by_candidate.setdefault(entry.biomarker_candidate_id, []).append(entry)
-    panel_by_candidate: dict[str, list] = {}
+    panel_by_candidate: dict[str, list[TargetedPanelTransitionEntry]] = {}
     for entry in panel_design_report.panel_entries:
         panel_by_candidate.setdefault(entry.biomarker_candidate_id, []).append(entry)
 
