@@ -16,7 +16,7 @@ from bijux_proteomics.domain.errors import (
     InvalidWorkflowError,
     SchemaError,
 )
-from bijux_proteomics.lab import (
+from bijux_proteomics.lab.actions import (
     LabActionPacket,
     build_lab_action_packets_from_qc_assessment,
     parse_lab_action_assessment_tsv,
@@ -36,6 +36,9 @@ from bijux_proteomics.review.evidence_graph import (
 from bijux_proteomics.workflow.exports.interactive_result_bundle import (
     InteractiveResultBundle,
     InteractiveResultCardKind,
+    InteractiveResultCard,
+    InteractiveResultGraphEdge,
+    InteractiveResultGraphNode,
     InteractiveResultSourceKind,
     build_interactive_result_bundle_from_artifacts,
 )
@@ -387,7 +390,7 @@ def _load_archived_lab_action_packets(
 def _build_card_surfaces(
     bundle: InteractiveResultBundle,
 ) -> tuple[ProteomicsStudyCardSurface, ...]:
-    cards_by_kind: dict[InteractiveResultCardKind, list[object]] = {
+    cards_by_kind: dict[InteractiveResultCardKind, list[InteractiveResultCard]] = {
         kind: [] for kind in InteractiveResultCardKind
     }
     for card in bundle.cards:
@@ -659,7 +662,7 @@ def _build_archived_evidence_graph(
     return build_proteomics_evidence_graph(nodes, edges)
 
 
-def _build_evidence_node(node: object) -> ProteomicsEvidenceNode:
+def _build_evidence_node(node: InteractiveResultGraphNode) -> ProteomicsEvidenceNode:
     return ProteomicsEvidenceNode(
         node_id=node.node_id,
         entity_type=ProteomicsEvidenceNodeKind(node.entity_type),
@@ -672,7 +675,7 @@ def _build_evidence_node(node: object) -> ProteomicsEvidenceNode:
     )
 
 
-def _build_evidence_edge(edge: object) -> ProteomicsEvidenceEdge:
+def _build_evidence_edge(edge: InteractiveResultGraphEdge) -> ProteomicsEvidenceEdge:
     if edge.source_row_ref is None:
         raise SchemaError(
             f"archived evidence edge is missing source_row_ref: {edge.source_node_id}->{edge.target_node_id}"
