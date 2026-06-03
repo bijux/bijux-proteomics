@@ -19,8 +19,8 @@ def test_runtime_thin_module_report_tracks_namespace_initializers_only() -> None
 
     assert RUNTIME_THIN_MODULES_PATH.exists()
     assert metrics.thin_module_count == guard.baseline_thin_module_count
-    assert metrics.thin_module_count == 26
-    assert metrics.namespace_initializer_count == 26
+    assert metrics.thin_module_count == 34
+    assert metrics.namespace_initializer_count == 34
     assert metrics.non_initializer_thin_module_count == 0
     assert metrics.documented_boundary_doc_count == 8
     assert all(

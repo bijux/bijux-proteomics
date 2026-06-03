@@ -100,6 +100,9 @@ severity prose. The current catalog explicitly covers:
 - `packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora`
 
+Refresh the copied challenge roots with
+`uv run --group dev python -m bijux_proteomics.benchmarks.flagship_challenge_assets refresh`.
+
 ## Neighbor Surfaces
 
 Open [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)

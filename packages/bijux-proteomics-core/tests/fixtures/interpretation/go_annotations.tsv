@@ -1,0 +1,9 @@
+protein_ref	go_term_id	go_term_name	go_aspect	evidence_code	source
+P04637	GO:0006915	apoptotic process	biological_process	IDA	curated
+NP_000537.3	GO:0005509	calcium ion binding	molecular_function	IDA	curated
+ENSP00000354587	GO:0000165	MAPK cascade	biological_process	IMP	curated
+lab_bait_001	GO:0005737	cytoplasm	cellular_component	IEA	curated
+Q99999	GO:0006915	apoptotic process	biological_process	IMP	curated
+Q99999	GO:0008285	negative regulation of cell population proliferation	biological_process	IMP	curated
+P04637	GO:0006915	apoptotic process	biological_process	IDA	duplicate
+	GO:0008150	biological_process	biological_process	IEA	curated

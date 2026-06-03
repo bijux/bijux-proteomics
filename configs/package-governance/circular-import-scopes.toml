@@ -1,0 +1,77 @@
+[[scope]]
+distribution_name = "bijux-proteomics-core"
+scope_name = "scientific-kernel"
+monitored_families = [
+  "chemistry",
+  "dia",
+  "domain",
+  "interfaces",
+  "interpretation",
+  "lab",
+  "proteoforms",
+  "sequences",
+]
+
+[[scope]]
+distribution_name = "bijux-proteomics-foundation"
+scope_name = "document-kernel"
+monitored_families = [
+  "compatibility",
+  "outcomes",
+  "support",
+]
+
+[[scope]]
+distribution_name = "bijux-proteomics-intelligence"
+scope_name = "review-surface"
+monitored_families = [
+  "claims",
+  "learning",
+  "reviews",
+]
+
+[[scope]]
+distribution_name = "bijux-proteomics-knowledge"
+scope_name = "knowledge-families"
+monitored_families = [
+  "complexes",
+  "contracts",
+  "coverage",
+  "disease",
+  "drugs",
+  "features",
+  "identity",
+  "kinases",
+  "memory",
+  "orthologs",
+  "pathways",
+  "references",
+  "reviews",
+]
+
+[[scope]]
+distribution_name = "bijux-proteomics-lab"
+scope_name = "handoff-kernel"
+monitored_families = [
+  "benchmarks",
+  "design",
+  "handoffs",
+  "outcomes",
+  "planning",
+  "readiness",
+  "reconciliation",
+]
+
+[[scope]]
+distribution_name = "bijux-proteomics-runtime"
+scope_name = "execution-kernel"
+monitored_families = [
+  "api",
+  "execution",
+  "parallel",
+  "providers",
+  "rehydrate",
+  "resume",
+  "runs",
+  "workflows",
+]

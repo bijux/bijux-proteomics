@@ -2,12 +2,24 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.topology
 
 [budget]
-max_first_level_subtrees = 8
-actual_first_level_subtrees = 8
+max_first_level_subtrees = 16
+actual_first_level_subtrees = 16
 
 [[subtree]]
 name = "api"
 module_count = 28
+
+[[subtree]]
+name = "artifacts"
+module_count = 2
+
+[[subtree]]
+name = "checkpoints"
+module_count = 2
+
+[[subtree]]
+name = "diff"
+module_count = 2
 
 [[subtree]]
 name = "execution"
@@ -18,8 +30,24 @@ name = "governance"
 module_count = 3
 
 [[subtree]]
+name = "handoff"
+module_count = 2
+
+[[subtree]]
+name = "parallel"
+module_count = 2
+
+[[subtree]]
 name = "providers"
 module_count = 16
+
+[[subtree]]
+name = "rehydrate"
+module_count = 2
+
+[[subtree]]
+name = "resume"
+module_count = 2
 
 [[subtree]]
 name = "runs"
@@ -30,9 +58,13 @@ name = "state"
 module_count = 5
 
 [[subtree]]
+name = "streaming"
+module_count = 2
+
+[[subtree]]
 name = "support"
 module_count = 20
 
 [[subtree]]
 name = "workflows"
-module_count = 17
+module_count = 24

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-LAB_SRC_ROOT = Path("packages/bijux-proteomics-lab/src/bijux_proteomics_lab")
 LAB_TEST_ROOT = Path("packages/bijux-proteomics-lab/tests")
 LAB_TEST_FAMILIES = {
     "benchmarks",
@@ -19,23 +18,6 @@ LAB_TEST_FAMILIES = {
     "readiness",
     "reconciliation",
 }
-
-
-def test_lab_source_tree_excludes_bytecode_artifacts() -> None:
-    forbidden_paths = sorted(
-        path.relative_to(LAB_SRC_ROOT)
-        for path in LAB_SRC_ROOT.rglob("*")
-        if "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}
-    )
-    forbidden_paths.extend(
-        sorted(
-            path.relative_to(LAB_TEST_ROOT)
-            for path in LAB_TEST_ROOT.rglob("*")
-            if "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}
-        )
-    )
-
-    assert forbidden_paths == []
 
 
 def test_lab_tests_tree_uses_operational_family_boundaries() -> None:

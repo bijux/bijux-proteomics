@@ -11,6 +11,7 @@ from bijux_proteomics.io.run_qc import (
     build_spectrum_run_qc_report,
     render_spectrum_run_qc_distribution_tsv,
     render_spectrum_run_qc_flagged_spectra_tsv,
+    render_spectrum_run_qc_spectra_tsv,
     render_spectrum_run_qc_summary_tsv,
     render_spectrum_run_qc_time_bins_tsv,
     render_spectrum_run_qc_trace_tsv,
@@ -78,6 +79,7 @@ def test_spectrum_run_qc_report_tracks_distributions_traces_and_flagged_spectra(
         distribution_name="precursor_intensity",
     )
     tic_tsv = render_spectrum_run_qc_trace_tsv(report.tic_trace, trace_name="tic")
+    spectra_tsv = render_spectrum_run_qc_spectra_tsv(report)
     flagged_tsv = render_spectrum_run_qc_flagged_spectra_tsv(report)
 
     assert report.source_kind == "mgf"
@@ -88,21 +90,31 @@ def test_spectrum_run_qc_report_tracks_distributions_traces_and_flagged_spectra(
     assert report.precursor_intensity_observation_count == 2
     assert report.empty_spectrum_count == 1
     assert report.noisy_spectrum_count == 2
+    assert report.single_dominant_peak_count == 1
     assert [row.ms2_spectrum_count for row in report.ms2_count_over_time] == [1, 1, 1]
     assert report.tic_trace[0].value == 90.0
     assert report.bpc_trace[1].value == 15.0
     assert [row.count for row in report.charge_distribution] == [1, 0, 1, 1, 0]
+    assert [row.count for row in report.quality_distribution] == [0, 0, 3]
     assert report.precursor_intensity_distribution[0].bucket == "unknown"
     assert report.precursor_intensity_distribution[0].count == 1
     assert report.precursor_intensity_distribution[1].count == 1
     assert report.precursor_intensity_distribution[2].count == 1
-    assert {row.issue_kind for row in report.flagged_spectra} == {"empty", "noisy"}
+    assert len(report.spectrum_metrics) == 3
+    assert report.spectrum_metrics[0].quality_tier.value == "low"
+    assert report.spectrum_metrics[1].is_single_dominant_peak is True
+    assert {row.issue_kind.value for row in report.flagged_spectra} == {
+        "empty",
+        "noisy",
+        "single_dominant_peak",
+    }
     assert plot_payload.chromatogram_source == "spectrum_derived"
     assert "chromatogram_source" in summary_tsv
     assert "ms2_spectrum_count" in time_tsv
     assert "charge" in charge_tsv
     assert "precursor_intensity" in precursor_tsv
     assert "tic" in tic_tsv
+    assert "quality_tier" in spectra_tsv
     assert "issue_kind" in flagged_tsv
 
 

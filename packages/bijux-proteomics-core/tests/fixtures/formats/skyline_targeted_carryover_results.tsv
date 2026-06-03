@@ -1,0 +1,11 @@
+ProteinName	PeptideModifiedSequence	PrecursorCharge	PrecursorMz	FragmentIon	ProductMz	ReplicateName	Area	RetentionTime	PeakQuality
+P100	CARRYPEP	2	500.2	y7	700.3	source_high	150000	10.1	pass
+P100	CARRYPEP	2	500.2	y8	820.4	source_high	50000	10.2	pass
+P100	CARRYPEP	2	500.2	y7	700.3	blank_after_source	3000	10.2	pass
+P100	CARRYPEP	2	500.2	y8	820.4	blank_after_source	1000	10.3	pass
+P100	CARRYPEP	2	500.2	y7	700.3	target_sample	1500	10.3	pass
+P100	CARRYPEP	2	500.2	y8	820.4	target_sample	500	10.4	pass
+P200	CLEANPEP	2	510.2	y5	650.3	source_high	20000	15.0	pass
+P200	CLEANPEP	2	510.2	y6	760.4	source_high	10000	15.1	pass
+P200	CLEANPEP	2	510.2	y5	650.3	target_sample	24000	15.1	pass
+P200	CLEANPEP	2	510.2	y6	760.4	target_sample	12000	15.2	pass

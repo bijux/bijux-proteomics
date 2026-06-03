@@ -1,0 +1,3 @@
+site_key	group_key	protein_ref	residue	position	modification_name	candidate_positions	localized_peptides	sample_ids	reason
+P11111:S17:Phospho	P11111:Phospho:17|18|19	P11111	S	17	Phospho	17;18;19	AS[Phospho]TYK	C1;T1	unresolved localization is excluded from the exact-site matrix and must travel through the ambiguity-group matrix instead
+P22222:S4:Phospho	P22222:Phospho:4|5|6	P22222	S	4	Phospho	4;5;6	AS[Phospho]TYK	C1;T1	unresolved localization is excluded from the exact-site matrix and must travel through the ambiguity-group matrix instead

@@ -2,14 +2,23 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.intelligence.boundary_mix
 
 [metrics]
-scanned_module_count = 26
-hotspot_count = 3
+scanned_module_count = 33
+hotspot_count = 4
 max_touched_band_count = 4
 
 [guard]
-baseline_hotspot_count = 3
+baseline_hotspot_count = 4
 baseline_max_touched_band_count = 4
-baseline_hotspot_modules = ["candidates/ranking.py", "judgment/paths.py", "reviews/decision_briefs.py"]
+baseline_hotspot_modules = ["belief_audit.py", "candidates/ranking.py", "judgment/paths.py", "reviews/decision_briefs.py"]
+
+[[module]]
+module_path = "belief_audit.py"
+band = "belief_audit"
+touched_band_count = 3
+cross_band_import_count = 2
+internal_import_count = 2
+touched_bands = ["belief_audit", "claims", "falsifiers"]
+hotspot = true
 
 [[module]]
 module_path = "candidates/lifecycle.py"
@@ -45,6 +54,33 @@ touched_band_count = 1
 cross_band_import_count = 0
 internal_import_count = 0
 touched_bands = ["candidates"]
+hotspot = false
+
+[[module]]
+module_path = "claims/support.py"
+band = "claims"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["claims"]
+hotspot = false
+
+[[module]]
+module_path = "contradictions.py"
+band = "contradictions"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["contradictions"]
+hotspot = false
+
+[[module]]
+module_path = "falsifiers.py"
+band = "falsifiers"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["falsifiers"]
 hotspot = false
 
 [[module]]
@@ -183,6 +219,15 @@ touched_bands = ["learning"]
 hotspot = false
 
 [[module]]
+module_path = "next_steps.py"
+band = "next_steps"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["next_steps"]
+hotspot = false
+
+[[module]]
 module_path = "posture/evidence.py"
 band = "posture"
 touched_band_count = 1
@@ -198,6 +243,24 @@ touched_band_count = 2
 cross_band_import_count = 2
 internal_import_count = 2
 touched_bands = ["judgment", "posture"]
+hotspot = false
+
+[[module]]
+module_path = "query.py"
+band = "query"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["query"]
+hotspot = false
+
+[[module]]
+module_path = "refusal.py"
+band = "refusal"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["refusal"]
 hotspot = false
 
 [[module]]

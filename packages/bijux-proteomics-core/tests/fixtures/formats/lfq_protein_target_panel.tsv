@@ -1,0 +1,4 @@
+target_id	target_type	protein_id	peptide_sequence	modified_peptide	expected_charge	display_name
+lfq-p001	protein	P001				Protein 1
+lfq-p003	protein	P003				Protein 3
+lfq-missing-protein	protein	P999				Missing protein

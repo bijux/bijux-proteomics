@@ -1,0 +1,6 @@
+protein_ref	context_kind	context_id	context_name	source_name	source_accession	evidence
+P04637	disease_term	DOID:162	cell-cycle disorder	Disease Ontology	DOID:162	curated
+O14920	disease_term	DOID:162	cell-cycle disorder	Disease Ontology	DOID:162	curated
+Q9Y243	disease_term	DOID:9999	stress collapse disease	Disease Ontology	DOID:9999	literature
+O14920	phenotype_term	HP:0001250	seizure	HPO	HP:0001250	inferred
+P04637	phenotype_term	HP:0031234	proliferation phenotype	HPO	HP:0031234	curated

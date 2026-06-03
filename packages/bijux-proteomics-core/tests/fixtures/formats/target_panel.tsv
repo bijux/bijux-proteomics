@@ -1,0 +1,7 @@
+target_id	target_type	protein_id	peptide_sequence	modified_peptide	expected_charge	display_name	panel_group
+dia-pepalfa	peptide	P11111	PEPALFA	PEPALFA	2	Alpha peptide	dia
+dia-p22222	protein	P22222				Gamma protein	dia
+dia-missing-protein	protein	P44444				Missing library protein	dia
+lfq-apeptide	peptide	P001	APEPTIDE	APEPTIDE	2	APEPTIDE biomarker	lfq
+lfq-p003	protein	P003				Protein 3 biomarker	lfq
+lfq-missing-peptide	peptide		ZPEPTIDE	ZPEPTIDE	2	Missing peptide	lfq

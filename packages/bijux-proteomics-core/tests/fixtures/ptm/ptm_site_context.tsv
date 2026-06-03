@@ -1,0 +1,7 @@
+protein_ref	start	end	domain_name	disorder_region	transmembrane_region	active_site_label	motif_name	conservation_score	source_name	source_accession
+P11111	4	6	activation_segment				SP_acceptor	0.97	InterPro	IPR:P11111-4-6
+P11111	5	5		surface_loop		catalytic_acceptor	SP_motif	0.99	Curator	CUR:P11111-S5
+P11111	16	18		shared_peptide_segment			STY_cluster	0.82	Literature	PMID:P11111-S17
+P22222	3	5			helix_1			0.61	UniProt	UP:P22222-3-5
+P22222	18	20	carboxyl_tail			tyrosine_switch	YK_tail	0.73	Reference	DB:P22222-Y18
+P11111	1	2							

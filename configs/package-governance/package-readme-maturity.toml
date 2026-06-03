@@ -30,7 +30,7 @@ distribution_name = "bijux-proteomics-core"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 6
-proof_depth_count = 49
+proof_depth_count = 94
 unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
@@ -71,7 +71,7 @@ maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 5
 proof_depth_count = 5
-unresolved_debt_count = 1
+unresolved_debt_count = 2
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
 

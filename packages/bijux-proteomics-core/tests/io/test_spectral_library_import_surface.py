@@ -29,8 +29,10 @@ def test_import_msp_spectral_library_reads_peptides_modifications_and_peaks() ->
     assert report.rejected_entry_count == 0
     assert report.entries[0].peptide_sequence == "PEPTIDE"
     assert report.entries[0].precursor_charge == 2
+    assert report.entries[0].protein_refs == ("P11111",)
     assert report.entries[1].canonical_peptide == "PEPM[Oxidation]TIDE"
     assert report.entries[1].modification_count == 1
+    assert report.entries[1].protein_refs == ("P22222",)
     assert len(report.entries[1].spectrum.peaks) == 2
     assert summary.entry_count == 2
     assert summary.modified_entry_count == 1
@@ -52,7 +54,10 @@ def test_import_mgf_spectral_library_indexes_precursor_and_peptide_candidates() 
 
     assert report.source_format is SpectralLibraryFormat.MGF
     assert report.accepted_entry_count == 2
-    assert index.peptide_index["PEPTIDE"] == ("mgf:1:SEQ=PEPTIDE|PEPTIDE=PEPTIDE",)
+    assert index.peptide_index["PEPTIDE"] == (
+        "mgf:1:SEQ=PEPTIDE|PEPTIDE=PEPTIDE|PROTEINS=P11111",
+    )
+    assert report.entries[0].protein_refs == ("P11111",)
     assert candidates.candidate_count == 1
     assert candidates.matches[0].canonical_peptide == "PEPM[Oxidation]TIDE"
     assert candidates.matches[0].precursor_delta_da <= 0.05

@@ -93,6 +93,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         required_modules=(
             "design/protocols.py",
             "handoffs/artifacts.py",
+            "handoffs/qc_feedback.py",
             "planning/assays.py",
             "planning/priorities.py",
             "handoffs/transitions.py",
@@ -128,6 +129,18 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface and intentionally aggregates stable operational entrypoints.",
+    ),
+    LabModuleAuditEntry(
+        module_path="public_api.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.ASSAY_PLANNING,
+            LabCharterCapability.QUEUEING,
+            LabCharterCapability.PROGRESSION,
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="The machine-readable root API contract keeps the supported lab-operational import surface explicit and release-auditable.",
     ),
     LabModuleAuditEntry(
         module_path="design/__init__.py",
@@ -226,6 +239,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
         reason="Artifact compatibility and contract policy keep lab handoffs reviewable and integrity-checked.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/qc_feedback.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Run-QC feedback contracts keep failed and cautioned lab observations typed at the owner boundary instead of flattening them into generic export rows.",
     ),
     LabModuleAuditEntry(
         module_path="handoffs/ptm.py",

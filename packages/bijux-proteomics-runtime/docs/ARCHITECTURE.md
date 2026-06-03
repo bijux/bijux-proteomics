@@ -62,11 +62,19 @@ flowchart TD
 - `governance/charter.py` owns the machine-readable execution charter and release-blocking module audit
 - `api/` owns FastAPI assembly, request logging, `api/routes/`, and `api/v1/endpoints/`
 - `api/cli.py` owns the canonical CLI contract and operator-safe command output
+- `artifacts/` owns runtime artifact trees, publication materialization, and archive-safe export helpers
+- `checkpoints/` owns resumable execution checkpoints and checkpoint persistence primitives
+- `diff/` owns runtime comparison and drift-report surfaces over completed runs
 - `runs/` owns run identity, run config, preflight, recovery, decisions, lineage, bundles, and typed execution context
+- `handoff/` owns runtime-side handoff packaging between execution and downstream review surfaces
+- `parallel/` owns parallel execution coordination helpers that remain runtime-local
 - `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, reviewable path manifests, and execution assurance ledgers
 - `providers/` owns provider cataloging, capability gates, selection, metadata, and execution environment contracts
+- `rehydrate/` owns completed-run rehydration and archive-to-runtime restoration helpers
+- `resume/` owns resumable workflow restart surfaces built on runtime checkpoints
 - `execution/agents/` and `execution/` own runtime-local planning, coordination, engine, graph, and tool support
 - `state/` owns replayable state, history, and review-safe persistence contracts
+- `streaming/` owns runtime event streaming and live execution transport contracts
 - `support/` owns runtime identity, execution primitives, artifact format contracts, and workspace support
 
 ## Route owners
@@ -88,6 +96,12 @@ flowchart TD
 - `execution_mode="auto"` may degrade to CPU after provider capability checks
 - `execution_mode="cpu"` is the CPU-compatible execution surface
 - `execution_mode="gpu"` requires a provider and environment that can honor GPU work
+
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_runtime`
+- Top-level families: `api/`, `artifacts/`, `checkpoints/`, `diff/`, `execution/`, `governance/`, `handoff/`, `parallel/`, `providers/`, `rehydrate/`, `resume/`, `runs/`, `state/`, `streaming/`, `support/`, `workflows/`
+- Root modules: `public_api.py`
 
 ## Dependency direction
 

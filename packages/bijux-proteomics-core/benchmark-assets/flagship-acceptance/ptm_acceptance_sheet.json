@@ -13,7 +13,7 @@
       "criterion_id": "ptm_localization_quality",
       "dimension": "localization quality",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
       ],
       "note": "PTM trust starts only when the flagship packet still carries at least five motif windows, keeping localized biology tied to explicit site context instead of score-only slogans.",
@@ -27,7 +27,7 @@
       "criterion_id": "ptm_ambiguity_burden",
       "dimension": "ambiguity burden",
       "evidence_paths": [
-        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
       ],
       "note": "The current PTM package keeps ambiguity burden barely inside trust by exposing exactly two ambiguous sites; anything broader would push the family back below bounded outsider authority.",

@@ -11,7 +11,10 @@ from bijux_proteomics_runtime.workflows.plans import (
     RerunComparisonScope,
     WorkflowArchiveMedium,
     WorkflowCacheMissReason,
+    WorkflowCacheReuseDisposition,
     WorkflowCheckpointStatus,
+    WorkflowDagValidationReport,
+    WorkflowDataType,
     WorkflowDiffCategory,
     WorkflowDiffReport,
     WorkflowExecutionMode,
@@ -24,6 +27,7 @@ from bijux_proteomics_runtime.workflows.plans import (
     WorkflowStepKind,
     WorkflowStepProvenanceReport,
     WorkflowStepReplayDisposition,
+    WorkflowStepTypeValidationReport,
     WorkflowStreamingMode,
     WorkflowTemplateKind,
     build_deterministic_execution_contract,
@@ -32,11 +36,13 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_large_file_streaming_policy,
     build_parallel_execution_plan,
     build_proteomics_artifact_inventory,
+    build_proteomics_dag_plan,
     build_proteomics_workflow_manifest,
     build_proteomics_workflow_runtime_bundle,
     build_proteomics_workflow_template,
     build_reproducible_workflow_blueprint,
     build_workflow_cache_miss_explanation_report,
+    build_workflow_cache_reuse_plan,
     build_workflow_checkpoint,
     build_workflow_diff_report,
     build_workflow_execution_readiness_report,
@@ -52,6 +58,8 @@ from bijux_proteomics_runtime.workflows.plans import (
     build_workflow_step_provenance_report,
     import_workflow_runtime_archive_bundle,
     instantiate_proteomics_workflow_template,
+    validate_proteomics_dag_plan,
+    validate_proteomics_workflow_step_types,
 )
 
 
@@ -358,6 +366,7 @@ def test_deterministic_execution_contract_is_repeatable_for_same_manifest() -> N
 
     repeated = build_deterministic_execution_contract(
         bundle.manifest,
+        dag_plan=bundle.dag_plan,
         container_steps=bundle.container_steps,
         parallel_plan=bundle.parallel_plan,
         hpc_job=bundle.hpc_job,
@@ -367,9 +376,7 @@ def test_deterministic_execution_contract_is_repeatable_for_same_manifest() -> N
         repeated.execution_fingerprint
         == bundle.deterministic_execution.execution_fingerprint
     )
-    assert repeated.ordered_step_ids == tuple(
-        step.step_id for step in bundle.manifest.steps
-    )
+    assert repeated.ordered_step_ids == bundle.dag_plan.ordered_step_ids
 
 
 def test_runtime_state_manifest_links_result_bindings_to_runtime_paths() -> None:
@@ -577,7 +584,41 @@ def test_runtime_validation_report_confirms_bundle_integrity() -> None:
 
     assert report.valid is True
     assert report.export_bundle_sha256
+    assert "step-types" in report.checked_surfaces
+    assert "dag-plan" in report.checked_surfaces
     assert "artifact-inventory" in report.checked_surfaces
+
+
+def test_runtime_bundle_exposes_validated_dag_and_parallel_layers() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    direct_dag = build_proteomics_dag_plan(bundle.manifest)
+    validation = validate_proteomics_dag_plan(bundle.dag_plan)
+    type_validation = validate_proteomics_workflow_step_types(bundle.manifest)
+
+    assert isinstance(validation, WorkflowDagValidationReport)
+    assert isinstance(type_validation, WorkflowStepTypeValidationReport)
+    assert validation.valid is True
+    assert type_validation.valid is True
+    assert bundle.dag_plan.ordered_step_ids == direct_dag.ordered_step_ids
+    assert bundle.parallel_plan.groups[0].step_ids == (
+        f"{bundle.manifest.workflow_id}-validate-inputs",
+    )
+    assert bundle.manifest.steps[4].output_data_types == (
+        WorkflowDataType.PEPTIDE_QUANT_MATRIX,
+    )
+    assert (
+        bundle.deterministic_execution.ordered_step_ids
+        == bundle.dag_plan.ordered_step_ids
+    )
 
 
 def test_large_file_policy_and_parallel_groups_are_explicit() -> None:
@@ -686,6 +727,226 @@ def test_workflow_cache_miss_explanations_identify_schema_changes() -> None:
         entry.reason is WorkflowCacheMissReason.SCHEMA_CHANGED
         for entry in report.entries
     )
+
+
+def test_workflow_manifest_records_fdr_threshold_in_policies_and_bundle_command_preview() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    assert "fdr:q-value-threshold=0.05" in manifest.runtime_policies
+    fdr_step = next(
+        step for step in manifest.steps if step.kind is WorkflowStepKind.CALCULATE_FDR
+    )
+    bundle_step = next(
+        step
+        for step in manifest.steps
+        if step.kind is WorkflowStepKind.BUILD_RUN_BUNDLE
+    )
+    assert "--q-value-threshold" in fdr_step.command_preview
+    assert "0.05" in fdr_step.command_preview
+    assert "--fdr-threshold" in bundle_step.command_preview
+    assert "0.05" in bundle_step.command_preview
+
+
+def test_workflow_cache_keys_track_semantic_fdr_parameters_and_dependent_bundle_surfaces() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    baseline_entries = {
+        entry.surface: entry
+        for entry in build_workflow_runtime_cache(baseline_manifest).entries
+    }
+    changed_entries = {
+        entry.surface: entry
+        for entry in build_workflow_runtime_cache(changed_manifest).entries
+    }
+
+    assert (
+        baseline_entries["digestion"].cache_key
+        == changed_entries["digestion"].cache_key
+    )
+    assert (
+        baseline_entries["search-normalization"].cache_key
+        == changed_entries["search-normalization"].cache_key
+    )
+    assert baseline_entries["fdr-score"].parameter_assumptions == (
+        "fdr:q-value-threshold=0.01",
+    )
+    assert changed_entries["fdr-score"].parameter_assumptions == (
+        "fdr:q-value-threshold=0.05",
+    )
+    assert (
+        baseline_entries["fdr-score"].cache_key
+        != changed_entries["fdr-score"].cache_key
+    )
+    assert (
+        baseline_entries["run-bundle"].dependency_cache_keys
+        != changed_entries["run-bundle"].dependency_cache_keys
+    )
+    assert (
+        baseline_entries["run-bundle"].cache_key
+        != changed_entries["run-bundle"].cache_key
+    )
+
+
+def test_workflow_cache_miss_explanations_identify_parameter_and_dependency_changes() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    report = build_workflow_cache_miss_explanation_report(
+        build_workflow_runtime_cache(changed_manifest),
+        build_workflow_runtime_cache(baseline_manifest),
+    )
+    reasons_by_surface = {entry.surface: entry.reason for entry in report.entries}
+
+    assert reasons_by_surface["fdr-score"] is WorkflowCacheMissReason.PARAMETERS_CHANGED
+    assert (
+        reasons_by_surface["run-bundle"] is WorkflowCacheMissReason.DEPENDENCY_CHANGED
+    )
+
+
+def test_workflow_cache_miss_explanations_identify_scientific_input_checksum_changes(
+    tmp_path: Path,
+) -> None:
+    changed_design = tmp_path / "design.changed.tsv"
+    changed_design.write_text(
+        _fixture("design.tsv")
+        .read_text(encoding="utf-8")
+        .replace("control", "control_shifted"),
+        encoding="utf-8",
+    )
+
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=changed_design,
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_workflow_cache_miss_explanation_report(
+        build_workflow_runtime_cache(changed_manifest),
+        build_workflow_runtime_cache(baseline_manifest),
+    )
+    reasons_by_surface = {entry.surface: entry.reason for entry in report.entries}
+
+    assert reasons_by_surface["quant-parse"] is (
+        WorkflowCacheMissReason.SCIENTIFIC_INPUTS_CHANGED
+    )
+
+
+def test_workflow_cache_reuse_plan_reruns_fdr_and_bundle_when_q_value_threshold_changes() -> (
+    None
+):
+    baseline_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.01,
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        fdr_q_value_threshold=0.05,
+    )
+
+    reuse_plan = build_workflow_cache_reuse_plan(
+        changed_manifest,
+        expected=build_workflow_runtime_cache(changed_manifest),
+        observed=build_workflow_runtime_cache(baseline_manifest),
+    )
+
+    assert any(
+        step_id.endswith("digest-database") for step_id in reuse_plan.reused_step_ids
+    )
+    assert any(
+        step_id.endswith("normalize-identifications")
+        for step_id in reuse_plan.reused_step_ids
+    )
+    assert any(
+        step_id.endswith("quantify-features") for step_id in reuse_plan.reused_step_ids
+    )
+    assert any(
+        step_id.endswith("calculate-fdr") for step_id in reuse_plan.rerun_step_ids
+    )
+    assert any(
+        step_id.endswith("build-run-bundle") for step_id in reuse_plan.rerun_step_ids
+    )
+
+    decisions_by_surface = {
+        decision.surface: decision for decision in reuse_plan.decisions
+    }
+    assert (
+        decisions_by_surface["fdr-score"].disposition
+        is WorkflowCacheReuseDisposition.RERUN
+    )
+    assert decisions_by_surface["fdr-score"].reasons == ("parameters-changed",)
+    assert (
+        decisions_by_surface["run-bundle"].disposition
+        is WorkflowCacheReuseDisposition.RERUN
+    )
+    assert decisions_by_surface["run-bundle"].reasons == ("dependency-changed",)
 
 
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:

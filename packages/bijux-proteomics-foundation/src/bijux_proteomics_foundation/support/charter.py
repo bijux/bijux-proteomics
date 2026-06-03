@@ -142,9 +142,12 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
     ),
     FoundationCharterEntry(
         capability=FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,
-        owned_surface="Version compatibility and migration primitives that keep persisted contracts evolvable without package-local hacks.",
+        owned_surface="Version compatibility, import-alias forwarding, and migration primitives that keep persisted contracts evolvable without package-local hacks.",
         required_modules=(
             "compatibility/__init__.py",
+            "package_aliases.py",
+            "_package_aliases.py",
+            "compatibility/import_migrations.py",
             "compatibility/schema_assessments.py",
             "compatibility/schema_migrations.py",
             "compatibility/schema_versions.py",
@@ -179,6 +182,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The package root is a constrained export surface over the shared primitive modules.",
         )
 
+    if module_path == "testing/__init__.py":
+        return FoundationModuleAuditEntry(
+            module_path=module_path,
+            classification=FoundationModuleClassification.THIN_ABSTRACTION,
+            reason="The testing package root is a constrained private namespace over shared test-support helpers.",
+        )
+
     if module_path == "support/charter.py":
         return _shared_contract_entry(
             module_path,
@@ -192,6 +202,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "The machine-readable charter keeps the allowed primitive surface explicit and release-blocking.",
         )
 
+    if module_path == "public_api.py":
+        return _shared_contract_entry(
+            module_path,
+            (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
+            "The machine-readable root API contract keeps the supported shared primitive surface explicit and release-auditable.",
+        )
+
     if module_path in {
         "identity/__init__.py",
         "identity/identifiers.py",
@@ -200,11 +217,19 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/provenance.py",
         "support/public_api.py",
         "support/states.py",
+        "testing/public_function_docstrings.py",
+        "testing/public_function_type_boundaries.py",
+        "testing/generated_file_markers.py",
+        "testing/pytest_artifacts.py",
+        "testing/source_tree_complexity.py",
+        "testing/skip_policy.py",
+        "testing/pytest_markers.py",
+        "testing/source_tree_limits.py",
     }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
-            "Shared identifiers, provenance, state vocabulary, version primitives, and the audited root export ledger belong in foundation because every higher package must agree on them.",
+            "Shared identifiers, provenance, state vocabulary, version primitives, pytest artifact bootstrap policy, skip and marker policy, audited source-tree quality helpers, and the audited root export ledger belong in foundation because every higher package must agree on them.",
         )
 
     if module_path in {
@@ -235,6 +260,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "outcomes/failures.py",
         "outcomes/exceptions.py",
         "outcomes/__init__.py",
+        "outcomes/optional_dependencies.py",
         "outcomes/refusals.py",
         "outcomes/results.py",
     }:
@@ -245,6 +271,9 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
+        "package_aliases.py",
+        "_package_aliases.py",
+        "compatibility/import_migrations.py",
         "compatibility/schema_versions.py",
         "compatibility/__init__.py",
         "compatibility/schema_assessments.py",
@@ -253,7 +282,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,),
-            "Compatibility and migration primitives belong in foundation because persisted contracts must evolve consistently across the suite.",
+            "Compatibility, import-alias forwarding, and migration primitives belong in foundation because persisted contracts and package bridges must evolve consistently across the suite.",
         )
 
     raise ValueError(f"unclassified foundation module: {module_path}")

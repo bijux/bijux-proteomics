@@ -217,16 +217,26 @@
       "expected_wall_time_minutes": 5,
       "expected_disk_footprint_mb": 4,
       "known_license_limits": [
-        "The multiplex package currently ships TMTpro-shaped feature and design snapshots, not a raw vendor acquisition replay."
+        "The multiplex package currently ships TMTpro-shaped reporter-ion, feature, and design snapshots, not a raw vendor acquisition replay."
       ],
       "remote_sources": [
         {
-          "source_id": "multiplex:tmtpro_reference",
-          "public_source_name": "TMTpro multiplex feature table snapshot",
+          "source_id": "multiplex:tmtpro_reporter_reference",
+          "public_source_name": "TMTpro reporter-ion table snapshot",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/tmt_reporter_table.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/multiplex/maxquant_tmt_interference.tsv",
+          "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
+          "why_it_matters": "The flagship multiplex package is explicitly about TMTpro reporter channels, interference pressure, and reference-channel design.",
+          "availability_expectation": "The TMTpro product reference should remain reachable while the package stays tied to TMTpro chemistry claims.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the chemistry reference page."
+        },
+        {
+          "source_id": "multiplex:feature_snapshot_reference",
+          "public_source_name": "TMTpro channel-level feature snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
           "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
-          "why_it_matters": "The flagship multiplex package is explicitly about TMTpro channel pressure and reference-channel design.",
+          "why_it_matters": "The retained feature snapshot keeps runtime and challenge surfaces tied to the original multiplex intensity view.",
           "availability_expectation": "The TMTpro product reference should remain reachable while the package stays tied to TMTpro chemistry claims.",
           "license_note": "The local file is a tracked snapshot; public availability check targets the chemistry reference page."
         }
@@ -315,17 +325,37 @@
       "expected_wall_time_minutes": 5,
       "expected_disk_footprint_mb": 4,
       "known_license_limits": [
-        "The targeted package currently ships transition QC and consequence packet snapshots, not live vendor chromatogram execution or external calibration reruns."
+        "The targeted package currently ships a runnable Skyline-style result export, design metadata, supporting QC, and consequence packet snapshots, not live vendor chromatogram execution or external calibration reruns."
       ],
       "remote_sources": [
         {
-          "source_id": "targeted:guideline_reference",
+          "source_id": "targeted:skyline_result_snapshot",
+          "public_source_name": "Skyline-style targeted result snapshot",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc_results.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/skyline_targeted_qc_results.tsv",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "why_it_matters": "The flagship targeted package now proves matrix and assay-QC regeneration from one runnable Skyline-style transition export.",
+          "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+        },
+        {
+          "source_id": "targeted:design_snapshot",
+          "public_source_name": "Targeted replicate design snapshot",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc.design.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/skyline_targeted_qc.design.tsv",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "why_it_matters": "The targeted design keeps replicate and condition structure explicit for coelution, fragment-ratio, and replicate-CV review.",
+          "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+        },
+        {
+          "source_id": "targeted:qc_snapshot",
           "public_source_name": "Targeted QC evidence snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
           "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
-          "why_it_matters": "The flagship targeted package is explicitly about transition-level QC and targeted assay discipline.",
-          "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by QC and consequence evidence.",
+          "why_it_matters": "The flagship targeted package still keeps the older targeted QC ledger visible beside the runnable assay benchmark input.",
+          "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by matrix, QC, and consequence evidence.",
           "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
         }
       ],

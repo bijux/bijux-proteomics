@@ -30,8 +30,9 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     assert review.summary.indistinguishable_group_count == 1
     assert review.summary.external_shared_group_count == 1
     assert review.summary.mixed_group_count == 1
-    assert review.summary.high_confidence_group_count == 1
-    assert review.summary.medium_confidence_group_count == 2
+    assert review.summary.high_confidence_group_count == 0
+    assert review.summary.medium_confidence_group_count == 1
+    assert review.summary.low_confidence_group_count == 2
 
     mixed = next(
         entry for entry in review.entries if entry.protein_refs == ("P10001", "P20002")
@@ -49,7 +50,11 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     assert mixed.shared_peptides == ("SHAREDX", "SHAREDY")
     assert mixed.outside_group_proteins == ("P30003",)
     assert mixed.unique_peptides == ()
-    assert mixed.confidence_label.value == "high"
+    assert mixed.evidence_tier.value == "ambiguous"
+    assert tuple(reason.value for reason in mixed.downgrade_reasons) == (
+        "shared_peptide_only",
+    )
+    assert mixed.confidence_label.value == "low"
 
     assert external.ambiguity_reason.value == "external_shared_peptides"
     assert external.protein_refs == ("P30003",)
@@ -57,13 +62,15 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     assert external.shared_peptides == ("SHAREDX",)
     assert external.unique_peptides == ("UNIQUEB",)
     assert external.outside_group_proteins == ("P10001", "P20002")
-    assert external.confidence_label.value == "medium"
+    assert external.evidence_tier.value == "moderate"
+    assert external.confidence_label.value == "moderate"
 
     assert indistinguishable.ambiguity_reason.value == "indistinguishable_members"
     assert indistinguishable.protein_refs == ("P40004", "P50005")
     assert indistinguishable.shared_peptides == ("INTERNALQ",)
     assert indistinguishable.outside_group_proteins == ()
-    assert indistinguishable.confidence_label.value == "medium"
+    assert indistinguishable.evidence_tier.value == "ambiguous"
+    assert indistinguishable.confidence_label.value == "low"
 
 
 def test_protein_ambiguity_review_renders_summary_and_entry_ledgers() -> None:

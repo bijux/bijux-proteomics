@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import os
 from pathlib import Path
 import subprocess  # nosec B404
@@ -41,6 +41,7 @@ def run_text(
     cwd: Path | None = None,
     check: bool,
     capture_output: bool = False,
+    env: Mapping[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run a trusted command and return its completed process record."""
     normalized = _normalize_command(command)
@@ -50,6 +51,7 @@ def run_text(
             cwd=cwd,
             check=check,
             capture_output=capture_output,
+            env=None if env is None else dict(env),
             text=True,
         )
     except subprocess.CalledProcessError as error:

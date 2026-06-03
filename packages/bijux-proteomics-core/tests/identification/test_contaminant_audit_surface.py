@@ -94,3 +94,5 @@ def test_contaminant_peptide_match_report_separates_pure_and_mixed_matches() -> 
     }
     assert report.entries[0].mixed_reference is False
     assert report.entries[1].mixed_reference is True
+    assert report.entries[0].pure_contaminant is True
+    assert report.entries[1].pure_contaminant is False

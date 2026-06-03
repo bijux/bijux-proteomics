@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.intelligence.owner_import_boundaries
 
 [metrics]
-scanned_module_count = 62
+scanned_module_count = 72
 banned_module_count = 5
 violation_count = 0
 

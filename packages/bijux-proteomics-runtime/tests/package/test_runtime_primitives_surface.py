@@ -74,6 +74,12 @@ def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
     assert "bijux_proteomics_runtime.runs.RunManager" in PUBLIC_ENTRYPOINTS
 
 
+def test_runtime_runs_surface_exports_runtime_flow_result() -> None:
+    from bijux_proteomics_runtime.runs import RuntimeFlowResult
+
+    assert RuntimeFlowResult is not None
+
+
 def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
     assert (
         "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path"
@@ -83,6 +89,32 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
         "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path"
         in PUBLIC_ENTRYPOINTS
     )
+    assert (
+        "bijux_proteomics_runtime.workflows.architecture_demo.run_runtime_architecture_demo"
+        in PUBLIC_ENTRYPOINTS
+    )
+    assert (
+        "bijux_proteomics_runtime.workflows.advanced_diann_archive."
+        "archive_completed_advanced_diann_run" in PUBLIC_ENTRYPOINTS
+    )
+    assert (
+        "bijux_proteomics_runtime.workflows.package_smoke.run_runtime_package_smoke_workflow"
+        in PUBLIC_ENTRYPOINTS
+    )
+
+
+def test_runtime_surface_area_exposes_runtime_architecture_demo() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        RuntimeArchitectureDemoArtifacts,
+        RuntimeArchitectureDemoConfig,
+        RuntimeArchitectureDemoWorkflowReport,
+        run_runtime_architecture_demo,
+    )
+
+    assert RuntimeArchitectureDemoArtifacts is not None
+    assert RuntimeArchitectureDemoConfig is not None
+    assert RuntimeArchitectureDemoWorkflowReport is not None
+    assert callable(run_runtime_architecture_demo)
 
 
 def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
@@ -96,6 +128,112 @@ def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
         == "runtime-sequence-review-operator-path"
     )
     assert build_workflow_assurance_matrix()
+
+
+def test_runtime_surface_area_exposes_workflow_cache_reuse_planning() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        WorkflowCacheReusePlan,
+        build_workflow_cache_reuse_plan,
+    )
+
+    assert WorkflowCacheReusePlan is not None
+    assert callable(build_workflow_cache_reuse_plan)
+
+
+def test_runtime_surface_area_exposes_workflow_dag_planning() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        ProteomicsDagPlan,
+        WorkflowDagValidationReport,
+        WorkflowDataType,
+        WorkflowStepTypeValidationReport,
+        build_parallel_execution_plan,
+        build_proteomics_dag_plan,
+        validate_proteomics_dag_plan,
+        validate_proteomics_workflow_step_types,
+    )
+
+    assert ProteomicsDagPlan is not None
+    assert WorkflowDataType.PEPTIDE_QUANT_MATRIX.value == "peptide_quant_matrix"
+    assert WorkflowDagValidationReport is not None
+    assert WorkflowStepTypeValidationReport is not None
+    assert callable(build_proteomics_dag_plan)
+    assert callable(validate_proteomics_workflow_step_types)
+    assert callable(validate_proteomics_dag_plan)
+    assert callable(build_parallel_execution_plan)
+
+
+def test_runtime_surface_area_exposes_resumable_advanced_diann_execution() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        AdvancedDiannCompletedRunArchiveReport,
+        AdvancedDiannCompletedRunArtifacts,
+        AdvancedDiannDryRunReport,
+        AdvancedDiannDryRunStatus,
+        AdvancedDiannRuntimeInputChecksumEntry,
+        AdvancedDiannRuntimeRunIdentity,
+        AdvancedDiannRuntimeRunReport,
+        AdvancedDiannRuntimeStage,
+        AdvancedDiannRuntimeStatus,
+        archive_completed_advanced_diann_run,
+        build_advanced_diann_runtime_run_identity,
+        dry_run_resumable_advanced_diann_workflow,
+        run_resumable_advanced_diann_workflow,
+    )
+
+    assert AdvancedDiannCompletedRunArchiveReport is not None
+    assert AdvancedDiannCompletedRunArtifacts is not None
+    assert AdvancedDiannDryRunReport is not None
+    assert AdvancedDiannDryRunStatus.READY.value == "ready"
+    assert AdvancedDiannRuntimeInputChecksumEntry is not None
+    assert AdvancedDiannRuntimeRunIdentity is not None
+    assert AdvancedDiannRuntimeRunReport is not None
+    assert AdvancedDiannRuntimeStage.MATRICES.value == "advanced-diann-matrices"
+    assert AdvancedDiannRuntimeStatus.COMPLETED.value == "completed"
+    assert callable(archive_completed_advanced_diann_run)
+    assert callable(build_advanced_diann_runtime_run_identity)
+    assert callable(dry_run_resumable_advanced_diann_workflow)
+    assert callable(run_resumable_advanced_diann_workflow)
+
+
+def test_runtime_surface_area_exposes_runtime_package_smoke_workflow() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        RuntimePackageSmokeArtifacts,
+        RuntimePackageSmokeConfig,
+        RuntimePackageSmokeWorkflowReport,
+        run_runtime_package_smoke_workflow,
+    )
+
+    assert RuntimePackageSmokeArtifacts is not None
+    assert RuntimePackageSmokeConfig is not None
+    assert RuntimePackageSmokeWorkflowReport is not None
+    assert callable(run_runtime_package_smoke_workflow)
+
+
+def test_runtime_surface_area_exposes_advanced_diann_comparison() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        AdvancedDiannClaimComparisonState,
+        AdvancedDiannProteinComparisonState,
+        AdvancedDiannRejectedRowComparisonState,
+        AdvancedDiannRuntimeComparisonReport,
+        compare_advanced_diann_runtime_outputs,
+    )
+
+    assert AdvancedDiannRuntimeComparisonReport is not None
+    assert AdvancedDiannClaimComparisonState.SUPPORTED.value == "supported"
+    assert AdvancedDiannProteinComparisonState.ACCEPTED.value == "accepted"
+    assert AdvancedDiannRejectedRowComparisonState.REJECTED.value == "rejected"
+    assert callable(compare_advanced_diann_runtime_outputs)
+
+
+def test_runtime_surface_area_exposes_workflow_failure_reports() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        WorkflowFailureReport,
+        build_workflow_failure_report,
+        write_workflow_failure_report,
+    )
+
+    assert WorkflowFailureReport is not None
+    assert callable(build_workflow_failure_report)
+    assert callable(write_workflow_failure_report)
 
 
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:

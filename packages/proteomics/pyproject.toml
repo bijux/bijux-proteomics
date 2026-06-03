@@ -27,6 +27,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "bijux-proteomics-foundation>=0.3.7,<0.4.0",
   "bijux-proteomics-core>=0.3.7,<0.4.0",
 ]
 

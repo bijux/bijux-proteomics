@@ -1,0 +1,134 @@
+dataset_id: lfq_sparse_contrast_benchmark_dataset
+accession: flagship_public_package:lfq_sparse_contrast_review_package
+species: human
+search_engine: lfq
+source_files:
+  - source_id: lfq_sparse_feature_matrix
+    schema_id: input_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv
+    sha256: 1708c1183e64212dfc5fbe0d25d017683278f0062be49fa4c922b5feb8de92f8
+    note: Sparse LFQ feature table with asymmetric replication and high missingness pressure.
+  - source_id: lfq_sparse_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case.design.tsv
+    sha256: d60a961405a627a45da2f9d2954d7f197ba0af5d22e1598ebc5e210cffb43d0c
+    note: Sparse LFQ design with three control replicates and two treatment replicates.
+  - source_id: lfq_sparse_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned biological reporting workflow.
+expected_input_schemas:
+  - input_tsv
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: c1.mzml
+    identifications_file: c1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: c2.mzml
+    identifications_file: c2.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: c3.mzml
+    identifications_file: c3.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: t1.mzml
+    identifications_file: t1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: t2.mzml
+    identifications_file: t2.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: Sparse LFQ contrast stays runnable but should preserve weak-evidence and blocked-interpretation outputs instead of strong biological promotion.
+expected_approximate_counts:
+  - metric_id: protein_count
+    expected: 4
+    tolerance: 0
+  - metric_id: significant_protein_count
+    expected: 0
+    tolerance: 0
+  - metric_id: warning_card_count
+    expected: 4
+    tolerance: 0
+  - metric_id: cohort_blocked_stratum_count
+    expected: 2
+    tolerance: 0
+  - metric_id: weak_confidence_section_count
+    expected: 2
+    tolerance: 0
+  - metric_id: invalid_section_count
+    expected: 11
+    tolerance: 0
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: sparse_replicate_structure
+    severity: advisory
+    affected_surface: contrast_power
+    blocks_workflow_execution: false
+    description: This benchmark is intentionally sparse and asymmetric so the workflow must preserve weak-evidence, rejected-claim, and blocked-interpretation outputs instead of promoting strong claims.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/lfq_sparse_contrast_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the sparse LFQ public package through the owned biological workflow and verify that weak-evidence outputs stay explicit.
+  parameters: {}
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: biological_report_manifest.json
+    note: The biological workflow manifest proves this sparse package reruns through owned exports.
+  - output_id: report_summary
+    relative_path: biological_report_summary.tsv
+    note: The summary keeps sparse-contrast weak-evidence counts visible.
+  - output_id: rejected_claims
+    relative_path: biological_rejected_claims.tsv
+    note: Rejected biological claims remain explicit on the weak-evidence benchmark.
+  - output_id: differential_results
+    relative_path: biological_differential.tsv
+    note: Cautionary protein differential rows remain exported even when no significant proteins survive.
+  - output_id: section_confidence
+    relative_path: biological_report_section_confidence.tsv
+    note: Weak and invalid report sections remain visible instead of being implied.
+  - output_id: cohort_stratification
+    relative_path: biological_cohort_stratification_summary.tsv
+    note: Blocked subgroup feasibility stays explicit on the sparse benchmark.
+note: This intentionally weak LFQ benchmark runs end to end but should emit rejected claims, blocked subgroup strata, and weak or invalid report sections instead of clean positive findings.

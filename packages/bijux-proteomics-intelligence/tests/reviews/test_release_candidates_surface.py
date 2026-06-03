@@ -50,7 +50,6 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
     assert bundle.outsider_auditable_workflow_families == (
         KnowledgeWorkflowFamily.DDA,
         KnowledgeWorkflowFamily.DIA,
-        KnowledgeWorkflowFamily.LFQ,
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
     )
@@ -96,7 +95,7 @@ def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_lan
     assert "doc-count" in scorecard.note
     assert entries[KnowledgeWorkflowFamily.DDA].outsider_auditable_surface is True
     assert entries[KnowledgeWorkflowFamily.DIA].outsider_auditable_surface is True
-    assert entries[KnowledgeWorkflowFamily.LFQ].outsider_auditable_surface is True
+    assert entries[KnowledgeWorkflowFamily.LFQ].outsider_auditable_surface is False
     assert entries[KnowledgeWorkflowFamily.PTM].outsider_auditable_surface is True
     assert entries[KnowledgeWorkflowFamily.TARGETED].outsider_auditable_surface is True
     assert (

@@ -669,7 +669,7 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
             passed=_claim_metric_float(review, "feature_ingestion", "accepted_records")
             >= 24.0,
             evidence_paths=(
-                "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
             ),
             note="The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the decision brief names.",
@@ -846,7 +846,7 @@ def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
             passed=_claim_metric_float(review, "phospho_review_packet", "motif_windows")
             >= 5.0,
             evidence_paths=(
-                "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
             ),
             note="PTM trust starts only when the flagship packet still carries at least five motif windows, keeping localized biology tied to explicit site context instead of score-only slogans.",
@@ -865,7 +865,7 @@ def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
             )
             <= 2.0,
             evidence_paths=(
-                "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
             ),
             note="The current PTM package keeps ambiguity burden barely inside trust by exposing exactly two ambiguous sites; anything broader would push the family back below bounded outsider authority.",
@@ -1020,7 +1020,7 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             passed=_claim_support_state(review, "raw_to_reviewed_bundle")
             == "supported",
             evidence_paths=(
-                "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+                "packages/bijux-proteomics-lab/tests/benchmarks/test_benchmark_flagship_follow_up_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
             ),
             note="Targeted outsider trust depends on a supported raw-to-reviewed bundle so inflated handoffs stay caught and reconciled before any lab-facing promotion survives regeneration.",

@@ -15,7 +15,7 @@
       "note": "The DIA manifest is the machine-readable entrypoint for the flagship library-conditioned review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "2afdd0e0d5b6a8d2758db0c4593cff7344d9524662be2404196713bd679f2610",
+      "sha256": "569bb24f800c8ed247547887d9ca031ed6066070dee5b2ae324ea4bbd1e84313",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The DIA artifact inventory keeps digests, row counts, and dependency edges explicit.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "18bc39b9460de9a0753376ae2807b3d63dede724093b1570d9fca973a9ecda4a",
+      "sha256": "d1fe276ed2e03d9a69213dbf37833c640095618672c69c39979ecd22c237e767",
       "spectra_count": null
     },
     {

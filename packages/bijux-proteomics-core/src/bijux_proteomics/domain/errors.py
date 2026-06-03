@@ -12,6 +12,26 @@ class BijuxProteomicsError(Exception):
     """Base exception for the core package."""
 
 
+class SchemaError(BijuxProteomicsError):
+    """Raised when a scientific document or table contract is invalid."""
+
+
+class DesignError(BijuxProteomicsError):
+    """Raised when declared sample, contrast, or validation design is inconsistent."""
+
+
+class ScientificEvidenceError(BijuxProteomicsError):
+    """Raised when required archived or linked scientific evidence is missing."""
+
+
+class UnsupportedFormatError(BijuxProteomicsError):
+    """Raised when a scientific format or schema version is unsupported."""
+
+
+class InvalidWorkflowError(BijuxProteomicsError):
+    """Raised when a workflow boundary cannot execute or rehydrate coherently."""
+
+
 class ProteomicsOperatorErrorCode(StrEnum):
     """Stable operator-facing error codes for CLI and workflow surfaces."""
 

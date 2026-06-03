@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_top_level_files
 
 [guard]
-max_total_top_level_file_count = 29
+max_total_top_level_file_count = 43
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -14,27 +14,27 @@ top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "_package_aliases.py", "package_aliases.py", "public_api.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "_atomic_files.py", "_output_tables.py", "_scientific_tables.py", "_tabular.py", "programs.py", "public_api.py", "scientific_tables.py", "tabular.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "public_api.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "belief_audit.py", "contradictions.py", "falsifiers.py", "next_steps.py", "public_api.py", "query.py", "refusal.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "public_api.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-top_level_files = ["__init__.py"]
+top_level_files = ["__init__.py", "public_api.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics"
@@ -42,28 +42,28 @@ top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "proteomics"
-top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+top_level_files = ["__init__.py", "__main__.py", "cli.py"]
 
 [[package]]
 distribution_name = "proteomics-core"
-top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+top_level_files = ["__init__.py", "__main__.py", "cli.py"]
 
 [[package]]
 distribution_name = "proteomics-foundation"
-top_level_files = ["__init__.py", "runtime_alias.py"]
+top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "proteomics-runtime"
-top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+top_level_files = ["__init__.py", "__main__.py", "cli.py"]
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-top_level_files = ["__init__.py", "runtime_alias.py"]
+top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-top_level_files = ["__init__.py", "runtime_alias.py"]
+top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "proteomics-lab"
-top_level_files = ["__init__.py", "runtime_alias.py"]
+top_level_files = ["__init__.py"]

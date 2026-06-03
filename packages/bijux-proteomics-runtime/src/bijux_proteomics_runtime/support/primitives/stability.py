@@ -49,11 +49,19 @@ def sealed() -> None:
 
 STABILITY_EXPECTATIONS = {
     "bijux_proteomics_runtime.api": StabilityLevel.STABLE,
+    "bijux_proteomics_runtime.artifacts": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.checkpoints": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.diff": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.handoff": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.providers": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.providers.remote": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.execution": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.parallel": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.rehydrate": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.resume": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.runs": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.state": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.streaming": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.support": StabilityLevel.SEALED,
     "bijux_proteomics_runtime.workflows": StabilityLevel.SEALED,
 }

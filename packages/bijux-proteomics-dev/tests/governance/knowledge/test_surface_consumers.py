@@ -29,6 +29,7 @@ def test_knowledge_surface_consumer_matrix_records_current_owner_usage() -> None
             "bijux_proteomics_knowledge.memory.models.evidence"
         ].consumer_distributions
     ) == {
+        "bijux-proteomics-core",
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",

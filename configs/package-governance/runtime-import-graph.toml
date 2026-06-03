@@ -6,6 +6,18 @@ name = "api"
 outgoing_surfaces = ["providers", "runs", "support"]
 
 [[surface]]
+name = "artifacts"
+outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "checkpoints"
+outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "diff"
+outgoing_surfaces = ["rehydrate", "support"]
+
+[[surface]]
 name = "execution"
 outgoing_surfaces = ["providers", "state", "support"]
 
@@ -14,12 +26,32 @@ name = "governance"
 outgoing_surfaces = []
 
 [[surface]]
+name = "handoff"
+outgoing_surfaces = ["rehydrate", "support"]
+
+[[surface]]
 name = "package_root"
 outgoing_surfaces = []
 
 [[surface]]
+name = "parallel"
+outgoing_surfaces = ["support"]
+
+[[surface]]
 name = "providers"
 outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "public_api"
+outgoing_surfaces = []
+
+[[surface]]
+name = "rehydrate"
+outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "resume"
+outgoing_surfaces = ["artifacts", "support"]
 
 [[surface]]
 name = "runs"
@@ -30,12 +62,16 @@ name = "state"
 outgoing_surfaces = ["support"]
 
 [[surface]]
+name = "streaming"
+outgoing_surfaces = ["support"]
+
+[[surface]]
 name = "support"
 outgoing_surfaces = ["state"]
 
 [[surface]]
 name = "workflows"
-outgoing_surfaces = ["runs", "support"]
+outgoing_surfaces = ["artifacts", "rehydrate", "resume", "runs", "support"]
 
 [[cycle]]
 surfaces = ["state", "support"]

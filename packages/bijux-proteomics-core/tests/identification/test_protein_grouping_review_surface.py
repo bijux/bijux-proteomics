@@ -23,6 +23,7 @@ def test_protein_grouping_review_reports_leading_protein_and_peptide_ledgers() -
     grouping = build_protein_grouping_review_report(accepted)
 
     assert grouping.summary.total_groups == 3
+    assert grouping.reproducibility_hash
     assert grouping.summary.total_proteins == 4
     assert grouping.summary.singleton_group_count == 2
     assert grouping.summary.ambiguous_group_count == 1

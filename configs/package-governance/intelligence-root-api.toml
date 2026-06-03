@@ -1,47 +1,90 @@
-# Curated intelligence root API policy.
+# Generated bijux-proteomics-intelligence root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots
 
 [budget]
-max_public_symbols = 7
-max_init_lines = 32
+max_public_symbols = 14
+max_init_lines = 36
+
+[[symbol]]
+name = "belief_audit"
+owner_module = "bijux_proteomics_intelligence.belief_audit"
+classification = "root_owner_surface"
+rationale = "belief-audit review stays public as a package-level challenge surface over assembled scientific evidence"
 
 [[symbol]]
 name = "candidates"
 owner_module = "bijux_proteomics_intelligence.candidates"
-classification = "judgment_band"
-rationale = "Candidate ranking, lifecycle, and storage stay grouped under one durable owner family."
+classification = "owner_family_namespace"
+rationale = "candidate ranking and selection stay public under one stable intelligence owner family"
+
+[[symbol]]
+name = "claims"
+owner_module = "bijux_proteomics_intelligence.claims"
+classification = "root_owner_surface"
+rationale = "claim-support evaluation remains a stable package-level intelligence surface for downstream review work"
+
+[[symbol]]
+name = "contradictions"
+owner_module = "bijux_proteomics_intelligence.contradictions"
+classification = "root_owner_surface"
+rationale = "claim contradiction detection stays public as a direct review surface over assembled evidence"
+
+[[symbol]]
+name = "falsifiers"
+owner_module = "bijux_proteomics_intelligence.falsifiers"
+classification = "root_owner_surface"
+rationale = "falsifier generation remains a stable intelligence entrypoint for skeptical follow-up design"
 
 [[symbol]]
 name = "governance"
 owner_module = "bijux_proteomics_intelligence.governance"
-classification = "governance_band"
-rationale = "Charter and machine-readable governance belong under one explicit owner family."
+classification = "supporting_owner_namespace"
+rationale = "governance remains a first-class intelligence owner family that downstream callers need to discover directly from the package root"
 
 [[symbol]]
 name = "interpretation"
 owner_module = "bijux_proteomics_intelligence.interpretation"
-classification = "interpretation_band"
-rationale = "Interpretation contracts stay visible as their own analytical owner family."
+classification = "supporting_owner_namespace"
+rationale = "interpretation remains a first-class intelligence owner family that downstream callers need to discover directly from the package root"
 
 [[symbol]]
 name = "judgment"
 owner_module = "bijux_proteomics_intelligence.judgment"
-classification = "judgment_band"
-rationale = "Judgment paths, recommendations, and scenario decisions belong to one coherent owner family."
+classification = "owner_family_namespace"
+rationale = "judgment-path and recommendation logic stays public under one stable intelligence owner family"
 
 [[symbol]]
 name = "learning"
 owner_module = "bijux_proteomics_intelligence.learning"
-classification = "learning_band"
-rationale = "Learning and refinement logic stays grouped instead of leaking through historical convenience exports."
+classification = "owner_family_namespace"
+rationale = "learning and adaptation logic stays grouped under one public intelligence owner family"
+
+[[symbol]]
+name = "next_steps"
+owner_module = "bijux_proteomics_intelligence.next_steps"
+classification = "root_owner_surface"
+rationale = "next-step recommendation remains a stable package-level handoff from evidence review into action planning"
 
 [[symbol]]
 name = "posture"
 owner_module = "bijux_proteomics_intelligence.posture"
-classification = "posture_band"
-rationale = "Evidence posture and skeptical challenge stay grouped under one refusal-aware owner family."
+classification = "owner_family_namespace"
+rationale = "evidence-posture review remains public under one stable intelligence owner family"
+
+[[symbol]]
+name = "query"
+owner_module = "bijux_proteomics_intelligence.query"
+classification = "root_owner_surface"
+rationale = "result interrogation stays public as a first-class intelligence-facing question surface"
+
+[[symbol]]
+name = "refusal"
+owner_module = "bijux_proteomics_intelligence.refusal"
+classification = "root_owner_surface"
+rationale = "refusal of unsupported claims remains a stable package-level scientific safety surface"
 
 [[symbol]]
 name = "reviews"
 owner_module = "bijux_proteomics_intelligence.reviews"
-classification = "review_band"
-rationale = "Review boards, candidate review, and benchmark review stay under one review owner family."
+classification = "owner_family_namespace"
+rationale = "review-board helper families stay public under one stable intelligence owner namespace"

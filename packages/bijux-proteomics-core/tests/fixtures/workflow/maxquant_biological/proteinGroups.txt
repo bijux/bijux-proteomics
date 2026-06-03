@@ -1,0 +1,9 @@
+Protein IDs	Majority protein IDs	Gene names	Fasta headers	Peptides	Razor + unique peptides	Sequence coverage [%]	MS/MS count	Reverse	Potential contaminant	Only identified by site	LFQ intensity C1	LFQ intensity C2	LFQ intensity C3	LFQ intensity T1	LFQ intensity T2	LFQ intensity T3
+P04637	P04637	TP53	sp|P04637|CELLCYCLE_HUMAN Cell cycle regulator	3	2	45.2	5		0	0	200	220	210	1600	1550	1650
+Q9Y243	Q9Y243	SIGNAL1	sp|Q9Y243|SIGNAL_HUMAN Signal protein	4	2	38.6	4		0	0	1800	1750	1850	200	220	210
+O14920	O14920	ADAPTER1	sp|O14920|ADAPTER_HUMAN Adapter protein	3	2	36.1	4		0	0	150	160	140	1400	1450	1500
+Q8N158	Q8N158	METAB1	sp|Q8N158|METAB_HUMAN Metabolic protein	4	3	41.0	4		0	0	800	820	810	830	820	840
+P62993	P62993	RPS29	sp|P62993|RIBOSOME_HUMAN Ribosomal protein	4	3	52.4	4		0	0	500	480	510	490	500	510
+CON__KRT1	CON__KRT1	KRT1	sp|CON__KRT1|KERATIN_CONTAM Keratin contaminant	2	1	22.4	2		+	0	300	280	310	290	295	305
+REV__P77777	REV__P77777	DECOY1	sp|REV__P77777|DECOY_PROTEIN Decoy protein	1	1	12.0	1	+	0	0	100	110	90	95	105	98
+P12345	P12345	SITE1	sp|P12345|SITEONLY_HUMAN Site only protein	2	1	18.7	2		0	+	700	720	710	730	725	740

@@ -9,6 +9,8 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics.sequences import build_peptide_chemical_liability_report
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -19,9 +21,15 @@ class DiaNativePrecursor(JsonModel):
 
     precursor_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
     charge: int = Field(..., ge=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
     quantity: float = Field(..., ge=0.0)
+    protein_group_id: str | None = None
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str | None = None
+    sample_name: str | None = None
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNativeFragment(JsonModel):
@@ -43,6 +51,11 @@ class DiaNativeProteinGroupQuantity(JsonModel):
     protein_group_id: str = Field(..., min_length=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
     quantity: float = Field(..., ge=0.0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str | None = None
+    sample_name: str | None = None
+    source_precursor_count: int = Field(default=1, ge=1)
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNativeLibraryEntryReference(JsonModel):
@@ -202,10 +215,16 @@ class DiaNnImportRow(JsonModel):
 
     precursor_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
-    quantity: float = Field(..., ge=0.0)
+    precursor_quantity: float | None = Field(default=None, ge=0.0)
     protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    protein_group_quantity: float | None = Field(default=None, ge=0.0)
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNnImportReport(JsonModel):
@@ -229,30 +248,97 @@ def import_dia_nn_rows(
         DiaNativePrecursor(
             precursor_id=row.precursor_id,
             peptide_sequence=row.peptide_sequence,
+            modified_peptide=row.modified_peptide,
             charge=row.charge,
             q_value=row.q_value,
-            quantity=row.quantity,
+            quantity=row.precursor_quantity or 0.0,
+            protein_group_id=row.protein_group_id,
+            protein_refs=row.protein_refs,
+            run_name=row.run_name,
+            sample_name=row.sample_name,
+            provenance=row.provenance,
         )
         for row in rows
     ]
 
-    protein_quantity: dict[str, float] = {}
-    protein_q: dict[str, float] = {}
+    protein_quantity: dict[tuple[str, str, str], float] = {}
+    protein_q: dict[tuple[str, str, str], float] = {}
+    protein_refs: dict[tuple[str, str, str], set[str]] = {}
+    protein_source_counts: dict[tuple[str, str, str], int] = {}
     for row in rows:
-        protein_quantity[row.protein_group_id] = (
-            protein_quantity.get(row.protein_group_id, 0.0) + row.quantity
+        group_key = (row.protein_group_id, row.run_name, row.sample_name)
+        protein_quantity[group_key] = (
+            row.protein_group_quantity
+            if row.protein_group_quantity is not None
+            else protein_quantity.get(group_key, 0.0) + (row.precursor_quantity or 0.0)
         )
-        protein_q[row.protein_group_id] = min(
-            protein_q.get(row.protein_group_id, 1.0), row.q_value
+        protein_q[group_key] = min(protein_q.get(group_key, 1.0), row.q_value)
+        protein_refs.setdefault(group_key, set()).update(row.protein_refs)
+        protein_source_counts[group_key] = protein_source_counts.get(group_key, 0) + 1
+    protein_provenance = {
+        group_key: ImportedEvidenceProvenance.combine(
+            tuple(
+                row.provenance
+                for row in rows
+                if (
+                    row.protein_group_id,
+                    row.run_name,
+                    row.sample_name,
+                )
+                == group_key
+                and row.provenance is not None
+            ),
+            original_identifiers={
+                "protein_group_id": group_key[0],
+                "run_name": group_key[1],
+                "sample_name": group_key[2],
+                "precursor_ids": ";".join(
+                    sorted(
+                        row.precursor_id
+                        for row in rows
+                        if (
+                            row.protein_group_id,
+                            row.run_name,
+                            row.sample_name,
+                        )
+                        == group_key
+                    )
+                ),
+            },
         )
+        for group_key in protein_quantity
+        if any(
+            (
+                row.protein_group_id,
+                row.run_name,
+                row.sample_name,
+            )
+            == group_key
+            and row.provenance is not None
+            for row in rows
+        )
+    }
 
     proteins = [
         DiaNativeProteinGroupQuantity(
             protein_group_id=protein_group_id,
-            q_value=protein_q[protein_group_id],
+            q_value=protein_q[(protein_group_id, run_name, sample_name)],
             quantity=quantity,
+            protein_refs=tuple(
+                sorted(protein_refs[(protein_group_id, run_name, sample_name)])
+            ),
+            run_name=run_name,
+            sample_name=sample_name,
+            source_precursor_count=protein_source_counts[
+                (protein_group_id, run_name, sample_name)
+            ],
+            provenance=protein_provenance.get(
+                (protein_group_id, run_name, sample_name)
+            ),
         )
-        for protein_group_id, quantity in sorted(protein_quantity.items())
+        for (protein_group_id, run_name, sample_name), quantity in sorted(
+            protein_quantity.items()
+        )
     ]
 
     return DiaNnImportReport(
@@ -428,6 +514,8 @@ class TargetedAssayOptimizationEntry(JsonModel):
     candidate_id: str = Field(..., min_length=1)
     rank: int = Field(..., ge=1)
     optimization_score: float = Field(..., ge=0.0)
+    chemical_liability_penalty: float = Field(..., ge=0.0, le=1.0)
+    chemical_liability_codes: tuple[str, ...] = Field(default_factory=tuple)
     rationale: str = Field(..., min_length=1)
 
 
@@ -444,26 +532,41 @@ def optimize_targeted_assay_candidates(
 ) -> TargetedAssayOptimizationReport:
     """Rank targeted candidates by uniqueness, detectability, PTM ambiguity, and QC."""
 
-    scored: list[tuple[str, float]] = []
+    scored: list[tuple[str, float, float, tuple[str, ...]]] = []
     for candidate in candidates:
+        liability_report = build_peptide_chemical_liability_report(
+            candidate.peptide_sequence
+        )
         score = (
             (candidate.uniqueness_score * 0.35)
             + (candidate.detectability_score * 0.35)
             + (candidate.qc_score * 0.30)
             - (candidate.ptm_ambiguity_penalty * 0.40)
+            - (liability_report.liability_penalty * 0.45)
         )
-        scored.append((candidate.candidate_id, score))
+        scored.append(
+            (
+                candidate.candidate_id,
+                max(score, 0.0),
+                liability_report.liability_penalty,
+                tuple(code.value for code in liability_report.liability_codes),
+            )
+        )
 
     scored.sort(key=lambda item: (-item[1], item[0]))
     entries = []
-    for rank, (candidate_id, score) in enumerate(scored, start=1):
+    for rank, (candidate_id, score, liability_penalty, liability_codes) in enumerate(
+        scored, start=1
+    ):
         entries.append(
             TargetedAssayOptimizationEntry(
                 candidate_id=candidate_id,
                 rank=rank,
                 optimization_score=score,
+                chemical_liability_penalty=liability_penalty,
+                chemical_liability_codes=liability_codes,
                 rationale=(
-                    "ranking balances uniqueness/detectability/QC while penalizing PTM ambiguity"
+                    "ranking balances uniqueness/detectability/QC while penalizing PTM ambiguity and peptide chemical liabilities"
                 ),
             )
         )

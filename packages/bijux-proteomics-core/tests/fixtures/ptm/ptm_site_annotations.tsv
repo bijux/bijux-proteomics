@@ -1,0 +1,7 @@
+species	protein_ref	residue	position	modification_name	site_function	kinases	phosphatases	pathways	source_name	source_accession
+Homo sapiens	P11111	S	5	Phospho	activation-linked phosphosite	AKT1;MTOR	PPP2CA	PI3K signaling;growth control	PhosphoSitePlus	PSP:P11111-S5
+Homo sapiens	P11111	S	17	Phospho	shared phosphosite evidence	PRKAA1	PPM1A	stress response	Curator	CUR:P11111-S17
+Homo sapiens	P22222	Y	18	Phospho	c-terminal signaling site	SRC	PTPN11	MAPK signaling	Literature	PMID:PTM2-Y18
+Mus musculus	P11111	S	5	Phospho	mouse ortholog phosphosite	AKT1	PPP2CA	PI3K signaling	Orthology	ORTH:P11111-S5
+Homo sapiens	P99999	S	4	Phospho	unobserved protein site	CK2	PPP1CA	DNA damage	Reference	DB:P99999-S4
+Homo sapiens	P11111	S	not_an_int	Phospho	invalid coordinate row	AKT1	PPP2CA	PI3K signaling	BadRow	BAD:P11111

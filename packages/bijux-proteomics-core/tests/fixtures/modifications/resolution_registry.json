@@ -1,0 +1,39 @@
+{
+  "document_schema": {
+    "created_by": "bijux-proteomics-core-tests",
+    "document_kind": "peptide_modification_registry",
+    "package_name": "bijux-proteomics-core",
+    "schema_version": "1.0.0",
+    "status": "generated"
+  },
+  "static_modifications": [],
+  "variable_modifications": [
+    {
+      "application": "variable",
+      "controlled_id": "CUSTOM:HEAVY_LYS8",
+      "isotopic_label_family": "silac_lys",
+      "mass_delta_average": 8.014199,
+      "mass_delta_monoisotopic": 8.014199,
+      "max_occurrences": 3,
+      "name": "HeavyLys8Custom",
+      "neutral_losses": [],
+      "position": "anywhere",
+      "residues": [
+        "K"
+      ]
+    },
+    {
+      "application": "variable",
+      "controlled_id": "CUSTOM:LYSTAG",
+      "mass_delta_average": 144.212,
+      "mass_delta_monoisotopic": 144.102063,
+      "max_occurrences": 2,
+      "name": "LysTag",
+      "neutral_losses": [],
+      "position": "anywhere",
+      "residues": [
+        "K"
+      ]
+    }
+  ]
+}

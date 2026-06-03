@@ -40,6 +40,7 @@ class FlagshipPublicEvidenceKind(StrEnum):
     SCIENTIFIC_INVARIANT_LEDGER = "scientific_invariant_ledger"
     EXPERIMENTAL_DESIGN = "experimental_design"
     EXPECTATION_MANIFEST = "expectation_manifest"
+    TARGETED_RESULT_TABLE = "targeted_result_table"
     TARGETED_QC_TABLE = "targeted_qc_table"
     WARNING_DEMONSTRATION_LEDGER = "warning_demonstration_ledger"
 
@@ -680,11 +681,19 @@ def _multiplex_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="reporter_table",
+            path=f"{package_root}/evidence/tmt_reporter_table.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.QUANT_FEATURE_TABLE,
+            public_identity_note=(
+                "Reporter-channel evidence keeps bridge-channel gaps, interference pressure, and imbalance tied to tracked files."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="feature_table",
             path=f"{package_root}/evidence/multiplex_ms1_features.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.QUANT_FEATURE_TABLE,
             public_identity_note=(
-                "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files."
+                "The retained channel-level feature snapshot keeps runtime and challenge surfaces tied to the original multiplex intensity view."
             ),
         ),
         FlagshipPublicBenchmarkAsset(
@@ -692,7 +701,7 @@ def _multiplex_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             path=f"{package_root}/evidence/multiplex.design.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
             public_identity_note=(
-                "The multiplex design table preserves pooled-reference roles and channel assignments."
+                "The multiplex design table preserves pooled-reference and bridge-channel assignments."
             ),
         ),
     )
@@ -884,11 +893,43 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_result_table",
+            path=f"{package_root}/evidence/skyline_targeted_qc_results.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.TARGETED_RESULT_TABLE,
+            public_identity_note=(
+                "The Skyline-style targeted result table is the runnable benchmark input for matrix and assay-QC regeneration."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_design",
+            path=f"{package_root}/evidence/skyline_targeted_qc.design.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
+            public_identity_note=(
+                "The targeted design preserves the replicate and condition structure needed for replicate-CV and validation review."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_validation_discovery_claims",
+            path=(f"{package_root}/evidence/targeted_validation_discovery_claims.json"),
+            evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
+            public_identity_note=(
+                "Discovery-claim inputs keep the public targeted benchmark validation run anchored to explicit candidate expectations."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="targeted_validation_panel_assays",
+            path=f"{package_root}/evidence/targeted_validation_panel_assays.json",
+            evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
+            public_identity_note=(
+                "Panel-assay inputs bind the targeted benchmark candidates back to concrete peptide assays before verdicts are emitted."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="targeted_qc_table",
             path=f"{package_root}/evidence/targeted_benchmark_qc.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.TARGETED_QC_TABLE,
             public_identity_note=(
-                "Transition-level QC evidence is the tracked base layer for the targeted public package."
+                "Transition-level QC evidence remains a tracked supporting layer beside the runnable targeted benchmark input."
             ),
         ),
         FlagshipPublicBenchmarkAsset(
@@ -1072,7 +1113,7 @@ def build_flagship_multiplex_public_benchmark_package() -> (
         rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:multiplex_channel_fixture",
         public_dataset_identity=(
-            "tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure"
+            "tracked TMTpro reporter-ion, feature, and design snapshots with explicit bridge-channel, interference, imbalance, and missing-channel pressure"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="external confrontation exists, but public authority is intentionally limited to internal support",
@@ -1084,14 +1125,15 @@ def build_flagship_multiplex_public_benchmark_package() -> (
         scientific_pressures=(
             "reference-channel dependence",
             "ratio compression",
+            "isolation interference",
             "missing-channel pressure",
             "channel imbalance",
         ),
         claim_scope=(
-            "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape."
+            "Multiplex credibility is now anchored in a public TMTpro package that exposes reporter channels, bridge roles, and interference pressure directly instead of relying on an internal fixture shape."
         ),
         note=(
-            "This package now has a product-owned asset root and a raw-executable runtime lane, but it remains an internal-support family until lab consequence and outsider review surfaces exist."
+            "This package now has a product-owned asset root, a raw-executable benchmark lane, and explicit interference review, but it remains an internal-support family until lab consequence and outsider review surfaces exist."
         ),
     )
 
@@ -1161,7 +1203,7 @@ def build_flagship_targeted_public_benchmark_package() -> (
         rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:targeted_transition_control_bundle",
         public_dataset_identity=(
-            "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots"
+            "tracked Skyline-style targeted result and design snapshots plus supporting QC, benchmark-ranked validation inputs, and approved, failed, and refused follow-up packet snapshots"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="bounded Skyline-class comparator confrontation is shipped",
@@ -1172,15 +1214,16 @@ def build_flagship_targeted_public_benchmark_package() -> (
         ),
         scientific_pressures=(
             "transition reproducibility",
-            "calibration absence",
             "interference risk",
+            "fragment-ratio drift",
+            "coelution instability",
             "premature protein certainty",
         ),
         claim_scope=(
-            "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture."
+            "Targeted credibility is now anchored in a public transition-control package with runnable Skyline-style results, explicit QC review, benchmark-ranked validation inputs, and approved, failed, and refused consequence packets instead of a buried QC fixture."
         ),
         note=(
-            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but calibration, interference, and vendor-parity limits remain explicit."
+            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but absolute calibration, interference, and vendor-parity limits remain explicit."
         ),
     )
 
@@ -1298,21 +1341,21 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             quality_path=_quality_path(
                 _package_root("multiplex_tmtpro_review_package")
             ),
-            raw_identity_state="TMTpro feature and channel-design snapshots are tracked",
+            raw_identity_state="TMTpro reporter-ion, feature, and channel-design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="external confrontation exists but public authority stays internal-support only",
             lab_consequence_state="no multiplex lab consequence packet is shipped",
-            current_readiness="internal_support_only_not_outsider_auditable",
+            current_readiness="internal_support_runnable_benchmark_not_outsider_auditable",
             exact_strengths=(
-                "reporter-channel and pooled-reference roles are explicit in tracked files",
-                "ratio-compression and missing-channel pressure are public package concerns rather than hidden caveats",
-                "runtime now executes the tracked multiplex review path",
+                "reporter-channel, pooled-reference, and bridge-channel roles are explicit in tracked files",
+                "isolation-interference, ratio-compression, and missing-channel pressure are public package concerns rather than hidden caveats",
+                "runtime now executes the tracked multiplex benchmark path",
             ),
             exact_blockers=(
                 "no multiplex lab packet or outsider decision brief family",
                 "multiplex authority is intentionally kept out of the outsider-facing flagship set",
             ),
-            note="Multiplex has real package, runtime, and comparator substance, but it remains an internal-support family rather than an outsider-facing flagship family.",
+            note="Multiplex now has a runnable benchmark package with explicit interference review, but it remains an internal-support family rather than an outsider-facing flagship family.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:ptm_localization_review_package",
@@ -1426,14 +1469,14 @@ def build_flagship_public_package_lifecycle_records() -> tuple[
             created_on=date(2026, 5, 7),
             last_refreshed_on=refreshed_on,
             obsolescence_triggers=(
-                "TMTpro channel mappings or multiplex design assumptions change without package refresh.",
-                "A runtime-backed multiplex package becomes available.",
+                "TMTpro reporter-ion schema, interference semantics, or multiplex design assumptions change without package refresh.",
+                "A stronger multiplex package adds lab consequence closure or outsider-facing authority.",
             ),
             retirement_conditions=(
-                "Retire this package when a stronger multiplex package adds runtime and lab consequence closure.",
+                "Retire this package when a stronger multiplex package adds consequence-bearing review and broader authority.",
                 "Retire this package from flagship authority if chemistry claims widen beyond the current TMTpro evidence bed.",
             ),
-            note="The multiplex package is public now, but it still needs runtime and consequence-bearing layers before it can lead broader trust language.",
+            note="The multiplex package is now runnable, but it still needs consequence-bearing and outsider-facing review layers before it can lead broader trust language.",
         ),
         FlagshipPublicPackageLifecycleRecord(
             package_id="flagship_public_package:ptm_localization_review_package",

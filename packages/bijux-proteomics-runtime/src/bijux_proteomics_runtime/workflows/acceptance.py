@@ -123,7 +123,7 @@ def build_flagship_workflow_acceptance_dossier() -> WorkflowAcceptanceDossier:
                 lab_reviewed=False,
                 validating_test_paths=(
                     "packages/bijux-proteomics-core/tests/quantification/test_quant_review_bundle_surface.py",
-                    "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+                    "packages/bijux-proteomics-core/tests/quantification/test_quantification_scientific_benchmark_surface.py",
                 ),
             ),
             WorkflowStageAcceptance(
@@ -135,7 +135,7 @@ def build_flagship_workflow_acceptance_dossier() -> WorkflowAcceptanceDossier:
                 lab_reviewed=True,
                 validating_test_paths=(
                     "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
-                    "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+                    "packages/bijux-proteomics-core/tests/ptm/test_ptm_scientific_benchmark_surface.py",
                 ),
             ),
             WorkflowStageAcceptance(

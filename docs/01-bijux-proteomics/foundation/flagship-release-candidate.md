@@ -14,7 +14,7 @@ The current flagship release-candidate surface is not the whole repository.
 It is five bounded outsider-auditable families plus one explicitly narrowed
 internal-support family.
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
 
 Family-level trust in this bundle now assumes paired public benchmark packages

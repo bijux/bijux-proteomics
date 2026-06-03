@@ -18,7 +18,7 @@ def test_package_surface_pressure_report_tracks_public_breadth_vs_owner_depth() 
 
     assert PACKAGE_SURFACE_PRESSURE_PATH.exists()
     assert by_package["bijux-proteomics-foundation"].root_export_symbol_count >= 10
-    assert by_package["bijux-proteomics-core"].public_breadth_count == 5
+    assert by_package["bijux-proteomics-core"].public_breadth_count == 13
     assert by_package["bijux-proteomics-runtime"].breadth_to_owner_ratio < 1.0
     assert any(entry.breadth_outpaces_owner_logic for entry in report.entries)
 

@@ -13,6 +13,9 @@ from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     build_recommendation_quality_corpus,
     build_rejection_quality_corpus,
 )
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def test_recommendation_quality_corpus_prefers_safer_flagship_path() -> None:
@@ -52,4 +55,27 @@ def test_other_decision_corpora_stay_artifact_backed_and_goal_specific() -> None
     assert all(
         corpus.artifact_path.startswith("artifacts/")
         for corpus in (comparator, burden, downgrade, refusal)
+    )
+
+
+def test_lab_burden_corpus_keeps_dia_review_context_release_ready() -> None:
+    corpus = build_lab_burden_aware_decision_corpus()
+
+    scenario = next(
+        item
+        for item in corpus.scenarios
+        if item.scenario_id == "borderline-dia-burden-still-confuses-current-policy"
+    )
+    dia_option = next(
+        option
+        for option in scenario.options
+        if option.review.workflow_family is KnowledgeWorkflowFamily.DIA
+    )
+
+    assert dia_option.option_id == "dia_borderline_path"
+    assert dia_option.review.public_claim_support_state.value == "advisory"
+    assert dia_option.review.ready_for_release_review is True
+    assert (
+        dia_option.review.benchmark_package_id
+        == "benchmark_package:dia_library_review_package"
     )

@@ -63,10 +63,46 @@ serialization, and cross-package consistency for reproducible proteomics data.
 pip install bijux-proteomics-foundation
 ```
 
+Test install:
+
+```bash
+pip install -e '.[test]'
+```
+
 ## Quick start
 
 ```python
 from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonical_json
+```
+
+## Public APIs
+
+The stable root API is intentionally small:
+
+- `DocumentSchema` for durable metadata on persisted artifacts
+- `to_canonical_json(...)` for deterministic serialization
+- `hash_payload(...)`, `hash_text(...)`, and `hash_model(...)` for reproducible fingerprints
+- `JsonModel` plus typed identifiers such as `ProgramId`, `TargetId`, and `ClaimId`
+
+Minimal executable example:
+
+```python
+from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonical_json
+
+schema = DocumentSchema(
+    created_by="bijux-proteomics-foundation",
+    document_kind="readme_example",
+    package_name="bijux-proteomics-foundation",
+)
+payload = {
+    "document_kind": schema.document_kind,
+    "schema_version": schema.schema_version,
+}
+rendered = to_canonical_json(payload)
+fingerprint = hash_payload(payload)
+
+assert '"readme_example"' in rendered
+assert len(fingerprint) == 64
 ```
 
 ## Package identity
@@ -85,6 +121,12 @@ workflow package.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
 The exact allowed primitive surface is audited in `support/charter.py`.
+
+## What this package must not do
+
+- it must not define workflow orchestration, provider binding, or operator entrypoints
+- it must not own scientific evidence semantics, recommendation policy, or lab planning rules
+- it must not become a generic dumping ground for single-package helpers that do not belong in the shared kernel
 
 ## Contract checkpoints
 

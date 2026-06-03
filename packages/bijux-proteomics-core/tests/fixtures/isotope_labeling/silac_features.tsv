@@ -1,0 +1,14 @@
+feature_id	sample_id	peptide	protein_refs	charge	label	intensity
+s1_pepa_z2_l	sample_a	PEPTIDE	P001	2	light	1000
+s1_pepa_z2_m	sample_a	PEPTIDE	P001	2	medium	1300
+s1_pepa_z2_h	sample_a	PEPTIDE	P001	2	heavy	1600
+s1_pepa_z3_l	sample_a	PEPTIDE	P001	3	light	500
+s1_pepa_z3_m	sample_a	PEPTIDE	P001	3	medium	700
+s1_pepa_z3_h	sample_a	PEPTIDE	P001	3	heavy	800
+s1_pepb_z2_l	sample_a	DPEPTIDE	P002	2	light	900
+s1_pepb_z2_m	sample_a	DPEPTIDE	P002	2	medium	1100
+s2_pepa_z2_l	sample_b	PEPTIDE	P001	2	light	1200
+s2_pepa_z2_m	sample_b	PEPTIDE	P001	2	medium	1500
+s2_pepa_z2_h	sample_b	PEPTIDE	P001	2	heavy	1800
+s2_pepb_z2_l	sample_b	DPEPTIDE	P002	2	light	1000
+s2_pepb_z2_h	sample_b	DPEPTIDE	P002	2	heavy	1500

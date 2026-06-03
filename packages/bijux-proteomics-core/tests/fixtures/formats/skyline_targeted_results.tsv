@@ -1,0 +1,7 @@
+ProteinName	PeptideModifiedSequence	PrecursorCharge	PrecursorMz	FragmentIon	ProductMz	ReplicateName	Area	RetentionTime	PeakQuality
+P001	PEPTIDEK	2	445.2	y7	789.4	sample_A	120000	12.5	pass
+P001	PEPTIDEK	2	445.2	y8	902.5	sample_A	38000	12.6	pass
+P001	PEPTIDEK	2	445.2	y7	789.4	sample_B	115000	12.4	pass
+P001	PEPTIDEK	2	445.2	y8	902.5	sample_B	8000	12.7	interference
+P002	ACDMPEP	3	512.3	y5	602.3	sample_A	70000	18.1	pass
+P002	ACDMPEP	3	512.3	y6	715.4	sample_A	6000	18.2	low_signal

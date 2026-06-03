@@ -1,0 +1,50 @@
+[
+  {
+    "sequence": "ACD",
+    "charge": 2,
+    "neutral_monoisotopic_mass": 307.0838,
+    "neutral_average_mass": 307.32148,
+    "mz_monoisotopic": 154.549176466812,
+    "mz_average": 154.668016466812
+  },
+  {
+    "sequence": "PEPTIDE",
+    "charge": 2,
+    "neutral_monoisotopic_mass": 799.35994,
+    "neutral_average_mass": 799.83278,
+    "mz_monoisotopic": 400.687246466812,
+    "mz_average": 400.923666466812
+  },
+  {
+    "sequence": "MPEPTIDE",
+    "charge": 2,
+    "neutral_monoisotopic_mass": 930.40043,
+    "neutral_average_mass": 931.02538,
+    "mz_monoisotopic": 466.207491466812,
+    "mz_average": 466.519966466812
+  },
+  {
+    "sequence": "VVVVK",
+    "charge": 2,
+    "neutral_monoisotopic_mass": 542.37916,
+    "neutral_average_mass": 542.71978,
+    "mz_monoisotopic": 272.196856466812,
+    "mz_average": 272.367166466812
+  },
+  {
+    "sequence": "GAS",
+    "charge": 1,
+    "neutral_monoisotopic_mass": 233.10116,
+    "neutral_average_mass": 233.22418,
+    "mz_monoisotopic": 234.108436466812,
+    "mz_average": 234.231456466812
+  },
+  {
+    "sequence": "WYK",
+    "charge": 3,
+    "neutral_monoisotopic_mass": 495.24816,
+    "neutral_average_mass": 495.57858,
+    "mz_monoisotopic": 166.089996466812,
+    "mz_average": 166.200136466812
+  }
+]

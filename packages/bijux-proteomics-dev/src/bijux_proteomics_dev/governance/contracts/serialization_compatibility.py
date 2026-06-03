@@ -125,7 +125,7 @@ def _lab_result(schema_version: str) -> PackageSerializationCompatibilityResult:
         artifact_kind="plan",
         schema=plan.document_schema,
     )
-    reparsed = ExperimentPlan.model_validate(envelope["payload"])
+    reparsed = ExperimentPlan.model_validate(envelope.payload_raw_json)
     compatibility = evaluate_lab_artifact_with_registry(
         plan.document_schema, artifact_kind="plan"
     )

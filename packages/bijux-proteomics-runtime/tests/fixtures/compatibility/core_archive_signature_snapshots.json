@@ -1,0 +1,25 @@
+{
+  "bijux_proteomics.workflow.build_result_manifest_from_artifacts": {
+    "required_keyword_only_parameters": [
+      "commands"
+    ],
+    "required_parameters": [
+      "commands"
+    ],
+    "signature": "(*, biological_report_dir: 'Path | None' = None, ptm_report_dir: 'Path | None' = None, run_qc_assessment_tsv_paths: 'tuple[Path, ...]' = (), lab_action_packet_tsv_paths: 'tuple[Path, ...]' = (), input_paths: 'tuple[Path, ...]' = (), commands: 'tuple[str, ...]') -> 'ResultManifestReport'"
+  },
+  "bijux_proteomics.workflow.load_result_archive": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "path"
+    ],
+    "signature": "(path: 'Path') -> 'ProteomicsStudyResult'"
+  },
+  "bijux_proteomics.workflow.run_scale_demo": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "config"
+    ],
+    "signature": "(config: 'ScaleDemoConfig') -> 'ScaleDemoReport'"
+  }
+}

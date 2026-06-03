@@ -13,14 +13,15 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
-    DigestedPeptide,
     PeptideDigestionMode,
     PeptideProteinIndexEntry,
     PeptideUniqueness,
     ProteaseRule,
-    build_peptide_protein_index,
-    digest_protein_records,
-    get_protease_rule,
+)
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+    PeptideUniquenessIndexEntry,
+    build_peptide_uniqueness_index,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -84,6 +85,7 @@ class PeptideDatabaseLookupEntry(JsonModel):
     protein_families: tuple[str, ...] = Field(default_factory=tuple)
     protein_groups: tuple[str, ...] = Field(default_factory=tuple)
     protein_group_count: int = Field(..., ge=0)
+    uniqueness_class: PeptideUniquenessClass | None = None
     uniqueness: PeptideUniqueness | None = None
     audit_class: PeptideUniquenessAuditClass | None = None
     database_membership: PeptideDatabaseMembership
@@ -191,43 +193,15 @@ def build_peptide_database_lookup_report(
     protein_group_by_accession: dict[str, str] | None = None,
 ) -> PeptideDatabaseLookupReport:
     """Build one peptide-to-protein lookup report over a digested database."""
-    protease_rule = (
-        get_protease_rule(protease) if isinstance(protease, str) else protease
-    )
     protein_group_by_accession = protein_group_by_accession or {}
-    digested = digest_protein_records(
+    index_report = build_peptide_uniqueness_index(
         tuple(records),
-        protease=protease_rule,
+        protease=protease,
         missed_cleavages=missed_cleavages,
-        mode=digestion_mode,
+        digestion_mode=digestion_mode,
+        treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
     )
-    normalized_peptides = tuple(
-        peptide.model_copy(
-            update={
-                "sequence": _normalize_lookup_sequence(
-                    peptide.sequence,
-                    treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
-                )
-            }
-        )
-        for peptide in digested
-    )
-    peptide_index = build_peptide_protein_index(normalized_peptides)
-    audit_report = build_peptide_uniqueness_audit_report(
-        peptide_index,
-        protein_group_by_accession=protein_group_by_accession,
-    )
-    audit_by_sequence = {entry.sequence: entry for entry in audit_report.entries}
-    members_by_sequence: dict[str, list[DigestedPeptide]] = {}
-    for peptide in normalized_peptides:
-        members_by_sequence.setdefault(peptide.sequence, []).append(peptide)
-    record_flags_by_accession = {
-        _stable_record_accession(record): (
-            bool(getattr(record, "contaminant", False)),
-            bool(getattr(record, "decoy", False)),
-        )
-        for record in records
-    }
+    index_by_sequence = {entry.lookup_sequence: entry for entry in index_report.entries}
 
     entries: list[PeptideDatabaseLookupEntry] = []
     for input_peptide in dict.fromkeys(peptides):
@@ -237,17 +211,12 @@ def build_peptide_database_lookup_report(
             canonical_peptide,
             treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
         )
-        audit_entry = audit_by_sequence.get(lookup_sequence)
-        members = tuple(members_by_sequence.get(lookup_sequence, ()))
-        membership = _classify_database_membership(
-            members,
-            record_flags_by_accession=record_flags_by_accession,
-        )
+        index_entry = index_by_sequence.get(lookup_sequence)
         modification_stripped = bool(parsed.modifications)
         il_equivalence_applied = (
             treat_isoleucine_as_leucine and canonical_peptide != lookup_sequence
         )
-        if audit_entry is None:
+        if index_entry is None:
             entries.append(
                 PeptideDatabaseLookupEntry(
                     input_peptide=str(input_peptide),
@@ -264,6 +233,22 @@ def build_peptide_database_lookup_report(
                 )
             )
             continue
+        protein_groups = tuple(
+            sorted(
+                {
+                    protein_group_by_accession[accession]
+                    for accession in index_entry.protein_accessions
+                    if accession in protein_group_by_accession
+                }
+            )
+        )
+        audit_class, explanation = _build_audit_interpretation(
+            index_entry,
+            protein_groups=protein_groups,
+        )
+        membership = _database_membership_from_uniqueness_class(
+            index_entry.uniqueness_class
+        )
         entries.append(
             PeptideDatabaseLookupEntry(
                 input_peptide=str(input_peptide),
@@ -271,18 +256,17 @@ def build_peptide_database_lookup_report(
                 lookup_sequence=lookup_sequence,
                 modification_stripped=modification_stripped,
                 il_equivalence_applied=il_equivalence_applied,
-                protein_accessions=audit_entry.protein_accessions,
-                protein_families=audit_entry.protein_families,
-                protein_groups=audit_entry.protein_groups,
-                protein_group_count=len(audit_entry.protein_groups),
-                uniqueness=audit_entry.uniqueness,
-                audit_class=audit_entry.audit_class,
+                protein_accessions=index_entry.protein_accessions,
+                protein_families=index_entry.protein_families,
+                protein_groups=protein_groups,
+                protein_group_count=len(protein_groups),
+                uniqueness_class=index_entry.uniqueness_class,
+                uniqueness=_legacy_uniqueness_from_index_entry(index_entry),
+                audit_class=audit_class,
                 database_membership=membership,
-                missed_cleavage_counts=tuple(
-                    sorted({member.missed_cleavages for member in members})
-                ),
+                missed_cleavage_counts=index_entry.missed_cleavage_counts,
                 explanation=_build_database_lookup_explanation(
-                    audit_entry.explanation,
+                    explanation,
                     membership=membership,
                     modification_stripped=modification_stripped,
                     il_equivalence_applied=il_equivalence_applied,
@@ -345,14 +329,6 @@ def build_peptide_database_lookup_report(
     )
 
 
-def _stable_record_accession(record: NormalizedProteinRecord) -> str:
-    accession = record.canonical_accession
-    isoform = record.isoform
-    if isinstance(isoform, int):
-        return f"{accession}-{isoform}"
-    return accession
-
-
 def _normalize_lookup_sequence(
     sequence: str, *, treat_isoleucine_as_leucine: bool
 ) -> str:
@@ -362,35 +338,72 @@ def _normalize_lookup_sequence(
     return normalized
 
 
-def _classify_database_membership(
-    members: Sequence[DigestedPeptide],
-    *,
-    record_flags_by_accession: dict[str, tuple[bool, bool]],
+def _database_membership_from_uniqueness_class(
+    uniqueness_class: PeptideUniquenessClass,
 ) -> PeptideDatabaseMembership:
-    if not members:
-        return PeptideDatabaseMembership.MISSING
-    memberships: set[PeptideDatabaseMembership] = set()
-    for member in members:
-        contaminant, decoy = record_flags_by_accession.get(
-            member.source_accession,
-            (False, False),
+    if uniqueness_class is PeptideUniquenessClass.CONTAMINANT:
+        return PeptideDatabaseMembership.CONTAMINANT
+    if uniqueness_class is PeptideUniquenessClass.DECOY:
+        return PeptideDatabaseMembership.DECOY
+    if uniqueness_class is PeptideUniquenessClass.MIXED:
+        return PeptideDatabaseMembership.MIXED
+    return PeptideDatabaseMembership.TARGET
+
+
+def _build_audit_interpretation(
+    entry: PeptideUniquenessIndexEntry,
+    *,
+    protein_groups: tuple[str, ...],
+) -> tuple[PeptideUniquenessAuditClass, str]:
+    if len(protein_groups) == 1 and len(entry.protein_accessions) > 1:
+        return (
+            PeptideUniquenessAuditClass.PROTEIN_GROUP_SPECIFIC,
+            "peptide maps to multiple proteins that collapse into one protein group",
         )
-        if contaminant and decoy:
-            memberships.update(
-                {
-                    PeptideDatabaseMembership.CONTAMINANT,
-                    PeptideDatabaseMembership.DECOY,
-                }
-            )
-        elif decoy:
-            memberships.add(PeptideDatabaseMembership.DECOY)
-        elif contaminant:
-            memberships.add(PeptideDatabaseMembership.CONTAMINANT)
-        else:
-            memberships.add(PeptideDatabaseMembership.TARGET)
-    if len(memberships) == 1:
-        return next(iter(memberships))
-    return PeptideDatabaseMembership.MIXED
+    if entry.uniqueness_class is PeptideUniquenessClass.UNIQUE:
+        return (
+            PeptideUniquenessAuditClass.UNIQUE,
+            "peptide maps to a single protein accession",
+        )
+    if entry.uniqueness_class is PeptideUniquenessClass.ISOFORM_SHARED:
+        return (
+            PeptideUniquenessAuditClass.ISOFORM_SPECIFIC,
+            "peptide is shared across isoforms within one protein family",
+        )
+    if entry.uniqueness_class is PeptideUniquenessClass.FAMILY_SHARED:
+        return (
+            PeptideUniquenessAuditClass.SHARED,
+            "peptide is shared across proteins within one annotated gene family",
+        )
+    if entry.uniqueness_class is PeptideUniquenessClass.CONTAMINANT:
+        return (
+            PeptideUniquenessAuditClass.SHARED,
+            "peptide maps only to contaminant proteins in the indexed database",
+        )
+    if entry.uniqueness_class is PeptideUniquenessClass.DECOY:
+        return (
+            PeptideUniquenessAuditClass.SHARED,
+            "peptide maps only to decoy proteins in the indexed database",
+        )
+    if entry.uniqueness_class is PeptideUniquenessClass.MIXED:
+        return (
+            PeptideUniquenessAuditClass.SHARED,
+            "peptide spans target, decoy, or contaminant protein classes",
+        )
+    return (
+        PeptideUniquenessAuditClass.SHARED,
+        "peptide is shared across protein accessions or families",
+    )
+
+
+def _legacy_uniqueness_from_index_entry(
+    entry: PeptideUniquenessIndexEntry,
+) -> PeptideUniqueness:
+    if entry.uniqueness_class is PeptideUniquenessClass.UNIQUE:
+        return PeptideUniqueness.UNIQUE
+    if entry.uniqueness_class is PeptideUniquenessClass.ISOFORM_SHARED:
+        return PeptideUniqueness.SHARED_ISOFORM_FAMILY
+    return PeptideUniqueness.SHARED
 
 
 def _build_database_lookup_explanation(

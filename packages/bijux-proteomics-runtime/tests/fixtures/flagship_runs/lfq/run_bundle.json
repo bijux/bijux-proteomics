@@ -106,8 +106,8 @@
       "feature_record_count=24",
       "design_entry_count=8",
       "condition_count=2",
-      "outlier_sample_count=0",
-      "review_bundle_hash=9cfd2aea94db9e8f60f78ff364f95f415a275734f4a7e454d455dc35f858d89a"
+      "outlier_sample_count=2",
+      "review_bundle_hash=6b00c0652d092106da6a66df8f62f946122b1c41d3070cc01dfd1966b0d9fa7c"
     ],
     "input_artifact_ids": [
       "lfq-cohort-review-corpus:primary_input",

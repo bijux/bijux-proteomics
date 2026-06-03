@@ -30,7 +30,7 @@ distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
 docs_path = "docs/06-bijux-proteomics-knowledge/this-package-does-not-own.md"
 public_surface_names = ["EvidenceBundle", "EvidenceClaim", "EvidenceRecord", "KnowledgeDecisionBrief", "evaluate_schema_compatibility"]
-allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
 excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
 
 [[package]]

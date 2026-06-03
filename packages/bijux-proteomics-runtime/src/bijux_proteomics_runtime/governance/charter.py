@@ -126,6 +126,9 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.WORKFLOW_EXECUTION,
         owned_surface="Execution coordination that turns runtime requests into tool, provider, and agent work over proteomics workflows.",
         required_modules=(
+            "checkpoints/scientific.py",
+            "parallel/execution.py",
+            "streaming/execution.py",
             "runs/manager.py",
             "execution/agents/coordination/coordinator.py",
             "execution/engine/executor.py",
@@ -136,6 +139,9 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REPLAY_AND_RECOVERY,
         owned_surface="Replay-safe bundles, checkpoints, cache claims, rerun planning, cleanup, and recovery behavior that preserve trustworthy run reuse.",
         required_modules=(
+            "handoff/archive.py",
+            "rehydrate/loading.py",
+            "resume/execution.py",
             "runs/replay.py",
             "runs/reruns.py",
             "runs/integrity.py",
@@ -148,7 +154,11 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
         owned_surface="Typed run contracts, decision briefs, artifact inventories, histories, and failure reports that downstream packages can consume without private file coupling.",
         required_modules=(
+            "artifacts/steps.py",
             "api/catalog.py",
+            "diff/completed_runs.py",
+            "handoff/archive.py",
+            "rehydrate/loading.py",
             "runs/contracts.py",
             "runs/launch_bundles.py",
             "runs/failure_reports.py",
@@ -199,6 +209,83 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Operator-facing entrypoints and envelopes belong in runtime because they define the supported execution and review surface.",
+        )
+
+    if module_path.startswith("artifacts/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Typed workflow-step artifact contracts keep replay-safe checksums and reviewable step outputs under one explicit runtime owner.",
+        )
+
+    if module_path.startswith("diff/"):
+        return _execution_value_entry(
+            module_path,
+            (RuntimeCharterCapability.REVIEWABLE_OUTPUTS,),
+            "Completed-run scientific diffs belong in runtime because they compare rehydrated reviewable outputs while ignoring runtime-only timestamp drift.",
+        )
+
+    if module_path.startswith("handoff/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Portable collaborator handoff archives belong in runtime because they preserve rehydrated review surfaces for offline loading and query without the original run tree.",
+        )
+
+    if module_path.startswith("checkpoints/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Scientific checkpoints belong in runtime because they decide whether workflow stages continue or block while preserving reviewable counts, QC posture, and confidence posture.",
+        )
+
+    if module_path.startswith("parallel/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Deterministic parallel execution belongs in runtime because it schedules workflow-safe concurrent work while preserving reviewable byte-stable outputs.",
+        )
+
+    if module_path.startswith("streaming/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Large-input streaming import belongs in runtime because it governs bounded-memory execution over accepted import records without changing eager subset outcomes.",
+        )
+
+    if module_path.startswith("resume/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Artifact-valid workflow resume planning belongs in runtime because it decides which completed steps stay trustworthy under changed inputs and config.",
+        )
+
+    if module_path.startswith("rehydrate/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Completed-run rehydration belongs in runtime because it resolves one runtime run directory back onto the preserved scientific result surfaces without rerunning analysis.",
         )
 
     if module_path.startswith("providers/"):
@@ -253,6 +340,16 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "The machine-readable charter keeps runtime ownership explicit, auditable, and release-blocking.",
+        )
+
+    if module_path == "public_api.py":
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.CANONICAL_ENTRYPOINTS,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "The machine-readable runtime root API contract keeps the supported operator-facing import surface explicit and release-auditable.",
         )
 
     if module_path == "governance/compatibility_bridges.py":

@@ -4,8 +4,24 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
+from typing import cast
 
+import pytest
+
+from bijux_proteomics.dia.benchmarks import (
+    DiaWorkflowScientificSupportReport,
+)
+from bijux_proteomics.dia.benchmarks import (
+    build_dia_workflow_scientific_support_report as build_core_dia_workflow_scientific_support_report,
+)
+from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.identification.search_adapters import (
+    SearchAdapterNormalizationReport,
+)
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_foundation.support.states import SupportState
+import bijux_proteomics_intelligence.reviews.benchmarks as benchmark_reviews
 from bijux_proteomics_intelligence.reviews.benchmarks import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,
@@ -132,6 +148,118 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
         review.scientific_release_packet.benchmark_metric_priorities.entries[0].weight
         == 5
     )
+
+
+def test_build_dia_benchmark_review_uses_aggregate_fallback_without_run_ids(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed_arguments: dict[str, int] = {}
+
+    def _capture_support_arguments(
+        **kwargs: int,
+    ) -> DiaWorkflowScientificSupportReport:
+        observed_arguments.update(kwargs)
+        return build_core_dia_workflow_scientific_support_report(**kwargs)
+
+    benchmark_path = (
+        _repo_root()
+        / "packages"
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / "search_adapter_corpora"
+        / "spectronaut"
+        / "spectronaut_report.tsv"
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.build_dia_workflow_scientific_support_report",
+        _capture_support_arguments,
+    )
+    review = benchmark_reviews.build_dia_benchmark_review(source_path=benchmark_path)
+
+    assert review.workflow_family is KnowledgeWorkflowFamily.DIA
+    assert observed_arguments["sample_resolved_precursor_count"] == 3
+    assert observed_arguments["expected_sample_resolved_precursor_count"] == 3
+    assert observed_arguments["sample_resolved_protein_count"] == 4
+    assert observed_arguments["expected_sample_resolved_protein_count"] == 4
+
+
+def test_build_dia_benchmark_review_uses_run_resolved_counts_when_present(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed_arguments: dict[str, int] = {}
+
+    def _capture_support_arguments(
+        **kwargs: int,
+    ) -> DiaWorkflowScientificSupportReport:
+        observed_arguments.update(kwargs)
+        return build_core_dia_workflow_scientific_support_report(**kwargs)
+
+    def _normalize_synthetic_records(**_: object) -> SearchAdapterNormalizationReport:
+        return cast(
+            SearchAdapterNormalizationReport,
+            SimpleNamespace(
+                normalized_records=synthetic_records,
+                adapter_manifest=SimpleNamespace(
+                    score_orientation=SimpleNamespace(value="higher_better")
+                ),
+            ),
+        )
+
+    def _synthetic_fingerprint(_: JsonModel) -> str:
+        return "synthetic-normalization"
+
+    synthetic_records = (
+        PsmRecord(
+            run_id="run-a",
+            spectrum_id="spec-1",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=42.0,
+            protein_refs=("P11111",),
+        ),
+        PsmRecord(
+            run_id="run-a",
+            spectrum_id="spec-2",
+            peptide="SEQUENCE",
+            canonical_peptide="SEQUENCE",
+            charge=3,
+            score=43.0,
+            protein_refs=("P22222",),
+        ),
+        PsmRecord(
+            run_id="run-b",
+            spectrum_id="spec-3",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=41.0,
+            protein_refs=("P11111",),
+        ),
+    )
+
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.normalize_search_results_with_adapter",
+        _normalize_synthetic_records,
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.build_dia_workflow_scientific_support_report",
+        _capture_support_arguments,
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.benchmarks.fingerprint_model",
+        _synthetic_fingerprint,
+    )
+    review = benchmark_reviews.build_dia_benchmark_review(
+        source_path=Path("synthetic_spectronaut.tsv")
+    )
+
+    assert review.workflow_family is KnowledgeWorkflowFamily.DIA
+    assert observed_arguments["sample_resolved_precursor_count"] == 3
+    assert observed_arguments["expected_sample_resolved_precursor_count"] == 3
+    assert observed_arguments["sample_resolved_protein_count"] == 3
+    assert observed_arguments["expected_sample_resolved_protein_count"] == 3
 
 
 def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:

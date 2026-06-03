@@ -1,0 +1,120 @@
+# Generated internal architecture map.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.internal_architecture_map
+
+[cycle_guard]
+max_workspace_cycle_count = 0
+
+[[package]]
+distribution_name = "agentic-proteins"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+rationale = "agentic-proteins stays as a narrow compatibility bridge that forwards to canonical core and runtime owners only."
+
+[[package]]
+distribution_name = "bijux-proteomics"
+allowed_outbound_edges = []
+rationale = "bijux-proteomics stays as an install-and-command alias for the canonical core package without owning additional product behavior."
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "core stays grounded on foundation primitives while owning benchmark acceptance and workflow contracts that consume narrow knowledge references plus reviewed seams into runtime, intelligence, and lab."
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "maintainer governance may inspect publishable packages directly, but it must stay a consumer rather than a product owner."
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+allowed_outbound_edges = []
+rationale = "foundation remains the primitive base and does not import product packages."
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "intelligence consumes core scientific semantics, foundation contracts, knowledge evidence owners, runtime replay truth, and lab burden signals when it publishes release-facing review posture."
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+rationale = "knowledge owns grounded evidence memory over foundation primitives and the canonical core interpretation and sequence contracts that normalize cited scientific entities."
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
+rationale = "lab consumes core science, intelligence judgment, knowledge evidence, and foundation contracts without owning runtime orchestration."
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+rationale = "runtime depends on core scientific seams, foundation contracts, and governed downstream review surfaces when it assembles replayable cross-package workflow evidence."
+
+[[package]]
+distribution_name = "proteomics"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+rationale = "proteomics stays as the short install and import alias for canonical core surfaces while reusing shared alias-helper primitives from foundation."
+
+[[package]]
+distribution_name = "proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+rationale = "proteomics-core stays as the short alias for the canonical core distribution while reusing shared alias-helper primitives from foundation."
+
+[[package]]
+distribution_name = "proteomics-foundation"
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+rationale = "proteomics-foundation stays as the short alias for the canonical foundation distribution."
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
+rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution while reusing shared alias-helper primitives from foundation."
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
+rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution while reusing shared alias-helper primitives from foundation."
+
+[[package]]
+distribution_name = "proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-lab"]
+rationale = "proteomics-lab stays as the short alias for the canonical lab distribution while reusing shared alias-helper primitives from foundation."
+
+[[package]]
+distribution_name = "proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-runtime"]
+rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution while reusing shared alias-helper primitives from foundation."
+
+[[module_family]]
+distribution_name = "bijux-proteomics-core"
+family_name = "workflow_compatibility"
+module_prefixes = ["bijux_proteomics.workflow.advanced_diann", "bijux_proteomics.workflow.advanced_fragpipe", "bijux_proteomics.workflow.advanced_maxquant", "bijux_proteomics.workflow.advanced_ptm", "bijux_proteomics.workflow.advanced_targeted", "bijux_proteomics.workflow.advanced_tmt", "bijux_proteomics.workflow.discovery_to_assay", "bijux_proteomics.workflow.flagship_run", "bijux_proteomics.workflow.integrated_scientific_report", "bijux_proteomics.workflow.multi_study", "bijux_proteomics.workflow.orchestrator", "bijux_proteomics.workflow.public_benchmark_runner", "bijux_proteomics.workflow.surprising_demo", "bijux_proteomics.workflow.surprising_demo_interrogation", "bijux_proteomics.workflow.trust_bundle"]
+allowed_outbound_families = ["workflow_pipelines"]
+rationale = "root workflow wrapper modules stay as compatibility facades that forward only to the canonical pipeline owners."
+
+[[module_family]]
+distribution_name = "bijux-proteomics-core"
+family_name = "workflow_pipelines"
+module_prefixes = ["bijux_proteomics.workflow.pipelines"]
+allowed_outbound_families = ["benchmarks", "workflow_scientific"]
+rationale = "workflow pipelines may assemble governed workflow support and benchmark inputs, but they do not reach back into interfaces or compatibility facades."
+
+[[module_family]]
+distribution_name = "bijux-proteomics-core"
+family_name = "workflow_scientific"
+module_prefixes = ["bijux_proteomics.workflow"]
+allowed_outbound_families = ["workflow_compatibility", "workflow_pipelines"]
+rationale = "non-pipeline workflow modules may expose package surfaces and consume pipeline manifests, while their scientific engines stay within the workflow family."
+
+[[module_family]]
+distribution_name = "bijux-proteomics-core"
+family_name = "interfaces"
+module_prefixes = ["bijux_proteomics.interfaces"]
+allowed_outbound_families = ["benchmarks", "workflow_pipelines", "workflow_scientific"]
+rationale = "interfaces may invoke workflow pipelines and selected scientific report surfaces, but they do not become scientific owners themselves."
+
+[[module_family]]
+distribution_name = "bijux-proteomics-core"
+family_name = "benchmarks"
+module_prefixes = ["bijux_proteomics.benchmarks"]
+allowed_outbound_families = ["workflow_pipelines", "workflow_scientific"]
+rationale = "benchmarks may exercise canonical workflow pipelines and inspect scientific artifacts, but they do not route through interfaces."

@@ -1,0 +1,4 @@
+target_id	precursor_mz	rt_start_seconds	rt_end_seconds	expected_charge	panel_group
+target_alpha	500.0	5	25	2	alpha
+target_beta	700.0			2	beta
+target_gamma	650.0			2	gamma

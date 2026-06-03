@@ -156,6 +156,109 @@ def build_large_spectra_streaming_benchmark_report(
     )
 
 
+class ParserMemoryBenchmarkInput(JsonModel):
+    """Observed memory behavior for one generated parser workload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parser_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    input_size_mb: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+    memory_ceiling_mb: float = Field(..., gt=0.0)
+
+
+class ParserMemoryBenchmarkReport(JsonModel):
+    """Benchmark report for parser memory ceilings under generated large inputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parser_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    input_size_mb: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+    memory_ceiling_mb: float = Field(..., gt=0.0)
+    memory_headroom_mb: float
+    ceiling_respected: bool
+    memory_per_unit_kb: float = Field(..., ge=0.0)
+
+
+def build_parser_memory_benchmark_report(
+    payload: ParserMemoryBenchmarkInput,
+) -> ParserMemoryBenchmarkReport:
+    """Summarize one parser memory observation against its declared ceiling."""
+
+    memory_headroom_mb = payload.memory_ceiling_mb - payload.peak_memory_mb
+    return ParserMemoryBenchmarkReport(
+        parser_id=payload.parser_id,
+        workload_unit=payload.workload_unit,
+        generated_unit_count=payload.generated_unit_count,
+        input_size_mb=payload.input_size_mb,
+        peak_memory_mb=payload.peak_memory_mb,
+        memory_ceiling_mb=payload.memory_ceiling_mb,
+        memory_headroom_mb=memory_headroom_mb,
+        ceiling_respected=memory_headroom_mb >= 0.0,
+        memory_per_unit_kb=(payload.peak_memory_mb * 1024.0)
+        / payload.generated_unit_count,
+    )
+
+
+class CoreAlgorithmPerformanceBenchmarkInput(JsonModel):
+    """Observed runtime for one generated core-algorithm benchmark workload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    algorithm_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    observed_seconds: float = Field(..., gt=0.0)
+    baseline_seconds: float = Field(..., gt=0.0)
+    regression_threshold_ratio: float = Field(..., gt=1.0)
+
+
+class CoreAlgorithmPerformanceBenchmarkReport(JsonModel):
+    """Performance-baseline report for one core scientific algorithm."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    algorithm_id: str = Field(..., min_length=1)
+    workload_unit: str = Field(..., min_length=1)
+    generated_unit_count: int = Field(..., ge=1)
+    observed_seconds: float = Field(..., gt=0.0)
+    baseline_seconds: float = Field(..., gt=0.0)
+    regression_threshold_ratio: float = Field(..., gt=1.0)
+    threshold_seconds: float = Field(..., gt=0.0)
+    slowdown_ratio: float = Field(..., gt=0.0)
+    units_per_second: float = Field(..., gt=0.0)
+    regression_detected: bool
+
+
+def build_core_algorithm_performance_benchmark_report(
+    payload: CoreAlgorithmPerformanceBenchmarkInput,
+) -> CoreAlgorithmPerformanceBenchmarkReport:
+    """Summarize one generated runtime against a governed regression threshold."""
+
+    threshold_seconds = round(
+        payload.baseline_seconds * payload.regression_threshold_ratio,
+        6,
+    )
+    slowdown_ratio = round(payload.observed_seconds / payload.baseline_seconds, 6)
+    return CoreAlgorithmPerformanceBenchmarkReport(
+        algorithm_id=payload.algorithm_id,
+        workload_unit=payload.workload_unit,
+        generated_unit_count=payload.generated_unit_count,
+        observed_seconds=payload.observed_seconds,
+        baseline_seconds=payload.baseline_seconds,
+        regression_threshold_ratio=payload.regression_threshold_ratio,
+        threshold_seconds=threshold_seconds,
+        slowdown_ratio=slowdown_ratio,
+        units_per_second=payload.generated_unit_count / payload.observed_seconds,
+        regression_detected=payload.observed_seconds > threshold_seconds,
+    )
+
+
 class EvidenceGraphScaleBenchmarkInput(JsonModel):
     """Stage timings for evidence-graph build/query/packet/export at scale."""
 

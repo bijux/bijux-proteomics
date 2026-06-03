@@ -6,7 +6,7 @@
       "criterion_id": "dda_search_coverage",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "2",
       "workflow_family": "dda"
     },
@@ -15,7 +15,7 @@
       "criterion_id": "dda_protein_inference_stability",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "true",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "true",
       "workflow_family": "dda"
     },
@@ -24,7 +24,7 @@
       "criterion_id": "dda_calibration_sanity",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "dda"
     },
@@ -33,7 +33,7 @@
       "criterion_id": "dda_comparator_divergence_tolerance",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "advisory",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "advisory|supported",
       "workflow_family": "dda"
     },
@@ -42,7 +42,7 @@
       "criterion_id": "dda_review_packet_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "review_grade:true",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "review_grade:true|decision_grade:true",
       "workflow_family": "dda"
     },
@@ -51,7 +51,7 @@
       "criterion_id": "dia_library_dependence",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "0.67",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0.67",
       "workflow_family": "dia"
     },
@@ -60,7 +60,7 @@
       "criterion_id": "dia_peptide_evidence_coverage",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "4",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "4",
       "workflow_family": "dia"
     },
@@ -69,7 +69,7 @@
       "criterion_id": "dia_protein_evidence_stability",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "dia"
     },
@@ -78,7 +78,7 @@
       "criterion_id": "dia_quantitative_coherence",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "0.33",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0.33",
       "workflow_family": "dia"
     },
@@ -87,7 +87,7 @@
       "criterion_id": "dia_review_packet_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "review_grade:true",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "review_grade:true|decision_grade:true",
       "workflow_family": "dia"
     },
@@ -95,8 +95,8 @@
       "change_direction": "initial_published",
       "criterion_id": "lfq_missingness_burden",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
-      "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "observed_value": "4",
+      "recorded_on": "2026-05-26",
       "required_value": "2",
       "workflow_family": "lfq"
     },
@@ -105,7 +105,7 @@
       "criterion_id": "lfq_normalization_drift",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "decision_grade",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "decision_grade",
       "workflow_family": "lfq"
     },
@@ -114,7 +114,7 @@
       "criterion_id": "lfq_differential_reproducibility",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "24",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "24",
       "workflow_family": "lfq"
     },
@@ -123,7 +123,7 @@
       "criterion_id": "lfq_comparator_divergence",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "advisory",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "advisory|supported",
       "workflow_family": "lfq"
     },
@@ -132,7 +132,7 @@
       "criterion_id": "lfq_recommendation_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "review_grade:true",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "review_grade:true|decision_grade:true",
       "workflow_family": "lfq"
     },
@@ -141,7 +141,7 @@
       "criterion_id": "multiplex_interference",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "multiplex"
     },
@@ -150,7 +150,7 @@
       "criterion_id": "multiplex_channel_dropout",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0",
       "workflow_family": "multiplex"
     },
@@ -159,7 +159,7 @@
       "criterion_id": "multiplex_reference_channel_fragility",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0",
       "workflow_family": "multiplex"
     },
@@ -168,7 +168,7 @@
       "criterion_id": "multiplex_ratio_compression",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0",
       "workflow_family": "multiplex"
     },
@@ -177,7 +177,7 @@
       "criterion_id": "multiplex_downstream_review_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "refused",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "advisory|supported",
       "workflow_family": "multiplex"
     },
@@ -186,7 +186,7 @@
       "criterion_id": "ptm_localization_quality",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "5",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "5",
       "workflow_family": "ptm"
     },
@@ -195,7 +195,7 @@
       "criterion_id": "ptm_ambiguity_burden",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "2",
       "workflow_family": "ptm"
     },
@@ -204,7 +204,7 @@
       "criterion_id": "ptm_motif_credibility",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "2",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "2",
       "workflow_family": "ptm"
     },
@@ -213,7 +213,7 @@
       "criterion_id": "ptm_occupancy_stability",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "4",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "4",
       "workflow_family": "ptm"
     },
@@ -222,7 +222,7 @@
       "criterion_id": "ptm_targetability_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "advisory",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "advisory|supported",
       "workflow_family": "ptm"
     },
@@ -231,7 +231,7 @@
       "criterion_id": "targeted_calibration_quality",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "targeted"
     },
@@ -240,7 +240,7 @@
       "criterion_id": "targeted_transition_interference",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "targeted"
     },
@@ -249,7 +249,7 @@
       "criterion_id": "targeted_heavy_light_coherence",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "1",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "1",
       "workflow_family": "targeted"
     },
@@ -258,7 +258,7 @@
       "criterion_id": "targeted_carryover_posture",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "0",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "0",
       "workflow_family": "targeted"
     },
@@ -267,7 +267,7 @@
       "criterion_id": "targeted_follow_up_promotion",
       "note": "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser",
       "observed_value": "supported",
-      "recorded_on": "2026-05-07",
+      "recorded_on": "2026-05-26",
       "required_value": "supported",
       "workflow_family": "targeted"
     }

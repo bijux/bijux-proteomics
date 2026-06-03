@@ -1,0 +1,34 @@
+Name: PEPALFA/2
+MW: 998.4
+Comment: Parent=500.2 Proteins=P11111
+Num peaks: 2
+100.0 1500.0
+250.0 800.0
+
+Name: PEPKETA/2
+MW: 1002.0
+Comment: Parent=501.0 Proteins=P11111
+Num peaks: 2
+110.0 1400.0
+260.0 820.0
+
+Name: PEPGAMMA/3
+MW: 1200.0
+Comment: Parent=401.0 Proteins=P22222
+Num peaks: 2
+130.0 1350.0
+280.0 780.0
+
+Name: PEPSHARE/2
+MW: 1100.0
+Comment: Parent=551.0 Proteins=P33333;P33334
+Num peaks: 2
+140.0 1250.0
+290.0 760.0
+
+Name: LIVNLY/2
+MW: 1050.0
+Comment: Parent=526.0 Proteins=P44444
+Num peaks: 2
+150.0 1150.0
+300.0 740.0

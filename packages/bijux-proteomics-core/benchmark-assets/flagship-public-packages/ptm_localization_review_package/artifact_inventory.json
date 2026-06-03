@@ -15,7 +15,7 @@
       "note": "The PTM manifest is the machine-readable boundary for the localization review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "f238508e0456a23432a357ccaceeda1c2361dc674d5dadfd30c3340a95d7c08a",
+      "sha256": "ff8d6d0c5787980d811e0c4d41d259b1b85877575a706f54bf5ff01962f26ca7",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The PTM artifact inventory keeps localization, occupancy, raw-spectrum, and FASTA context visible together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "6c1b3a207e00d35e5041a32ee12da9e40d12cc64742843fb2ca5f3108f02fc87",
+      "sha256": "3ba5d4b3531403cd5a8210988e2a2abd41c928419d77a687952a40d402ac0070",
       "spectra_count": null
     },
     {

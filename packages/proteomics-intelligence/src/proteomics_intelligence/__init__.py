@@ -2,40 +2,35 @@
 
 from __future__ import annotations
 
-from importlib import import_module, metadata
+from importlib import import_module
 from typing import Any
 
-from .runtime_alias import install_runtime_aliases
-
-_ALIAS_PACKAGE = "proteomics_intelligence"
-_RUNTIME_PACKAGE = "bijux_proteomics_intelligence"
-_LOCAL_SUBMODULES = frozenset({"runtime_alias"})
-_runtime_module = import_module(_RUNTIME_PACKAGE)
-
-install_runtime_aliases(
-    alias_package=_ALIAS_PACKAGE,
-    runtime_package=_RUNTIME_PACKAGE,
-    local_submodules=_LOCAL_SUBMODULES,
+from bijux_proteomics_foundation._package_aliases import (
+    alias_package_version,
+    canonical_module_dir,
+    install_import_aliases,
 )
 
-for _name in getattr(_runtime_module, "__all__", ()):
-    if _name == "__version__":
-        continue
-    globals()[_name] = getattr(_runtime_module, _name)
+_ALIAS_PACKAGE = "proteomics_intelligence"
+_CANONICAL_PACKAGE = "bijux_proteomics_intelligence"
+_LOCAL_SUBMODULES: frozenset[str] = frozenset()
 
-try:
-    __version__ = metadata.version("proteomics-intelligence")
-except metadata.PackageNotFoundError:
-    __version__ = "0.3.6"
-
-__all__ = list(getattr(_runtime_module, "__all__", ()))
+install_import_aliases(
+    alias_package=_ALIAS_PACKAGE,
+    canonical_package=_CANONICAL_PACKAGE,
+    local_submodules=_LOCAL_SUBMODULES,
+)
+__version__ = alias_package_version("proteomics-intelligence")
+__all__ = ["__version__"]
 
 
 def __getattr__(name: str) -> Any:
-    """Forward top-level compatibility lookups to the canonical runtime package."""
-    return getattr(_runtime_module, name)
+    """Forward top-level compatibility lookups to the canonical intelligence package."""
+
+    return getattr(import_module(_CANONICAL_PACKAGE), name)
 
 
 def __dir__() -> list[str]:
-    """Expose canonical runtime attributes in interactive discovery."""
-    return sorted(set(globals()) | set(dir(_runtime_module)))
+    """Expose canonical intelligence attributes in interactive discovery."""
+
+    return canonical_module_dir(globals(), _CANONICAL_PACKAGE)

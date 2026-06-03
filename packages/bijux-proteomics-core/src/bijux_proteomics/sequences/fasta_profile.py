@@ -14,6 +14,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.sequences.core import (
     NormalizedProteinRecord,
     RejectedFastaRecord,
+    SequenceValidationIssue,
     build_fasta_stats,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -72,6 +73,19 @@ class FastaOrganismProfileEntry(JsonModel):
     contaminant_count: int = Field(..., ge=0)
 
 
+class FastaInvalidSequenceProfileEntry(JsonModel):
+    """One rejected FASTA row with row-level invalid-sequence reasons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_identifier: str = Field(..., min_length=1)
+    source_header: str = Field(..., min_length=1)
+    primary_issue_code: str = Field(..., min_length=1)
+    primary_issue_message: str = Field(..., min_length=1)
+    issue_codes: tuple[str, ...] = Field(default_factory=tuple)
+    issue_messages: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class FastaDatabaseProfile(JsonModel):
     """Full FASTA database profile with summary and ledgers."""
 
@@ -82,6 +96,9 @@ class FastaDatabaseProfile(JsonModel):
         default_factory=tuple
     )
     organism_distribution: tuple[FastaOrganismProfileEntry, ...] = Field(
+        default_factory=tuple
+    )
+    invalid_sequence_report: tuple[FastaInvalidSequenceProfileEntry, ...] = Field(
         default_factory=tuple
     )
 
@@ -114,6 +131,7 @@ def build_fasta_database_profile(
         summary=summary,
         length_distribution=_build_length_distribution(records),
         organism_distribution=_build_organism_distribution(records),
+        invalid_sequence_report=_build_invalid_sequence_report(rejected_records),
     )
 
 
@@ -204,6 +222,31 @@ def render_fasta_profile_organism_distribution_tsv(
     )
 
 
+def render_fasta_profile_invalid_sequence_tsv(profile: FastaDatabaseProfile) -> str:
+    """Render rejected invalid-sequence rows as TSV."""
+    return _render_tsv(
+        (
+            "source_identifier",
+            "source_header",
+            "primary_issue_code",
+            "primary_issue_message",
+            "issue_codes",
+            "issue_messages",
+        ),
+        (
+            (
+                row.source_identifier,
+                row.source_header,
+                row.primary_issue_code,
+                row.primary_issue_message,
+                "|".join(row.issue_codes),
+                "|".join(row.issue_messages),
+            )
+            for row in profile.invalid_sequence_report
+        ),
+    )
+
+
 def _build_length_distribution(
     records: tuple[NormalizedProteinRecord, ...],
 ) -> tuple[FastaLengthDistributionBin, ...]:
@@ -246,6 +289,47 @@ def _build_organism_distribution(
         )
         for organism, members in ordered
     )
+
+
+def _build_invalid_sequence_report(
+    rejected_records: tuple[RejectedFastaRecord, ...],
+) -> tuple[FastaInvalidSequenceProfileEntry, ...]:
+    rows: list[FastaInvalidSequenceProfileEntry] = []
+    for rejected in rejected_records:
+        sequence_issues = tuple(
+            issue for issue in rejected.issues if issue.code != "duplicate_accession"
+        )
+        if not sequence_issues:
+            continue
+        primary_issue = _select_primary_invalid_sequence_issue(sequence_issues)
+        rows.append(
+            FastaInvalidSequenceProfileEntry(
+                source_identifier=rejected.source_identifier,
+                source_header=rejected.source_header,
+                primary_issue_code=primary_issue.code,
+                primary_issue_message=primary_issue.message,
+                issue_codes=tuple(issue.code for issue in sequence_issues),
+                issue_messages=tuple(issue.message for issue in sequence_issues),
+            )
+        )
+    return tuple(rows)
+
+
+def _select_primary_invalid_sequence_issue(
+    issues: tuple[SequenceValidationIssue, ...],
+) -> SequenceValidationIssue:
+    preferred_codes = (
+        "empty_sequence",
+        "invalid_character",
+        "stop_codon",
+        "ambiguous_residue",
+        "unsupported_residue",
+    )
+    for code in preferred_codes:
+        for issue in issues:
+            if issue.code == code:
+                return issue
+    return issues[0]
 
 
 def _render_tsv(

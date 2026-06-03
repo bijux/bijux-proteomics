@@ -35,11 +35,12 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics` is the install and command alias for bijux-proteomics-core.
+`bijux-proteomics` is the distribution-name alias for the canonical core owner
+`bijux-proteomics-core`.
+It is the install and command alias for bijux-proteomics-core.
 
-Use this distribution when you want the canonical core package under the
-top-level `bijux-proteomics` name on PyPI without creating a second scientific
-owner surface.
+Use this package when you need the flagship install name on PyPI while keeping
+all scientific behavior owned by the canonical core package.
 
 ## Installation
 
@@ -47,24 +48,103 @@ owner surface.
 pip install bijux-proteomics
 ```
 
-This alias installs the canonical core distribution:
-`bijux-proteomics-core`.
+## Public APIs
 
-The stable Python import root remains `bijux_proteomics`, and the flagship core
-CLI command remains `bijux-proteomics`.
+The distribution alias installs the canonical core package, so the public
+Python surface remains `bijux_proteomics`:
 
-## Route To Canonical Docs
+```python
+from bijux_proteomics import parse_fasta_document
+
+report = parse_fasta_document(">sp|P11111|PTM1 Protein 1\nMPEPTIDEK\n")
+
+assert report.total_records == 1
+assert len(report.accepted_records) == 1
+assert report.accepted_records[0].canonical_accession == "P11111"
+```
+
+## Package identity
+
+- Distribution name: `bijux-proteomics`
+- Import root: `bijux_proteomics`
+- Canonical owner package: `bijux-proteomics-core`
+- Canonical owner docs: `packages/bijux-proteomics-core/README.md`
+
+## Package boundaries
+
+- this package owns distribution-name compatibility and publication metadata
+- scientific parsing, quantification, review, and workflow logic remain owned
+  by `bijux-proteomics-core`
+- new behavior must land in the canonical owner before this alias surface
+  changes
+
+## What this package must not do
+
+- introduce independent scientific semantics or workflow logic
+- fork the canonical `bijux_proteomics` import surface
+- become a second release-policy owner for the core package
+
+## Contract checkpoints
+
+- the install alias must continue to resolve to the canonical core owner
+- docs must state clearly that `bijux-proteomics-core` owns the behavior
+- compatibility changes must stay covered by alias-package tests
+
+## Choose this package when
+
+- you want the flagship `bijux-proteomics` distribution name on PyPI
+- deployment tooling depends on the canonical install alias rather than the
+  owner package name
+- packaging or documentation work needs the install alias without changing core
+  behavior
+
+## Route elsewhere when
+
+- the change alters scientific parsing, review, workflow, or result semantics
+- the work needs a new Python export that is not already owned by core
+- the change would make this package more than a distribution alias
+
+## Verification route
+
+- run the alias compatibility tests before treating install-name changes as
+  safe
+- review `docs/ARCHITECTURE.md`, `docs/BOUNDARIES.md`, and `docs/CONTRACTS.md`
+  when the alias claims shift
+- check the canonical core README and tests when the proposed change touches
+  user-facing scientific behavior
+
+## Review questions
+
+- does the change preserve this package as a distribution alias only
+- is the canonical owner still explicit in both docs and behavior
+- would the change still make sense if all scientific logic stayed in core
+
+## Escalation route
+
+- route the work to `bijux-proteomics-core` when any scientific behavior needs
+  to change
+- stop and review alias boundaries when the proposal starts adding
+  package-specific behavior
+- escalate before release when dependency or metadata changes could confuse
+  canonical owner selection
+
+## Consumer impact signals
+
+- treat install-name, dependency, or metadata changes as high-impact because
+  they affect package resolution
+- expect review from core owners when alias docs or expectations shift
+- expect a smaller release burden when the change only clarifies routing or
+  compatibility wording
+
+## Explicit non-goals
+
+- this package does not own assay-processing or workflow semantics
+- this package does not define runtime, intelligence, knowledge, or lab policy
+- this package does not replace the canonical core release surface
+
+## Documentation
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- [Core package handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-
-## Boundary
-
-This package exists to reserve the matching distribution name and install the
-canonical core command surface. It does not own assay-processing logic,
-runtime orchestration, recommendation policy, or lab planning.
-
-## Changelog
-
+- [Canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Changelog](CHANGELOG.md)

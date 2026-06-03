@@ -162,30 +162,25 @@ def provider_metadata() -> dict[str, ProviderMetadata]:
     metadata: dict[str, ProviderMetadata] = {
         HeuristicStructureProvider.name: HeuristicStructureProvider.metadata,
     }
-    try:
-        from bijux_proteomics_runtime.providers.local import (
-            LocalESMFoldProvider,
-            LocalRoseTTAFoldProvider,
-        )
+    from bijux_proteomics_runtime.providers import local as local_providers
 
-        metadata[LocalESMFoldProvider.name] = LocalESMFoldProvider.metadata
-        metadata[LocalRoseTTAFoldProvider.name] = LocalRoseTTAFoldProvider.metadata
-    except ImportError:
-        return metadata
-    try:
-        from bijux_proteomics_runtime.providers.remote import APIColabFoldProvider
+    local_esmfold = getattr(local_providers, "LocalESMFoldProvider", None)
+    if local_esmfold is not None:
+        metadata[local_esmfold.name] = local_esmfold.metadata
+    local_rosettafold = getattr(local_providers, "LocalRoseTTAFoldProvider", None)
+    if local_rosettafold is not None:
+        metadata[local_rosettafold.name] = local_rosettafold.metadata
+    from bijux_proteomics_runtime.providers.remote import APIColabFoldProvider
 
-        metadata[APIColabFoldProvider.name] = APIColabFoldProvider.metadata
-        metadata["api_openprotein_esmfold"] = ProviderMetadata(
-            name="api_openprotein_esmfold",
-            experimental=True,
-        )
-        metadata["api_openprotein_alphafold"] = ProviderMetadata(
-            name="api_openprotein_alphafold",
-            experimental=True,
-        )
-    except ImportError:
-        return metadata
+    metadata[APIColabFoldProvider.name] = APIColabFoldProvider.metadata
+    metadata["api_openprotein_esmfold"] = ProviderMetadata(
+        name="api_openprotein_esmfold",
+        experimental=True,
+    )
+    metadata["api_openprotein_alphafold"] = ProviderMetadata(
+        name="api_openprotein_alphafold",
+        experimental=True,
+    )
     return metadata
 
 

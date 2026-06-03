@@ -7,43 +7,129 @@ from importlib import import_module
 from types import ModuleType
 
 import bijux_proteomics_intelligence
+from bijux_proteomics_intelligence.public_api import (
+    list_intelligence_root_api_entries,
+)
 
 
 def test_intelligence_public_api_exposes_curated_owner_namespaces() -> None:
     assert bijux_proteomics_intelligence.__all__ == [
+        "belief_audit",
         "candidates",
+        "claims",
+        "contradictions",
+        "falsifiers",
         "governance",
         "interpretation",
         "judgment",
         "learning",
+        "next_steps",
         "posture",
+        "query",
+        "refusal",
         "reviews",
     ]
 
 
+def test_intelligence_public_api_module_matches_root_exports() -> None:
+    assert tuple(
+        entry.export_name for entry in list_intelligence_root_api_entries()
+    ) == tuple(bijux_proteomics_intelligence.__all__)
+
+
 def test_intelligence_public_api_loads_owner_modules_lazily() -> None:
     assert isinstance(bijux_proteomics_intelligence.candidates, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.belief_audit, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.claims, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.contradictions, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.falsifiers, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.governance, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.interpretation, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.judgment, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.learning, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.next_steps, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.posture, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.query, ModuleType)
+    assert isinstance(bijux_proteomics_intelligence.refusal, ModuleType)
     assert isinstance(bijux_proteomics_intelligence.reviews, ModuleType)
 
+    assert bijux_proteomics_intelligence.belief_audit.__name__ == (
+        "bijux_proteomics_intelligence.belief_audit"
+    )
     assert bijux_proteomics_intelligence.candidates.__name__ == (
         "bijux_proteomics_intelligence.candidates"
     )
+    assert bijux_proteomics_intelligence.claims.__name__ == (
+        "bijux_proteomics_intelligence.claims"
+    )
+    assert bijux_proteomics_intelligence.contradictions.__name__ == (
+        "bijux_proteomics_intelligence.contradictions"
+    )
+    assert bijux_proteomics_intelligence.falsifiers.__name__ == (
+        "bijux_proteomics_intelligence.falsifiers"
+    )
     assert bijux_proteomics_intelligence.governance.__name__ == (
         "bijux_proteomics_intelligence.governance"
+    )
+    assert bijux_proteomics_intelligence.next_steps.__name__ == (
+        "bijux_proteomics_intelligence.next_steps"
+    )
+    assert bijux_proteomics_intelligence.query.__name__ == (
+        "bijux_proteomics_intelligence.query"
+    )
+    assert bijux_proteomics_intelligence.refusal.__name__ == (
+        "bijux_proteomics_intelligence.refusal"
     )
     assert bijux_proteomics_intelligence.reviews.__name__ == (
         "bijux_proteomics_intelligence.reviews"
     )
     assert (
         import_module(
+            "bijux_proteomics_intelligence.belief_audit"
+        ).build_belief_audit.__name__
+        == "build_belief_audit"
+    )
+    assert (
+        import_module(
             "bijux_proteomics_intelligence.candidates.selection"
         ).select_candidates.__name__
         == "select_candidates"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.claims.support"
+        ).validate_claim_support.__name__
+        == "validate_claim_support"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.contradictions"
+        ).find_claim_contradictions.__name__
+        == "find_claim_contradictions"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.falsifiers"
+        ).generate_falsifiers.__name__
+        == "generate_falsifiers"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.next_steps"
+        ).recommend_next_experiments.__name__
+        == "recommend_next_experiments"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.query"
+        ).answer_result_question.__name__
+        == "answer_result_question"
+    )
+    assert (
+        import_module(
+            "bijux_proteomics_intelligence.refusal"
+        ).refuse_unsupported_claims.__name__
+        == "refuse_unsupported_claims"
     )
     assert (
         import_module(

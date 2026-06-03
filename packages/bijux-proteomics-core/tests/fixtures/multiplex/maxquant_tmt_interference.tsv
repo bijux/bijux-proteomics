@@ -1,0 +1,5 @@
+id	Modified sequence	Leading proteins	Experiment	Isolation interference [%]	Reporter intensity corrected 126	Reporter intensity corrected 127N	Reporter intensity corrected 128N
+1	PEPTIDE	P001	plex-a	8	1200	1400	6000
+2	DPEPTIDE	P002	plex-a	35	800	920	4100
+3	PEPTIDE	P001	plex-b	12	1500	1700	6500
+4	DPEPTIDE	P002	plex-b	42	900	1030	4300

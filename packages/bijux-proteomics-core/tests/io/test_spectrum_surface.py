@@ -307,6 +307,7 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
     assert annotation.document_schema.document_kind == "spectrum_annotation"
     assert annotation.peptide == "PEPTIDE"
     assert annotation.matched_peak_count > 0
+    assert annotation.explained_intensity > 0.0
     assert annotation.explained_intensity_fraction > 0.0
     labels = {match.fragment_label for match in annotation.matches}
     assert "b2+1" in labels
@@ -316,7 +317,10 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
     try:
         export_spectrum_annotation_tsv(annotation, tsv_path)
         header = tsv_path.read_text().splitlines()[0]
-        assert header.startswith("spectrum_id\tpeptide\tseries")
+        assert (
+            header
+            == "spectrum_id\tpeptide\ttolerance_mode\tseries\tordinal\tfragment_charge\tspan_start\tspan_end\tfragment_sequence\tfragment_mz\tneutral_loss\tobserved_mz\tobserved_intensity\tmass_error_da\tmass_error_ppm\tlabel"
+        )
     finally:
         tsv_path.unlink(missing_ok=True)
 
@@ -358,6 +362,11 @@ def test_spectrum_annotation_supports_ppm_tolerance_and_reports_explained_intens
     assert annotation.tolerance_ppm == 20.0
     assert annotation.matched_peak_count == 1
     assert annotation.unmatched_peak_count == 1
+    assert tuple((peak.mz, peak.intensity) for peak in annotation.unmatched_peaks) == (
+        (700.0, 20.0),
+    )
+    assert annotation.explained_intensity == 80.0
+    assert annotation.total_observed_intensity == 100.0
     assert annotation.explained_intensity_fraction == 0.8
 
 
@@ -383,9 +392,7 @@ def test_spectrum_annotation_reports_tolerance_driven_ambiguity_warnings() -> No
         include_neutral_losses=False,
     )
 
-    kinds = {warning.kind.value for warning in annotation.ambiguity_warnings}
-    assert "fragment_to_multiple_peaks" in kinds
-    assert "peak_to_multiple_fragments" in kinds
+    assert annotation.ambiguity_warnings == ()
 
 
 def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:

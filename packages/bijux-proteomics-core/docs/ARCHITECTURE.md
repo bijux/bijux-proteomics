@@ -29,6 +29,10 @@ runtime-agnostic workflow seams.
   identification contracts
 - `quantification/`, `study/`, `ptm/`, and `dia/` own quantitative, laboratory,
   PTM, and DIA scientific meaning
+- `interpretation/` owns typed scientific interpretation helpers over already-normalized core evidence
+- `isotope_labeling/`, `multiplex/`, and `targeted/` own label-aware, multiplexed, and targeted assay scientific contracts
+- `lab/` owns core-side laboratory design and review models that remain runtime-agnostic
+- `panels/` and `proteoforms/` own panel-facing and proteoform-specific scientific result surfaces
 - `review/` owns decision briefs, collaboration bundles, and structure-report
   surfaces
 - `workflow/` owns scientific workflow blueprints
@@ -36,6 +40,12 @@ runtime-agnostic workflow seams.
 - `benchmarks/` owns packaged corpus, adoption, and benchmark evidence surfaces
 - `governance/` owns the machine-readable package charter and owner-map
   boundaries for core scientific surfaces
+
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics`
+- Top-level families: `benchmarks/`, `biology/`, `chemistry/`, `dia/`, `domain/`, `governance/`, `identification/`, `interfaces/`, `interpretation/`, `io/`, `isotope_labeling/`, `lab/`, `multiplex/`, `panels/`, `proteoforms/`, `ptm/`, `quantification/`, `review/`, `sequences/`, `study/`, `targeted/`, `workflow/`
+- Root modules: `_atomic_files.py`, `_output_tables.py`, `_scientific_tables.py`, `_tabular.py`, `programs.py`, `public_api.py`, `scientific_tables.py`, `tabular.py`
 
 ## Dependency direction
 

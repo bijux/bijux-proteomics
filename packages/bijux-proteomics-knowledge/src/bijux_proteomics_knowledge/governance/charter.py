@@ -69,9 +69,12 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.ONTOLOGIES,
-        owned_surface="Ontology mappings that normalize shared scientific language across workflows.",
-        required_modules=("references/grounding/ontologies.py",),
-        release_blocker="Knowledge cannot ship if controlled scientific terms resolve through ad hoc local aliases.",
+        owned_surface="Ontology mappings and exact identity resolvers that normalize shared scientific language and curated entity naming across workflows.",
+        required_modules=(
+            "identity/proteins.py",
+            "references/grounding/ontologies.py",
+        ),
+        release_blocker="Knowledge cannot ship if controlled scientific terms or curated identity aliases resolve through ad hoc local aliases.",
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
@@ -95,8 +98,16 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        owned_surface="Scientific context entries and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
+        owned_surface="Scientific context entries, exact protein feature overlap queries, residue-specific kinase-substrate resolution, source-required disease and phenotype resolution, direct-versus-neighbor drug-target resolution, pathway coverage-aware membership resolution, sparse-complex confidence resolution, cross-species ortholog mapping that preserves ambiguity, knowledge coverage downgrades for sparse pathway or regulator annotation, and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
+            "coverage/report.py",
+            "complexes/members.py",
+            "disease/terms.py",
+            "drugs/targets.py",
+            "features/overlaps.py",
+            "kinases/substrates.py",
+            "orthologs/mapping.py",
+            "pathways/members.py",
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
             "reviews/decision_briefs.py",
@@ -112,6 +123,15 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The package root is an export surface and deliberately forwards stable scientific memory entrypoints.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="public_api.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="The machine-readable root API contract keeps the supported curated-memory import surface explicit and release-auditable.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="governance/__init__.py",
@@ -137,6 +157,94 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="coverage/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The coverage package root groups annotation-coverage owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="coverage/report.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Knowledge coverage reporting keeps sparse pathway, PTM-site, and regulator annotation coverage explicit so downstream biological interpretation can be downgraded instead of overstated.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="complexes/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The complexes package root groups exact complex membership owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="complexes/members.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Complex membership resolution keeps observed and missing subunits explicit and lets sparse assemblies degrade to low confidence instead of overstating partial evidence.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="disease/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The disease package root groups exact disease and phenotype resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="disease/terms.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Disease and phenotype resolution keeps source-less annotations out of emitted term rows instead of silently manufacturing unsupported disease claims.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="drugs/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The drugs package root groups exact drug-target resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="drugs/targets.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Drug-target resolution keeps explicitly direct targets separate from pathway-neighbor annotations instead of promoting all drug-related rows into one direct-target tier.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="features/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The features package root groups exact overlap owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="features/overlaps.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Protein feature overlap resolution keeps inclusive protein-coordinate interpretation explicit instead of forcing downstream packages to reimplement boundary logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="identity/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The identity package root groups exact resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="identity/proteins.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.ONTOLOGIES,),
+        reason="Protein identity resolution keeps curated accession, alias, and species normalization explicit instead of forcing ambiguous aliases into one winner.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="kinases/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The kinases package root groups exact kinase-substrate resolver owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="kinases/substrates.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Kinase-substrate resolution keeps exact residue-position matches separate from weaker gene-equivalent aliases instead of collapsing all substrate evidence into one confidence tier.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="pathways/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The pathways package root groups exact pathway membership owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="pathways/members.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Pathway membership resolution keeps matched, missing, and unresolved pathway coverage explicit and lets confidence degrade with sparse member support.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/__init__.py",
@@ -166,6 +274,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Evidence memory keeps benchmark and context provenance attached to scientific records.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="orthologs/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The orthologs package root groups cross-species ortholog owners without separate curated logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="orthologs/mapping.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Cross-species ortholog mapping keeps one-to-many and many-to-many edges explicit and resolves source aliases without letting symbol matching become orthology.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/integrity/__init__.py",

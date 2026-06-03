@@ -1,0 +1,5 @@
+entity_id	condition_a	condition_b	contrast_name	observations_a	observations_b	complete_pair_count	zero_values_a	zero_values_b	not_observed_values_a	not_observed_values_b	filtered_values_a	filtered_values_b	mean_log2_abundance_a	mean_log2_abundance_b	log2_fold_change	p_value	adjusted_p_value	standard_error	confidence_interval_low	confidence_interval_high	effect_size_cohens_d	uncertainty_note
+P11111	control	treatment	treatment_vs_control	3	3	0	0	0	0	0	0	0	10.1	11.2	1.1	0.004	0.02	0.23	0.65	1.55	1.2	
+P22222	control	treatment	treatment_vs_control	3	3	0	0	0	0	0	0	0	9.9	10.1	0.2	0.16	0.2	0.29	-0.37	0.77	0.3	
+P33333	control	treatment	treatment_vs_control	3	3	0	0	0	0	0	0	0	10.6	9.6	-1	0.002	0.01	0.18	-1.35	-0.65	-1.5	
+P44444	control	treatment	treatment_vs_control	3	3	0	0	0	0	0	0	0	10.9	9.7	-1.2	0.005	0.03	0.2	-1.59	-0.81	-1.3	

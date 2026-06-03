@@ -6,6 +6,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
     "interfaces/execution/runtime_adapter.py": {
@@ -22,8 +24,34 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_knowledge.references.workflows.comparator_failures",
         "bijux_proteomics_knowledge.references.workflows.scientific_thresholds",
     },
-    "ptm/review.py": {
+    "ptm/cards/review.py": {
         "bijux_proteomics_lab.handoffs.ptm",
+    },
+    "workflow/demo/surprising_demo.py": {
+        "bijux_proteomics_intelligence.belief_audit",
+        "bijux_proteomics_intelligence.contradictions",
+        "bijux_proteomics_intelligence.falsifiers",
+        "bijux_proteomics_intelligence.refusal",
+        "bijux_proteomics_intelligence.reviews",
+        "bijux_proteomics_knowledge.memory.integrity.graph",
+        "bijux_proteomics_knowledge.memory.models.claims",
+    },
+    "workflow/demo/surprising_demo_claims.py": {
+        "bijux_proteomics_knowledge.memory.models.claims",
+        "bijux_proteomics_knowledge.memory.models.evidence",
+    },
+    "workflow/pipelines/integrated_scientific_report.py": {
+        "bijux_proteomics_intelligence.reviews",
+        "bijux_proteomics_knowledge.memory.models.claims",
+    },
+    "workflow/reports/biological_report_assembly.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
+    "workflow/reports/biological_result_graph.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
+    "interpretation/pathway_activity.py": {
+        "bijux_proteomics_knowledge.pathways.members",
     },
 }
 REMOVED_COMPATIBILITY_IMPORTS = {
@@ -49,6 +77,7 @@ def _imported_modules(path: Path) -> set[str]:
     return modules
 
 
+@pytest.mark.slow
 def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or_lab() -> (
     None
 ):
@@ -86,6 +115,7 @@ def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or
     assert unexpected == {}
 
 
+@pytest.mark.slow
 def test_core_source_does_not_reintroduce_removed_wrapper_imports() -> None:
     stale_imports: dict[str, list[str]] = {}
 

@@ -3,18 +3,18 @@
 
 [metrics]
 root_public_symbol_count = 15
-root_consumer_module_count = 214
+root_consumer_module_count = 519
 root_consumer_distribution_count = 6
-root_consumer_modules_per_symbol = 14.27
+root_consumer_modules_per_symbol = 34.6
 direct_surface_count = 11
-direct_surface_consumer_module_count = 48
+direct_surface_consumer_module_count = 51
 compatibility_wrapper_count = 0
 live_compatibility_wrapper_count = 0
-live_direct_export_count = 15
-dead_direct_export_count = 30
+live_direct_export_count = 21
+dead_direct_export_count = 31
 
 [guard]
 baseline_root_public_symbol_count = 15
-baseline_root_consumer_module_count = 214
+baseline_root_consumer_module_count = 519
 baseline_root_consumer_distribution_count = 6
-baseline_root_consumer_modules_per_symbol = 14.27
+baseline_root_consumer_modules_per_symbol = 34.6

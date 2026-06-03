@@ -1,0 +1,5 @@
+target_id	target_type	protein_id	peptide_sequence	modified_peptide	expected_charge	display_name
+lfq-apeptide	peptide	P001	APEPTIDE	APEPTIDE	2	APEPTIDE biomarker
+lfq-cpeptide	peptide	P002	CPEPTIDE	CPEPTIDE	2	CPEPTIDE biomarker
+lfq-p003	protein	P003				Protein 3 biomarker
+lfq-missing-peptide	peptide		ZPEPTIDE	ZPEPTIDE	2	Missing peptide

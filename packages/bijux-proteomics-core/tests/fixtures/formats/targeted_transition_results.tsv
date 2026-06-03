@@ -1,0 +1,7 @@
+transition_id	precursor_id	precursor_charge	sample_id	run_id	peptide_sequence	protein_ref	fragment_label	precursor_mz	fragment_mz	intensity	retention_time_minutes	quality_flag
+tr_y7_a	prec_a	2	s1	run_a	PEPTIDEK	P001	y7	445.2	789.4	120000	12.5	pass
+tr_y8_a	prec_a	2	s1	run_a	PEPTIDEK	P001	y8	445.2	902.5	40000	12.6	pass
+tr_y7_a	prec_a	2	s2	run_b	PEPTIDEK	P001	y7	445.2	789.4	110000	12.4	pass
+tr_y8_a	prec_a	2	s2	run_b	PEPTIDEK	P001	y8	445.2	902.5	9000	12.7	interference
+tr_y5_b	prec_b	3	s1	run_a	ACDMPEP	P002	y5	512.3	602.3	70000	18.1	pass
+tr_y6_b	prec_b	3	s1	run_a	ACDMPEP	P002	y6	512.3	715.4	6000	18.2	low_signal

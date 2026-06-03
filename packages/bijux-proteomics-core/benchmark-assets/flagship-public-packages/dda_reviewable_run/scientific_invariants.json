@@ -29,7 +29,7 @@
     "expected_relation": "less_or_equal",
     "invariant_id": "dda_reviewable_run:maxquant_observed_q_ceiling",
     "metric_name": "maxquant observed q-value ceiling",
-    "observed_numeric": 0.039,
+    "observed_numeric": 0.0,
     "summary": "The pinned MaxQuant export stays inside the tracked q-value ceiling used by the reviewable package."
   },
   {

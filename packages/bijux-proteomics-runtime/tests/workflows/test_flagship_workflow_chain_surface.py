@@ -121,7 +121,7 @@ END IONS
                 replicate=2,
                 fraction=1,
                 spectra_file="c2.mzML",
-                batch="B1",
+                batch="B2",
             ),
             ExperimentalDesignEntry(
                 sample_id="T1",
@@ -129,7 +129,7 @@ END IONS
                 replicate=1,
                 fraction=1,
                 spectra_file="t1.mzML",
-                batch="B2",
+                batch="B1",
             ),
             ExperimentalDesignEntry(
                 sample_id="T2",

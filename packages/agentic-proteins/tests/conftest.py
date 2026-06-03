@@ -8,8 +8,16 @@ import sys
 
 import pytest
 
+from bijux_proteomics_foundation.testing.pytest_artifacts import (
+    configure_hypothesis_artifacts,
+)
+from bijux_proteomics_foundation.testing.pytest_markers import (
+    apply_default_test_markers,
+)
+
 ROOT = Path(__file__).resolve().parents[3]
 PACKAGE_ROOT = ROOT / "packages" / "agentic-proteins"
+configure_hypothesis_artifacts(ROOT)
 for path in (ROOT, PACKAGE_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
@@ -18,16 +26,16 @@ for path in (ROOT, PACKAGE_ROOT):
 def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:
-    for item in items:
-        path = Path(str(item.fspath))
-        parts = path.parts
-        if "tests" not in parts:
-            continue
-        if "integration" in parts:
-            item.add_marker(pytest.mark.integration)
-        elif "e2e" in parts:
-            item.add_marker(pytest.mark.e2e)
-        elif "local_models" in parts:
-            item.add_marker(pytest.mark.real_local)
-        else:
-            item.add_marker(pytest.mark.unit)
+    apply_default_test_markers(
+        items,
+        integration_dirs=(
+            "agents",
+            "execution",
+            "integration",
+            "interfaces",
+            "orchestration",
+            "providers",
+        ),
+        e2e_dirs=("e2e",),
+        real_local_dirs=("local_models",),
+    )

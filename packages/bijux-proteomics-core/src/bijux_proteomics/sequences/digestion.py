@@ -9,12 +9,16 @@ from enum import StrEnum
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Literal
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import calculate_monoisotopic_peptide_mass
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation.outcomes.optional_dependencies import (
+    import_optional_module,
+)
 
 
 class ProteaseCleavageMode(StrEnum):
@@ -31,15 +35,62 @@ class ProteaseRule(JsonModel):
 
     name: str = Field(..., min_length=1)
     cleavage_mode: ProteaseCleavageMode = ProteaseCleavageMode.C_TERMINAL
-    cleavage_residues: str = Field(..., min_length=1)
+    cleavage_residues: str = ""
     blocked_by_next: str = ""
     blocked_by_previous: str = ""
+    cleavage_pattern: str | None = None
+    cleavage_cut_side: Literal["before", "after"] | None = None
+    cleavage_group: str | None = None
     description: str = ""
 
     @field_validator("cleavage_residues", "blocked_by_next", "blocked_by_previous")
     @classmethod
     def _normalize_residue_token(cls, value: str) -> str:
         return "".join(sorted(set(value.strip().upper())))
+
+    @model_validator(mode="after")
+    def _validate_cleavage_contract(self) -> ProteaseRule:
+        has_pattern = self.cleavage_pattern is not None and self.cleavage_pattern != ""
+        has_residues = self.cleavage_residues != ""
+        if has_pattern == has_residues:
+            raise ValueError(
+                "protease rules must define exactly one of cleavage_residues or cleavage_pattern"
+            )
+        if not has_pattern:
+            if self.cleavage_cut_side is not None or self.cleavage_group is not None:
+                raise ValueError(
+                    "residue-based protease rules cannot define regex cleavage cut controls"
+                )
+            return self
+        if self.cleavage_cut_side is None:
+            raise ValueError(
+                "regex protease rules must define cleavage_cut_side as 'before' or 'after'"
+            )
+        if self.blocked_by_next or self.blocked_by_previous:
+            raise ValueError(
+                "regex protease rules must encode blocking behavior inside cleavage_pattern"
+            )
+        cleavage_pattern = self.cleavage_pattern
+        if cleavage_pattern is None:
+            raise ValueError("regex protease rules must declare cleavage_pattern")
+        try:
+            compiled = re.compile(cleavage_pattern)
+        except re.error as exc:
+            raise ValueError(
+                f"invalid regex cleavage_pattern {cleavage_pattern!r}: {exc}"
+            ) from exc
+        cleavage_group = self.cleavage_group
+        if cleavage_group is not None and cleavage_group not in ("", "0"):
+            if cleavage_group.isdigit():
+                if int(cleavage_group) > compiled.groups:
+                    raise ValueError(
+                        f"regex cleavage_group {cleavage_group!r} is not present in cleavage_pattern"
+                    )
+            elif cleavage_group not in compiled.groupindex:
+                raise ValueError(
+                    f"regex cleavage_group {cleavage_group!r} is not present in cleavage_pattern"
+                )
+        return self
 
 
 class PeptideDigestionMode(StrEnum):
@@ -195,9 +246,12 @@ class DigestPolicy(JsonModel):
 
     protease: str = Field(..., min_length=1)
     cleavage_mode: ProteaseCleavageMode
-    cleavage_residues: str = Field(..., min_length=1)
+    cleavage_residues: str = ""
     blocked_by_next: str = ""
     blocked_by_previous: str = ""
+    cleavage_pattern: str | None = None
+    cleavage_cut_side: Literal["before", "after"] | None = None
+    cleavage_group: str | None = None
     digestion_mode: PeptideDigestionMode
     missed_cleavages: int = Field(..., ge=0)
     min_length: int | None = None
@@ -297,6 +351,7 @@ def parse_custom_protease_rule(
     # - ``after`` or ``before`` for cleavage residues
     # - ``block_next`` for residues that block a C-terminal cut
     # - ``block_previous`` for residues that block an N-terminal cut
+    # - ``pattern`` with ``cut_after`` or ``cut_before`` for regex-backed rules
     # - ``description`` for human-readable metadata
 
     fields: dict[str, str] = {}
@@ -313,11 +368,49 @@ def parse_custom_protease_rule(
 
     after = fields.get("after")
     before = fields.get("before")
+    pattern = fields.get("pattern")
+    cut_after = fields.get("cut_after")
+    cut_before = fields.get("cut_before")
+
+    has_residue_rule = bool(after) or bool(before)
+    has_regex_rule = bool(pattern) or bool(cut_after) or bool(cut_before)
+    if has_residue_rule and has_regex_rule:
+        raise ValueError(
+            "custom protease rule must use either residue keys or regex keys, not both"
+        )
+    if not has_residue_rule and not has_regex_rule:
+        raise ValueError(
+            "custom protease rule must define exactly one cleavage direction using residue cleavage keys or regex cleavage keys"
+        )
+
+    if has_regex_rule:
+        if not pattern:
+            raise ValueError("regex protease rules must define 'pattern'")
+        if bool(cut_after) == bool(cut_before):
+            raise ValueError(
+                "regex protease rule must define exactly one of 'cut_after' or 'cut_before'"
+            )
+        if "block_next" in fields or "block_previous" in fields:
+            raise ValueError(
+                "regex protease rules must encode blocking behavior inside 'pattern'"
+            )
+        return ProteaseRule(
+            name=name,
+            cleavage_mode=(
+                ProteaseCleavageMode.C_TERMINAL
+                if cut_after is not None
+                else ProteaseCleavageMode.N_TERMINAL
+            ),
+            cleavage_pattern=pattern,
+            cleavage_cut_side="after" if cut_after is not None else "before",
+            cleavage_group=(cut_after or cut_before or "0"),
+            description=fields.get("description", ""),
+        )
+
     if bool(after) == bool(before):
         raise ValueError(
             "custom protease rule must define exactly one of 'after' or 'before'"
         )
-
     cleavage_mode = (
         ProteaseCleavageMode.C_TERMINAL
         if after is not None
@@ -675,13 +768,18 @@ def export_peptides_jsonl(peptides: tuple[DigestedPeptide, ...], path: Path) -> 
 
 def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
     """Write an optional Parquet export for digested peptides."""
-    try:
-        import pyarrow as pa  # type: ignore[import-not-found]
-        import pyarrow.parquet as pq  # type: ignore[import-not-found]
-    except ImportError as exc:
-        raise RuntimeError(
-            "Parquet export requires optional dependency 'pyarrow'"
-        ) from exc
+    pa = import_optional_module(
+        "pyarrow",
+        dependency_name="pyarrow",
+        feature_name="parquet peptide export",
+        install_hint="pip install bijux-proteomics-core[parquet]",
+    )
+    pq = import_optional_module(
+        "pyarrow.parquet",
+        dependency_name="pyarrow",
+        feature_name="parquet peptide export",
+        install_hint="pip install bijux-proteomics-core[parquet]",
+    )
 
     rows = []
     for peptide in peptides:
@@ -796,6 +894,9 @@ def build_digest_policy(
         cleavage_residues=rule.cleavage_residues,
         blocked_by_next=rule.blocked_by_next,
         blocked_by_previous=rule.blocked_by_previous,
+        cleavage_pattern=rule.cleavage_pattern,
+        cleavage_cut_side=rule.cleavage_cut_side,
+        cleavage_group=rule.cleavage_group,
         digestion_mode=digestion_mode,
         missed_cleavages=missed_cleavages,
         min_length=min_length,
@@ -900,26 +1001,8 @@ def count_missed_cleavages(
     if len(residues) < 2:
         return 0
     rule = resolve_protease_rule(protease) if isinstance(protease, str) else protease
-    count = 0
-    if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
-        for index in range(len(residues) - 1):
-            residue = residues[index]
-            next_residue = residues[index + 1]
-            if (
-                residue in rule.cleavage_residues
-                and next_residue not in rule.blocked_by_next
-            ):
-                count += 1
-        return count
-    for index in range(1, len(residues)):
-        residue = residues[index]
-        previous_residue = residues[index - 1]
-        if (
-            residue in rule.cleavage_residues
-            and previous_residue not in rule.blocked_by_previous
-        ):
-            count += 1
-    return count
+    boundaries = _full_digest_boundaries(residues, rule)
+    return max(0, len(boundaries) - 2)
 
 
 def _classify_peptide_uniqueness_members(
@@ -938,6 +1021,12 @@ def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...
     boundaries = [0]
     if not sequence:
         return (0,)
+    if rule.cleavage_pattern is not None:
+        boundaries.extend(_regex_digest_boundaries(sequence, rule))
+        boundaries = sorted(set(boundaries))
+        if boundaries[-1] != len(sequence):
+            boundaries.append(len(sequence))
+        return tuple(boundaries)
 
     if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
         for index, residue in enumerate(sequence):
@@ -962,6 +1051,22 @@ def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...
 
     if boundaries[-1] != len(sequence):
         boundaries.append(len(sequence))
+    return tuple(boundaries)
+
+
+def _regex_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...]:
+    if rule.cleavage_pattern is None or rule.cleavage_cut_side is None:
+        return ()
+    compiled = re.compile(rule.cleavage_pattern)
+    group = None if rule.cleavage_group in (None, "", "0") else rule.cleavage_group
+    boundaries: list[int] = []
+    for match in compiled.finditer(sequence):
+        if rule.cleavage_cut_side == "after":
+            boundary = match.end() if group is None else match.end(group)
+        else:
+            boundary = match.start() if group is None else match.start(group)
+        if 0 < boundary < len(sequence):
+            boundaries.append(boundary)
     return tuple(boundaries)
 
 

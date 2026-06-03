@@ -124,6 +124,7 @@ from bijux_proteomics_runtime.runs.output import (
     ErrorDetail,
     RunOutput,
     RunStatus,
+    RuntimeFlowResult,
     VersionInfo,
 )
 from bijux_proteomics_runtime.runs.preflight import (
@@ -719,14 +720,14 @@ class RuntimeStateMachine:
         )
         self._state_machine = RunStateMachine()
 
-    def run(self, candidate: Candidate) -> dict[str, Any]:
+    def run(self, candidate: Candidate) -> RuntimeFlowResult:
         """run."""
         self._state_machine.transition("execute")
         result = self._loop_runner.run(candidate)
         self._state_machine.transition("evaluate")
         return self._finalize(cast(PipelineResult, result))
 
-    def _finalize(self, result: PipelineResult) -> dict[str, Any]:
+    def _finalize(self, result: PipelineResult) -> RuntimeFlowResult:
         """_finalize."""
         require_human = bool(self._run_context.config.get("require_human_decision"))
         if require_human:
@@ -755,10 +756,10 @@ class RuntimeStateMachine:
             and selection.human_required
             and not result.failure_type
         ):
-            decision_ok, errors, _payload = validate_human_decision(
+            decision_report = validate_human_decision(
                 self._run_context.workspace.human_decision_path
             )
-            if not decision_ok:
+            if not decision_report.passed:
                 result = PipelineResult(
                     candidate=result.candidate,
                     plan_fingerprint=result.plan_fingerprint,
@@ -778,17 +779,17 @@ class RuntimeStateMachine:
         write_json_atomic(
             self._run_context.workspace.config_path, self._run_context.config
         )
-        return {
-            "candidate_id": result.candidate.candidate_id,
-            "candidate": result.candidate.model_dump(),
-            "plan_fingerprint": result.plan_fingerprint,
-            "tool_status": result.tool_status,
-            "report": result.report,
-            "qc_status": result.qc_status.value,
-            "coordinator_decision": result.coordinator_decision.value,
-            "failure_type": result.failure_type,
-            "lifecycle_state": lifecycle_state,
-        }
+        return RuntimeFlowResult(
+            candidate_id=result.candidate.candidate_id,
+            candidate=result.candidate,
+            plan_fingerprint=result.plan_fingerprint,
+            tool_status=result.tool_status,
+            report_raw_json=result.report,
+            qc_status=result.qc_status,
+            coordinator_decision=result.coordinator_decision,
+            failure_type=result.failure_type,
+            lifecycle_state=lifecycle_state,
+        )
 
 
 class RunManager:
@@ -842,11 +843,11 @@ class RunManager:
                 explicit_tool=tool is not None,
                 command="resume",
             )
-            failure_type = result.get("failure_type") or FailureType.NONE.value
+            failure_type = _result_failure_type(result) or FailureType.NONE.value
             status = "failure" if failure_type != FailureType.NONE.value else "success"
-            if result.get("tool_status") == "dry_run":
+            if _result_tool_status(result) == "dry_run":
                 status = "partial"
-            if result.get("lifecycle_state") == RunLifecycleState.HUMAN_REVIEW.value:
+            if _result_lifecycle_state(result) == RunLifecycleState.HUMAN_REVIEW.value:
                 status = "partial"
         except KeyboardInterrupt:
             status = "failure"
@@ -1102,11 +1103,11 @@ class RunManager:
                 explicit_tool=tool is not None,
                 command="run",
             )
-            failure_type = result.get("failure_type") or FailureType.NONE.value
+            failure_type = _result_failure_type(result) or FailureType.NONE.value
             status = "failure" if failure_type != FailureType.NONE.value else "success"
-            if result.get("tool_status") == "dry_run":
+            if _result_tool_status(result) == "dry_run":
                 status = "partial"
-            if result.get("lifecycle_state") == RunLifecycleState.HUMAN_REVIEW.value:
+            if _result_lifecycle_state(result) == RunLifecycleState.HUMAN_REVIEW.value:
                 status = "partial"
         except KeyboardInterrupt:
             status = "failure"
@@ -1135,7 +1136,7 @@ class RunManager:
         context: RunContext,
         warnings: list[str],
         selected_tool: Tool,
-        result: dict[str, Any],
+        result: RuntimeFlowResult | dict[str, Any],
         status: str,
         failure_type: str,
         command: str,
@@ -1148,8 +1149,8 @@ class RunManager:
             failure_type = FailureType.NONE.value
         output = RunOutput(
             run_id=context.run_id,
-            candidate_id=result.get("candidate_id") or f"{context.run_id}-c0",
-            lifecycle_state=result.get("lifecycle_state")
+            candidate_id=_result_candidate_id(result) or f"{context.run_id}-c0",
+            lifecycle_state=_result_lifecycle_state(result)
             or RunLifecycleState.PLANNED.value,
             status=RunStatus.PARTIAL
             if status == "partial"
@@ -1157,12 +1158,12 @@ class RunManager:
             if status == "success"
             else RunStatus.FAILURE,
             failure_type=failure_type or FailureType.UNKNOWN.value,
-            plan_fingerprint=result.get("plan_fingerprint") or "unknown",
-            tool_status=result.get("tool_status") or "unknown",
-            report=result.get("report", {}),
-            qc_status=QCStatus(result.get("qc_status") or QCStatus.REJECT.value),
+            plan_fingerprint=_result_plan_fingerprint(result) or "unknown",
+            tool_status=_result_tool_status(result) or "unknown",
+            report=_result_report_payload(result),
+            qc_status=QCStatus(_result_qc_status(result) or QCStatus.REJECT.value),
             coordinator_decision=CoordinatorDecisionType(
-                result.get("coordinator_decision")
+                _result_coordinator_decision(result)
                 or CoordinatorDecisionType.TERMINATE.value
             ),
             errors=(
@@ -1288,7 +1289,7 @@ class RunManager:
         tool: Tool | None,
         explicit_tool: bool = False,
         command: str = "run",
-    ) -> dict[str, Any]:
+    ) -> RuntimeFlowResult | dict[str, Any]:
         """_run_with_candidate."""
         if warnings:
             run_logger = context.logger.scope("run")
@@ -1379,10 +1380,9 @@ class RunManager:
                 warnings=capability_warnings,
             )
         result = run_flow(candidate, context, selected_tool)
-        if result.get("candidate"):
+        if isinstance(result, RuntimeFlowResult) and result.candidate is not None:
             store = CandidateStore(context.workspace.candidate_store_dir)
-            stored = Candidate.model_validate(result["candidate"])
-            store.update_candidate(stored)
+            store.update_candidate(result.candidate)
         return result
 
     def _fail_fast(
@@ -1478,6 +1478,68 @@ class RunManager:
             producer="bijux_proteomics_runtime.runs.manager",
         )
         return output.model_dump(mode="json")
+
+
+def _result_candidate_id(result: RuntimeFlowResult | dict[str, Any]) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.candidate_id
+    value = result.get("candidate_id")
+    return str(value) if value is not None else None
+
+
+def _result_lifecycle_state(result: RuntimeFlowResult | dict[str, Any]) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.lifecycle_state
+    value = result.get("lifecycle_state")
+    return str(value) if value is not None else None
+
+
+def _result_plan_fingerprint(
+    result: RuntimeFlowResult | dict[str, Any],
+) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.plan_fingerprint
+    value = result.get("plan_fingerprint")
+    return str(value) if value is not None else None
+
+
+def _result_tool_status(result: RuntimeFlowResult | dict[str, Any]) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.tool_status
+    value = result.get("tool_status")
+    return str(value) if value is not None else None
+
+
+def _result_report_payload(
+    result: RuntimeFlowResult | dict[str, Any],
+) -> dict[str, Any]:
+    if isinstance(result, RuntimeFlowResult):
+        return dict(result.report_raw_json)
+    payload = result.get("report", {})
+    return dict(payload) if isinstance(payload, dict) else {}
+
+
+def _result_qc_status(result: RuntimeFlowResult | dict[str, Any]) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.qc_status.value
+    value = result.get("qc_status")
+    return str(value) if value is not None else None
+
+
+def _result_coordinator_decision(
+    result: RuntimeFlowResult | dict[str, Any],
+) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.coordinator_decision.value
+    value = result.get("coordinator_decision")
+    return str(value) if value is not None else None
+
+
+def _result_failure_type(result: RuntimeFlowResult | dict[str, Any]) -> str | None:
+    if isinstance(result, RuntimeFlowResult):
+        return result.failure_type
+    value = result.get("failure_type")
+    return str(value) if value is not None else None
 
 
 def _build_run_summary(
@@ -1594,7 +1656,7 @@ def _ensure_telemetry_costs(context: RunContext) -> None:
 
 def run_flow(
     candidate: Candidate, run_context: RunContext, tool: Tool | None = None
-) -> dict[str, Any]:
+) -> RuntimeFlowResult:
     """Run the canonical agentic flow end-to-end."""
     machine = RuntimeStateMachine(run_context, tool)
     return machine.run(candidate)

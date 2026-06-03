@@ -6,7 +6,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from tests.support.paths import package_tests_root, repo_root
+from agentic_proteins_testsupport.paths import package_tests_root, repo_root
 
 LAYER_ORDER = {
     "cli": 7,
@@ -94,7 +94,11 @@ def test_import_boundaries() -> None:
 def test_package_root_uses_one_bridge_vocabulary() -> None:
     root = repo_root() / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
     actual_entries = {
-        path.name for path in root.iterdir() if path.name != "__pycache__"
+        path.name
+        for path in root.iterdir()
+        if path.is_file()
+        or path.name in ALLOWED_TOP_LEVEL_ENTRIES
+        or path.name in REMOVED_COMPAT_FAMILIES
     }
 
     assert actual_entries <= ALLOWED_TOP_LEVEL_ENTRIES

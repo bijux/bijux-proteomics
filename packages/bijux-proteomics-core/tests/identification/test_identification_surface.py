@@ -14,6 +14,7 @@ from bijux_proteomics.identification import (
     PsmSortField,
     PtmIdentificationObservation,
     SearchResultColumnMapping,
+    TargetDecoyContaminantClass,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     apply_q_values,
@@ -40,6 +41,7 @@ from bijux_proteomics.identification import (
     build_review_ready_evidence_bundle,
     build_search_result_provenance_manifest,
     build_shared_peptide_ambiguity_report,
+    calculate_basic_target_decoy_fdr,
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
@@ -65,6 +67,9 @@ from bijux_proteomics.identification import (
     validate_target_decoy_accession_collisions,
     validate_target_decoy_policy,
     verify_fdr_q_value_monotonicity,
+)
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    RunDetectionContext,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -158,6 +163,7 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert first.canonical_peptide == "PES[Phospho]TIDE"
     assert first.intensity == 1200.5
     assert first.contaminant_flag is False
+    assert first.target_decoy_contaminant_class is TargetDecoyContaminantClass.TARGET
     second = report.accepted_records[1]
     assert second.run_id == "run_B"
     assert second.peptide_sequence == "DECOYPEP"
@@ -165,6 +171,71 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert second.intensity is None
     assert second.target_decoy_label is TargetDecoyLabel.DECOY
     assert second.contaminant_flag is True
+    assert second.target_decoy_contaminant_class is TargetDecoyContaminantClass.MIXED
+
+
+def test_psm_parser_preserves_engine_pep_without_relabeling_it_as_q_value(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "pep_psm.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "scan_ref\tsequence_text\tz\tstate_score\tpep_value\taccessions",
+                "pep-1001\tPEPTIDE\t2\t55.0\t0.002\tP12345",
+                "pep-1002\tDECOYPEP\t2\t12.0\t0.12\tDECOY_P54321",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        spectrum_id="scan_ref",
+        peptide="sequence_text",
+        charge="z",
+        score="state_score",
+        posterior_error_probability="pep_value",
+        protein_refs="accessions",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 2
+    first = report.accepted_records[0]
+    assert first.posterior_error_probability == 0.002
+    assert first.q_value is None
+    second = report.accepted_records[1]
+    assert second.posterior_error_probability == 0.12
+    assert second.target_decoy_label is TargetDecoyLabel.DECOY
+
+
+def test_psm_parser_accepts_csv_tables_through_shared_engine(tmp_path: Path) -> None:
+    source = tmp_path / "comma_psm.csv"
+    source.write_text(
+        "\n".join(
+            (
+                "run_name,scan_ref,sequence_text,z,state_score,accessions",
+                "run_A,generic-1001,PESTIDE,2,55.0,P12345",
+                "run_B,generic-1002,DECOYPEP,3,12.0,DECOY_P54321",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        run_id="run_name",
+        spectrum_id="scan_ref",
+        peptide="sequence_text",
+        charge="z",
+        score="state_score",
+        protein_refs="accessions",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 2
+    assert report.accepted_records[0].run_id == "run_A"
+    assert report.accepted_records[1].target_decoy_label is TargetDecoyLabel.DECOY
 
 
 def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
@@ -183,6 +254,31 @@ def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
         "invalid_charge",
         "invalid_score",
     } <= codes
+
+
+def test_psm_parser_rejects_out_of_range_q_values(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "duplicate_psm.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "spectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins",
+                "scan=1\tPEPTIDE\t2\t50\t0.01\tP1",
+                "scan=2\tPEPTIDE\t2\t30\t1.2\tP2",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_psm_tsv(source, mapping=_default_mapping())
+
+    assert len(report.accepted_records) == 1
+    codes = {
+        issue.code for rejected in report.rejected_rows for issue in rejected.issues
+    }
+    assert "invalid_q_value" in codes
 
 
 def test_normalization_exports_stable_jsonl() -> None:
@@ -287,6 +383,19 @@ def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
     q_values = [record.q_value for record in annotated if record.q_value is not None]
     assert q_values == sorted(q_values)
     assert annotated[0].q_value == 0.0
+    assert annotated[-1].q_value == 2 / 3
+
+
+def test_basic_target_decoy_fdr_compatibility_surface_preserves_raw_counts() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+
+    annotated = calculate_basic_target_decoy_fdr(report.accepted_records)
+
+    assert annotated[0].cumulative_targets == 1
+    assert annotated[0].cumulative_decoys == 0
+    assert annotated[0].fdr == 0.0
+    assert annotated[1].fdr == 1.0
+    assert annotated[1].q_value == 0.5
     assert annotated[-1].q_value == 2 / 3
 
 
@@ -679,6 +788,73 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
     assert grouped_report.groups[0].group_key == "z2"
 
 
+def test_level_specific_peptide_fdr_collapses_duplicate_psms_into_one_peptide_entity() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
+
+    level_report = calculate_level_specific_fdr(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert len(level_report.peptide_entries) == 2
+    peptide_entry = next(
+        entry for entry in level_report.peptide_entries if entry.entity_id == "PEPTIDER"
+    )
+    assert peptide_entry.member_count == 2
+    assert peptide_entry.protein_refs == ("P12345", "Q11111")
+
+
+def test_level_specific_protein_fdr_uses_protein_entities_not_psm_rows() -> None:
+    records = (
+        PsmRecord(
+            spectrum_id="scan=7001",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=100.0,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan=7002",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            charge=2,
+            score=95.0,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan=7003",
+            peptide="DECOYSEQ",
+            canonical_peptide="DECOYSEQ",
+            charge=2,
+            score=80.0,
+            protein_refs=("DECOY_P11111",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=0.5,
+        score_orientation="higher_better",
+    )
+
+    assert len(level_report.psm_entries) == 3
+    assert len(level_report.protein_entries) == 2
+    protein_entry = next(
+        entry for entry in level_report.protein_entries if entry.entity_id == "P11111"
+    )
+    assert protein_entry.member_count == 2
+    assert protein_entry.q_value == 0.0
+
+
 def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> None:
     report = parse_psm_tsv(
         _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
@@ -894,7 +1070,171 @@ def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups()
     )
     assert ambiguous.shared_peptide_count == 2
     assert ambiguous.unique_peptide_count == 0
-    assert ambiguous.confidence_label.value in {"medium", "high"}
+    assert ambiguous.evidence_tier == "ambiguous"
+    assert ambiguous.downgrade_reasons == ("shared_peptide_only",)
+    assert ambiguous.confidence_label.value == "low"
+    assert "supported only by shared peptides" in ambiguous.explanation
+
+
+def test_grouped_confidence_report_keeps_one_weak_shared_peptide_from_strong_calls() -> (
+    None
+):
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                spectrum_id="scan=1",
+                peptide="SHAREDK",
+                canonical_peptide="SHAREDK",
+                charge=2,
+                score=50.0,
+                q_value=0.020,
+                protein_refs=("P11111", "P22222"),
+            ),
+            PsmRecord(
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=55.0,
+                q_value=0.010,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        )
+    )
+
+    entry = next(
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P11111", "P22222")
+    )
+
+    assert entry.protein_refs == ("P11111", "P22222")
+    assert entry.shared_peptide_count == 1
+    assert entry.evidence_tier == "ambiguous"
+    assert entry.downgrade_reasons == ("shared_peptide_only",)
+    assert entry.confidence_label.value == "low"
+
+
+def test_grouped_confidence_report_downgrades_single_run_only_proteins() -> None:
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                run_id="run-treated-1",
+                spectrum_id="scan=1",
+                peptide="SINGLERUN",
+                canonical_peptide="SINGLERUN",
+                charge=2,
+                score=80.0,
+                q_value=0.001,
+                protein_refs=("P11111",),
+            ),
+            PsmRecord(
+                run_id="run-control-1",
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=60.0,
+                q_value=0.020,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        ),
+        run_contexts=(
+            RunDetectionContext(
+                run_id="run-control-1",
+                sample_id="control-1",
+                condition_id="control",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-1",
+                sample_id="treated-1",
+                condition_id="treated",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-2",
+                sample_id="treated-2",
+                condition_id="treated",
+                replicate_id="2",
+            ),
+        ),
+    )
+
+    entry = next(
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P11111",)
+    )
+
+    assert entry.evidence_tier == "moderate"
+    assert entry.downgrade_reasons == ("single_run_only",)
+    assert entry.confidence_label.value == "moderate"
+    assert "observed in one run only" in entry.explanation
+
+
+def test_grouped_confidence_report_preserves_explicit_exploratory_single_run_proteins() -> (
+    None
+):
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                run_id="run-treated-1",
+                spectrum_id="scan=1",
+                peptide="EXPLORATORY",
+                canonical_peptide="EXPLORATORY",
+                charge=2,
+                score=80.0,
+                q_value=0.001,
+                protein_refs=("P22222",),
+            ),
+            PsmRecord(
+                run_id="run-control-1",
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=60.0,
+                q_value=0.020,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        ),
+        run_contexts=(
+            RunDetectionContext(
+                run_id="run-control-1",
+                sample_id="control-1",
+                condition_id="control",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-1",
+                sample_id="treated-1",
+                condition_id="treated",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-2",
+                sample_id="treated-2",
+                condition_id="treated",
+                replicate_id="2",
+            ),
+        ),
+        exploratory_protein_refs=("P22222",),
+    )
+
+    entry = next(
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P22222",)
+    )
+
+    assert entry.evidence_tier == "high_confidence"
+    assert entry.downgrade_reasons == ()
+    assert entry.confidence_label.value == "high"
+    assert "high-confidence threshold" in entry.explanation
 
 
 def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> None:
@@ -1077,6 +1417,11 @@ def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases()
             entry for entry in picked if entry.protein_ref == "DECOY_P55555"
         ).partner_ref
         == "P55555"
+    )
+    assert "P55555" not in {entry.protein_ref for entry in picked}
+    assert (
+        next(entry for entry in picked if entry.protein_ref == "DECOY_P55555").accepted
+        is False
     )
     assert [entry.q_value for entry in picked] == sorted(
         entry.q_value for entry in picked

@@ -3,9 +3,9 @@
 
 [guard]
 max_runtime_edges = 2
-max_intelligence_edges = 1
-max_lab_edges = 2
-max_total_edges = 5
+max_intelligence_edges = 7
+max_lab_edges = 6
+max_total_edges = 15
 
 [[import]]
 importer_module_path = "benchmarks/flagship_acceptance.py"
@@ -26,13 +26,73 @@ imported_module_name = "bijux_proteomics_runtime.workflows"
 imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
 
 [[import]]
-importer_module_path = "ptm/review.py"
+importer_module_path = "ptm/cards/review.py"
 owner_distribution = "bijux-proteomics-lab"
 imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
 imported_symbols = ["PtmLabValidationPacket"]
 
 [[import]]
-importer_module_path = "ptm/review.py"
+importer_module_path = "ptm/cards/review.py"
 owner_distribution = "bijux-proteomics-lab"
 imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
 imported_symbols = ["build_ptm_lab_validation_packet"]
+
+[[import]]
+importer_module_path = "workflow/demo/surprising_demo.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.belief_audit"
+imported_symbols = ["BeliefAuditReport", "render_belief_audit_tsv"]
+
+[[import]]
+importer_module_path = "workflow/demo/surprising_demo.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.contradictions"
+imported_symbols = ["ClaimContradictionReport", "render_claim_contradictions_tsv"]
+
+[[import]]
+importer_module_path = "workflow/demo/surprising_demo.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.falsifiers"
+imported_symbols = ["render_claim_falsifiers_tsv"]
+
+[[import]]
+importer_module_path = "workflow/demo/surprising_demo.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.refusal"
+imported_symbols = ["render_claim_refusal_tsv"]
+
+[[import]]
+importer_module_path = "workflow/demo/surprising_demo.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews"
+imported_symbols = ["IntelligenceReportContract", "build_intelligence_report_contract"]
+
+[[import]]
+importer_module_path = "workflow/pipelines/integrated_scientific_report.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews"
+imported_symbols = ["IntelligenceReportClaimEntry", "validate_intelligence_report_contract"]
+
+[[import]]
+importer_module_path = "workflow/reports/biological_report_assembly.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.qc_feedback"
+imported_symbols = ["LabRunQcFeedbackReport"]
+
+[[import]]
+importer_module_path = "workflow/reports/biological_result_graph.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.qc_feedback"
+imported_symbols = ["LabRunQcFeedbackEntry", "LabRunQcFeedbackReport"]
+
+[[import]]
+importer_module_path = "workflow/reports/biological_result_graph.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.qc_feedback"
+imported_symbols = ["LabRunQcFeedbackStatus"]
+
+[[import]]
+importer_module_path = "workflow/reports/biological_result_graph.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.qc_feedback"
+imported_symbols = ["LabRunQcFeedbackStatus"]

@@ -1,0 +1,184 @@
+dataset_id: fragpipe_msfragger_benchmark_dataset
+accession: flagship_public_package:fragpipe_msfragger_benchmark_dataset
+species: human
+search_engine: fragpipe
+source_files:
+  - source_id: fragpipe_psm_table
+    schema_id: search_result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/fragpipe_msfragger_benchmark_dataset/evidence/psm.tsv
+    sha256: 199f23ce72c80a7a4af9bb14dd60fdb33711dcbb71bb9022282d7b69d9327017
+    note: Governed FragPipe/MSFragger PSM table that is known to run through the owned FragPipe biological workflow.
+  - source_id: fragpipe_protein_summary
+    schema_id: source_protein_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/fragpipe_msfragger_benchmark_dataset/evidence/protein_summary.tsv
+    sha256: d255f3253565ca69849d5c89e4f2d95b6be8c90cb1362d7885c4aa18963b2388
+    note: Governed FragPipe or Philosopher-style source protein summary used for protein-group comparison against the workflow output.
+  - source_id: fragpipe_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/fragpipe_msfragger_benchmark_dataset/evidence/design.tsv
+    sha256: 7461109a122de010beff835482dc5dbd22e679779a128f5be370c3915abb012e
+    note: Shipped study design surface for the runnable FragPipe benchmark workflow.
+  - source_id: fragpipe_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned FragPipe biological workflow.
+expected_input_schemas:
+  - search_result_tsv
+  - source_protein_tsv
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_C1.mzml
+    identifications_file: raw_C1.psm.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: fragpipe
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_C2.mzml
+    identifications_file: raw_C2.psm.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: fragpipe
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_C3.mzml
+    identifications_file: raw_C3.psm.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: fragpipe
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_T1.mzml
+    identifications_file: raw_T1.psm.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: fragpipe
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_T2.mzml
+    identifications_file: raw_T2.psm.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: fragpipe
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_T3.mzml
+    identifications_file: raw_T3.psm.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: fragpipe
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: This governed FragPipe or MSFragger benchmark dataset is executed directly through the owned FragPipe biological workflow with source protein-group comparison enabled.
+expected_approximate_counts:
+  - metric_id: accepted_psm_count
+    expected: 30
+    tolerance: 0
+  - metric_id: filtered_psm_count
+    expected: 3
+    tolerance: 0
+  - metric_id: inferred_protein_count
+    expected: 5
+    tolerance: 0
+  - metric_id: quantified_protein_count
+    expected: 5
+    tolerance: 0
+  - metric_id: significant_protein_count
+    expected: 3
+    tolerance: 0
+  - metric_id: source_protein_group_count
+    expected: 5
+    tolerance: 0
+  - metric_id: protein_group_discrepancy_count
+    expected: 2
+    tolerance: 0
+  - metric_id: source_only_protein_group_count
+    expected: 1
+    tolerance: 0
+  - metric_id: workflow_only_protein_group_count
+    expected: 1
+    tolerance: 0
+expected_biological_signals:
+  - signal_id: fragpipe_sig_a_up
+    subject_kind: protein
+    subject_id: P04637
+    subject_label: SIGA
+    expected_direction: up
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 2.0
+    note: P04637 should remain strongly increased in treatment across the governed FragPipe benchmark surface.
+  - signal_id: fragpipe_sig_b_down
+    subject_kind: protein
+    subject_id: Q9Y243
+    subject_label: SIGB
+    expected_direction: down
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 3.0
+    note: Q9Y243 should remain strongly decreased in treatment across the governed FragPipe benchmark surface.
+known_limitations:
+  - limitation_id: governed_support_fasta
+    severity: advisory
+    affected_surface: proteins_fasta
+    blocks_workflow_execution: false
+    description: The runnable FragPipe benchmark depends on the governed shared FASTA rather than shipping a duplicate benchmark-local protein reference.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/fragpipe_msfragger_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the governed FragPipe or MSFragger benchmark dataset through the owned FragPipe biological workflow.
+  parameters: {}
+output_checks:
+  - output_id: accepted_psms
+    relative_path: dda_biological_psms.tsv
+    note: The owned FragPipe workflow must write the accepted PSM ledger for this benchmark.
+  - output_id: filtered_psms
+    relative_path: dda_biological_filtered_psms.tsv
+    note: The owned FragPipe workflow must write the filtered PSM ledger for this benchmark.
+  - output_id: inferred_proteins
+    relative_path: dda_parsimony_proteins.tsv
+    note: The owned FragPipe workflow must write the parsimony protein selection surface for this benchmark.
+  - output_id: protein_group_discrepancies
+    relative_path: dda_source_protein_discrepancies.tsv
+    note: The owned FragPipe workflow must compare its protein groups against the shipped FragPipe or Philosopher source summary.
+  - output_id: protein_lfq_matrix
+    relative_path: dda_protein_lfq_matrix.tsv
+    note: The owned FragPipe workflow must write the protein LFQ matrix for this benchmark.
+  - output_id: differential_results
+    relative_path: biological_differential.tsv
+    note: The owned FragPipe workflow must write differential protein results for this benchmark.
+  - output_id: enrichment_summary
+    relative_path: biological_enrichment_foreground_background_summary.tsv
+    note: The owned FragPipe workflow must write the governed enrichment summary surface for this benchmark.
+  - output_id: biological_manifest_json
+    relative_path: biological_report_manifest.json
+    note: The owned FragPipe workflow must export the governed biological report manifest for this benchmark.
+  - output_id: fragpipe_workflow_manifest_json
+    relative_path: fragpipe_biological_report_manifest.json
+    note: The owned FragPipe workflow must export its FragPipe biological workflow manifest for this benchmark.
+note: This FragPipe or MSFragger benchmark dataset is a governed runnable PSM and source-protein bundle rather than a blocked comparator snapshot, and it is expected to produce accepted PSM, filtered PSM, protein grouping comparison, protein LFQ, differential, enrichment, and biological report outputs through the owned workflow path.

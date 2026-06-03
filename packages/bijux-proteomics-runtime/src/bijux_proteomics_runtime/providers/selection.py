@@ -7,6 +7,9 @@ from __future__ import annotations
 
 from importlib import util
 
+from bijux_proteomics_foundation.outcomes.exceptions import (
+    MissingOptionalDependencyError,
+)
 from bijux_proteomics_runtime.providers.builtin.heuristic import (
     HeuristicStructureProvider,
 )
@@ -20,14 +23,29 @@ __all__ = [
 ]
 
 
+def _module_available(module: str) -> bool:
+    try:
+        return util.find_spec(module) is not None
+    except ModuleNotFoundError:
+        return False
+
+
 def create_provider(name: str) -> BaseProvider:
     """Create a provider instance by name."""
     if name == HeuristicStructureProvider.name:
         return HeuristicStructureProvider()
     if name == "local_esmfold":
-        _require_module("torch", "pip install bijux-proteomics-runtime[local-esmfold]")
         _require_module(
-            "transformers", "pip install bijux-proteomics-runtime[local-esmfold]"
+            "torch",
+            "pip install bijux-proteomics-runtime[local-esmfold]",
+            dependency_name="torch",
+            feature_name="provider 'local_esmfold'",
+        )
+        _require_module(
+            "transformers",
+            "pip install bijux-proteomics-runtime[local-esmfold]",
+            dependency_name="transformers",
+            feature_name="provider 'local_esmfold'",
         )
         from bijux_proteomics_runtime.providers.local.esmfold import (
             LocalESMFoldProvider,
@@ -36,7 +54,10 @@ def create_provider(name: str) -> BaseProvider:
         return LocalESMFoldProvider()
     if name == "local_rosettafold":
         _require_module(
-            "torch", "pip install bijux-proteomics-runtime[local-rosettafold]"
+            "torch",
+            "pip install bijux-proteomics-runtime[local-rosettafold]",
+            dependency_name="torch",
+            feature_name="provider 'local_rosettafold'",
         )
         from bijux_proteomics_runtime.providers.local.rosettafold import (
             LocalRoseTTAFoldProvider,
@@ -44,7 +65,12 @@ def create_provider(name: str) -> BaseProvider:
 
         return LocalRoseTTAFoldProvider()
     if name.startswith("api_openprotein"):
-        _require_module("openprotein", "pip install bijux-proteomics-runtime[api]")
+        _require_module(
+            "openprotein",
+            "pip install bijux-proteomics-runtime[api]",
+            dependency_name="openprotein-python",
+            feature_name=f"provider '{name}'",
+        )
         from bijux_proteomics_runtime.providers.remote.openprotein import (
             APIOpenProteinProvider,
         )
@@ -52,7 +78,12 @@ def create_provider(name: str) -> BaseProvider:
         model = name.removeprefix("api_openprotein_") or "esmfold"
         return APIOpenProteinProvider(model=model)
     if name == "api_colabfold":
-        _require_module("colabfold", "pip install bijux-proteomics-runtime[api]")
+        _require_module(
+            "colabfold",
+            "pip install bijux-proteomics-runtime[api]",
+            dependency_name="colabfold",
+            feature_name="provider 'api_colabfold'",
+        )
         from bijux_proteomics_runtime.providers.remote.colabfold import (
             APIColabFoldProvider,
         )
@@ -61,13 +92,24 @@ def create_provider(name: str) -> BaseProvider:
     raise PredictionError(f"Unknown provider: {name}", code="UNKNOWN_PROVIDER")
 
 
-def _require_module(module: str, hint: str) -> None:
+def _require_module(
+    module: str,
+    hint: str,
+    *,
+    dependency_name: str,
+    feature_name: str,
+) -> None:
     """Raise a clear error when a provider dependency is missing."""
-    if util.find_spec(module) is None:
-        raise PredictionError(
-            f"Missing dependency: {module}. Install with `{hint}`.",
-            code="MISSING_DEPENDENCY",
+    if not _module_available(module):
+        error = MissingOptionalDependencyError(
+            dependency_name=dependency_name,
+            feature_name=feature_name,
+            install_hint=hint,
         )
+        raise PredictionError(
+            str(error),
+            code="MISSING_DEPENDENCY",
+        ) from error
 
 
 def cuda_available() -> bool:

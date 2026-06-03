@@ -1,0 +1,122 @@
+dataset_id: dia_diann_review_snapshot
+accession: flagship_public_package:dia_library_review_package/comparator:diann
+species: human
+search_engine: diann
+source_files:
+  - source_id: dia_diann_pipeline_export
+    schema_id: result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv
+    sha256: 4d8e06e9ac5f9d57e861c70e47199149d5cdaddf1738bd90026d463672c9a9d6
+    public_reference_url: https://github.com/vdemichev/DiaNN
+    note: Shipped DIA-NN comparator export from the flagship DIA public package.
+  - source_id: dia_diann_config
+    schema_id: config_json
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json
+    sha256: 798bc7a878b0e07ac3cdb85c11c884c502bb2ac50220529d1b27a3241b667185
+    public_reference_url: https://github.com/vdemichev/DiaNN
+    note: Comparator configuration snapshot from the flagship DIA public package.
+  - source_id: dia_support_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/diann_biological.design.tsv
+    sha256: e7bb7a583caf32dc07c1567f6a410c8f498b5f7580f572caa49864cddb0d4439
+    note: Governed support design that makes the public comparator export executable through the owned DIA biology workflow.
+  - source_id: dia_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned biological workflow surface.
+expected_input_schemas:
+  - result_tsv
+  - config_json
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_C1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_C2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_C3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_T1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_T2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_T3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The shipped comparator export is evaluated through the owned DIA differential path with the same contrast shape used in workflow proof.
+expected_approximate_counts:
+  - metric_id: imported_precursor_count
+    expected: 5
+    tolerance: 5
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: comparator_export_not_full_diann_result
+    severity: blocking
+    affected_surface: result_tsv
+    blocks_workflow_execution: true
+    description: The shipped DIA-NN asset is a comparator review export rather than the full DIA-NN biological result contract required by the owned workflow.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/dia_diann_review_snapshot/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship DIA-NN comparator export through the owned DIA biological workflow if the shipped public snapshot still satisfies the DIA-NN report contract.
+  parameters: {}
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: diann_biological_report_manifest.json
+    note: The orchestrator writes this manifest when the shipped public DIA descriptor becomes runnable.
+note: The flagship DIA public package ships a DIA-NN comparator export, but the current snapshot is a pipeline-export review surface rather than a fully shaped DIA-NN biological report.

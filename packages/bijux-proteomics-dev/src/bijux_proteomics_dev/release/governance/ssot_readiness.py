@@ -6,6 +6,9 @@ from pathlib import Path
 from bijux_proteomics_dev.governance.package_shape.public_symbol_ownership import (
     validate_public_symbol_ownership,
 )
+from bijux_proteomics_dev.governance.package_shape.scientific_concept_owners import (
+    validate_scientific_concept_ownership,
+)
 from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (
     validate_agentic_compatibility_inventory,
 )
@@ -46,6 +49,10 @@ def _check_failures(repo_root: Path) -> tuple[tuple[str, tuple[str, ...]], ...]:
         (
             "public-symbol-ownership",
             tuple(issue.detail for issue in validate_public_symbol_ownership()),
+        ),
+        (
+            "scientific-concept-ownership",
+            tuple(issue.detail for issue in validate_scientific_concept_ownership()),
         ),
         (
             "duplicate-model-ownership",

@@ -27,7 +27,7 @@ The product shape is explicit:
 
 ## Current Credible Workflow Families
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 
 Internal-support-only workflow families today: `multiplex`.
 
@@ -149,14 +149,19 @@ package owners rather than duplicating the same runtime under multiple names.
 - `make openapi-drift` to catch breaking schema changes without version bumps
 - `make quality-artifact-governance` to enforce artifact roots, drift audit, and
   package-root hygiene
+- `make quality-architecture-regression` to re-check import collection, public
+  API snapshots, package tree, architecture map, workflow output snapshots, and
+  the shipped demo CLI path after architecture-facing changes
 - `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
-- `make test` to execute the configured test matrix
+- `make test` to execute the fast unit-focused test matrix
+- `make test-slow` to run slow, benchmark, and external-data suites
 - `make ensure-venv` to sync the shared root check environment
 - `make nlenv` to print the root environment activation command
 - `make manage_examples` to refresh governed repository example assets
 - `make manage_models` to refresh governed repository model metadata
+- `uv sync --group test` to build the reproducible repository test environment
 
 ## Repository Extension Contract
 
@@ -167,9 +172,9 @@ not silent drift from the other `bijux-g3` repos.
   owns checked maintainer tooling, docs policy, API governance, and release
   automation in `bijux-proteomics-dev`
 - root optional dependency groups `api`, `local-esmfold`,
-  `local-rosettafold`, and `nl` stay here because runtime and maintainer tools
-  need explicit provider, model, and language-stack extras that sibling repos
-  do not own
+  `local-rosettafold`, `nl`, and `test` stay here because runtime and
+  maintainer tools need explicit provider, model, language-stack, and
+  reproducible test extras that sibling repos do not own
 - `api-freeze` and `openapi-drift` are repository-level API governance gates
   because Proteomics checks in versioned OpenAPI contracts and refuses
   unreviewed schema drift

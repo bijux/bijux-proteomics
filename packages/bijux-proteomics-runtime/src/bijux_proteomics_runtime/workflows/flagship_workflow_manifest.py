@@ -210,14 +210,14 @@ def build_flagship_workflow_manifest() -> FlagshipWorkflowManifest:
                 stage=FlagshipWorkflowStage.FOLLOW_UP,
                 owner_package="bijux-proteomics-lab",
                 source_path="packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/flagship_follow_up.py",
-                test_path="packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py",
+                test_path="packages/bijux-proteomics-lab/tests/reconciliation/test_reconciliation_flagship_follow_up_surface.py",
                 docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
                     "artifacts/workflows/flagship-workflow-chain/lab/follow_up_packet.json",
                     "artifacts/workflows/flagship-workflow-chain/lab/next_cycle_packet.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
+                    "packages/bijux-proteomics-lab/tests/reconciliation/test_reconciliation_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
                 ),
             ),
         ),
@@ -302,11 +302,12 @@ def _load_manifest(
 
 def validate_flagship_workflow_manifest(
     manifest: FlagshipWorkflowManifest | None = None,
-    repo_root: Path = REPO_ROOT,
+    repo_root: Path | None = None,
 ) -> tuple[FlagshipWorkflowManifestIssue, ...]:
     """Validate the checked flagship workflow manifest against live repository truth."""
 
     manifest = manifest or _load_manifest()
+    repo_root = repo_root or REPO_ROOT
     issues: list[FlagshipWorkflowManifestIssue] = []
     if manifest.workflow_id != "flagship-workflow-chain":
         issues.append(

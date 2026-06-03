@@ -1,0 +1,7 @@
+source_species	source_protein_ref	target_species	target_protein_ref	source_gene_symbol	target_gene_symbol	evidence	source_name
+human	P12345	mouse	Q9AAA1	SRC1	TGT1	ensembl	curated
+human	P12345	mouse	Q9AAA1	SRC1	TGT1	ensembl	duplicate
+human		mouse	Q9AAA2	SRCMISSING	TGT2	ensembl	missing_source
+human	P67890	mouse	Q9AAA3	SRC2	TGT3	inparanoid	high_confidence
+rat	P33333	mouse	Q9AAA4	SRC3	TGT4	orthodb	cross_species
+human	P99999	mouse		SRC4		ensembl	missing_target

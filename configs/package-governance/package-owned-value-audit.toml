@@ -3,7 +3,7 @@
 
 [guard]
 min_total_owned_value_bullet_count = 58
-min_total_owner_depth_count = 551
+min_total_owner_depth_count = 1050
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -11,63 +11,63 @@ owned_value_bullets = ["compatibility routing and legacy entrypoint continuity",
 owned_value_summary = "compatibility routing and legacy entrypoint continuity; forwarding-only import surfaces grouped under `interfaces/`, `agents/`,; compatibility aliases under `execution/`, `agents/execution/`, and; migration-safe preservation of historical CLI and package roots"
 owner_depth_count = 0
 public_breadth_count = 4
-readme_sentence_count = 132
+readme_sentence_count = 144
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
 owned_value_bullets = ["release-readiness and packaging policy checks", "docs integrity, publication, and contract-shape enforcement", "API freeze and schema drift checks", "runtime migration governance and compat-boundary validation", "maintainer-only operational helpers that support root `make` and CI entrypoints"]
 owned_value_summary = "release-readiness and packaging policy checks; docs integrity, publication, and contract-shape enforcement; API freeze and schema drift checks; runtime migration governance and compat-boundary validation; maintainer-only operational helpers that support root `make` and CI entrypoints"
-owner_depth_count = 142
+owner_depth_count = 159
 public_breadth_count = 0
-readme_sentence_count = 106
+readme_sentence_count = 123
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 owned_value_bullets = ["schema profile models", "canonical JSON, hashing, and fingerprint helpers under `serialization`", "shared identifiers under `identity`", "shared provenance and support-state contracts under `support`", "shared refusal and operation-result contracts under `outcomes`", "migration and compatibility utility behavior"]
 owned_value_summary = "schema profile models; canonical JSON, hashing, and fingerprint helpers under `serialization`; shared identifiers under `identity`; shared provenance and support-state contracts under `support`; shared refusal and operation-result contracts under `outcomes`; migration and compatibility utility behavior"
-owner_depth_count = 19
-public_breadth_count = 15
-readme_sentence_count = 202
+owner_depth_count = 31
+public_breadth_count = 18
+readme_sentence_count = 233
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
 owned_value_bullets = ["program, target, assay, and review entities", "lifecycle transitions and stage eligibility logic", "domain invariants and identifier validations", "runtime-agnostic execution contracts", "normalized workflow-planning and proteomics I/O seams", "package CLI entrypoints"]
 owned_value_summary = "program, target, assay, and review entities; lifecycle transitions and stage eligibility logic; domain invariants and identifier validations; runtime-agnostic execution contracts; normalized workflow-planning and proteomics I/O seams; package CLI entrypoints"
-owner_depth_count = 126
-public_breadth_count = 5
-readme_sentence_count = 536
+owner_depth_count = 564
+public_breadth_count = 13
+readme_sentence_count = 559
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 owned_value_bullets = ["interfaces (CLI and HTTP API)", "execution control and orchestration coordination", "provider binding and provider invocation", "runtime state transitions", "workspace state and run artifacts", "replay and determinism enforcement"]
 owned_value_summary = "interfaces (CLI and HTTP API); execution control and orchestration coordination; provider binding and provider invocation; runtime state transitions; workspace state and run artifacts; replay and determinism enforcement"
-owner_depth_count = 131
-public_breadth_count = 4
-readme_sentence_count = 249
+owner_depth_count = 149
+public_breadth_count = 5
+readme_sentence_count = 268
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 owned_value_bullets = ["candidate ranking, rejection semantics, and policy-governed explainability", "downgrade and refusal posture when evidence is stale, thin, or contradictory", "decision briefs, skeptical challenge pressure, and benchmark-backed review claims", "cautious interpretation summaries over already-typed proteomics evidence", "learning pressure that changes future prioritization without rewriting past decisions"]
 owned_value_summary = "candidate ranking, rejection semantics, and policy-governed explainability; downgrade and refusal posture when evidence is stale, thin, or contradictory; decision briefs, skeptical challenge pressure, and benchmark-backed review claims; cautious interpretation summaries over already-typed proteomics evidence; learning pressure that changes future prioritization without rewriting past decisions"
-owner_depth_count = 52
-public_breadth_count = 7
-readme_sentence_count = 216
+owner_depth_count = 61
+public_breadth_count = 21
+readme_sentence_count = 250
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 owned_value_bullets = ["scientific memory with provenance", "evidence and claim data models", "trust, freshness, and contradiction modeling for stored evidence", "resolution history, evidence graph consistency, and lineage construction", "curated workflow references, ontology mappings, and scientific briefings"]
 owned_value_summary = "scientific memory with provenance; evidence and claim data models; trust, freshness, and contradiction modeling for stored evidence; resolution history, evidence graph consistency, and lineage construction; curated workflow references, ontology mappings, and scientific briefings"
-owner_depth_count = 44
-public_breadth_count = 5
-readme_sentence_count = 172
+owner_depth_count = 54
+public_breadth_count = 62
+readme_sentence_count = 197
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 owned_value_bullets = ["dependency-aware planning that exposes queue pressure, family capacity, and", "readiness checks that keep controls, provenance, staffing, backlog, and", "handoff honesty, including refusal behavior, blocked explanations, and lossy", "observed-outcome reconciliation that compares requested work with observed", "targeted operational benchmark rehearsals that prove whether a claimed lab"]
 owned_value_summary = "dependency-aware planning that exposes queue pressure, family capacity, and; readiness checks that keep controls, provenance, staffing, backlog, and; handoff honesty, including refusal behavior, blocked explanations, and lossy; observed-outcome reconciliation that compares requested work with observed; targeted operational benchmark rehearsals that prove whether a claimed lab"
-owner_depth_count = 27
-public_breadth_count = 3
-readme_sentence_count = 198
+owner_depth_count = 29
+public_breadth_count = 4
+readme_sentence_count = 247
 
 [[package]]
 distribution_name = "bijux-proteomics"
@@ -75,60 +75,60 @@ owned_value_bullets = ["This package owns the distribution-name reservation and 
 owned_value_summary = "This package owns the distribution-name reservation and the install surface for; the canonical core CLI command."
 owner_depth_count = 0
 public_breadth_count = 1
-readme_sentence_count = 54
+readme_sentence_count = 113
 
 [[package]]
 distribution_name = "proteomics"
 owned_value_bullets = ["This package owns the short install, import, and CLI alias wrappers for the", "canonical core package."]
 owned_value_summary = "This package owns the short install, import, and CLI alias wrappers for the; canonical core package."
-owner_depth_count = 2
-public_breadth_count = 8
-readme_sentence_count = 56
+owner_depth_count = 1
+public_breadth_count = 3
+readme_sentence_count = 108
 
 [[package]]
 distribution_name = "proteomics-core"
 owned_value_bullets = ["This package owns the short install, import, and CLI alias wrappers for the", "canonical core package."]
 owned_value_summary = "This package owns the short install, import, and CLI alias wrappers for the; canonical core package."
-owner_depth_count = 2
-public_breadth_count = 8
-readme_sentence_count = 52
+owner_depth_count = 1
+public_breadth_count = 3
+readme_sentence_count = 105
 
 [[package]]
 distribution_name = "proteomics-foundation"
 owned_value_bullets = ["This package owns the short install and import alias wrappers for the canonical", "foundation package."]
 owned_value_summary = "This package owns the short install and import alias wrappers for the canonical; foundation package."
-owner_depth_count = 1
-public_breadth_count = 16
-readme_sentence_count = 53
+owner_depth_count = 0
+public_breadth_count = 1
+readme_sentence_count = 118
 
 [[package]]
 distribution_name = "proteomics-runtime"
 owned_value_bullets = ["This package owns the short install, import, and CLI alias wrappers for the", "canonical runtime package."]
 owned_value_summary = "This package owns the short install, import, and CLI alias wrappers for the; canonical runtime package."
-owner_depth_count = 2
-public_breadth_count = 7
-readme_sentence_count = 56
+owner_depth_count = 1
+public_breadth_count = 3
+readme_sentence_count = 113
 
 [[package]]
 distribution_name = "proteomics-intelligence"
 owned_value_bullets = ["This package owns the short install and import alias wrappers for the canonical", "intelligence package."]
 owned_value_summary = "This package owns the short install and import alias wrappers for the canonical; intelligence package."
-owner_depth_count = 1
-public_breadth_count = 8
-readme_sentence_count = 53
+owner_depth_count = 0
+public_breadth_count = 1
+readme_sentence_count = 128
 
 [[package]]
 distribution_name = "proteomics-knowledge"
 owned_value_bullets = ["This package owns the short install and import alias wrappers for the canonical", "knowledge package."]
 owned_value_summary = "This package owns the short install and import alias wrappers for the canonical; knowledge package."
-owner_depth_count = 1
-public_breadth_count = 6
-readme_sentence_count = 53
+owner_depth_count = 0
+public_breadth_count = 1
+readme_sentence_count = 118
 
 [[package]]
 distribution_name = "proteomics-lab"
 owned_value_bullets = ["This package owns the short install and import alias wrappers for the canonical", "lab package."]
 owned_value_summary = "This package owns the short install and import alias wrappers for the canonical; lab package."
-owner_depth_count = 1
-public_breadth_count = 4
-readme_sentence_count = 52
+owner_depth_count = 0
+public_breadth_count = 1
+readme_sentence_count = 140

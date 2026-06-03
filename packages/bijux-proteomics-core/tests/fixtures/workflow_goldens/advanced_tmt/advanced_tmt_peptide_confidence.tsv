@@ -1,0 +1,5 @@
+multiplex_group	numerator_channel	numerator_sample_id	protein_id	peptide_sequence	ratio	log2_ratio	isolation_interference_fraction	high_interference	disposition	note
+plex-a	127N	plex_a_127N	P001	PEPTIDE	1.00575	0.00826762	0.08	false	retained	sample peptide ratio stays in confident support because interference remains below threshold
+plex-b	127N	plex_b_127N	P001	PEPTIDE	0.996337	-0.0052943	0.12	false	retained	sample peptide ratio stays in confident support because interference remains below threshold
+plex-a	127N	plex_a_127N	P002	DPEPTIDE	0.991379	-0.0124909	0.35	true	excluded_due_to_interference	high interference dominates the available sample peptide support for this protein, so the peptide is excluded from confident downstream support
+plex-b	127N	plex_b_127N	P002	DPEPTIDE	1.00611	0.00878089	0.42	true	excluded_due_to_interference	high interference dominates the available sample peptide support for this protein, so the peptide is excluded from confident downstream support

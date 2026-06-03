@@ -19,7 +19,7 @@ def test_intelligence_broad_root_import_report_tracks_zero_owner_violations() ->
     guard = report.guard
 
     assert INTELLIGENCE_BROAD_ROOT_IMPORTS_PATH.exists()
-    assert metrics.scanned_module_count == 62
+    assert metrics.scanned_module_count == 72
     assert metrics.banned_root_count == len(BANNED_ROOTS)
     assert metrics.banned_root_count == 3
     assert metrics.violation_count == guard.baseline_violation_count

@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+C1	control	1	1	control_1.mzML	control_1.idxml	batch-a	orbitrap-a	openms
+C2	control	2	1	control_2.mzML	control_2.idxml	batch-a	orbitrap-a	openms
+T1	treatment	1	1	treatment_1.mzML	treatment_1.idxml	batch-b	orbitrap-a	openms
+T2	treatment	2	1	treatment_2.mzML	treatment_2.idxml	batch-b	orbitrap-a	openms

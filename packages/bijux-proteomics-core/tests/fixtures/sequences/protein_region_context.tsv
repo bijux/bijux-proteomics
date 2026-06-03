@@ -1,0 +1,7 @@
+protein_ref	start	end	domain_name	signal_peptide	transmembrane_region	disorder_region	low_complexity_region	active_site_label	binding_region	motif_name	conservation_score	source_name	source_accession
+P11111	1	6	regulatory_head	leader_1		surface_loop		SP_acceptor			0.97	InterPro	IPR:P11111-1-6
+P11111	5	12				acidic_patch			14-3-3_site	SP_motif	0.99	Curator	CUR:P11111-5-12
+P11111	14	18					lysine_cluster				0.82	Literature	PMID:P11111-14-18
+P22222	1	5			helix_1				YK_switch		0.61	UniProt	UP:P22222-1-5
+P22222	9	17	catalytic_tail					catalytic_tyrosine	ligand_patch		0.73	Reference	DB:P22222-9-17
+P11111	1	2											

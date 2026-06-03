@@ -29,18 +29,18 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 126
+owner_logic_module_count = 564
 public_breadth_count = 5
-wrapper_module_count = 23
+wrapper_module_count = 271
 missing_test_family_count = 0
 flat_test_module_count = 0
-proof_depth_count = 49
+proof_depth_count = 94
 unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-owner_logic_module_count = 142
+owner_logic_module_count = 159
 public_breadth_count = 0
 wrapper_module_count = 27
 missing_test_family_count = 0
@@ -51,7 +51,7 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-owner_logic_module_count = 19
+owner_logic_module_count = 31
 public_breadth_count = 15
 wrapper_module_count = 6
 missing_test_family_count = 0
@@ -62,9 +62,9 @@ architectural_ready = true
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-owner_logic_module_count = 52
-public_breadth_count = 7
-wrapper_module_count = 8
+owner_logic_module_count = 61
+public_breadth_count = 14
+wrapper_module_count = 9
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 15
@@ -73,9 +73,9 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-owner_logic_module_count = 44
-public_breadth_count = 5
-wrapper_module_count = 12
+owner_logic_module_count = 54
+public_breadth_count = 61
+wrapper_module_count = 21
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 5
@@ -84,7 +84,7 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-owner_logic_module_count = 27
+owner_logic_module_count = 29
 public_breadth_count = 3
 wrapper_module_count = 9
 missing_test_family_count = 0
@@ -95,9 +95,9 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 131
+owner_logic_module_count = 149
 public_breadth_count = 4
-wrapper_module_count = 30
+wrapper_module_count = 38
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 14
@@ -106,8 +106,8 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "proteomics"
-owner_logic_module_count = 2
-public_breadth_count = 8
+owner_logic_module_count = 1
+public_breadth_count = 4
 wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
@@ -117,50 +117,6 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "proteomics-core"
-owner_logic_module_count = 2
-public_breadth_count = 8
-wrapper_module_count = 0
-missing_test_family_count = 0
-flat_test_module_count = 0
-proof_depth_count = 0
-unresolved_debt_count = 1
-architectural_ready = false
-
-[[package]]
-distribution_name = "proteomics-foundation"
-owner_logic_module_count = 1
-public_breadth_count = 16
-wrapper_module_count = 0
-missing_test_family_count = 0
-flat_test_module_count = 0
-proof_depth_count = 0
-unresolved_debt_count = 1
-architectural_ready = false
-
-[[package]]
-distribution_name = "proteomics-intelligence"
-owner_logic_module_count = 1
-public_breadth_count = 8
-wrapper_module_count = 0
-missing_test_family_count = 0
-flat_test_module_count = 0
-proof_depth_count = 0
-unresolved_debt_count = 1
-architectural_ready = false
-
-[[package]]
-distribution_name = "proteomics-knowledge"
-owner_logic_module_count = 1
-public_breadth_count = 6
-wrapper_module_count = 0
-missing_test_family_count = 0
-flat_test_module_count = 0
-proof_depth_count = 0
-unresolved_debt_count = 1
-architectural_ready = false
-
-[[package]]
-distribution_name = "proteomics-lab"
 owner_logic_module_count = 1
 public_breadth_count = 4
 wrapper_module_count = 0
@@ -171,9 +127,53 @@ unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
+distribution_name = "proteomics-foundation"
+owner_logic_module_count = 0
+public_breadth_count = 2
+wrapper_module_count = 0
+missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 0
+unresolved_debt_count = 1
+architectural_ready = false
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+owner_logic_module_count = 0
+public_breadth_count = 2
+wrapper_module_count = 0
+missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 0
+unresolved_debt_count = 1
+architectural_ready = false
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+owner_logic_module_count = 0
+public_breadth_count = 2
+wrapper_module_count = 0
+missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 0
+unresolved_debt_count = 1
+architectural_ready = false
+
+[[package]]
+distribution_name = "proteomics-lab"
+owner_logic_module_count = 0
+public_breadth_count = 2
+wrapper_module_count = 0
+missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 0
+unresolved_debt_count = 1
+architectural_ready = false
+
+[[package]]
 distribution_name = "proteomics-runtime"
-owner_logic_module_count = 2
-public_breadth_count = 7
+owner_logic_module_count = 1
+public_breadth_count = 4
 wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0

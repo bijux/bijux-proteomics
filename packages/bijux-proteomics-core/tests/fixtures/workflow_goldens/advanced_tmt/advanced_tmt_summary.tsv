@@ -1,0 +1,15 @@
+field	value
+accepted_input_row_count	4
+rejected_input_row_count	0
+mapped_channel_count	8
+weak_channel_count	2
+peptide_ratio_count	12
+sample_peptide_ratio_count	4
+high_interference_peptide_count	2
+excluded_peptide_count	2
+protein_ratio_count	12
+differential_result_count	2
+downgraded_protein_count	0
+excluded_protein_count	1
+compression_risk_count	0
+evidence_card_count	2

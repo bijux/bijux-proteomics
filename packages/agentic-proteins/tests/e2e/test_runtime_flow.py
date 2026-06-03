@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentic_proteins.orchestration.manager import RunManager
-from tests.support.paths import package_tests_root
+from agentic_proteins_testsupport.paths import package_tests_root
 
 
 def _read_fasta(path: Path) -> str:

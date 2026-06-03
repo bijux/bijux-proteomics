@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
+    build_builtin_contaminant_records,
     generate_decoy_records,
     load_builtin_contaminant_records,
     parse_fasta_document,
@@ -21,6 +24,7 @@ from bijux_proteomics.sequences.peptide_uniqueness_audit import (
     build_peptide_database_lookup_report,
     build_peptide_uniqueness_audit_report,
 )
+from bijux_proteomics.sequences.peptide_uniqueness_index import PeptideUniquenessClass
 
 
 def test_build_peptide_uniqueness_audit_report_separates_isoform_and_group_specific() -> (
@@ -89,6 +93,7 @@ def test_build_peptide_database_lookup_report_handles_modifications_il_and_misse
     assert with_il_entry.lookup_sequence == "MPEPTLDEK"
     assert with_il_entry.il_equivalence_applied is True
     assert with_il_entry.database_membership is PeptideDatabaseMembership.TARGET
+    assert with_il_entry.uniqueness_class is PeptideUniquenessClass.UNIQUE
     assert with_il_entry.audit_class is PeptideUniquenessAuditClass.UNIQUE
     assert with_il_entry.missed_cleavage_counts == (0,)
 
@@ -127,13 +132,16 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
         report.accepted_records[:1],
         mode=DecoyGenerationMode.REVERSE,
     )
-    contaminant_record = load_builtin_contaminant_records()[0]
+    contaminant_record = build_builtin_contaminant_records()[0]
+    with pytest.warns(DeprecationWarning, match="build_builtin_contaminant_records"):
+        legacy_contaminant_record = load_builtin_contaminant_records()[0]
     combined_records = (
         *report.accepted_records,
         *decoy_records,
         contaminant_record,
     )
 
+    assert legacy_contaminant_record == contaminant_record
     target_sequences = {
         peptide.sequence for peptide in digest_protein_records(report.accepted_records)
     }
@@ -165,6 +173,7 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
     assert (
         shared_entry.audit_class is PeptideUniquenessAuditClass.PROTEIN_GROUP_SPECIFIC
     )
+    assert shared_entry.uniqueness_class is PeptideUniquenessClass.SHARED
     assert shared_entry.protein_groups == ("GROUP_SHARED",)
     assert shared_entry.protein_group_count == 1
     assert shared_entry.database_membership is PeptideDatabaseMembership.TARGET
@@ -173,8 +182,12 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
     assert (
         by_peptide[decoy_query].database_membership is PeptideDatabaseMembership.DECOY
     )
+    assert by_peptide[decoy_query].uniqueness_class is PeptideUniquenessClass.DECOY
     assert by_peptide[contaminant_query].database_membership is (
         PeptideDatabaseMembership.CONTAMINANT
+    )
+    assert by_peptide[contaminant_query].uniqueness_class is (
+        PeptideUniquenessClass.CONTAMINANT
     )
     assert lookup.target_count == 1
     assert lookup.decoy_count == 1

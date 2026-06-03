@@ -4,12 +4,22 @@
   "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
   "remote_sources": [
     {
-      "source_id": "multiplex:tmtpro_reference",
-      "public_source_name": "TMTpro multiplex feature table snapshot",
+      "source_id": "multiplex:tmtpro_reporter_reference",
+      "public_source_name": "TMTpro reporter-ion table snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/tmt_reporter_table.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/multiplex/maxquant_tmt_interference.tsv",
+      "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
+      "why_it_matters": "The flagship multiplex package is explicitly about TMTpro reporter channels, interference pressure, and reference-channel design.",
+      "availability_expectation": "The TMTpro product reference should remain reachable while the package stays tied to TMTpro chemistry claims.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the chemistry reference page."
+    },
+    {
+      "source_id": "multiplex:feature_snapshot_reference",
+      "public_source_name": "TMTpro channel-level feature snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
       "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
-      "why_it_matters": "The flagship multiplex package is explicitly about TMTpro channel pressure and reference-channel design.",
+      "why_it_matters": "The retained feature snapshot keeps runtime and challenge surfaces tied to the original multiplex intensity view.",
       "availability_expectation": "The TMTpro product reference should remain reachable while the package stays tied to TMTpro chemistry claims.",
       "license_note": "The local file is a tracked snapshot; public availability check targets the chemistry reference page."
     }

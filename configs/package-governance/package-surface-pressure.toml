@@ -2,9 +2,9 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_surface_pressure
 
 [guard]
-max_total_root_export_symbol_count = 88
-max_total_public_breadth_count = 101
-max_overexposed_package_count = 9
+max_total_root_export_symbol_count = 114
+max_total_public_breadth_count = 141
+max_overexposed_package_count = 10
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -28,17 +28,17 @@ breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 126
+owner_logic_module_count = 564
 compatibility_surface_count = 0
 root_export_symbol_count = 5
-public_module_count = 0
-public_breadth_count = 5
-breadth_to_owner_ratio = 0.0397
+public_module_count = 8
+public_breadth_count = 13
+breadth_to_owner_ratio = 0.023
 breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-owner_logic_module_count = 142
+owner_logic_module_count = 159
 compatibility_surface_count = 0
 root_export_symbol_count = 0
 public_module_count = 0
@@ -48,120 +48,120 @@ breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-owner_logic_module_count = 19
+owner_logic_module_count = 31
 compatibility_surface_count = 0
 root_export_symbol_count = 15
-public_module_count = 0
-public_breadth_count = 15
-breadth_to_owner_ratio = 0.7895
+public_module_count = 3
+public_breadth_count = 18
+breadth_to_owner_ratio = 0.5806
 breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-owner_logic_module_count = 52
+owner_logic_module_count = 61
 compatibility_surface_count = 0
-root_export_symbol_count = 7
-public_module_count = 0
-public_breadth_count = 7
-breadth_to_owner_ratio = 0.1346
+root_export_symbol_count = 14
+public_module_count = 7
+public_breadth_count = 21
+breadth_to_owner_ratio = 0.3443
 breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-owner_logic_module_count = 44
+owner_logic_module_count = 54
 compatibility_surface_count = 0
-root_export_symbol_count = 5
-public_module_count = 0
-public_breadth_count = 5
-breadth_to_owner_ratio = 0.1136
-breadth_outpaces_owner_logic = false
+root_export_symbol_count = 61
+public_module_count = 1
+public_breadth_count = 62
+breadth_to_owner_ratio = 1.1481
+breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-owner_logic_module_count = 27
+owner_logic_module_count = 29
 compatibility_surface_count = 0
 root_export_symbol_count = 3
-public_module_count = 0
-public_breadth_count = 3
-breadth_to_owner_ratio = 0.1111
+public_module_count = 1
+public_breadth_count = 4
+breadth_to_owner_ratio = 0.1379
 breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 131
+owner_logic_module_count = 149
 compatibility_surface_count = 0
 root_export_symbol_count = 4
-public_module_count = 0
-public_breadth_count = 4
-breadth_to_owner_ratio = 0.0305
+public_module_count = 1
+public_breadth_count = 5
+breadth_to_owner_ratio = 0.0336
 breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "proteomics"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 compatibility_surface_count = 0
-root_export_symbol_count = 5
-public_module_count = 3
-public_breadth_count = 8
-breadth_to_owner_ratio = 4.0
+root_export_symbol_count = 1
+public_module_count = 2
+public_breadth_count = 3
+breadth_to_owner_ratio = 3.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-core"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 compatibility_surface_count = 0
-root_export_symbol_count = 5
-public_module_count = 3
-public_breadth_count = 8
-breadth_to_owner_ratio = 4.0
+root_export_symbol_count = 1
+public_module_count = 2
+public_breadth_count = 3
+breadth_to_owner_ratio = 3.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-foundation"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 compatibility_surface_count = 0
-root_export_symbol_count = 15
-public_module_count = 1
-public_breadth_count = 16
-breadth_to_owner_ratio = 16.0
+root_export_symbol_count = 1
+public_module_count = 0
+public_breadth_count = 1
+breadth_to_owner_ratio = 1.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 compatibility_surface_count = 0
-root_export_symbol_count = 7
-public_module_count = 1
-public_breadth_count = 8
-breadth_to_owner_ratio = 8.0
+root_export_symbol_count = 1
+public_module_count = 0
+public_breadth_count = 1
+breadth_to_owner_ratio = 1.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 compatibility_surface_count = 0
-root_export_symbol_count = 5
-public_module_count = 1
-public_breadth_count = 6
-breadth_to_owner_ratio = 6.0
+root_export_symbol_count = 1
+public_module_count = 0
+public_breadth_count = 1
+breadth_to_owner_ratio = 1.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-lab"
-owner_logic_module_count = 1
+owner_logic_module_count = 0
 compatibility_surface_count = 0
-root_export_symbol_count = 3
-public_module_count = 1
-public_breadth_count = 4
-breadth_to_owner_ratio = 4.0
+root_export_symbol_count = 1
+public_module_count = 0
+public_breadth_count = 1
+breadth_to_owner_ratio = 1.0
 breadth_outpaces_owner_logic = true
 
 [[package]]
 distribution_name = "proteomics-runtime"
-owner_logic_module_count = 2
+owner_logic_module_count = 1
 compatibility_surface_count = 0
-root_export_symbol_count = 4
-public_module_count = 3
-public_breadth_count = 7
-breadth_to_owner_ratio = 3.5
+root_export_symbol_count = 1
+public_module_count = 2
+public_breadth_count = 3
+breadth_to_owner_ratio = 3.0
 breadth_outpaces_owner_logic = true

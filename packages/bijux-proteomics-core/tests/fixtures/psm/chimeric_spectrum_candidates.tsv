@@ -1,0 +1,5 @@
+spectrum_id	peptide	charge	score	q_value	proteins
+scan=9001	PEPTIDE	2	55.0	0.01	P11111
+scan=9001	TIDEPEP	2	22.0	0.20	P22222
+scan=9002	PEPTIDE	2	48.0	0.02	P11111
+scan=9002	TIDEPEP	2	45.0	0.03	P22222

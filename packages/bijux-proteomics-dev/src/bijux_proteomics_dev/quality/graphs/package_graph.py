@@ -92,7 +92,9 @@ def _detect_import_root(src_dir: Path) -> str:
     candidates = [
         path.name
         for path in sorted(src_dir.iterdir())
-        if path.is_dir() and path.name != "__pycache__"
+        if path.is_dir()
+        and path.name != "__pycache__"
+        and not path.name.endswith("_testsupport")
     ]
     if len(candidates) != 1:
         raise ValueError(

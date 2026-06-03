@@ -7,15 +7,18 @@ import pytest
 
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
+    DuplicateAccessionPolicy,
     FastaParseMode,
     ResiduePolicyState,
     append_contaminant_database,
+    build_builtin_contaminant_records,
     build_decoy_generation_manifest,
     build_decoy_generation_report,
     build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
     build_sequence_residue_policy,
+    canonicalize_protein_reference,
     compute_decoy_generation_reproducibility_hash,
     deduplicate_fasta_records,
     filter_fasta_records,
@@ -25,6 +28,7 @@ from bijux_proteomics.sequences import (
     parse_fasta_records,
     parse_uniprot_accession,
     relabel_contaminant_records,
+    render_fasta_profile_invalid_sequence_tsv,
     render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
@@ -126,6 +130,46 @@ def test_parse_fasta_document_permissive_accepts_ambiguous_terminal_stop_with_wa
     } <= issue_codes
 
 
+def test_parse_fasta_document_requires_explicit_duplicate_accession_policy() -> None:
+    report = parse_fasta_document(
+        (
+            ">sp|P12345|PROT_HUMAN canonical\nMPEPTIDEK\n"
+            ">sp|P12345|PROT_HUMAN_DUP duplicate\nMPEPTIDER\n"
+        ),
+        mode=FastaParseMode.PERMISSIVE,
+    )
+
+    assert len(report.accepted_records) == 1
+    assert len(report.rejected_records) == 1
+    assert report.duplicate_accessions == ("uniprot:P12345",)
+    assert report.rejected_records[0].source_identifier == "sp|P12345|PROT_HUMAN_DUP"
+    assert {issue.code for issue in report.rejected_records[0].issues} == {
+        "duplicate_accession"
+    }
+
+
+def test_parse_fasta_document_can_accept_duplicate_accessions_with_warning_policy() -> (
+    None
+):
+    report = parse_fasta_document(
+        (
+            ">sp|P12345|PROT_HUMAN canonical GN=TP53 OS=Homo sapiens\nMPEPTIDEK\n"
+            ">sp|P12345|PROT_HUMAN_DUP duplicate GN=TP53 OS=Homo sapiens\nMPEPTIDER\n"
+        ),
+        mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
+    )
+
+    assert len(report.accepted_records) == 2
+    duplicate_record = report.accepted_records[1]
+    assert duplicate_record.canonical_accession == "P12345"
+    assert duplicate_record.gene == "TP53"
+    assert duplicate_record.organism == "Homo sapiens"
+    assert {issue.code for issue in duplicate_record.validation_issues} == {
+        "duplicate_accession"
+    }
+
+
 def test_validate_protein_sequence_flags_invalid_character_and_stop_codon() -> None:
     result = validate_protein_sequence("ACD*?Z", mode=FastaParseMode.STRICT)
 
@@ -174,6 +218,17 @@ def test_parse_uniprot_accession_rejects_invalid_tokens() -> None:
         parse_uniprot_accession("TP53_HUMAN")
 
 
+def test_canonicalize_protein_reference_normalizes_supported_accession_families() -> (
+    None
+):
+    assert canonicalize_protein_reference("sp|P04637|P53_HUMAN") == "P04637"
+    assert (
+        canonicalize_protein_reference("ref|NP_000537.3|CALM1_HUMAN") == "NP_000537.3"
+    )
+    assert canonicalize_protein_reference("ENSP00000354587.5") == "ENSP00000354587"
+    assert canonicalize_protein_reference("lab_bait_001") == "lab_bait_001"
+
+
 def test_sequence_checksum_normalizes_case_and_whitespace() -> None:
     assert sequence_checksum(" acd ef \n") == sequence_checksum("ACDEF")
 
@@ -194,12 +249,64 @@ def test_normalized_records_capture_accession_gene_and_organism(
     assert record.display_name == "TP53"
 
 
+def test_parse_fasta_document_extracts_biological_headers_across_supported_families() -> (
+    None
+):
+    report = parse_fasta_document(
+        (
+            ">sp|P04637|P53_HUMAN Cellular tumor antigen p53 OS=Homo sapiens GN=TP53\n"
+            "MEEPQSDPSV\n"
+            ">ref|NP_000537.3|TP53 isoform alpha [Homo sapiens]\n"
+            "MEEPQSDPSV\n"
+            ">ENSP00000354587.5 pep chromosome:GRCh38 gene_symbol:CALM1 description:Calmodulin-1\n"
+            "MADQLTEEQI\n"
+            ">custom_bait_001 Synthetic bait protein\n"
+            "PEPTIDER\n"
+            ">DECOY_sp|P11111|AAA_HUMAN Alpha decoy OS=Homo sapiens GN=AAA\n"
+            "PEPTIDEK\n"
+            ">CON__trypsin_lab Trypsin contaminant OS=Bos taurus GN=PRSS1\n"
+            "MKWVTFISL\n"
+        ),
+        mode=FastaParseMode.STRICT,
+    )
+
+    by_identifier = {
+        record.source_identifier: record for record in report.accepted_records
+    }
+
+    assert by_identifier["sp|P04637|P53_HUMAN"].accession_namespace == "uniprot"
+    assert by_identifier["sp|P04637|P53_HUMAN"].canonical_accession == "P04637"
+    assert by_identifier["sp|P04637|P53_HUMAN"].gene == "TP53"
+    assert by_identifier["sp|P04637|P53_HUMAN"].organism == "Homo sapiens"
+    assert by_identifier["sp|P04637|P53_HUMAN"].description == (
+        "Cellular tumor antigen p53"
+    )
+
+    assert by_identifier["ref|NP_000537.3|TP53"].accession_namespace == "refseq"
+    assert by_identifier["ref|NP_000537.3|TP53"].canonical_accession == "NP_000537.3"
+
+    assert by_identifier["ENSP00000354587.5"].accession_namespace == "ensembl"
+    assert by_identifier["ENSP00000354587.5"].canonical_accession == "ENSP00000354587"
+    assert by_identifier["ENSP00000354587.5"].gene == "CALM1"
+    assert by_identifier["ENSP00000354587.5"].description == "Calmodulin-1"
+
+    assert by_identifier["custom_bait_001"].accession_namespace == "custom"
+    assert by_identifier["custom_bait_001"].canonical_accession == "custom_bait_001"
+
+    assert by_identifier["DECOY_sp|P11111|AAA_HUMAN"].decoy is True
+    assert by_identifier["DECOY_sp|P11111|AAA_HUMAN"].canonical_accession == (
+        "DECOY_P11111"
+    )
+    assert by_identifier["CON__trypsin_lab"].contaminant is True
+
+
 def test_build_fasta_stats_reports_lengths_duplicates_and_contaminants(
     fasta_fixture_dir: Path,
 ) -> None:
     report = parse_fasta_document(
         (fasta_fixture_dir / "dedup_input.fasta").read_text(),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
     stats = build_fasta_stats(report.accepted_records)
 
@@ -230,9 +337,12 @@ def test_build_fasta_stats_reports_target_and_decoy_counts(
 
 
 def test_load_builtin_contaminant_records_returns_labeled_builtin_panel() -> None:
-    records = load_builtin_contaminant_records()
+    records = build_builtin_contaminant_records()
+    with pytest.warns(DeprecationWarning, match="build_builtin_contaminant_records"):
+        legacy_records = load_builtin_contaminant_records()
 
     assert len(records) == 4
+    assert legacy_records == records
     assert all(record.contaminant for record in records)
     assert all(record.canonical_accession.startswith("CON__") for record in records)
     assert any(record.gene == "ALB" for record in records)
@@ -273,6 +383,7 @@ def test_relabel_contaminant_records_preserves_existing_prefixes(
     report = parse_fasta_document(
         (fasta_fixture_dir / "dedup_input.fasta").read_text(),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
     relabeled = relabel_contaminant_records(report.accepted_records[-1:])
 
@@ -326,6 +437,12 @@ def test_build_fasta_database_profile_reports_length_and_organism_distribution(
     assert profile.organism_distribution[0].decoy_count == 1
     assert profile.organism_distribution[0].contaminant_count == 1
     assert profile.organism_distribution[1].protein_count == 1
+    assert [row.source_identifier for row in profile.invalid_sequence_report] == [
+        "custom_empty",
+        "custom_invalid",
+    ]
+    assert profile.invalid_sequence_report[0].primary_issue_code == "empty_sequence"
+    assert profile.invalid_sequence_report[1].primary_issue_code == "invalid_character"
 
 
 def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
@@ -343,6 +460,7 @@ def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
     summary_tsv = render_fasta_profile_summary_tsv(profile)
     length_tsv = render_fasta_profile_length_distribution_tsv(profile)
     organism_tsv = render_fasta_profile_organism_distribution_tsv(profile)
+    invalid_sequence_tsv = render_fasta_profile_invalid_sequence_tsv(profile)
 
     assert summary_tsv.splitlines()[0].startswith("input_record_count\tprotein_count")
     assert "\t6\t3\t6\t5\t1\t1\t" in summary_tsv
@@ -354,6 +472,17 @@ def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
         "organism\tprotein_count\ttarget_count\tdecoy_count\tcontaminant_count"
     )
     assert "Homo sapiens\t4\t3\t1\t1" in organism_tsv
+    assert invalid_sequence_tsv.splitlines()[0] == (
+        "source_identifier\tsource_header\tprimary_issue_code\tprimary_issue_message\tissue_codes\tissue_messages"
+    )
+    assert (
+        "custom_empty\tcustom_empty Example empty\tempty_sequence\tsequence must contain at least one amino-acid residue"
+        in invalid_sequence_tsv
+    )
+    assert (
+        "custom_invalid\tcustom_invalid Example invalid\tinvalid_character\tsequence contains invalid non-residue characters"
+        in invalid_sequence_tsv
+    )
 
 
 def test_deduplicate_fasta_records_prefers_first_accession_then_sequence(
@@ -362,6 +491,7 @@ def test_deduplicate_fasta_records_prefers_first_accession_then_sequence(
     report = parse_fasta_document(
         (fasta_fixture_dir / "dedup_input.fasta").read_text(),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
     records, dedup_report = deduplicate_fasta_records(report.accepted_records)
 
@@ -377,6 +507,7 @@ def test_filter_fasta_records_supports_length_organism_and_contaminant_filters(
     report = parse_fasta_document(
         (fasta_fixture_dir / "dedup_input.fasta").read_text(),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
     filtered, filter_report = filter_fasta_records(
         report.accepted_records,

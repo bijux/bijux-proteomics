@@ -1,0 +1,56 @@
+# Governed canonical scientific concept owners for bijux-proteomics-core.
+
+[[concept]]
+name = "target_decoy_label"
+owner_module = "bijux_proteomics.identification.contracts.psm"
+owned_symbols = [
+  "TargetDecoyLabel",
+  "TargetDecoyLabelPolicy",
+  "parse_target_decoy_label",
+]
+allowed_facade_modules = []
+
+[[concept]]
+name = "rejected_evidence"
+owner_module = "bijux_proteomics.domain.records"
+owned_symbols = ["RejectedEvidence"]
+allowed_facade_modules = []
+
+[[concept]]
+name = "sample_design"
+owner_module = "bijux_proteomics.study.design.experiment_design"
+owned_symbols = [
+  "ExperimentDesign",
+  "ExperimentDesignRun",
+  "ExperimentDesignSample",
+  "build_experiment_design",
+  "coerce_experiment_design",
+]
+allowed_facade_modules = ["bijux_proteomics.study.experiment_design"]
+
+[[concept]]
+name = "peptide_identity"
+owner_module = "bijux_proteomics.domain.records"
+owned_symbols = ["ModifiedPeptide"]
+allowed_facade_modules = []
+
+[[concept]]
+name = "protein_group"
+owner_module = "bijux_proteomics.domain.records"
+owned_symbols = ["ProteinGroup"]
+allowed_facade_modules = []
+
+[[concept]]
+name = "ptm_site_group"
+owner_module = "bijux_proteomics.ptm.sites.site_groups"
+owned_symbols = [
+  "PtmSiteGroupEntry",
+  "PtmSiteGroupEvidenceEntry",
+  "build_site_groups",
+  "build_ptm_site_group_evidence",
+]
+allowed_facade_modules = [
+  "bijux_proteomics.ptm.contracts",
+  "bijux_proteomics.ptm.protein_site_mapping",
+  "bijux_proteomics.ptm.ambiguity_handling",
+]

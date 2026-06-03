@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import string
+from typing import TYPE_CHECKING, Any, cast
 
-from hypothesis import given
-from hypothesis import strategies as st
 from pydantic import ValidationError
 import pytest
 
@@ -26,6 +26,21 @@ from bijux_proteomics_foundation.support.provenance import (
     ProvenancePointerKind,
 )
 from bijux_proteomics_foundation.support.states import SupportState
+from bijux_proteomics_foundation.testing.skip_policy import (
+    import_hypothesis_or_skip,
+)
+
+if TYPE_CHECKING:
+    from hypothesis import given
+    from hypothesis import strategies as st
+    from hypothesis.strategies import DrawFn
+else:
+    hypothesis = import_hypothesis_or_skip(
+        reason="hypothesis is required for the outcome property-based test surface",
+    )
+    given = hypothesis.given
+    st = cast(Any, hypothesis.strategies)
+    DrawFn = Callable[[object], Any]
 
 JSON_SCALAR_STRATEGY = st.one_of(
     st.none(),
@@ -68,7 +83,7 @@ HEX_DIGEST_STRATEGY = st.text(
 
 
 @st.composite
-def provenance_pointer_strategy(draw: st.DrawFn) -> ProvenancePointer:
+def provenance_pointer_strategy(draw: DrawFn, /) -> ProvenancePointer:
     return ProvenancePointer(
         pointer_kind=draw(st.sampled_from(tuple(ProvenancePointerKind))),
         locator=draw(TOKEN_TEXT_STRATEGY),
@@ -83,7 +98,8 @@ def provenance_pointer_strategy(draw: st.DrawFn) -> ProvenancePointer:
 
 @st.composite
 def operation_refusal_strategy(
-    draw: st.DrawFn,
+    draw: DrawFn,
+    /,
     *,
     operation: str | None = None,
 ) -> OperationRefusal:
@@ -115,7 +131,7 @@ def operation_refusal_strategy(
 
 
 @st.composite
-def operation_result_strategy(draw: st.DrawFn) -> OperationResult:
+def operation_result_strategy(draw: DrawFn, /) -> OperationResult:
     operation = draw(TOKEN_TEXT_STRATEGY)
     summary = draw(SENTENCE_TEXT_STRATEGY)
     provenance = tuple(

@@ -18,6 +18,6 @@ def test_annotate_isotope_and_adduct_hypotheses_returns_advisory_candidates() ->
 
     assert report.sequence == "PEPTIDE"
     assert report.charge == 2
-    assert report.envelope_status is IsotopeEnvelopeStatus.ADVISORY
+    assert report.envelope_status is IsotopeEnvelopeStatus.PREDICTED
     assert len(report.adduct_hypotheses) == 3
     assert all(hypothesis.advisory_only for hypothesis in report.adduct_hypotheses)

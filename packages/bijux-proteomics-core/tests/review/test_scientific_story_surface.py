@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
@@ -115,7 +116,7 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="s2.mzml",
-            batch="b1",
+            batch="b2",
         ),
         ExperimentalDesignEntry(
             sample_id="s3",
@@ -123,7 +124,7 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="s3.mzml",
-            batch="b2",
+            batch="b1",
         ),
         ExperimentalDesignEntry(
             sample_id="s4",
@@ -142,12 +143,15 @@ def _identification_bundle() -> ReviewReadyEvidenceBundle:
         mapping=_default_mapping(),
     )
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
-    return build_review_ready_evidence_bundle(
-        accepted,
-        threshold=0.05,
-        score_orientation="higher_better",
-        ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
-        quant_support_by_protein={"P11111": {"C1": 2200.0}},
+    return cast(
+        ReviewReadyEvidenceBundle,
+        build_review_ready_evidence_bundle(
+            accepted,
+            threshold=0.05,
+            score_orientation="higher_better",
+            ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
+            quant_support_by_protein={"P11111": {"C1": 2200.0}},
+        ),
     )
 
 

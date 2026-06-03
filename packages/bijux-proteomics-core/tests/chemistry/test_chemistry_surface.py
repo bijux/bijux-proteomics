@@ -158,13 +158,16 @@ def test_get_modification_returns_built_in_definitions() -> None:
     assert phospho.neutral_losses[0].name == "phosphoric_acid"
 
 
-def test_fragment_ion_calculator_emits_b_and_y_series() -> None:
+def test_fragment_ion_calculator_emits_a_b_and_y_series_with_residue_spans() -> None:
     ions = calculate_fragment_ions(
         "ACDE",
         charges=(1,),
-        series=(FragmentIonSeries.B, FragmentIonSeries.Y),
+        series=(FragmentIonSeries.A, FragmentIonSeries.B, FragmentIonSeries.Y),
     )
 
+    a1 = next(
+        ion for ion in ions if ion.series is FragmentIonSeries.A and ion.ordinal == 1
+    )
     b1 = next(
         ion for ion in ions if ion.series is FragmentIonSeries.B and ion.ordinal == 1
     )
@@ -172,8 +175,18 @@ def test_fragment_ion_calculator_emits_b_and_y_series() -> None:
         ion for ion in ions if ion.series is FragmentIonSeries.Y and ion.ordinal == 1
     )
 
+    assert a1.span_start == 1
+    assert a1.span_end == 1
+    assert isclose(
+        b1.mz_monoisotopic - a1.mz_monoisotopic,
+        27.99491461957,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
     assert isclose(b1.mz_monoisotopic, 72.044386466812, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(y1.mz_monoisotopic, 148.060426466812, rel_tol=0.0, abs_tol=1e-9)
+    assert y1.span_start == 4
+    assert y1.span_end == 4
 
 
 def test_fragment_ions_support_water_and_ammonia_losses() -> None:
@@ -222,6 +235,45 @@ def test_fragment_ions_carry_modification_mass_shift_on_correct_side() -> None:
         rel_tol=0.0,
         abs_tol=1e-6,
     )
+
+
+def test_fragment_ions_support_charge_three_and_terminal_modifications() -> None:
+    registry = modification_registry()
+    peptide = build_modified_peptide(
+        "PEPTIDE",
+        assignments=("Acetyl@n-term", "Amidated@c-term"),
+        registry=registry,
+    )
+
+    ions = calculate_fragment_ions(
+        peptide,
+        charges=(3,),
+        series=(FragmentIonSeries.A, FragmentIonSeries.B, FragmentIonSeries.Y),
+        registry=registry,
+    )
+
+    a2 = next(
+        ion
+        for ion in ions
+        if ion.series is FragmentIonSeries.A and ion.ordinal == 2 and ion.charge == 3
+    )
+    b2 = next(
+        ion
+        for ion in ions
+        if ion.series is FragmentIonSeries.B and ion.ordinal == 2 and ion.charge == 3
+    )
+    y2 = next(
+        ion
+        for ion in ions
+        if ion.series is FragmentIonSeries.Y and ion.ordinal == 2 and ion.charge == 3
+    )
+
+    assert a2.span_start == 1
+    assert a2.span_end == 2
+    assert y2.span_start == 6
+    assert y2.span_end == 7
+    assert b2.mz_monoisotopic > a2.mz_monoisotopic
+    assert y2.mz_monoisotopic > 0.0
 
 
 def test_fragment_ion_shift_validation_matches_only_impacted_fragments() -> None:
@@ -567,7 +619,7 @@ def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
     envelope = approximate_peptide_isotope_envelope("PEPTIDE", charge=2, peak_count=4)
 
-    assert envelope.status.value == "advisory"
+    assert envelope.status.value == "predicted"
     assert len(envelope.peaks) == 4
     assert isclose(
         sum(peak.intensity for peak in envelope.peaks), 1.0, rel_tol=0.0, abs_tol=1e-9

@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.root_imports
 
 [metrics]
-scanned_module_count = 37
+scanned_module_count = 39
 banned_root_count = 5
 violation_count = 0
 

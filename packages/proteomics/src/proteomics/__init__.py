@@ -2,40 +2,41 @@
 
 from __future__ import annotations
 
-from importlib import import_module, metadata
+from importlib import import_module
 from typing import Any
 
-from .runtime_alias import install_runtime_aliases
+from bijux_proteomics_foundation._package_aliases import (
+    alias_package_version,
+    canonical_module_dir,
+    install_import_aliases,
+)
 
 _ALIAS_PACKAGE = "proteomics"
-_RUNTIME_PACKAGE = "bijux_proteomics"
-_LOCAL_SUBMODULES = frozenset({"__main__", "cli", "runtime_alias"})
-_runtime_module = import_module(_RUNTIME_PACKAGE)
+_CANONICAL_PACKAGE = "bijux_proteomics"
+_LOCAL_SUBMODULES = frozenset({"__main__", "cli"})
 
-install_runtime_aliases(
+install_import_aliases(
     alias_package=_ALIAS_PACKAGE,
-    runtime_package=_RUNTIME_PACKAGE,
+    canonical_package=_CANONICAL_PACKAGE,
     local_submodules=_LOCAL_SUBMODULES,
 )
 
-for _name in getattr(_runtime_module, "__all__", ()):
-    if _name == "__version__":
-        continue
-    globals()[_name] = getattr(_runtime_module, _name)
+__version__ = alias_package_version(_ALIAS_PACKAGE)
 
-try:
-    __version__ = metadata.version(_ALIAS_PACKAGE)
-except metadata.PackageNotFoundError:
-    __version__ = "0.3.6"
+__all__ = ["__version__"]
 
-__all__ = list(getattr(_runtime_module, "__all__", ()))
+
+def _canonical_module() -> Any:
+    return import_module(_CANONICAL_PACKAGE)
 
 
 def __getattr__(name: str) -> Any:
-    """Forward top-level compatibility lookups to the canonical runtime package."""
-    return getattr(_runtime_module, name)
+    """Forward top-level compatibility lookups to the canonical core package."""
+
+    return getattr(_canonical_module(), name)
 
 
 def __dir__() -> list[str]:
-    """Expose the canonical runtime attributes in interactive discovery."""
-    return sorted(set(globals()) | set(dir(_runtime_module)))
+    """Expose canonical core attributes in interactive discovery."""
+
+    return canonical_module_dir(globals(), _CANONICAL_PACKAGE)

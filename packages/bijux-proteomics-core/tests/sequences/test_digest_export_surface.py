@@ -21,6 +21,9 @@ from bijux_proteomics.sequences.digestion import (
     export_peptides_tsv,
     peptide_export_fingerprint,
 )
+from bijux_proteomics_foundation.outcomes.exceptions import (
+    MissingOptionalDependencyError,
+)
 
 
 def test_digest_protein_records_and_manifest_are_stable(
@@ -252,5 +255,8 @@ def test_export_peptides_parquet_is_feature_gated(
         return original_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
-    with pytest.raises(RuntimeError, match="pyarrow"):
+    with pytest.raises(
+        MissingOptionalDependencyError,
+        match="bijux-proteomics-core\\[parquet\\]",
+    ):
         export_peptides_parquet(peptides, tmp_path / "peptides.parquet")

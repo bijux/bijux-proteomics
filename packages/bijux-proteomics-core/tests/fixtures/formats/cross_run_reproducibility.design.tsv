@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file
+control-1	control	1	1	run-a
+control-2	control	2	1	run-b
+treated-1	treated	1	1	run-c
+treated-2	treated	2	1	run-d

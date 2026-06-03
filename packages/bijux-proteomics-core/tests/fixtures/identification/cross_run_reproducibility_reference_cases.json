@@ -1,0 +1,288 @@
+[
+  {
+    "case_id": "peptide_cross_run_reproducibility",
+    "entity_type": "peptide",
+    "exploratory_entities": ["PEPC"],
+    "run_contexts": [
+      {
+        "run_id": "run-a",
+        "sample_id": "control-1",
+        "condition_id": "control",
+        "replicate_id": "1"
+      },
+      {
+        "run_id": "run-b",
+        "sample_id": "control-2",
+        "condition_id": "control",
+        "replicate_id": "2"
+      },
+      {
+        "run_id": "run-c",
+        "sample_id": "treated-1",
+        "condition_id": "treated",
+        "replicate_id": "1"
+      },
+      {
+        "run_id": "run-d",
+        "sample_id": "treated-2",
+        "condition_id": "treated",
+        "replicate_id": "2"
+      }
+    ],
+    "records": [
+      {
+        "run_id": "run-a",
+        "spectrum_id": "scan-001",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 100.0,
+        "q_value": 0.003,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-b",
+        "spectrum_id": "scan-002",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 98.0,
+        "q_value": 0.004,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-c",
+        "spectrum_id": "scan-003",
+        "peptide": "PEPB",
+        "canonical_peptide": "PEPB",
+        "charge": 2,
+        "score": 95.0,
+        "q_value": 0.005,
+        "protein_refs": ["P22222"]
+      },
+      {
+        "run_id": "run-d",
+        "spectrum_id": "scan-004",
+        "peptide": "PEPC",
+        "canonical_peptide": "PEPC",
+        "charge": 2,
+        "score": 94.0,
+        "q_value": 0.006,
+        "protein_refs": ["P33333"]
+      },
+      {
+        "run_id": "run-a",
+        "spectrum_id": "scan-005",
+        "peptide": "PEPD",
+        "canonical_peptide": "PEPD",
+        "charge": 2,
+        "score": 93.0,
+        "q_value": 0.007,
+        "protein_refs": ["P44444"]
+      },
+      {
+        "run_id": "run-c",
+        "spectrum_id": "scan-006",
+        "peptide": "PEPD",
+        "canonical_peptide": "PEPD",
+        "charge": 2,
+        "score": 92.0,
+        "q_value": 0.008,
+        "protein_refs": ["P44444"]
+      }
+    ],
+    "expected_summary": {
+      "total_entries": 4,
+      "reproducible_count": 1,
+      "condition_specific_count": 1,
+      "single_run_only_count": 1,
+      "exploratory_count": 1,
+      "condition_aware_entry_count": 4
+    },
+    "expected_entries": [
+      {
+        "entity_id": "PEPA",
+        "detected_run_count": 2,
+        "detection_frequency": 0.5,
+        "detected_condition_count": 1,
+        "primary_condition": "control",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 1.0,
+        "reproducibility_class": "condition_specific"
+      },
+      {
+        "entity_id": "PEPB",
+        "detected_run_count": 1,
+        "detection_frequency": 0.25,
+        "detected_condition_count": 1,
+        "primary_condition": "treated",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "single_run_only"
+      },
+      {
+        "entity_id": "PEPC",
+        "detected_run_count": 1,
+        "detection_frequency": 0.25,
+        "detected_condition_count": 1,
+        "primary_condition": "treated",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "exploratory"
+      },
+      {
+        "entity_id": "PEPD",
+        "detected_run_count": 2,
+        "detection_frequency": 0.5,
+        "detected_condition_count": 2,
+        "primary_condition": "treated",
+        "condition_specificity": 0.5,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "reproducible"
+      }
+    ]
+  },
+  {
+    "case_id": "protein_cross_run_reproducibility",
+    "entity_type": "protein",
+    "exploratory_entities": ["P33333"],
+    "run_contexts": [
+      {
+        "run_id": "run-a",
+        "sample_id": "control-1",
+        "condition_id": "control",
+        "replicate_id": "1"
+      },
+      {
+        "run_id": "run-b",
+        "sample_id": "control-2",
+        "condition_id": "control",
+        "replicate_id": "2"
+      },
+      {
+        "run_id": "run-c",
+        "sample_id": "treated-1",
+        "condition_id": "treated",
+        "replicate_id": "1"
+      },
+      {
+        "run_id": "run-d",
+        "sample_id": "treated-2",
+        "condition_id": "treated",
+        "replicate_id": "2"
+      }
+    ],
+    "records": [
+      {
+        "run_id": "run-a",
+        "spectrum_id": "scan-001",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 100.0,
+        "q_value": 0.003,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-b",
+        "spectrum_id": "scan-002",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 98.0,
+        "q_value": 0.004,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-c",
+        "spectrum_id": "scan-003",
+        "peptide": "PEPB",
+        "canonical_peptide": "PEPB",
+        "charge": 2,
+        "score": 95.0,
+        "q_value": 0.005,
+        "protein_refs": ["P22222"]
+      },
+      {
+        "run_id": "run-d",
+        "spectrum_id": "scan-004",
+        "peptide": "PEPC",
+        "canonical_peptide": "PEPC",
+        "charge": 2,
+        "score": 94.0,
+        "q_value": 0.006,
+        "protein_refs": ["P33333"]
+      },
+      {
+        "run_id": "run-a",
+        "spectrum_id": "scan-005",
+        "peptide": "PEPD",
+        "canonical_peptide": "PEPD",
+        "charge": 2,
+        "score": 93.0,
+        "q_value": 0.007,
+        "protein_refs": ["P44444"]
+      },
+      {
+        "run_id": "run-c",
+        "spectrum_id": "scan-006",
+        "peptide": "PEPD",
+        "canonical_peptide": "PEPD",
+        "charge": 2,
+        "score": 92.0,
+        "q_value": 0.008,
+        "protein_refs": ["P44444"]
+      }
+    ],
+    "expected_summary": {
+      "total_entries": 4,
+      "reproducible_count": 1,
+      "condition_specific_count": 1,
+      "single_run_only_count": 1,
+      "exploratory_count": 1,
+      "condition_aware_entry_count": 4
+    },
+    "expected_entries": [
+      {
+        "entity_id": "P11111",
+        "detected_run_count": 2,
+        "detection_frequency": 0.5,
+        "detected_condition_count": 1,
+        "primary_condition": "control",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 1.0,
+        "reproducibility_class": "condition_specific"
+      },
+      {
+        "entity_id": "P22222",
+        "detected_run_count": 1,
+        "detection_frequency": 0.25,
+        "detected_condition_count": 1,
+        "primary_condition": "treated",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "single_run_only"
+      },
+      {
+        "entity_id": "P33333",
+        "detected_run_count": 1,
+        "detection_frequency": 0.25,
+        "detected_condition_count": 1,
+        "primary_condition": "treated",
+        "condition_specificity": 1.0,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "exploratory"
+      },
+      {
+        "entity_id": "P44444",
+        "detected_run_count": 2,
+        "detection_frequency": 0.5,
+        "detected_condition_count": 2,
+        "primary_condition": "treated",
+        "condition_specificity": 0.5,
+        "replicate_consistency": 0.5,
+        "reproducibility_class": "reproducible"
+      }
+    ]
+  }
+]

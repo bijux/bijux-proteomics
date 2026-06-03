@@ -67,6 +67,7 @@ ignore = ["E501", "E203"]
 force-sort-within-sections = true
 known-first-party = [
   "agentic_proteins",
+  "agentic_proteins_testsupport",
   "bijux_proteomics_alias",
   "bijux_proteomics",
   "bijux_proteomics_dev",

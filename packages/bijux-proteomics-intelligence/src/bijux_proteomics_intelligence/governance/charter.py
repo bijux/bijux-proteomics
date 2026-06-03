@@ -25,7 +25,14 @@ class IntelligenceCharterCapability(StrEnum):
 class IntelligenceAnalyticalBand(StrEnum):
     """Stable analytical bands that organize intelligence owner modules."""
 
+    BELIEF_AUDIT = "belief_audit"
     CANDIDATES = "candidates"
+    CLAIMS = "claims"
+    CONTRADICTIONS = "contradictions"
+    FALSIFIERS = "falsifiers"
+    REFUSAL = "refusal"
+    NEXT_STEPS = "next_steps"
+    QUERY = "query"
     JUDGMENT = "judgment"
     POSTURE = "posture"
     INTERPRETATION = "interpretation"
@@ -121,6 +128,22 @@ DEFAULT_INTELLIGENCE_CHARTER = IntelligenceProductCharter(
 
 DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] = (
     IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.BELIEF_AUDIT,
+        owned_surface=(
+            "claim-level belief audits that balance supporting evidence, "
+            "contradicting evidence, uncertainty, falsification, and next checks"
+        ),
+        required_modules=("belief_audit.py",),
+        decision_scope=(
+            "emit one explicit audit row for every claim instead of letting top claims bypass balanced review",
+            "keep support, contradiction, uncertainty, falsifier, and next-check state visible in one governed surface",
+        ),
+        refusal_scope=(
+            "refuse report-ready top claims that do not have belief-audit rows",
+            "do not take over evidence-graph construction or knowledge-owned claim curation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.CANDIDATES,
         owned_surface=(
             "candidate framing, ranking, lifecycle, and candidate-specific "
@@ -140,6 +163,102 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         refusal_scope=(
             "refuse opaque score-only ordering",
             "refuse package-root convenience exports as a substitute for candidate ownership",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.CLAIMS,
+        owned_surface=(
+            "graph-backed claim-support validation that keeps unsupported or "
+            "contradicted analytical claims explicit before downstream judgment and review"
+        ),
+        required_modules=("claims/support.py",),
+        decision_scope=(
+            "invalidate claims that are not anchored to explicit evidence-graph support",
+            "keep contradicting graph evidence visible before contradiction summaries",
+        ),
+        refusal_scope=(
+            "refuse free-text claim support that is not linked to the evidence graph",
+            "do not take over knowledge-owned claim curation or evidence-graph construction",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.CONTRADICTIONS,
+        owned_surface=(
+            "pairwise contradiction detection that distinguishes direct disagreement "
+            "from site-specific PTM residuals after protein-abundance correction"
+        ),
+        required_modules=("contradictions.py",),
+        decision_scope=(
+            "keep direct target disagreements explicit before recommendation synthesis",
+            "treat protein-steady and PTM-shifted pairs as site-specific only when corrected residual site evidence remains strong",
+        ),
+        refusal_scope=(
+            "refuse to collapse corrected site-specific PTM residuals into protein-level contradiction",
+            "do not take over knowledge-owned claim curation or PTM correction generation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.FALSIFIERS,
+        owned_surface=(
+            "claim challenge generation that states what evidence would overturn "
+            "protein, PTM, pathway, regulator, and biomarker interpretations"
+        ),
+        required_modules=("falsifiers.py",),
+        decision_scope=(
+            "emit claim-specific falsifier types instead of one generic challenge template",
+            "tie required evidence to the biological surface that currently carries the claim",
+        ),
+        refusal_scope=(
+            "refuse generic falsifiers that ignore whether the claim is protein, PTM, pathway, regulator, and biomarker scoped",
+            "do not take over lab scheduling or knowledge-owned assay catalog curation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.REFUSAL,
+        owned_surface=(
+            "claim refusal boundaries that block strong analytical claims when "
+            "design validity, qc posture, peptide depth, or PTM localization is too weak"
+        ),
+        required_modules=("refusal.py",),
+        decision_scope=(
+            "block strong claims when experimental design validity is absent or QC has failed",
+            "refuse strong protein and PTM claims when peptide support or site localization does not meet governed evidence thresholds",
+        ),
+        refusal_scope=(
+            "refuse to let weak peptide support or low PTM localization pass as strong evidence",
+            "do not take over core-owned QC generation, localization scoring, or design normalization",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.NEXT_STEPS,
+        owned_surface=(
+            "next-experiment selection that converts explicit result weaknesses "
+            "and opportunities into concrete follow-up experiment proposals"
+        ),
+        required_modules=("next_steps.py",),
+        decision_scope=(
+            "recommend concrete follow-up experiments only when a governed result preserves a specific weakness or opportunity",
+            "keep sample qc reruns, ptm relocalization, targeted validation, pathway member resolution, and rejected-claim resolution separate instead of collapsing them into generic next steps",
+        ),
+        refusal_scope=(
+            "refuse generic follow-up advice that does not point to a triggering result row",
+            "do not take over lab scheduling, assay execution, or workflow-owned result generation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.QUERY,
+        owned_surface=(
+            "deterministic result-question answering that returns governed IDs for "
+            "significance, rejection, peptide support, failed samples, and claim weakness"
+        ),
+        required_modules=("query.py",),
+        decision_scope=(
+            "answer supported result questions from preserved study-result objects without free-text guessing",
+            "return explicit IDs alongside prose so answers stay machine-actionable",
+        ),
+        refusal_scope=(
+            "refuse prose-only answers that omit referenced IDs",
+            "do not take over artifact parsing or core-owned result-query artifact loaders",
         ),
     ),
     IntelligenceCapabilityMapEntry(
@@ -258,8 +377,12 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
     ),
     IntelligenceCharterEntry(
         capability=IntelligenceCharterCapability.CONTRADICTION_HANDLING,
-        owned_surface="Explicit contradiction, freshness, and uncertainty posture that can refuse overconfident recommendations.",
+        owned_surface="Explicit contradiction, claim-support, freshness, and uncertainty posture that can refuse overconfident recommendations.",
         required_modules=(
+            "contradictions.py",
+            "claims/support.py",
+            "refusal.py",
+            "belief_audit.py",
             "posture/evidence.py",
             "judgment/scenarios.py",
             "judgment/paths.py",
@@ -270,6 +393,10 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
+            "belief_audit.py",
+            "falsifiers.py",
+            "next_steps.py",
+            "query.py",
             "reviews/decision_briefs.py",
             "judgment/recommendations.py",
             "judgment/paths.py",
@@ -306,6 +433,86 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="public_api.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.PRIORITIZATION,
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="The machine-readable root API contract keeps the supported analytical import surface explicit and release-auditable.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="belief_audit.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Belief-audit rows keep support, contradiction, uncertainty, falsification, and next checks explicit for every claim so high-confidence claims cannot bypass balanced review.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="claims/__init__.py",
+        classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
+        reason="The claims package root groups claim-support validation owners without separate analytical logic.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="claims/support.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Claim-support validation keeps unsupported claims invalid and leaves contradicting graph evidence explicit before downstream judgment or review packets are built.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="contradictions.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Contradiction detection preserves direct disagreements while distinguishing corrected site-specific PTM residuals from real protein-versus-site conflicts.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="falsifiers.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="Falsifier generation keeps claim challenge paths explicit by emitting distinct evidence requirements for protein, PTM, pathway, regulator, and biomarker claims.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="refusal.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+        ),
+        reason="Claim refusal keeps strong analytical statements blocked when design validity, QC posture, peptide support, or PTM localization do not satisfy the minimum governed evidence boundary.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="next_steps.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="Next-experiment selection turns explicit study-result weaknesses and opportunities into concrete follow-up experiments with preserved triggering evidence instead of generic prose advice.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="query.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.REVIEW_REASONING,
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+        ),
+        reason="Result-question answering keeps significance, rejection, peptide support, failed sample, and weakening answers deterministic and machine-readable by returning preserved IDs instead of prose alone.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="governance/charter.py",

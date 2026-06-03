@@ -43,8 +43,9 @@ class FragmentIonReviewReport(JsonModel):
 def build_fragment_ion_review_report(
     peptide: str | ParsedModifiedPeptide,
     *,
-    charges: tuple[int, ...] = (1, 2),
+    charges: tuple[int, ...] = (1, 2, 3),
     series: tuple[FragmentIonSeries, ...] = (
+        FragmentIonSeries.A,
         FragmentIonSeries.B,
         FragmentIonSeries.Y,
     ),
@@ -98,6 +99,8 @@ def render_fragment_ion_report_tsv(report: FragmentIonReviewReport) -> str:
             "series",
             "ordinal",
             "charge",
+            "span_start",
+            "span_end",
             "sequence",
             "neutral_loss",
             "neutral_mass_monoisotopic",
@@ -112,6 +115,8 @@ def render_fragment_ion_report_tsv(report: FragmentIonReviewReport) -> str:
                 ion.series.value,
                 ion.ordinal,
                 ion.charge,
+                ion.span_start,
+                ion.span_end,
                 ion.sequence,
                 ion.neutral_loss,
                 ion.neutral_mass_monoisotopic,

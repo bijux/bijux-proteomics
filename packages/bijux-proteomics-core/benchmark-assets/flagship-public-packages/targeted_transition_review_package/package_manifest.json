@@ -2,7 +2,7 @@
   "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
   "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
   "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
-  "claim_scope": "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture.",
+  "claim_scope": "Targeted credibility is now anchored in a public transition-control package with runnable Skyline-style results, explicit QC review, and approved, failed, and refused consequence packets instead of a buried QC fixture.",
   "comparator_availability": "bounded Skyline-class comparator confrontation is shipped",
   "expected_review_artifacts": [
     "artifacts/workflows/flagship-workflows/lab/follow_up_packet.json",
@@ -10,19 +10,20 @@
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
-  "note": "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but calibration, interference, and vendor-parity limits remain explicit.",
+  "note": "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but absolute calibration, interference, and vendor-parity limits remain explicit.",
   "package_id": "flagship_public_package:targeted_transition_review_package",
   "package_label": "Flagship public targeted transition review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
-  "public_dataset_identity": "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots",
+  "public_dataset_identity": "tracked Skyline-style targeted result and design snapshots plus supporting QC and approved, failed, and refused follow-up packet snapshots",
   "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
   "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
   "replaced_proof_surface": "closed_fixture_bundle:targeted_transition_control_bundle",
   "runtime_availability": "raw-executable runtime lane exists and is reviewable",
   "scientific_pressures": [
     "transition reproducibility",
-    "calibration absence",
     "interference risk",
+    "fragment-ratio drift",
+    "coelution instability",
     "premature protein certainty"
   ],
   "source_assets": [
@@ -81,10 +82,22 @@
       "public_identity_note": "The rebuild instructions define how to refresh the targeted asset root as a product evidence surface."
     },
     {
+      "asset_role": "targeted_result_table",
+      "evidence_kind": "targeted_result_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc_results.tsv",
+      "public_identity_note": "The Skyline-style targeted result table is the runnable benchmark input for matrix and assay-QC regeneration."
+    },
+    {
+      "asset_role": "targeted_design",
+      "evidence_kind": "experimental_design",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/skyline_targeted_qc.design.tsv",
+      "public_identity_note": "The targeted design preserves the replicate and condition structure needed for replicate-CV and validation review."
+    },
+    {
       "asset_role": "targeted_qc_table",
       "evidence_kind": "targeted_qc_table",
       "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
-      "public_identity_note": "Transition-level QC evidence is the tracked base layer for the targeted public package."
+      "public_identity_note": "Transition-level QC evidence remains a tracked supporting layer beside the runnable targeted benchmark input."
     },
     {
       "asset_role": "approved_follow_up",

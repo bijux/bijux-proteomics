@@ -27,6 +27,7 @@ dependencies = [
   "agentic-proteins>=0.3.6",
   "biopython>=1.85,<2.0",
   "huggingface-hub>=0.24,<2.0",
+  "idna>=3.15,<4.0",
   "packaging>=24.0,<27.0",
   "PyYAML>=6.0,<7.0",
   "requests>=2.32,<3.0",
@@ -42,6 +43,11 @@ Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-
 Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.optional-dependencies]
+test = [
+  "pytest>=9.0.3,<10.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-timeout>=2.4.0,<3.0",
+]
 dev = [
   "pytest>=9.0.3,<10.0",
   "pytest-asyncio>=1.0.0,<2.0",
@@ -53,6 +59,7 @@ dev = [
   "pydantic>=2.12,<3.0",
   "ruff>=0.6.8,<1.0",
   "mypy>=1.11.2,<3.0",
+  "pyright>=1.1.390,<2.0",
   "radon>=6.0.1,<7.0",
   "vulture>=2.7,<3.0",
   "deptry>=0.10.0,<1.0",
@@ -68,7 +75,8 @@ dev = [
   "mkdocs-redirects>=1.2,<2.0",
   "mkdocs-git-revision-date-localized-plugin>=1.2.0,<2.0",
   "gitpython>=3.1.50,<4.0",
-  "pymdown-extensions>=10.8,<11.0",
+  "pymdown-extensions>=10.21.3,<11.0",
+  "starlette>=1.0.1,<2.0",
   "types-PyYAML>=6.0.12,<7.0",
   "types-defusedxml>=0.7.0,<1.0",
   "types-requests>=2.32.0,<3.0",
@@ -104,5 +112,9 @@ ignore-semiprivate = true
 
 [tool.pytest.ini_options]
 markers = [
+  "benchmark: performance and benchmark-oriented tests",
+  "external_data: tests that exercise checked-in external corpora and bundles",
+  "governance: repository governance and inventory freshness tests",
   "slow: mark test as slow",
+  "unit: unit tests",
 ]

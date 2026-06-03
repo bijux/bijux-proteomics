@@ -15,6 +15,7 @@ __all__ = [
     "AssayRiskCode",
     "AssayRiskFinding",
     "AssayRiskSeverity",
+    "CanonicalArtifactEnvelope",
     "HandoffAuthorityBoundary",
     "HandoffAuthorityOwner",
     "HandoffExplanation",
@@ -26,10 +27,16 @@ __all__ = [
     "LabArtifactProfile",
     "LabArtifactSchemaContract",
     "LabArtifactUpgradeAdvisory",
+    "LabRunQcFeedbackEntry",
+    "LabRunQcFeedbackReasonCode",
+    "LabRunQcFeedbackReport",
+    "LabRunQcFeedbackStatus",
+    "LabRunQcObservation",
     "LabExecutionRefusal",
     "LimsExportBundle",
     "LimsExportRecord",
     "LimsFieldMapping",
+    "ModelPayloadDiff",
     "PtmLabAssayRisk",
     "PtmLabValidationPacket",
     "PtmLabValidationTargetEntry",
@@ -42,6 +49,7 @@ __all__ = [
     "build_canonical_artifact_envelope",
     "build_handoff_explanation",
     "build_lab_artifact_upgrade_advisory",
+    "build_lab_run_qc_feedback_report",
     "build_lims_export_bundle",
     "build_ptm_lab_validation_packet",
     "compare_alternative_assay_plans",
@@ -55,6 +63,7 @@ __all__ = [
     "exports",
     "lint_lab_artifact_contract_registry",
     "ptm",
+    "qc_feedback",
     "refuse_irresponsible_assay_handoff",
     "review_targeted_transition_candidates",
     "risk",
@@ -79,6 +88,10 @@ _HANDOFF_PUBLIC_EXPORTS = {
     "AssayRiskCode": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskCode"),
     "AssayRiskFinding": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskFinding"),
     "AssayRiskSeverity": ("bijux_proteomics_lab.handoffs.risk", "AssayRiskSeverity"),
+    "CanonicalArtifactEnvelope": (
+        "bijux_proteomics_lab.handoffs.serialization",
+        "CanonicalArtifactEnvelope",
+    ),
     "HandoffAuthorityBoundary": (
         "bijux_proteomics_lab.handoffs.explanations",
         "HandoffAuthorityBoundary",
@@ -123,6 +136,26 @@ _HANDOFF_PUBLIC_EXPORTS = {
         "bijux_proteomics_lab.handoffs.artifacts",
         "LabArtifactUpgradeAdvisory",
     ),
+    "LabRunQcFeedbackEntry": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "LabRunQcFeedbackEntry",
+    ),
+    "LabRunQcFeedbackReasonCode": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "LabRunQcFeedbackReasonCode",
+    ),
+    "LabRunQcFeedbackReport": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "LabRunQcFeedbackReport",
+    ),
+    "LabRunQcFeedbackStatus": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "LabRunQcFeedbackStatus",
+    ),
+    "LabRunQcObservation": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "LabRunQcObservation",
+    ),
     "LabExecutionRefusal": (
         "bijux_proteomics_lab.handoffs.explanations",
         "LabExecutionRefusal",
@@ -130,6 +163,10 @@ _HANDOFF_PUBLIC_EXPORTS = {
     "LimsExportBundle": ("bijux_proteomics_lab.handoffs.exports", "LimsExportBundle"),
     "LimsExportRecord": ("bijux_proteomics_lab.handoffs.exports", "LimsExportRecord"),
     "LimsFieldMapping": ("bijux_proteomics_lab.handoffs.exports", "LimsFieldMapping"),
+    "ModelPayloadDiff": (
+        "bijux_proteomics_lab.handoffs.serialization",
+        "ModelPayloadDiff",
+    ),
     "PtmLabAssayRisk": ("bijux_proteomics_lab.handoffs.ptm", "PtmLabAssayRisk"),
     "PtmLabValidationPacket": (
         "bijux_proteomics_lab.handoffs.ptm",
@@ -168,6 +205,10 @@ _HANDOFF_PUBLIC_EXPORTS = {
     "build_lab_artifact_upgrade_advisory": (
         "bijux_proteomics_lab.handoffs.artifacts",
         "build_lab_artifact_upgrade_advisory",
+    ),
+    "build_lab_run_qc_feedback_report": (
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+        "build_lab_run_qc_feedback_report",
     ),
     "build_lims_export_bundle": (
         "bijux_proteomics_lab.handoffs.exports",
@@ -212,6 +253,7 @@ _HANDOFF_PUBLIC_EXPORTS = {
         "lint_lab_artifact_contract_registry",
     ),
     "ptm": ("bijux_proteomics_lab.handoffs", "ptm"),
+    "qc_feedback": ("bijux_proteomics_lab.handoffs", "qc_feedback"),
     "refuse_irresponsible_assay_handoff": (
         "bijux_proteomics_lab.handoffs.explanations",
         "refuse_irresponsible_assay_handoff",
@@ -235,6 +277,7 @@ _HANDOFF_SUBMODULES = {
         "explanations",
         "exports",
         "ptm",
+        "qc_feedback",
         "risk",
         "serialization",
         "transitions",

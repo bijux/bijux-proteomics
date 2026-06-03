@@ -5,11 +5,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.dia.library_coverage import DiaLibraryCoverageReport
 
 
 class WorkflowScientificSupportTier(StrEnum):
@@ -41,6 +46,8 @@ class DiaWorkflowScientificSupportReport(JsonModel):
     entries: tuple[DiaWorkflowSupportTierEntry, ...] = Field(default_factory=tuple)
     ion_mobility_observed_fraction: float = Field(..., ge=0.0, le=1.0)
     library_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
+    sample_library_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
+    condition_library_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
     absent_expected_peptide_fraction: float = Field(..., ge=0.0, le=1.0)
     partial_support_definition: str = Field(..., min_length=1)
     ready_for_biological_interpretation: bool
@@ -147,24 +154,38 @@ def build_dia_workflow_scientific_support_report(
     *,
     imported_precursor_count: int,
     expected_precursor_count: int,
+    sample_resolved_precursor_count: int,
+    expected_sample_resolved_precursor_count: int,
     transition_supported_precursor_count: int,
     expected_transition_precursor_count: int,
     protein_group_count: int,
     expected_protein_group_count: int,
+    sample_resolved_protein_count: int,
+    expected_sample_resolved_protein_count: int,
     ion_mobility_observed_count: int,
     ion_mobility_expected_count: int,
     library_matched_peptide_count: int,
     expected_library_peptide_count: int,
     absent_expected_peptide_count: int,
+    sample_library_coverage_fraction: float | None = None,
+    condition_library_coverage_fraction: float | None = None,
 ) -> DiaWorkflowScientificSupportReport:
     """Score DIA support tiers with explicit realism pressure and partial-support rules."""
 
     import_fraction = _fraction(imported_precursor_count, expected_precursor_count)
+    precursor_matrix_fraction = _fraction(
+        sample_resolved_precursor_count,
+        expected_sample_resolved_precursor_count,
+    )
     transition_fraction = _fraction(
         transition_supported_precursor_count,
         expected_transition_precursor_count,
     )
     protein_fraction = _fraction(protein_group_count, expected_protein_group_count)
+    protein_matrix_fraction = _fraction(
+        sample_resolved_protein_count,
+        expected_sample_resolved_protein_count,
+    )
     ion_mobility_fraction = _fraction(
         ion_mobility_observed_count,
         ion_mobility_expected_count,
@@ -173,6 +194,8 @@ def build_dia_workflow_scientific_support_report(
         library_matched_peptide_count,
         expected_library_peptide_count,
     )
+    sample_library_fraction = _optional_fraction(sample_library_coverage_fraction)
+    condition_library_fraction = _optional_fraction(condition_library_coverage_fraction)
     absent_expected_fraction = _fraction(
         absent_expected_peptide_count,
         expected_library_peptide_count,
@@ -188,13 +211,24 @@ def build_dia_workflow_scientific_support_report(
         supported_threshold=0.85,
         partial_threshold=0.6,
     )
+    precursor_matrix_tier = _tier_from_fraction(
+        fraction=min(import_fraction, precursor_matrix_fraction),
+        supported_threshold=0.9,
+        partial_threshold=0.7,
+    )
     protein_tier = _tier_from_fraction(
-        fraction=min(protein_fraction, library_coverage_fraction),
+        fraction=min(
+            protein_fraction,
+            protein_matrix_fraction,
+            library_coverage_fraction,
+        ),
         supported_threshold=0.8,
         partial_threshold=0.5,
     )
     interpretation_signal = min(
         library_coverage_fraction,
+        sample_library_fraction,
+        condition_library_fraction,
         ion_mobility_fraction if ion_mobility_expected_count > 0 else 1.0,
         1.0 - absent_expected_fraction,
     )
@@ -222,6 +256,16 @@ def build_dia_workflow_scientific_support_report(
             ),
         ),
         DiaWorkflowSupportTierEntry(
+            surface="precursor_matrix_evidence",
+            support_tier=precursor_matrix_tier,
+            observed_fraction=min(import_fraction, precursor_matrix_fraction),
+            supported_threshold=0.9,
+            partial_threshold=0.7,
+            detail=(
+                "precursor-level analysis is only strong when imported evidence remains sample-resolved enough to support precursor-by-sample matrices rather than one-off run rows"
+            ),
+        ),
+        DiaWorkflowSupportTierEntry(
             surface="transition_semantics",
             support_tier=transition_tier,
             observed_fraction=transition_fraction,
@@ -234,11 +278,15 @@ def build_dia_workflow_scientific_support_report(
         DiaWorkflowSupportTierEntry(
             surface="protein_level_evidence",
             support_tier=protein_tier,
-            observed_fraction=min(protein_fraction, library_coverage_fraction),
+            observed_fraction=min(
+                protein_fraction,
+                protein_matrix_fraction,
+                library_coverage_fraction,
+            ),
             supported_threshold=0.8,
             partial_threshold=0.5,
             detail=(
-                "protein-level evidence is downgraded whenever library coverage collapses even if imported precursors still look healthy"
+                "protein-level evidence is downgraded whenever protein-by-sample matrix coverage or library coverage collapses even if imported precursors still look healthy"
             ),
         ),
         DiaWorkflowSupportTierEntry(
@@ -248,7 +296,7 @@ def build_dia_workflow_scientific_support_report(
             supported_threshold=0.8,
             partial_threshold=0.55,
             detail=(
-                "biological interpretation is only strong when library coverage, peptide presence, and ion-mobility evidence all stay above bounded thresholds"
+                "biological interpretation is only strong when aggregate library coverage, sample and condition library visibility, peptide presence, and ion-mobility evidence all stay above bounded thresholds"
             ),
         ),
     )
@@ -256,14 +304,64 @@ def build_dia_workflow_scientific_support_report(
         entries=entries,
         ion_mobility_observed_fraction=ion_mobility_fraction,
         library_coverage_fraction=library_coverage_fraction,
+        sample_library_coverage_fraction=sample_library_fraction,
+        condition_library_coverage_fraction=condition_library_fraction,
         absent_expected_peptide_fraction=absent_expected_fraction,
         partial_support_definition=(
             "partial DIA support means imported evidence remains reviewable, but one or more realism pressures "
-            "such as incomplete library coverage, weak transition retention, missing ion-mobility evidence, or absent expected peptides "
+            "such as incomplete library coverage, uneven sample or condition library visibility, weak transition retention, weak protein-matrix coverage, missing ion-mobility evidence, or absent expected peptides "
             "still block strong biological interpretation"
         ),
         ready_for_biological_interpretation=(
             interpretation_tier is WorkflowScientificSupportTier.SUPPORTED
+        ),
+    )
+
+
+def build_dia_workflow_scientific_support_from_library_coverage(
+    *,
+    imported_precursor_count: int,
+    expected_precursor_count: int,
+    sample_resolved_precursor_count: int,
+    expected_sample_resolved_precursor_count: int,
+    transition_supported_precursor_count: int,
+    expected_transition_precursor_count: int,
+    protein_group_count: int,
+    expected_protein_group_count: int,
+    sample_resolved_protein_count: int,
+    expected_sample_resolved_protein_count: int,
+    ion_mobility_observed_count: int,
+    ion_mobility_expected_count: int,
+    library_coverage_report: DiaLibraryCoverageReport,
+) -> DiaWorkflowScientificSupportReport:
+    """Build DIA support tiers directly from one spectral-library coverage report."""
+
+    return build_dia_workflow_scientific_support_report(
+        imported_precursor_count=imported_precursor_count,
+        expected_precursor_count=expected_precursor_count,
+        sample_resolved_precursor_count=sample_resolved_precursor_count,
+        expected_sample_resolved_precursor_count=expected_sample_resolved_precursor_count,
+        transition_supported_precursor_count=transition_supported_precursor_count,
+        expected_transition_precursor_count=expected_transition_precursor_count,
+        protein_group_count=protein_group_count,
+        expected_protein_group_count=expected_protein_group_count,
+        sample_resolved_protein_count=sample_resolved_protein_count,
+        expected_sample_resolved_protein_count=expected_sample_resolved_protein_count,
+        ion_mobility_observed_count=ion_mobility_observed_count,
+        ion_mobility_expected_count=ion_mobility_expected_count,
+        library_matched_peptide_count=library_coverage_report.summary.detected_peptide_count,
+        expected_library_peptide_count=library_coverage_report.summary.library_peptide_count,
+        absent_expected_peptide_count=(
+            library_coverage_report.summary.library_peptide_count
+            - library_coverage_report.summary.detected_peptide_count
+        ),
+        sample_library_coverage_fraction=_mean(
+            entry.peptide_coverage_fraction
+            for entry in library_coverage_report.sample_entries
+        ),
+        condition_library_coverage_fraction=_mean(
+            entry.peptide_coverage_fraction
+            for entry in library_coverage_report.condition_entries
         ),
     )
 
@@ -319,6 +417,19 @@ def build_targeted_workflow_benchmark_report(
             else "targeted workflow remains limited by calibration failure, incomplete pairing, or transition interference"
         ),
     )
+
+
+def _optional_fraction(value: float | None) -> float:
+    if value is None:
+        return 1.0
+    return min(1.0, max(0.0, value))
+
+
+def _mean(values: Iterable[float]) -> float:
+    sequence = tuple(float(value) for value in values)
+    if not sequence:
+        return 1.0
+    return min(1.0, max(0.0, sum(sequence) / len(sequence)))
 
 
 def build_targeted_raw_to_reviewed_bundle_report(

@@ -1,0 +1,16 @@
+{
+  "bijux_proteomics.dia.optimize_targeted_assay_candidates": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "candidates"
+    ],
+    "signature": "(candidates: 'tuple[TargetedAssayOptimizationCandidate, ...]') -> 'TargetedAssayOptimizationReport'"
+  },
+  "bijux_proteomics.workflow.blueprint.workflow_blueprint_for_program": {
+    "required_keyword_only_parameters": [],
+    "required_parameters": [
+      "program"
+    ],
+    "signature": "(program: 'ProgramSpec') -> 'ScientificWorkflowBlueprint'"
+  }
+}

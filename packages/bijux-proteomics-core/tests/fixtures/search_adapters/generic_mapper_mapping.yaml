@@ -4,6 +4,8 @@ peptide: sequence_text
 modified_peptide: modified_sequence
 charge: z
 score: state_score
+score_orientation: higher_better
+intensity: precursor_intensity
 q_value: qvalue
 protein_refs: accessions
 decoy_label: decoy_state

@@ -2,11 +2,14 @@
 
 This package is the outsider-readable multiplex benchmark center for the
 current repository proof. It keeps reporter-channel evidence, pooled-reference
-roles, and chemistry caveats visible together.
+and bridge-channel roles, interference pressure, and chemistry caveats visible
+together.
 
 Tracked package evidence:
 
-- one multiplex feature table in
+- one TMT reporter-ion table in
+  `evidence/tmt_reporter_table.tsv`
+- one retained channel-level feature snapshot in
   `evidence/multiplex_ms1_features.tsv`
 - one multiplex design table in
   `evidence/multiplex.design.tsv`
@@ -25,7 +28,8 @@ Tracked package metadata lives beside this file:
 What this package can support:
 
 - bounded TMTpro reporter-channel review
-- explicit missing-channel, imbalance, and reference-channel caveats
+- explicit missing-channel, interference, imbalance, and reference-channel caveats
+- runnable channel QC, normalization, ratio, differential, and report benchmarks
 
 What this package does not support:
 

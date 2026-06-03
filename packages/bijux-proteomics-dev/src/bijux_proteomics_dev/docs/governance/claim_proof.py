@@ -8,7 +8,7 @@ import tomllib
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_docs,
-    test_modules,
+    package_test_modules,
     workspace_package_names,
 )
 
@@ -78,7 +78,7 @@ class PackageDocsClaimProofReport:
 def _proof_artifact_count(package_name: str, proof_tokens: tuple[str, ...]) -> int:
     return sum(
         any(token in path.as_posix().lower() for token in proof_tokens)
-        for path in test_modules(package_name)
+        for path in package_test_modules(package_name)
     )
 
 
@@ -116,7 +116,7 @@ def build_package_docs_claim_proof_report() -> PackageDocsClaimProofReport:
     entries: list[PackageDocsClaimProofEntry] = []
     for package_name in workspace_package_names():
         docs_paths = package_docs(package_name)
-        test_paths = test_modules(package_name)
+        test_paths = package_test_modules(package_name)
         benchmark_claim_document_paths = _claim_document_paths(
             docs_paths,
             MONITORED_CLAIM_PROOF_FAMILIES["benchmark"],

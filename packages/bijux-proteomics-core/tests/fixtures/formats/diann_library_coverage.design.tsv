@@ -1,0 +1,4 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	instrument	search_engine
+sample_A	control	1	1	raw_A.mzml	diann_library_coverage.tsv	Orbitrap	DIA-NN
+sample_B	control	2	1	raw_B.mzml	diann_library_coverage.tsv	Orbitrap	DIA-NN
+sample_C	treatment	1	1	raw_C.mzml	diann_library_coverage.tsv	Orbitrap	DIA-NN

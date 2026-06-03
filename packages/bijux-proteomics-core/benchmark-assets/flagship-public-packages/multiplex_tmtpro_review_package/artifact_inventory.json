@@ -6,7 +6,7 @@
       "note": "The multiplex package README states exactly which TMTpro chemistry claims are earned and which production-scale claims stay blocked.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
       "row_count": null,
-      "sha256": "5596bd64cf45bb465cf9e76f1c9b55ca6ed23944a20a28aaff7866f4dd1fb047",
+      "sha256": "36a768d10ffdf59bb70d93be9f1be0dad95da704580ed3326fe0c149ddc346a0",
       "spectra_count": null
     },
     {
@@ -15,7 +15,7 @@
       "note": "The multiplex manifest is the machine-readable entrypoint for the TMTpro stress package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "ecaab4b5afc9e010415e46437b94038ca389bb155df53d895cc13eb8a9a2f214",
+      "sha256": "aab5b80f8d11dff776a71762cfbeed0759260f4f730479c8d9fbf61319ce4195",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The multiplex artifact inventory keeps channel evidence, design metadata, and digest checks visible.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "ca652163b3b698ced0a1475a6b6b47318378c00a8729c1a107c2f51965c56a7c",
+      "sha256": "d2699da845cfa46f4d1f09153a456ff71ebedfb1df2e9de1f3191d1bc56a54b6",
       "spectra_count": null
     },
     {
@@ -33,7 +33,7 @@
       "note": "The multiplex quality sheet makes the package\u2019s chemistry strength and runtime weakness visible at a glance.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
       "row_count": null,
-      "sha256": "43f3f94ae806608f8a561ad5a1e29c0fe4376cc3e917d3cc263c33c7086dd761",
+      "sha256": "c889da136fe43a591ecf27e0460ce6bd958cbb3bdad250f2684c26f3c84c14d6",
       "spectra_count": null
     },
     {
@@ -42,7 +42,7 @@
       "note": "The multiplex lifecycle record names the channel and carrier pressures that would obsolete this package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
       "row_count": null,
-      "sha256": "dd7f7cc311e83e25243b62330917c3d147118ee26082af5be499c892775c57aa",
+      "sha256": "807f79ded55914d0c143f1a2cf6e65a6d1a705192b1b42bb4c8de520c04139bd",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest keeps copied multiplex evidence and chemistry references rebuildable.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "360e774b64d1ca328cc97fd7878d89fdd491dbe59089ed8ad15486c7f8a88ca2",
+      "sha256": "5abc82d4fd3130356a32a57570a6099e53c7d8d07fd8edaec5e4b53ba74c5b4d",
       "spectra_count": null
     },
     {
@@ -82,9 +82,18 @@
       "spectra_count": null
     },
     {
+      "artifact_id": "multiplex:reporter_table",
+      "evidence_kind": "quant_feature_table",
+      "note": "Reporter-channel evidence keeps bridge-channel gaps, interference pressure, and imbalance tied to tracked files.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/tmt_reporter_table.tsv",
+      "row_count": 4,
+      "sha256": "502d438033fdee985a9f9434ec7fd42679fd61e4f460814b9b771c902dd04217",
+      "spectra_count": null
+    },
+    {
       "artifact_id": "multiplex:feature_table",
       "evidence_kind": "quant_feature_table",
-      "note": "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files.",
+      "note": "The retained channel-level feature snapshot keeps runtime and challenge surfaces tied to the original multiplex intensity view.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
       "row_count": 12,
       "sha256": "54ef1f14ff94f9bbfdb4430e940b641ac3d6c31e13d3f71c8566c5dd1b63f48b",
@@ -93,10 +102,10 @@
     {
       "artifact_id": "multiplex:design_table",
       "evidence_kind": "experimental_design",
-      "note": "The multiplex design table preserves pooled-reference roles and channel assignments.",
+      "note": "The multiplex design table preserves pooled-reference and bridge-channel assignments.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
-      "row_count": 6,
-      "sha256": "a87b46b35974161d55b64096017d182658948100fcfb4ab598689ec037860363",
+      "row_count": 8,
+      "sha256": "a5d077e9e05489428c72680f7a5bf65628b1bb58fb390ddfa3e6da907076584c",
       "spectra_count": null
     }
   ],

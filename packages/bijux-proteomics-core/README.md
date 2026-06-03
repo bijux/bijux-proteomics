@@ -80,6 +80,9 @@ bijux-proteomics --help
 For end-to-end workflow execution and reviewable runs, start from
 `bijux-proteomics-runtime` instead.
 
+For one minimal non-developer CLI path over the shipped local dataset, start
+with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md).
+
 Import-driven usage starts from the core domain package:
 
 ```python
@@ -538,6 +541,28 @@ bijux-proteomics qc report spectra.mgf results.tsv proteins.fasta \
 See [`docs/QC_OPERATOR_GUIDE.md`](./docs/QC_OPERATOR_GUIDE.md) for threshold
 interpretation, advisory versus enforced findings, and failed-run diagnosis.
 
+## Public APIs
+
+The curated root API is intentionally narrow:
+
+- `parse_fasta_document(...)` for durable protein-sequence intake
+- `parse_experimental_design_table(...)` for governed study metadata
+- `build_normalized_run_bundle(...)` for table-shaped evidence normalization
+- `build_fdr_audit_trail(...)` for explicit score and q-value audit surfaces
+- `DigestPolicy` for digestion assumptions that must survive export and rerun
+
+Minimal executable example:
+
+```python
+from bijux_proteomics import parse_fasta_document
+
+report = parse_fasta_document(">sp|P11111|PTM1 Protein 1\nMPEPTIDEK\n")
+
+assert report.total_records == 1
+assert len(report.accepted_records) == 1
+assert report.accepted_records[0].canonical_accession == "P11111"
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -556,6 +581,12 @@ ranking policy, recommendation judgment, or lab scheduling behavior.
 Core also does not pretend that one domain model solves the whole suite. It
 defines the scientific source of truth, then hands execution, curation,
 judgment, and operations outward to runtime, knowledge, intelligence, and lab.
+
+## What this package must not do
+
+- it must not own provider binding, API transport, or replay orchestration
+- it must not replace knowledge curation, recommendation policy, or lab execution planning
+- it must not hide lossy scientific normalization behind optimistic convenience wrappers
 
 ## Contract checkpoints
 
@@ -618,9 +649,9 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`src/bijux_proteomics/chemistry/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py) for peptide masses, fragment ions, neutral losses, and modification semantics
 - [`src/bijux_proteomics/identification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py) for stable PSM parsing, target-decoy evaluation, and peptide/protein evidence rollups
 - [`src/bijux_proteomics/identification/search_adapters.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py) for engine-specific manifests, normalization, conformance, and loss accounting
-- [`src/bijux_proteomics/io/formats.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py) for format detection, mzML parsing, design-table support, and normalized run bundles
+- [`src/bijux_proteomics/io/formats/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/formats/__init__.py) for format detection, mzML parsing, design-table support, and normalized run bundles
 - [`src/bijux_proteomics/io/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py) for mzIdentML, mzTab, mzML-decoding, chromatogram, and boundary-aware ingestion reports
-- [`src/bijux_proteomics/io/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py) for spectrum models, MGF parsing, fragment annotation, and plot payload export
+- [`src/bijux_proteomics/io/spectra/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra/__init__.py) for spectrum models, MGF parsing, fragment annotation, and plot payload export
 - [`src/bijux_proteomics/quantification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/quantification/__init__.py) for LFQ, multiplex, normalization, missingness, and DA-ready quant contracts
 - [`src/bijux_proteomics/ptm/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/ptm/__init__.py) for PTM evidence parsing, site aggregation, site FDR, occupancy, and motif context
 - [`src/bijux_proteomics/dia/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/dia/__init__.py) for DIA-native evidence, library validation, and targeted candidate export
@@ -640,6 +671,7 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`docs/PTM_WORKFLOWS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PTM_WORKFLOWS.md) for localized PTM evidence parsing, site aggregation, ambiguity reporting, site FDR, motif windows, enrichment export, and occupancy estimation
 - [`docs/SEARCH_ADAPTERS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SEARCH_ADAPTERS.md) for engine-specific table normalization and adapter provenance workflows
 - [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
+- [`docs/SHIPPED-DEMO-CLI.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SHIPPED-DEMO-CLI.md) for the minimal shipped-demo CLI path from run to governed result validation and query
 - [`docs/QC_OPERATOR_GUIDE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/QC_OPERATOR_GUIDE.md) for threshold interpretation, advisory versus enforced QC findings, and failed-run diagnosis
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
@@ -651,4 +683,5 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/)
+- [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md)
 - [Release and versioning](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/release-and-versioning/)

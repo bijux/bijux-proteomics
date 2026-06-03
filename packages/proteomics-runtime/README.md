@@ -35,11 +35,12 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`proteomics-runtime` is the install and import alias for
-bijux-proteomics-runtime.
+`proteomics-runtime` is the compatibility alias for the canonical runtime owner
+`bijux-proteomics-runtime`.
+It is the install and import alias for bijux-proteomics-runtime.
 
-Use this package when you want the canonical runtime package under a shorter
-distribution and import name while keeping the same execution owner.
+Use this package when you want a shorter runtime distribution and import name
+without creating a second execution owner.
 
 ## Installation
 
@@ -47,27 +48,103 @@ distribution and import name while keeping the same execution owner.
 pip install proteomics-runtime
 ```
 
-## Quick Start
+## Public APIs
+
+The alias forwards the canonical runtime execution surface through
+`proteomics_runtime`:
 
 ```python
-from proteomics_runtime import AppConfig, RunManager, create_app
+from proteomics_runtime import AppConfig, create_app
+
+app = create_app(AppConfig(base_dir=TMP_PATH, docs_enabled=False))
+
+assert app.state.base_dir == TMP_PATH
+assert app.docs_url is None
 ```
 
-```bash
-proteomics-runtime --help
-```
+## Package identity
 
-## Route To Canonical Docs
+- Distribution name: `proteomics-runtime`
+- Import root: `proteomics_runtime`
+- Canonical owner package: `bijux-proteomics-runtime`
+- Canonical owner import root: `bijux_proteomics_runtime`
+
+## Package boundaries
+
+- this package owns compatibility naming for runtime installs, imports, and CLI
+  routing
+- execution planning, providers, state, and workflow delivery remain owned by
+  `bijux-proteomics-runtime`
+- new runtime behavior must land in the canonical owner before alias exports
+  change
+
+## What this package must not do
+
+- define a second runtime execution owner
+- fork provider, run-manager, or API behavior from the canonical runtime
+- become an independent migration target for runtime semantics
+
+## Contract checkpoints
+
+- alias exports must keep forwarding to canonical runtime behavior
+- docs must keep the canonical runtime owner explicit
+- compatibility changes must stay covered by alias-package tests
+
+## Choose this package when
+
+- you need a shorter import and distribution name for runtime entrypoints
+- migration constraints prefer `proteomics_runtime`
+- packaging or compatibility work needs a short runtime alias
+
+## Route elsewhere when
+
+- the change alters execution planning, providers, workflow delivery, or API
+  semantics
+- the work introduces runtime behavior that is not already owned by the
+  canonical package
+- the alias would stop being forwarding-only
+
+## Verification route
+
+- run alias compatibility tests before changing runtime imports or metadata
+- review `docs/ARCHITECTURE.md`, `docs/BOUNDARIES.md`, and `docs/CONTRACTS.md`
+  when alias routing or claims change
+- validate the canonical runtime README and tests when behavior changes are
+  proposed
+
+## Review questions
+
+- does the change preserve this package as a runtime alias only
+- is the canonical runtime owner still explicit in docs and behavior
+- would the same outcome remain correct if consumers imported the canonical
+  runtime directly
+
+## Escalation route
+
+- route runtime behavior changes to `bijux-proteomics-runtime`
+- stop and review boundaries when the alias starts gaining package-local
+  execution semantics
+- escalate before release when routing or metadata drift could confuse runtime
+  ownership
+
+## Consumer impact signals
+
+- import-path, command-name, or package-name changes are high-impact because
+  runtime automation may depend on them directly
+- alias documentation changes should still be reviewed against the canonical
+  runtime owner
+- wording-only clarifications carry lower release risk than routing or behavior
+  changes
+
+## Explicit non-goals
+
+- this package does not own scientific workflow semantics
+- this package does not define a second provider or execution policy layer
+- this package does not replace the canonical runtime release surface
+
+## Documentation
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-
-## Boundary
-
-This package is a naming alias only. It does not define a second execution
-owner or a second runtime migration target.
-
-## Changelog
-
+- [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Changelog](CHANGELOG.md)

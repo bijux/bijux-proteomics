@@ -1,0 +1,6 @@
+peptide_sequence	protein_refs	psm_count	run_count	best_q_value	total_intensity
+PEPAAA	P04637	6	6	0.001	5430
+PEPBBB	Q9Y243	6	6	0.001	6030
+PEPCCC	O14920	6	6	0.001	4800
+PEPDDD	Q8N158	6	6	0.001	4920
+PEPEEE	P62993	6	6	0.001	2990

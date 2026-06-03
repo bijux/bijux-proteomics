@@ -19,7 +19,7 @@ def test_lab_root_import_report_tracks_zero_owner_violations() -> None:
     guard = report.guard
 
     assert LAB_ROOT_IMPORTS_PATH.exists()
-    assert metrics.scanned_module_count == 37
+    assert metrics.scanned_module_count == 39
     assert metrics.banned_root_count == len(BANNED_ROOTS)
     assert metrics.banned_root_count == 5
     assert metrics.violation_count == guard.baseline_violation_count

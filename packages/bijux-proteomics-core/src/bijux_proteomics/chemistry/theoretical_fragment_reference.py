@@ -12,8 +12,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     calculate_fragment_ions,
-    modification_registry,
     parse_modified_peptide,
+)
+from bijux_proteomics.chemistry.modification_registry import (
+    modification_registry,
 )
 from bijux_proteomics_foundation import JsonModel
 

@@ -27,6 +27,12 @@ entrypoints.
 - compat docs explain canonical owners and the migration route away from each
   surviving family
 
+## Canonical tree layout
+
+- Import roots: `agentic_proteins`, `agentic_proteins_testsupport`
+- Top-level families: `agents/`, `execution/`, `interfaces/`, `orchestration/`, `providers/`, `state/`, `tools/`
+- Root modules: none
+
 ## Dependency direction
 
 Compat may depend on canonical packages to preserve historical entrypoints.

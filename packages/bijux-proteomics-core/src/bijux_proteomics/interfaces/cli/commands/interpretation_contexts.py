@@ -1,0 +1,427 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+# ruff: noqa: F401,F403,F405
+
+"""Interpretation context CLI commands."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import click
+
+from bijux_proteomics.interfaces.python_api.interpretation_contexts import (
+    run_compartment_biology_command,
+    run_drug_target_command,
+)
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
+
+@click.command("compartment-biology")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "context_annotation_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--design-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--aggregation",
+    type=click.Choice([method.value for method in QuantRollupMethod]),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=click.Choice([method.value for method in NormalizationMethod]),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--context-id-column", default="context_id", show_default=True)
+@click.option("--context-kind-column", default="context_kind", show_default=True)
+@click.option("--context-name-column", default="context_name", show_default=True)
+@click.option("--source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--evidence-column", default="evidence", show_default=True)
+@click.option("--max-adjusted-p-value", type=float, default=0.1, show_default=True)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option("--min-enrichment-ratio", type=float, default=1.0, show_default=True)
+@click.option(
+    "--minimum-observed-member-count",
+    type=int,
+    default=2,
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--enrichment-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--sample-score-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--condition-score-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--condition-comparison-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unresolved-member-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unknown-localization-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-context-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def compartment_biology_command(
+    input_table: Path,
+    context_annotation_tsv: Path,
+    design_path: Path,
+    condition_a: str | None,
+    condition_b: str | None,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    protein_ref_column: str,
+    context_id_column: str,
+    context_kind_column: str,
+    context_name_column: str,
+    source_name_column: str,
+    source_accession_column: str,
+    evidence_column: str,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    min_enrichment_ratio: float,
+    minimum_observed_member_count: int,
+    summary_tsv_out: Path | None,
+    enrichment_tsv_out: Path | None,
+    matrix_tsv_out: Path | None,
+    sample_score_tsv_out: Path | None,
+    condition_score_tsv_out: Path | None,
+    condition_comparison_tsv_out: Path | None,
+    unresolved_member_tsv_out: Path | None,
+    unknown_localization_tsv_out: Path | None,
+    rejected_context_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Interpret changed proteins through explicit subcellular compartment context."""
+    return run_compartment_biology_command(
+        input_table,
+        context_annotation_tsv,
+        design_path,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        min_enrichment_ratio,
+        minimum_observed_member_count,
+        summary_tsv_out,
+        enrichment_tsv_out,
+        matrix_tsv_out,
+        sample_score_tsv_out,
+        condition_score_tsv_out,
+        condition_comparison_tsv_out,
+        unresolved_member_tsv_out,
+        unknown_localization_tsv_out,
+        rejected_context_tsv_out,
+        out_path,
+    )
+
+
+@click.command("drug-target")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "context_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--design-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--fasta",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--aggregation",
+    type=click.Choice([method.value for method in QuantRollupMethod]),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=click.Choice([method.value for method in NormalizationMethod]),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--context-protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--context-id-column", default="context_id", show_default=True)
+@click.option("--context-kind-column", default="context_kind", show_default=True)
+@click.option("--context-name-column", default="context_name", show_default=True)
+@click.option("--source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--evidence-column", default="evidence", show_default=True)
+@click.option("--pathway-id-column", default="pathway_id", show_default=True)
+@click.option("--pathway-name-column", default="pathway_name", show_default=True)
+@click.option("--pathway-source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--pathway-source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--pathway-protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--pathway-gene-symbol-column", default="gene_symbol", show_default=True)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--interpretation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-context-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-pathway-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def drug_target_command(
+    input_table: Path,
+    context_tsv: Path,
+    design_path: Path,
+    pathway_membership_tsv: Path | None,
+    fasta: Path | None,
+    annotation_tsv: Path | None,
+    condition_a: str | None,
+    condition_b: str | None,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    context_protein_ref_column: str,
+    context_id_column: str,
+    context_kind_column: str,
+    context_name_column: str,
+    source_name_column: str,
+    source_accession_column: str,
+    evidence_column: str,
+    pathway_id_column: str,
+    pathway_name_column: str,
+    pathway_source_name_column: str,
+    pathway_source_accession_column: str,
+    pathway_protein_ref_column: str,
+    pathway_gene_symbol_column: str,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    summary_tsv_out: Path | None,
+    interpretation_tsv_out: Path | None,
+    rejected_context_tsv_out: Path | None,
+    rejected_pathway_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Interpret regulated proteins as explicit drug targets or pathway neighbors."""
+    return run_drug_target_command(
+        input_table,
+        context_tsv,
+        design_path,
+        pathway_membership_tsv,
+        fasta,
+        annotation_tsv,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        context_protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        pathway_id_column,
+        pathway_name_column,
+        pathway_source_name_column,
+        pathway_source_accession_column,
+        pathway_protein_ref_column,
+        pathway_gene_symbol_column,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        summary_tsv_out,
+        interpretation_tsv_out,
+        rejected_context_tsv_out,
+        rejected_pathway_tsv_out,
+        out_path,
+    )
+
+
+COMMANDS = (
+    compartment_biology_command,
+    drug_target_command,
+)

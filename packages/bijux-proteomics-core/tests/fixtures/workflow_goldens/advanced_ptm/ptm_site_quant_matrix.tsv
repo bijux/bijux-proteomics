@@ -1,0 +1,4 @@
+site_key	protein_ref	residue	position	modification_name	target_decoy_label	localization_tier	ambiguous	shared_peptide	candidate_positions	localized_peptides	C1	C2	T1	T2
+P11111:S5:Phospho	P11111	S	5	Phospho	target	supported	false	false	5	S[Phospho]PEPTIDEK	120	180	710	790
+P22222:Y18:Phospho	P22222	Y	18	Phospho	target	supported	false	false	18	MPEPTIDEY[Phospho]K				
+Q9DEC1:S5:Phospho	Q9DEC1	S	5	Phospho	decoy	refused	false	false	5	S[Phospho]PEPTIDEK				

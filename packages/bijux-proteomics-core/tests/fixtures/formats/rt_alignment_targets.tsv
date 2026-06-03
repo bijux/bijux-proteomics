@@ -1,0 +1,5 @@
+target_id	precursor_mz	peptide_ref
+anchor_alpha	500.0	PEPA
+anchor_beta	600.0	PEPB
+anchor_gamma	700.0	PEPC
+anchor_delta	800.0	PEPD

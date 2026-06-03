@@ -8,10 +8,15 @@ import unittest
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = PACKAGE_ROOT.parents[1]
 sys.path.insert(0, str(PACKAGE_ROOT / "src"))
+sys.path.insert(0, str(REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "src"))
 sys.path.insert(0, str(REPO_ROOT / "packages" / "bijux-proteomics-core" / "src"))
+
+pytestmark = pytest.mark.unit
 
 from bijux_proteomics.io.formats import (
     parse_experimental_design_table as runtime_parse_design,

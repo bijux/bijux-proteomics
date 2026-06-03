@@ -28,3 +28,22 @@ class MigrationPathError(FoundationContractError):
 
 class MigrationExecutionError(FoundationContractError):
     """Raised when a migration step fails during execution."""
+
+
+class MissingOptionalDependencyError(FoundationContractError):
+    """Raised when one optional dependency is required for a specific feature."""
+
+    def __init__(
+        self,
+        *,
+        dependency_name: str,
+        feature_name: str,
+        install_hint: str,
+    ) -> None:
+        self.dependency_name = dependency_name
+        self.feature_name = feature_name
+        self.install_hint = install_hint
+        super().__init__(
+            f"{feature_name} requires optional dependency '{dependency_name}'. "
+            f"Install with `{install_hint}`."
+        )

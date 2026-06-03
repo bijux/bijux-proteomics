@@ -1,0 +1,9 @@
+sample_id	spectrum_id	peptide	charge	score	q_value	proteins	localization_score	candidate_sites	decoy_label
+C1	scan=ptm-001	S[Phospho]PEPTIDEK	2	110.0	0.005	P11111	0.990	1	target
+C2	scan=ptm-002	S[Phospho]PEPTIDEK	2	108.0	0.007	P11111	0.985	1	target
+T1	scan=ptm-003	S[Phospho]PEPTIDEK	2	125.0	0.004	P11111	0.995	1	target
+T2	scan=ptm-004	S[Phospho]PEPTIDEK	2	128.0	0.003	P11111	0.996	1	target
+C1	scan=ptm-005	AS[Phospho]TYK	2	95.0	0.020	P11111;P22222	0.700	2;3;4	target
+T1	scan=ptm-006	AS[Phospho]TYK	2	96.0	0.018	P11111;P22222	0.730	2;3;4	target
+T2	scan=ptm-007	MPEPTIDEY[Phospho]K	2	101.0	0.010	P22222	0.940	9	target
+C1	scan=ptm-008	S[Phospho]PEPTIDEK	2	72.0	0.040	Q9DEC1	0.650	1	decoy

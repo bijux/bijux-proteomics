@@ -1,0 +1,145 @@
+dataset_id: lfq_cohort_review_package
+accession: flagship_public_package:lfq_cohort_review_package
+species: human
+search_engine: lfq
+source_files:
+  - source_id: lfq_feature_matrix
+    schema_id: input_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv
+    sha256: 22e2541ac72bf39edd22f0c67993de86d0929bc7fb30bf0a3093fb3b5e90d0b2
+    note: Shipped study-scale LFQ feature table from the flagship public LFQ package.
+  - source_id: lfq_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv
+    sha256: b65e2a4fdab019e8b63db35d027254fece56153def41ffb1d1b1390921a8ff6e
+    note: Shipped study-scale cohort design from the flagship public LFQ package.
+  - source_id: lfq_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned biological reporting workflow.
+expected_input_schemas:
+  - input_tsv
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3, C4]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3, T4]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: c1.mzml
+    identifications_file: c1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: c2.mzml
+    identifications_file: c2.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: c3.mzml
+    identifications_file: c3.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: C4
+    group_id: control
+    condition: control
+    replicate: 4
+    fraction: 1
+    spectra_file: c4.mzml
+    identifications_file: c4.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: t1.mzml
+    identifications_file: t1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: t2.mzml
+    identifications_file: t2.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: t3.mzml
+    identifications_file: t3.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: T4
+    group_id: treatment
+    condition: treatment
+    replicate: 4
+    fraction: 1
+    spectra_file: t4.mzml
+    identifications_file: t4.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The flagship LFQ public package is executed directly through the owned label-free biological workflow.
+expected_approximate_counts:
+  - metric_id: protein_count
+    expected: 3
+    tolerance: 0
+  - metric_id: protein_card_count
+    expected: 3
+    tolerance: 0
+expected_biological_signals:
+  - signal_id: lfq_protein_p003_trend
+    subject_kind: protein
+    subject_id: P003
+    subject_label: benchmark protein P003
+    expected_direction: down
+    max_adjusted_p_value:
+    min_absolute_effect_size: 0.1
+    note: The shipped LFQ benchmark retains a mild downward trend for P003 even though the review package is intentionally small and not expected to yield a validated final claim.
+known_limitations:
+  - limitation_id: governed_reference_fasta_support
+    severity: advisory
+    affected_surface: proteins_fasta
+    blocks_workflow_execution: false
+    description: The runnable benchmark path depends on a governed support FASTA rather than a FASTA shipped inside the public package.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/lfq_cohort_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship LFQ public package through the owned label-free biological workflow.
+  parameters: {}
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: biological_report_manifest.json
+    note: The label-free biological workflow writes this manifest after successful execution.
+note: This flagship LFQ public package already carries the feature and design surfaces needed for a real biological workflow run, with only the governed reference FASTA supplied as support input.

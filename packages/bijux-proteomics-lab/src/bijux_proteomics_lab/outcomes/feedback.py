@@ -5,13 +5,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel, ProgramId
-from bijux_proteomics_lab.planning.queue import ReviewQueueEntry
 
 
 class LabFeedbackRecord(JsonModel):
@@ -164,6 +164,12 @@ class LabFeedbackRepository(Protocol):
         """List feedback records for a program."""
 
 
+class ReviewQueueEntryLike(Protocol):
+    """Minimal queue-entry contract needed for workload forecasting."""
+
+    program_id: str
+
+
 def query_feedback_records(
     records: list[LabFeedbackRecord],
     query: LabFeedbackQuery,
@@ -302,7 +308,7 @@ def forecast_cycle_workload(
     *,
     program_id: str,
     feedback_records: list[LabFeedbackRecord],
-    review_entries: list[ReviewQueueEntry],
+    review_entries: Sequence[ReviewQueueEntryLike],
 ) -> CycleWorkloadForecast:
     """Forecast next-cycle workload from recent cycle volumes."""
     feedback_filtered = [

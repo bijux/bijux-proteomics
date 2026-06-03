@@ -1,0 +1,117 @@
+dataset_id: dda_maxquant_review_snapshot
+accession: flagship_public_package:dda_reviewable_run/primary:maxquant
+species: human
+search_engine: maxquant
+source_files:
+  - source_id: maxquant_pipeline_export
+    schema_id: pipeline_export_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv
+    sha256: e4e83e3d45817dded49899f201b5933ac30dfd61355a1246f111549afc82f427
+    public_reference_url: https://www.maxquant.org/
+    note: Shipped MaxQuant-style imported-result snapshot from the flagship public DDA package.
+  - source_id: maxquant_support_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/dda_biological.design.tsv
+    sha256: 115d2c159897ba74ff83fc211bf28abd78b03b0a2ff5e98268adb6f038d3d96c
+    note: Governed biological support design for MaxQuant biology review.
+  - source_id: maxquant_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned MaxQuant biological workflow.
+expected_input_schemas:
+  - evidence_txt
+  - peptides_txt
+  - protein_groups_txt
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: c1.mzml
+    identifications_file: c1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: c2.mzml
+    identifications_file: c2.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: c3.mzml
+    identifications_file: c3.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: sage
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: t1.mzml
+    identifications_file: t1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: t2.mzml
+    identifications_file: t2.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: t3.mzml
+    identifications_file: t3.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: sage
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The biological contrast is governed outside the public package because the shipped public DDA package currently preserves a MaxQuant pipeline snapshot rather than the full MaxQuant evidence bundle.
+expected_approximate_counts:
+  - metric_id: accepted_protein_group_count
+    expected: 5
+    tolerance: 5
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: missing_maxquant_evidence_bundle
+    severity: blocking
+    affected_surface: evidence_txt
+    blocks_workflow_execution: true
+    description: The shipped public DDA package does not include the evidence.txt, peptides.txt, and proteinGroups.txt trio required by the owned MaxQuant biology workflow.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/dda_maxquant_review_snapshot/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship MaxQuant snapshot through the owned MaxQuant biological workflow when the public package eventually includes the full MaxQuant evidence, peptide, and protein-group tables.
+  parameters: {}
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: maxquant_biological_report_manifest.json
+    note: The orchestrator writes this manifest when the shipped MaxQuant descriptor becomes runnable.
+note: The current public DDA package ships a MaxQuant review snapshot, not the evidence.txt, peptides.txt, and proteinGroups.txt trio required by the owned MaxQuant biology workflow.

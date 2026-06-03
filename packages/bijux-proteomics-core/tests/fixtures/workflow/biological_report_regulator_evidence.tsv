@@ -1,0 +1,7 @@
+regulator	evidence_type	protein_ref	gene_symbol	pathway_id	site_key	source_name	source_accession
+MAPK14	kinase_substrate				P04637:S15:Phospho	curated	KS-01
+STAT3	transcription_factor_target		SIGA			curated	TF-01
+STAT3	transcription_factor_target		SIGC			curated	TF-01
+GRB2	ppi	Q9Y243				curated	PPI-01
+Stress commander	pathway			custom:response		curated	PW-01
+OrphanTF	transcription_factor_target		UNSEEN			curated	TF-99

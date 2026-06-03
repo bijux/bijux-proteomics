@@ -1,0 +1,183 @@
+dataset_id: maxquant_lfq_benchmark_dataset
+accession: flagship_public_package:maxquant_lfq_benchmark_dataset
+species: human
+search_engine: maxquant
+source_files:
+  - source_id: maxquant_evidence
+    schema_id: evidence_txt
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/maxquant_lfq_benchmark_dataset/evidence/evidence.txt
+    sha256: 87e496f43588f2a6540313f2b7b85ac97c71b9db87170e0a2198b4749adbf53f
+    note: Governed MaxQuant evidence table that is known to run through the owned MaxQuant biological workflow.
+  - source_id: maxquant_peptides
+    schema_id: peptides_txt
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/maxquant_lfq_benchmark_dataset/evidence/peptides.txt
+    sha256: c5f97fce8d4ef8cc3b13bf0c09a72e08c56e405ffa182b5bd60c20d0bb916405
+    note: Governed MaxQuant peptide table paired with the runnable benchmark evidence bundle.
+  - source_id: maxquant_protein_groups
+    schema_id: protein_groups_txt
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/maxquant_lfq_benchmark_dataset/evidence/proteinGroups.txt
+    sha256: 52c331c3540430cb7760ee1305f103ae0626500914177853fdece67ec1938268
+    note: Governed MaxQuant protein-group table paired with the runnable benchmark evidence bundle.
+  - source_id: maxquant_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/maxquant_lfq_benchmark_dataset/evidence/design.tsv
+    sha256: e1ba95ae82d3c0d8eb000361756d6f463e6518477145d2802a01fcab6b592451
+    note: Shipped study design surface for the runnable MaxQuant LFQ benchmark workflow.
+  - source_id: maxquant_settings
+    schema_id: config_txt
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/maxquant_lfq_benchmark_dataset/evidence/maxquant_settings.txt
+    sha256: 316e724b20c228655b7203dde70f644c55e966e9f74d1be93bcffc0fcbbd6b02
+    note: Shipped MaxQuant settings surface paired with the runnable benchmark evidence bundle.
+  - source_id: maxquant_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned MaxQuant biological workflow.
+expected_input_schemas:
+  - evidence_txt
+  - peptides_txt
+  - protein_groups_txt
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_C1.mzml
+    identifications_file: raw_C1.txt
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_C2.mzml
+    identifications_file: raw_C2.txt
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_C3.mzml
+    identifications_file: raw_C3.txt
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: maxquant
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_T1.mzml
+    identifications_file: raw_T1.txt
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_T2.mzml
+    identifications_file: raw_T2.txt
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_T3.mzml
+    identifications_file: raw_T3.txt
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: maxquant
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: This governed MaxQuant LFQ benchmark dataset is executed directly through the owned MaxQuant biological workflow.
+expected_approximate_counts:
+  - metric_id: imported_evidence_count
+    expected: 8
+    tolerance: 0
+  - metric_id: accepted_protein_group_count
+    expected: 5
+    tolerance: 0
+  - metric_id: filtered_protein_group_count
+    expected: 3
+    tolerance: 0
+  - metric_id: lfq_experiment_count
+    expected: 6
+    tolerance: 0
+  - metric_id: quantified_protein_count
+    expected: 5
+    tolerance: 0
+  - metric_id: significant_protein_count
+    expected: 3
+    tolerance: 0
+expected_biological_signals:
+  - signal_id: maxquant_sig_a_up
+    subject_kind: protein
+    subject_id: P04637
+    subject_label: SIGA
+    expected_direction: up
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 2.0
+    note: P04637 should remain strongly increased in treatment across the governed MaxQuant LFQ benchmark surface.
+  - signal_id: maxquant_sig_b_down
+    subject_kind: protein
+    subject_id: Q9Y243
+    subject_label: SIGB
+    expected_direction: down
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 3.0
+    note: Q9Y243 should remain strongly decreased in treatment across the governed MaxQuant LFQ benchmark surface.
+known_limitations:
+  - limitation_id: governed_support_fasta
+    severity: advisory
+    affected_surface: proteins_fasta
+    blocks_workflow_execution: false
+    description: The runnable MaxQuant LFQ benchmark depends on the governed shared FASTA rather than shipping a duplicate benchmark-local protein reference.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/maxquant_lfq_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the governed MaxQuant LFQ benchmark dataset through the owned MaxQuant biological workflow.
+  parameters: {}
+output_checks:
+  - output_id: lfq_matrix
+    relative_path: maxquant_lfq_matrix.tsv
+    note: The owned MaxQuant workflow must write the LFQ matrix for this benchmark.
+  - output_id: accepted_protein_groups
+    relative_path: maxquant_accepted_protein_groups.tsv
+    note: The owned MaxQuant workflow must write the accepted protein-group ledger for this benchmark.
+  - output_id: filtered_protein_groups
+    relative_path: maxquant_filtered_protein_groups.tsv
+    note: The owned MaxQuant workflow must write the contaminant and reverse filtering ledger for this benchmark.
+  - output_id: enrichment_foreground
+    relative_path: maxquant_biological_foreground.tsv
+    note: The owned MaxQuant workflow must write the biological enrichment foreground for this benchmark.
+  - output_id: differential_results
+    relative_path: biological_differential.tsv
+    note: The owned MaxQuant workflow must write differential protein results for this benchmark.
+  - output_id: enrichment_summary
+    relative_path: biological_enrichment_foreground_background_summary.tsv
+    note: The owned MaxQuant workflow must write the governed enrichment summary surface for this benchmark.
+  - output_id: biological_manifest_json
+    relative_path: biological_report_manifest.json
+    note: The owned MaxQuant workflow must export the governed biological report manifest for this benchmark.
+  - output_id: maxquant_workflow_manifest_json
+    relative_path: maxquant_biological_report_manifest.json
+    note: The owned MaxQuant workflow must export its MaxQuant biological workflow manifest for this benchmark.
+note: This MaxQuant LFQ benchmark dataset is a governed runnable evidence, peptide, and protein-group bundle rather than a blocked snapshot, and it is expected to produce LFQ matrix, protein-group filtering, differential, enrichment, and biological report outputs through the owned workflow path.

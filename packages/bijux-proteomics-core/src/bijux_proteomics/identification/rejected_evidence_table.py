@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Compatibility facade for the canonical rejected PSM evidence table owner."""
+
+from __future__ import annotations
+
+from bijux_proteomics.identification.psm.rejected_evidence_table import *  # noqa: F401,F403

@@ -10,6 +10,10 @@ from bijux_proteomics_dev.release.governance.final_preflight import (
     FinalPreflightStage,
     run,
 )
+from bijux_proteomics_dev.release.governance.test_collection_gate import (
+    CollectionGateCheck,
+    CollectionGateReport,
+)
 
 
 def test_final_preflight_returns_failure_when_any_stage_has_issues(
@@ -139,4 +143,58 @@ def test_consequence_stage_blocks_stale_consequence_docs(
             ),
         )
         in stage.issues
+    )
+
+
+def test_test_collection_stage_normalizes_failed_gate_checks(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        final_preflight_module,
+        "build_test_collection_gate_report",
+        lambda repo_root: CollectionGateReport(
+            import_checks=(
+                CollectionGateCheck(
+                    check_kind="import",
+                    package_name="bijux-proteomics-core",
+                    target="bijux_proteomics",
+                    command=("python", "-c", "import bijux_proteomics"),
+                    ok=False,
+                    detail="module import failed",
+                ),
+            ),
+            collection_checks=(
+                CollectionGateCheck(
+                    check_kind="collection",
+                    package_name="agentic-proteins",
+                    target="packages/agentic-proteins/tests",
+                    command=("python", "-m", "pytest"),
+                    ok=False,
+                    detail="pytest collection failed",
+                ),
+            ),
+        ),
+    )
+
+    stage = final_preflight_module._test_collection_stage(
+        final_preflight_module.REPO_ROOT
+    )
+
+    assert stage.stage_id == "test-collection"
+    assert stage.label == "test collection"
+    assert stage.issues == (
+        FinalPreflightIssue(
+            code="import-check-failed",
+            detail=(
+                "bijux-proteomics-core import check failed for bijux_proteomics: "
+                "module import failed"
+            ),
+        ),
+        FinalPreflightIssue(
+            code="collection-check-failed",
+            detail=(
+                "agentic-proteins collection check failed for "
+                "packages/agentic-proteins/tests: pytest collection failed"
+            ),
+        ),
     )

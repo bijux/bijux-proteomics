@@ -1,0 +1,7 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+C1	control	1	1	c1.mzml	c1.tsv	batch-a	orbitrap-a	sage
+C2	control	2	1	c2.mzml	c2.tsv	batch-b	orbitrap-b	sage
+T1	treatment	1	1	t1.mzml	t1.tsv	batch-a	orbitrap-a	sage
+T2	treatment	2	1	t2.mzml	t2.tsv	batch-b	orbitrap-b	sage
+R1	rescue	1	1	r1.mzml	r1.tsv	batch-a	orbitrap-a	sage
+R2	rescue	2	1	r2.mzml	r2.tsv	batch-b	orbitrap-b	sage

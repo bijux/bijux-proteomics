@@ -5,4 +5,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.examples import *  # noqa: F401,F403
+from importlib import import_module
+from typing import Any
+
+
+def __getattr__(name: str) -> Any:
+    """Load interface examples lazily so subpackage imports stay lightweight."""
+
+    module = import_module("bijux_proteomics.interfaces.examples")
+    return getattr(module, name)

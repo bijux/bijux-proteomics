@@ -1,0 +1,211 @@
+dataset_id: multiplex_tmtpro_review_package
+accession: flagship_public_package:multiplex_tmtpro_review_package
+species: human
+search_engine: tmt
+source_files:
+  - source_id: multiplex_reporter_table
+    schema_id: result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/tmt_reporter_table.tsv
+    sha256: 502d438033fdee985a9f9434ec7fd42679fd61e4f460814b9b771c902dd04217
+    public_reference_url: https://www.thermofisher.com/order/catalog/product/A44520
+    note: Shipped TMTpro reporter-ion table with isolation interference from the flagship multiplex public package.
+  - source_id: multiplex_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv
+    sha256: a5d077e9e05489428c72680f7a5bf65628b1bb58fb390ddfa3e6da907076584c
+    public_reference_url: https://www.thermofisher.com/order/catalog/product/A44520
+    note: Shipped multiplex design table with pooled-reference and bridge-channel assignments from the flagship TMTpro public package.
+expected_input_schemas:
+  - result_tsv
+  - design_tsv
+sample_groups:
+  - group_id: control
+    sample_ids: [plex_a_126, plex_b_126]
+  - group_id: treatment
+    sample_ids: [plex_a_127N, plex_b_127N]
+  - group_id: carrier
+    sample_ids: [plex_a_128N, plex_b_128N]
+  - group_id: reference
+    sample_ids: [plex_a_129N, plex_b_129N]
+sample_metadata:
+  - sample_id: plex_a_126
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a.raw
+    identifications_file: plex_a.tsv
+    batch: maxquant-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+    multiplex_group: plex-a
+    multiplex_channel: "126"
+    sample_role: sample
+  - sample_id: plex_a_127N
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a.raw
+    identifications_file: plex_a.tsv
+    batch: maxquant-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+    multiplex_group: plex-a
+    multiplex_channel: 127N
+    sample_role: sample
+  - sample_id: plex_a_128N
+    group_id: carrier
+    condition: carrier
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a.raw
+    identifications_file: plex_a.tsv
+    batch: maxquant-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+    multiplex_group: plex-a
+    multiplex_channel: 128N
+    sample_role: pooled_reference
+  - sample_id: plex_a_129N
+    group_id: reference
+    condition: reference
+    replicate: 1
+    fraction: 1
+    spectra_file: plex_a.raw
+    identifications_file: plex_a.tsv
+    batch: maxquant-a
+    instrument: orbitrap-a
+    search_engine: maxquant
+    multiplex_group: plex-a
+    multiplex_channel: 129N
+    sample_role: qc_bridge
+  - sample_id: plex_b_126
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b.raw
+    identifications_file: plex_b.tsv
+    batch: maxquant-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+    multiplex_group: plex-b
+    multiplex_channel: "126"
+    sample_role: sample
+  - sample_id: plex_b_127N
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b.raw
+    identifications_file: plex_b.tsv
+    batch: maxquant-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+    multiplex_group: plex-b
+    multiplex_channel: 127N
+    sample_role: sample
+  - sample_id: plex_b_128N
+    group_id: carrier
+    condition: carrier
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b.raw
+    identifications_file: plex_b.tsv
+    batch: maxquant-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+    multiplex_group: plex-b
+    multiplex_channel: 128N
+    sample_role: pooled_reference
+  - sample_id: plex_b_129N
+    group_id: reference
+    condition: reference
+    replicate: 2
+    fraction: 1
+    spectra_file: plex_b.raw
+    identifications_file: plex_b.tsv
+    batch: maxquant-b
+    instrument: orbitrap-b
+    search_engine: maxquant
+    multiplex_group: plex-b
+    multiplex_channel: 129N
+    sample_role: qc_bridge
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The flagship multiplex package is evaluated through the owned TMT workflow using the shipped design contrast and interference-bearing reporter table.
+expected_approximate_counts:
+  - metric_id: accepted_input_row_count
+    expected: 4
+    tolerance: 0
+  - metric_id: multiplex_group_count
+    expected: 2
+    tolerance: 0
+  - metric_id: mapped_channel_count
+    expected: 8
+    tolerance: 0
+  - metric_id: missing_source_channel_count
+    expected: 2
+    tolerance: 0
+  - metric_id: protein_row_count
+    expected: 2
+    tolerance: 0
+  - metric_id: protein_ratio_count
+    expected: 12
+    tolerance: 0
+  - metric_id: differential_result_count
+    expected: 2
+    tolerance: 0
+  - metric_id: sample_qc_entry_count
+    expected: 8
+    tolerance: 0
+  - metric_id: interference_observation_count
+    expected: 12
+    tolerance: 0
+  - metric_id: flagged_interference_count
+    expected: 6
+    tolerance: 0
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: bridge_channel_missing_from_reporter_table
+    severity: advisory
+    affected_surface: result_tsv
+    blocks_workflow_execution: false
+    description: The shipped reporter table omits the bridge 129N channel even though the governed design declares it, so the workflow carries explicit missing-source-channel pressure across both plexes.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/multiplex_tmtpro_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship TMTpro reporter-ion table through the owned TMT workflow with channel QC, normalization, ratios, interference review, differential proteins, and report export.
+  parameters:
+    control_channel: "126"
+    source_kind: maxquant
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: tmt_workflow_manifest.json
+    note: The orchestrator writes this manifest after successful TMT workflow execution.
+  - output_id: label_based_report_manifest_json
+    relative_path: label_based_report_manifest.json
+    note: The owned labeled report export writes this manifest after successful TMT workflow execution.
+  - output_id: tmt_validation_summary
+    relative_path: tmt_validation_summary.tsv
+    note: The exported TMT validation summary proves channel QC was generated.
+  - output_id: tmt_normalization_summary
+    relative_path: tmt_normalization_summary.tsv
+    note: The exported TMT normalization summary proves normalization was generated.
+  - output_id: tmt_protein_ratios
+    relative_path: tmt_protein_ratios.tsv
+    note: The exported TMT protein ratio table proves ratio analysis was generated.
+  - output_id: tmt_interference_summary
+    relative_path: tmt_interference_summary.tsv
+    note: The exported TMT interference summary proves isolation-interference review was generated.
+  - output_id: tmt_interference_channel_summary
+    relative_path: tmt_interference_channel_summary.tsv
+    note: The exported TMT interference channel summary preserves per-sample-channel interference review.
+  - output_id: differential_results
+    relative_path: label_based_differential_results.tsv
+    note: The exported labeled differential table proves protein differential analysis was generated.
+  - output_id: label_based_report_summary
+    relative_path: label_based_report_summary.tsv
+    note: The exported labeled report summary proves the downstream report bundle was generated.
+note: The flagship multiplex public package now carries a real TMT reporter-ion table, a governed multiplex design with bridge-channel roles, and the owned workflow outputs needed for channel QC, normalization, ratios, interference analysis, differential proteins, and report export.

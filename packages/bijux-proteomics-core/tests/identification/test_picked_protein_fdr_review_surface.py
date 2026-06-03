@@ -52,10 +52,15 @@ def test_picked_protein_fdr_review_matches_curated_edge_case_fixture() -> None:
     assert summary.accepted_target_count == 4
     assert summary.accepted_decoy_count == 0
     entry_index = {entry.protein_ref: entry for entry in review.entries}
+    assert entry_index["P11111"].pair_id == "picked:P11111"
+    assert entry_index["P11111"].base_accession == "P11111"
     assert entry_index["P11111"].partner_ref == "DECOY_P11111"
+    assert entry_index["P11111"].target_score == 110.0
+    assert entry_index["P11111"].decoy_score == 96.0
     assert entry_index["P11111"].protein_group_ids == ()
     assert len(entry_index["P22222"].protein_group_ids) == 1
     assert entry_index["DECOY_P55555"].partner_ref == "P55555"
+    assert entry_index["DECOY_P55555"].winner_target_decoy_label.value == "decoy"
     assert entry_index["DECOY_P55555"].accepted is False
 
 
@@ -78,7 +83,10 @@ def test_picked_protein_fdr_review_renders_summary_and_entry_ledgers() -> None:
     )
     assert "0.1\t5\t4\t1\t0\t2\t4\t4\t0\t0\t2" in summary_tsv
     assert entries_tsv.startswith(
-        "threshold\tprotein_ref\tpartner_ref\tprotein_group_ids\tscore"
+        "threshold\tpair_id\tbase_accession\tprotein_ref\tpartner_ref\ttarget_ref"
     )
-    assert "0.1\tP22222\tDECOY_P22222\tpg-" in entries_tsv
-    assert "\t100.0\t0.0\t0.0\t2\ttrue\ttarget\tfalse\tGLYGLYK;SHAREDK" in entries_tsv
+    assert (
+        "0.1\tpicked:P22222\tP22222\tP22222\tDECOY_P22222\tP22222\tDECOY_P22222"
+        in entries_tsv
+    )
+    assert "\t100.0\t94.0\tP22222\ttarget\tpg-" in entries_tsv

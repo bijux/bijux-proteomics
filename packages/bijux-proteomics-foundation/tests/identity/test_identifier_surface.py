@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import string
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from hypothesis import given
-from hypothesis import strategies as st
 from pydantic import BaseModel, ValidationError
 import pytest
 
@@ -20,6 +19,27 @@ from bijux_proteomics_foundation.identity.identifiers import (
     classify_identifier,
     ensure_identifier_kind,
 )
+from bijux_proteomics_foundation.testing.skip_policy import (
+    import_hypothesis_or_skip,
+)
+
+if TYPE_CHECKING:
+    from hypothesis import given
+    from hypothesis import strategies as st
+else:
+    hypothesis = import_hypothesis_or_skip(
+        reason="hypothesis is required for the identifier property-based surface",
+    )
+    given = hypothesis.given
+    st = cast(Any, hypothesis.strategies)
+
+
+class _StrategyData(Protocol):
+    """Typed draw surface used by strategy-driven tests."""
+
+    def draw(self, strategy: object) -> Any:
+        """Draw one value from one strategy."""
+
 
 IDENTIFIER_SUFFIX_STRATEGY = st.lists(
     st.text(alphabet=string.ascii_letters + string.digits, min_size=1, max_size=8),
@@ -75,14 +95,19 @@ def test_identifier_building_normalizes_suffixes_and_preserves_kind(
 
 @given(data=st.data(), raw_suffix=IDENTIFIER_RAW_SUFFIX_STRATEGY)
 def test_identifier_classification_round_trips_and_rejects_wrong_kind(
-    data: st.DataObject,
+    data: _StrategyData,
     raw_suffix: str,
 ) -> None:
-    kind = data.draw(st.sampled_from(tuple(IdentifierKind)))
-    wrong_kind = data.draw(
-        st.sampled_from(
-            tuple(candidate for candidate in IdentifierKind if candidate is not kind)
-        )
+    kind = cast(IdentifierKind, data.draw(st.sampled_from(tuple(IdentifierKind))))
+    wrong_kind = cast(
+        IdentifierKind,
+        data.draw(
+            st.sampled_from(
+                tuple(
+                    candidate for candidate in IdentifierKind if candidate is not kind
+                )
+            )
+        ),
     )
 
     identifier = build_identifier(kind, raw_suffix)

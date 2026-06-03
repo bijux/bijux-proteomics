@@ -92,8 +92,8 @@ def test_compare_runs_and_analysis(tmp_path: Path) -> None:
     run_a.analysis_path.write_text(json.dumps({"candidate_timeline": {"a": []}}))
     run_b.analysis_path.write_text(json.dumps({"candidate_timeline": {"b": []}}))
     result = artifacts_module.compare_runs(run_a.run_dir, run_b.run_dir)
-    assert result["run_ids"]["run_a"] == "run-a"
-    assert result["candidate_trajectories"]["run_b"] == {"b": []}
+    assert result.run_ids.run_a == "run-a"
+    assert result.candidate_trajectories_raw_json["run_b"] == {"b": []}
 
 
 def test_human_decision_flow(tmp_path: Path) -> None:
@@ -107,23 +107,21 @@ def test_human_decision_flow(tmp_path: Path) -> None:
     payload = json.loads(workspace.candidate_selection_path.read_text())
     assert payload["metadata"]["top_n"] == 1
     assert selection.frozen_ids
-    ok, errors, _ = artifacts_module.validate_human_decision(
-        workspace.human_decision_path
-    )
-    assert ok is False
-    assert "decision_not_finalized" in errors
+    report = artifacts_module.validate_human_decision(workspace.human_decision_path)
+    assert report.passed is False
+    assert "decision_not_finalized" in report.errors
 
 
 def test_validate_human_decision_edge_cases(tmp_path: Path) -> None:
     path = tmp_path / "missing.json"
-    ok, errors, _payload = artifacts_module.validate_human_decision(path)
-    assert ok is False
-    assert "missing_human_decision" in errors
+    report = artifacts_module.validate_human_decision(path)
+    assert report.passed is False
+    assert "missing_human_decision" in report.errors
     bad = tmp_path / "bad.json"
     bad.write_text(json.dumps({"status": "pending"}))
-    ok, errors, _payload = artifacts_module.validate_human_decision(bad)
-    assert ok is False
-    assert any(item.startswith("missing_fields") for item in errors)
+    report = artifacts_module.validate_human_decision(bad)
+    assert report.passed is False
+    assert any(item.startswith("missing_fields") for item in report.errors)
     payload = {
         "status": "approved",
         "approved_ids": ["c1"],
@@ -134,6 +132,6 @@ def test_validate_human_decision_edge_cases(tmp_path: Path) -> None:
     payload["signature"] = artifacts_module._sign_payload(payload)
     good = tmp_path / "good.json"
     good.write_text(json.dumps(payload))
-    ok, errors, _payload = artifacts_module.validate_human_decision(good)
-    assert ok is True
-    assert errors == []
+    report = artifacts_module.validate_human_decision(good)
+    assert report.passed is True
+    assert report.errors == ()

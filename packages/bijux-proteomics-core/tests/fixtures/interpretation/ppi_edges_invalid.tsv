@@ -1,0 +1,5 @@
+protein_ref_a	protein_ref_b	source_name	source_accession	interaction_score
+P001	P001	string	STRING:self	0.9
+P001	P002	string	STRING:1	0.8
+P002	P001	string	STRING:1-reversed	0.7
+P003	P004	string	STRING:bad	not-a-number

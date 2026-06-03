@@ -1,5 +1,5 @@
-Precursor.Id	Stripped.Sequence	Precursor.Charge	Q.Value	Protein.Group	Protein.Ids	Run	Sample	Precursor.Quantity	PG.Quantity	Decoy
-raw_A_PESTIDE_2	PESTIDE	2	0.0021	PG001	P11111;P11112	raw_A	sample_A	1250000	3400000	0
-raw_B_PESTIDE_2	PESTIDE	2	0.0024	PG001	P11111;P11112	raw_B	sample_B	1300000	3550000	0
-raw_A_ACDMK_3	ACDMK	3	0.0048	PG002	P22222	raw_A	sample_A	890000	1220000	0
-raw_B_DECOYPEP_2	DECOYPEP	2	0.0410	PGD01	DECOY_P33333	raw_B	sample_B	50000	70000	1
+Precursor.Id	Stripped.Sequence	Modified.Sequence	Precursor.Charge	Q.Value	Protein.Group	Protein.Ids	Run	Sample	Precursor.Quantity	PG.Quantity	Decoy
+raw_A_PESTIDE_2	PESTIDE	PESTIDE	2	0.0021	PG001	P11111;P11112	raw_A	sample_A	1250000	3400000	0
+raw_B_PESTIDE_2	PESTIDE	PESTIDE	2	0.0024	PG001	P11111;P11112	raw_B	sample_B	1300000	3550000	0
+raw_A_ACDMK_3	ACDMK	ACDM[Oxidation]K	3	0.0048	PG002	P22222	raw_A	sample_A	890000	1220000	0
+raw_B_DECOYPEP_2	DECOYPEP	DECOYPEP	2	0.0410	PGD01	DECOY_P33333	raw_B	sample_B	50000	70000	1

@@ -1,4 +1,5 @@
-# Curated public root API for bijux_proteomics_lab.
+# Generated bijux-proteomics-lab root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots
 
 [budget]
 max_public_symbols = 3
@@ -8,16 +9,16 @@ max_init_lines = 16
 name = "plan_experiment_batches"
 owner_module = "bijux_proteomics_lab.planning.assays"
 classification = "operational_planning_entrypoint"
-rationale = "Batch planning is the main package-level entrypoint that turns scientific requirements into executable lab work."
+rationale = "batch planning is the main package-level entrypoint that turns scientific requirements into executable lab work"
 
 [[symbol]]
 name = "build_advisory_assay_plan"
 owner_module = "bijux_proteomics_lab.planning.assays"
 classification = "advisory_planning_entrypoint"
-rationale = "Advisory assay planning remains public so downstream packages can preview follow-up shape before scheduling a concrete batch."
+rationale = "advisory assay planning remains public so downstream packages can preview follow-up shape before scheduling a concrete batch"
 
 [[symbol]]
 name = "build_executable_assay_plan"
 owner_module = "bijux_proteomics_lab.planning.assays"
 classification = "execution_planning_entrypoint"
-rationale = "Executable assay planning is the concrete package-level contract for lab-ready batch instructions."
+rationale = "executable assay planning is the concrete package-level contract for lab-ready batch instructions"

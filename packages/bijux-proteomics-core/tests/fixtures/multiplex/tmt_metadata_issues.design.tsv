@@ -1,0 +1,9 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	multiplex_group	multiplex_channel	sample_role
+plex_a_126	control	1	1	plex_a.raw	plex_a.tsv	maxquant-a	orbitrap-a	maxquant	plex-a	126	sample
+plex_a_127N	treatment	1	1	plex_a.raw	plex_a.tsv	maxquant-a	orbitrap-a	maxquant	plex-a	127N	sample
+plex_a_128N	carrier	1	1	plex_a.raw	plex_a.tsv	maxquant-a	orbitrap-a	maxquant	plex-a	128N	pooled_reference
+plex_a_129N	reference	1	1	plex_a.raw	plex_a.tsv	maxquant-a	orbitrap-a	maxquant	plex-a	129N	qc_bridge
+plex_b_126	control	2	1	plex_b.raw	plex_b.tsv	maxquant-b	orbitrap-b	maxquant	plex-b	126	sample
+plex_b_126	treatment	2	1	plex_b.raw	plex_b.tsv	maxquant-b	orbitrap-b	maxquant	plex-b	127N	sample
+plex_b_127N_alt	treatment	2	1	plex_b.raw	plex_b.tsv	maxquant-b	orbitrap-b	maxquant	plex-b	127N	sample
+plex_b_128N	unknown	2	1	plex_b.raw	plex_b.tsv	maxquant-b	orbitrap-b	maxquant	plex-b	128N	pooled_reference

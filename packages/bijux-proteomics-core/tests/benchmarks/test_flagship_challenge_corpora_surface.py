@@ -51,7 +51,7 @@ def test_first_perturbation_reports_publish_measured_reaction_states() -> None:
     assert reports["dia"].comparator_reaction.value in {"weakens", "collapses"}
     assert reports["lfq"].metric_deltas
     assert reports["multiplex"].review_reaction.value == "collapses"
-    assert reports["ptm"].workflow_reaction.value == "collapses"
+    assert reports["ptm"].workflow_reaction.value == "weakens"
     assert reports["targeted"].review_reaction.value == "collapses"
     assert all(report.perturbation_axes for report in reports.values())
     assert all(report.evidence_paths for report in reports.values())

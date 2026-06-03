@@ -12,12 +12,8 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.chemistry.contracts import (
     ModificationPosition,
     ModificationRegistryDocument,
-    StaticModification,
-    VariableModification,
-    _BaseModification,
-    get_modification,
-    modification_registry,
 )
+from bijux_proteomics.chemistry.modification_registry import resolve_modification
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -47,6 +43,8 @@ class ModificationResolutionReport(JsonModel):
     mass_delta_average: float | None = None
     residue_query: str | None = None
     residue_allowed: bool | None = None
+    rejection_code: str | None = None
+    rejection_message: str | None = None
     issues: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -65,86 +63,32 @@ def build_modification_resolution_report(
         len(normalized_residue) != 1 or not normalized_residue.isalpha()
     ):
         raise ValueError("residue queries must use one amino-acid letter")
-
-    try:
-        definition = get_modification(normalized, registry=registry)
-    except ValueError:
-        return ModificationResolutionReport(
-            query_token=token,
-            normalized_token=normalized,
-            resolved=False,
-            source=ModificationResolutionSource.UNKNOWN,
-            residue_query=normalized_residue,
-            issues=(f"unknown modification {token!r}",),
-        )
-
-    source = _classify_resolution_source(definition, registry=registry)
-    residue_allowed = _residue_allowed(definition, normalized_residue)
+    resolution = resolve_modification(
+        token=normalized,
+        site=ModificationPosition.ANYWHERE if normalized_residue is not None else None,
+        residue=normalized_residue,
+        registry=registry,
+    )
     issues: list[str] = []
-    if residue_allowed is False:
-        issues.append(
-            f"modification {definition.name!r} is not valid on residue {normalized_residue!r}"
-        )
+    if resolution.rejection is not None:
+        issues.append(resolution.rejection.message)
     return ModificationResolutionReport(
         query_token=token,
         normalized_token=normalized,
-        resolved=True,
-        source=source,
-        modification_name=definition.name,
-        controlled_id=definition.controlled_id,
-        application="static"
-        if isinstance(definition, StaticModification)
-        else "variable",
-        position=definition.position,
-        residues=definition.residues,
-        mass_delta_monoisotopic=definition.mass_delta_monoisotopic,
-        mass_delta_average=definition.mass_delta_average,
+        resolved=resolution.matched,
+        source=ModificationResolutionSource(resolution.source.value),
+        modification_name=resolution.modification_name,
+        controlled_id=resolution.controlled_id,
+        application=resolution.application,
+        position=resolution.position,
+        residues=resolution.residues,
+        mass_delta_monoisotopic=resolution.mass_delta_monoisotopic,
+        mass_delta_average=resolution.mass_delta_average,
         residue_query=normalized_residue,
-        residue_allowed=residue_allowed,
+        residue_allowed=resolution.residue_allowed,
+        rejection_code=resolution.rejection.code if resolution.rejection else None,
+        rejection_message=resolution.rejection.message
+        if resolution.rejection
+        else None,
         issues=tuple(issues),
     )
-
-
-def _classify_resolution_source(
-    definition: StaticModification | VariableModification,
-    *,
-    registry: ModificationRegistryDocument | None,
-) -> ModificationResolutionSource:
-    if registry is None:
-        return ModificationResolutionSource.BUILTIN
-    for candidate in (*registry.static_modifications, *registry.variable_modifications):
-        if _same_definition(candidate, definition):
-            return ModificationResolutionSource.REGISTRY
-    builtin_registry = modification_registry()
-    for candidate in (
-        *builtin_registry.static_modifications,
-        *builtin_registry.variable_modifications,
-    ):
-        if _same_definition(candidate, definition):
-            return ModificationResolutionSource.BUILTIN
-    return ModificationResolutionSource.REGISTRY
-
-
-def _same_definition(
-    left: _BaseModification,
-    right: _BaseModification,
-) -> bool:
-    return (
-        left.name == right.name
-        and left.controlled_id == right.controlled_id
-        and left.position == right.position
-        and left.residues == right.residues
-        and left.mass_delta_monoisotopic == right.mass_delta_monoisotopic
-        and left.mass_delta_average == right.mass_delta_average
-    )
-
-
-def _residue_allowed(
-    definition: StaticModification | VariableModification,
-    residue: str | None,
-) -> bool | None:
-    if residue is None:
-        return None
-    if definition.position is not ModificationPosition.ANYWHERE:
-        return True
-    return residue in definition.residues

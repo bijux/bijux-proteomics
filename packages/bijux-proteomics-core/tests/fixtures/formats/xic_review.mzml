@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML xmlns="http://psi.hupo.org/ms/mzml" version="1.1.0">
+  <cvList count="1">
+    <cv id="MS" fullName="Proteomics Standards Initiative Mass Spectrometry Ontology" version="4.1.0" URI="https://example.org/ms.obo" />
+  </cvList>
+  <instrumentConfigurationList count="1">
+    <instrumentConfiguration id="IC1">
+      <cvParam accession="MS:1001911" name="Q Exactive" />
+    </instrumentConfiguration>
+  </instrumentConfigurationList>
+  <run id="RUN_XIC_01" defaultInstrumentConfigurationRef="IC1" startTimeStamp="2026-05-10T09:00:00Z">
+    <spectrumList count="4">
+      <spectrum id="scan=7000" index="0" defaultArrayLength="3">
+        <cvParam accession="MS:1000511" name="ms level" value="1" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="10" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="scan=6999">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="500.0" />
+                <cvParam accession="MS:1000042" name="peak intensity" value="2000.0" />
+                <cvParam accession="MS:1000041" name="charge state" value="2" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>hxbZzvc/f0BeukkMAuCFQAAAAAAAAIlA</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAABAj0AAAAAAAECfQAAAAAAAwHJA</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+      <spectrum id="scan=7001" index="1" defaultArrayLength="3">
+        <cvParam accession="MS:1000511" name="ms level" value="1" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="20" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="scan=7000">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="500.0" />
+                <cvParam accession="MS:1000042" name="peak intensity" value="2500.0" />
+                <cvParam accession="MS:1000041" name="charge state" value="2" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>8tJNYhBAf0A1XrpJDOCFQAAAAAAAUIlA</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAABwl0AAAAAAAIijQAAAAAAAAGlA</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+      <spectrum id="scan=7002" index="2" defaultArrayLength="3">
+        <cvParam accession="MS:1000511" name="ms level" value="1" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="30" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="scan=7001">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="500.0" />
+                <cvParam accession="MS:1000042" name="peak intensity" value="3000.0" />
+                <cvParam accession="MS:1000041" name="charge state" value="2" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>7FG4HoU/f0AAAAAAAOCFQAAAAAAAoIlA</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAABAf0AAAAAAAHCnQAAAAAAAAFlA</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+      <spectrum id="scan=7003" index="3" defaultArrayLength="3">
+        <cvParam accession="MS:1000511" name="ms level" value="2" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="20.5" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="scan=7002">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="612.4" />
+                <cvParam accession="MS:1000042" name="peak intensity" value="9999.0" />
+                <cvParam accession="MS:1000041" name="charge state" value="3" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAABAf0AAAAAAAOCFQAAAAAAAIIxA</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="32">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAICHw0AAAAAAgIfDQAAAAAAAAFlA</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+    </spectrumList>
+  </run>
+</mzML>

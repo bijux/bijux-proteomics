@@ -17,7 +17,7 @@ from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import (
+from bijux_proteomics.io.formats.proteomics_formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
 )
@@ -38,13 +38,13 @@ from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
     MissingChannelPolicy,
-    Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
 )
+from bijux_proteomics.quantification.contracts.input_models import Ms1FeatureRecord
 from bijux_proteomics.quantification.review import (
     build_multiplex_channel_balance_diagnostics_report,
     build_quant_review_bundle,
@@ -57,6 +57,7 @@ from bijux_proteomics.sequences.core import (
 )
 from bijux_proteomics.sequences.digestion import digest_protein_records
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_runtime.artifacts import StepArtifact, build_step_artifact
 
 
 class _PtmLabValidationEntryLike(Protocol):
@@ -84,17 +85,6 @@ class RuntimeWorkflowStatus(StrEnum):
     FAILED = "failed"
 
 
-class RuntimeWorkflowStepRecord(JsonModel):
-    """One deterministic runtime step trace entry."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    step_id: str = Field(..., min_length=1)
-    description: str = Field(..., min_length=1)
-    status: RuntimeWorkflowStatus
-    output_count: int = Field(..., ge=0)
-
-
 class SequenceToDigestWorkflowRunReport(JsonModel):
     """End-to-end runtime report for FASTA -> digest -> decoy -> evidence."""
 
@@ -109,7 +99,7 @@ class SequenceToDigestWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -140,7 +130,7 @@ class DdaImportWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -171,7 +161,7 @@ class DiaImportWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -190,7 +180,7 @@ class QuantRuntimeWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -210,7 +200,7 @@ class PtmRuntimeWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -232,7 +222,7 @@ class MultiplexRuntimeWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -252,7 +242,7 @@ class TargetedRuntimeWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -283,7 +273,7 @@ class KnowledgeReviewWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -301,7 +291,7 @@ class LabHandoffWorkflowRunReport(JsonModel):
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
-    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    steps: tuple[StepArtifact, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -403,6 +393,29 @@ def _stable_runtime_key(payload: object) -> str:
     ).hexdigest()
 
 
+def _step_artifact(
+    *,
+    step_id: str,
+    description: str,
+    status: RuntimeWorkflowStatus,
+    input_payloads: dict[str, Any],
+    output_payloads: dict[str, Any],
+    entity_counts: dict[str, int],
+    schema_names: tuple[str, ...],
+    allowed_empty_reason: str | None = None,
+) -> StepArtifact:
+    return build_step_artifact(
+        step_id=step_id,
+        description=description,
+        status=status.value,
+        input_payloads=input_payloads,
+        output_payloads=output_payloads,
+        entity_counts=entity_counts,
+        schema_names=schema_names,
+        allowed_empty_reason=allowed_empty_reason,
+    )
+
+
 def _parse_mgf_text(mgf_text: str) -> MgfParseReport:
     with tempfile.NamedTemporaryFile("w", suffix=".mgf", delete=False) as handle:
         handle.write(mgf_text)
@@ -445,7 +458,7 @@ def _build_label_policy(
     )
     return LabelBasedQuantPolicy(
         channel_entries=channel_entries,
-        missing_channel_policy=MissingChannelPolicy.ERROR,
+        missing_channel_policy=MissingChannelPolicy.PRESERVE,
     )
 
 
@@ -476,7 +489,46 @@ def run_sequence_to_digest_workflow_end_to_end(
     decoy_mode: DecoyGenerationMode = DecoyGenerationMode.REVERSE,
 ) -> SequenceToDigestWorkflowRunReport:
     """Execute FASTA -> digest -> decoy -> peptide evidence end to end."""
-    parse_report = parse_fasta_document(fasta_text, mode=FastaParseMode.STRICT)
+    try:
+        parse_report = parse_fasta_document(fasta_text, mode=FastaParseMode.STRICT)
+    except ValueError as error:
+        key = _stable_runtime_key(
+            {
+                "workflow": "sequence-to-digest",
+                "fasta": fasta_text,
+                "refusal": str(error),
+            }
+        )
+        return SequenceToDigestWorkflowRunReport(
+            workflow_id="sequence-to-digest",
+            status=RuntimeWorkflowStatus.REFUSED,
+            target_record_count=0,
+            decoy_record_count=0,
+            target_peptide_count=0,
+            decoy_peptide_count=0,
+            artifact_paths=(f"{artifact_root}/parse-refusal.json",),
+            evidence_pointers=("fasta.parse.rejected_records",),
+            replay_cache_key=key,
+            steps=(
+                _step_artifact(
+                    step_id="parse-fasta",
+                    description="parse strict FASTA records",
+                    status=RuntimeWorkflowStatus.REFUSED,
+                    input_payloads={
+                        "fasta_text": fasta_text,
+                        "parse_mode": FastaParseMode.STRICT.value,
+                    },
+                    output_payloads={
+                        "accepted_records": (),
+                        "rejected_records": ({"reason": str(error)},),
+                    },
+                    entity_counts={"accepted_records": 0},
+                    schema_names=("fasta_record", "fasta_parse_rejection"),
+                    allowed_empty_reason=str(error),
+                ),
+            ),
+            note="workflow refused because the FASTA payload could not be parsed under strict rules",
+        )
     if not parse_report.accepted_records:
         key = _stable_runtime_key(
             {"workflow": "sequence-to-digest", "fasta": fasta_text}
@@ -492,11 +544,23 @@ def run_sequence_to_digest_workflow_end_to_end(
             evidence_pointers=("fasta.parse.rejected_records",),
             replay_cache_key=key,
             steps=(
-                RuntimeWorkflowStepRecord(
+                _step_artifact(
                     step_id="parse-fasta",
                     description="parse strict FASTA records",
                     status=RuntimeWorkflowStatus.REFUSED,
-                    output_count=0,
+                    input_payloads={
+                        "fasta_text": fasta_text,
+                        "parse_mode": FastaParseMode.STRICT.value,
+                    },
+                    output_payloads={
+                        "accepted_records": (),
+                        "rejected_records": parse_report.rejected_records,
+                    },
+                    entity_counts={"accepted_records": 0},
+                    schema_names=("fasta_record", "fasta_parse_rejection"),
+                    allowed_empty_reason=(
+                        "no FASTA records were accepted under strict parsing"
+                    ),
                 ),
             ),
             note="workflow refused because no FASTA records were accepted under strict parsing",
@@ -535,29 +599,61 @@ def run_sequence_to_digest_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="parse-fasta",
                 description="parse strict FASTA records",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(targets),
+                input_payloads={
+                    "fasta_text": fasta_text,
+                    "parse_mode": FastaParseMode.STRICT.value,
+                },
+                output_payloads={"accepted_records": targets},
+                entity_counts={"accepted_records": len(targets)},
+                schema_names=("fasta_record",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="generate-decoys",
                 description="generate deterministic decoy records",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(decoys),
+                input_payloads={
+                    "target_records": targets,
+                    "decoy_mode": decoy_mode.value,
+                },
+                output_payloads={"decoy_records": decoys},
+                entity_counts={"decoy_records": len(decoys)},
+                schema_names=("decoy_fasta_record",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="digest-targets",
                 description="digest accepted target records with trypsin",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(target_peptides),
+                input_payloads={
+                    "target_records": targets,
+                    "protease": "trypsin",
+                    "min_length": 7,
+                },
+                output_payloads={"target_peptides": target_peptides},
+                entity_counts={"target_peptides": len(target_peptides)},
+                schema_names=("digested_target_peptide",),
+                allowed_empty_reason=(
+                    "accepted target records may all fall outside the digestion length rule"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="digest-decoys",
                 description="digest generated decoy records with trypsin",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(decoy_peptides),
+                input_payloads={
+                    "decoy_records": decoys,
+                    "protease": "trypsin",
+                    "min_length": 7,
+                },
+                output_payloads={"decoy_peptides": decoy_peptides},
+                entity_counts={"decoy_peptides": len(decoy_peptides)},
+                schema_names=("digested_decoy_peptide",),
+                allowed_empty_reason=(
+                    "generated decoy records may all fall outside the digestion length rule"
+                ),
             ),
         ),
         note="workflow completed with deterministic FASTA, decoy, and digestion evidence surfaces",
@@ -610,35 +706,73 @@ def run_dda_import_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="import-spectra",
                 description="parse MGF spectra and retain accepted blocks",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(spectra),
+                input_payloads={"mgf_text": mgf_text},
+                output_payloads={"accepted_spectra": mgf_report.accepted_spectra},
+                entity_counts={"accepted_spectra": len(spectra)},
+                schema_names=("mgf_spectrum",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="map-psm",
                 description="map normalized search hits to imported spectra",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(accepted_hits),
+                input_payloads={
+                    "search_hits": search_hits,
+                    "accepted_spectra": tuple(sorted(spectra)),
+                },
+                output_payloads={"accepted_psm": accepted_hits},
+                entity_counts={"accepted_psm": len(accepted_hits)},
+                schema_names=("dda_search_hit_input", "accepted_psm"),
+                allowed_empty_reason=(
+                    "imported spectra may fail to match any normalized search hit"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="infer-peptide",
                 description="aggregate accepted PSM rows into peptide evidence",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(peptides),
+                input_payloads={"accepted_psm": accepted_hits},
+                output_payloads={"peptide_ids": peptides},
+                entity_counts={"peptide_ids": len(peptides)},
+                schema_names=("peptide_evidence",),
+                allowed_empty_reason=(
+                    "no peptide evidence can be inferred when no accepted PSM rows survive import"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="infer-protein",
                 description="aggregate peptide evidence into protein references",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(proteins),
+                input_payloads={"accepted_psm": accepted_hits, "peptide_ids": peptides},
+                output_payloads={"protein_refs": proteins},
+                entity_counts={"protein_refs": len(proteins)},
+                schema_names=("protein_reference",),
+                allowed_empty_reason=(
+                    "no protein references can be inferred when no accepted peptide evidence remains"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="qc-evidence",
                 description="collect rejected spectra/hits into a QC issue surface",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=qc_issue_count,
+                input_payloads={
+                    "rejected_spectra": mgf_report.rejected_blocks,
+                    "rejected_hits": rejected_hits,
+                },
+                output_payloads={
+                    "qc_issues": {
+                        "rejected_spectra": mgf_report.rejected_blocks,
+                        "rejected_hits": rejected_hits,
+                    }
+                },
+                entity_counts={"qc_issues": qc_issue_count},
+                schema_names=("dda_qc_issue",),
+                allowed_empty_reason=(
+                    "all imported search hits may map cleanly to parsed spectra with no QC issues"
+                ),
             ),
         ),
         note="workflow completed DDA import with mapped PSM, inferred peptide/protein evidence, and QC accounting",
@@ -684,35 +818,56 @@ def run_dia_import_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="import-dia-results",
                 description="ingest DIA precursor-level quant rows",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(precursor_rows),
+                input_payloads={"precursor_rows": precursor_rows},
+                output_payloads={"precursor_rows": precursor_rows},
+                entity_counts={"precursor_rows": len(precursor_rows)},
+                schema_names=("dia_precursor_quant_input",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="aggregate-precursor",
                 description="aggregate DIA rows at precursor level",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(precursors),
+                input_payloads={"precursor_rows": precursor_rows},
+                output_payloads={"precursor_ids": precursors},
+                entity_counts={"precursor_ids": len(precursors)},
+                schema_names=("dia_precursor_quant_summary",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="aggregate-peptide",
                 description="aggregate precursor evidence to peptide level",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(peptides),
+                input_payloads={"precursor_rows": precursor_rows},
+                output_payloads={"peptide_ids": peptides},
+                entity_counts={"peptide_ids": len(peptides)},
+                schema_names=("dia_peptide_quant_summary",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="aggregate-protein",
                 description="aggregate peptide evidence to protein level",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(proteins),
+                input_payloads={
+                    "peptide_ids": peptides,
+                    "precursor_rows": precursor_rows,
+                },
+                output_payloads={"protein_refs": proteins},
+                entity_counts={"protein_refs": len(proteins)},
+                schema_names=("dia_protein_quant_summary",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="qc-evidence",
                 description="collect DIA rows with missing intensities for QC review",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(missing),
+                input_payloads={"precursor_rows": precursor_rows},
+                output_payloads={"missing_intensity_rows": missing},
+                entity_counts={"missing_intensity_rows": len(missing)},
+                schema_names=("dia_missing_intensity_row",),
+                allowed_empty_reason=(
+                    "all DIA precursor rows may carry intensities with no missing-value QC pressure"
+                ),
             ),
         ),
         note="workflow completed DIA import with precursor/peptide/protein quant and QC evidence",
@@ -763,33 +918,82 @@ def run_quant_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-matrix",
                 description="build peptide-level quant matrix from features",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(feature_records),
+                input_payloads={"feature_records": feature_records},
+                output_payloads={"matrix_feature_records": feature_records},
+                entity_counts={"matrix_feature_records": len(feature_records)},
+                schema_names=("ms1_feature_record", "quant_matrix_surface"),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="normalize",
                 description="normalize quant matrix across samples",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(conditions),
+                input_payloads={
+                    "feature_records": feature_records,
+                    "design_entries": design_entries,
+                },
+                output_payloads={
+                    "normalized_conditions": conditions,
+                    "outlier_samples": review_bundle.qc_report.outlier_samples,
+                },
+                entity_counts={"normalized_conditions": len(conditions)},
+                schema_names=(
+                    "experimental_design_entry",
+                    "normalized_condition_group",
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="differential-abundance",
                 description="compute effect-size-first differential abundance entries",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=(
-                    len(review_bundle.effect_size_da_report.entries)
-                    if review_bundle.effect_size_da_report is not None
-                    else 0
+                input_payloads={
+                    "feature_records": feature_records,
+                    "design_entries": design_entries,
+                    "condition_ids": conditions,
+                },
+                output_payloads={
+                    "effect_size_entries": (
+                        ()
+                        if review_bundle.effect_size_da_report is None
+                        else review_bundle.effect_size_da_report.entries
+                    ),
+                },
+                entity_counts={
+                    "effect_size_entries": (
+                        len(review_bundle.effect_size_da_report.entries)
+                        if review_bundle.effect_size_da_report is not None
+                        else 0
+                    )
+                },
+                schema_names=("effect_size_da_entry",),
+                allowed_empty_reason=(
+                    "the runtime review bundle may omit differential abundance entries when no analyte passes effect-size reporting thresholds"
                 ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="review-bundle",
                 description="assemble integrated quant review bundle",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(review_bundle.evidence_pointers),
+                input_payloads={
+                    "feature_records": feature_records,
+                    "design_entries": design_entries,
+                },
+                output_payloads={
+                    "review_bundle": review_bundle,
+                    "artifact_paths": (
+                        f"{artifact_root}/matrix.tsv",
+                        f"{artifact_root}/normalization.json",
+                        f"{artifact_root}/differential_abundance.tsv",
+                        f"{artifact_root}/review_bundle.json",
+                    ),
+                },
+                entity_counts={
+                    "evidence_pointers": len(review_bundle.evidence_pointers)
+                },
+                schema_names=("quant_review_bundle",),
             ),
         ),
         note="workflow completed quant matrix, normalization, differential abundance, and review bundle surfaces",
@@ -851,35 +1055,78 @@ def run_ptm_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="parse-identifications",
                 description="parse PTM identification/localization evidence table",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(parse_report.accepted_records),
+                input_payloads={"ptm_evidence_path": str(ptm_evidence_path)},
+                output_payloads={
+                    "accepted_identifications": parse_report.accepted_records
+                },
+                entity_counts={
+                    "accepted_identifications": len(parse_report.accepted_records)
+                },
+                schema_names=("ptm_localization_record",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="map-localization",
                 description="map localized PTM evidence to protein site coordinates",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(site_entries),
+                input_payloads={
+                    "accepted_identifications": parse_report.accepted_records,
+                    "protein_sequences": protein_sequences,
+                },
+                output_payloads={"site_entries": site_entries},
+                entity_counts={"site_entries": len(site_entries)},
+                schema_names=("ptm_site_entry",),
+                allowed_empty_reason=(
+                    "localized PTM evidence may fail to map onto the supplied protein sequences"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="estimate-occupancy",
                 description="estimate modified/unmodified occupancy with counterpart caveats",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(occupancy.entries),
+                input_payloads={
+                    "site_entries": site_entries,
+                    "feature_records": feature_records,
+                },
+                output_payloads={"occupancy_entries": occupancy.entries},
+                entity_counts={"occupancy_entries": len(occupancy.entries)},
+                schema_names=("ptm_occupancy_entry",),
+                allowed_empty_reason=(
+                    "occupancy estimation may remain empty when no mapped PTM site has a quantifiable counterpart"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-motif",
                 description="build PTM motif windows around mapped protein sites",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(motifs),
+                input_payloads={
+                    "site_entries": site_entries,
+                    "protein_sequences": protein_sequences,
+                },
+                output_payloads={"motif_windows": motifs},
+                entity_counts={"motif_windows": len(motifs)},
+                schema_names=("ptm_motif_window",),
+                allowed_empty_reason=(
+                    "motif windows may remain empty when mapped PTM sites lack usable sequence context"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-review-packet",
                 description="build PTM lab validation packet with risk and controls",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(lab_packet.entries),
+                input_payloads={
+                    "site_entries": site_entries,
+                    "occupancy_entries": occupancy.entries,
+                },
+                output_payloads={"lab_validation_packet": lab_packet},
+                entity_counts={"lab_validation_targets": len(lab_packet.entries)},
+                schema_names=("ptm_lab_validation_packet",),
+                allowed_empty_reason=(
+                    "no PTM site may survive into the lab-validation packet when mapped evidence remains too weak for downstream assay planning"
+                ),
             ),
         ),
         note="workflow completed PTM localization, occupancy, motif, and lab validation packet surfaces",
@@ -959,33 +1206,67 @@ def run_multiplex_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-channel-matrix",
                 description="build multiplex protein-level matrix from tracked feature records",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(feature_records),
+                input_payloads={"feature_records": feature_records},
+                output_payloads={"channel_matrix_features": feature_records},
+                entity_counts={"channel_matrix_features": len(feature_records)},
+                schema_names=("ms1_feature_record", "multiplex_channel_matrix"),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="apply-channel-policy",
                 description="apply explicit multiplex channel policy over tracked design entries",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(bundle.channels),
+                input_payloads={
+                    "design_entries": design_entries,
+                    "channel_policy": quant_policy,
+                },
+                output_payloads={"bundle_channels": bundle.channels},
+                entity_counts={"bundle_channels": len(bundle.channels)},
+                schema_names=("label_based_channel_policy_entry", "bundle_channel"),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="review-channel-pressure",
                 description="surface missing channels, carrier pressure, and flagged imbalance before biological rollup",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=(
-                    diagnostics.flagged_imbalance_count
-                    + diagnostics.missing_channel_count
-                    + diagnostics.carrier_effect_channel_count
+                input_payloads={
+                    "channel_balance_diagnostics": diagnostics,
+                    "quant_bundle": bundle,
+                },
+                output_payloads={
+                    "channel_pressure": {
+                        "flagged_imbalance_count": diagnostics.flagged_imbalance_count,
+                        "missing_channel_count": diagnostics.missing_channel_count,
+                        "carrier_effect_channel_count": diagnostics.carrier_effect_channel_count,
+                    }
+                },
+                entity_counts={
+                    "channel_pressure_events": (
+                        diagnostics.flagged_imbalance_count
+                        + diagnostics.missing_channel_count
+                        + diagnostics.carrier_effect_channel_count
+                    )
+                },
+                schema_names=("multiplex_channel_pressure_event",),
+                allowed_empty_reason=(
+                    "channel pressure can be absent when every multiplex channel passes missingness, imbalance, and carrier checks"
                 ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="assemble-review-bundle",
                 description="assemble multiplex review outputs with explicit downgrade pressure",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(review_bundle.evidence_pointers),
+                input_payloads={
+                    "feature_records": feature_records,
+                    "design_entries": design_entries,
+                },
+                output_payloads={"review_bundle": review_bundle},
+                entity_counts={
+                    "evidence_pointers": len(review_bundle.evidence_pointers)
+                },
+                schema_names=("quant_review_bundle", "multiplex_review_bundle"),
             ),
         ),
         note=(
@@ -1068,33 +1349,78 @@ def run_targeted_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="ingest-chromatogram-qc",
                 description="ingest targeted chromatogram QC rows as the calibration-facing runtime surface",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(qc_report.accepted_points),
+                input_payloads={"targeted_qc_path": str(targeted_qc_path)},
+                output_payloads={"accepted_points": qc_report.accepted_points},
+                entity_counts={"accepted_points": len(qc_report.accepted_points)},
+                schema_names=("chromatogram_qc_point",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="review-transitions",
                 description="carry approved, exploratory, and refused transition states into runtime review",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=(
-                    approved_transition_count
-                    + exploratory_transition_count
-                    + refused_transition_count
+                input_payloads={
+                    "supported_follow_up_payload": supported_follow_up_payload,
+                    "failed_follow_up_payload": failed_follow_up_payload,
+                    "refused_follow_up_payload": refused_follow_up_payload,
+                },
+                output_payloads={
+                    "transition_review": {
+                        "approved_transition_count": approved_transition_count,
+                        "exploratory_transition_count": exploratory_transition_count,
+                        "refused_transition_count": refused_transition_count,
+                    }
+                },
+                entity_counts={
+                    "transition_review_entries": (
+                        approved_transition_count
+                        + exploratory_transition_count
+                        + refused_transition_count
+                    )
+                },
+                schema_names=("targeted_transition_review",),
+                allowed_empty_reason=(
+                    "follow-up payloads may not propose any approved, exploratory, or refused transitions"
                 ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="surface-interference-pressure",
                 description="keep blocked and refused targeted follow-up paths visible as interference-facing or readiness-facing pressure",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=blocked_follow_up_count,
+                input_payloads={
+                    "failed_follow_up_payload": failed_follow_up_payload,
+                    "refused_follow_up_payload": refused_follow_up_payload,
+                },
+                output_payloads={
+                    "blocked_follow_up_paths": (
+                        failed_follow_up_payload,
+                        refused_follow_up_payload,
+                    )
+                },
+                entity_counts={"blocked_follow_up_paths": blocked_follow_up_count},
+                schema_names=("targeted_follow_up_pressure",),
+                allowed_empty_reason=(
+                    "targeted follow-up payloads may remain launchable without interference or readiness blockage"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="publish-follow-up-consequences",
                 description="publish the observed targeted follow-up outcomes that remain usable downstream",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=observed_outcome_count,
+                input_payloads={
+                    "supported_follow_up_payload": supported_follow_up_payload
+                },
+                output_payloads={
+                    "assay_outcomes": supported_follow_up_payload.get("outcome", {})
+                },
+                entity_counts={"assay_outcomes": observed_outcome_count},
+                schema_names=("targeted_assay_outcome",),
+                allowed_empty_reason=(
+                    "supported targeted follow-up payloads may carry no observed assay outcomes yet"
+                ),
             ),
         ),
         note=(
@@ -1156,29 +1482,55 @@ def run_knowledge_review_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-evidence-graph",
                 description="build evidence graph from normalized evidence inputs",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(evidence_items),
+                input_payloads={"evidence_items": evidence_items},
+                output_payloads={"evidence_nodes": evidence_items},
+                entity_counts={"evidence_nodes": len(evidence_items)},
+                schema_names=("knowledge_evidence_input", "knowledge_evidence_node"),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="rank-trust",
                 description="rank evidence entries by trust score",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(ranked),
+                input_payloads={"evidence_items": evidence_items},
+                output_payloads={"ranked_evidence": ranked},
+                entity_counts={"ranked_evidence": len(ranked)},
+                schema_names=("ranked_evidence_entry",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="resolve-contradictions",
                 description="flag contradictory evidence pairs for review",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(contradiction_pairs),
+                input_payloads={"ranked_evidence": ranked},
+                output_payloads={
+                    "contradiction_pairs": tuple(sorted(contradiction_pairs))
+                },
+                entity_counts={"contradiction_pairs": len(contradiction_pairs)},
+                schema_names=("knowledge_contradiction_pair",),
+                allowed_empty_reason=(
+                    "normalized evidence inputs may contain no contradictory claims"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="assemble-review-packet",
                 description="assemble knowledge decision brief from ranked and contested claims",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(accepted) + len(contested),
+                input_payloads={
+                    "ranked_evidence": ranked,
+                    "contradiction_pairs": tuple(sorted(contradiction_pairs)),
+                },
+                output_payloads={
+                    "accepted_claims": accepted,
+                    "contested_claim_ids": tuple(sorted(contested)),
+                },
+                entity_counts={"review_claims": len(accepted) + len(contested)},
+                schema_names=("knowledge_review_claim",),
+                allowed_empty_reason=(
+                    "a knowledge review packet may remain empty when no evidence item clears the trust or contradiction screen"
+                ),
             ),
         ),
         note="workflow completed evidence ranking and contradiction-aware knowledge decision brief generation",
@@ -1224,29 +1576,67 @@ def run_lab_handoff_workflow_end_to_end(
         ),
         replay_cache_key=key,
         steps=(
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="ingest-review-packet",
                 description="ingest PTM decision brief for assay planning",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=len(packet.entries),
+                input_payloads={"packet_entries": packet.entries},
+                output_payloads={"review_targets": packet.entries},
+                entity_counts={"review_targets": len(packet.entries)},
+                schema_names=("ptm_lab_validation_target_entry",),
+                allowed_empty_reason=(
+                    "a lab handoff packet may carry no review targets when no PTM site survives validation screening"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="build-assay-plan",
                 description="build assay plan for target peptides and controls",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=planned_assays,
+                input_payloads={"packet_entries": packet.entries},
+                output_payloads={"planned_assays": planned_assays},
+                entity_counts={"planned_assays": planned_assays},
+                schema_names=("planned_lab_assay",),
+                allowed_empty_reason=(
+                    "review targets may lack peptide coverage for immediate assay planning"
+                ),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="export-handoff",
                 description="export lab handoff bundle for downstream execution",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=3,
+                input_payloads={"packet_entries": packet.entries},
+                output_payloads={
+                    "export_paths": (
+                        f"{artifact_root}/assay_plan.tsv",
+                        f"{artifact_root}/handoff_export.json",
+                        f"{artifact_root}/unresolved_risk_report.json",
+                    )
+                },
+                entity_counts={"export_files": 3},
+                schema_names=("lab_handoff_export_bundle",),
             ),
-            RuntimeWorkflowStepRecord(
+            _step_artifact(
                 step_id="report-unresolved-risk",
                 description="report unresolved assay risks that require scientific follow-up",
                 status=RuntimeWorkflowStatus.COMPLETED,
-                output_count=max(unresolved, packet.unresolved_risk_count),
+                input_payloads={
+                    "packet_entries": packet.entries,
+                    "unresolved_risk_count": packet.unresolved_risk_count,
+                },
+                output_payloads={
+                    "unresolved_risk_count": max(
+                        unresolved, packet.unresolved_risk_count
+                    )
+                },
+                entity_counts={
+                    "unresolved_risk_entries": max(
+                        unresolved, packet.unresolved_risk_count
+                    )
+                },
+                schema_names=("lab_unresolved_risk_entry",),
+                allowed_empty_reason=(
+                    "every reviewed lab target may clear the unresolved-risk screen"
+                ),
             ),
         ),
         note="workflow completed review-packet ingestion, assay planning, export, and unresolved-risk reporting",

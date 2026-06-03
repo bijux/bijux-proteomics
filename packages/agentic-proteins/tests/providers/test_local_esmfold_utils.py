@@ -9,8 +9,16 @@ from typing import Any
 import pytest
 
 from agentic_proteins.providers.errors import PredictionError
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
 
-torch = pytest.importorskip("torch")
+torch = import_or_skip(
+    "torch",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="torch is required for the local esmfold utility surface",
+)
 LocalESMFoldProvider = import_module(
     "agentic_proteins.providers.local.esmfold"
 ).LocalESMFoldProvider

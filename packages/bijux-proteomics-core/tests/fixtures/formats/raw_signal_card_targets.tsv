@@ -1,0 +1,4 @@
+target_id	precursor_mz	peptide_ref	precursor_id	name
+prec_peptide_ms1	400.687246	PEPTIDE	prec_peptide	PEPTIDE precursor
+anchor_alpha_ms1	500.0	ANCHORA	anchor_alpha	Anchor alpha
+anchor_beta_ms1	600.0	ANCHORB	anchor_beta	Anchor beta

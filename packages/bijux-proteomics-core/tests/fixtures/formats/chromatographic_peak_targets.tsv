@@ -1,0 +1,3 @@
+target_id	precursor_mz	expected_charge	panel_group
+target_single	500.0	2	single
+target_overlap	700.0	2	overlap

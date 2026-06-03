@@ -66,10 +66,12 @@ def test_spectral_library_search_ranks_target_match_and_scores_decoy_competition
     assert search_report.top_match_similarity_score is not None
     assert search_report.top_match_similarity_score > 0.99
     assert search_report.top_match_q_value == 0.0
+    assert search_report.advisory_warning is None
     assert search_report.matches[0].target_decoy_label.value == "target"
     assert search_report.matches[1].target_decoy_label.value == "decoy"
     assert search_report.matches[1].q_value is not None
     assert search_report.matches[2].similarity_classification.value == "distinct"
+    assert "search_strategy\tadvisory_warning\trank" in rendered
     assert "target_decoy_label" in rendered
     assert "msp:1:PEPTIDE/2" in rendered
 
@@ -97,4 +99,9 @@ def test_spectral_library_search_reports_no_decoy_advisory_without_decoy_entries
     assert search_report.decoy_candidate_count == 0
     assert search_report.top_match_canonical_peptide == "PEPTIDE"
     assert search_report.top_match_q_value is None
+    assert search_report.advisory_warning == (
+        "library search ran without decoy entries; q-values are withheld and this report is advisory only"
+    )
     assert all(match.q_value is None for match in search_report.matches)
+    rendered = render_spectral_library_search_tsv(search_report)
+    assert "no_decoy_advisory\tlibrary search ran without decoy entries;" in rendered

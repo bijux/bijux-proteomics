@@ -25,6 +25,7 @@ from bijux_proteomics.study.qc import (
     QcAssessmentSeverity,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
+    QcStatus,
     QcThresholdPolicy,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
@@ -43,6 +44,11 @@ from bijux_proteomics.study.qc import (
 PROTEIN_SEQUENCES = {
     "P11111": "KACDEFGKRAA",
     "CON__KERATIN": "KMSSQQLLLLKA",
+    "SPECIES_HUMAN": "KLMNOPQRKAA".replace("O", "A"),
+    "SPECIES_MOUSE": "KQRSTAAAKAA",
+    "SEX_FEMALE": "KFGHIKLMKAA",
+    "SEX_MALE": "KLMNPKQRKAA",
+    "TRYPSIN_LAB": "KTRYPSINKAA",
 }
 
 
@@ -397,6 +403,11 @@ def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
     assert report.missed_cleavage_rate == 0.2
     assert report.contaminant_summary.contaminant_psm_count == 1
     assert report.contaminant_summary.contaminant_psm_fraction == 0.2
+    assert report.contaminant_summary.contaminant_peptide_count == 1
+    assert report.contaminant_summary.contaminant_protein_count == 1
+    assert report.contaminant_summary.contaminant_intensity == 0.0
+    assert report.contaminant_summary.total_psm_intensity == 0.0
+    assert report.contaminant_summary.contaminant_intensity_fraction == 0.0
     assert report.quant_summary is not None
     assert report.quant_summary.sample_id == "S1"
     assert report.quant_summary.entity_level.value == "protein"
@@ -423,11 +434,66 @@ def test_build_lcms_run_qc_report_tracks_charge_and_contaminant_distribution() -
 
     assert spectrum_charges == {"1": 1, "2": 4, "3": 1}
     assert identified_charges == {"1": 1, "2": 3, "3": 1}
+    assert report.contaminant_summary.contaminant_peptide_count == 1
+    assert report.contaminant_summary.contaminant_protein_count == 1
     assert report.contaminant_summary.contaminant_protein_counts == {"CON__KERATIN": 1}
     assert report.mass_error.median_abs_ppm is not None
     assert report.mass_error.max_abs_ppm is not None
     assert any(
         entry.category.value == "contamination" for entry in report.run_anomalies
+    )
+
+
+def test_build_lcms_run_qc_report_warns_for_contaminant_heavy_intensity_burden() -> (
+    None
+):
+    design_entry = _design_entries()["S1"]
+    spectra = (
+        _spectrum_for_peptide(
+            "run-a:scan-101",
+            "MSSQQLLLLK",
+            charge=2,
+            retention_time_seconds=120.0,
+            ppm_error=1.1,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-102",
+            "ACDEFGK",
+            charge=2,
+            retention_time_seconds=180.0,
+            ppm_error=-0.8,
+        ),
+    )
+    psms = (
+        _psm(
+            "run-a:scan-101",
+            "MSSQQLLLLK",
+            charge=2,
+            score=95.0,
+            protein_refs=("CON__KERATIN",),
+        ).model_copy(update={"intensity": 900.0}),
+        _psm(
+            "run-a:scan-102",
+            "ACDEFGK",
+            charge=2,
+            score=110.0,
+            protein_refs=("P11111",),
+        ).model_copy(update={"intensity": 100.0}),
+    )
+
+    report = build_lcms_run_qc_report(
+        spectra,
+        psms,
+        design_entry=design_entry,
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+
+    assert report.contaminant_summary.contaminant_psm_fraction == 0.5
+    assert report.contaminant_summary.contaminant_intensity == 900.0
+    assert report.contaminant_summary.total_psm_intensity == 1000.0
+    assert report.contaminant_summary.contaminant_intensity_fraction == 0.9
+    assert any(
+        entry.code == "elevated_contaminant_fraction" for entry in report.run_anomalies
     )
 
 
@@ -618,6 +684,198 @@ def test_qc_assessment_marks_unknown_metric_reasons_explicitly() -> None:
     assert mass_error_metric.unknown_state_reason.value == "no_matched_psms"
 
 
+def test_qc_run_assessment_emits_pass_caution_fail_statuses_with_reason_codes() -> None:
+    base_policy = default_qc_threshold_policy()
+    empty_rule_policy = base_policy.model_copy(update={"rules": ()})
+
+    pass_design = ExperimentalDesignEntry(
+        sample_id="PASS1",
+        condition="control",
+        replicate=1,
+        fraction=1,
+        spectra_file="pass.mgf",
+        identifications_file="pass.tsv",
+        metadata={
+            "expected_species_marker_refs": "SPECIES_HUMAN",
+            "expected_sex_marker_refs": "SEX_FEMALE",
+            "enrichment_marker_refs": "P11111",
+        },
+    )
+    pass_report = build_lcms_run_qc_report(
+        (
+            _spectrum_for_peptide(
+                "pass:scan-001",
+                "ACDEFGK",
+                charge=2,
+                retention_time_seconds=100.0,
+                ppm_error=0.8,
+            ),
+            _spectrum_for_peptide(
+                "pass:scan-002",
+                "FGHIK",
+                charge=2,
+                retention_time_seconds=170.0,
+                ppm_error=-0.9,
+            ),
+            _spectrum_for_peptide(
+                "pass:scan-003",
+                "LMNAPQR",
+                charge=2,
+                retention_time_seconds=240.0,
+                ppm_error=1.1,
+            ),
+        ),
+        (
+            _psm(
+                "pass:scan-001",
+                "ACDEFGK",
+                charge=2,
+                score=120.0,
+                protein_refs=("P11111",),
+            ),
+            _psm(
+                "pass:scan-002",
+                "FGHIK",
+                charge=2,
+                score=118.0,
+                protein_refs=("SEX_FEMALE",),
+            ),
+            _psm(
+                "pass:scan-003",
+                "LMNAPQR",
+                charge=2,
+                score=119.0,
+                protein_refs=("SPECIES_HUMAN",),
+            ),
+        ),
+        design_entry=pass_design,
+        protein_sequences=PROTEIN_SEQUENCES,
+        run_id="pass-run",
+    )
+    pass_assessment = build_run_qc_assessment(pass_report, policy=empty_rule_policy)
+    assert pass_assessment.sample_id == "PASS1"
+    assert pass_assessment.qc_status is QcStatus.PASSED
+    assert pass_assessment.status_reasons == ()
+
+    caution_design = ExperimentalDesignEntry(
+        sample_id="CAUTION1",
+        condition="control",
+        replicate=1,
+        fraction=1,
+        spectra_file="caution.mgf",
+        identifications_file="caution.tsv",
+        metadata={
+            "carryover_marker_refs": "TRYPSIN_LAB",
+            "enrichment_marker_refs": "SPECIES_HUMAN",
+        },
+    )
+    caution_report = build_lcms_run_qc_report(
+        (
+            _spectrum_for_peptide(
+                "caution:scan-001",
+                "ACDEFGK",
+                charge=2,
+                retention_time_seconds=110.0,
+                ppm_error=0.7,
+            ),
+            _spectrum_for_peptide(
+                "caution:scan-002",
+                "YPSINK",
+                charge=2,
+                retention_time_seconds=180.0,
+                ppm_error=-0.6,
+            ),
+        ),
+        (
+            _psm(
+                "caution:scan-001",
+                "ACDEFGK",
+                charge=2,
+                score=120.0,
+                protein_refs=("P11111",),
+            ),
+            _psm(
+                "caution:scan-002",
+                "YPSINK",
+                charge=2,
+                score=117.0,
+                protein_refs=("TRYPSIN_LAB",),
+            ),
+        ),
+        design_entry=caution_design,
+        protein_sequences=PROTEIN_SEQUENCES,
+        run_id="caution-run",
+    )
+    caution_assessment = build_run_qc_assessment(
+        caution_report, policy=empty_rule_policy
+    )
+    assert caution_assessment.qc_status is QcStatus.CAUTION
+    assert {reason.code for reason in caution_assessment.status_reasons} == {
+        "carryover_suspected",
+        "enrichment_inefficiency",
+    }
+
+    fail_design = ExperimentalDesignEntry(
+        sample_id="FAIL1",
+        condition="treatment",
+        replicate=1,
+        fraction=1,
+        spectra_file="fail.mgf",
+        identifications_file="fail.tsv",
+        metadata={
+            "expected_species_marker_refs": "SPECIES_HUMAN",
+            "forbidden_species_marker_refs": "SPECIES_MOUSE",
+            "expected_sex_marker_refs": "SEX_FEMALE",
+            "forbidden_sex_marker_refs": "SEX_MALE",
+        },
+    )
+    fail_report = build_lcms_run_qc_report(
+        (
+            _spectrum_for_peptide(
+                "fail:scan-001",
+                "STAAAK",
+                charge=2,
+                retention_time_seconds=120.0,
+                ppm_error=0.9,
+            ),
+            _spectrum_for_peptide(
+                "fail:scan-002",
+                "LMNPK",
+                charge=2,
+                retention_time_seconds=190.0,
+                ppm_error=-0.5,
+            ),
+        ),
+        (
+            _psm(
+                "fail:scan-001",
+                "STAAAK",
+                charge=2,
+                score=116.0,
+                protein_refs=("SPECIES_MOUSE",),
+            ),
+            _psm(
+                "fail:scan-002",
+                "LMNPK",
+                charge=2,
+                score=115.0,
+                protein_refs=("SEX_MALE",),
+            ),
+        ),
+        design_entry=fail_design,
+        protein_sequences=PROTEIN_SEQUENCES,
+        run_id="fail-run",
+    )
+    fail_assessment = build_run_qc_assessment(fail_report, policy=empty_rule_policy)
+    assert fail_assessment.qc_status is QcStatus.FAIL
+    assert {reason.code for reason in fail_assessment.status_reasons} == {
+        "sample_swap_suspected",
+        "sex_marker_mismatch",
+        "species_marker_mismatch",
+    }
+    assert all(reason.message for reason in fail_assessment.status_reasons)
+
+
 def test_qc_edge_case_fixtures_cover_sparse_runs_and_single_run_batches() -> None:
     run_report = build_lcms_run_qc_report(
         (
@@ -728,7 +986,9 @@ def test_qc_run_bundle_summary_joins_reports_and_evidence_metadata() -> None:
 
     assert summary.run_id == "run-a"
     assert summary.policy_name == "default-lcms-qc"
+    assert summary.qc_status is run_assessment.qc_status
     assert summary.evidence_file_roles == ("identifications", "spectra")
+    assert summary.status_reason_codes
     assert "run_report" in summary.manifest_sha256s
 
 

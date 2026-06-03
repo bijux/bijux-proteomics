@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import bijux_proteomics
+from bijux_proteomics.public_api import list_core_root_api_entries
 
 EXPECTED_CORE_ROOT_EXPORTS = (
     "DigestPolicy",
@@ -29,3 +30,9 @@ def test_core_public_api_excludes_ambiguity_inducing_convenience_exports() -> No
     }
 
     assert removed.isdisjoint(bijux_proteomics.__all__)
+
+
+def test_core_public_api_module_matches_root_exports() -> None:
+    assert tuple(entry.export_name for entry in list_core_root_api_entries()) == tuple(
+        bijux_proteomics.__all__
+    )

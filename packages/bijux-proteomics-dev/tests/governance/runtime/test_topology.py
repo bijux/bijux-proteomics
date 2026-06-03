@@ -20,11 +20,19 @@ def test_runtime_topology_budget_locks_current_first_level_runtime_shape() -> No
     assert budget.actual_first_level_subtrees <= budget.max_first_level_subtrees
     assert subtree_names == [
         "api",
+        "artifacts",
+        "checkpoints",
+        "diff",
         "execution",
         "governance",
+        "handoff",
+        "parallel",
         "providers",
+        "rehydrate",
+        "resume",
         "runs",
         "state",
+        "streaming",
         "support",
         "workflows",
     ]

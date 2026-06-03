@@ -1,0 +1,2 @@
+candidate_id	candidate_kind	display_label	target_protein_ref	site_key	priority_rank	discovery_effect_size	discovery_direction	validation_log2_effect	validation_direction	verdict	assay_evidence_count	confirmed_assay_count	contradicted_assay_count	inconclusive_assay_count	reason_codes	note
+protein:P11111	protein	P11111 robust candidate	P11111		1	1.3	up	2.21304	up	confirmed	1	1	0	0	validation_effect_matches_discovery	targeted validation confirmed the discovery claim for P11111 robust candidate with a median targeted effect of 2.21 log2 units

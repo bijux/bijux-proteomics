@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 import hashlib
 from pathlib import Path
@@ -20,7 +21,7 @@ from bijux_proteomics.io.formats import (
     detect_proteomics_format,
     parse_experimental_design_table,
 )
-from bijux_proteomics.study.qc import _stable_sha256 as _stable_model_sha256
+from bijux_proteomics.lab.qc import _stable_sha256 as _stable_model_sha256
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -68,7 +69,7 @@ class WorkflowStepKind(StrEnum):
     BUILD_RUN_BUNDLE = "build-run-bundle"
 
 
-class WorkflowArtifactKind(StrEnum):
+class WorkflowOutputKind(StrEnum):
     """Artifact categories produced across workflow planning surfaces."""
 
     DIGEST_MANIFEST = "digest-manifest"
@@ -82,6 +83,24 @@ class WorkflowArtifactKind(StrEnum):
     RUN_BUNDLE = "run-bundle"
     JOB_DESCRIPTOR = "job-descriptor"
     CHECKPOINT = "checkpoint"
+
+
+class WorkflowDataType(StrEnum):
+    """Stable scientific data types exchanged across runtime workflow steps."""
+
+    PROTEIN_FASTA_DOCUMENT = "protein_fasta_document"
+    SPECTRA_DOCUMENT = "spectra_document"
+    SEARCH_RESULT_TABLE = "search_result_table"
+    MS1_FEATURE_TABLE = "ms1_feature_table"
+    EXPERIMENTAL_DESIGN_TABLE = "experimental_design_table"
+    VALIDATED_INPUT_INVENTORY = "validated_input_inventory"
+    DIGESTED_PEPTIDE_SPACE = "digested_peptide_space"
+    NORMALIZED_IDENTIFICATION_ROWS = "normalized_identification_rows"
+    FDR_SCORED_IDENTIFICATION_ROWS = "fdr_scored_identification_rows"
+    PEPTIDE_QUANT_MATRIX = "peptide_quant_matrix"
+    PROTEIN_QUANT_MATRIX = "protein_quant_matrix"
+    QC_SUMMARY_REPORT = "qc_summary_report"
+    NORMALIZED_RUN_BUNDLE = "normalized_run_bundle"
 
 
 class WorkflowCheckpointStatus(StrEnum):
@@ -105,9 +124,11 @@ class WorkflowCacheMissReason(StrEnum):
 
     ENTRY_MISSING = "entry-missing"
     SCIENTIFIC_INPUTS_CHANGED = "scientific-inputs-changed"
+    PARAMETERS_CHANGED = "parameters-changed"
     TOOLCHAIN_CHANGED = "toolchain-changed"
     POLICY_CHANGED = "policy-changed"
     SCHEMA_CHANGED = "schema-changed"
+    DEPENDENCY_CHANGED = "dependency-changed"
     CACHE_LAYOUT_CHANGED = "cache-layout-changed"
 
 
@@ -156,7 +177,7 @@ class WorkflowBlueprintStepMapping(JsonModel):
     step_kind: WorkflowStepKind
     scientific_surface: WorkflowScientificSurface
     required_input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
-    produced_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+    produced_artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(
         default_factory=tuple
     )
     note: str = Field(..., min_length=1)
@@ -331,7 +352,7 @@ class CoreResultRuntimeBinding(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str = Field(..., min_length=1)
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     producer_step_id: str = Field(..., min_length=1)
     runtime_surface: str = Field(..., min_length=1)
     runtime_path: str = Field(..., min_length=1)
@@ -362,7 +383,7 @@ class WorkflowRunDirectoryLayoutEntry(JsonModel):
     relative_path: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     producer_step_id: str | None = None
-    expected_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+    expected_artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(
         default_factory=tuple
     )
     required: bool = True
@@ -403,7 +424,9 @@ class WorkflowExecutionStep(JsonModel):
     label: str = Field(..., min_length=1)
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
     consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
-    produces_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
+    produces_artifacts: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
+    output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
     cacheable: bool = False
     blocking: bool = True
@@ -439,9 +462,16 @@ class WorkflowDagNode(JsonModel):
     node_id: str = Field(..., min_length=1)
     label: str = Field(..., min_length=1)
     step_kind: WorkflowStepKind
+    scientific_surface: WorkflowScientificSurface
+    execution_layer: int = Field(..., ge=0)
     depends_on: tuple[str, ...] = Field(default_factory=tuple)
-    artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    consumes_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    input_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
+    artifact_kinds: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
+    output_data_types: tuple[WorkflowDataType, ...] = Field(default_factory=tuple)
     command_preview: tuple[str, ...] = Field(default_factory=tuple)
+    blocking: bool = True
+    cacheable: bool = False
 
 
 class WorkflowDagEdge(JsonModel):
@@ -462,8 +492,51 @@ class ProteomicsDagPlan(JsonModel):
 
     document_schema: DocumentSchema
     workflow_id: str = Field(..., min_length=1)
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     nodes: tuple[WorkflowDagNode, ...] = Field(default_factory=tuple)
     edges: tuple[WorkflowDagEdge, ...] = Field(default_factory=tuple)
+
+
+class WorkflowDagValidationIssue(JsonModel):
+    """One structural issue discovered while projecting a workflow DAG."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowDagValidationReport(JsonModel):
+    """Validation report over a typed workflow DAG projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    valid: bool
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[WorkflowDagValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class WorkflowStepTypeValidationIssue(JsonModel):
+    """One step input/output typing issue detected during workflow planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    step_id: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowStepTypeValidationReport(JsonModel):
+    """Validation report over runtime workflow step data-type contracts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    valid: bool
+    issues: tuple[WorkflowStepTypeValidationIssue, ...] = Field(default_factory=tuple)
 
 
 class WorkflowContainerMount(JsonModel):
@@ -507,7 +580,7 @@ class ExternalSearchToolContract(JsonModel):
     submit_command: tuple[str, ...] = Field(default_factory=tuple)
     wait_command: tuple[str, ...] = Field(default_factory=tuple)
     collect_command: tuple[str, ...] = Field(default_factory=tuple)
-    expected_outputs: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    expected_outputs: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     supports_containerized_submission: bool = True
     supports_hpc_submission: bool = True
 
@@ -544,13 +617,21 @@ class WorkflowCacheEntry(JsonModel):
 
     cache_key: str = Field(..., min_length=64, max_length=64)
     surface: str = Field(..., min_length=1)
+    producer_step_id: str = Field(..., min_length=1)
     source_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     source_hashes: tuple[str, ...] = Field(default_factory=tuple)
     scientific_inputs_sha256: str = Field(..., min_length=64, max_length=64)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    schema_sha256: str = Field(..., min_length=64, max_length=64)
+    parameter_assumptions: tuple[str, ...] = Field(default_factory=tuple)
+    parameter_sha256: str = Field(..., min_length=64, max_length=64)
+    dependency_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    dependency_cache_keys: tuple[str, ...] = Field(default_factory=tuple)
+    dependency_sha256: str = Field(..., min_length=64, max_length=64)
     cache_schema_version: str = Field(..., min_length=1)
     tool_versions: tuple[str, ...] = Field(default_factory=tuple)
     policy_assumptions: tuple[str, ...] = Field(default_factory=tuple)
-    expected_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
+    expected_artifacts: tuple[WorkflowOutputKind, ...] = Field(default_factory=tuple)
     cache_path: str = Field(..., min_length=1)
 
 
@@ -589,13 +670,42 @@ class WorkflowCacheMissExplanationReport(JsonModel):
     )
 
 
+class WorkflowCacheReuseDisposition(StrEnum):
+    """Whether one cache-aware workflow step can be reused or must rerun."""
+
+    REUSED = "reused"
+    RERUN = "rerun"
+
+
+class WorkflowCacheReuseDecision(JsonModel):
+    """Reuse decision for one cache-aware workflow step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    surface: str = Field(..., min_length=1)
+    disposition: WorkflowCacheReuseDisposition
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class WorkflowCacheReusePlan(JsonModel):
+    """Deterministic rerun plan derived from cache keys and step dependencies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    reused_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    rerun_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    decisions: tuple[WorkflowCacheReuseDecision, ...] = Field(default_factory=tuple)
+
+
 class ArtifactRegistryEntry(JsonModel):
     """One expected workflow artifact with stable lineage."""
 
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str = Field(..., min_length=1)
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     producer_step_id: str = Field(..., min_length=1)
     path: str = Field(..., min_length=1)
     upstream_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -621,7 +731,7 @@ class ArtifactInventoryEntry(JsonModel):
     run_id: str = Field(..., min_length=1)
     producer_step_id: str = Field(..., min_length=1)
     producer_step_kind: WorkflowStepKind
-    artifact_kind: WorkflowArtifactKind
+    artifact_kind: WorkflowOutputKind
     relative_path: str = Field(..., min_length=1)
     absolute_path: str = Field(..., min_length=1)
     provenance_sha256: str = Field(..., min_length=64, max_length=64)
@@ -919,7 +1029,7 @@ def _artifact_provenance_sha256(
     run_id: str,
     artifact_id: str,
     producer_step_id: str,
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
     relative_path: str,
     expected_document_kind: str | None,
     upstream_artifact_ids: tuple[str, ...],
@@ -948,50 +1058,164 @@ def _sanitize_identifier(value: str) -> str:
     )
 
 
-_WORKFLOW_CACHE_SCHEMA_VERSION = "1.0.0"
+_WORKFLOW_CACHE_SCHEMA_VERSION = "2.0.0"
+_DEFAULT_FDR_Q_VALUE_THRESHOLD = 0.01
+
+
+@dataclass(frozen=True)
+class _WorkflowCacheSurfaceSpec:
+    """One cache-aware workflow surface tied to a producer step."""
+
+    surface: str
+    producer_step_id: str
+    source_roles: tuple[WorkflowInputRole, ...]
+    expected_artifacts: tuple[WorkflowOutputKind, ...]
+    schema_refs: tuple[str, ...]
+    parameter_assumptions: tuple[str, ...]
+    policy_assumptions: tuple[str, ...]
+    dependency_surfaces: tuple[str, ...] = ()
 
 
 def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
     if role is WorkflowInputRole.FEATURES:
         return "ms1-features"
     detected = detect_proteomics_format(path)
-    return detected.value
+    return str(detected.value)
+
+
+def _workflow_input_data_type(role: WorkflowInputRole) -> WorkflowDataType:
+    mapping = {
+        WorkflowInputRole.PROTEINS: WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+        WorkflowInputRole.SPECTRA: WorkflowDataType.SPECTRA_DOCUMENT,
+        WorkflowInputRole.IDENTIFICATIONS: WorkflowDataType.SEARCH_RESULT_TABLE,
+        WorkflowInputRole.FEATURES: WorkflowDataType.MS1_FEATURE_TABLE,
+        WorkflowInputRole.DESIGN: WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE,
+    }
+    return mapping[role]
+
+
+def _workflow_step_output_types(
+    step_kind: WorkflowStepKind,
+) -> tuple[WorkflowDataType, ...]:
+    mapping = {
+        WorkflowStepKind.VALIDATE_INPUTS: (WorkflowDataType.VALIDATED_INPUT_INVENTORY,),
+        WorkflowStepKind.DIGEST_DATABASE: (WorkflowDataType.DIGESTED_PEPTIDE_SPACE,),
+        WorkflowStepKind.RUN_SEARCH_ENGINE: (WorkflowDataType.SEARCH_RESULT_TABLE,),
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: (
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        ),
+        WorkflowStepKind.CALCULATE_FDR: (
+            WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
+        ),
+        WorkflowStepKind.QUANTIFY_FEATURES: (WorkflowDataType.PEPTIDE_QUANT_MATRIX,),
+        WorkflowStepKind.RUN_QC: (WorkflowDataType.QC_SUMMARY_REPORT,),
+        WorkflowStepKind.BUILD_RUN_BUNDLE: (WorkflowDataType.NORMALIZED_RUN_BUNDLE,),
+    }
+    return mapping[step_kind]
+
+
+def _workflow_step_input_types(
+    step_kind: WorkflowStepKind,
+    *,
+    identifications_attached: bool,
+    design_attached: bool,
+    quant_attached: bool,
+) -> tuple[WorkflowDataType, ...]:
+    if step_kind is WorkflowStepKind.VALIDATE_INPUTS:
+        inputs = [
+            WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+            WorkflowDataType.SPECTRA_DOCUMENT,
+        ]
+        if identifications_attached:
+            inputs.append(WorkflowDataType.SEARCH_RESULT_TABLE)
+        if quant_attached:
+            inputs.append(WorkflowDataType.MS1_FEATURE_TABLE)
+        if design_attached:
+            inputs.append(WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE)
+        return tuple(inputs)
+    if step_kind is WorkflowStepKind.DIGEST_DATABASE:
+        return (WorkflowDataType.PROTEIN_FASTA_DOCUMENT,)
+    if step_kind is WorkflowStepKind.RUN_SEARCH_ENGINE:
+        return (
+            WorkflowDataType.SPECTRA_DOCUMENT,
+            WorkflowDataType.DIGESTED_PEPTIDE_SPACE,
+        )
+    if step_kind is WorkflowStepKind.NORMALIZE_IDENTIFICATIONS:
+        return (WorkflowDataType.SEARCH_RESULT_TABLE,)
+    if step_kind is WorkflowStepKind.CALCULATE_FDR:
+        return (WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,)
+    if step_kind is WorkflowStepKind.QUANTIFY_FEATURES:
+        inputs = [
+            WorkflowDataType.MS1_FEATURE_TABLE,
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        ]
+        if design_attached:
+            inputs.append(WorkflowDataType.EXPERIMENTAL_DESIGN_TABLE)
+        return tuple(inputs)
+    if step_kind is WorkflowStepKind.RUN_QC:
+        return (
+            WorkflowDataType.SPECTRA_DOCUMENT,
+            WorkflowDataType.PROTEIN_FASTA_DOCUMENT,
+            WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        )
+    inputs = [
+        WorkflowDataType.SPECTRA_DOCUMENT,
+        WorkflowDataType.NORMALIZED_IDENTIFICATION_ROWS,
+        WorkflowDataType.FDR_SCORED_IDENTIFICATION_ROWS,
+        WorkflowDataType.QC_SUMMARY_REPORT,
+    ]
+    if quant_attached:
+        inputs.append(WorkflowDataType.PEPTIDE_QUANT_MATRIX)
+    return tuple(inputs)
 
 
 def _expected_artifact_document_kind(
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
 ) -> str | None:
     mapping = {
-        WorkflowArtifactKind.DIGEST_MANIFEST: "peptide_digest_manifest",
-        WorkflowArtifactKind.RUN_BUNDLE: "normalized_run_bundle_manifest",
-        WorkflowArtifactKind.CHECKPOINT: "workflow_checkpoint",
+        WorkflowOutputKind.DIGEST_MANIFEST: "peptide_digest_manifest",
+        WorkflowOutputKind.RUN_BUNDLE: "normalized_run_bundle_manifest",
+        WorkflowOutputKind.CHECKPOINT: "workflow_checkpoint",
     }
     return mapping.get(artifact_kind)
 
 
 def _artifact_relative_path(
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
     workflow_id: str,
 ) -> str:
-    mapping: dict[WorkflowArtifactKind, str] = {
-        WorkflowArtifactKind.DIGEST_MANIFEST: "digest/manifest.json",
-        WorkflowArtifactKind.DIGEST_EXPORT: "digest/peptides.jsonl",
-        WorkflowArtifactKind.SEARCH_JOB: "search/submit.json",
-        WorkflowArtifactKind.SEARCH_RESULTS: "search/results.tsv",
-        WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS: "identifications.normalized.json",
-        WorkflowArtifactKind.FDR_REPORT: "fdr.report.json",
-        WorkflowArtifactKind.QUANT_REPORT: "quant.report.json",
-        WorkflowArtifactKind.QC_REPORT: "qc.report.json",
-        WorkflowArtifactKind.RUN_BUNDLE: "bundle/bundle.manifest.json",
-        WorkflowArtifactKind.JOB_DESCRIPTOR: f"jobs/{workflow_id}.slurm",
-        WorkflowArtifactKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
+    mapping: dict[WorkflowOutputKind, str] = {
+        WorkflowOutputKind.DIGEST_MANIFEST: "digest/manifest.json",
+        WorkflowOutputKind.DIGEST_EXPORT: "digest/peptides.jsonl",
+        WorkflowOutputKind.SEARCH_JOB: "search/submit.json",
+        WorkflowOutputKind.SEARCH_RESULTS: "search/results.tsv",
+        WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS: "identifications.normalized.json",
+        WorkflowOutputKind.FDR_REPORT: "fdr.report.json",
+        WorkflowOutputKind.QUANT_REPORT: "quant.report.json",
+        WorkflowOutputKind.QC_REPORT: "qc.report.json",
+        WorkflowOutputKind.RUN_BUNDLE: "bundle/bundle.manifest.json",
+        WorkflowOutputKind.JOB_DESCRIPTOR: f"jobs/{workflow_id}.slurm",
+        WorkflowOutputKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
     }
     return mapping.get(artifact_kind, f"{artifact_kind.value}.json")
 
 
+def _format_policy_float(value: float) -> str:
+    return format(value, "g")
+
+
+def _cache_schema_refs(
+    artifacts: tuple[WorkflowOutputKind, ...],
+) -> tuple[str, ...]:
+    return tuple(
+        _expected_artifact_document_kind(artifact_kind) or artifact_kind.value
+        for artifact_kind in artifacts
+    )
+
+
 def _artifact_path_for_kind(
     manifest: ProteomicsWorkflowManifest,
-    artifact_kind: WorkflowArtifactKind,
+    artifact_kind: WorkflowOutputKind,
 ) -> str:
     return str(
         Path(manifest.artifacts_dir)
@@ -1057,6 +1281,7 @@ def _build_runtime_policies(
     search_adapter_kind: SearchAdapterKind,
     default_container_image: str,
     streaming_threshold_bytes: int,
+    fdr_q_value_threshold: float,
     has_features: bool,
     has_design: bool,
 ) -> tuple[str, ...]:
@@ -1070,6 +1295,7 @@ def _build_runtime_policies(
         f"runtime:scheduler={scheduler.value}",
         f"runtime:container-image={default_container_image}",
         f"runtime:streaming-threshold-bytes={streaming_threshold_bytes}",
+        f"fdr:q-value-threshold={_format_policy_float(fdr_q_value_threshold)}",
         f"quant:features-enabled={'true' if has_features else 'false'}",
         f"design:table-attached={'true' if has_design else 'false'}",
     )
@@ -1092,8 +1318,9 @@ def _cache_policy_assumptions(
     prefixes_by_surface = {
         "digestion": ("digest:", "runtime:"),
         "search-normalization": ("search:", "runtime:"),
-        "spectra-parse": ("runtime:",),
+        "fdr-score": ("runtime:",),
         "quant-parse": ("quant:", "design:", "runtime:"),
+        "run-bundle": ("runtime:",),
     }
     prefixes = prefixes_by_surface.get(surface, ("runtime:",))
     return tuple(
@@ -1103,6 +1330,122 @@ def _cache_policy_assumptions(
     )
 
 
+def _cache_parameter_assumptions(
+    manifest: ProteomicsWorkflowManifest,
+    surface: str,
+) -> tuple[str, ...]:
+    prefixes_by_surface = {
+        "digestion": ("digest:",),
+        "search-normalization": ("search:",),
+        "fdr-score": ("fdr:",),
+        "quant-parse": ("quant:", "design:"),
+        "run-bundle": (),
+    }
+    prefixes = prefixes_by_surface.get(surface, ())
+    return tuple(
+        policy
+        for policy in manifest.runtime_policies
+        if any(policy.startswith(prefix) for prefix in prefixes)
+    )
+
+
+def _workflow_cache_surface_specs(
+    manifest: ProteomicsWorkflowManifest,
+) -> tuple[_WorkflowCacheSurfaceSpec, ...]:
+    step_by_kind = {step.kind: step for step in manifest.steps}
+    specs = [
+        _WorkflowCacheSurfaceSpec(
+            surface="digestion",
+            producer_step_id=step_by_kind[WorkflowStepKind.DIGEST_DATABASE].step_id,
+            source_roles=(WorkflowInputRole.PROTEINS,),
+            expected_artifacts=(
+                WorkflowOutputKind.DIGEST_MANIFEST,
+                WorkflowOutputKind.DIGEST_EXPORT,
+            ),
+            schema_refs=_cache_schema_refs(
+                (
+                    WorkflowOutputKind.DIGEST_MANIFEST,
+                    WorkflowOutputKind.DIGEST_EXPORT,
+                )
+            ),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "digestion"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "digestion"),
+        ),
+        _WorkflowCacheSurfaceSpec(
+            surface="search-normalization",
+            producer_step_id=step_by_kind[
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS
+            ].step_id,
+            source_roles=(
+                (WorkflowInputRole.IDENTIFICATIONS,)
+                if any(
+                    asset.role is WorkflowInputRole.IDENTIFICATIONS
+                    for asset in manifest.input_assets
+                )
+                else (WorkflowInputRole.SPECTRA,)
+            ),
+            expected_artifacts=(WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,),
+            schema_refs=_cache_schema_refs(
+                (WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,)
+            ),
+            parameter_assumptions=_cache_parameter_assumptions(
+                manifest, "search-normalization"
+            ),
+            policy_assumptions=_cache_policy_assumptions(
+                manifest, "search-normalization"
+            ),
+        ),
+        _WorkflowCacheSurfaceSpec(
+            surface="fdr-score",
+            producer_step_id=step_by_kind[WorkflowStepKind.CALCULATE_FDR].step_id,
+            source_roles=(),
+            expected_artifacts=(WorkflowOutputKind.FDR_REPORT,),
+            schema_refs=_cache_schema_refs((WorkflowOutputKind.FDR_REPORT,)),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "fdr-score"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "fdr-score"),
+            dependency_surfaces=("search-normalization",),
+        ),
+    ]
+    if any(asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets):
+        quant_roles: list[WorkflowInputRole] = [WorkflowInputRole.FEATURES]
+        if any(
+            asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets
+        ):
+            quant_roles.append(WorkflowInputRole.DESIGN)
+        specs.append(
+            _WorkflowCacheSurfaceSpec(
+                surface="quant-parse",
+                producer_step_id=step_by_kind[
+                    WorkflowStepKind.QUANTIFY_FEATURES
+                ].step_id,
+                source_roles=tuple(quant_roles),
+                expected_artifacts=(WorkflowOutputKind.QUANT_REPORT,),
+                schema_refs=_cache_schema_refs((WorkflowOutputKind.QUANT_REPORT,)),
+                parameter_assumptions=_cache_parameter_assumptions(
+                    manifest, "quant-parse"
+                ),
+                policy_assumptions=_cache_policy_assumptions(manifest, "quant-parse"),
+                dependency_surfaces=("search-normalization",),
+            )
+        )
+    bundle_dependency_surfaces = ["search-normalization", "fdr-score"]
+    if any(asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets):
+        bundle_dependency_surfaces.append("quant-parse")
+    specs.append(
+        _WorkflowCacheSurfaceSpec(
+            surface="run-bundle",
+            producer_step_id=step_by_kind[WorkflowStepKind.BUILD_RUN_BUNDLE].step_id,
+            source_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
+            expected_artifacts=(WorkflowOutputKind.RUN_BUNDLE,),
+            schema_refs=_cache_schema_refs((WorkflowOutputKind.RUN_BUNDLE,)),
+            parameter_assumptions=_cache_parameter_assumptions(manifest, "run-bundle"),
+            policy_assumptions=_cache_policy_assumptions(manifest, "run-bundle"),
+            dependency_surfaces=tuple(bundle_dependency_surfaces),
+        )
+    )
+    return tuple(specs)
+
+
 def _build_step(
     step_id: str,
     kind: WorkflowStepKind,
@@ -1110,7 +1453,9 @@ def _build_step(
     label: str,
     depends_on: tuple[str, ...] = (),
     consumes_roles: tuple[WorkflowInputRole, ...] = (),
-    produces_artifacts: tuple[WorkflowArtifactKind, ...] = (),
+    input_data_types: tuple[WorkflowDataType, ...] = (),
+    produces_artifacts: tuple[WorkflowOutputKind, ...] = (),
+    output_data_types: tuple[WorkflowDataType, ...] = (),
     command_preview: tuple[str, ...] = (),
     cacheable: bool = False,
     blocking: bool = True,
@@ -1121,7 +1466,9 @@ def _build_step(
         label=label,
         depends_on=depends_on,
         consumes_roles=consumes_roles,
+        input_data_types=input_data_types,
         produces_artifacts=produces_artifacts,
+        output_data_types=output_data_types,
         command_preview=command_preview,
         cacheable=cacheable,
         blocking=blocking,
@@ -1141,6 +1488,7 @@ def build_proteomics_workflow_manifest(
     default_container_image: str = "ghcr.io/bijux/proteomics-runtime:stable",
     artifacts_dir: Path | None = None,
     streaming_threshold_bytes: int = 8 * 1024 * 1024,
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowManifest:
     """Build one workflow manifest over digest/search/FDR/quant/QC surfaces."""
     design_entry = _resolve_design_entry(
@@ -1200,7 +1548,13 @@ def build_proteomics_workflow_manifest(
             WorkflowStepKind.VALIDATE_INPUTS,
             label="validate workflow inputs and detect supported proteomics formats",
             consumes_roles=tuple(asset.role for asset in input_assets),
+            input_data_types=tuple(
+                _workflow_input_data_type(asset.role) for asset in input_assets
+            ),
             produces_artifacts=(),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.VALIDATE_INPUTS
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "validate",
@@ -1216,9 +1570,18 @@ def build_proteomics_workflow_manifest(
             label="digest the target-decoy protein database into reproducible peptide space",
             depends_on=(validate_step_id,),
             consumes_roles=(WorkflowInputRole.PROTEINS,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.DIGEST_DATABASE,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
             produces_artifacts=(
-                WorkflowArtifactKind.DIGEST_MANIFEST,
-                WorkflowArtifactKind.DIGEST_EXPORT,
+                WorkflowOutputKind.DIGEST_MANIFEST,
+                WorkflowOutputKind.DIGEST_EXPORT,
+            ),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.DIGEST_DATABASE
             ),
             command_preview=(
                 "bijux-proteomics",
@@ -1243,9 +1606,18 @@ def build_proteomics_workflow_manifest(
                 label="submit the search engine against spectra and the digested database",
                 depends_on=(validate_step_id, digest_step_id),
                 consumes_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
+                input_data_types=_workflow_step_input_types(
+                    WorkflowStepKind.RUN_SEARCH_ENGINE,
+                    identifications_attached=identifications_path is not None,
+                    design_attached=design_path is not None,
+                    quant_attached=features_path is not None,
+                ),
                 produces_artifacts=(
-                    WorkflowArtifactKind.SEARCH_JOB,
-                    WorkflowArtifactKind.SEARCH_RESULTS,
+                    WorkflowOutputKind.SEARCH_JOB,
+                    WorkflowOutputKind.SEARCH_RESULTS,
+                ),
+                output_data_types=_workflow_step_output_types(
+                    WorkflowStepKind.RUN_SEARCH_ENGINE
                 ),
                 command_preview=(
                     "search-runner",
@@ -1275,7 +1647,16 @@ def build_proteomics_workflow_manifest(
                 if identifications_path is not None
                 else (WorkflowInputRole.SPECTRA,)
             ),
-            produces_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
+            produces_artifacts=(WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "search-adapter",
@@ -1294,11 +1675,22 @@ def build_proteomics_workflow_manifest(
             label="score normalized PSMs through target-decoy FDR and q-value assignment",
             depends_on=(normalize_step_id,),
             consumes_roles=(),
-            produces_artifacts=(WorkflowArtifactKind.FDR_REPORT,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.CALCULATE_FDR,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
+            produces_artifacts=(WorkflowOutputKind.FDR_REPORT,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.CALCULATE_FDR
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "fdr",
                 str(output_root / "identifications.normalized.jsonl"),
+                "--q-value-threshold",
+                _format_policy_float(fdr_q_value_threshold),
                 "--out",
                 str(output_root / "fdr.report.json"),
             ),
@@ -1312,8 +1704,24 @@ def build_proteomics_workflow_manifest(
                 WorkflowStepKind.QUANTIFY_FEATURES,
                 label="roll MS1 features into normalized quantification tables",
                 depends_on=(validate_step_id, normalize_step_id),
-                consumes_roles=(WorkflowInputRole.FEATURES,),
-                produces_artifacts=(WorkflowArtifactKind.QUANT_REPORT,),
+                consumes_roles=(
+                    (
+                        WorkflowInputRole.FEATURES,
+                        WorkflowInputRole.DESIGN,
+                    )
+                    if design_path is not None
+                    else (WorkflowInputRole.FEATURES,)
+                ),
+                input_data_types=_workflow_step_input_types(
+                    WorkflowStepKind.QUANTIFY_FEATURES,
+                    identifications_attached=identifications_path is not None,
+                    design_attached=design_path is not None,
+                    quant_attached=features_path is not None,
+                ),
+                produces_artifacts=(WorkflowOutputKind.QUANT_REPORT,),
+                output_data_types=_workflow_step_output_types(
+                    WorkflowStepKind.QUANTIFY_FEATURES
+                ),
                 command_preview=(
                     "bijux-proteomics",
                     "quantify",
@@ -1333,7 +1741,14 @@ def build_proteomics_workflow_manifest(
             label="build thresholded QC diagnostics over spectra, identifications, and FASTA context",
             depends_on=(normalize_step_id,),
             consumes_roles=(WorkflowInputRole.SPECTRA, WorkflowInputRole.PROTEINS),
-            produces_artifacts=(WorkflowArtifactKind.QC_REPORT,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.RUN_QC,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
+            produces_artifacts=(WorkflowOutputKind.QC_REPORT,),
+            output_data_types=_workflow_step_output_types(WorkflowStepKind.RUN_QC),
             command_preview=(
                 "bijux-proteomics",
                 "qc",
@@ -1357,7 +1772,16 @@ def build_proteomics_workflow_manifest(
             label="materialize a normalized run bundle for archival and downstream transport",
             depends_on=tuple(bundle_dependencies),
             consumes_roles=(WorkflowInputRole.SPECTRA,),
-            produces_artifacts=(WorkflowArtifactKind.RUN_BUNDLE,),
+            input_data_types=_workflow_step_input_types(
+                WorkflowStepKind.BUILD_RUN_BUNDLE,
+                identifications_attached=identifications_path is not None,
+                design_attached=design_path is not None,
+                quant_attached=features_path is not None,
+            ),
+            produces_artifacts=(WorkflowOutputKind.RUN_BUNDLE,),
+            output_data_types=_workflow_step_output_types(
+                WorkflowStepKind.BUILD_RUN_BUNDLE
+            ),
             command_preview=(
                 "bijux-proteomics",
                 "bundle-run",
@@ -1365,10 +1789,12 @@ def build_proteomics_workflow_manifest(
                 str(spectra_path),
                 "--identifications",
                 str(identifications_path or (output_root / "search" / "results.tsv")),
+                "--fdr-threshold",
+                _format_policy_float(fdr_q_value_threshold),
                 "--out-dir",
                 str(output_root / "bundle"),
             ),
-            cacheable=False,
+            cacheable=True,
         )
     )
 
@@ -1390,6 +1816,7 @@ def build_proteomics_workflow_manifest(
             search_adapter_kind=search_adapter_kind,
             default_container_image=default_container_image,
             streaming_threshold_bytes=streaming_threshold_bytes,
+            fdr_q_value_threshold=fdr_q_value_threshold,
             has_features=features_path is not None,
             has_design=design_path is not None,
         ),
@@ -1410,14 +1837,29 @@ def build_proteomics_dag_plan(
     manifest: ProteomicsWorkflowManifest,
 ) -> ProteomicsDagPlan:
     """Project a workflow manifest into a DAG-shaped execution plan."""
+    type_validation = validate_proteomics_workflow_step_types(manifest)
+    if not type_validation.valid:
+        raise ValueError(
+            "workflow step type validation failed: "
+            + "; ".join(issue.message for issue in type_validation.issues)
+        )
+    _validate_workflow_step_dependencies(manifest.steps)
+    levels = _resolve_workflow_step_levels(manifest.steps)
     nodes = tuple(
         WorkflowDagNode(
             node_id=step.step_id,
             label=step.label,
             step_kind=step.kind,
+            scientific_surface=_workflow_scientific_surface(step.kind),
+            execution_layer=levels[step.step_id],
             depends_on=step.depends_on,
+            consumes_roles=step.consumes_roles,
+            input_data_types=step.input_data_types,
             artifact_kinds=step.produces_artifacts,
+            output_data_types=step.output_data_types,
             command_preview=step.command_preview,
+            blocking=step.blocking,
+            cacheable=step.cacheable,
         )
         for step in manifest.steps
     )
@@ -1434,8 +1876,290 @@ def build_proteomics_dag_plan(
     payload = ProteomicsDagPlan(
         document_schema=_build_document_schema("proteomics_dag_plan"),
         workflow_id=manifest.workflow_id,
+        ordered_step_ids=tuple(
+            step_id
+            for step_id, _level in sorted(
+                levels.items(),
+                key=lambda item: (item[1], item[0]),
+            )
+        ),
         nodes=nodes,
         edges=edges,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def _workflow_scientific_surface(
+    step_kind: WorkflowStepKind,
+) -> WorkflowScientificSurface:
+    mapping = {
+        WorkflowStepKind.VALIDATE_INPUTS: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.DIGEST_DATABASE: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.RUN_SEARCH_ENGINE: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.CALCULATE_FDR: WorkflowScientificSurface.CONFIDENCE_SCORING,
+        WorkflowStepKind.QUANTIFY_FEATURES: WorkflowScientificSurface.QUANTIFICATION,
+        WorkflowStepKind.RUN_QC: WorkflowScientificSurface.QUALITY_CONTROL,
+        WorkflowStepKind.BUILD_RUN_BUNDLE: WorkflowScientificSurface.EVIDENCE_SYNTHESIS,
+    }
+    return mapping[step_kind]
+
+
+def _validate_workflow_step_dependencies(
+    steps: tuple[WorkflowExecutionStep, ...],
+) -> None:
+    step_ids = tuple(step.step_id for step in steps)
+    duplicate_ids = tuple(
+        step_id for step_id in dict.fromkeys(step_ids) if step_ids.count(step_id) > 1
+    )
+    if duplicate_ids:
+        raise ValueError(
+            "workflow steps contain duplicate step identifiers: "
+            f"{', '.join(duplicate_ids)}"
+        )
+    known_step_ids = set(step_ids)
+    for step in steps:
+        if step.step_id in step.depends_on:
+            raise ValueError(
+                f"workflow step {step.step_id} cannot depend on itself in the workflow dag"
+            )
+        missing_dependencies = tuple(
+            dependency
+            for dependency in step.depends_on
+            if dependency not in known_step_ids
+        )
+        if missing_dependencies:
+            raise ValueError(
+                f"workflow step {step.step_id} depends on unknown steps "
+                f"{', '.join(missing_dependencies)}"
+            )
+
+
+def _resolve_workflow_step_levels(
+    steps: tuple[WorkflowExecutionStep, ...],
+) -> dict[str, int]:
+    step_by_id = {step.step_id: step for step in steps}
+    unresolved = set(step_by_id)
+    levels: dict[str, int] = {}
+    while unresolved:
+        progressed = False
+        for step_id in sorted(unresolved):
+            step = step_by_id[step_id]
+            if all(dependency in levels for dependency in step.depends_on):
+                levels[step_id] = (
+                    0
+                    if not step.depends_on
+                    else max(levels[dependency] for dependency in step.depends_on) + 1
+                )
+                unresolved.remove(step_id)
+                progressed = True
+        if not progressed:
+            cycle_nodes = ", ".join(sorted(unresolved))
+            raise ValueError(
+                "workflow steps contain a cycle and cannot be projected into a "
+                f"deterministic dag: {cycle_nodes}"
+            )
+    return levels
+
+
+def _resolve_dag_node_levels(nodes: tuple[WorkflowDagNode, ...]) -> dict[str, int]:
+    projected_steps = tuple(
+        WorkflowExecutionStep(
+            step_id=node.node_id,
+            kind=node.step_kind,
+            label=node.label,
+            depends_on=node.depends_on,
+            consumes_roles=node.consumes_roles,
+            input_data_types=node.input_data_types,
+            produces_artifacts=node.artifact_kinds,
+            output_data_types=node.output_data_types,
+            command_preview=node.command_preview,
+            cacheable=node.cacheable,
+            blocking=node.blocking,
+        )
+        for node in nodes
+    )
+    _validate_workflow_step_dependencies(projected_steps)
+    return _resolve_workflow_step_levels(projected_steps)
+
+
+def validate_proteomics_workflow_step_types(
+    manifest: ProteomicsWorkflowManifest,
+) -> WorkflowStepTypeValidationReport:
+    """Validate that each workflow step receives and emits canonical data types."""
+
+    issues: list[WorkflowStepTypeValidationIssue] = []
+    available_input_types = {
+        asset.role: _workflow_input_data_type(asset.role)
+        for asset in manifest.input_assets
+    }
+    produced_types_by_step: dict[str, tuple[WorkflowDataType, ...]] = {}
+    identifications_attached = any(
+        asset.role is WorkflowInputRole.IDENTIFICATIONS
+        for asset in manifest.input_assets
+    )
+    design_attached = any(
+        asset.role is WorkflowInputRole.DESIGN for asset in manifest.input_assets
+    )
+    quant_attached = any(
+        asset.role is WorkflowInputRole.FEATURES for asset in manifest.input_assets
+    )
+
+    for step in manifest.steps:
+        expected_input_types = _workflow_step_input_types(
+            step.kind,
+            identifications_attached=identifications_attached,
+            design_attached=design_attached,
+            quant_attached=quant_attached,
+        )
+        expected_output_types = _workflow_step_output_types(step.kind)
+        if step.input_data_types != expected_input_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="step_input_contract_mismatch",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} declares input types "
+                        f"{step.input_data_types!r} but canonical {step.kind.value} "
+                        f"requires {expected_input_types!r}"
+                    ),
+                )
+            )
+        if step.output_data_types != expected_output_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="step_output_contract_mismatch",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} declares output types "
+                        f"{step.output_data_types!r} but canonical {step.kind.value} "
+                        f"emits {expected_output_types!r}"
+                    ),
+                )
+            )
+        missing_roles = tuple(
+            role for role in step.consumes_roles if role not in available_input_types
+        )
+        if missing_roles:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="missing_input_role",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} consumes unattached input roles "
+                        f"{missing_roles!r}"
+                    ),
+                )
+            )
+        available_types = {
+            available_input_types[role]
+            for role in step.consumes_roles
+            if role in available_input_types
+        }
+        for dependency in step.depends_on:
+            available_types.update(produced_types_by_step.get(dependency, ()))
+        missing_types = tuple(
+            data_type
+            for data_type in step.input_data_types
+            if data_type not in available_types
+        )
+        if missing_types:
+            issues.append(
+                WorkflowStepTypeValidationIssue(
+                    code="missing_input_type",
+                    step_id=step.step_id,
+                    message=(
+                        f"workflow step {step.step_id} is missing required input "
+                        f"types {missing_types!r} before execution"
+                    ),
+                )
+            )
+        produced_types_by_step[step.step_id] = step.output_data_types
+
+    payload = WorkflowStepTypeValidationReport(
+        document_schema=_build_document_schema("workflow_step_type_validation_report"),
+        workflow_id=manifest.workflow_id,
+        valid=not issues,
+        issues=tuple(issues),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def validate_proteomics_dag_plan(
+    dag_plan: ProteomicsDagPlan,
+) -> WorkflowDagValidationReport:
+    """Validate one typed workflow DAG projection for missing or cyclic structure."""
+
+    issues: list[WorkflowDagValidationIssue] = []
+    node_ids = {node.node_id for node in dag_plan.nodes}
+    if len(node_ids) != len(dag_plan.nodes):
+        issues.append(
+            WorkflowDagValidationIssue(
+                code="duplicate_node_id",
+                message="workflow dag contains duplicate node identifiers",
+            )
+        )
+    for node in dag_plan.nodes:
+        missing_dependencies = tuple(
+            dependency for dependency in node.depends_on if dependency not in node_ids
+        )
+        if missing_dependencies:
+            issues.append(
+                WorkflowDagValidationIssue(
+                    code="missing_dependency",
+                    message=(
+                        f"workflow dag node {node.node_id} depends on missing nodes "
+                        f"{missing_dependencies!r}"
+                    ),
+                )
+            )
+        for dependency in node.depends_on:
+            source = next(
+                (
+                    edge
+                    for edge in dag_plan.edges
+                    if edge.source_node_id == dependency
+                    and edge.target_node_id == node.node_id
+                ),
+                None,
+            )
+            if source is None:
+                issues.append(
+                    WorkflowDagValidationIssue(
+                        code="missing_edge",
+                        message=(
+                            f"workflow dag dependency {dependency}->{node.node_id} "
+                            "is not represented by an edge"
+                        ),
+                    )
+                )
+    try:
+        _resolve_dag_node_levels(dag_plan.nodes)
+    except ValueError as exc:
+        issues.append(
+            WorkflowDagValidationIssue(
+                code="cyclic_dependency",
+                message=str(exc),
+            )
+        )
+    payload = WorkflowDagValidationReport(
+        document_schema=_build_document_schema("workflow_dag_validation_report"),
+        workflow_id=dag_plan.workflow_id,
+        valid=not issues,
+        ordered_step_ids=dag_plan.ordered_step_ids,
+        issues=tuple(issues),
     )
     return payload.model_copy(
         update={
@@ -1450,16 +2174,6 @@ def build_reproducible_workflow_blueprint(
     manifest: ProteomicsWorkflowManifest,
 ) -> ReproducibleWorkflowBlueprint:
     """Project a runtime manifest onto scientific workflow surfaces."""
-    surface_by_kind = {
-        WorkflowStepKind.VALIDATE_INPUTS: WorkflowScientificSurface.SEQUENCE_INTAKE,
-        WorkflowStepKind.DIGEST_DATABASE: WorkflowScientificSurface.SEQUENCE_INTAKE,
-        WorkflowStepKind.RUN_SEARCH_ENGINE: WorkflowScientificSurface.SEARCH_INGESTION,
-        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: WorkflowScientificSurface.SEARCH_INGESTION,
-        WorkflowStepKind.CALCULATE_FDR: WorkflowScientificSurface.CONFIDENCE_SCORING,
-        WorkflowStepKind.QUANTIFY_FEATURES: WorkflowScientificSurface.QUANTIFICATION,
-        WorkflowStepKind.RUN_QC: WorkflowScientificSurface.QUALITY_CONTROL,
-        WorkflowStepKind.BUILD_RUN_BUNDLE: WorkflowScientificSurface.EVIDENCE_SYNTHESIS,
-    }
     note_by_surface = {
         WorkflowScientificSurface.SEQUENCE_INTAKE: "sequence and raw-input intake stays explicit before search interpretation begins",
         WorkflowScientificSurface.SEARCH_INGESTION: "search evidence is normalized before any confidence interpretation is attached",
@@ -1472,10 +2186,10 @@ def build_reproducible_workflow_blueprint(
         WorkflowBlueprintStepMapping(
             step_id=step.step_id,
             step_kind=step.kind,
-            scientific_surface=surface_by_kind[step.kind],
+            scientific_surface=_workflow_scientific_surface(step.kind),
             required_input_roles=step.consumes_roles,
             produced_artifact_kinds=step.produces_artifacts,
-            note=note_by_surface[surface_by_kind[step.kind]],
+            note=note_by_surface[_workflow_scientific_surface(step.kind)],
         )
         for step in manifest.steps
     )
@@ -1894,6 +2608,7 @@ def instantiate_proteomics_workflow_template(
     design_path: Path | None = None,
     sample_id: str | None = None,
     artifacts_dir: Path | None = None,
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowManifest:
     """Instantiate a reusable workflow template into a concrete workflow manifest."""
     attached_roles = {
@@ -1927,12 +2642,14 @@ def instantiate_proteomics_workflow_template(
         scheduler=template.recommended_scheduler,
         default_container_image=template.default_container_image,
         artifacts_dir=artifacts_dir,
+        fdr_q_value_threshold=fdr_q_value_threshold,
     )
 
 
 def build_deterministic_execution_contract(
     manifest: ProteomicsWorkflowManifest,
     *,
+    dag_plan: ProteomicsDagPlan,
     container_steps: tuple[ContainerizedStepSpec, ...],
     parallel_plan: ParallelExecutionPlan,
     hpc_job: HpcJobDescriptor,
@@ -1968,7 +2685,7 @@ def build_deterministic_execution_contract(
         manifest_sha256=manifest_sha256,
         input_fingerprint=input_fingerprint,
         policy_fingerprint=policy_fingerprint,
-        ordered_step_ids=tuple(step.step_id for step in manifest.steps),
+        ordered_step_ids=dag_plan.ordered_step_ids,
         parallel_group_ids=tuple(group.group_id for group in parallel_plan.groups),
         container_steps_sha256=container_steps_sha256,
         hpc_job_sha256=_stable_model_sha256(hpc_job),
@@ -2206,9 +2923,9 @@ def build_external_search_tool_contract(
             f"{manifest.artifacts_dir}/search/results.tsv",
         ),
         expected_outputs=(
-            WorkflowArtifactKind.SEARCH_JOB,
-            WorkflowArtifactKind.SEARCH_RESULTS,
-            WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,
+            WorkflowOutputKind.SEARCH_JOB,
+            WorkflowOutputKind.SEARCH_RESULTS,
+            WorkflowOutputKind.NORMALIZED_IDENTIFICATIONS,
         ),
     )
     return contract.model_copy(
@@ -2227,70 +2944,57 @@ def build_workflow_runtime_cache(
 ) -> WorkflowCacheManifest:
     """Build deterministic cache keys for reusable workflow surfaces."""
     asset_by_role = {asset.role: asset for asset in manifest.input_assets}
+    entries_by_surface: dict[str, WorkflowCacheEntry] = {}
     entries: list[WorkflowCacheEntry] = []
-    cache_specs = [
-        (
-            "digestion",
-            (WorkflowInputRole.PROTEINS,),
-            (
-                WorkflowArtifactKind.DIGEST_MANIFEST,
-                WorkflowArtifactKind.DIGEST_EXPORT,
-            ),
-        ),
-        (
-            "search-normalization",
-            (
-                (WorkflowInputRole.IDENTIFICATIONS,)
-                if WorkflowInputRole.IDENTIFICATIONS in asset_by_role
-                else (WorkflowInputRole.SPECTRA,)
-            ),
-            (WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
-        ),
-        (
-            "spectra-parse",
-            (WorkflowInputRole.SPECTRA,),
-            (WorkflowArtifactKind.QC_REPORT,),
-        ),
-    ]
-    if WorkflowInputRole.FEATURES in asset_by_role:
-        cache_specs.append(
-            (
-                "quant-parse",
-                (WorkflowInputRole.FEATURES,),
-                (WorkflowArtifactKind.QUANT_REPORT,),
-            )
-        )
-    for surface, roles, artifacts in cache_specs:
-        source_hashes = tuple(asset_by_role[role].sha256 for role in roles)
+    for spec in _workflow_cache_surface_specs(manifest):
+        source_hashes = tuple(asset_by_role[role].sha256 for role in spec.source_roles)
         scientific_inputs_sha256 = _stable_sequence_sha256(source_hashes)
+        schema_sha256 = _stable_sequence_sha256(spec.schema_refs)
+        parameter_sha256 = _stable_sequence_sha256(spec.parameter_assumptions)
+        dependency_cache_keys = tuple(
+            entries_by_surface[surface].cache_key
+            for surface in spec.dependency_surfaces
+        )
+        dependency_sha256 = _stable_sequence_sha256(dependency_cache_keys)
         tool_versions = _workflow_tool_versions(manifest)
-        policy_assumptions = _cache_policy_assumptions(manifest, surface)
+        policy_assumptions = spec.policy_assumptions
         cache_key = hashlib.sha256(
             "|".join(
                 (
                     manifest.workflow_id,
-                    surface,
+                    spec.surface,
                     cache_schema_version,
                     scientific_inputs_sha256,
+                    schema_sha256,
+                    parameter_sha256,
+                    dependency_sha256,
                     *tool_versions,
                     *policy_assumptions,
                 )
             ).encode("utf-8")
         ).hexdigest()
-        entries.append(
-            WorkflowCacheEntry(
-                cache_key=cache_key,
-                surface=surface,
-                source_roles=roles,
-                source_hashes=source_hashes,
-                scientific_inputs_sha256=scientific_inputs_sha256,
-                cache_schema_version=cache_schema_version,
-                tool_versions=tool_versions,
-                policy_assumptions=policy_assumptions,
-                expected_artifacts=artifacts,
-                cache_path=f"{manifest.artifacts_dir}/cache/{surface}-{cache_key[:12]}.json",
-            )
+        entry = WorkflowCacheEntry(
+            cache_key=cache_key,
+            surface=spec.surface,
+            producer_step_id=spec.producer_step_id,
+            source_roles=spec.source_roles,
+            source_hashes=source_hashes,
+            scientific_inputs_sha256=scientific_inputs_sha256,
+            schema_refs=spec.schema_refs,
+            schema_sha256=schema_sha256,
+            parameter_assumptions=spec.parameter_assumptions,
+            parameter_sha256=parameter_sha256,
+            dependency_surfaces=spec.dependency_surfaces,
+            dependency_cache_keys=dependency_cache_keys,
+            dependency_sha256=dependency_sha256,
+            cache_schema_version=cache_schema_version,
+            tool_versions=tool_versions,
+            policy_assumptions=policy_assumptions,
+            expected_artifacts=spec.expected_artifacts,
+            cache_path=f"{manifest.artifacts_dir}/cache/{spec.surface}-{cache_key[:12]}.json",
         )
+        entries.append(entry)
+        entries_by_surface[spec.surface] = entry
     payload = WorkflowCacheManifest(
         document_schema=_build_document_schema("workflow_cache_manifest"),
         workflow_id=manifest.workflow_id,
@@ -2336,14 +3040,25 @@ def build_workflow_cache_miss_explanation_report(
             detail = (
                 "scientifically relevant input hashes changed for this cache surface"
             )
+        elif observed_entry.parameter_sha256 != expected_entry.parameter_sha256:
+            reason = WorkflowCacheMissReason.PARAMETERS_CHANGED
+            detail = (
+                "semantic workflow parameters changed for this reusable cache surface"
+            )
         elif observed_entry.tool_versions != expected_entry.tool_versions:
             reason = WorkflowCacheMissReason.TOOLCHAIN_CHANGED
             detail = (
                 "recorded runtime toolchain identifiers changed for this cache surface"
             )
-        elif observed_entry.cache_schema_version != expected_entry.cache_schema_version:
+        elif (
+            observed_entry.cache_schema_version != expected_entry.cache_schema_version
+            or observed_entry.schema_sha256 != expected_entry.schema_sha256
+        ):
             reason = WorkflowCacheMissReason.SCHEMA_CHANGED
-            detail = "cache schema version changed for this reusable surface"
+            detail = "cache schema or governed output schema changed for this reusable surface"
+        elif observed_entry.dependency_sha256 != expected_entry.dependency_sha256:
+            reason = WorkflowCacheMissReason.DEPENDENCY_CHANGED
+            detail = "an upstream cache surface changed, so this dependent reusable surface must rerun"
         elif observed_entry.policy_assumptions != expected_entry.policy_assumptions:
             reason = WorkflowCacheMissReason.POLICY_CHANGED
             detail = (
@@ -2377,6 +3092,67 @@ def build_workflow_cache_miss_explanation_report(
                 payload.to_dict()
             )
         }
+    )
+
+
+def build_workflow_cache_reuse_plan(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    expected: WorkflowCacheManifest,
+    observed: WorkflowCacheManifest | None,
+) -> WorkflowCacheReusePlan:
+    """Plan which cache-aware workflow steps can be reused safely."""
+    miss_report = build_workflow_cache_miss_explanation_report(expected, observed)
+    miss_by_surface = {entry.surface: entry for entry in miss_report.entries}
+    surface_by_step_id = {
+        spec.producer_step_id: spec.surface
+        for spec in _workflow_cache_surface_specs(manifest)
+    }
+    cacheable_steps = tuple(step for step in manifest.steps if step.cacheable)
+
+    reused_step_ids: list[str] = []
+    rerun_step_ids: list[str] = []
+    decisions: list[WorkflowCacheReuseDecision] = []
+
+    for step in cacheable_steps:
+        surface = surface_by_step_id[step.step_id]
+        reasons: list[str] = []
+        miss_entry = miss_by_surface.get(surface)
+        if miss_entry is not None:
+            reasons.append(miss_entry.reason.value)
+        if miss_entry is None:
+            for dependency_step_id in step.depends_on:
+                dependency_surface = surface_by_step_id.get(dependency_step_id)
+                if dependency_surface is None:
+                    continue
+                if dependency_step_id in rerun_step_ids:
+                    reasons.append(f"upstream:{dependency_surface}")
+        if reasons:
+            rerun_step_ids.append(step.step_id)
+            decisions.append(
+                WorkflowCacheReuseDecision(
+                    step_id=step.step_id,
+                    surface=surface,
+                    disposition=WorkflowCacheReuseDisposition.RERUN,
+                    reasons=tuple(dict.fromkeys(reasons)),
+                )
+            )
+            continue
+        reused_step_ids.append(step.step_id)
+        decisions.append(
+            WorkflowCacheReuseDecision(
+                step_id=step.step_id,
+                surface=surface,
+                disposition=WorkflowCacheReuseDisposition.REUSED,
+                reasons=(),
+            )
+        )
+
+    return WorkflowCacheReusePlan(
+        workflow_id=manifest.workflow_id,
+        reused_step_ids=tuple(reused_step_ids),
+        rerun_step_ids=tuple(rerun_step_ids),
+        decisions=tuple(decisions),
     )
 
 
@@ -2526,28 +3302,10 @@ def build_parallel_execution_plan(
     manifest: ProteomicsWorkflowManifest,
 ) -> ParallelExecutionPlan:
     """Group workflow steps into deterministic parallel stages."""
-    levels: dict[str, int] = {}
-    step_by_id = {step.step_id: step for step in manifest.steps}
-    unresolved = set(step_by_id)
-    while unresolved:
-        progressed = False
-        for step_id in tuple(unresolved):
-            step = step_by_id[step_id]
-            if all(dependency in levels for dependency in step.depends_on):
-                levels[step_id] = (
-                    0
-                    if not step.depends_on
-                    else max(levels[dependency] for dependency in step.depends_on) + 1
-                )
-                unresolved.remove(step_id)
-                progressed = True
-        if not progressed:
-            raise ValueError(
-                "workflow steps contain a cycle and cannot be parallelized deterministically"
-            )
+    dag_plan = build_proteomics_dag_plan(manifest)
     grouped: dict[int, list[str]] = {}
-    for step_id, level in levels.items():
-        grouped.setdefault(level, []).append(step_id)
+    for node in dag_plan.nodes:
+        grouped.setdefault(node.execution_layer, []).append(node.node_id)
     groups = tuple(
         ParallelExecutionGroup(
             group_id=f"{manifest.workflow_id}-parallel-{level}",
@@ -2751,6 +3509,7 @@ def build_proteomics_workflow_runtime_bundle(
     default_container_image: str = "ghcr.io/bijux/proteomics-runtime:stable",
     artifacts_dir: Path | None = None,
     completed_step_ids: tuple[str, ...] = (),
+    fdr_q_value_threshold: float = _DEFAULT_FDR_Q_VALUE_THRESHOLD,
 ) -> ProteomicsWorkflowRuntimeBundle:
     """Build the complete planning bundle for a proteomics workflow."""
     manifest = build_proteomics_workflow_manifest(
@@ -2764,6 +3523,7 @@ def build_proteomics_workflow_runtime_bundle(
         scheduler=scheduler,
         default_container_image=default_container_image,
         artifacts_dir=artifacts_dir,
+        fdr_q_value_threshold=fdr_q_value_threshold,
     )
     dag_plan = build_proteomics_dag_plan(manifest)
     container_steps = build_containerized_step_specs(manifest)
@@ -2775,6 +3535,7 @@ def build_proteomics_workflow_runtime_bundle(
     hpc_job = build_hpc_job_descriptor(manifest, scheduler=scheduler)
     deterministic_execution = build_deterministic_execution_contract(
         manifest,
+        dag_plan=dag_plan,
         container_steps=container_steps,
         parallel_plan=parallel_plan,
         hpc_job=hpc_job,
@@ -2856,6 +3617,29 @@ def build_workflow_runtime_validation_report(
     issues: list[WorkflowRuntimeValidationIssue] = []
     artifacts_root = Path(runtime_bundle.manifest.artifacts_dir)
     export_bundle = build_workflow_runtime_export_bundle(runtime_bundle)
+    step_type_validation = validate_proteomics_workflow_step_types(
+        runtime_bundle.manifest
+    )
+    dag_validation = validate_proteomics_dag_plan(runtime_bundle.dag_plan)
+
+    if not step_type_validation.valid:
+        for step_issue in step_type_validation.issues:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code=f"step_type_{step_issue.code}",
+                    severity="error",
+                    message=step_issue.message,
+                )
+            )
+    if not dag_validation.valid:
+        for dag_issue in dag_validation.issues:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code=f"dag_{dag_issue.code}",
+                    severity="error",
+                    message=dag_issue.message,
+                )
+            )
 
     if runtime_bundle.deterministic_execution.manifest_sha256 != _stable_model_sha256(
         runtime_bundle.manifest
@@ -2981,6 +3765,8 @@ def build_workflow_runtime_validation_report(
         valid=not issues,
         checked_surfaces=(
             "manifest",
+            "step-types",
+            "dag-plan",
             "deterministic-execution",
             "runtime-state",
             "run-directory-layout",

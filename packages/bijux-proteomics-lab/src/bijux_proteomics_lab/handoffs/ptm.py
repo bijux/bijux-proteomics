@@ -13,10 +13,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
-    from bijux_proteomics.ptm import PtmSiteEntry
-    from bijux_proteomics.ptm.review import (
+    from bijux_proteomics.ptm import (
         PtmCooccurrenceCautionReport,
         PtmOccupancyCounterpartEvidenceReport,
+        PtmSiteEntry,
     )
 
 
@@ -57,7 +57,7 @@ def build_ptm_lab_validation_packet(
     cooccurrence_report: PtmCooccurrenceCautionReport | None = None,
 ) -> PtmLabValidationPacket:
     """Build PTM-to-lab validation packet with risk and evidence guidance."""
-    from bijux_proteomics.ptm.review import (
+    from bijux_proteomics.ptm import (
         PtmOccupancyCounterpartEvidenceEntry,
         PtmOccupancyCounterpartStatus,
     )

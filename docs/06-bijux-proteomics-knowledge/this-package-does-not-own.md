@@ -26,6 +26,7 @@ its records.
 
 ## Allowed Package Dependencies
 
+- `bijux-proteomics-core`
 - `bijux-proteomics-foundation`
 
 Knowledge may rely on shared primitives, but it should not import higher

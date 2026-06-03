@@ -1,7 +1,7 @@
 # Generated package-root budget report.
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_budgets
 
-total_init_line_count = 478
+total_init_line_count = 702
 over_budget_packages = []
 
 [evidence]
@@ -9,7 +9,7 @@ package_root_line_counts_path = "configs/package-governance/package-root-line-co
 
 [[package]]
 distribution_name = "agentic-proteins"
-init_line_count = 17
+init_line_count = 28
 public_symbol_count = 4
 budgeted = false
 within_budget = true
@@ -23,19 +23,19 @@ within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-init_line_count = 46
+init_line_count = 110
 public_symbol_count = 15
 budgeted = true
-max_init_lines = 46
+max_init_lines = 110
 max_public_symbols = 15
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-init_line_count = 22
+init_line_count = 57
 public_symbol_count = 5
 budgeted = true
-max_init_lines = 22
+max_init_lines = 57
 max_public_symbols = 5
 within_budget = true
 
@@ -44,26 +44,26 @@ distribution_name = "bijux-proteomics-runtime"
 init_line_count = 26
 public_symbol_count = 4
 budgeted = true
-max_init_lines = 28
+max_init_lines = 26
 max_public_symbols = 4
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-init_line_count = 29
-public_symbol_count = 7
+init_line_count = 36
+public_symbol_count = 14
 budgeted = true
-max_init_lines = 32
-max_public_symbols = 7
+max_init_lines = 36
+max_public_symbols = 14
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-init_line_count = 22
-public_symbol_count = 5
+init_line_count = 152
+public_symbol_count = 61
 budgeted = true
-max_init_lines = 22
-max_public_symbols = 5
+max_init_lines = 152
+max_public_symbols = 61
 within_budget = true
 
 [[package]]
@@ -84,49 +84,49 @@ within_budget = true
 
 [[package]]
 distribution_name = "proteomics"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 42
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-core"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 36
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-foundation"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 36
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-runtime"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 42
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 36
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 36
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 
 [[package]]
 distribution_name = "proteomics-lab"
-init_line_count = 41
-public_symbol_count = 0
+init_line_count = 36
+public_symbol_count = 1
 budgeted = false
 within_budget = true

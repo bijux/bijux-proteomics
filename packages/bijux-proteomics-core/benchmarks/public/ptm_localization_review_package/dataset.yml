@@ -1,0 +1,174 @@
+dataset_id: ptm_localization_review_package
+accession: flagship_public_package:ptm_localization_review_package
+species: human
+search_engine: ptm
+source_files:
+  - source_id: ptm_localization_results
+    schema_id: evidence_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv
+    sha256: a711e01b793af64df1c24802a661a53eb8c88a7d5abee2b66cd7fab89cc054d1
+    note: Shipped localization evidence from the flagship PTM public package.
+  - source_id: ptm_feature_table
+    schema_id: feature_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv
+    sha256: b82315f3faf721e357c61d679b2e3df3de510a0ca71dd200af38c229e751fe93
+    note: Shipped PTM feature table from the flagship PTM public package.
+  - source_id: ptm_reference_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta
+    sha256: e88abeb1cc950f7b839a32db2eca4b52eae97348bee9587cda066da313912a40
+    note: Shipped PTM reference FASTA from the flagship PTM public package.
+  - source_id: ptm_support_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/ptm.design.tsv
+    sha256: beb7bdd0d2d5103369e68a1a0106006c16d3b07ebb8def58730de6ada3385593
+    note: Governed support design that makes the flagship PTM package executable through the owned PTM workflow.
+  - source_id: ptm_site_annotations
+    schema_id: annotation_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_site_annotations.tsv
+    sha256: 253fd67ca0760b1c38aaf2af88bdcd4e7b4569e3fe97b5e08a7809f906b04175
+    note: Shipped PTM site annotation surface that enables regulator enrichment and evidence-card review.
+expected_input_schemas:
+  - evidence_tsv
+  - feature_tsv
+  - proteins_fasta
+  - design_tsv
+  - annotation_tsv
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2]
+  - group_id: treated
+    sample_ids: [T1, T2]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: C1.raw
+    batch: batch-a
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: C2.raw
+    batch: batch-a
+  - sample_id: T1
+    group_id: treated
+    condition: treated
+    replicate: 1
+    fraction: 1
+    spectra_file: T1.raw
+    batch: batch-b
+  - sample_id: T2
+    group_id: treated
+    condition: treated
+    replicate: 2
+    fraction: 1
+    spectra_file: T2.raw
+    batch: batch-b
+contrast:
+  condition_a: control
+  condition_b: treated
+  note: The flagship PTM package is executed directly through the owned PTM site workflow with the shipped evidence and support design.
+expected_approximate_counts:
+  - metric_id: accepted_evidence_count
+    expected: 8
+    tolerance: 0
+  - metric_id: site_row_count
+    expected: 5
+    tolerance: 0
+  - metric_id: ambiguous_site_count
+    expected: 2
+    tolerance: 0
+  - metric_id: ambiguous_group_row_count
+    expected: 2
+    tolerance: 0
+  - metric_id: differential_site_count
+    expected: 3
+    tolerance: 0
+  - metric_id: motif_term_count
+    expected: 22
+    tolerance: 0
+  - metric_id: evidence_card_count
+    expected: 3
+    tolerance: 0
+  - metric_id: narrative_claim_count
+    expected: 3
+    tolerance: 0
+expected_biological_signals:
+  - signal_id: ptm_site_p11111_s5_up
+    subject_kind: ptm_site
+    subject_id: P11111:S5:Phospho
+    subject_label: P11111 S5 phosphosite
+    expected_direction: up
+    max_adjusted_p_value:
+    min_absolute_effect_size: 0.5
+    note: The flagship PTM package preserves an upward treated-versus-control trend for the high-localization P11111 S5 site.
+  - signal_id: ptm_site_p22222_y18_present
+    subject_kind: ptm_site
+    subject_id: P22222:Y18:Phospho
+    subject_label: P22222 Y18 phosphosite
+    expected_direction: present
+    note: The shipped PTM benchmark should retain the localized P22222 Y18 site in the exported site and differential surfaces.
+known_limitations:
+  - limitation_id: governed_support_design
+    severity: advisory
+    affected_surface: design_tsv
+    blocks_workflow_execution: false
+    description: The runnable benchmark path depends on a governed support design table because the public PTM package does not ship a full experimental design surface.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/ptm_localization_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship PTM localization public package through the owned PTM site workflow with shipped annotation-backed motif, regulator, and evidence-card analysis.
+  parameters:
+    batch_field: ""
+    annotation_target_species: Homo sapiens
+    protein_correction_mode: subtract_unmodified_protein
+    max_adjusted_p_value: 1.0
+    min_absolute_log2_fold_change: 0.0
+    card_max_adjusted_p_value: 1.0
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: ptm_site_workflow_manifest.json
+    note: The owned PTM workflow writes this manifest after successful execution.
+  - output_id: report_manifest_json
+    relative_path: ptm_report_manifest.json
+    note: The owned PTM report export writes the report manifest after successful execution.
+  - output_id: ptm_site_table
+    relative_path: ptm_sites.tsv
+    note: The exported PTM site table preserves localized and ambiguous site rows.
+  - output_id: ptm_localization_table
+    relative_path: ptm_localization.tsv
+    note: The exported localization table preserves per-spectrum localization review evidence.
+  - output_id: ptm_site_quant_matrix
+    relative_path: ptm_site_quant_matrix.tsv
+    note: The exported PTM site quantification matrix proves the benchmark reached site-level quantification.
+  - output_id: ptm_site_group_summary
+    relative_path: ptm_site_group_summary.tsv
+    note: The exported PTM ambiguity-group summary proves unresolved localization groups remain explicit.
+  - output_id: ptm_site_group_matrix
+    relative_path: ptm_site_group_matrix.tsv
+    note: The exported PTM ambiguity-group matrix proves unresolved localization signal remains queryable without being forced into exact sites.
+  - output_id: ptm_site_group_missingness
+    relative_path: ptm_site_group_missingness.tsv
+    note: The exported PTM ambiguity-group missingness ledger proves the grouped matrix stays reviewable sample by sample.
+  - output_id: ptm_differential_table
+    relative_path: ptm_differential.tsv
+    note: The exported PTM differential table proves the benchmark reached site-level contrast analysis.
+  - output_id: ptm_motif_terms
+    relative_path: ptm_motif_terms.tsv
+    note: The exported PTM motif term table proves motif enrichment analysis executed.
+  - output_id: ptm_regulator_enrichment_summary
+    relative_path: ptm_regulator_enrichment_summary.tsv
+    note: The exported PTM regulator enrichment summary proves annotation-backed regulator analysis executed.
+  - output_id: ptm_regulator_enrichment
+    relative_path: ptm_regulator_enrichment.tsv
+    note: The exported PTM regulator enrichment table preserves supporting-site ledgers.
+  - output_id: ptm_evidence_cards
+    relative_path: ptm_evidence_cards.tsv
+    note: The exported PTM evidence-card table proves candidate-level PTM review cards were generated.
+  - output_id: ptm_evidence_claims
+    relative_path: ptm_evidence_claims.tsv
+    note: The exported PTM evidence-claim table preserves narrative claim outputs for the benchmark package.
+note: This flagship PTM package now carries the evidence, feature, FASTA, and annotation surfaces needed for a real owned PTM workflow run, with only the study design supplied as governed support.

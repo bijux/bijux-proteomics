@@ -25,7 +25,15 @@ except ImportError:  # pragma: no cover - optional dependency
 def providers_module(monkeypatch: pytest.MonkeyPatch) -> Generator[Any, None, None]:
     """Import provider modules and mock torch/cuda for determinism."""
     if torch is None:
-        pytest.skip("torch not installed; provider tests require optional dependencies")
+        from bijux_proteomics_foundation.testing.skip_policy import (
+            SkipCategory,
+            skip_test,
+        )
+
+        skip_test(
+            category=SkipCategory.OPTIONAL_DEPENDENCY,
+            reason="torch is required for the provider integration surface",
+        )
     import types
 
     from agentic_proteins.providers import base as providers_base

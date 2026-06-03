@@ -25,4 +25,10 @@ def test_runtime_import_graph_locks_current_surface_edges_and_cycles() -> None:
         "state",
         "support",
     )
-    assert outgoing["workflows"] == ("runs", "support")
+    assert outgoing["workflows"] == (
+        "artifacts",
+        "rehydrate",
+        "resume",
+        "runs",
+        "support",
+    )

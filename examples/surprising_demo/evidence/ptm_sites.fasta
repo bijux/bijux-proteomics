@@ -1,0 +1,6 @@
+>sp|P11111|PTM1 Example phosphoprotein 1 OS=Homo sapiens GN=PTM1
+MAAASPEPTIDEKTTASTYKK
+>sp|P22222|PTM2 Example phosphoprotein 2 OS=Homo sapiens GN=PTM2
+QQASTYKGGMPEPTIDEYKK
+>sp|Q9DEC1|PTM1_DECOY Example phosphodecoy 1 OS=Homo sapiens GN=PTM1
+MAAASPEPTIDEKTTASTYKK

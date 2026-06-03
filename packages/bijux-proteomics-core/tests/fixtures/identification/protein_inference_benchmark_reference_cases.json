@@ -1,0 +1,380 @@
+[
+  {
+    "suite_id": "core-protein-inference-benchmark-suite",
+    "expected_summary": {
+      "scenario_count": 8,
+      "shared_peptide_scenario_count": 1,
+      "isoform_scenario_count": 1,
+      "homolog_family_scenario_count": 1,
+      "contaminant_scenario_count": 1,
+      "all_decoy_scenario_count": 1,
+      "all_target_scenario_count": 1,
+      "tied_score_scenario_count": 1,
+      "missing_fasta_scenario_count": 1,
+      "ambiguity_visible_scenario_count": 4,
+      "hidden_ambiguity_scenario_count": 0
+    },
+    "expected_reports": [
+      {
+        "scenario_id": "shared-peptide-pressure",
+        "scenario_kind": "shared_peptide_heavy",
+        "disagreement_count": 2,
+        "ambiguity_should_be_visible": true,
+        "ambiguity_exposed": true,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P11111", "P33333"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P11111", "P33333"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["P11111", "P22222", "P33333"],
+            "false_positive_proteins": ["P22222"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["P11111", "P22222", "P33333"],
+            "false_positive_proteins": ["P22222"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["P11111", "P33333"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "isoform-pressure",
+        "scenario_kind": "isoform_heavy",
+        "disagreement_count": 2,
+        "ambiguity_should_be_visible": false,
+        "ambiguity_exposed": false,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P55555-1"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P55555-1"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["P55555-1", "P55555-2"],
+            "false_positive_proteins": ["P55555-2"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["P55555-1", "P55555-2"],
+            "false_positive_proteins": ["P55555-2"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["P55555-1"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "homolog-family-pressure",
+        "scenario_kind": "homolog_family_heavy",
+        "disagreement_count": 2,
+        "ambiguity_should_be_visible": true,
+        "ambiguity_exposed": true,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["Q11111"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["Q11111"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["Q11111", "Q22222", "Q33333"],
+            "false_positive_proteins": ["Q22222", "Q33333"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["Q11111", "Q22222"],
+            "false_positive_proteins": ["Q22222"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["Q11111"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "contaminant-pressure",
+        "scenario_kind": "contaminant_heavy",
+        "disagreement_count": 2,
+        "ambiguity_should_be_visible": false,
+        "ambiguity_exposed": false,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P77777"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P77777"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["CON__KERATIN1", "P77777"],
+            "false_positive_proteins": ["CON__KERATIN1"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["CON__KERATIN1", "P77777"],
+            "false_positive_proteins": ["CON__KERATIN1"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["P77777"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "all-decoy-input",
+        "scenario_kind": "all_decoy",
+        "disagreement_count": 3,
+        "ambiguity_should_be_visible": false,
+        "ambiguity_exposed": false,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": [],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "false_positive_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": [],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "false_positive_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "false_positive_proteins": ["DECOY_P88888", "DECOY_Q99999"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "all-target-input",
+        "scenario_kind": "all_target",
+        "disagreement_count": 0,
+        "ambiguity_should_be_visible": false,
+        "ambiguity_exposed": false,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P10101", "P20202"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P10101", "P20202"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["P10101", "P20202"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["P10101", "P20202"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["P10101", "P20202"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "tied-score-ambiguity",
+        "scenario_kind": "tied_score",
+        "disagreement_count": 4,
+        "ambiguity_should_be_visible": true,
+        "ambiguity_exposed": true,
+        "missing_fasta_pressure": false,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P30303"],
+            "false_positive_proteins": [],
+            "missed_proteins": ["P40404"],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P30303"],
+            "false_positive_proteins": [],
+            "missed_proteins": ["P40404"],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["P30303", "P40404"],
+            "false_positive_proteins": [],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["P30303"],
+            "false_positive_proteins": [],
+            "missed_proteins": ["P40404"],
+            "selected_missing_fasta_proteins": []
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": [],
+            "false_positive_proteins": [],
+            "missed_proteins": ["P30303", "P40404"],
+            "selected_missing_fasta_proteins": []
+          }
+        ]
+      },
+      {
+        "scenario_id": "missing-fasta-entry",
+        "scenario_kind": "missing_fasta_entry",
+        "disagreement_count": 5,
+        "ambiguity_should_be_visible": true,
+        "ambiguity_exposed": true,
+        "missing_fasta_pressure": true,
+        "assessments": [
+          {
+            "strategy_kind": "parsimony",
+            "selected_proteins": ["P50505", "P60606"],
+            "false_positive_proteins": ["P60606"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": ["P60606"]
+          },
+          {
+            "strategy_kind": "razor",
+            "selected_proteins": ["P50505", "P60606"],
+            "false_positive_proteins": ["P60606"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": ["P60606"]
+          },
+          {
+            "strategy_kind": "picked",
+            "selected_proteins": ["P50505", "P60606"],
+            "false_positive_proteins": ["P60606"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": ["P60606"]
+          },
+          {
+            "strategy_kind": "grouped",
+            "selected_proteins": ["P50505", "P60606"],
+            "false_positive_proteins": ["P60606"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": ["P60606"]
+          },
+          {
+            "strategy_kind": "conservative",
+            "selected_proteins": ["P50505", "P60606"],
+            "false_positive_proteins": ["P60606"],
+            "missed_proteins": [],
+            "selected_missing_fasta_proteins": ["P60606"]
+          }
+        ]
+      }
+    ]
+  }
+]

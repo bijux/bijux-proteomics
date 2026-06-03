@@ -1,0 +1,151 @@
+[
+  {
+    "name": "imported_pep_remains_distinct_from_computed_local_fdr",
+    "score_orientation": "higher_better",
+    "local_window_size": 3,
+    "records": [
+      {
+        "spectrum_id": "pep-1001",
+        "peptide": "PEPTIDE",
+        "canonical_peptide": "PEPTIDE",
+        "charge": 2,
+        "score": 100.0,
+        "posterior_error_probability": 0.002,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "pep-1002",
+        "peptide": "DECOYPEP",
+        "canonical_peptide": "DECOYPEP",
+        "charge": 2,
+        "score": 80.0,
+        "posterior_error_probability": 0.19,
+        "protein_refs": [
+          "DECOY_P99999"
+        ],
+        "target_decoy_label": "decoy"
+      }
+    ],
+    "expected_entries": [
+      {
+        "spectrum_id": "pep-1001",
+        "imported_pep": 0.002,
+        "computed_local_fdr": null,
+        "provenance_flag": "imported_pep"
+      },
+      {
+        "spectrum_id": "pep-1002",
+        "imported_pep": 0.19,
+        "computed_local_fdr": null,
+        "provenance_flag": "imported_pep"
+      }
+    ],
+    "expected_summary": {
+      "imported_pep_count": 2,
+      "computed_local_fdr_count": 0,
+      "unavailable_count": 0
+    }
+  },
+  {
+    "name": "computed_local_fdr_is_used_when_engine_pep_is_absent",
+    "score_orientation": "higher_better",
+    "local_window_size": 3,
+    "records": [
+      {
+        "spectrum_id": "lfdr-1001",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 100.0,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "lfdr-1002",
+        "peptide": "DECA",
+        "canonical_peptide": "DECA",
+        "charge": 2,
+        "score": 95.0,
+        "protein_refs": [
+          "DECOY_P99999"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "lfdr-1003",
+        "peptide": "PEPB",
+        "canonical_peptide": "PEPB",
+        "charge": 2,
+        "score": 90.0,
+        "protein_refs": [
+          "P22222"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "lfdr-1004",
+        "peptide": "DECB",
+        "canonical_peptide": "DECB",
+        "charge": 2,
+        "score": 85.0,
+        "protein_refs": [
+          "DECOY_Q99999"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "lfdr-1005",
+        "peptide": "PEPC",
+        "canonical_peptide": "PEPC",
+        "charge": 2,
+        "score": 80.0,
+        "protein_refs": [
+          "P33333"
+        ],
+        "target_decoy_label": "target"
+      }
+    ],
+    "expected_entries": [
+      {
+        "spectrum_id": "lfdr-1001",
+        "imported_pep": null,
+        "computed_local_fdr": 1.0,
+        "provenance_flag": "computed_local_fdr"
+      },
+      {
+        "spectrum_id": "lfdr-1002",
+        "imported_pep": null,
+        "computed_local_fdr": 0.5,
+        "provenance_flag": "computed_local_fdr"
+      },
+      {
+        "spectrum_id": "lfdr-1003",
+        "imported_pep": null,
+        "computed_local_fdr": 1.0,
+        "provenance_flag": "computed_local_fdr"
+      },
+      {
+        "spectrum_id": "lfdr-1004",
+        "imported_pep": null,
+        "computed_local_fdr": 0.5,
+        "provenance_flag": "computed_local_fdr"
+      },
+      {
+        "spectrum_id": "lfdr-1005",
+        "imported_pep": null,
+        "computed_local_fdr": 1.0,
+        "provenance_flag": "computed_local_fdr"
+      }
+    ],
+    "expected_summary": {
+      "imported_pep_count": 0,
+      "computed_local_fdr_count": 5,
+      "unavailable_count": 0
+    }
+  }
+]

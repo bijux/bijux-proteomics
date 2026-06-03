@@ -1,0 +1,5 @@
+protein_ref_a	protein_ref_b	source_name	source_accession	interaction_score
+P001	P002	string	STRING:1	0.9
+P002	P003	string	STRING:2	0.8
+P004	P005	string	STRING:3	0.7
+P006	P007	string	STRING:4	0.5

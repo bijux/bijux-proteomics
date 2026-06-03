@@ -1,0 +1,97 @@
+[
+  {
+    "case_id": "protein_grouping_indistinguishable_members",
+    "records": [
+      {
+        "spectrum_id": "scan=5001",
+        "peptide": "PEPTIDEK",
+        "canonical_peptide": "PEPTIDEK",
+        "charge": 2,
+        "score": 110.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=5002",
+        "peptide": "SHAREDK",
+        "canonical_peptide": "SHAREDK",
+        "charge": 2,
+        "score": 100.0,
+        "q_value": 0.02,
+        "protein_refs": [
+          "P11111",
+          "P22222",
+          "P44444"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=5003",
+        "peptide": "GLYGLYK",
+        "canonical_peptide": "GLYGLYK",
+        "charge": 2,
+        "score": 95.0,
+        "q_value": 0.03,
+        "protein_refs": [
+          "P22222",
+          "P44444"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=5004",
+        "peptide": "ALTPEPTIDE",
+        "canonical_peptide": "ALTPEPTIDE",
+        "charge": 2,
+        "score": 90.0,
+        "q_value": 0.04,
+        "protein_refs": [
+          "P33333"
+        ],
+        "target_decoy_label": "target"
+      }
+    ],
+    "expected_groups": [
+      {
+        "group_id": "pg-001",
+        "leading_protein": "P33333",
+        "protein_refs": [
+          "P33333"
+        ],
+        "unique_peptides": [
+          "ALTPEPTIDE"
+        ],
+        "shared_peptides": []
+      },
+      {
+        "group_id": "pg-002",
+        "leading_protein": "P22222",
+        "protein_refs": [
+          "P22222",
+          "P44444"
+        ],
+        "unique_peptides": [],
+        "shared_peptides": [
+          "GLYGLYK",
+          "SHAREDK"
+        ]
+      },
+      {
+        "group_id": "pg-003",
+        "leading_protein": "P11111",
+        "protein_refs": [
+          "P11111"
+        ],
+        "unique_peptides": [
+          "PEPTIDEK"
+        ],
+        "shared_peptides": [
+          "SHAREDK"
+        ]
+      }
+    ]
+  }
+]

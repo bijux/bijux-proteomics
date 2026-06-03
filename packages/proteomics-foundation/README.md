@@ -35,11 +35,13 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`proteomics-foundation` is the install and import alias for
-bijux-proteomics-foundation.
+`proteomics-foundation` is the compatibility alias for the canonical foundation
+owner `bijux-proteomics-foundation`.
+It is the install and import alias for bijux-proteomics-foundation.
 
-Use this package when you want the shared-kernel package under the shorter
-distribution and import name without changing ownership.
+Use this package when you want a shorter distribution and import name for the
+serialization, schema, and compatibility kernel without creating a second
+foundation owner.
 
 ## Installation
 
@@ -47,23 +49,107 @@ distribution and import name without changing ownership.
 pip install proteomics-foundation
 ```
 
-## Quick Start
+## Public APIs
+
+The alias forwards the canonical foundation exports through
+`proteomics_foundation`:
 
 ```python
-from proteomics_foundation import DocumentSchema, hash_payload
+from proteomics_foundation import DocumentSchema, hash_payload, to_canonical_json
+
+schema = DocumentSchema(
+    created_by="proteomics-foundation",
+    document_kind="readme_example",
+    package_name="proteomics-foundation",
+)
+payload = {
+    "document_kind": schema.document_kind,
+    "schema_version": schema.schema_version,
+}
+rendered = to_canonical_json(payload)
+digest = hash_payload(payload)
+
+assert '"readme_example"' in rendered
+assert digest
 ```
 
-## Route To Canonical Docs
+## Package identity
+
+- Distribution name: `proteomics-foundation`
+- Import root: `proteomics_foundation`
+- Canonical owner package: `bijux-proteomics-foundation`
+- Canonical owner import root: `bijux_proteomics_foundation`
+
+## Package boundaries
+
+- this package owns compatibility naming for the foundation surface
+- schema, serialization, compatibility, and outcome contracts remain owned by
+  `bijux-proteomics-foundation`
+- new behavior must land in the canonical owner before alias exports change
+
+## What this package must not do
+
+- define a second foundation kernel
+- drift away from canonical serialization or compatibility behavior
+- become a separate owner for outcome or schema policy
+
+## Contract checkpoints
+
+- alias exports must forward to the canonical foundation package cleanly
+- docs must name the canonical owner explicitly
+- compatibility updates must stay covered by alias-package tests
+
+## Choose this package when
+
+- you want a shorter import and distribution name for foundation contracts
+- migration or ergonomics favor `proteomics_foundation`
+- compatibility packaging work needs a named alias for the foundation owner
+
+## Route elsewhere when
+
+- the change alters schema, serialization, compatibility, or outcome behavior
+- the work introduces exports that are not already owned by foundation
+- the alias would stop being forwarding-only
+
+## Verification route
+
+- run alias compatibility tests before changing imports or metadata
+- review `docs/ARCHITECTURE.md`, `docs/BOUNDARIES.md`, and `docs/CONTRACTS.md`
+  when alias claims or routing language change
+- validate the canonical foundation README and tests when behavior changes are
+  proposed
+
+## Review questions
+
+- does the change preserve this package as a naming alias only
+- is the canonical foundation owner still explicit in docs and behavior
+- would the same outcome remain correct if consumers imported the canonical
+  package directly
+
+## Escalation route
+
+- route kernel behavior changes to `bijux-proteomics-foundation`
+- stop and review alias boundaries when package-local semantics start appearing
+- escalate before release when import or metadata drift could confuse ownership
+
+## Consumer impact signals
+
+- import-path or package-name changes are high-impact because downstream code
+  may depend on them directly
+- alias documentation changes should still be reviewed against the canonical
+  foundation owner
+- wording-only clarifications carry lower release risk than routing or metadata
+  changes
+
+## Explicit non-goals
+
+- this package does not own scientific workflow or evidence semantics
+- this package does not define runtime, intelligence, knowledge, or lab policy
+- this package does not replace the canonical foundation release surface
+
+## Documentation
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- [Foundation package handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
-
-## Boundary
-
-This package is a naming alias only. It does not create a second foundation
-kernel or widen the repository contract surface.
-
-## Changelog
-
+- [Canonical foundation package docs](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - [Changelog](CHANGELOG.md)

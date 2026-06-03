@@ -5,54 +5,85 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import hashlib
+from importlib import import_module
 import importlib.metadata
 import json
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
-import click
-from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
-import uvicorn
+if TYPE_CHECKING:
+    import click
+else:
+    try:
+        import click
+    except ModuleNotFoundError:
 
-from bijux_proteomics_intelligence.candidates import CandidateStore
-from bijux_proteomics_intelligence.candidates.schema import Candidate
-from bijux_proteomics_runtime.api.catalog import (
-    build_artifact_lookup_response,
-    build_evidence_lookup_response,
-    build_run_artifacts_response,
-    build_run_evidence_response,
-    build_run_history_response,
-    build_run_review_response,
-    build_runtime_health_response,
-    build_runtime_status_response,
-)
-from bijux_proteomics_runtime.api.v1.schema import (
-    ApiCandidate,
-    ApiEnvelope,
-    CompareResponse,
-    ErrorResponse,
-    InspectResponse,
-    RunResponse,
-)
-from bijux_proteomics_runtime.runs.correlation import build_correlation_meta
-from bijux_proteomics_runtime.runs.manager import RunManager
-from bijux_proteomics_runtime.runs.operations import (
-    build_runtime_run_config,
-    compare_run_operation,
-    export_report_operation,
-    import_external_result_operation,
-    inspect_candidate_operation,
-    load_run_config_operation,
-    load_run_summary_operation,
-    resume_candidate_operation,
-    run_sequence_operation,
-)
-from bijux_proteomics_runtime.runs.output import RunOutput
-from bijux_proteomics_runtime.runs.request import RunRequest
-from bijux_proteomics_runtime.runs.run_config import RunConfig
-from bijux_proteomics_runtime.support.identity import runtime_banner
-from bijux_proteomics_runtime.support.workspace import RunWorkspace
+        class _ClickDecoratorShim:
+            def __call__(self, func: Any) -> Any:
+                return func
+
+        class _ClickTypeShim:
+            def __init__(self, *_args: object, **_kwargs: object) -> None:
+                pass
+
+        class _ClickCommandShim:
+            def __init__(self, callback: Any) -> None:
+                self.callback = callback
+                self.name = getattr(callback, "__name__", "cli")
+
+            def __call__(self, *args: object, **kwargs: object) -> Any:
+                return self.callback(*args, **kwargs)
+
+            def command(self, *_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> Any:
+                    return func
+
+                return _decorator
+
+            def group(self, *_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> _ClickCommandShim:
+                    return _ClickCommandShim(func)
+
+                return _decorator
+
+        class _ClickShim:
+            Path = _ClickTypeShim
+            Choice = _ClickTypeShim
+
+            @staticmethod
+            def echo(message: object = "") -> None:
+                print(message)
+
+            @staticmethod
+            def group(*_args: object, **_kwargs: object) -> Any:
+                def _decorator(func: Any) -> _ClickCommandShim:
+                    return _ClickCommandShim(func)
+
+                return _decorator
+
+            @staticmethod
+            def version_option(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+            @staticmethod
+            def option(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+            @staticmethod
+            def argument(*_args: object, **_kwargs: object) -> Any:
+                return _ClickDecoratorShim()
+
+        click = cast(Any, _ClickShim())
+
+if TYPE_CHECKING:
+    from bijux_proteomics_intelligence.candidates import CandidateStore
+    from bijux_proteomics_intelligence.candidates.schema import Candidate
+    from bijux_proteomics_runtime.runs.manager import RunManager
+    from bijux_proteomics_runtime.runs.request import RunRequest
+    from bijux_proteomics_runtime.runs.run_config import RunConfig
+    from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 __all__ = [
     "CliResult",
@@ -71,7 +102,137 @@ __all__ = [
     "cli",
 ]
 
-_CLI_ERROR_TYPE = cast(AnyUrl, "https://bijux.dev/errors/cli")
+
+class _RunsOperationsModule(Protocol):
+    def build_runtime_run_config(
+        self,
+        *,
+        rounds: int,
+        dry_run: bool,
+        logging_enabled: bool,
+        provider: str | None,
+        artifacts_dir: Path | None,
+        execution_mode: str,
+        launch_surface: str = "local",
+    ) -> RunConfig: ...
+
+    def run_sequence_operation(
+        self,
+        base_dir: Path,
+        sequence: str,
+        config: RunConfig,
+    ) -> dict[str, Any]: ...
+
+    def resume_candidate_operation(
+        self,
+        base_dir: Path,
+        *,
+        candidate_id: str,
+        rounds: int,
+        provider: str | None,
+        artifacts_dir: Path | None,
+        execution_mode: str,
+    ) -> dict[str, Any]: ...
+
+    def import_external_result_operation(
+        self,
+        base_dir: Path,
+        *,
+        sequence: str,
+        source_path: Path,
+        engine_name: str,
+        engine_version: str,
+        artifacts_dir: Path | None = None,
+    ) -> dict[str, Any]: ...
+
+    def compare_run_operation(self, run_a: Path, run_b: Path) -> dict[str, Any]: ...
+
+    def inspect_candidate_operation(
+        self,
+        base_dir: Path,
+        candidate_id: str,
+    ) -> Candidate: ...
+
+    def load_run_summary_operation(
+        self,
+        base_dir: Path,
+        run_id: str,
+        artifacts_dir: Path | None,
+    ) -> dict[str, Any]: ...
+
+    def load_run_config_operation(self, run_dir: Path) -> RunConfig: ...
+
+    def export_report_operation(self, base_dir: Path, run_id: str) -> str: ...
+
+
+_CLI_ERROR_TYPE = "https://bijux.dev/errors/cli"
+
+
+def _api_catalog_module() -> Any:
+    return import_module("bijux_proteomics_runtime.api.catalog")
+
+
+def _api_schema_module() -> Any:
+    return import_module("bijux_proteomics_runtime.api.v1.schema")
+
+
+def _runs_correlation_module() -> Any:
+    return import_module("bijux_proteomics_runtime.runs.correlation")
+
+
+def _runs_operations_module() -> _RunsOperationsModule:
+    return cast(
+        _RunsOperationsModule,
+        import_module("bijux_proteomics_runtime.runs.operations"),
+    )
+
+
+def _run_request_type() -> type[RunRequest]:
+    from bijux_proteomics_runtime.runs.request import RunRequest as RuntimeRunRequest
+
+    return RuntimeRunRequest
+
+
+def _run_workspace_type() -> type[RunWorkspace]:
+    from bijux_proteomics_runtime.support.workspace import (
+        RunWorkspace as RuntimeRunWorkspace,
+    )
+
+    return RuntimeRunWorkspace
+
+
+def _runtime_banner() -> str:
+    from bijux_proteomics_runtime.support.identity import runtime_banner
+
+    return runtime_banner()
+
+
+def _model_dump_json(value: Any) -> Any:
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    return value
+
+
+def _candidate_store_type() -> type[CandidateStore]:
+    """Load the candidate store only for commands that resume stored candidates."""
+    from bijux_proteomics_intelligence.candidates import CandidateStore
+
+    return CandidateStore
+
+
+def _run_manager_type() -> type[RunManager]:
+    """Load the runtime manager only for commands that execute candidate replay."""
+    from bijux_proteomics_runtime.runs.manager import RunManager
+
+    return RunManager
+
+
+def _result_run_id(result: dict[str, Any]) -> str:
+    """Read one run identifier from an operation result payload."""
+    run_id = result.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        raise ValueError("run output missing run_id")
+    return run_id
 
 
 def _package_version() -> str:
@@ -99,29 +260,32 @@ def _read_sequence(sequence: str | None, fasta: Path | None) -> str:
     raise ValueError("Provide --sequence or --fasta.")
 
 
-class CliResult(BaseModel):
+@dataclass(slots=True)
+class CliResult:
     """CliResult."""
 
-    model_config = ConfigDict(extra="forbid")
+    status: Literal["ok", "error"]
+    command: str
+    payload: dict[str, Any] | list[Any] | str | None = None
+    artifacts: dict[str, str] | None = None
+    error: str | None = None
 
-    status: Literal["ok", "error"] = Field(..., description="Result status.")
-    command: str = Field(..., description="CLI command name.")
-    payload: dict[str, Any] | list[Any] | str | None = Field(
-        default=None, description="Command payload."
-    )
-    artifacts: dict[str, str] | None = Field(
-        default=None, description="Artifact paths, when applicable."
-    )
-    error: str | None = Field(default=None, description="Error message.")
-
-    @model_validator(mode="after")
-    def _ensure_contract(self) -> CliResult:
-        """_ensure_contract."""
+    def __post_init__(self) -> None:
         if self.status == "ok" and self.payload is None:
             raise ValueError("payload required for ok status")
         if self.status == "error" and not self.error:
             raise ValueError("error required for error status")
-        return self
+
+    def model_dump(self, *, mode: str = "json") -> dict[str, Any]:
+        if mode != "json":
+            raise ValueError("CliResult only supports json-style dumps")
+        return {
+            "status": self.status,
+            "command": self.command,
+            "payload": self.payload,
+            "artifacts": self.artifacts,
+            "error": self.error,
+        }
 
 
 def _build_run_config(
@@ -133,7 +297,7 @@ def _build_run_config(
     execution_mode: str,
 ) -> RunConfig:
     """_build_run_config."""
-    return build_runtime_run_config(
+    return _runs_operations_module().build_runtime_run_config(
         rounds=rounds,
         dry_run=dry_run,
         logging_enabled=not no_logs,
@@ -145,12 +309,12 @@ def _build_run_config(
 
 def _validate_sequence(sequence: str) -> None:
     """_validate_sequence."""
-    RunRequest.model_validate({"sequence": sequence})
+    _run_request_type().model_validate({"sequence": sequence})
 
 
 def _run_sequence(base_dir: Path, sequence: str, config: RunConfig) -> dict[str, Any]:
     """_run_sequence."""
-    return run_sequence_operation(base_dir, sequence, config)
+    return _runs_operations_module().run_sequence_operation(base_dir, sequence, config)
 
 
 def _resume_candidate(
@@ -162,7 +326,7 @@ def _resume_candidate(
     execution_mode: str,
 ) -> dict[str, Any]:
     """_resume_candidate."""
-    return resume_candidate_operation(
+    return _runs_operations_module().resume_candidate_operation(
         base_dir,
         candidate_id=candidate_id,
         rounds=rounds,
@@ -182,7 +346,7 @@ def _import_result(
     artifacts_dir: Path | None,
 ) -> dict[str, Any]:
     """_import_result."""
-    return import_external_result_operation(
+    return _runs_operations_module().import_external_result_operation(
         base_dir,
         sequence=sequence,
         source_path=source_path,
@@ -194,17 +358,17 @@ def _import_result(
 
 def _compare_runs_payload(run_a: Path, run_b: Path) -> dict[str, Any]:
     """_compare_runs_payload."""
-    return compare_run_operation(run_a, run_b)
+    return _runs_operations_module().compare_run_operation(run_a, run_b)
 
 
 def _inspect_candidate(base_dir: Path, candidate_id: str) -> Candidate:
     """_inspect_candidate."""
-    return inspect_candidate_operation(base_dir, candidate_id)
+    return _runs_operations_module().inspect_candidate_operation(base_dir, candidate_id)
 
 
 def _export_report_payload(base_dir: Path, run_id: str) -> str:
     """_export_report_payload."""
-    return export_report_operation(base_dir, run_id)
+    return _runs_operations_module().export_report_operation(base_dir, run_id)
 
 
 def _write_output(path: Path, payload: str) -> None:
@@ -216,7 +380,7 @@ def _artifact_paths(
     base_dir: Path, run_id: str, artifacts_dir: Path | None
 ) -> dict[str, str]:
     """_artifact_paths."""
-    workspace = RunWorkspace.for_run(
+    workspace = _run_workspace_type().for_run(
         base_dir,
         run_id,
         artifacts_root_override=artifacts_dir,
@@ -248,25 +412,29 @@ def _emit_api_envelope(
     data: Any | None,
     *,
     pretty: bool,
-    error: ErrorResponse | None = None,
+    error: Any | None = None,
     meta: dict[str, Any] | None = None,
     surface: str = "cli",
     correlation_key: str | None = None,
 ) -> None:
     """Emit a canonical API-style envelope for CLI JSON flows."""
-    base_meta = build_correlation_meta(
+    base_meta = _runs_correlation_module().build_correlation_meta(
         surface,
         f"cli:{surface}",
         correlation_key,
     )
     if meta:
         base_meta.update(meta)
-    payload = ApiEnvelope(
-        status="error" if error is not None else "ok",
-        data=data,
-        error=error,
-        meta=base_meta,
-    ).model_dump(mode="json")
+    payload = (
+        _api_schema_module()
+        .ApiEnvelope(
+            status="error" if error is not None else "ok",
+            data=data,
+            error=error,
+            meta=base_meta,
+        )
+        .model_dump(mode="json")
+    )
     _emit_json_payload(payload, pretty=pretty)
 
 
@@ -274,12 +442,14 @@ def _load_run_summary(
     base_dir: Path, run_id: str, artifacts_dir: Path | None
 ) -> dict[str, Any]:
     """_load_run_summary."""
-    return load_run_summary_operation(base_dir, run_id, artifacts_dir)
+    return _runs_operations_module().load_run_summary_operation(
+        base_dir, run_id, artifacts_dir
+    )
 
 
 def _load_run_config(run_dir: Path) -> RunConfig:
     """_load_run_config."""
-    return load_run_config_operation(run_dir)
+    return _runs_operations_module().load_run_config_operation(run_dir)
 
 
 def _emit_run_summary_human(summary: dict[str, Any]) -> None:
@@ -333,7 +503,7 @@ def cli() -> None:
 @cli.command("identity")
 def identity_command() -> None:
     """identity_command."""
-    click.echo(runtime_banner())
+    click.echo(_runtime_banner())
 
 
 @cli.command("run")
@@ -392,15 +562,16 @@ def run(
             execution_mode,
         )
         result = _run_sequence(Path.cwd(), seq, config)
-        run_output = RunOutput.model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
+            schema = _api_schema_module()
             _emit_api_envelope(
                 None,
                 pretty=pretty,
                 surface="run",
-                error=ErrorResponse(
+                error=schema.ErrorResponse(
                     type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
@@ -415,11 +586,12 @@ def run(
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
+        schema = _api_schema_module()
         _emit_api_envelope(
-            RunResponse.model_validate(summary),
+            schema.RunResponse.model_validate(summary),
             pretty=pretty,
             surface="run",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
@@ -470,15 +642,16 @@ def resume(
             artifacts_dir,
             execution_mode,
         )
-        run_output = RunOutput.model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
+            schema = _api_schema_module()
             _emit_api_envelope(
                 None,
                 pretty=pretty,
                 surface="resume",
-                error=ErrorResponse(
+                error=schema.ErrorResponse(
                     type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
@@ -493,11 +666,12 @@ def resume(
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
+        schema = _api_schema_module()
         _emit_api_envelope(
-            RunResponse.model_validate(summary),
+            schema.RunResponse.model_validate(summary),
             pretty=pretty,
             surface="resume",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
@@ -543,15 +717,16 @@ def import_result(
             engine_version=engine_version,
             artifacts_dir=artifacts_dir,
         )
-        run_output = RunOutput.model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
+            schema = _api_schema_module()
             _emit_api_envelope(
                 None,
                 pretty=pretty,
                 surface="import",
-                error=ErrorResponse(
+                error=schema.ErrorResponse(
                     type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
@@ -566,11 +741,12 @@ def import_result(
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
+        schema = _api_schema_module()
         _emit_api_envelope(
-            RunResponse.model_validate(summary),
+            schema.RunResponse.model_validate(summary),
             pretty=pretty,
             surface="import",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
@@ -587,11 +763,12 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
         comparison = _compare_runs_payload(run_a, run_b)
     except Exception as exc:  # noqa: BLE001
         if json_output:
+            schema = _api_schema_module()
             _emit_api_envelope(
                 None,
                 pretty=pretty,
                 surface="compare",
-                error=ErrorResponse(
+                error=schema.ErrorResponse(
                     type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
@@ -606,8 +783,9 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
+        schema = _api_schema_module()
         _emit_api_envelope(
-            CompareResponse.model_validate(comparison),
+            schema.CompareResponse.model_validate(comparison),
             pretty=pretty,
             surface="compare",
             correlation_key=f"{run_a}:{run_b}",
@@ -626,11 +804,12 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
         candidate = _inspect_candidate(Path.cwd(), candidate_id)
     except Exception as exc:  # noqa: BLE001
         if json_output:
+            schema = _api_schema_module()
             _emit_api_envelope(
                 None,
                 pretty=pretty,
                 surface="inspect-candidate",
-                error=ErrorResponse(
+                error=schema.ErrorResponse(
                     type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
@@ -644,8 +823,9 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
-    payload = InspectResponse(
-        candidate=ApiCandidate.model_validate(candidate.model_dump(mode="json")),
+    schema = _api_schema_module()
+    payload = schema.InspectResponse(
+        candidate=schema.ApiCandidate.model_validate(candidate.model_dump(mode="json")),
         qc_status=None,
         artifacts={},
     )
@@ -657,7 +837,7 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
             correlation_key=candidate_id,
         )
         return
-    _emit_json_payload(payload.model_dump(mode="json"), pretty=True)
+    _emit_json_payload(_model_dump_json(payload), pretty=True)
 
 
 @cli.command("export-report")
@@ -705,6 +885,8 @@ def api() -> None:
 @click.option("--no-docs", is_flag=True, help="Disable OpenAPI docs.")
 def api_serve(host: str, port: int, reload: bool, no_docs: bool) -> None:
     """api_serve."""
+    import uvicorn
+
     from bijux_proteomics_runtime.api import AppConfig, create_app
 
     config = AppConfig(base_dir=Path.cwd(), docs_enabled=not no_docs)
@@ -721,7 +903,7 @@ def api_status(
     run_id: str, include_documents: bool, max_inline_bytes: int, pretty: bool
 ) -> None:
     """Emit the canonical runtime-status contract via CLI."""
-    response = build_runtime_status_response(
+    response = _api_catalog_module().build_runtime_status_response(
         Path.cwd(),
         run_id,
         include_documents=include_documents,
@@ -737,7 +919,7 @@ def api_status(
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
 def api_artifacts(run_id: str, pretty: bool) -> None:
     """Emit the canonical run-artifacts contract via CLI."""
-    response = build_run_artifacts_response(Path.cwd(), run_id)
+    response = _api_catalog_module().build_run_artifacts_response(Path.cwd(), run_id)
     _emit_api_envelope(
         response, pretty=pretty, surface="run-artifacts", correlation_key=run_id
     )
@@ -755,7 +937,7 @@ def api_evidence_bundle(
     pretty: bool,
 ) -> None:
     """Emit the canonical evidence-bundle contract via CLI."""
-    response = build_run_evidence_response(
+    response = _api_catalog_module().build_run_evidence_response(
         Path.cwd(),
         run_id,
         include_document=include_document,
@@ -781,7 +963,7 @@ def api_review_packet(
     pretty: bool,
 ) -> None:
     """Emit the canonical review-packet contract via CLI."""
-    response = build_run_review_response(
+    response = _api_catalog_module().build_run_review_response(
         Path.cwd(),
         run_id,
         include_document=include_document,
@@ -799,7 +981,7 @@ def api_review_packet(
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
 def api_health(pretty: bool) -> None:
     """Emit the canonical runtime health contract via CLI."""
-    response = build_runtime_health_response(Path.cwd())
+    response = _api_catalog_module().build_runtime_health_response(Path.cwd())
     _emit_api_envelope(response, pretty=pretty, surface="runtime-health")
 
 
@@ -823,7 +1005,7 @@ def api_history(
     pretty: bool,
 ) -> None:
     """Emit the canonical run-history contract via CLI."""
-    response = build_run_history_response(
+    response = _api_catalog_module().build_run_history_response(
         Path.cwd(),
         provider=provider,
         workflow_state=workflow_state,
@@ -852,7 +1034,7 @@ def api_lookup_artifacts(
     pretty: bool,
 ) -> None:
     """Emit the canonical artifact-lookup contract via CLI."""
-    response = build_artifact_lookup_response(
+    response = _api_catalog_module().build_artifact_lookup_response(
         Path.cwd(),
         run_id=run_id,
         artifact_kind=artifact_kind,
@@ -881,7 +1063,7 @@ def api_lookup_evidence(
     pretty: bool,
 ) -> None:
     """Emit the canonical evidence-lookup contract via CLI."""
-    response = build_evidence_lookup_response(
+    response = _api_catalog_module().build_evidence_lookup_response(
         Path.cwd(),
         run_id=run_id,
         document_kind=document_kind,
@@ -901,16 +1083,16 @@ def reproduce(run_id: str, pretty: bool, json_output: bool) -> None:
     """reproduce."""
     try:
         base_dir = Path.cwd()
-        original_workspace = RunWorkspace.for_run(base_dir, run_id)
+        original_workspace = _run_workspace_type().for_run(base_dir, run_id)
         if not original_workspace.run_dir.exists():
             raise FileNotFoundError(f"Run not found at {original_workspace.run_dir}")
         summary = json.loads(original_workspace.run_summary_path.read_text())
         candidate_id = summary.get("candidate_id") or f"{run_id}-c0"
-        store = CandidateStore(original_workspace.candidate_store_dir)
+        store = _candidate_store_type()(original_workspace.candidate_store_dir)
         candidate = store.get_candidate(candidate_id)
         config = _load_run_config(original_workspace.run_dir)
         reproduce_root = base_dir / "artifacts" / "reproduce"
-        reproduce_workspace = RunWorkspace.for_run(
+        reproduce_workspace = _run_workspace_type().for_run(
             base_dir, run_id, artifacts_root_override=reproduce_root
         )
         if reproduce_workspace.run_dir.exists():
@@ -920,7 +1102,7 @@ def reproduce(run_id: str, pretty: bool, json_output: bool) -> None:
         reproduce_config = config.model_copy(
             update={"artifacts_dir": str(reproduce_root)}
         )
-        manager = RunManager(base_dir, reproduce_config)
+        manager = _run_manager_type()(base_dir, reproduce_config)
         manager.run_candidate(candidate, run_id=run_id)
         original_hashes = _artifact_hashes(original_workspace.run_dir)
         reproduced_hashes = _artifact_hashes(reproduce_workspace.run_dir)

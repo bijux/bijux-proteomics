@@ -63,6 +63,13 @@ class FastaParseMode(StrEnum):
     PERMISSIVE = "permissive"
 
 
+class DuplicateAccessionPolicy(StrEnum):
+    """Explicit policy for normalized duplicate protein accessions."""
+
+    REJECT = "reject"
+    ACCEPT_WITH_WARNING = "accept_with_warning"
+
+
 class ResiduePolicyState(StrEnum):
     """Support state for an uncommon residue token under one parser policy."""
 
@@ -193,6 +200,7 @@ class FastaParseReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     parse_mode: FastaParseMode
+    duplicate_accession_policy: DuplicateAccessionPolicy
     total_records: int = Field(..., ge=0)
     accepted_records: tuple[NormalizedProteinRecord, ...] = Field(default_factory=tuple)
     rejected_records: tuple[RejectedFastaRecord, ...] = Field(default_factory=tuple)
@@ -426,10 +434,17 @@ def sequence_checksum(residues: str) -> str:
 
 
 def parse_fasta_records(
-    payload: str, *, mode: FastaParseMode = FastaParseMode.STRICT
+    payload: str,
+    *,
+    mode: FastaParseMode = FastaParseMode.STRICT,
+    duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
 ) -> tuple[FastaSequenceRecord, ...]:
     """Parse FASTA records and raise if any record fails the active policy."""
-    report = parse_fasta_document(payload, mode=mode)
+    report = parse_fasta_document(
+        payload,
+        mode=mode,
+        duplicate_accession_policy=duplicate_accession_policy,
+    )
     if report.rejected_records:
         identifiers = ", ".join(
             rejected.source_identifier for rejected in report.rejected_records
@@ -447,9 +462,31 @@ def parse_fasta_records(
 
 
 def parse_fasta_document(
-    payload: str, *, mode: FastaParseMode = FastaParseMode.STRICT
+    payload: str,
+    *,
+    mode: FastaParseMode = FastaParseMode.STRICT,
+    duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
 ) -> FastaParseReport:
-    """Parse FASTA payload into normalized records with explicit rejection details."""
+    """Parse FASTA payload into normalized records with explicit rejection details.
+
+    Inputs:
+    ``payload`` must contain FASTA text, ``mode`` selects sequence validation
+    strictness, and ``duplicate_accession_policy`` controls how repeated
+    normalized accessions are treated.
+
+    Outputs:
+    Returns one ``FastaParseReport`` with accepted normalized records, rejected
+    records, duplicate summaries, and database composition metrics.
+
+    Failure Modes:
+    Propagates low-level FASTA record parsing failures if the payload cannot be
+    tokenized into records before validation.
+
+    Scientific Caveats:
+    Acceptance means the records satisfy the active formatting and residue
+    policy only; it does not prove biological correctness, uniqueness in an
+    external database, or suitability for one downstream search space.
+    """
     raw_records = _parse_raw_fasta_records(payload)
     duplicates = _duplicate_identifiers(record.identifier for record in raw_records)
     duplicate_accessions = _duplicate_accessions(
@@ -484,7 +521,7 @@ def parse_fasta_document(
                     code="duplicate_accession",
                     severity=(
                         SequenceIssueSeverity.ERROR
-                        if mode is FastaParseMode.STRICT
+                        if duplicate_accession_policy is DuplicateAccessionPolicy.REJECT
                         else SequenceIssueSeverity.WARNING
                     ),
                     message=f"duplicate normalized accession {accession_key!r}",
@@ -510,6 +547,7 @@ def parse_fasta_document(
 
     return FastaParseReport(
         parse_mode=mode,
+        duplicate_accession_policy=duplicate_accession_policy,
         total_records=len(raw_records),
         accepted_records=tuple(accepted),
         rejected_records=tuple(rejected),
@@ -912,7 +950,7 @@ def build_decoy_generation_manifest(
         package_name="bijux-proteomics-core",
         status="generated",
     )
-    rendered_output = render_fasta_records(output_records)
+    rendered_output = render_records_fasta(output_records)
     manifest = DecoyGenerationManifest(
         document_schema=schema,
         decoy_mode=mode,
@@ -1102,7 +1140,7 @@ def validate_target_decoy_database(
     )
 
 
-def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
+def render_records_fasta(records: tuple[NormalizedProteinRecord, ...]) -> str:
     """Render normalized records back into FASTA text."""
     lines: list[str] = []
     for record in records:
@@ -1112,6 +1150,12 @@ def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
             for index in range(0, len(record.residues), 60)
         )
     return "\n".join(lines) + ("\n" if lines else "")
+
+
+def render_fasta_records(records: tuple[NormalizedProteinRecord, ...]) -> str:
+    """Compatibility wrapper for the legacy FASTA renderer name."""
+
+    return render_records_fasta(records)
 
 
 def parse_uniprot_accession(value: str) -> UniProtAccession:
@@ -1125,6 +1169,13 @@ def parse_uniprot_accession(value: str) -> UniProtAccession:
         accession=match.group("accession"),
         isoform=int(isoform) if isoform is not None else None,
     )
+
+
+def canonicalize_protein_reference(value: str) -> str:
+    """Normalize one protein reference token onto the canonical accession surface."""
+
+    _namespace, canonical_accession, _isoform = _normalize_accession(value)
+    return canonical_accession
 
 
 def _parse_raw_fasta_records(payload: str) -> tuple[FastaSequenceRecord, ...]:
@@ -1202,8 +1253,8 @@ def _normalize_accession(identifier: str) -> tuple[str, str, int | None]:
         return "uniprot", f"{decoy_prefix}{accession.accession}", accession.isoform
     if _REFSEQ_ACCESSION_RE.fullmatch(candidate):
         return "refseq", f"{decoy_prefix}{candidate}", None
-    if _ENSEMBL_ACCESSION_RE.fullmatch(candidate):
-        return "ensembl", f"{decoy_prefix}{candidate}", None
+    if match := _ENSEMBL_ACCESSION_RE.fullmatch(candidate):
+        return "ensembl", f"{decoy_prefix}{match.group('accession')}", None
     return "custom", token, None
 
 

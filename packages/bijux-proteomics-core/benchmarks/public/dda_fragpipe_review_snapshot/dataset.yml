@@ -1,0 +1,115 @@
+dataset_id: dda_fragpipe_review_snapshot
+accession: flagship_public_package:dda_reviewable_run/comparator:msfragger
+species: human
+search_engine: fragpipe
+source_files:
+  - source_id: fragpipe_pipeline_export
+    schema_id: search_result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv
+    sha256: fb6fbbb6d104dda343db8eb0d084904f246e477661278610346168a7db9c1e24
+    public_reference_url: https://fragpipe.nesvilab.org/
+    note: Shipped MSFragger-style comparator export from the flagship public DDA package.
+  - source_id: dda_support_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/dda_biological.design.tsv
+    sha256: 115d2c159897ba74ff83fc211bf28abd78b03b0a2ff5e98268adb6f038d3d96c
+    note: Governed biological support design for imported-result DDA workflow execution.
+  - source_id: dda_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned DDA biological workflow.
+expected_input_schemas:
+  - search_result_tsv
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: c1.mzml
+    identifications_file: c1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: c2.mzml
+    identifications_file: c2.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: c3.mzml
+    identifications_file: c3.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: sage
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: t1.mzml
+    identifications_file: t1.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: sage
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: t2.mzml
+    identifications_file: t2.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: sage
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: t3.mzml
+    identifications_file: t3.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: sage
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The biological contrast is supplied by governed support inputs because the flagship DDA package snapshot is a search-export review surface.
+expected_approximate_counts:
+  - metric_id: accepted_psm_count
+    expected: 5
+    tolerance: 5
+expected_biological_signals: []
+known_limitations:
+  - limitation_id: search_export_not_full_fragpipe_psm_bundle
+    severity: blocking
+    affected_surface: search_result_tsv
+    blocks_workflow_execution: true
+    description: The shipped MSFragger comparator export is a review snapshot rather than the full FragPipe biological PSM bundle shape required by the owned workflow.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/dda_fragpipe_review_snapshot/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship MSFragger comparator export through the owned FragPipe import-backed biological workflow if the shipped snapshot still matches the FragPipe PSM contract.
+  parameters: {}
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: fragpipe_biological_report_manifest.json
+    note: The orchestrator writes this manifest when the shipped FragPipe descriptor becomes runnable.
+note: The shipped public DDA package carries a real MSFragger comparator snapshot, but it still exposes review-export columns rather than the full FragPipe biological PSM bundle shape.

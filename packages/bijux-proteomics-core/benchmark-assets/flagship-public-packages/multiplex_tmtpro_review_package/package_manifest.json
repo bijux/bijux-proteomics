@@ -2,7 +2,7 @@
   "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
   "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
   "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/citation_manifest.json",
-  "claim_scope": "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape.",
+  "claim_scope": "Multiplex credibility is now anchored in a public TMTpro package that exposes reporter channels, bridge roles, and interference pressure directly instead of relying on an internal fixture shape.",
   "comparator_availability": "external confrontation exists, but public authority is intentionally limited to internal support",
   "expected_review_artifacts": [
     "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
@@ -10,11 +10,11 @@
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
-  "note": "This package now has a product-owned asset root and a raw-executable runtime lane, but it remains an internal-support family until lab consequence and outsider review surfaces exist.",
+  "note": "This package now has a product-owned asset root, a raw-executable benchmark lane, and explicit interference review, but it remains an internal-support family until lab consequence and outsider review surfaces exist.",
   "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
   "package_label": "Flagship public multiplex TMTpro review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
-  "public_dataset_identity": "tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure",
+  "public_dataset_identity": "tracked TMTpro reporter-ion, feature, and design snapshots with explicit bridge-channel, interference, imbalance, and missing-channel pressure",
   "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
   "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/rebuild_instructions.md",
   "replaced_proof_surface": "closed_fixture_bundle:multiplex_channel_fixture",
@@ -22,6 +22,7 @@
   "scientific_pressures": [
     "reference-channel dependence",
     "ratio compression",
+    "isolation interference",
     "missing-channel pressure",
     "channel imbalance"
   ],
@@ -81,16 +82,22 @@
       "public_identity_note": "The rebuild instructions define how to refresh the multiplex asset root as a durable product surface."
     },
     {
+      "asset_role": "reporter_table",
+      "evidence_kind": "quant_feature_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/tmt_reporter_table.tsv",
+      "public_identity_note": "Reporter-channel evidence keeps bridge-channel gaps, interference pressure, and imbalance tied to tracked files."
+    },
+    {
       "asset_role": "feature_table",
       "evidence_kind": "quant_feature_table",
       "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
-      "public_identity_note": "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files."
+      "public_identity_note": "The retained channel-level feature snapshot keeps runtime and challenge surfaces tied to the original multiplex intensity view."
     },
     {
       "asset_role": "design_table",
       "evidence_kind": "experimental_design",
       "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
-      "public_identity_note": "The multiplex design table preserves pooled-reference roles and channel assignments."
+      "public_identity_note": "The multiplex design table preserves pooled-reference and bridge-channel assignments."
     }
   ],
   "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",

@@ -1,0 +1,5 @@
+target_id	target_type	protein_id	peptide_sequence	modified_peptide	expected_charge	display_name
+dia-pepalfa	peptide	P11111	PEPALFA	PEPALFA	2	Alpha peptide
+dia-p22222	protein	P22222				Gamma protein
+dia-p33333	protein	P33333				Shared protein
+dia-missing-protein	protein	P44444				Missing library protein

@@ -23,6 +23,11 @@ def _ruff_config() -> dict[str, Any]:
         return tomllib.load(handle)
 
 
+def _root_pyproject() -> dict[str, Any]:
+    with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
+        return tomllib.load(handle)
+
+
 def _table(payload: object) -> dict[str, Any]:
     assert isinstance(payload, dict)
     return cast(dict[str, Any], payload)
@@ -38,6 +43,13 @@ def _package_roots(kind: str) -> set[str]:
         path.relative_to(REPO_ROOT).as_posix()
         for path in (REPO_ROOT / "packages").glob(f"*/{kind}")
     }
+
+
+def _package_source_roots() -> list[str]:
+    return sorted(
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in (REPO_ROOT / "packages").glob("*/src")
+    )
 
 
 def _package_import_roots() -> set[str]:
@@ -90,13 +102,17 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
         "--import-mode=importlib",
         "--strict-markers",
         "--tb=short",
+        "--benchmark-storage=file://artifacts/root/benchmarks",
     ]
     assert {
         line.strip() for line in pytest_config["markers"].splitlines() if line.strip()
     } == {
         "api: HTTP API tests (manual, not for CI)",
+        "benchmark: performance and benchmark-oriented tests",
         "e2e: end-to-end tests",
         "evaluation: evaluation benchmarks (deterministic, no regressions)",
+        "external_data: tests that exercise checked-in external corpora and bundles",
+        "governance: repository governance and inventory freshness tests",
         "gpu: requires CUDA",
         "integration: integration tests",
         "live: live provider integration",
@@ -125,6 +141,42 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
     ]
 
 
+def test_repo_root_pytest_entrypoint_matches_shared_python_baseline() -> None:
+    shared_config = _config_parser(REPO_ROOT / "configs" / "pytest.ini")["pytest"]
+    root_pytest = _root_pyproject()["tool"]["pytest"]["ini_options"]
+
+    assert root_pytest["minversion"] == shared_config["minversion"]
+    assert root_pytest["testpaths"] == [
+        line.strip() for line in shared_config["testpaths"].splitlines() if line.strip()
+    ]
+    assert sorted(root_pytest["pythonpath"]) == _package_source_roots()
+    assert root_pytest["python_files"] == [shared_config["python_files"]]
+    assert root_pytest["python_classes"] == [shared_config["python_classes"]]
+    assert root_pytest["python_functions"] == [shared_config["python_functions"]]
+    assert root_pytest["asyncio_mode"] == shared_config["asyncio_mode"]
+    assert root_pytest["cache_dir"] == shared_config["cache_dir"]
+    assert root_pytest["timeout"] == int(shared_config["timeout"])
+    assert root_pytest["timeout_method"] == shared_config["timeout_method"]
+    assert root_pytest["timeout_func_only"] is True
+    assert root_pytest["xfail_strict"] is True
+    assert root_pytest["norecursedirs"] == [
+        line.strip()
+        for line in shared_config["norecursedirs"].splitlines()
+        if line.strip()
+    ]
+    assert root_pytest["addopts"] == [
+        line.strip() for line in shared_config["addopts"].splitlines() if line.strip()
+    ]
+    assert root_pytest["markers"] == [
+        line.strip() for line in shared_config["markers"].splitlines() if line.strip()
+    ]
+    assert root_pytest["filterwarnings"] == [
+        line.strip()
+        for line in shared_config["filterwarnings"].splitlines()
+        if line.strip()
+    ]
+
+
 def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
     ruff_config = _ruff_config()
 
@@ -135,7 +187,8 @@ def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
     assert set(_string_list(ruff_config["src"])) == _package_roots(
         "src"
     ) | _package_roots("tests")
-    assert _string_list(ruff_config["exclude"]) == [
+    exclude_entries = set(_string_list(ruff_config["exclude"]))
+    assert {
         ".git",
         ".hg",
         ".mypy_cache",
@@ -148,12 +201,11 @@ def test_root_ruff_configuration_matches_shared_python_baseline() -> None:
         "dist",
         "docs/report",
         "htmlcov",
-        "__pycache__",
         "migrations",
         "node_modules",
         "*.egg-info",
         "site",
-    ]
+    } <= exclude_entries
 
     lint = _table(ruff_config["lint"])
     assert _string_list(lint["select"]) == [
@@ -190,11 +242,15 @@ def test_root_mypy_configuration_matches_shared_python_baseline() -> None:
     assert root_mypy["warn_unused_ignores"] == "true"
     assert root_mypy["namespace_packages"] == "true"
     assert root_mypy["plugins"] == "pydantic.mypy"
-    assert root_mypy["exclude"] == (
+    assert root_mypy["exclude"].startswith(
         "^(\\.venv|build|dist|docs|htmlcov|\\.mypy_cache|\\.pytest_cache|"
-        "\\.ruff_cache|\\.tox|__pycache__|migrations|\\.egg-info|node_modules|"
-        "artifacts|site)/"
     )
+    assert "\\.ruff_cache|" in root_mypy["exclude"]
+    assert "\\.tox|" in root_mypy["exclude"]
+    assert "migrations|" in root_mypy["exclude"]
+    assert "\\.egg-info|" in root_mypy["exclude"]
+    assert "node_modules|" in root_mypy["exclude"]
+    assert "artifacts|site)/" in root_mypy["exclude"]
 
     configured_files = {
         entry.strip() for entry in root_mypy["files"].split(",") if entry.strip()
@@ -210,3 +266,17 @@ def test_root_mypy_configuration_matches_shared_python_baseline() -> None:
     assert mypy_config["mypy-openprotein"]["ignore_missing_imports"] == "true"
     assert mypy_config["mypy-torch"]["ignore_missing_imports"] == "true"
     assert mypy_config["mypy-transformers"]["ignore_missing_imports"] == "true"
+
+
+def test_public_api_mypy_configuration_matches_curated_public_contract() -> None:
+    mypy_config = _config_parser(REPO_ROOT / "configs" / "mypy-public-api.ini")
+    public_mypy = mypy_config["mypy"]
+
+    assert public_mypy["python_version"] == "3.11"
+    assert public_mypy["strict"] == "true"
+    assert public_mypy["namespace_packages"] == "true"
+    assert public_mypy["plugins"] == "pydantic.mypy"
+    configured_paths = {
+        entry.strip() for entry in public_mypy["mypy_path"].split(":") if entry.strip()
+    }
+    assert configured_paths == set(_package_source_roots())

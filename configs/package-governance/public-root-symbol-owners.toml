@@ -27,14 +27,99 @@ owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
 
 [[symbol]]
+name = "ComplexCoveragePolicy"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ComplexMembershipConfidence"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ComplexMembershipResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ComplexMembershipResolutionReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ComplexMembershipResolutionSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "CrossSpeciesOrthologAmbiguity"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "CrossSpeciesOrthologEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "CrossSpeciesOrthologEvidenceStatus"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "CrossSpeciesOrthologReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "CrossSpeciesOrthologSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
 name = "DigestPolicy"
 owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
 
 [[symbol]]
+name = "DiseaseTermResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "DiseaseTermResolutionReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "DiseaseTermResolutionSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
 name = "DocumentSchema"
 owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "DrugTargetRelationshipType"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "DrugTargetResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "DrugTargetResolutionReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "DrugTargetResolutionSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
 
 [[symbol]]
 name = "EvidenceBundle"
@@ -67,7 +152,87 @@ owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
 
 [[symbol]]
+name = "KinaseSubstrateMatchType"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoverageEntitySet"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoverageEntityType"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoverageEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoveragePolicy"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoverageReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "KnowledgeCoverageSummary"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
 name = "KnowledgeDecisionBrief"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayCoverageConfidenceEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayCoverageConfidenceStatus"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayCoveragePolicy"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayMembershipResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayMembershipResolutionReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "PathwayMembershipResolutionSummary"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
 
@@ -75,6 +240,31 @@ owner_import_root = "bijux_proteomics_knowledge"
 name = "ProgramId"
 owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "ProteinFeatureOverlapEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ProteinFeatureQueryInterval"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ProteinFeatureType"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ProteinIdResolutionEntry"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ProteinIdentityResolutionStatus"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
 
 [[symbol]]
 name = "RunManager"
@@ -85,6 +275,11 @@ owner_import_root = "bijux_proteomics_runtime"
 name = "TargetId"
 owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "belief_audit"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
 name = "build_advisory_assay_plan"
@@ -112,9 +307,24 @@ owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
+name = "claims"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
 name = "cli"
 owner_distribution_name = "bijux-proteomics-runtime"
 owner_import_root = "bijux_proteomics_runtime"
+
+[[symbol]]
+name = "compute_knowledge_coverage"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "contradictions"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
 name = "create_app"
@@ -125,6 +335,11 @@ owner_import_root = "bijux_proteomics_runtime"
 name = "evaluate_schema_compatibility"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "falsifiers"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
 name = "fingerprint_model"
@@ -167,6 +382,21 @@ owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
+name = "map_cross_species_orthologs"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "next_steps"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "overlap_protein_features"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
 name = "parse_experimental_design_table"
 owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
@@ -185,6 +415,91 @@ owner_import_root = "bijux_proteomics_lab"
 name = "posture"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "query"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "refusal"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "render_complex_membership_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_cross_species_ortholog_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_disease_term_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_drug_target_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_kinase_substrate_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_knowledge_coverage_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_pathway_membership_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_protein_feature_overlaps_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "render_protein_id_resolution_tsv"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_complex_members"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_disease_terms"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_drug_targets"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_kinase_substrates"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_pathway_members"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "resolve_protein_ids"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
 
 [[symbol]]
 name = "reviews"

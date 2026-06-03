@@ -1,10 +1,20 @@
 from __future__ import annotations
 
 from click.testing import CliRunner
-from fastapi.testclient import TestClient
 
+from bijux_proteomics_foundation.testing.skip_policy import (
+    SkipCategory,
+    import_or_skip,
+)
 from bijux_proteomics_runtime.api.app import app
 from bijux_proteomics_runtime.api.cli import cli
+
+fastapi_testclient = import_or_skip(
+    "fastapi.testclient",
+    category=SkipCategory.OPTIONAL_DEPENDENCY,
+    reason="httpx is required for the runtime fastapi interface surface",
+)
+TestClient = fastapi_testclient.TestClient
 
 
 def test_runtime_cli_identity_command() -> None:

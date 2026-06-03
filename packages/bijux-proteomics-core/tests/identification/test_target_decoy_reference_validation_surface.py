@@ -12,6 +12,9 @@ from bijux_proteomics.identification import (
     render_target_decoy_reference_entries_tsv,
     render_target_decoy_reference_summary_tsv,
 )
+from bijux_proteomics.identification.psm_target_decoy_fdr import (
+    build_psm_target_decoy_fdr_report,
+)
 
 
 def _identification_fixture(name: str) -> Path:
@@ -51,6 +54,13 @@ def test_target_decoy_reference_validation_matches_curated_cases() -> None:
     )
     assert lower.entries[0].observed_fdr == 0.0
     assert lower.entries[3].observed_accepted is False
+    direct_engine = build_psm_target_decoy_fdr_report(
+        cases[0].records,
+        threshold=cases[0].threshold,
+        score_orientation=cases[0].score_orientation,
+        tie_handling=cases[0].tie_handling,
+    )
+    assert higher.reproducibility_hash == direct_engine.reproducibility_hash
 
 
 def test_target_decoy_reference_validation_renders_summary_and_entry_ledgers() -> None:

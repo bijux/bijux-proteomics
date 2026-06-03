@@ -1,35 +1,372 @@
-# Curated public root API for bijux_proteomics_knowledge.
+# Generated bijux-proteomics-knowledge root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots
 
 [budget]
-max_public_symbols = 5
-max_init_lines = 22
+max_public_symbols = 61
+max_init_lines = 152
 
 [[symbol]]
 name = "EvidenceBundle"
 owner_module = "bijux_proteomics_knowledge.memory.models.evidence"
 classification = "shared_memory_anchor"
-rationale = "Evidence bundles are the smallest shared knowledge artifact that multiple packages exchange."
+rationale = "shared evidence-memory anchors remain stable across cross-package scientific review and handoff surfaces"
 
 [[symbol]]
 name = "EvidenceClaim"
 owner_module = "bijux_proteomics_knowledge.memory.models.claims"
 classification = "shared_memory_anchor"
-rationale = "Evidence claims are the canonical reviewable claim model for downstream decision layers."
+rationale = "shared claim-memory anchors remain stable across downstream decision, contradiction, and refusal workflows"
 
 [[symbol]]
 name = "EvidenceRecord"
 owner_module = "bijux_proteomics_knowledge.memory.models.evidence"
 classification = "shared_memory_anchor"
-rationale = "Evidence records are the reusable atomic memory payload across package boundaries."
+rationale = "shared evidence-memory anchors remain stable across cross-package scientific review and handoff surfaces"
+
+[[symbol]]
+name = "ComplexCoveragePolicy"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "ComplexMembershipConfidence"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "ComplexMembershipResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "ComplexMembershipResolutionReport"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "ComplexMembershipResolutionSummary"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "DiseaseTermResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.disease"
+classification = "disease_term_resolution_surface"
+rationale = "disease-term grounding is a stable public knowledge review surface for biological consequence reporting"
+
+[[symbol]]
+name = "DiseaseTermResolutionReport"
+owner_module = "bijux_proteomics_knowledge.disease"
+classification = "disease_term_resolution_surface"
+rationale = "disease-term grounding is a stable public knowledge review surface for biological consequence reporting"
+
+[[symbol]]
+name = "DiseaseTermResolutionSummary"
+owner_module = "bijux_proteomics_knowledge.disease"
+classification = "disease_term_resolution_surface"
+rationale = "disease-term grounding is a stable public knowledge review surface for biological consequence reporting"
+
+[[symbol]]
+name = "KnowledgeCoverageEntitySet"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "KnowledgeCoverageEntityType"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "KnowledgeCoverageEntry"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "KnowledgeCoveragePolicy"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "KnowledgeCoverageReport"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "KnowledgeCoverageSummary"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "CrossSpeciesOrthologAmbiguity"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "CrossSpeciesOrthologEntry"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "CrossSpeciesOrthologEvidenceStatus"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "CrossSpeciesOrthologReport"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "CrossSpeciesOrthologSummary"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "DrugTargetRelationshipType"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
+
+[[symbol]]
+name = "DrugTargetResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
+
+[[symbol]]
+name = "DrugTargetResolutionReport"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
+
+[[symbol]]
+name = "DrugTargetResolutionSummary"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
 
 [[symbol]]
 name = "KnowledgeDecisionBrief"
 owner_module = "bijux_proteomics_knowledge.reviews.decision_briefs"
 classification = "decision_brief_handoff"
-rationale = "Knowledge decision briefs are the main decision handoff surface built from curated memory."
+rationale = "knowledge decision briefs are the durable handoff packet from curated memory into downstream review and planning work"
+
+[[symbol]]
+name = "KinaseSubstrateMatchType"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionReport"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "KinaseSubstrateResolutionSummary"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "PathwayCoverageConfidenceEntry"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "PathwayCoverageConfidenceStatus"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "PathwayCoveragePolicy"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "PathwayMembershipResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "PathwayMembershipResolutionReport"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "PathwayMembershipResolutionSummary"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "ProteinFeatureOverlapEntry"
+owner_module = "bijux_proteomics_knowledge.features"
+classification = "protein_feature_resolution_surface"
+rationale = "protein feature overlap review is a stable knowledge-facing surface for interval-based biological grounding"
+
+[[symbol]]
+name = "ProteinFeatureQueryInterval"
+owner_module = "bijux_proteomics_knowledge.features"
+classification = "protein_feature_resolution_surface"
+rationale = "protein feature overlap review is a stable knowledge-facing surface for interval-based biological grounding"
+
+[[symbol]]
+name = "ProteinFeatureType"
+owner_module = "bijux_proteomics_knowledge.features"
+classification = "protein_feature_resolution_surface"
+rationale = "protein feature overlap review is a stable knowledge-facing surface for interval-based biological grounding"
+
+[[symbol]]
+name = "ProteinIdResolutionEntry"
+owner_module = "bijux_proteomics_knowledge.identity.proteins"
+classification = "protein_identity_resolution_surface"
+rationale = "protein identity resolution is a stable public knowledge task used before richer downstream annotation and evidence review"
+
+[[symbol]]
+name = "ProteinIdentityResolutionStatus"
+owner_module = "bijux_proteomics_knowledge.identity.proteins"
+classification = "protein_identity_resolution_surface"
+rationale = "protein identity resolution is a stable public knowledge task used before richer downstream annotation and evidence review"
 
 [[symbol]]
 name = "evaluate_schema_compatibility"
 owner_module = "bijux_proteomics_knowledge.contracts.schema"
 classification = "schema_contract"
-rationale = "Schema compatibility checks stay public so downstream packages can validate persisted knowledge artifacts."
+rationale = "schema compatibility checks stay public so downstream packages can validate persisted knowledge artifacts without reaching into internals"
+
+[[symbol]]
+name = "overlap_protein_features"
+owner_module = "bijux_proteomics_knowledge.features"
+classification = "protein_feature_resolution_surface"
+rationale = "protein feature overlap review is a stable knowledge-facing surface for interval-based biological grounding"
+
+[[symbol]]
+name = "render_complex_membership_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "render_disease_term_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.disease"
+classification = "disease_term_resolution_surface"
+rationale = "disease-term grounding is a stable public knowledge review surface for biological consequence reporting"
+
+[[symbol]]
+name = "render_drug_target_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
+
+[[symbol]]
+name = "render_kinase_substrate_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "render_knowledge_coverage_tsv"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "render_cross_species_ortholog_tsv"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "render_pathway_membership_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "render_protein_feature_overlaps_tsv"
+owner_module = "bijux_proteomics_knowledge.features"
+classification = "protein_feature_resolution_surface"
+rationale = "protein feature overlap review is a stable knowledge-facing surface for interval-based biological grounding"
+
+[[symbol]]
+name = "render_protein_id_resolution_tsv"
+owner_module = "bijux_proteomics_knowledge.identity.proteins"
+classification = "protein_identity_resolution_surface"
+rationale = "protein identity resolution is a stable public knowledge task used before richer downstream annotation and evidence review"
+
+[[symbol]]
+name = "compute_knowledge_coverage"
+owner_module = "bijux_proteomics_knowledge.coverage"
+classification = "knowledge_coverage_surface"
+rationale = "coverage reporting remains public because multiple downstream packages need one durable measure of scientific memory completeness"
+
+[[symbol]]
+name = "map_cross_species_orthologs"
+owner_module = "bijux_proteomics_knowledge.orthologs"
+classification = "cross_species_ortholog_surface"
+rationale = "cross-species ortholog resolution stays public because study comparison and transfer workflows need one stable grounding surface"
+
+[[symbol]]
+name = "resolve_complex_members"
+owner_module = "bijux_proteomics_knowledge.complexes"
+classification = "complex_membership_resolution_surface"
+rationale = "complex membership grounding stays public as a reusable biological-context resolution surface across review workflows"
+
+[[symbol]]
+name = "resolve_disease_terms"
+owner_module = "bijux_proteomics_knowledge.disease"
+classification = "disease_term_resolution_surface"
+rationale = "disease-term grounding is a stable public knowledge review surface for biological consequence reporting"
+
+[[symbol]]
+name = "resolve_drug_targets"
+owner_module = "bijux_proteomics_knowledge.drugs"
+classification = "drug_target_resolution_surface"
+rationale = "drug target grounding remains a public knowledge surface because it is a reusable downstream interpretation step"
+
+[[symbol]]
+name = "resolve_kinase_substrates"
+owner_module = "bijux_proteomics_knowledge.kinases"
+classification = "kinase_substrate_resolution_surface"
+rationale = "kinase-substrate grounding is a stable knowledge-facing review surface for PTM and signaling interpretation"
+
+[[symbol]]
+name = "resolve_pathway_members"
+owner_module = "bijux_proteomics_knowledge.pathways"
+classification = "pathway_membership_resolution_surface"
+rationale = "pathway membership grounding remains public because multiple biological consequence and comparison workflows depend on it directly"
+
+[[symbol]]
+name = "resolve_protein_ids"
+owner_module = "bijux_proteomics_knowledge.identity.proteins"
+classification = "protein_identity_resolution_surface"
+rationale = "protein identity resolution is a stable public knowledge task used before richer downstream annotation and evidence review"

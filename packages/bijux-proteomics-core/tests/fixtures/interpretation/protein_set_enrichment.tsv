@@ -1,0 +1,7 @@
+set_id	set_name	set_category	source_name	source_accession	protein_ref
+nucleus	Nuclear proteins	compartment	uniprot	SL-0191	P001
+nucleus	Nuclear proteins	compartment	uniprot	SL-0191	P004
+stress_panel	Stress panel	custom	curated	PANEL:stress	P001
+stress_panel	Stress panel	custom	curated	PANEL:stress	P002
+stress_panel	Stress panel	custom	curated	PANEL:stress	P003
+vesicle	Vesicle proteins	compartment	uniprot	SL-0103	P005

@@ -149,7 +149,19 @@ def test_replicate_and_batch_qc_report_surfaces_outlier_sample_context() -> None
         batch_shift_threshold=0.2,
     )
 
+    assert report.batch_effect_report.batches
+    assert report.replicate_correlation_report.entries
+    assert report.replicate_cv_report.entries
+    assert report.sample_pca_report is not None
+    assert report.condition_clustering_report is not None
     assert report.replicate_correlation_count >= 1
     assert report.flagged_batch_count >= 0
+    assert report.batch_effect_report.batch_variance_proxy >= 0.0
+    assert report.batch_effect_report.batch_associated_component_count >= 0
     assert len(report.outlier_samples) >= 1
     assert report.outlier_samples[0].spectra_file.endswith(".mzml")
+    assert all(
+        entry.outlier_reasons
+        for entry in report.sample_pca_report.entries
+        if entry.outlier
+    )

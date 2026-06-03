@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 62
+min_total_owner_domain_count = 88
 max_total_compatibility_surface_count = 0
 min_total_excluded_responsibility_count = 69
 
@@ -25,40 +25,40 @@ excluded_responsibilities = ["runtime product APIs", "canonical proteomics domai
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 import_root = "bijux_proteomics_foundation"
-owner_domains = ["compatibility", "identity", "outcomes", "serialization", "support"]
-public_modules = []
+owner_domains = ["compatibility", "identity", "outcomes", "serialization", "support", "testing"]
+public_modules = ["_package_aliases", "package_aliases", "public_api"]
 compatibility_surfaces = []
 excluded_responsibilities = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
 import_root = "bijux_proteomics"
-owner_domains = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
-public_modules = []
+owner_domains = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "panels", "proteoforms", "ptm", "quantification", "review", "sequences", "study", "targeted", "workflow"]
+public_modules = ["_atomic_files", "_output_tables", "_scientific_tables", "_tabular", "programs", "public_api", "scientific_tables", "tabular"]
 compatibility_surfaces = []
 excluded_responsibilities = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 import_root = "bijux_proteomics_runtime"
-owner_domains = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
-public_modules = []
+owner_domains = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "parallel", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
+public_modules = ["public_api"]
 compatibility_surfaces = []
 excluded_responsibilities = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 import_root = "bijux_proteomics_intelligence"
-owner_domains = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
-public_modules = []
+owner_domains = ["candidates", "claims", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+public_modules = ["belief_audit", "contradictions", "falsifiers", "next_steps", "public_api", "query", "refusal"]
 compatibility_surfaces = []
 excluded_responsibilities = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
-owner_domains = ["contracts", "governance", "memory", "references", "reviews"]
-public_modules = []
+owner_domains = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "pathways", "references", "reviews"]
+public_modules = ["public_api"]
 compatibility_surfaces = []
 excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
 
@@ -66,7 +66,7 @@ excluded_responsibilities = ["execution orchestration and runtime replay behavio
 distribution_name = "bijux-proteomics-lab"
 import_root = "bijux_proteomics_lab"
 owner_domains = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
-public_modules = []
+public_modules = ["public_api"]
 compatibility_surfaces = []
 excluded_responsibilities = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]
 
@@ -82,7 +82,7 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics"
 import_root = "proteomics"
 owner_domains = []
-public_modules = ["__main__", "cli", "runtime_alias"]
+public_modules = ["__main__", "cli"]
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
@@ -90,7 +90,7 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics-core"
 import_root = "proteomics_core"
 owner_domains = []
-public_modules = ["__main__", "cli", "runtime_alias"]
+public_modules = ["__main__", "cli"]
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
@@ -98,7 +98,7 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics-foundation"
 import_root = "proteomics_foundation"
 owner_domains = []
-public_modules = ["runtime_alias"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "product runtime behavior", "recommendation policy", "evidence-memory logic", "lab planning"]
 
@@ -106,7 +106,7 @@ excluded_responsibilities = ["evaluation artifacts", "product runtime behavior",
 distribution_name = "proteomics-runtime"
 import_root = "proteomics_runtime"
 owner_domains = []
-public_modules = ["__main__", "cli", "runtime_alias"]
+public_modules = ["__main__", "cli"]
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "recommendation policy", "evidence-memory logic", "lab planning"]
 
@@ -114,7 +114,7 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics-intelligence"
 import_root = "proteomics_intelligence"
 owner_domains = []
-public_modules = ["runtime_alias"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "evidence-memory logic", "lab planning"]
 
@@ -122,7 +122,7 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics-knowledge"
 import_root = "proteomics_knowledge"
 owner_domains = []
-public_modules = ["runtime_alias"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
@@ -130,6 +130,6 @@ excluded_responsibilities = ["evaluation artifacts", "scientific contract logic"
 distribution_name = "proteomics-lab"
 import_root = "proteomics_lab"
 owner_domains = []
-public_modules = ["runtime_alias"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "evidence-memory logic"]

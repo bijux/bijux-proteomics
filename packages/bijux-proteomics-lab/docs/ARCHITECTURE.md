@@ -54,6 +54,12 @@ constraints.
 - `governance/` owns the machine-readable lab charter and owner-map boundaries
   for operational planning, readiness, handoff, and reconciliation surfaces
 
+## Canonical tree layout
+
+- Import roots: `bijux_proteomics_lab`
+- Top-level families: `benchmarks/`, `design/`, `governance/`, `handoffs/`, `lifecycle/`, `outcomes/`, `planning/`, `readiness/`, `reconciliation/`
+- Root modules: `public_api.py`
+
 ## Dependency direction
 
 The package may depend on core, knowledge, and intelligence inputs to

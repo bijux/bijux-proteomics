@@ -1,0 +1,8 @@
+set_id	set_name	source_name	protein_ref
+activation	Activation program	curated	P001
+activation	Activation program	curated	P004
+activation	Activation program	curated	P999
+suppression	Suppression program	curated	P002
+suppression	Suppression program	curated	P003
+mixed	Mixed balance	curated	P001
+mixed	Mixed balance	curated	P002

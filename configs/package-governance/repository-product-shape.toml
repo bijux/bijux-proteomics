@@ -169,8 +169,8 @@ role_kind = "product"
 role_summary = "scientific memory, provenance, contradiction handling, and review state"
 docs_path = "docs/06-bijux-proteomics-knowledge/index.md"
 readme_path = "packages/bijux-proteomics-knowledge/README.md"
-allowed_outbound_imports = ["bijux-proteomics-foundation"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = ["scientific-review-bundle"]
 
 [[package]]
@@ -199,8 +199,8 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-core"
 docs_path = "packages/proteomics/README.md"
 readme_path = "packages/proteomics/README.md"
-allowed_outbound_imports = ["bijux-proteomics-core"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
@@ -209,8 +209,8 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-core"
 docs_path = "packages/proteomics-core/README.md"
 readme_path = "packages/proteomics-core/README.md"
-allowed_outbound_imports = ["bijux-proteomics-core"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
@@ -229,8 +229,8 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-runtime"
 docs_path = "packages/proteomics-runtime/README.md"
 readme_path = "packages/proteomics-runtime/README.md"
-allowed_outbound_imports = ["bijux-proteomics-runtime"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-runtime"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
@@ -239,8 +239,8 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-intelligence"
 docs_path = "packages/proteomics-intelligence/README.md"
 readme_path = "packages/proteomics-intelligence/README.md"
-allowed_outbound_imports = ["bijux-proteomics-intelligence"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
@@ -249,8 +249,8 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-knowledge"
 docs_path = "packages/proteomics-knowledge/README.md"
 readme_path = "packages/proteomics-knowledge/README.md"
-allowed_outbound_imports = ["bijux-proteomics-knowledge"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
@@ -259,6 +259,6 @@ role_kind = "alias"
 role_summary = "install and import alias for bijux-proteomics-lab"
 docs_path = "packages/proteomics-lab/README.md"
 readme_path = "packages/proteomics-lab/README.md"
-allowed_outbound_imports = ["bijux-proteomics-lab"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge"]
+allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-lab"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-core", "bijux-proteomics-runtime", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge"]
 owned_handoff_classes = []

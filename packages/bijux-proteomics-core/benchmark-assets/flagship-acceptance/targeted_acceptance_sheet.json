@@ -69,7 +69,7 @@
       "criterion_id": "targeted_follow_up_promotion",
       "dimension": "follow-up promotion",
       "evidence_paths": [
-        "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+        "packages/bijux-proteomics-lab/tests/benchmarks/test_benchmark_flagship_follow_up_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
       ],
       "note": "Targeted outsider trust depends on a supported raw-to-reviewed bundle so inflated handoffs stay caught and reconciled before any lab-facing promotion survives regeneration.",

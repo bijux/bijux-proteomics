@@ -25,6 +25,8 @@ def test_package_dependency_dossiers_capture_allowed_and_actual_edges() -> None:
         "bijux-proteomics-core",
         "bijux-proteomics-foundation",
         "bijux-proteomics-intelligence",
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-lab",
     )
     assert (
         "bijux-proteomics-runtime"

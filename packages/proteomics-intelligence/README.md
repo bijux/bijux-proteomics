@@ -35,11 +35,12 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`proteomics-intelligence` is the install and import alias for
-bijux-proteomics-intelligence.
+`proteomics-intelligence` is the compatibility alias for the canonical
+intelligence owner `bijux-proteomics-intelligence`.
+It is the install and import alias for bijux-proteomics-intelligence.
 
-Use this package when you want the canonical intelligence package under a
-shorter distribution and import name without changing recommendation ownership.
+Use this package when you want a shorter distribution and import name for the
+recommendation and review layer without creating a second owner.
 
 ## Installation
 
@@ -47,23 +48,118 @@ shorter distribution and import name without changing recommendation ownership.
 pip install proteomics-intelligence
 ```
 
-## Quick Start
+## Public APIs
+
+The alias forwards the canonical intelligence review surface through
+`proteomics_intelligence`:
 
 ```python
-from proteomics_intelligence import candidates, reviews
+from proteomics_intelligence import falsifiers
+from proteomics_knowledge import EvidenceClaim
+
+claim = EvidenceClaim(
+    claim_id="protein-claim:p11111",
+    target_id="protein:p11111",
+    statement="Protein PTM1 increased after treatment.",
+    subject="P11111",
+    relation="protein_abundance_change",
+    object="up",
+    direction="up",
+    claim_type="biomarker",
+    evidence_ids=["evidence:1"],
+    status="supported",
+    polarity="supporting",
+    resolution_state="open",
+    evidence_state="supported",
+)
+items = falsifiers.generate_falsifiers(claim)
+
+assert items.summary.claim_count == 1
+assert items.entries[0].claim_id == claim.claim_id
 ```
 
-## Route To Canonical Docs
+## Package identity
+
+- Distribution name: `proteomics-intelligence`
+- Import root: `proteomics_intelligence`
+- Canonical owner package: `bijux-proteomics-intelligence`
+- Canonical owner import root: `bijux_proteomics_intelligence`
+
+## Package boundaries
+
+- this package owns compatibility naming for the intelligence surface
+- recommendation logic, scientific support, and claim review remain owned by
+  `bijux-proteomics-intelligence`
+- new review behavior must land in the canonical owner before alias exports
+  change
+
+## What this package must not do
+
+- define a second recommendation or review-policy owner
+- drift away from canonical intelligence semantics
+- become an independent release surface for intelligence behavior
+
+## Contract checkpoints
+
+- alias exports must keep forwarding to canonical intelligence behavior
+- docs must keep the canonical intelligence owner explicit
+- compatibility changes must stay covered by alias-package tests
+
+## Choose this package when
+
+- you need a shorter import and distribution name for intelligence entrypoints
+- migration constraints prefer `proteomics_intelligence`
+- packaging or compatibility work needs a named alias for the intelligence
+  owner
+
+## Route elsewhere when
+
+- the change alters recommendation, falsifier, or review semantics
+- the work adds behavior that is not already owned by the canonical package
+- the alias would stop being forwarding-only
+
+## Verification route
+
+- run alias compatibility tests before changing intelligence imports or
+  metadata
+- review `docs/ARCHITECTURE.md`, `docs/BOUNDARIES.md`, and `docs/CONTRACTS.md`
+  when alias claims or routing language change
+- validate the canonical intelligence README and tests when behavior changes
+  are proposed
+
+## Review questions
+
+- does the change preserve this package as an alias only
+- is the canonical intelligence owner still explicit in docs and behavior
+- would the same outcome remain correct if consumers imported the canonical
+  intelligence package directly
+
+## Escalation route
+
+- route intelligence behavior changes to `bijux-proteomics-intelligence`
+- stop and review boundaries when package-local review semantics start
+  appearing
+- escalate before release when routing or metadata drift could confuse the
+  intelligence owner
+
+## Consumer impact signals
+
+- import-path or package-name changes are high-impact because downstream review
+  code may depend on them directly
+- alias documentation changes should still be reviewed against the canonical
+  intelligence owner
+- wording-only clarifications carry lower release risk than routing or behavior
+  changes
+
+## Explicit non-goals
+
+- this package does not own knowledge curation, runtime delivery, or lab policy
+- this package does not create a second recommendation engine
+- this package does not replace the canonical intelligence release surface
+
+## Documentation
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- [Intelligence package handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-
-## Boundary
-
-This package is a naming alias only. It does not create a second
-recommendation owner or review posture surface.
-
-## Changelog
-
+- [Canonical intelligence package docs](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
 - [Changelog](CHANGELOG.md)

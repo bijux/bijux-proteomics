@@ -9,12 +9,19 @@ from importlib import import_module
 from types import ModuleType
 
 __all__ = [
+    "belief_audit",
     "candidates",
+    "claims",
+    "contradictions",
+    "falsifiers",
     "governance",
     "interpretation",
     "judgment",
     "learning",
+    "next_steps",
     "posture",
+    "query",
+    "refusal",
     "reviews",
 ]
 _INTELLIGENCE_ROOT_MODULES = {name: f"{__name__}.{name}" for name in __all__}

@@ -1,0 +1,7 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+C1	control	1	1	raw_C1.mzml	raw_C1.psm.tsv	batch-a	orbitrap-a	fragpipe
+C2	control	2	1	raw_C2.mzml	raw_C2.psm.tsv	batch-b	orbitrap-b	fragpipe
+C3	control	3	1	raw_C3.mzml	raw_C3.psm.tsv	batch-c	orbitrap-c	fragpipe
+T1	treatment	1	1	raw_T1.mzml	raw_T1.psm.tsv	batch-a	orbitrap-a	fragpipe
+T2	treatment	2	1	raw_T2.mzml	raw_T2.psm.tsv	batch-b	orbitrap-b	fragpipe
+T3	treatment	3	1	raw_T3.mzml	raw_T3.psm.tsv	batch-c	orbitrap-c	fragpipe

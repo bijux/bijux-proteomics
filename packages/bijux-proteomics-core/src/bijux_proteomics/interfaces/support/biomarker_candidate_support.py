@@ -1,0 +1,1612 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+# ruff: noqa: F401,F403,F405
+
+"""Biomarker candidate scoring helpers shared by CLI command modules."""
+
+from __future__ import annotations
+
+from bijux_proteomics.domain.semantic_ids import build_protein_id, build_site_id
+from bijux_proteomics.io.tables import (
+    DelimitedLookupJoinSpec,
+    iter_delimited_rows,
+    iter_streaming_lookup_join,
+)
+
+from .imports import *  # noqa: F401,F403
+from .targeted_selection_io import (
+    _parse_cli_bool,
+    _read_summary_field_map,
+    _require_report_artifact,
+    _split_semicolon_field,
+)
+
+
+def _build_biomarker_candidates_from_biological_report_dir(
+    report_dir: Path,
+    *,
+    selected_peptide_support: dict[str, dict[str, float]] | None,
+    assay_interference_support: dict[str, dict[str, float | bool]] | None,
+) -> tuple[tuple[BiomarkerCandidateRankingInput, ...], float]:
+    summary_path = _require_report_artifact(
+        report_dir,
+        "biological_report_summary.tsv",
+        description="biological report directory",
+    )
+    card_path = _require_report_artifact(
+        report_dir,
+        "biological_protein_cards.tsv",
+        description="biological report directory",
+    )
+    differential_path = _require_report_artifact(
+        report_dir,
+        "biological_differential.tsv",
+        description="biological report directory",
+    )
+    summary_fields = _read_summary_field_map(
+        summary_path,
+        description="biological report summary TSV",
+    )
+    sample_qc_score = float(summary_fields.get("experiment_confidence_score", "0.5"))
+    candidates: list[BiomarkerCandidateRankingInput] = []
+    required_columns = (
+        "card_id",
+        "protein_group_id",
+        "representative_protein_ref",
+        "gene_symbol",
+        "identity_level",
+        "unique_peptide_count",
+        "shared_peptide_count",
+        "evidence_tier",
+        "pathway_ids",
+        "context_ids",
+        "functional_regions",
+        "proteogenomic_support_class",
+        "ptm_sites",
+        "warning_codes",
+    )
+    lookup_specs = (
+        DelimitedLookupJoinSpec(
+            join_name="differential",
+            path=differential_path,
+            primary_key_columns=("protein_group_id",),
+            lookup_key_columns=("entity_id",),
+            required_lookup_columns=(
+                "entity_id",
+                "log2_fold_change",
+                "adjusted_p_value",
+                "robustness_score",
+            ),
+        ),
+    )
+    for joined in iter_streaming_lookup_join(
+        card_path,
+        lookup_specs=lookup_specs,
+        required_primary_columns=required_columns,
+    ):
+        row_number = joined.row_number
+        row = joined.primary_row
+        try:
+            protein_group_id = str(row.get("protein_group_id", "")).strip()
+            differential_row = _require_joined_row(
+                joined.joined_rows["differential"],
+                row_label=f"protein_group_id {protein_group_id!r}",
+                join_name="biological differential",
+            )
+            differential_entry = _parse_biological_differential_row(
+                differential_row,
+                row_number=row_number,
+                path_name=differential_path.name,
+            )
+            protein_ref = str(row.get("representative_protein_ref", "")).strip()
+            selected_support = (
+                {}
+                if selected_peptide_support is None
+                else selected_peptide_support.get(protein_ref, {})
+            )
+            assay_support = (
+                {}
+                if assay_interference_support is None
+                else assay_interference_support.get(protein_ref, {})
+            )
+            unique_count = int(str(row.get("unique_peptide_count", "")).strip())
+            shared_count = int(str(row.get("shared_peptide_count", "")).strip())
+            annotation_labels = tuple(
+                label
+                for label in (
+                    _split_semicolon_field(row.get("pathway_ids", ""))
+                    + _split_semicolon_field(row.get("context_ids", ""))
+                    + _split_semicolon_field(row.get("functional_regions", ""))
+                    + _split_semicolon_field(row.get("ptm_sites", ""))
+                )
+                if label
+            )
+            proteogenomic_support_class = str(
+                row.get("proteogenomic_support_class", "")
+            ).strip()
+            if proteogenomic_support_class:
+                annotation_labels += (f"proteogenomic:{proteogenomic_support_class}",)
+            annotation_score = _score_annotation_labels(annotation_labels)
+            specificity_score = _score_protein_specificity(
+                unique_count=unique_count,
+                shared_count=shared_count,
+                identity_level=str(row.get("identity_level", "")).strip(),
+                selected_uniqueness_score=float(
+                    selected_support.get("uniqueness_score", 0.0)
+                ),
+            )
+            detectability_score = _score_protein_detectability(
+                selected_detectability_score=float(
+                    selected_support.get("detectability_score", 0.0)
+                ),
+                unique_count=unique_count,
+                evidence_tier=str(row.get("evidence_tier", "")).strip(),
+            )
+            assay_feasibility_score = _score_protein_assay_feasibility(
+                selected_suitability_score=float(
+                    selected_support.get("suitability_score", 0.0)
+                ),
+                detectability_score=detectability_score,
+                assay_score=float(assay_support.get("assay_score", 0.0)),
+            )
+            support_count = max(unique_count, unique_count + shared_count)
+            display_label = (
+                value
+                if (value := str(row.get("gene_symbol", "")).strip())
+                else protein_ref
+            )
+            candidates.append(
+                BiomarkerCandidateRankingInput(
+                    candidate_id=build_protein_id(protein_group_id),
+                    candidate_kind=BiomarkerCandidateKind.PROTEIN,
+                    display_label=display_label,
+                    target_protein_ref=protein_ref,
+                    effect_size=differential_entry["log2_fold_change"],
+                    adjusted_p_value=differential_entry["adjusted_p_value"],
+                    support_count=support_count,
+                    effect_score=_score_effect_size(
+                        differential_entry["log2_fold_change"]
+                    ),
+                    robustness_score=differential_entry["robustness_score"],
+                    detectability_score=detectability_score,
+                    specificity_score=specificity_score,
+                    annotation_score=annotation_score,
+                    assay_feasibility_score=assay_feasibility_score,
+                    sample_qc_score=sample_qc_score,
+                    annotation_labels=annotation_labels,
+                    source_ids=(
+                        str(row.get("card_id", "")).strip(),
+                        protein_group_id,
+                    ),
+                    note=(
+                        "protein candidate ranking combines biological differential evidence "
+                        "with targeted detectability and interference readiness"
+                    ),
+                )
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise click.ClickException(
+                f"invalid biological protein-card row {row_number} in {card_path.name!r}: {exc}"
+            ) from exc
+    return tuple(candidates), sample_qc_score
+
+
+def _load_biological_differential_rows(
+    path: Path,
+) -> dict[str, dict[str, float | None]]:
+    rows: dict[str, dict[str, float | None]] = {}
+    try:
+        for row_number, row in iter_delimited_rows(
+            path,
+            required_columns=(
+                "entity_id",
+                "log2_fold_change",
+                "adjusted_p_value",
+                "robustness_score",
+            ),
+        ):
+            rows[str(row.get("entity_id", "")).strip()] = (
+                _parse_biological_differential_row(
+                    row,
+                    row_number=row_number,
+                    path_name=path.name,
+                )
+            )
+    except ValueError as exc:
+        raise click.ClickException(
+            "biological differential TSV is missing required columns for biomarker candidate ranking: "
+            + str(exc)
+        ) from exc
+    return rows
+
+
+def _build_biomarker_candidates_from_ptm_report_dir(
+    report_dir: Path,
+    *,
+    sample_qc_score: float | None,
+) -> tuple[BiomarkerCandidateRankingInput, ...]:
+    card_path = _require_report_artifact(
+        report_dir,
+        "ptm_evidence_cards.tsv",
+        description="ptm report directory",
+    )
+    differential_path = _require_report_artifact(
+        report_dir,
+        "ptm_differential.tsv",
+        description="ptm report directory",
+    )
+    active_sample_qc_score = 0.60 if sample_qc_score is None else sample_qc_score
+    candidates: list[BiomarkerCandidateRankingInput] = []
+    required_columns = (
+        "card_id",
+        "site_key",
+        "protein_ref",
+        "residue",
+        "position",
+        "modification_name",
+        "identity_level",
+        "localization_tier",
+        "mechanism_class",
+        "peptide_spectrum_count",
+        "observed_sample_count",
+        "centered_windows",
+        "ortholog_conservation_status",
+        "functional_regions",
+        "regulators",
+        "warning_codes",
+    )
+    lookup_specs = (
+        DelimitedLookupJoinSpec(
+            join_name="ptm_differential",
+            path=differential_path,
+            primary_key_columns=("site_key",),
+            lookup_key_columns=("site_key",),
+            required_lookup_columns=(
+                "site_key",
+                "low_localization",
+                "ambiguous",
+                "shared_peptide",
+                "log2_fold_change",
+                "adjusted_p_value",
+                "imputation_dependent_hit",
+                "protein_correction_status",
+            ),
+        ),
+    )
+    for joined in iter_streaming_lookup_join(
+        card_path,
+        lookup_specs=lookup_specs,
+        required_primary_columns=required_columns,
+    ):
+        row_number = joined.row_number
+        row = joined.primary_row
+        try:
+            site_key = str(row.get("site_key", "")).strip()
+            differential_row = _require_joined_row(
+                joined.joined_rows["ptm_differential"],
+                row_label=f"site_key {site_key!r}",
+                join_name="PTM differential",
+            )
+            differential_entry = _parse_ptm_differential_row(
+                differential_row,
+                row_number=row_number,
+                path_name=differential_path.name,
+            )
+            annotation_labels = tuple(
+                label
+                for label in (
+                    _split_semicolon_field(row.get("centered_windows", ""))
+                    + _split_semicolon_field(row.get("functional_regions", ""))
+                    + _split_semicolon_field(row.get("regulators", ""))
+                )
+                if label
+            )
+            ortholog_status = str(row.get("ortholog_conservation_status", "")).strip()
+            if ortholog_status:
+                annotation_labels += (f"ortholog:{ortholog_status}",)
+            mechanism_class = str(row.get("mechanism_class", "")).strip()
+            if mechanism_class:
+                annotation_labels += (f"mechanism:{mechanism_class}",)
+            peptide_spectrum_count = int(
+                str(row.get("peptide_spectrum_count", "")).strip()
+            )
+            observed_sample_count = int(
+                str(row.get("observed_sample_count", "")).strip()
+            )
+            specificity_score = _score_ptm_specificity(
+                localization_tier=str(row.get("localization_tier", "")).strip(),
+                identity_level=str(row.get("identity_level", "")).strip(),
+                low_localization=bool(differential_entry["low_localization"]),
+                ambiguous=bool(differential_entry["ambiguous"]),
+                shared_peptide=bool(differential_entry["shared_peptide"]),
+            )
+            detectability_score = _score_ptm_detectability(
+                peptide_spectrum_count=peptide_spectrum_count,
+                observed_sample_count=observed_sample_count,
+            )
+            assay_feasibility_score = _score_ptm_assay_feasibility(
+                specificity_score=specificity_score,
+                warning_count=len(_split_semicolon_field(row.get("warning_codes", ""))),
+                protein_correction_status=str(
+                    differential_entry["protein_correction_status"]
+                ),
+            )
+            display_label = (
+                f"{row.get('protein_ref', '')} "
+                f"{row.get('residue', '')}{row.get('position', '')} "
+                f"{row.get('modification_name', '')}"
+            ).strip()
+            effect_size_raw = differential_entry["log2_fold_change"]
+            adjusted_p_value_raw = differential_entry["adjusted_p_value"]
+            if not isinstance(effect_size_raw, int | float):
+                raise TypeError("PTM differential log2_fold_change must be numeric")
+            if adjusted_p_value_raw is not None and not isinstance(
+                adjusted_p_value_raw, int | float
+            ):
+                raise TypeError("PTM differential adjusted_p_value must be numeric")
+            effect_size = float(effect_size_raw)
+            adjusted_p_value = (
+                None if adjusted_p_value_raw is None else float(adjusted_p_value_raw)
+            )
+            candidates.append(
+                BiomarkerCandidateRankingInput(
+                    candidate_id=build_site_id(
+                        str(row.get("protein_ref", "")).strip(),
+                        str(row.get("residue", "")).strip(),
+                        int(str(row.get("position", "")).strip()),
+                        str(row.get("modification_name", "")).strip(),
+                    ),
+                    candidate_kind=BiomarkerCandidateKind.PTM_SITE,
+                    display_label=display_label,
+                    target_protein_ref=str(row.get("protein_ref", "")).strip(),
+                    site_key=site_key,
+                    effect_size=effect_size,
+                    adjusted_p_value=adjusted_p_value,
+                    support_count=peptide_spectrum_count,
+                    effect_score=_score_effect_size(effect_size),
+                    robustness_score=_score_ptm_robustness(
+                        adjusted_p_value=adjusted_p_value,
+                        imputation_dependent=bool(
+                            differential_entry["imputation_dependent_hit"]
+                        ),
+                        low_localization=bool(differential_entry["low_localization"]),
+                        ambiguous=bool(differential_entry["ambiguous"]),
+                    ),
+                    detectability_score=detectability_score,
+                    specificity_score=specificity_score,
+                    annotation_score=_score_annotation_labels(annotation_labels),
+                    assay_feasibility_score=assay_feasibility_score,
+                    sample_qc_score=active_sample_qc_score,
+                    annotation_labels=annotation_labels,
+                    source_ids=(str(row.get("card_id", "")).strip(), site_key),
+                    note=(
+                        "PTM candidate ranking combines site differential evidence, "
+                        "localization specificity, and validation practicality"
+                    ),
+                )
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise click.ClickException(
+                f"invalid PTM evidence-card row {row_number} in {card_path.name!r}: {exc}"
+            ) from exc
+    return tuple(candidates)
+
+
+def _load_ptm_differential_rows(
+    path: Path,
+) -> dict[str, dict[str, float | str | bool | None]]:
+    rows: dict[str, dict[str, float | str | bool | None]] = {}
+    try:
+        for row_number, row in iter_delimited_rows(
+            path,
+            required_columns=(
+                "site_key",
+                "low_localization",
+                "ambiguous",
+                "shared_peptide",
+                "log2_fold_change",
+                "adjusted_p_value",
+                "imputation_dependent_hit",
+                "protein_correction_status",
+            ),
+        ):
+            rows[str(row.get("site_key", "")).strip()] = _parse_ptm_differential_row(
+                row,
+                row_number=row_number,
+                path_name=path.name,
+            )
+    except ValueError as exc:
+        raise click.ClickException(
+            "ptm differential TSV is missing required columns for biomarker candidate ranking: "
+            + str(exc)
+        ) from exc
+    return rows
+
+
+def _require_joined_row(
+    rows: tuple[dict[str, str], ...],
+    *,
+    row_label: str,
+    join_name: str,
+) -> dict[str, str]:
+    if not rows:
+        raise ValueError(f"no {join_name} row matched {row_label}")
+    return rows[0]
+
+
+def _parse_biological_differential_row(
+    row: dict[str, str],
+    *,
+    row_number: int,
+    path_name: str,
+) -> dict[str, float | None]:
+    try:
+        return {
+            "log2_fold_change": float(str(row.get("log2_fold_change", "")).strip()),
+            "adjusted_p_value": (
+                None
+                if not str(row.get("adjusted_p_value", "")).strip()
+                else float(str(row.get("adjusted_p_value", "")).strip())
+            ),
+            "robustness_score": float(str(row.get("robustness_score", "")).strip()),
+        }
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(
+            f"invalid biological differential row {row_number} in {path_name!r}: {exc}"
+        ) from exc
+
+
+def _parse_ptm_differential_row(
+    row: dict[str, str],
+    *,
+    row_number: int,
+    path_name: str,
+) -> dict[str, float | str | bool | None]:
+    try:
+        return {
+            "low_localization": _parse_cli_bool(
+                row.get("low_localization", ""),
+                field_name="low_localization",
+            ),
+            "ambiguous": _parse_cli_bool(
+                row.get("ambiguous", ""),
+                field_name="ambiguous",
+            ),
+            "shared_peptide": _parse_cli_bool(
+                row.get("shared_peptide", ""),
+                field_name="shared_peptide",
+            ),
+            "log2_fold_change": float(str(row.get("log2_fold_change", "")).strip()),
+            "adjusted_p_value": (
+                None
+                if not str(row.get("adjusted_p_value", "")).strip()
+                else float(str(row.get("adjusted_p_value", "")).strip())
+            ),
+            "imputation_dependent_hit": _parse_cli_bool(
+                row.get("imputation_dependent_hit", ""),
+                field_name="imputation_dependent_hit",
+            ),
+            "protein_correction_status": str(
+                row.get("protein_correction_status", "")
+            ).strip(),
+        }
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(
+            f"invalid PTM differential row {row_number} in {path_name!r}: {exc}"
+        ) from exc
+
+
+def _score_effect_size(log2_fold_change: float | None) -> float:
+    if log2_fold_change is None:
+        return 0.0
+    return max(0.0, min(1.0, abs(log2_fold_change) / 2.0))
+
+
+def _score_annotation_labels(annotation_labels: tuple[str, ...]) -> float:
+    if not annotation_labels:
+        return 0.0
+    prefixes = {
+        label.split(":", 1)[0] if ":" in label else label for label in annotation_labels
+    }
+    return max(0.0, min(1.0, len(prefixes) / 4.0))
+
+
+def _score_protein_specificity(
+    *,
+    unique_count: int,
+    shared_count: int,
+    identity_level: str,
+    selected_uniqueness_score: float,
+) -> float:
+    peptide_total = max(1, unique_count + shared_count)
+    unique_fraction = unique_count / peptide_total
+    base = max(unique_fraction, selected_uniqueness_score)
+    identity_adjustment = {
+        "isoform_level": 0.10,
+        "protein_level": 0.0,
+        "gene_level": -0.15,
+        "family_level": -0.25,
+        "ambiguous": -0.35,
+    }.get(identity_level, 0.0)
+    return max(0.0, min(1.0, base + identity_adjustment))
+
+
+def _score_protein_detectability(
+    *,
+    selected_detectability_score: float,
+    unique_count: int,
+    evidence_tier: str,
+) -> float:
+    tier_score = {
+        "high": 0.90,
+        "moderate": 0.65,
+        "low": 0.35,
+        "warning": 0.25,
+    }.get(evidence_tier, 0.40)
+    return max(
+        0.0,
+        min(
+            1.0,
+            max(selected_detectability_score, 0.50 * min(1.0, unique_count / 2.0))
+            + (0.25 * tier_score),
+        ),
+    )
+
+
+def _score_protein_assay_feasibility(
+    *,
+    selected_suitability_score: float,
+    detectability_score: float,
+    assay_score: float,
+) -> float:
+    baseline = max(selected_suitability_score, 0.60 * detectability_score)
+    if assay_score > 0.0:
+        baseline = (0.45 * baseline) + (0.55 * assay_score)
+    return max(0.0, min(1.0, baseline))
+
+
+def _score_ptm_specificity(
+    *,
+    localization_tier: str,
+    identity_level: str,
+    low_localization: bool,
+    ambiguous: bool,
+    shared_peptide: bool,
+) -> float:
+    base = {
+        "high": 0.90,
+        "moderate": 0.65,
+        "low": 0.30,
+        "unsupported": 0.10,
+    }.get(localization_tier, 0.40)
+    if low_localization:
+        base -= 0.20
+    if ambiguous:
+        base -= 0.15
+    if shared_peptide:
+        base -= 0.15
+    if identity_level in {"gene_level", "family_level", "ambiguous"}:
+        base -= 0.10
+    return max(0.0, min(1.0, base))
+
+
+def _score_ptm_detectability(
+    *,
+    peptide_spectrum_count: int,
+    observed_sample_count: int,
+) -> float:
+    return max(
+        0.0,
+        min(
+            1.0,
+            (0.60 * min(1.0, peptide_spectrum_count / 5.0))
+            + (0.40 * min(1.0, observed_sample_count / 4.0)),
+        ),
+    )
+
+
+def _score_ptm_assay_feasibility(
+    *,
+    specificity_score: float,
+    warning_count: int,
+    protein_correction_status: str,
+) -> float:
+    score = 0.70 * specificity_score
+    if protein_correction_status == "corrected":
+        score += 0.10
+    score -= min(0.20, 0.05 * warning_count)
+    return max(0.0, min(1.0, score))
+
+
+def _score_ptm_robustness(
+    *,
+    adjusted_p_value: float | None,
+    imputation_dependent: bool,
+    low_localization: bool,
+    ambiguous: bool,
+) -> float:
+    if adjusted_p_value is None:
+        score = 0.25
+    else:
+        score = max(0.0, min(1.0, 1.0 - (adjusted_p_value / 0.10)))
+    if imputation_dependent:
+        score -= 0.20
+    if low_localization:
+        score -= 0.15
+    if ambiguous:
+        score -= 0.10
+    return max(0.0, min(1.0, score))
+
+
+def _load_biomarker_candidate_inputs(
+    path: Path,
+) -> tuple[TargetedPanelBiomarkerCandidateInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "biomarker-candidate TSV must include a header row for targeted panel building"
+            )
+        required_columns = {
+            "candidate_id",
+            "candidate_kind",
+            "display_label",
+            "target_protein_ref",
+            "site_key",
+            "priority_rank",
+            "final_score",
+            "penalty_total",
+            "rank_reason_codes",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "biomarker-candidate TSV is missing required columns for targeted panel building: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[TargetedPanelBiomarkerCandidateInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                rows.append(
+                    TargetedPanelBiomarkerCandidateInput(
+                        candidate_id=str(row.get("candidate_id", "")).strip(),
+                        candidate_kind=TargetedPanelCandidateKind(
+                            str(row.get("candidate_kind", "")).strip()
+                        ),
+                        display_label=str(row.get("display_label", "")).strip(),
+                        target_protein_ref=str(
+                            row.get("target_protein_ref", "")
+                        ).strip(),
+                        site_key=(
+                            None
+                            if not str(row.get("site_key", "")).strip()
+                            else str(row.get("site_key", "")).strip()
+                        ),
+                        priority_rank=int(str(row.get("priority_rank", "")).strip()),
+                        final_score=float(str(row.get("final_score", "")).strip()),
+                        penalty_total=float(str(row.get("penalty_total", "")).strip()),
+                        rank_reason_codes=_split_semicolon_field(
+                            row.get("rank_reason_codes", "")
+                        ),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid biomarker-candidate row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+__all__ = [
+    "Any",
+    "BiologicalContextColumnMapping",
+    "BiologicalContextKind",
+    "BiomarkerCandidateKind",
+    "BiomarkerCandidateRankingInput",
+    "BiomarkerStabilityPolicy",
+    "BiomarkerStabilityReasonCode",
+    "CompartmentBiologyPolicy",
+    "ComplexActivityPolicy",
+    "ComplexEnrichmentCorrectionPolicy",
+    "ComplexMembershipColumnMapping",
+    "CrossRunReproducibilityClass",
+    "DecoyGenerationMode",
+    "DelimitedLookupJoinSpec",
+    "DiaPeptideRollupMethod",
+    "DiaPrecursorMatrixPolicy",
+    "DiaPrecursorQValueFilterTiming",
+    "DiaProteinMatrixTargetKind",
+    "DiaProteinRollupMethod",
+    "DiaSharedPeptidePolicy",
+    "DifferentialAbundanceTestType",
+    "DiscoveryTargetProteinEntry",
+    "DiscoveryTargetedPeptideSelectionEntry",
+    "DiseasePhenotypeInterpretationPolicy",
+    "DrugTargetInterpretationPolicy",
+    "DuplicateAccessionPolicy",
+    "ExperimentalDesignEntry",
+    "FailureExplanationRequest",
+    "FastaDatabaseProfile",
+    "FastaParseMode",
+    "FastaParseReport",
+    "FdrPolicy",
+    "FormatConversionTarget",
+    "FragmentIonSeries",
+    "GoAnnotationColumnMapping",
+    "GoEnrichmentCorrectionPolicy",
+    "HeatmapMissingValuePolicy",
+    "HeatmapPreparationPolicy",
+    "ImputationMethod",
+    "IsotopicLabelingPolicy",
+    "ModificationRegistryDocument",
+    "Ms1FeatureColumnMapping",
+    "NormalizationMethod",
+    "NormalizedProteinRecord",
+    "OrthologColumnMapping",
+    "PairedDifferentialPolicy",
+    "PanelRedundancyCandidateInput",
+    "PanelRedundancyPolicy",
+    "ParsimonyVariant",
+    "Path",
+    "PathwayActivityPolicy",
+    "PathwayEnrichmentCorrectionPolicy",
+    "PathwayMembershipColumnMapping",
+    "PeptideChemicalLiabilityTier",
+    "PeptideDetectabilityTier",
+    "PeptideDigestionMode",
+    "PeptideEvidenceClass",
+    "PeptideEvidenceEntry",
+    "PeptideMatrixGroupingMode",
+    "PeptideUniquenessClass",
+    "PowerEstimationPolicy",
+    "PpiEdgeColumnMapping",
+    "PrecursorIntensityColumnMapping",
+    "PrecursorMassErrorQuery",
+    "ProgramSpec",
+    "ProteaseRule",
+    "ProteinAnnotationColumnMapping",
+    "ProteinMatrixTargetKind",
+    "ProteinReferenceColumnMapping",
+    "ProteinReferenceEntry",
+    "ProteinSetColumnMapping",
+    "ProteinSetEnrichmentMissingBackgroundPolicy",
+    "ProteinSetEnrichmentPolicy",
+    "ProteinSetScoringPolicy",
+    "ProteomicsFormatKind",
+    "ProteomicsOperatorError",
+    "ProteomicsOperatorErrorCode",
+    "PsmRecord",
+    "PtmLocalizationColumnMapping",
+    "PtmMotifBackgroundMode",
+    "PtmMotifComparisonPolicy",
+    "PtmMotifRegulationDirection",
+    "PtmPeptideColumnMapping",
+    "PtmPhosphositeSelectionPolicy",
+    "PtmProteinCorrectionMode",
+    "PtmRegulatorEnrichmentPolicy",
+    "PtmSiteAnnotationColumnMapping",
+    "PtmSiteContextColumnMapping",
+    "PtmSiteQuantAmbiguityPolicy",
+    "QcEvidenceInputFile",
+    "QuantEntityLevel",
+    "QuantMeasureKind",
+    "QuantRollupMethod",
+    "RegulatorEvidenceColumnMapping",
+    "RegulatorSiteSignalColumnMapping",
+    "ResultExplanationKind",
+    "ResultExplanationRequest",
+    "ResultQueryKind",
+    "ResultQueryRequest",
+    "RunDetectionContext",
+    "ScoreOrientation",
+    "SearchAdapterKind",
+    "SearchEngineModifiedPeptideDialect",
+    "SearchResultColumnMapping",
+    "SilacColumnMapping",
+    "SilacLabel",
+    "SilacQuantificationPolicy",
+    "SilacValidationPolicy",
+    "SpectralLibraryEntry",
+    "SpectralLibraryFormat",
+    "SpectralSimilarityMethod",
+    "SpectrumModel",
+    "SpectrumSimilarityMode",
+    "StaticModification",
+    "TargetDecoyContaminantClass",
+    "TargetDecoyLabel",
+    "TargetDecoyLabelPolicy",
+    "TargetDecoyReferenceCase",
+    "TargetPanelSourceKind",
+    "TargetedAssayInterferenceReason",
+    "TargetedAssayInterferenceRiskTier",
+    "TargetedPanelAssayInput",
+    "TargetedPanelBiomarkerCandidateInput",
+    "TargetedPanelCandidateKind",
+    "TargetedPanelSelectedPeptideInput",
+    "TargetedPanelTransitionInput",
+    "TargetedPanelWarningCode",
+    "TargetedPeptideCandidateSource",
+    "TargetedResultSourceKind",
+    "TargetedResultValidationPolicy",
+    "TargetedTransitionInterferenceRisk",
+    "TargetedTransitionSelectionFragment",
+    "TargetedTransitionSelectionPeptideEntry",
+    "TargetedValidationDiscoveryClaimInput",
+    "TargetedValidationPanelAssayInput",
+    "TargetedValidationReasonCode",
+    "TargetedValidationVerdict",
+    "TimeCourseTestingPolicy",
+    "TmtInterferencePolicy",
+    "TmtNormalizationMethod",
+    "TmtNormalizationPolicy",
+    "TmtPlexIntegrationPolicy",
+    "TmtReporterChannelColumn",
+    "TmtReporterColumnMapping",
+    "TmtSearchResultSourceKind",
+    "TmtValidationPolicy",
+    "ValidationEvidenceDiscoveryInput",
+    "ValidationEvidenceOmittedCandidateInput",
+    "ValidationEvidencePanelAssayInput",
+    "ValidationEvidenceRedundancyInput",
+    "ValidationEvidenceResultAssayInput",
+    "ValidationEvidenceResultInput",
+    "ValidationEvidenceStabilityInput",
+    "ValidationExperimentPlanningPolicy",
+    "ValidationPlanningBiomarkerCandidateInput",
+    "ValidationPlanningOmittedCandidateInput",
+    "ValidationPlanningPanelAssayInput",
+    "ValidationPlanningPilotVarianceInput",
+    "ValidationPlanningSelectedPeptideInput",
+    "VariableModification",
+    "VolcanoReviewPolicy",
+    "WorkflowSchedulerKind",
+    "_build_biomarker_candidates_from_biological_report_dir",
+    "_build_biomarker_candidates_from_ptm_report_dir",
+    "_load_biological_differential_rows",
+    "_load_biomarker_candidate_inputs",
+    "_load_ptm_differential_rows",
+    "_parse_biological_differential_row",
+    "_parse_cli_bool",
+    "_parse_ptm_differential_row",
+    "_read_summary_field_map",
+    "_require_joined_row",
+    "_require_report_artifact",
+    "_score_annotation_labels",
+    "_score_effect_size",
+    "_score_protein_assay_feasibility",
+    "_score_protein_detectability",
+    "_score_protein_specificity",
+    "_score_ptm_assay_feasibility",
+    "_score_ptm_detectability",
+    "_score_ptm_robustness",
+    "_score_ptm_specificity",
+    "_split_semicolon_field",
+    "annotate_psm_error_rates",
+    "annotate_spectrum_fragments",
+    "append_contaminant_database",
+    "apply_benjamini_hochberg",
+    "apply_complex_enrichment_multiple_testing",
+    "apply_go_enrichment_multiple_testing",
+    "apply_pathway_enrichment_multiple_testing",
+    "apply_q_values",
+    "approximate_peptide_isotope_envelope",
+    "assign_confidence_labels",
+    "assign_razor_peptides",
+    "build_analysis_recommendation_report_from_artifacts",
+    "build_batch_effect_estimator_report",
+    "build_batch_qc_assessment",
+    "build_belief_audit_report_from_artifacts",
+    "build_biological_context_mapping_report",
+    "build_biomarker_candidate_ranking_report",
+    "build_biomarker_stability_report",
+    "build_calibration_plot_data",
+    "build_comet_import_report",
+    "build_compact_result_summary_report_from_artifacts",
+    "build_compartment_biology_report",
+    "build_complex_activity_report",
+    "build_complex_enrichment_report",
+    "build_contaminant_evidence_report",
+    "build_contaminant_peptide_match_report",
+    "build_core_protein_inference_benchmark_suite",
+    "build_decoy_generation_manifest",
+    "build_decoy_generation_report",
+    "build_dia_protein_matrix_report",
+    "build_dia_volcano_review",
+    "build_diann_import_report",
+    "build_diann_library_coverage_report",
+    "build_diann_peptide_matrix_report",
+    "build_diann_peptide_target_panel_report",
+    "build_diann_precursor_matrix_report",
+    "build_diann_protein_target_panel_report",
+    "build_diann_run_qc_report",
+    "build_differential_abundance_report",
+    "build_digest_manifest",
+    "build_discovery_targeted_peptide_selection_report",
+    "build_disease_phenotype_interpretation_report",
+    "build_drug_target_interpretation_report",
+    "build_evidence_level_fdr_review_report",
+    "build_experiment_feasibility_report",
+    "build_failure_explanation_report",
+    "build_fasta_database_profile",
+    "build_fasta_provenance_manifest",
+    "build_fasta_stats",
+    "build_fdr_audit_trail",
+    "build_fragment_ion_review_report",
+    "build_fragpipe_import_benchmark_report",
+    "build_fragpipe_import_report",
+    "build_generic_psm_mapper_report",
+    "build_go_enrichment_report",
+    "build_heatmap_preparation_report",
+    "build_imputation_report",
+    "build_imputation_sensitivity_report",
+    "build_instrument_batch_qc_report",
+    "build_lab_protocol_interpretation_profile",
+    "build_label_based_volcano_review",
+    "build_label_free_intensity_table",
+    "build_lcms_run_qc_report",
+    "build_lfq_peptide_target_panel_report",
+    "build_lfq_protein_lfq_target_panel_report",
+    "build_lfq_protein_target_panel_report",
+    "build_limma_compatible_quant_package",
+    "build_maxquant_import_report",
+    "build_missingness_classifier_report",
+    "build_modification_localization_advisory",
+    "build_modification_resolution_report",
+    "build_modified_peptide",
+    "build_msstats_compatible_input_report",
+    "build_multi_condition_differential_abundance_report",
+    "build_multi_contrast_consistency_report",
+    "build_multiplex_metadata_validation_report",
+    "build_mzml_collection_summary",
+    "build_mzml_practical_review_report",
+    "build_normalization_comparison_report",
+    "build_normalization_strategy_comparison_report",
+    "build_normalized_run_bundle",
+    "build_openms_import_report",
+    "build_ortholog_mapping_report",
+    "build_panel_redundancy_report",
+    "build_parsimony_review_report",
+    "build_pathway_activity_report",
+    "build_pathway_enrichment_report",
+    "build_peptide_charge_state",
+    "build_peptide_cross_run_reproducibility_report",
+    "build_peptide_database_lookup_report",
+    "build_peptide_detectability_report",
+    "build_peptide_elemental_composition",
+    "build_peptide_evidence_review_report",
+    "build_peptide_intensity_matrix_from_features",
+    "build_peptide_intensity_matrix_from_precursors",
+    "build_peptide_intensity_matrix_from_psms",
+    "build_peptide_profile_inconsistency_report",
+    "build_peptide_property_report",
+    "build_peptide_summary_report",
+    "build_peptide_uniqueness_across_database",
+    "build_performance_snapshot",
+    "build_picked_protein_fdr_review_report",
+    "build_power_estimation_report",
+    "build_ppi_network_module_report",
+    "build_precursor_mass_error_report",
+    "build_protein_ambiguity_review_report",
+    "build_protein_annotation_mapping_report",
+    "build_protein_coverage_map",
+    "build_protein_coverage_plot_report",
+    "build_protein_coverage_review_report",
+    "build_protein_cross_run_reproducibility_report",
+    "build_protein_evidence_review_report",
+    "build_protein_grouping_review_report",
+    "build_protein_groups",
+    "build_protein_id",
+    "build_protein_intensity_matrix_from_features",
+    "build_protein_intensity_matrix_from_psms",
+    "build_protein_lfq_report_from_peptides",
+    "build_protein_set_enrichment_report",
+    "build_protein_set_scoring_report",
+    "build_protein_summary_report",
+    "build_proteomics_workflow_runtime_bundle",
+    "build_protocol_aware_qc_threshold_policy",
+    "build_protocol_consistency_report",
+    "build_psm_error_rate_annotation_report",
+    "build_psm_evidence_inspection_report",
+    "build_psm_summary_report",
+    "build_psm_target_decoy_fdr_report",
+    "build_ptm_ambiguity_review_report",
+    "build_ptm_differential_analysis_report",
+    "build_ptm_differential_volcano_plot",
+    "build_ptm_enrichment_input",
+    "build_ptm_localization_scoring_report",
+    "build_ptm_motif_windows",
+    "build_ptm_occupancy_counterpart_report",
+    "build_ptm_phosphosite_motif_enrichment_report",
+    "build_ptm_protein_site_mapping_report",
+    "build_ptm_regulator_enrichment_report",
+    "build_ptm_site_annotation_biology_summary",
+    "build_ptm_site_annotation_mapping_report",
+    "build_ptm_site_context_report",
+    "build_ptm_site_coverage_report",
+    "build_ptm_site_fdr",
+    "build_ptm_site_group_quantification_report",
+    "build_ptm_site_occupancy_report",
+    "build_ptm_site_quantification_report",
+    "build_ptm_site_table",
+    "build_ptm_volcano_review",
+    "build_qc_evidence_manifest",
+    "build_quant_design_matrix_report",
+    "build_regulator_inference_report",
+    "build_replicate_and_batch_qc_report",
+    "build_result_explanation_report_from_artifacts",
+    "build_result_query_report_from_artifacts",
+    "build_run_qc_assessment",
+    "build_sage_import_report",
+    "build_sample_exploration_report",
+    "build_sample_sheet_repair_suggestion_report",
+    "build_score_separation_diagnostic_report",
+    "build_search_adapter_capability_matrix",
+    "build_search_adapter_conformance_report",
+    "build_search_adapter_provenance_manifest",
+    "build_search_engine_modified_peptide_report",
+    "build_search_result_provenance_manifest",
+    "build_silac_ratio_report",
+    "build_silac_validation_report",
+    "build_site_id",
+    "build_skyline_result_import_report",
+    "build_spectral_count_table",
+    "build_spectral_library_index",
+    "build_spectral_library_summary",
+    "build_spectronaut_import_report",
+    "build_spectronaut_peptide_matrix_report",
+    "build_spectronaut_precursor_matrix_report",
+    "build_spectronaut_protein_matrix_report",
+    "build_spectrum_collection_summary",
+    "build_spectrum_library_similarity_report",
+    "build_spectrum_metrics",
+    "build_spectrum_peak_match_report",
+    "build_spectrum_plot_payload",
+    "build_spectrum_provenance_manifest",
+    "build_spectrum_run_qc_plot_payload",
+    "build_spectrum_run_qc_report",
+    "build_spectrum_similarity_comparison_report",
+    "build_spectrum_summary_table_report",
+    "build_statistical_backend_validation_report",
+    "build_streaming_parse_profile",
+    "build_target_decoy_reference_validation_report",
+    "build_targeted_assay_interference_report",
+    "build_targeted_carryover_report",
+    "build_targeted_panel_design_report",
+    "build_targeted_result_validation_report",
+    "build_targeted_transition_selection_report",
+    "build_theoretical_digest_bundle",
+    "build_time_course_differential_report",
+    "build_tmt_interference_report",
+    "build_tmt_normalization_report",
+    "build_tmt_plex_integration_report",
+    "build_tmt_ratio_report",
+    "build_tmt_reporter_feature_bundle",
+    "build_tmt_reporter_matrix_report",
+    "build_tmt_validation_report",
+    "build_transition_qc_report_from_table",
+    "build_transition_table_result_import_report",
+    "build_validation_evidence_card_report",
+    "build_validation_experiment_planning_report",
+    "build_workflow_runtime_validation_report",
+    "calculate_fragment_ions",
+    "calculate_grouped_fdr",
+    "calculate_level_specific_fdr",
+    "calculate_picked_protein_fdr",
+    "canonicalize_modified_peptide",
+    "click",
+    "compare_search_result_reports",
+    "convert_proteomics_format",
+    "create_program_spec",
+    "csv",
+    "deduplicate_fasta_records",
+    "default_qc_threshold_policy",
+    "digest_protein_records",
+    "export_batch_effect_batches_tsv",
+    "export_batch_effect_principal_components_tsv",
+    "export_batch_effect_summary_tsv",
+    "export_differential_abundance_tsv",
+    "export_differential_broken_pairs_tsv",
+    "export_heatmap_column_metadata_tsv",
+    "export_heatmap_matrix_tsv",
+    "export_heatmap_row_metadata_tsv",
+    "export_heatmap_summary_tsv",
+    "export_limma_assay_matrix_tsv",
+    "export_limma_contrast_matrix_tsv",
+    "export_limma_design_matrix_tsv",
+    "export_limma_sample_annotations_tsv",
+    "export_msstats_compatible_input_tsv",
+    "export_multi_condition_differential_abundance_tsv",
+    "export_multi_contrast_consistency_tsv",
+    "export_multiplex_channel_assignment_tsv",
+    "export_multiplex_duplicate_assignment_tsv",
+    "export_multiplex_metadata_summary_tsv",
+    "export_multiplex_missing_condition_tsv",
+    "export_peptide_protein_table_tsv",
+    "export_peptides_fasta",
+    "export_peptides_jsonl",
+    "export_peptides_parquet",
+    "export_peptides_tsv",
+    "export_power_effect_size_grid_tsv",
+    "export_power_estimation_summary_tsv",
+    "export_power_variance_tsv",
+    "export_psm_jsonl",
+    "export_psm_tsv",
+    "export_ptm_differential_volcano_tsv",
+    "export_ptm_mapped_site_annotation_tsv",
+    "export_ptm_phosphosite_motif_enriched_term_tsv",
+    "export_ptm_phosphosite_motif_frequency_tsv",
+    "export_ptm_phosphosite_motif_logo_tsv",
+    "export_ptm_phosphosite_motif_window_tsv",
+    "export_ptm_regulator_enrichment_summary_tsv",
+    "export_ptm_regulator_enrichment_tsv",
+    "export_ptm_site_annotation_biology_tsv",
+    "export_ptm_site_annotation_mapping_summary_tsv",
+    "export_ptm_site_context_summary_tsv",
+    "export_ptm_site_context_tsv",
+    "export_ptm_site_differential_broken_pairs_tsv",
+    "export_ptm_site_differential_tsv",
+    "export_ptm_unmapped_site_annotation_tsv",
+    "export_quant_design_contrast_estimates_tsv",
+    "export_quant_design_matrix_tsv",
+    "export_quant_design_model_coefficients_tsv",
+    "export_sample_cluster_tsv",
+    "export_sample_correlation_tsv",
+    "export_sample_distance_tsv",
+    "export_sample_exploration_summary_tsv",
+    "export_sample_outlier_tsv",
+    "export_sample_pca_scores_tsv",
+    "export_sample_pca_variance_tsv",
+    "export_sample_sheet_repair_suggestions_tsv",
+    "export_silac_peptide_ratio_tsv",
+    "export_silac_protein_ratio_tsv",
+    "export_silac_ratio_summary_tsv",
+    "export_silac_validation_distribution_tsv",
+    "export_silac_validation_label_tsv",
+    "export_silac_validation_summary_tsv",
+    "export_silac_validation_weak_tsv",
+    "export_spectra_jsonl",
+    "export_spectrum_peak_match_tsv",
+    "export_spectrum_unmatched_peak_tsv",
+    "export_time_course_differential_tsv",
+    "export_tmt_channel_distribution_tsv",
+    "export_tmt_channel_mapping_tsv",
+    "export_tmt_channel_totals_tsv",
+    "export_tmt_filtered_interference_tsv",
+    "export_tmt_integrated_protein_matrix_tsv",
+    "export_tmt_interference_channel_summary_tsv",
+    "export_tmt_interference_observation_tsv",
+    "export_tmt_interference_summary_tsv",
+    "export_tmt_normalization_summary_tsv",
+    "export_tmt_normalization_transform_tsv",
+    "export_tmt_normalized_peptide_matrix_tsv",
+    "export_tmt_normalized_protein_matrix_tsv",
+    "export_tmt_peptide_matrix_tsv",
+    "export_tmt_peptide_ratio_tsv",
+    "export_tmt_plex_alignment_tsv",
+    "export_tmt_plex_effect_tsv",
+    "export_tmt_plex_integration_summary_tsv",
+    "export_tmt_protein_matrix_tsv",
+    "export_tmt_protein_ratio_tsv",
+    "export_tmt_ratio_summary_tsv",
+    "export_tmt_report_summary_tsv",
+    "export_tmt_validation_channel_tsv",
+    "export_tmt_validation_distribution_tsv",
+    "export_tmt_validation_summary_tsv",
+    "export_tmt_validation_weak_tsv",
+    "export_volcano_review_html",
+    "export_volcano_review_json",
+    "export_volcano_review_svg",
+    "extract_mzml_chromatograms",
+    "extract_mzml_chromatographic_evidence",
+    "extract_mzml_chromatographic_peaks",
+    "extract_mzml_dia_fragment_trace_coelution",
+    "extract_mzml_precursor_isotope_fit",
+    "extract_mzml_raw_signal_evidence_cards",
+    "extract_mzml_retention_time_alignment",
+    "extract_mzml_xic_traces",
+    "filter_fasta_records",
+    "filter_psms_by_fdr",
+    "find_spectral_library_candidates",
+    "fit_quant_design_matrix_model",
+    "format_failure_explanation_for_cli",
+    "generate_decoy_records",
+    "get_modification",
+    "get_search_adapter_manifest",
+    "hashlib",
+    "import_spectral_library",
+    "impute_label_free_table",
+    "infer_proteins_by_parsimony",
+    "iter_delimited_rows",
+    "iter_streaming_lookup_join",
+    "json",
+    "load_modification_registry",
+    "load_qc_threshold_policy",
+    "map_ptm_evidence_to_protein_sites",
+    "normalize_label_free_table",
+    "normalize_search_results_with_adapter",
+    "parse_biological_context_table",
+    "parse_complex_membership_table",
+    "parse_experimental_design_table",
+    "parse_fasta_document",
+    "parse_go_annotation_table",
+    "parse_lab_protocol_context_table",
+    "parse_limma_result_table",
+    "parse_mgf",
+    "parse_ms1_feature_table",
+    "parse_msstats_result_table",
+    "parse_mzml",
+    "parse_ortholog_table",
+    "parse_pathway_membership_table",
+    "parse_ppi_edge_table",
+    "parse_precursor_intensity_table",
+    "parse_protein_annotation_table",
+    "parse_protein_reference_table",
+    "parse_protein_set_table",
+    "parse_psm_tsv",
+    "parse_ptm_localization_tsv",
+    "parse_ptm_peptide",
+    "parse_ptm_peptide_tsv",
+    "parse_ptm_site_annotation_tsv",
+    "parse_ptm_site_context_tsv",
+    "parse_regulator_evidence_table",
+    "parse_regulator_site_signal_table",
+    "parse_search_parameter_file",
+    "parse_silac_feature_table",
+    "parse_tmt_reporter_table",
+    "peptide_export_fingerprint",
+    "predict_peptide_isotope_envelopes",
+    "program_summary",
+    "render_analysis_recommendation_summary_tsv",
+    "render_analysis_recommendation_tsv",
+    "render_belief_audit_html",
+    "render_belief_audit_summary_tsv",
+    "render_belief_audit_tsv",
+    "render_biological_context_mapping_summary_tsv",
+    "render_biological_context_mapping_tsv",
+    "render_biological_context_term_tsv",
+    "render_biomarker_candidate_ranking_summary_tsv",
+    "render_biomarker_candidate_ranking_tsv",
+    "render_biomarker_stability_candidate_tsv",
+    "render_biomarker_stability_subgroup_tsv",
+    "render_biomarker_stability_summary_tsv",
+    "render_biomarker_stability_tsv",
+    "render_chimeric_spectrum_competing_evidence_tsv",
+    "render_chimeric_spectrum_spectra_tsv",
+    "render_chromatographic_peaks_tsv",
+    "render_chromatographic_peptide_evidence_tsv",
+    "render_chromatographic_target_evidence_tsv",
+    "render_comet_canonical_psm_tsv",
+    "render_comet_psm_tsv",
+    "render_comet_summary_tsv",
+    "render_compact_result_summary_entry_tsv",
+    "render_compact_result_summary_markdown",
+    "render_compact_result_summary_overview_tsv",
+    "render_compartment_activity_condition_comparison_tsv",
+    "render_compartment_activity_condition_score_tsv",
+    "render_compartment_activity_matrix_tsv",
+    "render_compartment_activity_sample_score_tsv",
+    "render_compartment_activity_unresolved_member_tsv",
+    "render_compartment_biology_summary_tsv",
+    "render_compartment_enrichment_tsv",
+    "render_complex_activity_condition_comparison_tsv",
+    "render_complex_activity_condition_score_tsv",
+    "render_complex_activity_matrix_tsv",
+    "render_complex_activity_sample_score_tsv",
+    "render_complex_activity_summary_tsv",
+    "render_complex_activity_unresolved_member_tsv",
+    "render_complex_enrichment_entry_tsv",
+    "render_complex_enrichment_summary_tsv",
+    "render_complex_member_contribution_tsv",
+    "render_complex_unresolved_member_tsv",
+    "render_contaminant_burden_tsv",
+    "render_contaminant_proteins_tsv",
+    "render_cross_run_reproducibility_entries_tsv",
+    "render_cross_run_reproducibility_summary_tsv",
+    "render_dia_fragment_coelution_fragments_tsv",
+    "render_dia_fragment_coelution_runs_tsv",
+    "render_dia_library_coverage_condition_tsv",
+    "render_dia_library_coverage_observed_outside_peptide_tsv",
+    "render_dia_library_coverage_observed_outside_protein_tsv",
+    "render_dia_library_coverage_peptide_tsv",
+    "render_dia_library_coverage_protein_tsv",
+    "render_dia_library_coverage_sample_tsv",
+    "render_dia_library_coverage_summary_tsv",
+    "render_dia_peptide_quantity_matrix_tsv",
+    "render_dia_precursor_matrix_summary_tsv",
+    "render_dia_precursor_metadata_tsv",
+    "render_dia_precursor_q_value_matrix_tsv",
+    "render_dia_precursor_quantity_matrix_tsv",
+    "render_dia_protein_matrix_summary_tsv",
+    "render_dia_protein_quantity_matrix_tsv",
+    "render_dia_protein_rollup_evidence_tsv",
+    "render_dia_run_qc_correlation_tsv",
+    "render_dia_run_qc_intensity_distribution_tsv",
+    "render_dia_run_qc_outlier_tsv",
+    "render_dia_run_qc_run_table_tsv",
+    "render_dia_run_qc_summary_tsv",
+    "render_diann_precursor_tsv",
+    "render_diann_protein_group_tsv",
+    "render_diann_summary_tsv",
+    "render_discovery_targeted_peptide_selection_rejected_tsv",
+    "render_discovery_targeted_peptide_selection_selected_tsv",
+    "render_discovery_targeted_peptide_selection_summary_tsv",
+    "render_disease_phenotype_interpretation_summary_tsv",
+    "render_disease_phenotype_interpretation_tsv",
+    "render_drug_target_interpretation_summary_tsv",
+    "render_drug_target_interpretation_tsv",
+    "render_evidence_level_fdr_entries_tsv",
+    "render_evidence_level_fdr_summary_tsv",
+    "render_experiment_feasibility_group_sizes_tsv",
+    "render_experiment_feasibility_invalid_contrasts_tsv",
+    "render_experiment_feasibility_missing_metadata_tsv",
+    "render_experiment_feasibility_model_support_tsv",
+    "render_experiment_feasibility_valid_contrasts_tsv",
+    "render_failure_explanation_summary_tsv",
+    "render_failure_explanation_tsv",
+    "render_fasta_profile_invalid_sequence_tsv",
+    "render_fasta_profile_length_distribution_tsv",
+    "render_fasta_profile_organism_distribution_tsv",
+    "render_fasta_profile_summary_tsv",
+    "render_fragment_ion_report_tsv",
+    "render_fragment_ratio_stability_fragments_tsv",
+    "render_fragment_ratio_stability_observations_tsv",
+    "render_fragpipe_benchmark_summary_tsv",
+    "render_fragpipe_canonical_psm_tsv",
+    "render_fragpipe_count_comparisons_tsv",
+    "render_fragpipe_open_search_evidence_tsv",
+    "render_fragpipe_peptide_tsv",
+    "render_fragpipe_protein_group_comparison_tsv",
+    "render_fragpipe_protein_quantity_tsv",
+    "render_fragpipe_protein_tsv",
+    "render_fragpipe_psm_tsv",
+    "render_fragpipe_q_value_comparison_tsv",
+    "render_fragpipe_summary_tsv",
+    "render_generic_psm_mapper_tsv",
+    "render_go_enrichment_summary_tsv",
+    "render_go_enrichment_term_tsv",
+    "render_go_enrichment_unannotated_tsv",
+    "render_isotope_envelopes_tsv",
+    "render_mapped_ortholog_tsv",
+    "render_maxquant_evidence_tsv",
+    "render_maxquant_lfq_candidate_tsv",
+    "render_maxquant_peptide_tsv",
+    "render_maxquant_protein_group_tsv",
+    "render_maxquant_summary_tsv",
+    "render_openms_feature_tsv",
+    "render_openms_protein_tsv",
+    "render_openms_psm_tsv",
+    "render_openms_summary_tsv",
+    "render_ortholog_mapping_summary_tsv",
+    "render_panel_redundancy_candidate_tsv",
+    "render_panel_redundancy_cluster_tsv",
+    "render_panel_redundancy_dropped_tsv",
+    "render_panel_redundancy_summary_tsv",
+    "render_parsimony_review_ambiguities_tsv",
+    "render_parsimony_review_proteins_tsv",
+    "render_parsimony_review_summary_tsv",
+    "render_pathway_activity_condition_comparison_tsv",
+    "render_pathway_activity_condition_score_tsv",
+    "render_pathway_activity_matrix_tsv",
+    "render_pathway_activity_sample_score_tsv",
+    "render_pathway_activity_summary_tsv",
+    "render_pathway_activity_unresolved_member_tsv",
+    "render_pathway_enrichment_entry_tsv",
+    "render_pathway_enrichment_summary_tsv",
+    "render_pathway_member_contribution_tsv",
+    "render_pathway_unresolved_member_tsv",
+    "render_peptide_detectability_tsv",
+    "render_peptide_evidence_entries_tsv",
+    "render_peptide_evidence_summary_tsv",
+    "render_peptide_intensity_aggregation_tsv",
+    "render_peptide_intensity_matrix_summary_tsv",
+    "render_peptide_intensity_matrix_tsv",
+    "render_peptide_intensity_missingness_mask_tsv",
+    "render_peptide_intensity_missingness_tsv",
+    "render_peptide_profile_inconsistency_tsv",
+    "render_picked_protein_fdr_entries_tsv",
+    "render_picked_protein_fdr_summary_tsv",
+    "render_ppi_isolated_protein_tsv",
+    "render_ppi_module_enrichment_tsv",
+    "render_ppi_module_tsv",
+    "render_ppi_network_edge_tsv",
+    "render_ppi_network_module_summary_tsv",
+    "render_precursor_isotope_fit_entries_tsv",
+    "render_precursor_isotope_fit_peaks_tsv",
+    "render_precursor_isotope_fit_summary_tsv",
+    "render_precursor_mass_error_distribution_tsv",
+    "render_precursor_mass_error_observations_tsv",
+    "render_precursor_mass_error_summary_tsv",
+    "render_protein_ambiguity_entries_tsv",
+    "render_protein_ambiguity_summary_tsv",
+    "render_protein_annotation_summary_tsv",
+    "render_protein_annotation_tsv",
+    "render_protein_coverage_entries_tsv",
+    "render_protein_coverage_peptide_coordinates_tsv",
+    "render_protein_coverage_plot_html",
+    "render_protein_coverage_plot_positions_tsv",
+    "render_protein_coverage_plot_svg",
+    "render_protein_coverage_regions_tsv",
+    "render_protein_coverage_summary_tsv",
+    "render_protein_coverage_uncovered_regions_tsv",
+    "render_protein_evidence_entries_tsv",
+    "render_protein_evidence_summary_tsv",
+    "render_protein_grouping_entries_tsv",
+    "render_protein_grouping_summary_tsv",
+    "render_protein_inference_benchmark_assessments_tsv",
+    "render_protein_inference_benchmark_scenarios_tsv",
+    "render_protein_inference_benchmark_summary_tsv",
+    "render_protein_intensity_matrix_summary_tsv",
+    "render_protein_intensity_matrix_tsv",
+    "render_protein_intensity_missingness_tsv",
+    "render_protein_lfq_disconnected_components_tsv",
+    "render_protein_lfq_matrix_tsv",
+    "render_protein_lfq_missingness_tsv",
+    "render_protein_lfq_pairwise_ratios_tsv",
+    "render_protein_lfq_summary_tsv",
+    "render_protein_peptide_contribution_tsv",
+    "render_protein_set_condition_comparison_tsv",
+    "render_protein_set_condition_score_tsv",
+    "render_protein_set_enrichment_summary_tsv",
+    "render_protein_set_enrichment_tsv",
+    "render_protein_set_sample_score_tsv",
+    "render_protein_set_score_matrix_tsv",
+    "render_protein_set_scoring_summary_tsv",
+    "render_protein_set_universe_gap_tsv",
+    "render_protein_set_unresolved_member_tsv",
+    "render_protocol_consistency_tsv",
+    "render_psm_error_rate_annotation_summary_tsv",
+    "render_psm_error_rate_annotation_tsv",
+    "render_psm_evidence_inspection_summary_tsv",
+    "render_psm_inspection_distribution_tsv",
+    "render_psm_target_decoy_fdr_summary_tsv",
+    "render_psm_target_decoy_fdr_tsv",
+    "render_ptm_ambiguity_review_summary_tsv",
+    "render_ptm_coordinate_validation_tsv",
+    "render_ptm_evidence_site_candidate_tsv",
+    "render_ptm_localization_scoring_entry_tsv",
+    "render_ptm_localization_scoring_summary_tsv",
+    "render_ptm_localized_site_review_tsv",
+    "render_ptm_occupancy_counterpart_tsv",
+    "render_ptm_peptide_record_tsv",
+    "render_ptm_peptide_rejected_tsv",
+    "render_ptm_peptide_site_tsv",
+    "render_ptm_peptide_summary_tsv",
+    "render_ptm_protein_site_mapping_tsv",
+    "render_ptm_site_coverage_tsv",
+    "render_ptm_site_group_quant_matrix_tsv",
+    "render_ptm_site_group_quant_missingness_tsv",
+    "render_ptm_site_group_quant_summary_tsv",
+    "render_ptm_site_occupancy_entry_tsv",
+    "render_ptm_site_occupancy_summary_tsv",
+    "render_ptm_site_quant_excluded_tsv",
+    "render_ptm_site_quant_matrix_tsv",
+    "render_ptm_site_quant_missingness_tsv",
+    "render_ptm_site_quant_summary_tsv",
+    "render_ptm_site_table_tsv",
+    "render_ptm_unlocalized_group_review_tsv",
+    "render_ptm_unmapped_peptide_tsv",
+    "render_qc_assessment_html",
+    "render_qc_assessment_tsv",
+    "render_raw_signal_evidence_card_summary_tsv",
+    "render_raw_signal_evidence_card_tsv",
+    "render_raw_signal_evidence_cards_html",
+    "render_records_fasta",
+    "render_regulator_inference_summary_tsv",
+    "render_regulator_inference_tsv",
+    "render_rejected_biological_context_tsv",
+    "render_rejected_complex_membership_tsv",
+    "render_rejected_evidence_tsv",
+    "render_rejected_go_annotation_tsv",
+    "render_rejected_ortholog_tsv",
+    "render_rejected_pathway_membership_tsv",
+    "render_rejected_ppi_edge_tsv",
+    "render_rejected_protein_annotation_tsv",
+    "render_rejected_protein_reference_tsv",
+    "render_rejected_protein_set_membership_tsv",
+    "render_rejected_protein_set_tsv",
+    "render_rejected_regulator_evidence_tsv",
+    "render_rejected_regulator_site_signal_tsv",
+    "render_result_explanation_evidence_tsv",
+    "render_result_explanation_summary_tsv",
+    "render_result_explanation_tsv",
+    "render_result_query_answer_tsv",
+    "render_result_query_evidence_tsv",
+    "render_result_query_summary_tsv",
+    "render_retention_time_alignment_failed_anchors_tsv",
+    "render_retention_time_alignment_models_tsv",
+    "render_retention_time_alignment_residuals_tsv",
+    "render_sage_canonical_psm_tsv",
+    "render_sage_psm_tsv",
+    "render_sage_summary_tsv",
+    "render_score_separation_bins_tsv",
+    "render_score_separation_summary_tsv",
+    "render_spectral_library_candidates_tsv",
+    "render_spectral_library_search_tsv",
+    "render_spectral_library_summary_tsv",
+    "render_spectronaut_precursor_quantity_tsv",
+    "render_spectronaut_precursor_tsv",
+    "render_spectronaut_protein_group_quantity_tsv",
+    "render_spectronaut_protein_group_tsv",
+    "render_spectronaut_summary_tsv",
+    "render_spectrum_distribution_tsv",
+    "render_spectrum_run_qc_distribution_tsv",
+    "render_spectrum_run_qc_flagged_spectra_tsv",
+    "render_spectrum_run_qc_spectra_tsv",
+    "render_spectrum_run_qc_summary_tsv",
+    "render_spectrum_run_qc_time_bins_tsv",
+    "render_spectrum_run_qc_trace_tsv",
+    "render_spectrum_similarity_tsv",
+    "render_spectrum_summary_tsv",
+    "render_target_decoy_reference_entries_tsv",
+    "render_target_decoy_reference_summary_tsv",
+    "render_target_panel_intensity_tsv",
+    "render_target_panel_matrix_tsv",
+    "render_target_panel_missing_tsv",
+    "render_target_panel_summary_tsv",
+    "render_target_panel_target_tsv",
+    "render_targeted_assay_interference_assay_tsv",
+    "render_targeted_assay_interference_panel_tsv",
+    "render_targeted_assay_interference_summary_tsv",
+    "render_targeted_assay_interference_transition_tsv",
+    "render_targeted_assay_qc_coelution_tsv",
+    "render_targeted_assay_qc_fragment_ratio_tsv",
+    "render_targeted_assay_qc_replicate_cv_tsv",
+    "render_targeted_assay_qc_retention_tsv",
+    "render_targeted_assay_qc_summary_tsv",
+    "render_targeted_assay_qc_target_tsv",
+    "render_targeted_assay_qc_transition_coelution_tsv",
+    "render_targeted_assay_qc_transition_qc_tsv",
+    "render_targeted_assay_qc_transition_tsv",
+    "render_targeted_assay_qc_unreliable_tsv",
+    "render_targeted_carryover_candidates_tsv",
+    "render_targeted_carryover_summary_tsv",
+    "render_targeted_matrix_excluded_transition_tsv",
+    "render_targeted_matrix_flagged_tsv",
+    "render_targeted_matrix_missingness_tsv",
+    "render_targeted_matrix_retained_transition_tsv",
+    "render_targeted_matrix_sample_tsv",
+    "render_targeted_matrix_summary_tsv",
+    "render_targeted_matrix_target_tsv",
+    "render_targeted_panel_design_assay_tsv",
+    "render_targeted_panel_design_omitted_candidate_tsv",
+    "render_targeted_panel_design_panel_tsv",
+    "render_targeted_panel_design_summary_tsv",
+    "render_targeted_result_observation_tsv",
+    "render_targeted_result_validation_evidence_tsv",
+    "render_targeted_result_validation_summary_tsv",
+    "render_targeted_result_validation_tsv",
+    "render_targeted_transition_selection_rejected_tsv",
+    "render_targeted_transition_selection_selected_tsv",
+    "render_targeted_transition_selection_summary_tsv",
+    "render_transition_qc_sample_tsv",
+    "render_transition_qc_summary_tsv",
+    "render_transition_qc_transition_tsv",
+    "render_transition_qc_weak_tsv",
+    "render_unknown_compartment_localization_tsv",
+    "render_unknown_disease_phenotype_annotation_tsv",
+    "render_unmapped_biological_context_tsv",
+    "render_unmapped_ortholog_tsv",
+    "render_unmapped_protein_annotation_tsv",
+    "render_unresolved_regulator_target_tsv",
+    "render_validation_evidence_card_assay_tsv",
+    "render_validation_evidence_card_summary_tsv",
+    "render_validation_evidence_card_tsv",
+    "render_validation_evidence_card_warning_tsv",
+    "render_validation_experiment_planning_plan_tsv",
+    "render_validation_experiment_planning_summary_tsv",
+    "render_validation_experiment_planning_warning_tsv",
+    "render_xic_traces_tsv",
+    "require_single_lab_protocol_context",
+    "resolve_protease_rule",
+    "score_chimeric_spectra_from_psms",
+    "score_dia_fragment_ratio_stability",
+    "search_spectral_library",
+    "sequence_checksum",
+    "summarize_missing_values",
+    "time",
+    "validate_proteomics_input",
+    "validate_ptm_site_coordinates",
+    "validate_search_parameters",
+    "validate_target_decoy_database",
+    "write_theoretical_digest_bundle",
+]

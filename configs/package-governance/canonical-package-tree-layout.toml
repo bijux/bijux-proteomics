@@ -1,0 +1,98 @@
+[policy]
+name = "canonical-package-tree-layout"
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_roots = ["agentic_proteins", "agentic_proteins_testsupport"]
+top_level_families = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
+root_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics"
+import_roots = ["bijux_proteomics_alias"]
+top_level_families = []
+root_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_roots = ["bijux_proteomics"]
+top_level_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "panels", "proteoforms", "ptm", "quantification", "review", "sequences", "study", "targeted", "workflow"]
+root_module_files = ["_atomic_files.py", "_output_tables.py", "_scientific_tables.py", "_tabular.py", "programs.py", "public_api.py", "scientific_tables.py", "tabular.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_roots = ["bijux_proteomics_dev"]
+top_level_families = ["docs", "governance", "quality", "release", "security", "tools"]
+root_module_files = []
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_roots = ["bijux_proteomics_foundation"]
+top_level_families = ["compatibility", "identity", "outcomes", "serialization", "support", "testing"]
+root_module_files = ["_package_aliases.py", "package_aliases.py", "public_api.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_roots = ["bijux_proteomics_intelligence"]
+top_level_families = ["candidates", "claims", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+root_module_files = ["belief_audit.py", "contradictions.py", "falsifiers.py", "next_steps.py", "public_api.py", "query.py", "refusal.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_roots = ["bijux_proteomics_knowledge"]
+top_level_families = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "pathways", "references", "reviews"]
+root_module_files = ["public_api.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_roots = ["bijux_proteomics_lab"]
+top_level_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+root_module_files = ["public_api.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_roots = ["bijux_proteomics_runtime"]
+top_level_families = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "parallel", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
+root_module_files = ["public_api.py"]
+
+[[package]]
+distribution_name = "proteomics"
+import_roots = ["proteomics"]
+top_level_families = []
+root_module_files = ["__main__.py", "cli.py"]
+
+[[package]]
+distribution_name = "proteomics-core"
+import_roots = ["proteomics_core"]
+top_level_families = []
+root_module_files = ["__main__.py", "cli.py"]
+
+[[package]]
+distribution_name = "proteomics-foundation"
+import_roots = ["proteomics_foundation"]
+top_level_families = []
+root_module_files = []
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+import_roots = ["proteomics_intelligence"]
+top_level_families = []
+root_module_files = []
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+import_roots = ["proteomics_knowledge"]
+top_level_families = []
+root_module_files = []
+
+[[package]]
+distribution_name = "proteomics-lab"
+import_roots = ["proteomics_lab"]
+top_level_families = []
+root_module_files = []
+
+[[package]]
+distribution_name = "proteomics-runtime"
+import_roots = ["proteomics_runtime"]
+top_level_families = []
+root_module_files = ["__main__.py", "cli.py"]

@@ -1,0 +1,4 @@
+protein_ref	go_term_id	go_term_name	go_aspect	evidence_code	source
+P003	GO:1000001	stress response module	biological_process	IDA	lfq-case-study
+P001	GO:1000002	baseline abundance module	biological_process	IDA	lfq-case-study
+P002	GO:1000002	baseline abundance module	biological_process	IDA	lfq-case-study

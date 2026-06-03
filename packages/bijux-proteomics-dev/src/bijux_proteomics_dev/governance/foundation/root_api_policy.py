@@ -5,7 +5,8 @@ from dataclasses import dataclass
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_foundation import __all__ as FOUNDATION_ROOT_EXPORTS
-from bijux_proteomics_foundation.support.public_api import (
+from bijux_proteomics_foundation.public_api import (
+    FOUNDATION_ROOT_API_BUDGET,
     list_foundation_root_api_entries,
 )
 
@@ -47,6 +48,7 @@ class FoundationRootApiPolicyEntry:
 
     name: str
     owner_module: str
+    classification: str
     rationale: str
 
 
@@ -63,13 +65,14 @@ def build_foundation_root_api_policy_report() -> FoundationRootApiPolicyReport:
 
     return FoundationRootApiPolicyReport(
         budget=FoundationRootApiBudget(
-            max_public_symbols=15,
-            max_init_lines=46,
+            max_public_symbols=FOUNDATION_ROOT_API_BUDGET.max_public_symbols,
+            max_init_lines=FOUNDATION_ROOT_API_BUDGET.max_init_lines,
         ),
         symbols=tuple(
             FoundationRootApiPolicyEntry(
                 name=entry.export_name,
                 owner_module=entry.owner_module,
+                classification=entry.capability.value,
                 rationale=entry.kernel_rationale,
             )
             for entry in list_foundation_root_api_entries()
@@ -104,8 +107,8 @@ def _escape(value: str) -> str:
 
 def _toml_text(report: FoundationRootApiPolicyReport) -> str:
     lines = [
-        "# Generated foundation root API policy.",
-        "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.root_api_policy",
+        "# Generated bijux-proteomics-foundation root API policy.",
+        "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_api_snapshots",
         "",
         "[budget]",
         f"max_public_symbols = {report.budget.max_public_symbols}",
@@ -118,6 +121,7 @@ def _toml_text(report: FoundationRootApiPolicyReport) -> str:
                 "[[symbol]]",
                 f'name = "{entry.name}"',
                 f'owner_module = "{entry.owner_module}"',
+                f'classification = "{entry.classification}"',
                 f'rationale = "{_escape(entry.rationale)}"',
                 "",
             ]

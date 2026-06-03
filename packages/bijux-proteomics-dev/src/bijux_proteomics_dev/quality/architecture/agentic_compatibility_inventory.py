@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 import io
 from pathlib import Path
+from typing import TypeAlias
 
 from bijux_proteomics_dev.quality.architecture.scanner import (
     import_references,
@@ -38,6 +39,7 @@ def _repo_root() -> Path:
 
 
 REPO_ROOT = _repo_root()
+_WrapperFunctionNode: TypeAlias = ast.FunctionDef | ast.AsyncFunctionDef
 MODULE_ROOT = REPO_ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
 AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH = (
     REPO_ROOT
@@ -139,7 +141,12 @@ def _compat_targets(tree: ast.Module) -> tuple[str, ...]:
 def _local_definition_names(tree: ast.Module) -> tuple[str, ...]:
     names: list[str] = []
     for node in tree.body:
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name == "__getattr__" and _is_wrapper_function(node):
+                continue
+            names.append(node.name)
+            continue
+        if isinstance(node, ast.ClassDef):
             names.append(node.name)
     return tuple(names)
 
@@ -225,7 +232,17 @@ def _is_wrapper_try(node: ast.Try) -> bool:
     return all(_statements_are_wrapper_safe(handler.body) for handler in node.handlers)
 
 
-def _is_wrapper_function(node: ast.FunctionDef) -> bool:
+def _is_type_checking_guard(node: ast.If) -> bool:
+    if not isinstance(node.test, ast.Name) or node.test.id != "TYPE_CHECKING":
+        return False
+    if node.orelse:
+        return False
+    return all(
+        isinstance(statement, (ast.Import, ast.ImportFrom)) for statement in node.body
+    )
+
+
+def _is_wrapper_function(node: _WrapperFunctionNode) -> bool:
     statements = list(node.body)
     if statements and _is_docstring_expr(statements[0]):
         statements = statements[1:]
@@ -274,6 +291,10 @@ def _is_wrapper_module(tree: ast.Module) -> bool:
             continue
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             continue
+        if isinstance(node, ast.If):
+            if _is_type_checking_guard(node):
+                continue
+            return False
         if isinstance(node, ast.Assign):
             if _is_top_level_alias_assignment(node):
                 continue

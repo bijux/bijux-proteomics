@@ -66,7 +66,17 @@ def test_normalization_policy_comparison_matrix_reports_supported_and_gaps() -> 
     report = build_normalization_policy_comparison_matrix_report(table)
 
     by_policy = {entry.policy: entry for entry in report.entries}
+    log2_median_centering = by_policy[
+        QuantNormalizationPolicyKind.LOG2_MEDIAN_CENTERING
+    ]
+    vsn_like = by_policy[QuantNormalizationPolicyKind.VSN_LIKE]
+
     assert by_policy[QuantNormalizationPolicyKind.MEDIAN].supported is True
-    assert by_policy[QuantNormalizationPolicyKind.VSN_LIKE].supported is False
+    assert log2_median_centering.supported is True
+    assert log2_median_centering.mapped_method is not None
+    assert log2_median_centering.mapped_method.value == "log2_median_centering"
+    assert vsn_like.supported is True
+    assert vsn_like.mapped_method is not None
+    assert vsn_like.mapped_method.value == "vsn_like"
     assert by_policy[QuantNormalizationPolicyKind.REFERENCE_CHANNEL].supported is False
     assert report.recommended_supported_policy is not None

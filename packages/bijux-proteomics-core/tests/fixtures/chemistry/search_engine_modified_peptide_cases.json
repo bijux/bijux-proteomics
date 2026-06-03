@@ -12,6 +12,17 @@
     ]
   },
   {
+    "dialect": "maxquant",
+    "notation": "_PEPK(Acetyl (K))IDE_",
+    "expected": "PEPK[AcetylLys]IDE",
+    "residue_sequence": "PEPKIDE",
+    "at_protein_n_term": false,
+    "at_protein_c_term": false,
+    "sites": [
+      4
+    ]
+  },
+  {
     "dialect": "msfragger",
     "notation": "n[42.010565]M[15.994915]PEPTIDEK",
     "expected": "[Acetyl]-M[Oxidation]PEPTIDEK",
@@ -55,6 +66,17 @@
     "sites": [
       "peptide_c_term",
       1
+    ]
+  },
+  {
+    "dialect": "bijux",
+    "notation": "PEPK[Acetyl]IDE",
+    "expected": "PEPK[AcetylLys]IDE",
+    "residue_sequence": "PEPKIDE",
+    "at_protein_n_term": false,
+    "at_protein_c_term": false,
+    "sites": [
+      4
     ]
   }
 ]

@@ -3,12 +3,22 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import PtmSiteEntry
 from bijux_proteomics.ptm.review import (
     build_ubiquitin_remnant_workflow_report,
 )
 from bijux_proteomics.quantification import MissingValueKind, Ms1FeatureRecord
+
+
+def _provenance(site_key: str) -> ImportedEvidenceProvenance:
+    return ImportedEvidenceProvenance(
+        source_engine="synthetic-ptm",
+        source_files=("ubiquitin.tsv",),
+        source_row_numbers=(2,),
+        original_identifiers={"site_key": site_key},
+    )
 
 
 def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_links() -> (
@@ -30,6 +40,7 @@ def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_li
             target_decoy_label=TargetDecoyLabel.TARGET,
             candidate_positions=(48,),
             ambiguous=False,
+            provenance=_provenance("P2:K48:GlyGly"),
         ),
         PtmSiteEntry(
             site_key="P2:S52:K-GG",
@@ -46,6 +57,7 @@ def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_li
             target_decoy_label=TargetDecoyLabel.TARGET,
             candidate_positions=(52, 53),
             ambiguous=True,
+            provenance=_provenance("P2:S52:K-GG"),
         ),
     )
     feature_records = (

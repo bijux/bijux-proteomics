@@ -1,0 +1,4 @@
+protein_ref	context_kind	context_id	context_name	source_name	source_accession	evidence
+P04637	subcellular_compartment	GO:0005634	nucleus	UniProt	GO:0005634	reviewed
+O14920	subcellular_compartment	GO:0005634	nucleus	UniProt	GO:0005634	reviewed
+P62993	subcellular_compartment	GO:0005829	cytosol	UniProt	GO:0005829	reviewed

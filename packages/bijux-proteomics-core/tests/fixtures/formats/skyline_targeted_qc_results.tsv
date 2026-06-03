@@ -1,0 +1,15 @@
+ProteinName	PeptideModifiedSequence	PrecursorCharge	PrecursorMz	FragmentIon	ProductMz	ReplicateName	Area	RetentionTime	PeakQuality
+P001	PEPTIDEK	2	445.2	y7	789.4	control_r1	120000	12.5	pass
+P001	PEPTIDEK	2	445.2	y8	902.5	control_r1	38000	12.6	pass
+P001	PEPTIDEK	2	445.2	y7	789.4	control_r2	116000	12.4	pass
+P001	PEPTIDEK	2	445.2	y8	902.5	control_r2	36000	12.5	pass
+P001	PEPTIDEK	2	445.2	y7	789.4	treat_r1	102000	12.8	pass
+P001	PEPTIDEK	2	445.2	y8	902.5	treat_r1	12000	12.9	interference
+P001	PEPTIDEK	2	445.2	y7	789.4	treat_r2	98000	13.3	pass
+P002	ACDMPEP	3	512.3	y5	602.3	control_r1	70000	18.1	pass
+P002	ACDMPEP	3	512.3	y6	715.4	control_r1	6000	18.2	low_signal
+P002	ACDMPEP	3	512.3	y5	602.3	control_r2	68000	18.0	pass
+P002	ACDMPEP	3	512.3	y6	715.4	control_r2	7000	18.1	pass
+P002	ACDMPEP	3	512.3	y5	602.3	treat_r1	43000	19.4	pass
+P002	ACDMPEP	3	512.3	y6	715.4	treat_r1	5000	19.5	pass
+P002	ACDMPEP	3	512.3	y5	602.3	treat_r2	22000	20.2	carryover

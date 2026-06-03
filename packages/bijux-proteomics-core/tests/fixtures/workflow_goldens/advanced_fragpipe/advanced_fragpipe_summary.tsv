@@ -1,0 +1,11 @@
+field	value
+imported_psm_row_count	34
+accepted_psm_count	30
+filtered_psm_count	3
+inferred_protein_count	5
+quantified_protein_count	5
+peptide_evidence_count	5
+protein_group_discrepancy_count	2
+source_only_protein_group_count	1
+workflow_only_protein_group_count	1
+significant_protein_count	3

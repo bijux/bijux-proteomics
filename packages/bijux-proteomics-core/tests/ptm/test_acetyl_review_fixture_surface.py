@@ -3,12 +3,22 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import PtmSiteEntry
 from bijux_proteomics.ptm.review import (
     build_acetyl_specific_review_fixture_report,
 )
 from bijux_proteomics.quantification import MissingValueKind, Ms1FeatureRecord
+
+
+def _provenance(site_key: str) -> ImportedEvidenceProvenance:
+    return ImportedEvidenceProvenance(
+        source_engine="synthetic-ptm",
+        source_files=("acetyl.tsv",),
+        source_row_numbers=(2,),
+        original_identifiers={"site_key": site_key},
+    )
 
 
 def test_acetyl_review_fixture_report_tracks_terminal_and_residue_placements() -> None:
@@ -28,6 +38,7 @@ def test_acetyl_review_fixture_report_tracks_terminal_and_residue_placements() -
             target_decoy_label=TargetDecoyLabel.TARGET,
             candidate_positions=(1,),
             ambiguous=False,
+            provenance=_provenance("P1:A1:Acetyl"),
         ),
         PtmSiteEntry(
             site_key="P1:K8:Acetyl",
@@ -44,6 +55,7 @@ def test_acetyl_review_fixture_report_tracks_terminal_and_residue_placements() -
             target_decoy_label=TargetDecoyLabel.TARGET,
             candidate_positions=(8,),
             ambiguous=False,
+            provenance=_provenance("P1:K8:Acetyl"),
         ),
     )
     feature_records = (

@@ -5,7 +5,28 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study.contracts import *  # noqa: F401,F403
-from bijux_proteomics.study.laboratory_operations import *  # noqa: F401,F403
-from bijux_proteomics.study.laboratory_plans import *  # noqa: F401,F403
-from bijux_proteomics.study.qc import *  # noqa: F401,F403
+from importlib import import_module
+from typing import Any
+
+_STUDY_EXPORT_MODULES = (
+    "bijux_proteomics.study.design",
+    "bijux_proteomics.study.metadata",
+    "bijux_proteomics.study.carryover",
+    "bijux_proteomics.study.lc_drift",
+    "bijux_proteomics.study.lab_protocol_context",
+    "bijux_proteomics.study.protocol_consistency",
+    "bijux_proteomics.study.laboratory_operations",
+    "bijux_proteomics.study.laboratory_plans",
+    "bijux_proteomics.study.qc",
+    "bijux_proteomics.study.qc_benchmarks",
+)
+
+
+def __getattr__(name: str) -> Any:
+    for module_path in _STUDY_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

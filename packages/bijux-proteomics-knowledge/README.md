@@ -75,6 +75,34 @@ from bijux_proteomics_knowledge.references.workflows.briefings import (
 )
 ```
 
+## Public APIs
+
+The stable root API focuses on query and compatibility surfaces over curated
+scientific memory:
+
+- `evaluate_schema_compatibility(...)` for document-version checks
+- `resolve_protein_ids(...)`, `resolve_pathway_members(...)`, and related
+  resolvers for grounded lookup work
+- `compute_knowledge_coverage(...)` for annotation-sparsity review
+- `EvidenceRecord`, `EvidenceBundle`, and `EvidenceClaim` for typed memory payloads
+
+Minimal executable example:
+
+```python
+from bijux_proteomics_foundation import DocumentSchema
+from bijux_proteomics_knowledge import evaluate_schema_compatibility
+
+schema = DocumentSchema(
+    created_by="bijux-proteomics-knowledge",
+    document_kind="annotation_pack",
+    package_name="bijux-proteomics-knowledge",
+)
+report = evaluate_schema_compatibility(schema)
+
+assert report.compatible is True
+assert report.profile_id == "knowledge-default-profile"
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-knowledge`
@@ -89,6 +117,12 @@ references that ground shared interpretation boundaries.
 
 It does not own execution orchestration, route-shaped payloads, candidate
 ranking or recommendation policy, or experiment scheduling.
+
+## What this package must not do
+
+- it must not own runtime orchestration, route transport, or operator entrypoints
+- it must not define ranking policy, recommendation posture, or lab scheduling behavior
+- it must not accept uncited context blobs that are not selective, reviewable scientific memory
 
 It is also not a generic context store. New content belongs here only when it
 becomes selective, cited, and reviewable scientific memory.

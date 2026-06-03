@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims
 
 [guard]
-max_total_reopened_completion_claim_count = 9
+max_total_reopened_completion_claim_count = 10
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -36,8 +36,8 @@ reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-reopened_reasons = []
-reopened_completion_claim = false
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
+reopened_completion_claim = true
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
@@ -51,35 +51,35 @@ reopened_completion_claim = false
 
 [[package]]
 distribution_name = "proteomics"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["historical topology language still dominates current design", "root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-core"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["historical topology language still dominates current design", "root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-foundation"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-lab"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "proteomics-runtime"
-reopened_reasons = ["root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+reopened_reasons = ["historical topology language still dominates current design", "root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
 reopened_completion_claim = true

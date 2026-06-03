@@ -9,6 +9,15 @@ import sys
 
 import pytest
 
+from bijux_proteomics_foundation.testing.pytest_artifacts import (
+    configure_hypothesis_artifacts,
+)
+from bijux_proteomics_foundation.testing.pytest_markers import (
+    apply_default_test_markers,
+)
+
+ROOT = Path(__file__).resolve().parents[3]
+configure_hypothesis_artifacts(ROOT)
 sys.dont_write_bytecode = True
 FOUNDATION_CLEAN_ROOTS = (
     Path("packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"),
@@ -41,5 +50,4 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:
-    for item in items:
-        item.add_marker(pytest.mark.unit)
+    apply_default_test_markers(items, benchmark_dirs=("performance",))

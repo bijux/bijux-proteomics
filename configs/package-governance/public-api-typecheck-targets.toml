@@ -1,0 +1,68 @@
+# Curated public modules that must remain clean under the public API typecheck lane.
+
+[mypy]
+config_path = "configs/mypy-public-api.ini"
+cache_dir = "artifacts/root/public-api-typecheck/.mypy_cache"
+
+[pyright]
+config_path = "configs/pyright-public-api.json"
+
+[[target]]
+distribution_name = "bijux-proteomics-core"
+module_name = "bijux_proteomics.public_api"
+source_path = "packages/bijux-proteomics-core/src/bijux_proteomics/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-foundation"
+module_name = "bijux_proteomics_foundation.public_api"
+source_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-foundation"
+module_name = "bijux_proteomics_foundation.support.public_api"
+source_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-intelligence"
+module_name = "bijux_proteomics_intelligence.public_api"
+source_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-knowledge"
+module_name = "bijux_proteomics_knowledge.public_api"
+source_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-knowledge"
+module_name = "bijux_proteomics_knowledge.references.public"
+source_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/public.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-lab"
+module_name = "bijux_proteomics_lab.public_api"
+source_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-runtime"
+module_name = "bijux_proteomics_runtime.public_api"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/public_api.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-runtime"
+module_name = "bijux_proteomics_runtime.api.public"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/public.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-runtime"
+module_name = "bijux_proteomics_runtime.execution.public"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/public.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-runtime"
+module_name = "bijux_proteomics_runtime.runs.public"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/public.py"
+
+[[target]]
+distribution_name = "bijux-proteomics-runtime"
+module_name = "bijux_proteomics_runtime.workflows.public"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/public.py"

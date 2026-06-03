@@ -158,6 +158,10 @@ def test_built_in_pipeline_dialects_cover_richer_engine_like_outputs() -> None:
     assert reports["msfragger"].normalized_records[0].score == 132.4
     assert reports["sage"].normalized_records[0].q_value == 0.001
     assert reports["maxquant"].normalized_records[1].target_decoy_label.value == "decoy"
+    assert (
+        reports["maxquant"].normalized_records[0].posterior_error_probability == 0.001
+    )
+    assert reports["maxquant"].normalized_records[0].q_value is None
     assert reports["diann"].normalized_records[0].q_value == 0.002
     assert reports["spectronaut"].normalized_records[0].protein_refs == (
         "P12345",
@@ -214,6 +218,8 @@ def test_engine_specific_adapters_normalize_psm_contracts() -> None:
     assert fragger.normalized_records[0].score == 125.0
     assert sage.normalized_records[0].q_value == 0.002
     assert maxquant.normalized_records[1].target_decoy_label.value == "decoy"
+    assert maxquant.normalized_records[0].posterior_error_probability == 0.001
+    assert maxquant.normalized_records[0].q_value is None
     diann_by_id = {record.spectrum_id: record for record in diann.normalized_records}
     assert diann_by_id["run1_PEPTIDE_2"].q_value == 0.003
     assert spectronaut.normalized_records[0].protein_refs == ("P12345", "Q22222")
@@ -257,6 +263,10 @@ def test_built_in_manifests_are_self_describing() -> None:
     assert "Modified sequence" in manifest.native_columns
     assert rendered["adapter_kind"] == "maxquant-evidence"
     assert manifest.score_family is SearchScoreFamily.ENGINE_SCORE
+    assert manifest.mapping is not None
+    assert manifest.mapping.posterior_error_probability == "PEP"
+    assert manifest.mapping.q_value is None
+    assert manifest.supports_q_value is False
 
 
 def test_search_parameter_parsers_extract_enzyme_tolerances_and_mods() -> None:

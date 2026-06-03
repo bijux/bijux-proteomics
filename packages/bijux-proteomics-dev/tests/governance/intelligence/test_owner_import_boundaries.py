@@ -19,7 +19,7 @@ def test_intelligence_owner_import_boundary_report_tracks_zero_violations() -> N
     guard = report.guard
 
     assert INTELLIGENCE_OWNER_IMPORT_BOUNDARIES_PATH.exists()
-    assert metrics.scanned_module_count == 62
+    assert metrics.scanned_module_count == 72
     assert metrics.banned_module_count == len(BANNED_MODULES)
     assert metrics.banned_module_count == 5
     assert metrics.violation_count == guard.baseline_violation_count

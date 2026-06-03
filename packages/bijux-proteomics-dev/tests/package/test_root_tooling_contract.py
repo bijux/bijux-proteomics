@@ -68,12 +68,14 @@ def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None
     dependency_groups = _root_pyproject()["dependency-groups"]
     assert isinstance(dependency_groups, dict)
     assert set(dependency_groups) == {
+        "test",
         "dev",
         "api",
         "local-esmfold",
         "local-rosettafold",
         "nl",
     }
+    assert any(str(entry).startswith("pyright>=") for entry in dependency_groups["dev"])
 
 
 def test_root_make_declares_documented_repository_extensions() -> None:
@@ -85,3 +87,19 @@ def test_root_make_declares_documented_repository_extensions() -> None:
     assert "manage_models:" in root_make
     assert "api-freeze:" in root_make
     assert "openapi-drift:" in root_make
+    assert "quality-public-api-types:" in root_make
+    assert "quality-circular-imports:" in root_make
+    assert "quality-core-dependency-minimization:" in root_make
+    assert "quality-optional-dependency-guards:" in root_make
+    assert "quality-generated-file-markers:" in root_make
+    assert "quality-internal-orphan-modules:" in root_make
+    assert "quality-canonical-package-tree:" in root_make
+    assert "quality-architecture-regression:" in root_make
+    assert "$(MAKE) quality-public-api-types" in root_make
+    assert "$(MAKE) quality-circular-imports" in root_make
+    assert "$(MAKE) quality-core-dependency-minimization" in root_make
+    assert "$(MAKE) quality-optional-dependency-guards" in root_make
+    assert "$(MAKE) quality-generated-file-markers" in root_make
+    assert "$(MAKE) quality-internal-orphan-modules" in root_make
+    assert "$(MAKE) quality-canonical-package-tree" in root_make
+    assert "$(MAKE) quality-architecture-regression" in root_make

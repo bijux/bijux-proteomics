@@ -1,7 +1,7 @@
 {
   "report_id": "flagship-asset-refresh-report",
   "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/freshness_report.json",
-  "checked_on": "2026-05-09T10:04:23.670647Z",
+  "checked_on": "2026-05-24T18:31:29.811029Z",
   "entries": [
     {
       "package_id": "flagship_public_package:dda_reviewable_run",
@@ -80,10 +80,16 @@
       "workflow_family": "multiplex",
       "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
       "local_paths_present": true,
-      "local_path_count": 1,
+      "local_path_count": 2,
       "remote_checks": [
         {
-          "source_id": "multiplex:tmtpro_reference",
+          "source_id": "multiplex:tmtpro_reporter_reference",
+          "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "multiplex:feature_snapshot_reference",
           "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
           "status": "available",
           "detail": "remote checks skipped by caller"
@@ -116,10 +122,22 @@
       "workflow_family": "targeted",
       "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
       "local_paths_present": true,
-      "local_path_count": 1,
+      "local_path_count": 3,
       "remote_checks": [
         {
-          "source_id": "targeted:guideline_reference",
+          "source_id": "targeted:skyline_result_snapshot",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "targeted:design_snapshot",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "targeted:qc_snapshot",
           "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
           "status": "available",
           "detail": "remote checks skipped by caller"

@@ -5,32 +5,42 @@ distribution_name = "bijux-proteomics-foundation"
 
 [[module]]
 module_name = "bijux_proteomics_foundation"
-outgoing_internal_modules = ["bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.document_schema", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_hashes"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_foundation.identity.identifiers.AssayId", "bijux_proteomics_foundation.identity.identifiers.BatchId", "bijux_proteomics_foundation.identity.identifiers.CandidateId", "bijux_proteomics_foundation.identity.identifiers.ClaimId", "bijux_proteomics_foundation.identity.identifiers.EvidenceId", "bijux_proteomics_foundation.identity.identifiers.GateId", "bijux_proteomics_foundation.identity.identifiers.ProgramId", "bijux_proteomics_foundation.identity.identifiers.TargetId", "bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.canonical_json.to_canonical_json", "bijux_proteomics_foundation.serialization.document_schema", "bijux_proteomics_foundation.serialization.document_schema.DocumentSchema", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.json_contracts.fingerprint_model", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_hashes.hash_model", "bijux_proteomics_foundation.serialization.stable_hashes.hash_payload", "bijux_proteomics_foundation.serialization.stable_hashes.hash_text"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation._package_aliases"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.compatibility"
-outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_assessments", "bijux_proteomics_foundation.compatibility.schema_migrations"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.import_migrations", "bijux_proteomics_foundation.compatibility.import_migrations.ImportMigrationSurface", "bijux_proteomics_foundation.compatibility.import_migrations.compatibility_export_names", "bijux_proteomics_foundation.compatibility.import_migrations.compatibility_module_dir", "bijux_proteomics_foundation.compatibility.import_migrations.compatibility_module_getattr", "bijux_proteomics_foundation.compatibility.import_migrations.emit_compatibility_import_warning", "bijux_proteomics_foundation.compatibility.import_migrations.import_migration_deprecation_message", "bijux_proteomics_foundation.compatibility.import_migrations.load_canonical_module", "bijux_proteomics_foundation.compatibility.schema_assessments", "bijux_proteomics_foundation.compatibility.schema_assessments.SchemaCompatibility", "bijux_proteomics_foundation.compatibility.schema_assessments.SchemaEvolutionAssessment", "bijux_proteomics_foundation.compatibility.schema_assessments.assess_schema_compatibility", "bijux_proteomics_foundation.compatibility.schema_assessments.assess_schema_evolution", "bijux_proteomics_foundation.compatibility.schema_migrations", "bijux_proteomics_foundation.compatibility.schema_migrations.MigrationRegistry", "bijux_proteomics_foundation.compatibility.schema_migrations.SchemaMigration"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.compatibility.import_migrations"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.compatibility.schema_assessments"
-outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_migrations", "bijux_proteomics_foundation.compatibility.schema_versions", "bijux_proteomics_foundation.serialization.json_contracts"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_migrations", "bijux_proteomics_foundation.compatibility.schema_migrations.MigrationRegistry", "bijux_proteomics_foundation.compatibility.schema_versions", "bijux_proteomics_foundation.compatibility.schema_versions.SchemaVersion", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.compatibility.schema_migrations"
-outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.exceptions", "bijux_proteomics_foundation.serialization.json_contracts"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.exceptions", "bijux_proteomics_foundation.outcomes.exceptions.MigrationExecutionError", "bijux_proteomics_foundation.outcomes.exceptions.MigrationPathError", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.compatibility.schema_versions"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.identity"
-outgoing_internal_modules = ["bijux_proteomics_foundation.identity.identifiers"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_foundation.identity.identifiers.AssayId", "bijux_proteomics_foundation.identity.identifiers.BatchId", "bijux_proteomics_foundation.identity.identifiers.CandidateId", "bijux_proteomics_foundation.identity.identifiers.ClaimId", "bijux_proteomics_foundation.identity.identifiers.CycleId", "bijux_proteomics_foundation.identity.identifiers.EvidenceId", "bijux_proteomics_foundation.identity.identifiers.GateId", "bijux_proteomics_foundation.identity.identifiers.IdentifierKind", "bijux_proteomics_foundation.identity.identifiers.LabActionId", "bijux_proteomics_foundation.identity.identifiers.ProgramId", "bijux_proteomics_foundation.identity.identifiers.PromotionId", "bijux_proteomics_foundation.identity.identifiers.PtmId", "bijux_proteomics_foundation.identity.identifiers.ReviewId", "bijux_proteomics_foundation.identity.identifiers.ReviewPacketId", "bijux_proteomics_foundation.identity.identifiers.StudyId", "bijux_proteomics_foundation.identity.identifiers.TargetId", "bijux_proteomics_foundation.identity.identifiers.build_identifier", "bijux_proteomics_foundation.identity.identifiers.classify_identifier", "bijux_proteomics_foundation.identity.identifiers.ensure_identifier_kind"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -40,7 +50,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.outcomes"
-outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.exceptions", "bijux_proteomics_foundation.outcomes.failures", "bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.outcomes.results"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.exceptions", "bijux_proteomics_foundation.outcomes.exceptions.ContractConflictError", "bijux_proteomics_foundation.outcomes.exceptions.ContractNotFoundError", "bijux_proteomics_foundation.outcomes.exceptions.ContractValidationError", "bijux_proteomics_foundation.outcomes.exceptions.FoundationContractError", "bijux_proteomics_foundation.outcomes.exceptions.MigrationExecutionError", "bijux_proteomics_foundation.outcomes.exceptions.MigrationPathError", "bijux_proteomics_foundation.outcomes.exceptions.MissingOptionalDependencyError", "bijux_proteomics_foundation.outcomes.failures", "bijux_proteomics_foundation.outcomes.failures.ErrorCategory", "bijux_proteomics_foundation.outcomes.failures.ErrorEnvelope", "bijux_proteomics_foundation.outcomes.failures.build_error_envelope_from_exception", "bijux_proteomics_foundation.outcomes.failures.summarize_exception_chain", "bijux_proteomics_foundation.outcomes.optional_dependencies", "bijux_proteomics_foundation.outcomes.optional_dependencies.import_optional_module", "bijux_proteomics_foundation.outcomes.optional_dependencies.is_missing_optional_dependency_error", "bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.outcomes.refusals.OperationRefusal", "bijux_proteomics_foundation.outcomes.refusals.RefusalKind", "bijux_proteomics_foundation.outcomes.results", "bijux_proteomics_foundation.outcomes.results.OperationDisposition", "bijux_proteomics_foundation.outcomes.results.OperationResult"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -50,52 +60,67 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.outcomes.failures"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.states"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_pairs", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.provenance.ProvenancePointer", "bijux_proteomics_foundation.support.states", "bijux_proteomics_foundation.support.states.SupportState"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.outcomes.optional_dependencies"
+outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.exceptions", "bijux_proteomics_foundation.outcomes.exceptions.MissingOptionalDependencyError"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.outcomes.refusals"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.states"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_strings", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.provenance.ProvenancePointer", "bijux_proteomics_foundation.support.states", "bijux_proteomics_foundation.support.states.SupportState"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.outcomes.results"
-outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.states"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.outcomes.refusals.OperationRefusal", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_strings", "bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.provenance.ProvenancePointer", "bijux_proteomics_foundation.support.states", "bijux_proteomics_foundation.support.states.SupportState"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.package_aliases"
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility", "bijux_proteomics_foundation.compatibility.ImportMigrationSurface", "bijux_proteomics_foundation.compatibility.compatibility_export_names", "bijux_proteomics_foundation.compatibility.compatibility_module_dir", "bijux_proteomics_foundation.compatibility.compatibility_module_getattr", "bijux_proteomics_foundation.compatibility.emit_compatibility_import_warning", "bijux_proteomics_foundation.compatibility.import_migration_deprecation_message"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.public_api"
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.document_schema", "bijux_proteomics_foundation.serialization.fingerprints", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.scientific_values", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_values"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.canonical_json.flatten_tsv_mapping", "bijux_proteomics_foundation.serialization.canonical_json.normalize_json_value", "bijux_proteomics_foundation.serialization.canonical_json.to_canonical_json", "bijux_proteomics_foundation.serialization.document_schema", "bijux_proteomics_foundation.serialization.document_schema.DocumentSchema", "bijux_proteomics_foundation.serialization.fingerprints", "bijux_proteomics_foundation.serialization.fingerprints.FingerprintRecord", "bijux_proteomics_foundation.serialization.fingerprints.FingerprintScope", "bijux_proteomics_foundation.serialization.fingerprints.build_artifact_bundle_fingerprint", "bijux_proteomics_foundation.serialization.fingerprints.build_benchmark_manifest_fingerprint", "bijux_proteomics_foundation.serialization.fingerprints.build_dataset_fingerprint", "bijux_proteomics_foundation.serialization.fingerprints.build_fingerprint_record", "bijux_proteomics_foundation.serialization.fingerprints.build_parameter_set_fingerprint", "bijux_proteomics_foundation.serialization.fingerprints.build_run_context_fingerprint", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.json_contracts.fingerprint_model", "bijux_proteomics_foundation.serialization.scientific_values", "bijux_proteomics_foundation.serialization.scientific_values.DurationValue", "bijux_proteomics_foundation.serialization.scientific_values.NullabilityState", "bijux_proteomics_foundation.serialization.scientific_values.NullableValue", "bijux_proteomics_foundation.serialization.scientific_values.SequenceCoordinateRange", "bijux_proteomics_foundation.serialization.scientific_values.SequenceCoordinateSystem", "bijux_proteomics_foundation.serialization.scientific_values.UtcTimestamp", "bijux_proteomics_foundation.serialization.scientific_values.absent_value", "bijux_proteomics_foundation.serialization.scientific_values.present_value", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_hashes.StableHashAlgorithm", "bijux_proteomics_foundation.serialization.stable_hashes.StableHashPolicy", "bijux_proteomics_foundation.serialization.stable_hashes.default_hash_policy", "bijux_proteomics_foundation.serialization.stable_hashes.hash_model", "bijux_proteomics_foundation.serialization.stable_hashes.hash_payload", "bijux_proteomics_foundation.serialization.stable_hashes.hash_text", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_value"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.canonical_json"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_value"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.document_schema"
-outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_versions", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_hashes"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.compatibility.schema_versions", "bijux_proteomics_foundation.compatibility.schema_versions.normalize_schema_version", "bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_hashes.hash_payload"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.fingerprints"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_values"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_hashes.StableHashPolicy", "bijux_proteomics_foundation.serialization.stable_hashes.default_hash_policy", "bijux_proteomics_foundation.serialization.stable_hashes.hash_payload", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_strings"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.json_contracts"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.stable_hashes"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.canonical_json", "bijux_proteomics_foundation.serialization.canonical_json.flatten_tsv_mapping", "bijux_proteomics_foundation.serialization.canonical_json.normalize_json_value", "bijux_proteomics_foundation.serialization.stable_hashes", "bijux_proteomics_foundation.serialization.stable_hashes.hash_model"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.scientific_values"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_value"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -105,25 +130,65 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.support"
-outgoing_internal_modules = ["bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.states"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.support.provenance", "bijux_proteomics_foundation.support.provenance.ProvenancePointer", "bijux_proteomics_foundation.support.provenance.ProvenancePointerKind", "bijux_proteomics_foundation.support.states", "bijux_proteomics_foundation.support.states.SupportState"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.support.charter"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.support.provenance"
-outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_values"]
+outgoing_internal_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.json_contracts.JsonModel", "bijux_proteomics_foundation.serialization.stable_values", "bijux_proteomics_foundation.serialization.stable_values.stable_order_strings"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.support.public_api"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_foundation.public_api", "bijux_proteomics_foundation.public_api.FOUNDATION_ROOT_API_BUDGET", "bijux_proteomics_foundation.public_api.FoundationRootApiBudget", "bijux_proteomics_foundation.public_api.FoundationRootApiCapability", "bijux_proteomics_foundation.public_api.FoundationRootApiEntry", "bijux_proteomics_foundation.public_api.list_foundation_root_api_entries"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_foundation.support.states"
 outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.generated_file_markers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.public_function_docstrings"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.public_function_type_boundaries"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.pytest_markers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.skip_policy"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.source_tree_complexity"
+outgoing_internal_modules = ["bijux_proteomics_foundation.testing.generated_file_markers", "bijux_proteomics_foundation.testing.generated_file_markers.is_marked_generated_file"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_foundation.testing.source_tree_limits"
+outgoing_internal_modules = ["bijux_proteomics_foundation.testing.generated_file_markers", "bijux_proteomics_foundation.testing.generated_file_markers.is_marked_generated_file"]
 outgoing_workspace_modules = []

@@ -1,0 +1,106 @@
+[
+  {
+    "case_id": "overlapping_unique_residue_coverage",
+    "threshold": 0.05,
+    "score_orientation": "higher_better",
+    "protein_sequences": {
+      "P10001": "ABCDEFGHIK"
+    },
+    "records": [
+      {
+        "spectrum_id": "scan=coverage-1",
+        "peptide": "ABCD",
+        "canonical_peptide": "ABCD",
+        "charge": 2,
+        "score": 50.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P10001"
+        ]
+      },
+      {
+        "spectrum_id": "scan=coverage-2",
+        "peptide": "CDEF",
+        "canonical_peptide": "CDEF",
+        "charge": 2,
+        "score": 49.0,
+        "q_value": 0.02,
+        "protein_refs": [
+          "P10001"
+        ]
+      },
+      {
+        "spectrum_id": "scan=coverage-3",
+        "peptide": "ZZZ",
+        "canonical_peptide": "ZZZ",
+        "charge": 2,
+        "score": 48.0,
+        "q_value": 0.03,
+        "protein_refs": [
+          "P10001"
+        ]
+      }
+    ],
+    "expected_entries": [
+      {
+        "protein_ref": "P10001",
+        "covered_residue_count": 6,
+        "coverage_fraction": 0.6,
+        "covered_ranges": [
+          [
+            1,
+            6
+          ]
+        ],
+        "uncovered_ranges": [
+          [
+            7,
+            10
+          ]
+        ],
+        "covered_peptides": [
+          "ABCD",
+          "CDEF"
+        ],
+        "unmatched_peptides": [
+          "ZZZ"
+        ]
+      }
+    ],
+    "expected_uncovered_regions": [
+      {
+        "protein_ref": "P10001",
+        "region_index": 1,
+        "start_residue": 7,
+        "end_residue": 10,
+        "residue_count": 4
+      }
+    ],
+    "expected_coordinate_rows": [
+      {
+        "protein_ref": "P10001",
+        "canonical_peptide": "ABCD",
+        "coordinate_status": "matched",
+        "occurrence_index": 1,
+        "start_residue": 1,
+        "end_residue": 4
+      },
+      {
+        "protein_ref": "P10001",
+        "canonical_peptide": "CDEF",
+        "coordinate_status": "matched",
+        "occurrence_index": 1,
+        "start_residue": 3,
+        "end_residue": 6
+      },
+      {
+        "protein_ref": "P10001",
+        "canonical_peptide": "ZZZ",
+        "coordinate_status": "unmatched",
+        "occurrence_index": null,
+        "start_residue": null,
+        "end_residue": null
+      }
+    ]
+  }
+]

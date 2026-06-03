@@ -5,29 +5,40 @@
 
 from __future__ import annotations
 
-# ruff: noqa: I001
+from importlib import import_module
+from typing import Any
 
-from bijux_proteomics.identification.calibration_drift import *  # noqa: F401,F403
-from bijux_proteomics.identification.confidence import *  # noqa: F401,F403
-from bijux_proteomics.identification.contaminant_audit import *  # noqa: F401,F403
-from bijux_proteomics.identification.contracts import *  # noqa: F401,F403
-from bijux_proteomics.identification.evidence_level_fdr_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.parsimony_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.peptide_evidence_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.picked_protein_fdr_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein_ambiguity_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein_inference_benchmarks import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein_coverage_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein_coverage_visualization import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein_grouping_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.psm_inspection import *  # noqa: F401,F403
-from bijux_proteomics.identification.search_adapters import *  # noqa: F401,F403
-from bijux_proteomics.identification.target_decoy_reference_validation import *  # noqa: F401,F403
-from bijux_proteomics.identification.generic_psm_mapper import *  # noqa: F401,F403
-from bijux_proteomics.identification.openms_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.diann_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.spectronaut_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.maxquant_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.comet_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.fragpipe_import import *  # noqa: F401,F403
-from bijux_proteomics.identification.sage_import import *  # noqa: F401,F403
+_IDENTIFICATION_EXPORT_MODULES = (
+    "bijux_proteomics.identification.adapters",
+    "bijux_proteomics.identification.contracts",
+    "bijux_proteomics.identification.confidence",
+    "bijux_proteomics.identification.fdr",
+    "bijux_proteomics.identification.peptide",
+    "bijux_proteomics.identification.protein",
+    "bijux_proteomics.identification.psm",
+)
+
+_IDENTIFICATION_SUBMODULES = {
+    "adapters": "bijux_proteomics.identification.adapters",
+    "confidence": "bijux_proteomics.identification.confidence",
+    "contracts": "bijux_proteomics.identification.contracts",
+    "fdr": "bijux_proteomics.identification.fdr",
+    "peptide": "bijux_proteomics.identification.peptide",
+    "protein": "bijux_proteomics.identification.protein",
+    "psm": "bijux_proteomics.identification.psm",
+}
+
+
+def __getattr__(name: str) -> Any:
+    submodule_path = _IDENTIFICATION_SUBMODULES.get(name)
+    if submodule_path is not None:
+        module = import_module(submodule_path)
+        globals()[name] = module
+        return module
+    for module_path in _IDENTIFICATION_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

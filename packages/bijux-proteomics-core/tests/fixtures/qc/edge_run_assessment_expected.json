@@ -230,7 +230,29 @@
   "policy_name": "default-lcms-qc",
   "policy_sha256": "<policy_sha256>",
   "policy_version": "1.0.0",
+  "qc_status": "fail",
   "run_id": "edge-run",
+  "sample_id": null,
+  "status_reasons": [
+    {
+      "code": "spectrum_count",
+      "message": "Spectrum count breached fail threshold at 2",
+      "source": "metric",
+      "status": "fail"
+    },
+    {
+      "code": "identification_rate",
+      "message": "Identification rate breached fail threshold at 0 fraction",
+      "source": "metric",
+      "status": "fail"
+    },
+    {
+      "code": "median_abs_mass_error_ppm",
+      "message": "Median absolute precursor error was not assessed because no matched psms",
+      "source": "metric",
+      "status": "caution"
+    }
+  ],
   "threshold_profile": {
     "advisory_rules": [
       {

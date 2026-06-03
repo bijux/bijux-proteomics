@@ -14,6 +14,7 @@ from typing import Any, cast
 
 import numpy as np
 
+from bijux_proteomics.domain.errors import SchemaError, UnsupportedFormatError
 from bijux_proteomics.review.structure_reports.compute import (
     SS8,
     Metrics,
@@ -63,16 +64,16 @@ def from_json(s: str) -> Report:
     """from_json."""
     data = json.loads(s)
     if data.get("schema_version", "0.0") != "1.0":
-        raise ValueError("Unsupported schema version")
+        raise UnsupportedFormatError("Unsupported schema version")
     bands = data["metrics"]["tertiary"]["plddt_bands"]
     if set(bands.keys()) != {b.value for b in PLDDTBand}:
-        raise ValueError("Invalid pLDDT band keys")
+        raise SchemaError("Invalid pLDDT band keys")
     for v in bands.values():
         if not (0.0 <= v <= 100.0):
-            raise ValueError("pLDDT band out of [0,100]")
+            raise SchemaError("pLDDT band out of [0,100]")
     ss8 = data["metrics"]["secondary"]["ss8_pct"]
     if set(ss8.keys()) - {s.value for s in SS8}:
-        raise ValueError("Invalid SS8 keys")
+        raise SchemaError("Invalid SS8 keys")
 
     return Report(
         provider=data["provider"],

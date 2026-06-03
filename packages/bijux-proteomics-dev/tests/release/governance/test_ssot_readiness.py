@@ -22,6 +22,7 @@ def test_ssot_readiness_report_covers_every_ownership_check() -> None:
         "duplicate-model-ownership",
         "package-substance",
         "public-symbol-ownership",
+        "scientific-concept-ownership",
     }
     assert all(entry.ready for entry in report)
     assert all(entry.issue_count == 0 for entry in report)

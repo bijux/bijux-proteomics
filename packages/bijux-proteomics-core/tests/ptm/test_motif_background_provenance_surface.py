@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmMotifBackgroundMode,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
@@ -41,21 +42,43 @@ def test_ptm_motif_enrichment_background_report_preserves_provenance() -> None:
     )
     site_entries = build_ptm_site_table(mappings)
 
-    report = build_ptm_motif_enrichment_background_provenance_report(
+    observed_report = build_ptm_motif_enrichment_background_provenance_report(
         site_entries,
         protein_sequences=_protein_sequences(),
         modification_name="Phospho",
-        background_universe="all_serine_threonine_tyrosine_residues_in_observed_proteins",
+        background_mode=PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND,
+        applied_filters=(
+            "exclude_decoy_sites",
+            "require_localization_score_ge_0.75",
+        ),
+    )
+    whole_proteome_report = build_ptm_motif_enrichment_background_provenance_report(
+        site_entries,
+        protein_sequences=_protein_sequences(),
+        modification_name="Phospho",
+        background_mode=PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND,
         applied_filters=(
             "exclude_decoy_sites",
             "require_localization_score_ge_0.75",
         ),
     )
 
-    assert report.modification_name == "Phospho"
-    assert report.background_universe.startswith("all_serine")
-    assert report.statistical_test == "fisher_exact"
-    assert report.multiple_testing_correction == "benjamini_hochberg"
-    assert report.foreground_site_count >= 1
-    assert report.background_site_count >= report.foreground_site_count
-    assert any(term.residue == "S" for term in report.terms)
+    assert observed_report.modification_name == "Phospho"
+    assert (
+        observed_report.background_mode
+        is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
+    )
+    assert (
+        whole_proteome_report.background_mode
+        is PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    )
+    assert observed_report.background_universe == "observed_phosphosite_background"
+    assert whole_proteome_report.background_universe == "whole_proteome_background"
+    assert observed_report.statistical_test == "fisher_exact"
+    assert observed_report.multiple_testing_correction == "benjamini_hochberg"
+    assert observed_report.foreground_site_count >= 1
+    assert (
+        whole_proteome_report.background_site_count
+        > observed_report.background_site_count
+    )
+    assert any(term.residue == "S" for term in observed_report.terms)

@@ -63,7 +63,24 @@ def evaluate_schema_compatibility(
     *,
     profile: KnowledgeSchemaProfile | None = None,
 ) -> SchemaCompatibilityReport:
-    """Evaluate schema metadata compatibility against the package profile."""
+    """Evaluate schema metadata compatibility against the package profile.
+
+    Inputs:
+    ``schema`` supplies persisted knowledge schema metadata and ``profile``
+    optionally overrides the default compatibility profile.
+
+    Outputs:
+    Returns one ``SchemaCompatibilityReport`` describing compatibility status
+    and advisory notes for the schema version.
+
+    Failure Modes:
+    This function does not raise governed public exceptions under normal typed
+    input use.
+
+    Scientific Caveats:
+    Compatibility here covers owned document-version policy only; it does not
+    prove annotation completeness, biological quality, or source correctness.
+    """
     profile = profile or default_knowledge_schema_profile()
     notes: list[str] = []
     compatible = schema.schema_version >= profile.minimum_schema_version

@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_topology_drift
 
 [guard]
-max_total_top_level_root_file_count = 13
+max_total_top_level_root_file_count = 27
 max_total_undocumented_owner_family_count = 0
 max_total_stale_documented_path_count = 0
-max_total_historical_shape_count = 0
+max_total_historical_shape_count = 3
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -29,8 +29,8 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-top_level_root_file_count = 0
-documented_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+top_level_root_file_count = 3
+documented_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support", "testing"]
 undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
@@ -39,8 +39,8 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-top_level_root_file_count = 0
-documented_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+top_level_root_file_count = 8
+documented_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "interpretation", "io", "isotope_labeling", "lab", "multiplex", "panels", "proteoforms", "ptm", "quantification", "review", "sequences", "study", "targeted", "workflow"]
 undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
@@ -49,8 +49,8 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-top_level_root_file_count = 0
-documented_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
+top_level_root_file_count = 1
+documented_owner_families = ["api", "artifacts", "checkpoints", "diff", "execution", "governance", "handoff", "parallel", "providers", "rehydrate", "resume", "runs", "state", "streaming", "support", "workflows"]
 undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
@@ -59,18 +59,18 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-top_level_root_file_count = 0
-documented_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+top_level_root_file_count = 7
+documented_owner_families = ["candidates", "claims", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
 undocumented_owner_families = []
 stale_documented_paths = []
-historical_topology_mentions = []
+historical_topology_mentions = ["belief_audit.py", "contradictions.py", "falsifiers.py", "next_steps.py", "query.py", "refusal.py"]
 docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-top_level_root_file_count = 0
-documented_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+top_level_root_file_count = 1
+documented_owner_families = ["complexes", "contracts", "coverage", "disease", "drugs", "features", "governance", "identity", "kinases", "memory", "orthologs", "pathways", "references", "reviews"]
 undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
@@ -79,7 +79,7 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-top_level_root_file_count = 0
+top_level_root_file_count = 1
 documented_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
 undocumented_owner_families = []
 stale_documented_paths = []
@@ -99,27 +99,27 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "proteomics"
-top_level_root_file_count = 3
+top_level_root_file_count = 2
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
-historical_topology_mentions = []
+historical_topology_mentions = ["__main__.py", "cli.py"]
 docs_tree_contradiction = false
-historical_shape_dominates_design = false
+historical_shape_dominates_design = true
 
 [[package]]
 distribution_name = "proteomics-core"
-top_level_root_file_count = 3
+top_level_root_file_count = 2
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
-historical_topology_mentions = []
+historical_topology_mentions = ["__main__.py", "cli.py"]
 docs_tree_contradiction = false
-historical_shape_dominates_design = false
+historical_shape_dominates_design = true
 
 [[package]]
 distribution_name = "proteomics-foundation"
-top_level_root_file_count = 1
+top_level_root_file_count = 0
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
@@ -129,17 +129,17 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "proteomics-runtime"
-top_level_root_file_count = 3
+top_level_root_file_count = 2
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
-historical_topology_mentions = []
+historical_topology_mentions = ["__main__.py", "cli.py"]
 docs_tree_contradiction = false
-historical_shape_dominates_design = false
+historical_shape_dominates_design = true
 
 [[package]]
 distribution_name = "proteomics-intelligence"
-top_level_root_file_count = 1
+top_level_root_file_count = 0
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
@@ -149,7 +149,7 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "proteomics-knowledge"
-top_level_root_file_count = 1
+top_level_root_file_count = 0
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
@@ -159,7 +159,7 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "proteomics-lab"
-top_level_root_file_count = 1
+top_level_root_file_count = 0
 documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []

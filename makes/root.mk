@@ -15,7 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
-ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance
+ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports && $(MAKE) quality-core-dependency-minimization && $(MAKE) quality-optional-dependency-guards && $(MAKE) quality-generated-file-markers && $(MAKE) quality-internal-orphan-modules && $(MAKE) quality-canonical-package-tree && $(MAKE) quality-architecture-regression
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
 ROOT_TARGET_GROUPS_test-all ?= check
@@ -27,6 +27,15 @@ ROOT_TARGET_SHARED_ENV_test-all-plus-run-time ?= 1
 export
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
+
+ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND = @for path in $(ROOT_FORBIDDEN_ARTIFACTS); do \
+	if [ "$$path" = "$(CURDIR)/.hypothesis" ] || [ "$$path" = "$(CURDIR)/.benchmarks" ]; then \
+		if [ -L "$$path" ]; then \
+			continue; \
+		fi; \
+	fi; \
+	rm -rf "$$path"; \
+done || true
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
 ROOT_TARGET_PACKAGES_test-all := $(CHECK_PACKAGES)
@@ -45,10 +54,10 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist \
-	clean-root-artifacts root-check-env check-shared-bijux-py
+	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist test-collection-gate \
+	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types quality-circular-imports quality-core-dependency-minimization quality-optional-dependency-guards quality-generated-file-markers quality-internal-orphan-modules quality-canonical-package-tree quality-architecture-regression
 
-check: lock-check lint test quality security docs api build sbom ## Run the full repository verification flow
+check: lock-check lint test-collection-gate test quality security docs api build sbom ## Run the full repository verification flow
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
@@ -74,6 +83,33 @@ quality-artifact-governance: root-check-env ## Enforce artifact roots and reposi
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
+
+quality-public-api-types: root-check-env ## Type-check curated public API modules with governed mypy and pyright configs
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.public_api_typecheck_targets --check
+
+quality-circular-imports: root-check-env ## Validate governed workspace package and package-family circular import scopes
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.dependencies.circular_import_scopes --check
+
+quality-core-dependency-minimization: root-check-env ## Validate that core default imports stay free of forbidden heavy dependencies
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.dependencies.core_dependency_minimization --check
+
+quality-optional-dependency-guards: root-check-env ## Validate graceful optional dependency failure and minimal-install smoke paths
+	@PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src:$(CURDIR)/packages/bijux-proteomics-foundation/src:$(CURDIR)/packages/bijux-proteomics-core/src:$(CURDIR)/packages/bijux-proteomics-knowledge/src:$(CURDIR)/packages/bijux-proteomics-intelligence/src:$(CURDIR)/packages/bijux-proteomics-lab/src:$(CURDIR)/packages/bijux-proteomics-runtime/src" "$(ROOT_CHECK_PYTHON)" -m pytest packages/bijux-proteomics-foundation/tests/outcomes/test_optional_dependency_surface.py packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py packages/bijux-proteomics-core/tests/package/test_optional_dependency_import_smoke.py packages/bijux-proteomics-runtime/tests/providers/test_runtime_provider_surface.py packages/bijux-proteomics-runtime/tests/package/test_optional_dependency_import_smoke.py -q -p no:cov --import-mode=importlib
+
+quality-generated-file-markers: root-check-env ## Validate governed generated-file markers and intentional quality exclusions
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.generated_file_markers --check
+
+quality-internal-orphan-modules: root-check-env ## Validate that internal owner modules stay reachable or explicitly justified
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.package_shape.internal_orphan_modules --check
+
+quality-canonical-package-tree: root-check-env ## Validate canonical package tree layout against the governed top-level module contract
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.package_shape.package_tree_layout --check
+
+quality-architecture-regression: root-check-env ## Run the curated post-refactor architecture regression gate
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.gates.architecture_regression_gate
+
+test-collection-gate: root-check-env ## Run workspace import checks and per-package pytest collection before feature tests
+	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.test_collection_gate
 
 release-preflight: root-check-env ## Run the hostile-review release preflight in exact stage order
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.final_preflight

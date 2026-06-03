@@ -1,0 +1,36 @@
+[
+  {
+    "assay_entry_id": "assay:P001:PEPTIDEK",
+    "biomarker_candidate_id": "protein:P001",
+    "biomarker_candidate_kind": "protein",
+    "biomarker_display_label": "P001 benchmark candidate",
+    "biomarker_priority_rank": 1,
+    "target_protein_ref": "P001",
+    "target_protein_group_id": "protein_group_1",
+    "gene_symbol": "GENE1",
+    "peptide_sequence": "PEPTIDEK",
+    "canonical_peptide": "PEPTIDEK",
+    "uniqueness_class": "unique",
+    "precursor_charge": 2,
+    "selected_transition_count": 2,
+    "exported_transition_count": 2,
+    "warning_note": "benchmark assay"
+  },
+  {
+    "assay_entry_id": "assay:P002:ACDMPEP",
+    "biomarker_candidate_id": "protein:P002",
+    "biomarker_candidate_kind": "protein",
+    "biomarker_display_label": "P002 benchmark candidate",
+    "biomarker_priority_rank": 2,
+    "target_protein_ref": "P002",
+    "target_protein_group_id": "protein_group_2",
+    "gene_symbol": "GENE2",
+    "peptide_sequence": "ACDMPEP",
+    "canonical_peptide": "ACDMPEP",
+    "uniqueness_class": "unique",
+    "precursor_charge": 3,
+    "selected_transition_count": 2,
+    "exported_transition_count": 2,
+    "warning_note": "benchmark assay"
+  }
+]

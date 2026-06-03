@@ -1,0 +1,23 @@
+[policy]
+package_name = "bijux-proteomics-core"
+
+[[dependency]]
+distribution_name = "pandas"
+forbidden_import_roots = ["pandas"]
+allowed_optional_dependency_groups = []
+allowed_optional_module_prefixes = []
+rationale = "core scientific imports must stay usable without pandas on the default install path"
+
+[[dependency]]
+distribution_name = "scikit-learn"
+forbidden_import_roots = ["sklearn"]
+allowed_optional_dependency_groups = []
+allowed_optional_module_prefixes = []
+rationale = "core scientific imports must stay usable without sklearn on the default install path"
+
+[[dependency]]
+distribution_name = "networkx"
+forbidden_import_roots = ["networkx"]
+allowed_optional_dependency_groups = []
+allowed_optional_module_prefixes = []
+rationale = "core scientific imports must stay usable without networkx on the default install path"

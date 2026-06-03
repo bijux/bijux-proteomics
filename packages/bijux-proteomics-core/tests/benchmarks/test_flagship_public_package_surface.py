@@ -110,7 +110,7 @@ def test_multiplex_public_benchmark_package_promotes_tmtpro_review_surface() -> 
 
     assert package.workflow_family == "multiplex"
     assert any(
-        asset.path.endswith("evidence/multiplex_ms1_features.tsv")
+        asset.path.endswith("evidence/tmt_reporter_table.tsv")
         for asset in package.source_assets
     )
     assert any(
@@ -144,6 +144,22 @@ def test_targeted_public_benchmark_package_exposes_follow_up_consequences() -> N
 
     assert package.workflow_family == "targeted"
     assert any(
+        asset.path.endswith("evidence/skyline_targeted_qc_results.tsv")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("evidence/skyline_targeted_qc.design.tsv")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("evidence/targeted_validation_discovery_claims.json")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("evidence/targeted_validation_panel_assays.json")
+        for asset in package.source_assets
+    )
+    assert any(
         asset.path.endswith("evidence/targeted_benchmark_qc.tsv")
         for asset in package.source_assets
     )
@@ -156,6 +172,7 @@ def test_targeted_public_benchmark_package_exposes_follow_up_consequences() -> N
         for asset in package.source_assets
     )
     assert "transition reproducibility" in package.scientific_pressures
+    assert "fragment-ratio drift" in package.scientific_pressures
 
 
 def test_public_package_artifact_inventories_cover_every_catalog_entry() -> None:

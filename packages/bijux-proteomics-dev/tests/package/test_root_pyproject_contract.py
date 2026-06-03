@@ -62,6 +62,17 @@ def test_root_pyproject_exposes_all_workspace_packages_to_root_dev_installs() ->
     assert dev_group_entries.issuperset(workspace_packages)
 
 
+def test_root_pyproject_exposes_all_workspace_packages_to_root_test_installs() -> None:
+    pyproject = _root_pyproject()
+    workspace_packages = set(
+        _string_list(_table(_table(pyproject["tool"])[WORKSPACE_TOOL])["packages"])
+    )
+    test_group = _string_list(_table(pyproject["dependency-groups"])["test"])
+    test_group_entries = {entry.split("[", 1)[0] for entry in test_group}
+
+    assert test_group_entries == workspace_packages
+
+
 def test_root_pyproject_uses_workspace_sources_for_every_workspace_package() -> None:
     pyproject = _root_pyproject()
     workspace_packages = set(

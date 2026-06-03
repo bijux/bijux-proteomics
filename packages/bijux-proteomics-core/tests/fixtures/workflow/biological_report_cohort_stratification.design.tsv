@@ -1,0 +1,9 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	sex
+MC1	control	1	1	mc1.mzml	mc1.tsv	batch-a	orbitrap-a	sage	male
+MC2	control	2	1	mc2.mzml	mc2.tsv	batch-b	orbitrap-b	sage	male
+MT1	treatment	1	1	mt1.mzml	mt1.tsv	batch-a	orbitrap-a	sage	male
+MT2	treatment	2	1	mt2.mzml	mt2.tsv	batch-b	orbitrap-b	sage	male
+FC1	control	3	1	fc1.mzml	fc1.tsv	batch-c	orbitrap-c	sage	female
+FC2	control	4	1	fc2.mzml	fc2.tsv	batch-d	orbitrap-d	sage	female
+FT1	treatment	3	1	ft1.mzml	ft1.tsv	batch-c	orbitrap-c	sage	female
+FT2	treatment	4	1	ft2.mzml	ft2.tsv	batch-d	orbitrap-d	sage	female

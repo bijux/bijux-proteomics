@@ -5,10 +5,5 @@ distribution_name = "proteomics-foundation"
 
 [[module]]
 module_name = "proteomics_foundation"
-outgoing_internal_modules = ["proteomics_foundation.runtime_alias"]
-outgoing_workspace_modules = []
-
-[[module]]
-module_name = "proteomics_foundation.runtime_alias"
 outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation._package_aliases", "bijux_proteomics_foundation._package_aliases.alias_package_version", "bijux_proteomics_foundation._package_aliases.canonical_module_dir", "bijux_proteomics_foundation._package_aliases.install_import_aliases"]

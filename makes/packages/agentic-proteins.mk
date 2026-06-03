@@ -8,7 +8,7 @@ TEST_PATHS_E2E :=
 TEST_PATHS_REGRESSION :=
 TEST_PATHS_EVALUATION :=
 TEST_REAL_LOCAL_PATH := tests/real_local
-TEST_MAIN_ARGS := -m "not slow and not real_local"
+TEST_MAIN_ARGS := -m "unit and not slow and not benchmark and not external_data and not real_local"
 TEST_CI_TARGETS := test-unit
 TEST_COVERAGE_FAIL_UNDER := 60
 

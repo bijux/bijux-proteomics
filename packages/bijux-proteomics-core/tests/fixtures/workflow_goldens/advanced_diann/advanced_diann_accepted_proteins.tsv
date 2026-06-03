@@ -1,0 +1,4 @@
+protein_group_id	representative_protein_ref	claim_node_ref	claim_state	evidence_tier	confidence_tier	downgrade_reasons	source_row_refs
+PG002	Q9Y243	protein:control_vs_treatment:PG002	downregulated	high_confidence	high		differential:PG002;quant-support:PG002:C1;quant-support:PG002:C2;quant-support:PG002:C3;quant-support:PG002:T1;quant-support:PG002:T2;quant-support:PG002:T3;quantifying:PG002:PEPBBB
+PG003	O14920	protein:control_vs_treatment:PG003	upregulated	high_confidence	high		differential:PG003;quant-support:PG003:C1;quant-support:PG003:C2;quant-support:PG003:C3;quant-support:PG003:T1;quant-support:PG003:T2;quant-support:PG003:T3;quantifying:PG003:PEPCCC
+PG005	P62993	protein:control_vs_treatment:PG005	downregulated	high_confidence	high		differential:PG005;quant-support:PG005:C1;quant-support:PG005:C2;quant-support:PG005:C3;quant-support:PG005:T1;quant-support:PG005:T2;quant-support:PG005:T3;quantifying:PG005:PEPEEE

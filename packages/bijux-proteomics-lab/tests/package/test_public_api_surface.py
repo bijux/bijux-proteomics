@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import bijux_proteomics_lab
+from bijux_proteomics_lab.public_api import list_lab_root_api_entries
 
 
 def test_lab_public_api_contains_only_curated_entrypoints() -> None:
@@ -24,3 +25,9 @@ def test_lab_public_api_removes_breadth_signaling_exports() -> None:
     }
 
     assert removed.isdisjoint(bijux_proteomics_lab.__all__)
+
+
+def test_lab_public_api_module_matches_root_exports() -> None:
+    assert tuple(entry.export_name for entry in list_lab_root_api_entries()) == tuple(
+        bijux_proteomics_lab.__all__
+    )

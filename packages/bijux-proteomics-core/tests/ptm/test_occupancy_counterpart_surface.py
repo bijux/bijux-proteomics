@@ -58,7 +58,9 @@ def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambigui
     )
 
     assert report.entries
+    assert report.high_confidence_count >= 1
     assert report.missing_counterpart_count >= 1
+    assert report.missing_unmodified_evidence_count >= 1
     assert report.ambiguous_site_count >= 1
 
     missing_entry = next(
@@ -66,4 +68,18 @@ def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambigui
         for entry in report.entries
         if entry.counterpart_status.value == "missing_counterpart"
     )
-    assert "incomplete" in missing_entry.caveat
+    assert missing_entry.confidence_tier.value == "missing_unmodified_evidence"
+    assert "cannot be treated as high-confidence" in missing_entry.caveat
+    assert (
+        missing_entry.modified_feature_count == 0
+        or missing_entry.unmodified_feature_count == 0
+    )
+
+    complete_entry = next(
+        entry
+        for entry in report.entries
+        if entry.counterpart_status.value == "complete"
+    )
+    assert complete_entry.confidence_tier.value == "high_confidence"
+    assert complete_entry.modified_peptides
+    assert complete_entry.unmodified_peptides

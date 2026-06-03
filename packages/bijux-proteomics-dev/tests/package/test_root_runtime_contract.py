@@ -51,6 +51,13 @@ def test_root_make_declares_shared_and_repo_owned_maintainer_commands() -> None:
     assert "manage_models:" in root_make
     assert "api-freeze:" in root_make
     assert "openapi-drift:" in root_make
+    assert "quality-circular-imports:" in root_make
+    assert "quality-core-dependency-minimization:" in root_make
+    assert "quality-optional-dependency-guards:" in root_make
+    assert "quality-generated-file-markers:" in root_make
+    assert "quality-internal-orphan-modules:" in root_make
+    assert "quality-canonical-package-tree:" in root_make
+    assert "quality-architecture-regression:" in root_make
 
 
 def test_repository_python_package_profiles_expose_full_test_surfaces() -> None:
@@ -58,6 +65,10 @@ def test_repository_python_package_profiles_expose_full_test_surfaces() -> None:
         encoding="utf-8"
     )
 
+    assert (
+        'TEST_MAIN_ARGS ?= -m "unit and not slow and not benchmark and not external_data and not governance and not real_local and not api"'
+        in package_make
+    )
     assert "test-all: TEST_MAIN_ARGS =" in package_make
     assert "test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0" in package_make
     assert "test-all: test" in package_make
@@ -67,6 +78,11 @@ def test_repository_python_package_profiles_expose_full_test_surfaces() -> None:
         in package_make
     )
     assert "test-all-plus-run-time: test" in package_make
+    assert (
+        'test-slow: TEST_MAIN_ARGS = -m "slow or benchmark or external_data"'
+        in package_make
+    )
+    assert "test-slow: test" in package_make
 
 
 def test_dev_package_profile_exposes_full_test_surfaces() -> None:
@@ -74,7 +90,11 @@ def test_dev_package_profile_exposes_full_test_surfaces() -> None:
         REPO_ROOT / "makes" / "packages" / "bijux-proteomics-dev.mk"
     ).read_text(encoding="utf-8")
 
-    assert 'TEST_MAIN_ARGS := -m "not slow"' in package_make
+    assert (
+        'TEST_MAIN_ARGS := -m "unit and not slow and not benchmark and not external_data and not governance"'
+        in package_make
+    )
+    assert "test-all: TEST_PATHS = tests" in package_make
     assert "test-all: TEST_MAIN_ARGS =" in package_make
     assert "test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0" in package_make
     assert "test-all: test" in package_make
@@ -84,3 +104,17 @@ def test_dev_package_profile_exposes_full_test_surfaces() -> None:
         in package_make
     )
     assert "test-all-plus-run-time: test" in package_make
+
+
+def test_shared_python_test_runner_defines_fast_and_slow_marker_filters() -> None:
+    shared_test_make = (REPO_ROOT / "makes" / "bijux-py" / "ci" / "test.mk").read_text(
+        encoding="utf-8"
+    )
+
+    assert (
+        'TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q' in shared_test_make
+    )
+    assert (
+        'TEST_UNIT_FALLBACK_ARGS   ?= -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q'
+        in shared_test_make
+    )

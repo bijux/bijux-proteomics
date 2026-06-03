@@ -1,0 +1,166 @@
+dataset_id: dia_diann_benchmark_dataset
+accession: flagship_public_package:dia_diann_benchmark_dataset
+species: human
+search_engine: diann
+source_files:
+  - source_id: dia_diann_report
+    schema_id: result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_diann_benchmark_dataset/evidence/diann_report.tsv
+    sha256: 8f167d60b66bc6d26f19aa5586e06b81f9e89d7cc8abe762a91d35dc240dc5a0
+    note: Governed DIA-NN report surface that is known to run through the owned DIA biological workflow.
+  - source_id: dia_diann_config
+    schema_id: config_json
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_diann_benchmark_dataset/evidence/diann_config.json
+    sha256: 798bc7a878b0e07ac3cdb85c11c884c502bb2ac50220529d1b27a3241b667185
+    note: Governed DIA-NN configuration snapshot paired with the runnable benchmark report.
+  - source_id: dia_support_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/diann_biological.design.tsv
+    sha256: e7bb7a583caf32dc07c1567f6a410c8f498b5f7580f572caa49864cddb0d4439
+    note: Governed support design for the runnable DIA-NN benchmark workflow.
+  - source_id: dia_support_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmarks/public/support/biological_report_reference.fasta
+    sha256: edaf00edf64a7b42393525673b88d54b28e162c02d7f8d02f117d90d24b4c827
+    note: Governed support FASTA used by the owned DIA biological workflow.
+expected_input_schemas:
+  - result_tsv
+  - config_json
+  - design_tsv
+  - proteins_fasta
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2, C3]
+  - group_id: treatment
+    sample_ids: [T1, T2, T3]
+sample_metadata:
+  - sample_id: C1
+    group_id: control
+    condition: control
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_C1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: C2
+    group_id: control
+    condition: control
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_C2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: C3
+    group_id: control
+    condition: control
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_C3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
+  - sample_id: T1
+    group_id: treatment
+    condition: treatment
+    replicate: 1
+    fraction: 1
+    spectra_file: raw_T1.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-a
+    instrument: orbitrap-a
+    search_engine: DIA-NN
+  - sample_id: T2
+    group_id: treatment
+    condition: treatment
+    replicate: 2
+    fraction: 1
+    spectra_file: raw_T2.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-b
+    instrument: orbitrap-b
+    search_engine: DIA-NN
+  - sample_id: T3
+    group_id: treatment
+    condition: treatment
+    replicate: 3
+    fraction: 1
+    spectra_file: raw_T3.mzml
+    identifications_file: diann_biological_report.tsv
+    batch: batch-c
+    instrument: orbitrap-c
+    search_engine: DIA-NN
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: This governed DIA-NN benchmark dataset is executed directly through the owned DIA biological workflow.
+expected_approximate_counts:
+  - metric_id: imported_precursor_count
+    expected: 31
+    tolerance: 0
+  - metric_id: rejected_evidence_count
+    expected: 0
+    tolerance: 0
+  - metric_id: protein_matrix_row_count
+    expected: 5
+    tolerance: 0
+  - metric_id: flagged_run_count
+    expected: 0
+    tolerance: 0
+  - metric_id: significant_protein_count
+    expected: 3
+    tolerance: 0
+expected_biological_signals:
+  - signal_id: dia_sig_a_up
+    subject_kind: protein
+    subject_id: P04637
+    subject_label: SIGA
+    expected_direction: up
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 2.0
+    note: P04637 should remain strongly increased in treatment across the governed DIA-NN benchmark surface.
+  - signal_id: dia_sig_b_down
+    subject_kind: protein
+    subject_id: Q9Y243
+    subject_label: SIGB
+    expected_direction: down
+    max_adjusted_p_value: 0.01
+    min_absolute_effect_size: 3.0
+    note: Q9Y243 should remain strongly decreased in treatment across the governed DIA-NN benchmark surface.
+known_limitations:
+  - limitation_id: governed_support_design_and_fasta
+    severity: advisory
+    affected_surface: design_tsv;proteins_fasta
+    blocks_workflow_execution: false
+    description: The runnable DIA-NN benchmark depends on governed support design and FASTA inputs rather than a fully self-contained public package root.
+command:
+  cli: bijux proteomics public-benchmark-runner packages/bijux-proteomics-core/benchmarks/public/dia_diann_benchmark_dataset/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the governed DIA-NN benchmark dataset through the owned DIA biological workflow.
+  parameters: {}
+output_checks:
+  - output_id: precursor_quantity_matrix
+    relative_path: diann_precursor_quantity_matrix.tsv
+    note: The owned DIA workflow must write the precursor quantity matrix for this benchmark.
+  - output_id: protein_quantity_matrix
+    relative_path: diann_protein_quantity_matrix.tsv
+    note: The owned DIA workflow must write the protein quantity matrix for this benchmark.
+  - output_id: run_qc_summary
+    relative_path: diann_run_qc_summary.tsv
+    note: The owned DIA workflow must write a run-QC summary for this benchmark.
+  - output_id: differential_results
+    relative_path: diann_differential_results.tsv
+    note: The owned DIA workflow must write differential protein results for this benchmark.
+  - output_id: rejected_evidence
+    relative_path: diann_import_rejected_evidence.tsv
+    note: The owned DIA workflow must write a rejected-evidence ledger even when it is empty.
+  - output_id: biological_manifest_json
+    relative_path: biological_report_manifest.json
+    note: The owned DIA workflow must export the governed biological report manifest for this benchmark.
+  - output_id: diann_workflow_manifest_json
+    relative_path: diann_biological_report_manifest.json
+    note: The owned DIA workflow must export its DIA-NN workflow manifest for this benchmark.
+note: This DIA-NN benchmark dataset is a governed runnable report surface rather than a blocked review snapshot, and it is expected to produce precursor matrix, protein matrix, QC, differential, biological report, and rejected-evidence outputs through the owned workflow path.

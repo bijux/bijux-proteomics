@@ -7,73 +7,43 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+import importlib
 import json
-from math import exp, factorial
 from pathlib import Path
 import re
+from typing import Protocol, cast
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics.chemistry.amino_acid_mass import (
+    _AVERAGE_RESIDUE_MASS,
+    _CANONICAL_RESIDUES,
+    _MONOISOTOPIC_RESIDUE_MASS,
+    _PROTON_AVERAGE_MASS,
+    _PROTON_MONOISOTOPIC_MASS,
+    _WATER_AVERAGE_MASS,
+    _WATER_MONOISOTOPIC_MASS,
+    calculate_sequence_average_mass,
+    calculate_sequence_monoisotopic_mass,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
-_MONOISOTOPIC_RESIDUE_MASS: dict[str, float] = {
-    "A": 71.03711,
-    "R": 156.10111,
-    "N": 114.04293,
-    "D": 115.02694,
-    "C": 103.00919,
-    "E": 129.04259,
-    "Q": 128.05858,
-    "G": 57.02146,
-    "H": 137.05891,
-    "I": 113.08406,
-    "L": 113.08406,
-    "K": 128.09496,
-    "M": 131.04049,
-    "F": 147.06841,
-    "P": 97.05276,
-    "S": 87.03203,
-    "T": 101.04768,
-    "W": 186.07931,
-    "Y": 163.06333,
-    "V": 99.06841,
-}
-
-_AVERAGE_RESIDUE_MASS: dict[str, float] = {
-    "A": 71.0788,
-    "R": 156.1875,
-    "N": 114.1038,
-    "D": 115.0886,
-    "C": 103.1388,
-    "E": 129.1155,
-    "Q": 128.1307,
-    "G": 57.0519,
-    "H": 137.1411,
-    "I": 113.1594,
-    "L": 113.1594,
-    "K": 128.1741,
-    "M": 131.1926,
-    "F": 147.1766,
-    "P": 97.1167,
-    "S": 87.0782,
-    "T": 101.1051,
-    "W": 186.2132,
-    "Y": 163.176,
-    "V": 99.1326,
-}
-
-_CANONICAL_RESIDUES = frozenset(_MONOISOTOPIC_RESIDUE_MASS)
-_PROTON_MONOISOTOPIC_MASS = 1.007276466812
-_PROTON_AVERAGE_MASS = 1.007276466812
-_WATER_MONOISOTOPIC_MASS = 18.01056
-_WATER_AVERAGE_MASS = 18.01528
 _AMMONIA_MONOISOTOPIC_MASS = 17.026549
 _AMMONIA_AVERAGE_MASS = 17.03052
 _PHOSPHORIC_ACID_MONOISOTOPIC_MASS = 97.976896
 _PHOSPHORIC_ACID_AVERAGE_MASS = 97.9952
+_CARBON_MONOISOTOPIC_MASS = 12.0
+_CARBON_AVERAGE_MASS = 12.0107
+_OXYGEN_MONOISOTOPIC_MASS = 15.99491461957
+_OXYGEN_AVERAGE_MASS = 15.9994
+_CARBON_MONOXIDE_MONOISOTOPIC_MASS = (
+    _CARBON_MONOISOTOPIC_MASS + _OXYGEN_MONOISOTOPIC_MASS
+)
+_CARBON_MONOXIDE_AVERAGE_MASS = _CARBON_AVERAGE_MASS + _OXYGEN_AVERAGE_MASS
 _C13_NEUTRON_SHIFT = 1.0033548378
 _RESIDUE_TOKEN_RE = re.compile(r"^[A-Z]+$")
 _DELTA_TOKEN_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$")
+_SUPPORTED_ELEMENT_SYMBOLS = ("C", "H", "N", "O", "S", "P")
 
 
 class MassType(StrEnum):
@@ -86,6 +56,7 @@ class MassType(StrEnum):
 class FragmentIonSeries(StrEnum):
     """Supported backbone fragment series."""
 
+    A = "a"
     B = "b"
     Y = "y"
 
@@ -118,6 +89,7 @@ class _BaseModification(JsonModel):
     position: ModificationPosition = ModificationPosition.ANYWHERE
     mass_delta_monoisotopic: float
     mass_delta_average: float
+    elemental_composition_delta: dict[str, int] = Field(default_factory=dict)
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
     isotopic_label_family: str | None = None
@@ -149,6 +121,35 @@ class _BaseModification(JsonModel):
             return None
         normalized = value.strip().lower()
         return normalized or None
+
+    @field_validator("elemental_composition_delta", mode="before")
+    @classmethod
+    def _normalize_elemental_composition_delta(
+        cls,
+        value: object,
+    ) -> dict[str, int]:
+        if value in (None, ""):
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError("elemental composition delta must be a mapping")
+        normalized: dict[str, int] = {}
+        for symbol, count in value.items():
+            token = str(symbol).strip()
+            if token not in _SUPPORTED_ELEMENT_SYMBOLS:
+                allowed = ", ".join(_SUPPORTED_ELEMENT_SYMBOLS)
+                raise ValueError(
+                    f"invalid elemental composition symbol {symbol!r}; expected one of {allowed}"
+                )
+            if isinstance(count, bool):
+                raise ValueError("elemental composition counts must be integers")
+            normalized_count = int(count)
+            if normalized_count:
+                normalized[token] = normalized_count
+        return {
+            symbol: normalized[symbol]
+            for symbol in _SUPPORTED_ELEMENT_SYMBOLS
+            if symbol in normalized
+        }
 
     @model_validator(mode="after")
     def _validate_site_specificity(self) -> _BaseModification:
@@ -300,6 +301,8 @@ class FragmentIon(JsonModel):
     series: FragmentIonSeries
     ordinal: int = Field(..., ge=1)
     charge: int = Field(..., ge=1)
+    span_start: int = Field(..., ge=1)
+    span_end: int = Field(..., ge=1)
     sequence: str = Field(..., min_length=1)
     neutral_loss: str | None = None
     neutral_mass_monoisotopic: float = Field(..., gt=0.0)
@@ -376,6 +379,7 @@ class PeptideChargeState(JsonModel):
 class IsotopeEnvelopeStatus(StrEnum):
     """Support level for isotope-envelope output."""
 
+    PREDICTED = "predicted"
     ADVISORY = "advisory"
 
 
@@ -394,7 +398,7 @@ class PeptideIsotopeEnvelope(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    status: IsotopeEnvelopeStatus = IsotopeEnvelopeStatus.ADVISORY
+    status: IsotopeEnvelopeStatus = IsotopeEnvelopeStatus.PREDICTED
     canonical_notation: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     estimated_carbon_count: float = Field(..., ge=0.0)
@@ -485,6 +489,60 @@ class ModifiedPeptideExportRecord(JsonModel):
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
 
 
+class _ModificationRegistryEngine(Protocol):
+    def resolve_modification_definition(
+        self,
+        *,
+        token: str | None = None,
+        controlled_id: str | None = None,
+        mass_delta_monoisotopic: float | None = None,
+        site: ModificationPosition | None = None,
+        residue: str | None = None,
+        at_protein_n_term: bool = False,
+        at_protein_c_term: bool = False,
+        registry: ModificationRegistryDocument | None = None,
+        tolerance: float = 1e-6,
+    ) -> StaticModification | VariableModification: ...
+
+    def validate_modification_registry(
+        self,
+        registry: ModificationRegistryDocument,
+    ) -> ModificationRegistryValidationReport: ...
+
+    def modification_registry(self) -> ModificationRegistryDocument: ...
+
+    def build_modification_registry(
+        self,
+        *,
+        static_modifications: tuple[StaticModification, ...] = (),
+        variable_modifications: tuple[VariableModification, ...] = (),
+    ) -> ModificationRegistryDocument: ...
+
+    def load_modification_registry(
+        self,
+        path: Path,
+    ) -> ModificationRegistryDocument: ...
+
+    def _registry_lookup(
+        self,
+        registry: ModificationRegistryDocument | None,
+    ) -> dict[str, StaticModification | VariableModification]: ...
+
+    def get_modification(
+        self,
+        name: str,
+        *,
+        registry: ModificationRegistryDocument | None = None,
+    ) -> StaticModification | VariableModification: ...
+
+
+def _modification_registry_engine() -> _ModificationRegistryEngine:
+    return cast(
+        _ModificationRegistryEngine,
+        importlib.import_module("bijux_proteomics.chemistry.modification_registry"),
+    )
+
+
 def _format_mass_delta(delta: float) -> str:
     rendered = f"{delta:+.6f}".rstrip("0").rstrip(".")
     return rendered if "." in rendered else f"{rendered}.0"
@@ -504,20 +562,34 @@ def _build_applied_modification(
     stripped_token = token.strip()
     definition = None
     if not _DELTA_TOKEN_RE.fullmatch(stripped_token):
-        definition = get_modification(stripped_token, registry=registry)
+        definition = _modification_registry_engine().resolve_modification_definition(
+            token=stripped_token,
+            site=site,
+            residue=sequence[site_index - 1]
+            if site is ModificationPosition.ANYWHERE and site_index is not None
+            else None,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+            registry=registry,
+        )
     _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
-    residue = _validate_definition_site(
-        definition=definition,
-        sequence=sequence,
-        site=site,
-        site_index=site_index,
-        at_protein_n_term=at_protein_n_term,
-        at_protein_c_term=at_protein_c_term,
+    residue = (
+        sequence[site_index - 1]
+        if site is ModificationPosition.ANYWHERE and site_index is not None
+        else None
     )
-    name, mono, average, losses, controlled_id, source = _resolve_token(
-        stripped_token,
-        registry=registry,
-    )
+    if definition is None:
+        name, mono, average, losses, controlled_id, source = _resolve_token(
+            stripped_token,
+            registry=registry,
+        )
+    else:
+        name = definition.name
+        mono = definition.mass_delta_monoisotopic
+        average = definition.mass_delta_average
+        losses = definition.neutral_losses
+        controlled_id = definition.controlled_id
+        source = "registry"
     return AppliedModification(
         name=name,
         token=definition.name if definition is not None else _format_mass_delta(mono),
@@ -616,62 +688,8 @@ def _validate_isotopic_label_policy(
 def validate_modification_registry(
     registry: ModificationRegistryDocument,
 ) -> ModificationRegistryValidationReport:
-    """Validate duplicate and conflicting registry definitions."""
-    issues: list[ModificationRegistryValidationIssue] = []
-    by_name: dict[str, _BaseModification] = {}
-    by_controlled_id: dict[str, _BaseModification] = {}
-    for modification in (
-        *registry.static_modifications,
-        *registry.variable_modifications,
-    ):
-        normalized_name = modification.name.strip().lower()
-        previous = by_name.get(normalized_name)
-        if previous is not None:
-            conflict_code = (
-                "duplicate_modification_name"
-                if _registry_validation_signature(previous)
-                == _registry_validation_signature(modification)
-                else "conflicting_modification_name"
-            )
-            issues.append(
-                ModificationRegistryValidationIssue(
-                    code=conflict_code,
-                    message=(
-                        f"modification {modification.name!r} is defined more than once"
-                        if conflict_code == "duplicate_modification_name"
-                        else f"modification {modification.name!r} has conflicting definitions"
-                    ),
-                    modification_name=modification.name,
-                    controlled_id=modification.controlled_id,
-                )
-            )
-        else:
-            by_name[normalized_name] = modification
-
-        if modification.controlled_id is None:
-            continue
-        previous_controlled = by_controlled_id.get(modification.controlled_id)
-        if previous_controlled is not None and (
-            _registry_validation_signature(previous_controlled)
-            != _registry_validation_signature(modification)
-        ):
-            issues.append(
-                ModificationRegistryValidationIssue(
-                    code="conflicting_controlled_id",
-                    message=(
-                        f"controlled modification id {modification.controlled_id!r} maps "
-                        "to conflicting registry definitions"
-                    ),
-                    modification_name=modification.name,
-                    controlled_id=modification.controlled_id,
-                )
-            )
-        else:
-            by_controlled_id[modification.controlled_id] = modification
-
-    return ModificationRegistryValidationReport(
-        valid=not issues,
-        issues=tuple(issues),
+    return _modification_registry_engine().validate_modification_registry(
+        registry,
     )
 
 
@@ -705,7 +723,7 @@ def _registry_validation_signature(
 def _raise_on_invalid_modification_registry(
     registry: ModificationRegistryDocument,
 ) -> None:
-    report = validate_modification_registry(registry)
+    report = _modification_registry_engine().validate_modification_registry(registry)
     if report.valid:
         return
     messages = "; ".join(issue.message for issue in report.issues)
@@ -713,88 +731,10 @@ def _raise_on_invalid_modification_registry(
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:
-    schema = DocumentSchema(
-        created_by="bijux-proteomics-core",
-        document_kind="peptide_modification_registry",
-        package_name="bijux-proteomics-core",
-        status="generated",
-    )
-    registry = ModificationRegistryDocument(
-        document_schema=schema,
-        static_modifications=(
-            StaticModification(
-                name="Carbamidomethyl",
-                residues=("C",),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=57.021464,
-                mass_delta_average=57.05132,
-                controlled_id="UNIMOD:4",
-            ),
-        ),
-        variable_modifications=(
-            VariableModification(
-                name="Oxidation",
-                residues=("M",),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=15.994915,
-                mass_delta_average=15.9994,
-                controlled_id="UNIMOD:35",
-            ),
-            VariableModification(
-                name="Phospho",
-                residues=("S", "T", "Y"),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=79.966331,
-                mass_delta_average=79.9799,
-                neutral_losses=(
-                    NeutralLoss(
-                        name="phosphoric_acid",
-                        monoisotopic_mass=_PHOSPHORIC_ACID_MONOISOTOPIC_MASS,
-                        average_mass=_PHOSPHORIC_ACID_AVERAGE_MASS,
-                    ),
-                ),
-                controlled_id="UNIMOD:21",
-            ),
-            VariableModification(
-                name="Acetyl",
-                position=ModificationPosition.PEPTIDE_N_TERM,
-                mass_delta_monoisotopic=42.010565,
-                mass_delta_average=42.0367,
-                controlled_id="UNIMOD:1",
-            ),
-            VariableModification(
-                name="Deamidated",
-                residues=("N", "Q"),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=0.984016,
-                mass_delta_average=0.9848,
-                controlled_id="UNIMOD:7",
-            ),
-            VariableModification(
-                name="Amidated",
-                position=ModificationPosition.PEPTIDE_C_TERM,
-                mass_delta_monoisotopic=-0.984016,
-                mass_delta_average=-0.9848,
-                controlled_id="UNIMOD:2",
-            ),
-        ),
-    )
-    _raise_on_invalid_modification_registry(registry)
-    payload = registry.to_dict()
-    return registry.model_copy(
-        update={"document_schema": registry.document_schema.with_content_hash(payload)}
-    )
+    return _modification_registry_engine().modification_registry()
 
 
 _BUILTIN_REGISTRY = _build_builtin_registry()
-_MODIFICATION_TOKEN_ALIASES = {
-    "acetylation": "acetyl",
-    "carbamidomethylation": "carbamidomethyl",
-    "deamidation": "deamidated",
-    "deamidated": "deamidated",
-    "oxidation": "oxidation",
-    "phosphorylation": "phospho",
-}
 
 
 def build_modification_registry(
@@ -802,65 +742,24 @@ def build_modification_registry(
     static_modifications: tuple[StaticModification, ...] = (),
     variable_modifications: tuple[VariableModification, ...] = (),
 ) -> ModificationRegistryDocument:
-    """Build a stable user-supplied modification registry document."""
-    schema = DocumentSchema(
-        created_by="bijux-proteomics-core",
-        document_kind="peptide_modification_registry",
-        package_name="bijux-proteomics-core",
-        status="generated",
-    )
-    registry = ModificationRegistryDocument(
-        document_schema=schema,
+    return _modification_registry_engine().build_modification_registry(
         static_modifications=static_modifications,
         variable_modifications=variable_modifications,
-    )
-    _raise_on_invalid_modification_registry(registry)
-    payload = registry.to_dict()
-    return registry.model_copy(
-        update={"document_schema": registry.document_schema.with_content_hash(payload)}
     )
 
 
 def modification_registry() -> ModificationRegistryDocument:
-    """Return the built-in peptide modification registry."""
-    return _BUILTIN_REGISTRY.model_copy(deep=True)
+    return _modification_registry_engine().modification_registry()
 
 
 def load_modification_registry(path: Path) -> ModificationRegistryDocument:
-    """Load and validate a modification registry document from JSON."""
-    registry = ModificationRegistryDocument.model_validate_json(path.read_text())
-    _raise_on_invalid_modification_registry(registry)
-    return registry
+    return _modification_registry_engine().load_modification_registry(path)
 
 
 def _registry_lookup(
     registry: ModificationRegistryDocument | None,
 ) -> dict[str, StaticModification | VariableModification]:
-    mapping: dict[str, StaticModification | VariableModification] = {}
-    builtin_registry = modification_registry()
-    for modification in builtin_registry.static_modifications:
-        mapping[modification.name.strip().lower()] = modification
-        if modification.controlled_id is not None:
-            mapping[modification.controlled_id.strip().lower()] = modification
-    for variable_modification in builtin_registry.variable_modifications:
-        mapping[variable_modification.name.strip().lower()] = variable_modification
-        if variable_modification.controlled_id is not None:
-            mapping[variable_modification.controlled_id.strip().lower()] = (
-                variable_modification
-            )
-    if registry is None:
-        return mapping
-    for modification in registry.static_modifications:
-        mapping[modification.name.strip().lower()] = modification
-        if modification.controlled_id is not None:
-            mapping[modification.controlled_id.strip().lower()] = modification
-    for variable_modification in registry.variable_modifications:
-        mapping[variable_modification.name.strip().lower()] = variable_modification
-        if variable_modification.controlled_id is not None:
-            mapping[variable_modification.controlled_id.strip().lower()] = (
-                variable_modification
-            )
-    return mapping
+    return _modification_registry_engine()._registry_lookup(registry)
 
 
 def get_modification(
@@ -868,19 +767,7 @@ def get_modification(
     *,
     registry: ModificationRegistryDocument | None = None,
 ) -> StaticModification | VariableModification:
-    """Return one modification definition from the active registry."""
-    normalized = name.strip().lower()
-    alias = _MODIFICATION_TOKEN_ALIASES.get(normalized)
-    mapping = _registry_lookup(registry)
-    try:
-        return mapping[normalized]
-    except KeyError as exc:
-        if alias is not None:
-            try:
-                return mapping[alias]
-            except KeyError:
-                pass
-        raise ValueError(f"unknown modification {name!r}") from exc
+    return _modification_registry_engine().get_modification(name, registry=registry)
 
 
 def _coerce_sequence(peptide: str | ParsedModifiedPeptide) -> str:
@@ -937,20 +824,6 @@ def _mass_delta_for(
     average: float,
 ) -> float:
     return mono if mass_type is MassType.MONOISOTOPIC else average
-
-
-def _base_residue_mass(sequence: str, mass_type: MassType) -> float:
-    table = (
-        _MONOISOTOPIC_RESIDUE_MASS
-        if mass_type is MassType.MONOISOTOPIC
-        else _AVERAGE_RESIDUE_MASS
-    )
-    water_mass = (
-        _WATER_MONOISOTOPIC_MASS
-        if mass_type is MassType.MONOISOTOPIC
-        else _WATER_AVERAGE_MASS
-    )
-    return water_mass + sum(table[residue] for residue in sequence)
 
 
 def _matching_static_mass_delta(
@@ -1041,7 +914,7 @@ def calculate_monoisotopic_peptide_mass(
     """Calculate the monoisotopic neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     return (
-        _base_residue_mass(parsed.sequence, MassType.MONOISOTOPIC)
+        calculate_sequence_monoisotopic_mass(parsed.sequence)
         + _matching_static_mass_delta(
             parsed.sequence,
             static_modifications,
@@ -1060,7 +933,7 @@ def calculate_average_peptide_mass(
     """Calculate the average neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     return (
-        _base_residue_mass(parsed.sequence, MassType.AVERAGE)
+        calculate_sequence_average_mass(parsed.sequence)
         + _matching_static_mass_delta(
             parsed.sequence,
             static_modifications,
@@ -1160,38 +1033,36 @@ def approximate_peptide_isotope_envelope(
     peptide: str | ParsedModifiedPeptide,
     *,
     charge: int,
-    peak_count: int = 4,
+    peak_count: int = 6,
     registry: ModificationRegistryDocument | None = None,
 ) -> PeptideIsotopeEnvelope:
-    """Approximate a precursor isotope envelope using an averagine-style advisory model."""
+    """Compatibility wrapper over the elemental-composition isotope owner."""
     if peak_count < 1:
         raise ValueError("peak_count must be at least 1")
-    charge_state = build_peptide_charge_state(
+    from bijux_proteomics.chemistry.isotope_envelope import (
+        predict_peptide_isotope_envelope,
+    )
+
+    prediction = predict_peptide_isotope_envelope(
         peptide,
         charge=charge,
-        mass_type=MassType.MONOISOTOPIC,
+        max_isotope_index=peak_count - 1,
         registry=registry,
     )
-    estimated_carbon_count = max((charge_state.neutral_mass / 111.1254) * 4.9384, 0.0)
-    lambda_13c = estimated_carbon_count * 0.0107
-    raw_intensities = tuple(
-        exp(-lambda_13c) * (lambda_13c**index) / factorial(index)
-        for index in range(peak_count)
-    )
-    total_intensity = sum(raw_intensities) or 1.0
     peaks = tuple(
         IsotopePeak(
-            isotope_index=index,
-            intensity=intensity / total_intensity,
-            mz=charge_state.mz + ((_C13_NEUTRON_SHIFT * index) / charge),
+            isotope_index=peak.isotope_index,
+            intensity=peak.probability,
+            mz=peak.mz,
         )
-        for index, intensity in enumerate(raw_intensities)
+        for peak in prediction.peaks
     )
     return PeptideIsotopeEnvelope(
-        canonical_notation=charge_state.canonical_notation,
+        status=IsotopeEnvelopeStatus.PREDICTED,
+        canonical_notation=prediction.canonical_notation,
         charge=charge,
-        estimated_carbon_count=estimated_carbon_count,
-        monoisotopic_mz=charge_state.mz,
+        estimated_carbon_count=float(prediction.composition.carbon),
+        monoisotopic_mz=prediction.monoisotopic_mz,
         peaks=peaks,
     )
 
@@ -2052,7 +1923,7 @@ def _fragment_modifications(
             modification.site is ModificationPosition.PEPTIDE_N_TERM
             or modification.site is ModificationPosition.PROTEIN_N_TERM
         ):
-            if series is FragmentIonSeries.B:
+            if series in {FragmentIonSeries.A, FragmentIonSeries.B}:
                 selected.append(modification)
         elif (
             modification.site is ModificationPosition.PEPTIDE_C_TERM
@@ -2066,7 +1937,10 @@ def _fragment_modifications(
                 raise ValueError(
                     "residue modification is missing a required site index"
                 )
-            if series is FragmentIonSeries.B and site_index <= ordinal:
+            if (
+                series in {FragmentIonSeries.A, FragmentIonSeries.B}
+                and site_index <= ordinal
+            ):
                 selected.append(modification)
             if series is FragmentIonSeries.Y and site_index > sequence_length - ordinal:
                 selected.append(modification)
@@ -2082,7 +1956,7 @@ def calculate_fragment_ions(
     include_neutral_losses: bool = False,
     registry: ModificationRegistryDocument | None = None,
 ) -> tuple[FragmentIon, ...]:
-    """Calculate theoretical b/y fragment ions for one peptide."""
+    """Calculate theoretical a/b/y fragment ions for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     if len(parsed.sequence) < 2:
         return ()
@@ -2093,8 +1967,10 @@ def calculate_fragment_ions(
     ions: list[FragmentIon] = []
     for fragment_series in series:
         for ordinal in range(1, len(parsed.sequence)):
-            if fragment_series is FragmentIonSeries.B:
+            if fragment_series in {FragmentIonSeries.A, FragmentIonSeries.B}:
                 fragment_sequence = parsed.sequence[:ordinal]
+                span_start = 1
+                span_end = ordinal
                 mono_neutral = sum(
                     _MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
@@ -2119,20 +1995,24 @@ def calculate_fragment_ions(
                     include_n_term=True,
                     include_c_term=False,
                 )
+                if fragment_series is FragmentIonSeries.A:
+                    mono_neutral -= _CARBON_MONOXIDE_MONOISOTOPIC_MASS
+                    average_neutral -= _CARBON_MONOXIDE_AVERAGE_MASS
             else:
                 fragment_sequence = parsed.sequence[-ordinal:]
+                span_start = len(parsed.sequence) - ordinal + 1
+                span_end = len(parsed.sequence)
                 mono_neutral = _WATER_MONOISOTOPIC_MASS + sum(
                     _MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
                 average_neutral = _WATER_AVERAGE_MASS + sum(
                     _AVERAGE_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
-                start = len(parsed.sequence) - ordinal + 1
                 mono_neutral += _matching_static_mass_delta(
                     parsed.sequence,
                     static_modifications,
                     MassType.MONOISOTOPIC,
-                    start=start,
+                    start=span_start,
                     end=len(parsed.sequence),
                     include_n_term=False,
                     include_c_term=True,
@@ -2141,7 +2021,7 @@ def calculate_fragment_ions(
                     parsed.sequence,
                     static_modifications,
                     MassType.AVERAGE,
-                    start=start,
+                    start=span_start,
                     end=len(parsed.sequence),
                     include_n_term=False,
                     include_c_term=True,
@@ -2173,6 +2053,8 @@ def calculate_fragment_ions(
                 *,
                 series: FragmentIonSeries,
                 ion_ordinal: int,
+                ion_span_start: int,
+                ion_span_end: int,
                 ion_sequence: str,
                 neutral_mass_monoisotopic: float,
                 neutral_mass_average: float,
@@ -2184,6 +2066,8 @@ def calculate_fragment_ions(
                             series=series,
                             ordinal=ion_ordinal,
                             charge=charge,
+                            span_start=ion_span_start,
+                            span_end=ion_span_end,
                             sequence=ion_sequence,
                             neutral_loss=neutral_loss_name,
                             neutral_mass_monoisotopic=neutral_mass_monoisotopic,
@@ -2203,6 +2087,8 @@ def calculate_fragment_ions(
             append_ion(
                 series=fragment_series,
                 ion_ordinal=ordinal,
+                ion_span_start=span_start,
+                ion_span_end=span_end,
                 ion_sequence=fragment_sequence,
                 neutral_mass_monoisotopic=mono_neutral,
                 neutral_mass_average=average_neutral,
@@ -2211,6 +2097,8 @@ def calculate_fragment_ions(
                 append_ion(
                     series=fragment_series,
                     ion_ordinal=ordinal,
+                    ion_span_start=span_start,
+                    ion_span_end=span_end,
                     ion_sequence=fragment_sequence,
                     neutral_mass_monoisotopic=mono_neutral
                     - neutral_loss.monoisotopic_mass,

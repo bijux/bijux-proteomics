@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+C1	control	1	1	raw_C1.mzml	diann_differential_report.tsv	batch_a	Orbitrap	DIA-NN
+C2	control	2	1	raw_C2.mzml	diann_differential_report.tsv	batch_b	Orbitrap	DIA-NN
+T1	treatment	1	1	raw_T1.mzml	diann_differential_report.tsv	batch_a	Orbitrap	DIA-NN
+T2	treatment	2	1	raw_T2.mzml	diann_differential_report.tsv	batch_b	Orbitrap	DIA-NN
