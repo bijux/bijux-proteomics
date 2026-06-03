@@ -894,7 +894,9 @@ def _build_standard_card_entry(entry: PtmEvidenceCard) -> StandardCardEntry:
     )
 
 
-def _standard_card_confidence(localization_tier: PtmLocalizationConfidenceTier):
+def _standard_card_confidence(
+    localization_tier: PtmLocalizationConfidenceTier,
+) -> ConfidenceTier:
     if localization_tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
         return ConfidenceTier.HIGH
     if localization_tier is PtmLocalizationConfidenceTier.SUPPORTED:

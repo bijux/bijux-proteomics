@@ -198,7 +198,13 @@ def build_ptm_crosstalk_report(
         pathways_by_site=pathways_by_site,
     )
     stable_entries = tuple(
-        sort_rows_by_fields(entries, "left_protein_ref", "left_position", "right_position", "pair_key")
+        sort_rows_by_fields(
+            tuple(entries),
+            "left_protein_ref",
+            "left_position",
+            "right_position",
+            "pair_key",
+        )
     )
     return PtmCrosstalkReport(
         nearby_residue_distance_threshold=nearby_residue_distance,

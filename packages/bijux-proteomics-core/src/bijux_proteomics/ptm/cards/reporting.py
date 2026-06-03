@@ -10,6 +10,7 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 import csv
 from io import StringIO
 from pathlib import Path
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -30,6 +31,7 @@ from bijux_proteomics.ptm.differential_analysis import (
     render_ptm_site_differential_tsv,
 )
 from bijux_proteomics.ptm.evidence_cards import (
+    PtmEvidenceCard,
     PtmEvidenceCardPolicy,
     PtmEvidenceCardReport,
     build_ptm_evidence_card_report,
@@ -553,7 +555,7 @@ def _ptm_localization_score(value: str) -> float:
     }.get(value, 0.4)
 
 
-def _ptm_result_uncertainty(card) -> float:
+def _ptm_result_uncertainty(card: PtmEvidenceCard) -> float:
     uncertainty = 0.0
     if card.differential_result.adjusted_p_value is None:
         uncertainty += 0.08
@@ -689,7 +691,10 @@ def render_ptm_report_evidence_aware_ranking_tsv(report: PtmReportBundle) -> str
 
     if report.evidence_aware_ranking_report is None:
         raise ValueError("ptm report bundle does not include evidence-aware ranking")
-    return render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report)
+    return cast(
+        str,
+        render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
+    )
 
 
 def write_ptm_report_bundle(
