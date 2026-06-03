@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import csv
 import io
-from typing import Protocol
+from typing import Protocol, cast
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -23,6 +23,9 @@ from bijux_proteomics_foundation import JsonModel
 class _IssueLike(Protocol):
     code: str
     message: str
+
+
+_RejectedEvidenceSourceRow = RejectedPsmRow | ScientificTableRejectedRow
 
 
 class RejectedEvidenceTableEntry(JsonModel):
@@ -132,7 +135,7 @@ def render_rejected_evidence_tsv(rows: tuple[RejectedEvidenceTableEntry, ...]) -
 
 def _build_rejected_evidence_rows(
     *,
-    rows: tuple[object, ...],
+    rows: tuple[_RejectedEvidenceSourceRow, ...],
     source_file: str,
     entity_type: str,
     entity_id_columns: tuple[str, ...],
@@ -153,8 +156,11 @@ def _build_rejected_evidence_rows(
         issues = tuple(row.issues)
         if issues:
             for issue in issues:
-                reason_code = str(issue.code).strip() or default_reason_code
-                detail = str(issue.message).strip() or "rejected evidence row"
+                issue_like = cast(_IssueLike, issue)
+                reason_code = str(issue_like.code).strip() or default_reason_code
+                detail = (
+                    str(issue_like.message).strip() or "rejected evidence row"
+                )
                 entries.append(
                     RejectedEvidenceTableEntry(
                         source_file=source_file,
@@ -212,13 +218,13 @@ def _resolve_entity_id(
 
 
 def _read_raw_values(
-    row: object,
+    row: _RejectedEvidenceSourceRow,
     *,
     raw_values_attrs: tuple[str, ...],
 ) -> dict[str, str]:
     for attribute_name in raw_values_attrs:
         if hasattr(row, attribute_name):
-            return dict(getattr(row, attribute_name))
+            return dict(cast(dict[str, str], getattr(row, attribute_name)))
     raise AttributeError(
         f"rejected evidence row does not expose any raw value attribute from {raw_values_attrs}"
     )

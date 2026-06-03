@@ -91,41 +91,55 @@ def test_protein_coverage_reference_cases_match_expected_outputs() -> None:
         )
 
         assert len(report.entries) == len(case.expected_entries)
-        for observed, expected in zip(
+        for observed_entry, expected_entry in zip(
             report.entries, case.expected_entries, strict=True
         ):
-            assert observed.protein_ref == expected.protein_ref
-            assert observed.covered_residue_count == expected.covered_residue_count
-            assert observed.coverage_fraction == expected.coverage_fraction
-            assert observed.covered_ranges == expected.covered_ranges
-            assert observed.uncovered_ranges == expected.uncovered_ranges
-            assert observed.covered_peptides == expected.covered_peptides
-            assert observed.unmatched_peptides == expected.unmatched_peptides
+            assert observed_entry.protein_ref == expected_entry.protein_ref
+            assert (
+                observed_entry.covered_residue_count
+                == expected_entry.covered_residue_count
+            )
+            assert observed_entry.coverage_fraction == expected_entry.coverage_fraction
+            assert observed_entry.covered_ranges == expected_entry.covered_ranges
+            assert observed_entry.uncovered_ranges == expected_entry.uncovered_ranges
+            assert observed_entry.covered_peptides == expected_entry.covered_peptides
+            assert (
+                observed_entry.unmatched_peptides == expected_entry.unmatched_peptides
+            )
 
         assert len(report.uncovered_regions) == len(case.expected_uncovered_regions)
-        for observed, expected in zip(
+        for observed_region, expected_region in zip(
             report.uncovered_regions,
             case.expected_uncovered_regions,
             strict=True,
         ):
-            assert observed.protein_ref == expected.protein_ref
-            assert observed.region_index == expected.region_index
-            assert observed.start_residue == expected.start_residue
-            assert observed.end_residue == expected.end_residue
-            assert observed.residue_count == expected.residue_count
+            assert observed_region.protein_ref == expected_region.protein_ref
+            assert observed_region.region_index == expected_region.region_index
+            assert observed_region.start_residue == expected_region.start_residue
+            assert observed_region.end_residue == expected_region.end_residue
+            assert observed_region.residue_count == expected_region.residue_count
 
         assert len(report.peptide_coordinates) == len(case.expected_coordinate_rows)
-        for observed, expected in zip(
+        for observed_coordinate, expected_coordinate in zip(
             report.peptide_coordinates,
             case.expected_coordinate_rows,
             strict=True,
         ):
-            assert observed.protein_ref == expected.protein_ref
-            assert observed.canonical_peptide == expected.canonical_peptide
-            assert observed.coordinate_status is expected.coordinate_status
-            assert observed.occurrence_index == expected.occurrence_index
-            assert observed.start_residue == expected.start_residue
-            assert observed.end_residue == expected.end_residue
+            assert observed_coordinate.protein_ref == expected_coordinate.protein_ref
+            assert (
+                observed_coordinate.canonical_peptide
+                == expected_coordinate.canonical_peptide
+            )
+            assert (
+                observed_coordinate.coordinate_status
+                is expected_coordinate.coordinate_status
+            )
+            assert (
+                observed_coordinate.occurrence_index
+                == expected_coordinate.occurrence_index
+            )
+            assert observed_coordinate.start_residue == expected_coordinate.start_residue
+            assert observed_coordinate.end_residue == expected_coordinate.end_residue
 
 
 def test_protein_coverage_reference_cases_are_reproducible() -> None:

@@ -83,6 +83,8 @@ def test_extract_psm_features_penalizes_high_score_but_poor_spectrum_support() -
     poor_row = by_spectrum["poor-scan"]
 
     assert poor_row.score_native > good_row.score_native
+    assert poor_row.q_value_native is not None
+    assert good_row.q_value_native is not None
     assert poor_row.q_value_native < good_row.q_value_native
     assert good_row.matched_ion_count == 5
     assert poor_row.matched_ion_count == 0

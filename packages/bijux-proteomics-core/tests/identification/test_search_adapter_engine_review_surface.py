@@ -3,19 +3,35 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import csv
 from importlib import import_module
 from pathlib import Path
+from typing import TypedDict, cast
 
 import pytest
 
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
+    SearchEngineCorpusReport,
     build_search_adapter_provenance_manifest,
     normalize_search_results_with_adapter,
 )
 
-_ENGINE_CASES = (
+
+class SearchAdapterEngineCase(TypedDict):
+    adapter_kind: SearchAdapterKind
+    corpus_dir: str
+    result_file: str
+    config_file: str
+    builder_name: str
+    charge_column: str
+
+
+SearchEngineCorpusBuilder = Callable[[Path], SearchEngineCorpusReport]
+
+
+_ENGINE_CASES: tuple[SearchAdapterEngineCase, ...] = (
     {
         "adapter_kind": SearchAdapterKind.COMET,
         "corpus_dir": "comet",
@@ -73,9 +89,9 @@ def _matrix_root() -> Path:
     )
 
 
-def _builder(case: dict[str, object]):
+def _builder(case: SearchAdapterEngineCase) -> SearchEngineCorpusBuilder:
     module = import_module("bijux_proteomics.identification.search_adapters")
-    return getattr(module, case["builder_name"])
+    return cast(SearchEngineCorpusBuilder, getattr(module, case["builder_name"]))
 
 
 @pytest.mark.parametrize(
@@ -109,7 +125,7 @@ def test_engine_output_corpus_reports_preserve_schema_contract(
     "case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES]
 )
 def test_engine_normalization_preserves_invalid_row_rejections(
-    case: dict[str, object],
+    case: SearchAdapterEngineCase,
     tmp_path: Path,
 ) -> None:
     source_path = _matrix_root() / str(case["corpus_dir"]) / str(case["result_file"])
@@ -142,7 +158,7 @@ def test_engine_normalization_preserves_invalid_row_rejections(
     "case", _ENGINE_CASES, ids=[case["corpus_dir"] for case in _ENGINE_CASES]
 )
 def test_engine_provenance_manifests_hash_source_and_config(
-    case: dict[str, object],
+    case: SearchAdapterEngineCase,
 ) -> None:
     corpus_root = _matrix_root() / str(case["corpus_dir"])
     source_path = corpus_root / str(case["result_file"])

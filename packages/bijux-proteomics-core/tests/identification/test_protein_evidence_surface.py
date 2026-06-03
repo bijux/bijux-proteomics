@@ -6,6 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from pydantic import ConfigDict, Field
+
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.identification.cross_run_reproducibility import (
     RunDetectionContext,
@@ -18,18 +20,33 @@ from bijux_proteomics.identification.protein_evidence import (
     render_protein_evidence_summary_tsv,
 )
 from bijux_proteomics.identification.search_adapters import parse_psm_tsv
+from bijux_proteomics_foundation import JsonModel
 
 from .test_identification_surface import _default_mapping, _psm_fixture
 
 
-def _reference_case() -> dict[str, object]:
+class ProteinEvidenceReferenceCase(JsonModel):
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(..., min_length=1)
+    high_q_value: float = Field(..., ge=0.0)
+    moderate_q_value: float = Field(..., ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    records: tuple[PsmRecord, ...] = Field(default_factory=tuple)
+    run_contexts: tuple[RunDetectionContext, ...] = Field(default_factory=tuple)
+    expected_entries: tuple[dict[str, object], ...] = Field(default_factory=tuple)
+
+
+def _reference_case() -> ProteinEvidenceReferenceCase:
     fixture = (
         Path(__file__).resolve().parent.parent
         / "fixtures"
         / "identification"
         / "protein_evidence_reference_cases.json"
     )
-    return json.loads(fixture.read_text(encoding="utf-8"))[0]
+    return ProteinEvidenceReferenceCase.model_validate(
+        json.loads(fixture.read_text(encoding="utf-8"))[0]
+    )
 
 
 def test_protein_evidence_report_counts_exact_owned_tiers() -> None:
@@ -53,18 +70,12 @@ def test_protein_evidence_report_counts_exact_owned_tiers() -> None:
     )
 
     case = _reference_case()
-    reference_records = tuple(
-        PsmRecord.model_validate(record) for record in case["records"]
-    )
-    run_contexts = tuple(
-        RunDetectionContext.model_validate(context) for context in case["run_contexts"]
-    )
     exact = build_protein_evidence_report(
-        reference_records,
-        high_q_value=case["high_q_value"],
-        moderate_q_value=case["moderate_q_value"],
-        score_orientation=case["score_orientation"],
-        run_contexts=run_contexts,
+        case.records,
+        high_q_value=case.high_q_value,
+        moderate_q_value=case.moderate_q_value,
+        score_orientation=case.score_orientation,
+        run_contexts=case.run_contexts,
     )
 
     assert exact.summary.total_groups == 6
@@ -78,17 +89,13 @@ def test_protein_evidence_report_counts_exact_owned_tiers() -> None:
 
 def test_protein_evidence_renderers_preserve_tier_and_reason_ledgers() -> None:
     case = _reference_case()
-    records = tuple(PsmRecord.model_validate(record) for record in case["records"])
-    run_contexts = tuple(
-        RunDetectionContext.model_validate(context) for context in case["run_contexts"]
-    )
 
     report = build_protein_evidence_report(
-        records,
-        high_q_value=case["high_q_value"],
-        moderate_q_value=case["moderate_q_value"],
-        score_orientation=case["score_orientation"],
-        run_contexts=run_contexts,
+        case.records,
+        high_q_value=case.high_q_value,
+        moderate_q_value=case.moderate_q_value,
+        score_orientation=case.score_orientation,
+        run_contexts=case.run_contexts,
     )
 
     summary_tsv = render_protein_evidence_summary_tsv(report)
