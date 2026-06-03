@@ -162,7 +162,9 @@ def _scan_one_path(path: Path) -> InputIntegrityFileReport:
             numeric_columns = tuple(
                 field for field in header_fields if _NUMERIC_COLUMN_PATTERN.search(field.strip())
             )
-            seen_ids = {field: set() for field in duplicate_id_columns}
+            seen_ids: dict[str, set[str]] = {
+                field: set() for field in duplicate_id_columns
+            }
             primary_id_column = duplicate_id_columns[0] if duplicate_id_columns else None
 
             line_number = 1

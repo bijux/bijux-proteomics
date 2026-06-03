@@ -18,6 +18,8 @@ from bijux_proteomics.io.raw.mgf_streaming import (
     iter_mgf_spectra,
 )
 from bijux_proteomics.io.raw.mzml_reader import (
+    MzmlDecodingSupportReport,
+    MzmlPracticalReviewReport,
     build_mzml_practical_review_report as _build_mzml_practical_review_report,
     inspect_mzml_decoding_support as _inspect_mzml_decoding_support,
     stream_mzml_spectra,
@@ -366,13 +368,13 @@ def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryRepor
     )
 
 
-def inspect_mzml_decoding_support(path: Path):
+def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
     """Inspect mzML binary arrays and summarize decoding support boundaries."""
 
     return _inspect_mzml_decoding_support(path)
 
 
-def build_mzml_practical_review_report(path: Path):
+def build_mzml_practical_review_report(path: Path) -> MzmlPracticalReviewReport:
     """Build a practical mzML review surface without overclaiming vendor parity."""
 
     return _build_mzml_practical_review_report(path)

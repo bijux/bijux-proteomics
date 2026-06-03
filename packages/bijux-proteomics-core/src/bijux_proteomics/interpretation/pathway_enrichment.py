@@ -11,6 +11,7 @@ from io import StringIO
 import json
 import math
 from pathlib import Path
+from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -653,12 +654,16 @@ def _protein_gene_annotations(
     custom_annotations: tuple[ProteinAnnotationRecord, ...],
 ) -> dict[str, tuple[str, ...]]:
     annotations: dict[str, set[str]] = {}
-    for record in fasta_records:
-        if record.gene:
-            annotations.setdefault(record.canonical_accession, set()).add(record.gene)
-    for record in custom_annotations:
-        if record.gene_symbol:
-            annotations.setdefault(record.protein_ref, set()).add(record.gene_symbol)
+    for fasta_record in fasta_records:
+        if fasta_record.gene:
+            annotations.setdefault(fasta_record.canonical_accession, set()).add(
+                fasta_record.gene
+            )
+    for annotation_record in custom_annotations:
+        if annotation_record.gene_symbol:
+            annotations.setdefault(annotation_record.protein_ref, set()).add(
+                annotation_record.gene_symbol
+            )
     return {
         protein_ref: tuple(sorted(gene_symbols))
         for protein_ref, gene_symbols in annotations.items()
@@ -718,7 +723,10 @@ def _hypergeometric_upper_tail(
     return round(min(probability, 1.0), 12)
 
 
-def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
+def _validate_required_columns(
+    fieldnames: Sequence[str],
+    required_columns: tuple[str, ...],
+) -> None:
     available = {field.strip() for field in fieldnames}
     missing = [column for column in required_columns if column not in available]
     if missing:

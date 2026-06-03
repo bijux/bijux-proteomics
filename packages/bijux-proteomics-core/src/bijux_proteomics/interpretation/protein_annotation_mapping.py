@@ -10,6 +10,7 @@ from enum import StrEnum
 import json
 from io import StringIO
 from pathlib import Path
+from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -831,14 +832,13 @@ def _accession_aliases(
     entry: ProteinReferenceEntry,
     fasta_record: NormalizedProteinRecord | None,
 ) -> tuple[str, ...]:
-    aliases = {
-        token
-        for token in (
-            entry.input_protein_ref,
-            None if fasta_record is None else fasta_record.source_identifier,
-        )
-        if token not in (None, "", entry.protein_ref)
-    }
+    aliases: set[str] = set()
+    for token in (
+        entry.input_protein_ref,
+        None if fasta_record is None else fasta_record.source_identifier,
+    ):
+        if token is not None and token not in ("", entry.protein_ref):
+            aliases.add(token)
     return tuple(sorted(aliases))
 
 
@@ -907,7 +907,10 @@ def _metadata_json(values: dict[str, str]) -> str:
     return json.dumps(values, sort_keys=True)
 
 
-def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
+def _validate_required_columns(
+    fieldnames: Sequence[str],
+    required_columns: tuple[str, ...],
+) -> None:
     available = {field.strip() for field in fieldnames}
     missing = [column for column in required_columns if column not in available]
     if missing:

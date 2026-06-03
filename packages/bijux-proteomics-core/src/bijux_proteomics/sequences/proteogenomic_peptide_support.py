@@ -10,6 +10,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -759,7 +760,7 @@ def _infer_delimiter(header_line: str) -> str:
 
 
 def _validate_required_columns(
-    fieldnames: list[str],
+    fieldnames: Sequence[str],
     required_columns: tuple[str, ...],
 ) -> None:
     missing = [column for column in required_columns if column not in fieldnames]

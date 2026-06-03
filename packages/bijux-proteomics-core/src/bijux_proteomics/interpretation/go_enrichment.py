@@ -11,6 +11,7 @@ from io import StringIO
 import json
 import math
 from pathlib import Path
+from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -679,7 +680,10 @@ def _metadata_json(values: dict[str, str]) -> str:
     return json.dumps(values, sort_keys=True)
 
 
-def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
+def _validate_required_columns(
+    fieldnames: Sequence[str],
+    required_columns: tuple[str, ...],
+) -> None:
     available = {field.strip() for field in fieldnames}
     missing = [column for column in required_columns if column not in available]
     if missing:
