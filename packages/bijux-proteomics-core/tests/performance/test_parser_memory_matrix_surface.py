@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from .parser_memory_benchmark_support import (
     benchmark_ms1_feature_table_memory,
     benchmark_transition_table_matrix_memory,
@@ -10,7 +12,7 @@ from .parser_memory_benchmark_support import (
 
 
 def test_generated_large_ms1_feature_table_stays_below_memory_ceiling(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     report = benchmark_ms1_feature_table_memory(tmp_path)
 
@@ -20,7 +22,9 @@ def test_generated_large_ms1_feature_table_stays_below_memory_ceiling(
     assert report.memory_headroom_mb >= 0.0
 
 
-def test_generated_large_transition_table_stays_below_memory_ceiling(tmp_path) -> None:
+def test_generated_large_transition_table_stays_below_memory_ceiling(
+    tmp_path: Path,
+) -> None:
     report = benchmark_transition_table_matrix_memory(tmp_path)
 
     assert report.parser_id == "transition_table_matrix"

@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 import csv
 from dataclasses import dataclass
 import gc
 from pathlib import Path
 import tracemalloc
+from typing import TypeVar
 
 from bijux_proteomics.benchmarks import (
     ParserMemoryBenchmarkInput,
@@ -81,6 +83,8 @@ PARSER_MEMORY_BENCHMARK_CASES: dict[str, ParserMemoryBenchmarkCase] = {
         memory_ceiling_mb=80.0,
     ),
 }
+
+_ResultT = TypeVar("_ResultT")
 
 
 def benchmark_mgf_streaming_memory(tmp_path: Path) -> ParserMemoryBenchmarkReport:
@@ -248,7 +252,9 @@ def _build_report(
     )
 
 
-def _measure_peak_memory_mb(callback):
+def _measure_peak_memory_mb(
+    callback: Callable[[], _ResultT],
+) -> tuple[_ResultT, float]:
     gc.collect()
     tracemalloc.start()
     try:
@@ -634,7 +640,7 @@ def _write_delimited_rows(
     path: Path,
     *,
     fieldnames: tuple[str, ...],
-    rows,
+    rows: Iterable[dict[str, str]],
 ) -> None:
     delimiter = "\t" if path.suffix in {".tsv", ".txt"} else ","
     with path.open("w", encoding="utf-8", newline="") as handle:

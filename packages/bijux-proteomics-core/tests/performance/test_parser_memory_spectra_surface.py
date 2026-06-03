@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from .parser_memory_benchmark_support import (
@@ -11,7 +13,9 @@ from .parser_memory_benchmark_support import (
 )
 
 
-def test_generated_large_mgf_streaming_stays_below_memory_ceiling(tmp_path) -> None:
+def test_generated_large_mgf_streaming_stays_below_memory_ceiling(
+    tmp_path: Path,
+) -> None:
     report = benchmark_mgf_streaming_memory(tmp_path)
 
     assert report.parser_id == "mgf_streaming"
@@ -21,7 +25,9 @@ def test_generated_large_mgf_streaming_stays_below_memory_ceiling(tmp_path) -> N
 
 
 @pytest.mark.slow
-def test_generated_large_mzml_streaming_stays_below_memory_ceiling(tmp_path) -> None:
+def test_generated_large_mzml_streaming_stays_below_memory_ceiling(
+    tmp_path: Path,
+) -> None:
     report = benchmark_mzml_streaming_memory(tmp_path)
 
     assert report.parser_id == "mzml_streaming"

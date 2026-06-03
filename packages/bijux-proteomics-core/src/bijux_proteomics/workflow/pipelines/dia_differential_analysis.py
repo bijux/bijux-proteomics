@@ -11,6 +11,7 @@ from io import StringIO
 from itertools import combinations
 import math
 from pathlib import Path
+from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
@@ -491,16 +492,22 @@ def _build_dia_differential_qc_summary(
     )
 
 
+class _AdjustedPValueEntry(Protocol):
+    adjusted_p_value: float | None
+
+
 def _count_significant_differential_entries(
-    entries: tuple[object, ...],
+    entries: tuple[_AdjustedPValueEntry, ...],
     *,
     adjusted_p_value_threshold: float = 0.05,
 ) -> int:
-    return sum(
-        1
-        for entry in entries
-        if getattr(entry, "adjusted_p_value", None) is not None
-        and entry.adjusted_p_value <= adjusted_p_value_threshold
+    return len(
+        tuple(
+            entry
+            for entry in entries
+            if entry.adjusted_p_value is not None
+            and entry.adjusted_p_value <= adjusted_p_value_threshold
+        )
     )
 
 

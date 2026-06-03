@@ -87,6 +87,7 @@ def test_build_dia_peptide_matrix_report_lists_excluded_precursors() -> None:
     assert excluded_entry.target_entity_level.value == "peptide"
     assert excluded_entry.target_entity_id == "ACDM[Oxidation]K|PG002"
     assert excluded_entry.source_precursor_key == "ACDM[Oxidation]K|z3|PG002"
+    assert excluded_entry.exclusion_reason is not None
     assert excluded_entry.exclusion_reason.value == "q_value_threshold"
 
 
