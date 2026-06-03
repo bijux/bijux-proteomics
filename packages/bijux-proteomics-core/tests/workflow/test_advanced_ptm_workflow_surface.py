@@ -61,6 +61,8 @@ def test_run_advanced_ptm_workflow_keeps_ambiguous_signal_out_of_exact_site_matr
         report.family_protocol.artifacts.workflow_manifest_json
         == "advanced_ptm_workflow_manifest.json"
     )
+    assert report.manifest.artifacts.ambiguity_group_matrix_tsv is not None
+    assert report.manifest.artifacts.differential_tsv is not None
 
     output_dir = tmp_path / "advanced_ptm_review"
     exact_matrix_tsv = (
@@ -103,6 +105,8 @@ def test_run_advanced_ptm_workflow_keeps_ambiguous_signal_out_of_exact_site_matr
     assert report.manifest.artifacts.regulator_enrichment_tsv is not None
     assert report.manifest.artifacts.evidence_card_tsv is not None
     assert report.manifest.artifacts.evidence_claim_tsv is not None
+    assert report.manifest.artifacts.ambiguity_group_matrix_tsv is not None
+    assert report.manifest.artifacts.differential_tsv is not None
     assert (output_dir / report.manifest.artifacts.site_mapping_tsv).exists()
     assert (output_dir / report.manifest.artifacts.localization_tsv).exists()
     assert (output_dir / report.manifest.artifacts.motif_term_tsv).exists()

@@ -25,7 +25,7 @@ def test_parse_structure_from_pdb_text_reads_raw_pdb_payload() -> None:
     assert structure.id == "pred"
     residues = list(structure.get_residues())  # type: ignore[no-untyped-call]
     assert len(residues) == 1
-    assert residues[0].get_resname() == "ALA"  # type: ignore[no-untyped-call]
+    assert residues[0].get_resname() == "ALA"
 
 
 def test_load_structure_from_pdb_text_stays_as_deprecating_wrapper() -> None:

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
@@ -142,12 +143,15 @@ def _identification_bundle() -> ReviewReadyEvidenceBundle:
         mapping=_default_mapping(),
     )
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
-    return build_review_ready_evidence_bundle(
-        accepted,
-        threshold=0.05,
-        score_orientation="higher_better",
-        ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
-        quant_support_by_protein={"P11111": {"C1": 2200.0}},
+    return cast(
+        ReviewReadyEvidenceBundle,
+        build_review_ready_evidence_bundle(
+            accepted,
+            threshold=0.05,
+            score_orientation="higher_better",
+            ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
+            quant_support_by_protein={"P11111": {"C1": 2200.0}},
+        ),
     )
 
 

@@ -46,6 +46,8 @@ def test_tmt_ratio_report_builds_peptide_sample_control_ratios() -> None:
         and entry.numerator_channel == "127N"
     )
     assert first.control_sample_id == "plex_a_126"
+    assert first.ratio is not None
+    assert first.log2_ratio is not None
     assert round(first.ratio, 6) == round(1400.0 / 1200.0, 6)
     assert round(first.log2_ratio, 6) == round(math.log2(1400.0 / 1200.0), 6)
     missing = next(
@@ -65,4 +67,5 @@ def test_tmt_ratio_report_builds_peptide_sample_control_ratios() -> None:
         and entry.numerator_channel == "127N"
     )
     assert protein.target_kind.value == "protein"
+    assert protein.ratio is not None
     assert round(protein.ratio, 6) == round(1400.0 / 1200.0, 6)
