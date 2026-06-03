@@ -94,7 +94,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("ptm/quant/differential_analysis.py", 1080),
     _exception("quantification/matrix/peptide_intensity_matrix.py", 1042),
     _exception("quantification/missingness/missingness.py", 1154),
-    _exception("quantification/provenance/review.py", 1386),
+    _exception("quantification/provenance/review.py", 1284),
     _exception("quantification/provenance/sample_exploration.py", 1217),
     _exception("quantification/rollup/protein_lfq.py", 1125),
     _exception("quantification/statistics/differential_abundance.py", 1531),
@@ -122,8 +122,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("workflow/pipelines/label_based_differential_analysis.py", 1308),
     _exception("workflow/pipelines/orchestrator.py", 1089),
     _exception("workflow/pipelines/public_benchmark_runner.py", 1151),
-    _exception("workflow/reports/biological_report_assembly.py", 1007),
-    _exception("workflow/reports/biological_report_rendering.py", 1047),
     _exception("workflow/study_result.py", 1451),
 )
 

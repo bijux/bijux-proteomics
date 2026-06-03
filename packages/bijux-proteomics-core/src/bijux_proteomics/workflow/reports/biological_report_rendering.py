@@ -23,27 +23,18 @@ from bijux_proteomics.interpretation import (
     render_complex_activity_sample_score_tsv,
     render_complex_activity_summary_tsv,
     render_complex_activity_unresolved_member_tsv,
-    render_complex_enrichment_entry_tsv,
-    render_complex_enrichment_summary_tsv,
     render_complex_member_contribution_tsv,
-    render_complex_unresolved_member_tsv,
     render_disease_phenotype_interpretation_summary_tsv,
     render_disease_phenotype_interpretation_tsv,
     render_drug_target_interpretation_summary_tsv,
     render_drug_target_interpretation_tsv,
-    render_go_enrichment_summary_tsv,
-    render_go_enrichment_term_tsv,
-    render_go_enrichment_unannotated_tsv,
     render_pathway_activity_condition_comparison_tsv,
     render_pathway_activity_condition_score_tsv,
     render_pathway_activity_matrix_tsv,
     render_pathway_activity_sample_score_tsv,
     render_pathway_activity_summary_tsv,
     render_pathway_activity_unresolved_member_tsv,
-    render_pathway_enrichment_entry_tsv,
-    render_pathway_enrichment_summary_tsv,
     render_pathway_member_contribution_tsv,
-    render_pathway_unresolved_member_tsv,
     render_protein_annotation_summary_tsv,
     render_protein_annotation_tsv,
     render_regulator_inference_summary_tsv,
@@ -123,6 +114,9 @@ from bijux_proteomics.workflow.cohort_stratification import (
 )
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.reports.biological_report_enrichment_exports import (
+    write_biological_enrichment_exports,
 )
 from bijux_proteomics.workflow.reports.biological_report_html import (
     _render_biological_result_report_html,
@@ -836,65 +830,7 @@ def write_biological_result_report_bundle(
         render_sample_evidence_card_tsv(report.sample_exploration_report),
     )
 
-    go_summary_name = None
-    go_term_name = None
-    go_unannotated_name = None
-    if report.go_enrichment_report is not None:
-        go_summary_name = "biological_go_summary.tsv"
-        go_term_name = "biological_go_terms.tsv"
-        go_unannotated_name = "biological_go_unannotated.tsv"
-        write_output_table_tsv(
-            (output_dir / go_summary_name),
-            render_go_enrichment_summary_tsv(report.go_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / go_term_name),
-            render_go_enrichment_term_tsv(report.go_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / go_unannotated_name),
-            render_go_enrichment_unannotated_tsv(report.go_enrichment_report),
-        )
-
-    pathway_summary_name = None
-    pathway_entry_name = None
-    pathway_unresolved_name = None
-    if report.pathway_enrichment_report is not None:
-        pathway_summary_name = "biological_pathway_summary.tsv"
-        pathway_entry_name = "biological_pathway_entries.tsv"
-        pathway_unresolved_name = "biological_pathway_unresolved.tsv"
-        write_output_table_tsv(
-            (output_dir / pathway_summary_name),
-            render_pathway_enrichment_summary_tsv(report.pathway_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / pathway_entry_name),
-            render_pathway_enrichment_entry_tsv(report.pathway_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / pathway_unresolved_name),
-            render_pathway_unresolved_member_tsv(report.pathway_enrichment_report),
-        )
-
-    complex_summary_name = None
-    complex_entry_name = None
-    complex_unresolved_name = None
-    if report.complex_enrichment_report is not None:
-        complex_summary_name = "biological_complex_summary.tsv"
-        complex_entry_name = "biological_complex_entries.tsv"
-        complex_unresolved_name = "biological_complex_unresolved.tsv"
-        write_output_table_tsv(
-            (output_dir / complex_summary_name),
-            render_complex_enrichment_summary_tsv(report.complex_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / complex_entry_name),
-            render_complex_enrichment_entry_tsv(report.complex_enrichment_report),
-        )
-        write_output_table_tsv(
-            (output_dir / complex_unresolved_name),
-            render_complex_unresolved_member_tsv(report.complex_enrichment_report),
-        )
+    enrichment_export_names = write_biological_enrichment_exports(report, output_dir)
 
     artifacts = BiologicalResultReportArtifactPaths(
         summary_tsv=summary_name,
@@ -985,15 +921,15 @@ def write_biological_result_report_bundle(
         sample_cluster_tsv=sample_cluster_name,
         sample_card_tsv=sample_card_name,
         report_html=report_html_name,
-        go_summary_tsv=go_summary_name,
-        go_term_tsv=go_term_name,
-        go_unannotated_tsv=go_unannotated_name,
-        pathway_summary_tsv=pathway_summary_name,
-        pathway_entry_tsv=pathway_entry_name,
-        pathway_unresolved_tsv=pathway_unresolved_name,
-        complex_summary_tsv=complex_summary_name,
-        complex_entry_tsv=complex_entry_name,
-        complex_unresolved_tsv=complex_unresolved_name,
+        go_summary_tsv=enrichment_export_names.go_summary_name,
+        go_term_tsv=enrichment_export_names.go_term_name,
+        go_unannotated_tsv=enrichment_export_names.go_unannotated_name,
+        pathway_summary_tsv=enrichment_export_names.pathway_summary_name,
+        pathway_entry_tsv=enrichment_export_names.pathway_entry_name,
+        pathway_unresolved_tsv=enrichment_export_names.pathway_unresolved_name,
+        complex_summary_tsv=enrichment_export_names.complex_summary_name,
+        complex_entry_tsv=enrichment_export_names.complex_entry_name,
+        complex_unresolved_tsv=enrichment_export_names.complex_unresolved_name,
     )
     atomic_write_text(
         output_dir / report_html_name,

@@ -6,10 +6,7 @@
 
 from __future__ import annotations
 
-import csv
 from enum import StrEnum
-from html import escape
-from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -319,41 +316,13 @@ def build_biological_result_report_bundle(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle over one governed protein LFQ workflow."""
 
-    experiment_design = coerce_experiment_design(design_entries)
-    active_mapping = mapping or Ms1FeatureColumnMapping(
-        sample_id="sample_id",
-        feature_id="feature_id",
-        peptide="peptide",
-        intensity="intensity",
-        protein_refs="proteins",
-        charge="charge",
-        mz="mz",
-        retention_time_seconds="retention_time_seconds",
-        missing_reason="missing_reason",
-        protein_separator=";",
+    from bijux_proteomics.workflow.reports.biological_report_ms1_feature_input import (
+        build_biological_result_report_bundle_from_ms1_feature_input,
     )
-    active_selection_policy = _resolve_biological_result_selection_policy(
-        selection_policy,
-        protocol_context_tsv_path=protocol_context_tsv_path,
-    )
-    parse_report = (
-        parse_ms1_feature_table_chunked(
-            input_tsv_path,
-            mapping=active_mapping,
-            chunk_size_rows=chunk_size_rows,
-        )
-        if chunk_size_rows is not None
-        else parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
-    )
-    quant_table = build_label_free_intensity_table(
-        parse_report.accepted_records,
-        entity_level=QuantEntityLevel.PROTEIN,
-        aggregation_method=aggregation_method,
-        top_n=top_n,
-    )
-    return build_biological_result_report_bundle_from_quant_table(
-        quant_table,
-        experiment_design,
+
+    return build_biological_result_report_bundle_from_ms1_feature_input(
+        input_tsv_path,
+        design_entries,
         proteins_fasta_path=proteins_fasta_path,
         variant_proteins_fasta_path=variant_proteins_fasta_path,
         variant_peptide_tsv_path=variant_peptide_tsv_path,
@@ -370,11 +339,12 @@ def build_biological_result_report_bundle(
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
-        selection_policy=active_selection_policy,
+        selection_policy=selection_policy,
         volcano_policy=volcano_policy,
         lab_run_qc_feedback_report=lab_run_qc_feedback_report,
         run_qc_reports=run_qc_reports,
         run_qc_assessments=run_qc_assessments,
+        chunk_size_rows=chunk_size_rows,
     )
 
 
