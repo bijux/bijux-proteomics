@@ -16,6 +16,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.psm_target_decoy_fdr import (
+    PsmTargetDecoyFdrEntry,
     build_psm_target_decoy_fdr_report,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -231,7 +232,7 @@ def render_psm_error_rate_annotation_summary_tsv(
 
 
 def _compute_local_fdr_by_rank(
-    ranked_entries,
+    ranked_entries: tuple[PsmTargetDecoyFdrEntry, ...],
     *,
     window_size: int,
 ) -> tuple[float | None, ...]:

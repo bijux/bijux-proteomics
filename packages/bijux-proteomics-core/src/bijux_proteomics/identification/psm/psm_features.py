@@ -20,6 +20,7 @@ from bijux_proteomics.identification.contracts import (
     parse_target_decoy_label,
 )
 from bijux_proteomics.io.spectra import SpectrumModel
+from bijux_proteomics.io.spectra.spectrum_peak_matching import SpectrumPeakMatchReport
 from bijux_proteomics.io.spectrum_peak_matching import match_spectrum_peaks_to_fragments
 from bijux_proteomics.sequences.digestion import count_missed_cleavages
 from bijux_proteomics_foundation import JsonModel
@@ -266,7 +267,7 @@ def _normalize_protein_refs(raw_value: Any) -> tuple[str, ...]:
     if raw_value in (None, ""):
         return ()
     if isinstance(raw_value, str):
-        values = raw_value.split(";")
+        values = tuple(raw_value.split(";"))
     else:
         values = tuple(str(value) for value in raw_value)
     return tuple(dict.fromkeys(value.strip() for value in values if value.strip()))
@@ -356,7 +357,7 @@ def _calculate_normalized_spectral_entropy(spectrum: SpectrumModel) -> float:
 def _top_peak_unmatched_fraction(
     *,
     spectrum: SpectrumModel,
-    match_report,
+    match_report: SpectrumPeakMatchReport,
     top_n: int = 10,
 ) -> float:
     if top_n <= 0 or not spectrum.peaks:
@@ -379,7 +380,7 @@ def _top_peak_unmatched_fraction(
         for peak in top_peaks
         if (peak.mz, peak.intensity) not in matched_peak_keys
     )
-    return unmatched_intensity / total_top_intensity
+    return float(unmatched_intensity / total_top_intensity)
 
 
 __all__ = (

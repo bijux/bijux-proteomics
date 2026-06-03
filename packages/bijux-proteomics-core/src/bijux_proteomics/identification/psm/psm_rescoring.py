@@ -6,10 +6,11 @@
 from __future__ import annotations
 
 import csv
+from collections.abc import Iterable
 import hashlib
 import io
 import json
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -495,11 +496,11 @@ def _rescored_q_values(
 
 
 def _rank_map(
-    pairs: tuple[tuple[str, float], ...] | object,
+    pairs: Iterable[tuple[str, float]],
     *,
     higher_better: bool,
 ) -> dict[str, int]:
-    ranked = sorted(
+    ranked: list[tuple[str, float]] = sorted(
         tuple(pairs),
         key=lambda pair: ((-pair[1]) if higher_better else pair[1], pair[0]),
     )
@@ -522,12 +523,12 @@ def _transform_feature_value(*, value: float, transform: FeatureTransform) -> fl
 
 def _sigmoid(values: np.ndarray) -> np.ndarray:
     clipped = np.clip(values, -60.0, 60.0)
-    return 1.0 / (1.0 + np.exp(-clipped))
+    return cast(np.ndarray, 1.0 / (1.0 + np.exp(-clipped)))
 
 
 def _logit(probabilities: np.ndarray) -> np.ndarray:
     clipped = np.clip(probabilities, 1e-12, 1.0 - 1e-12)
-    return np.log(clipped / (1.0 - clipped))
+    return cast(np.ndarray, np.log(clipped / (1.0 - clipped)))
 
 
 def _binary_auc(scores: np.ndarray, labels: np.ndarray) -> float:

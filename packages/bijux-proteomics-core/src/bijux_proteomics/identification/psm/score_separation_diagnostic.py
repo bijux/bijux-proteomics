@@ -14,6 +14,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
+    NormalizedScoreEntry,
     PsmRecord,
     TargetDecoyLabel,
     normalize_psm_score_orientation,
@@ -256,7 +257,7 @@ def render_score_separation_summary_tsv(report: ScoreSeparationDiagnosticReport)
 
 
 def _build_bins(
-    normalized_entries: tuple,
+    normalized_entries: tuple[NormalizedScoreEntry, ...],
     *,
     bin_count: int,
     target_count: int,
