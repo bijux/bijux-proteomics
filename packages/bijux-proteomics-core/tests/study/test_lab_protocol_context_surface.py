@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from bijux_proteomics.lab.qc import QcThresholdPolicy
 from bijux_proteomics.study import (
     AcquisitionType,
     DepletionMode,
@@ -20,7 +21,6 @@ from bijux_proteomics.study import (
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
 )
-from bijux_proteomics.lab.qc import QcThresholdPolicy
 
 
 def _write_protocol_table(tmp_path: Path, body: str) -> Path:
