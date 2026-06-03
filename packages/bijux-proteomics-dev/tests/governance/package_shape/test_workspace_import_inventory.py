@@ -7,7 +7,9 @@ from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
 )
 
 
-def test_workspace_import_inventory_resolves_imported_submodules(tmp_path: Path) -> None:
+def test_workspace_import_inventory_resolves_imported_submodules(
+    tmp_path: Path,
+) -> None:
     module_path = tmp_path / "consumer.py"
     module_path.write_text(
         "from bijux_proteomics_dev.governance.package_shape import skip_policy\n",
@@ -27,7 +29,9 @@ def test_workspace_import_inventory_resolves_imported_submodules(tmp_path: Path)
     )
 
 
-def test_workspace_import_inventory_resolves_static_lazy_imports(tmp_path: Path) -> None:
+def test_workspace_import_inventory_resolves_static_lazy_imports(
+    tmp_path: Path,
+) -> None:
     module_path = tmp_path / "consumer.py"
     module_path.write_text(
         "\n".join(
@@ -50,6 +54,4 @@ def test_workspace_import_inventory_resolves_static_lazy_imports(tmp_path: Path)
         source_module_name="bijux_proteomics.synthetic.consumer",
     )
 
-    assert any(
-        edge.target_module == "bijux_proteomics.review.claims" for edge in edges
-    )
+    assert any(edge.target_module == "bijux_proteomics.review.claims" for edge in edges)

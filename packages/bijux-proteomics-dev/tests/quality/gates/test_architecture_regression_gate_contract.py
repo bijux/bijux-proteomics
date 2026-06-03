@@ -8,9 +8,9 @@ from pytest import MonkeyPatch
 
 from bijux_proteomics_dev.quality.gates.architecture_regression_gate import (
     default_architecture_regression_targets,
+    run_architecture_regression_gate,
     run_canonical_internal_architecture_map,
     run_canonical_root_imports,
-    run_architecture_regression_gate,
     validate_architecture_regression_targets,
 )
 
@@ -68,8 +68,14 @@ def test_architecture_regression_gate_executes_every_target(
 
     assert run_architecture_regression_gate(tmp_path, execute=True) == 0
     assert len(commands) == 2
-    assert commands[0][1:3] == ("-m", "bijux_proteomics_dev.quality.gates.architecture_regression_gate")
-    assert commands[1][1:3] == ("-m", "bijux_proteomics_dev.governance.package_shape.public_api_snapshots")
+    assert commands[0][1:3] == (
+        "-m",
+        "bijux_proteomics_dev.quality.gates.architecture_regression_gate",
+    )
+    assert commands[1][1:3] == (
+        "-m",
+        "bijux_proteomics_dev.governance.package_shape.public_api_snapshots",
+    )
 
 
 def test_canonical_root_imports_check_only_canonical_product_packages(

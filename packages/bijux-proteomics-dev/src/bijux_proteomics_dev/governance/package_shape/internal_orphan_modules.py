@@ -9,15 +9,11 @@ import re
 import tomllib
 from typing import Any, cast
 
-from bijux_proteomics_foundation.testing.generated_file_markers import (
-    GeneratedFileMarkerKind,
-    detect_generated_file_marker,
+from bijux_proteomics_dev.governance.foundation.repository_product_shape import (
+    build_repository_product_shape_report,
 )
 from bijux_proteomics_dev.governance.package_shape.package_module_ledger import (
     build_package_module_ledger_report,
-)
-from bijux_proteomics_dev.governance.foundation.repository_product_shape import (
-    build_repository_product_shape_report,
 )
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
@@ -25,12 +21,16 @@ from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
     workspace_dependency_edges_for_path,
 )
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
-    package_test_modules,
     package_root,
+    package_test_modules,
     root_api_policy_path,
     source_modules,
     tests_root,
     workspace_package_names,
+)
+from bijux_proteomics_foundation.testing.generated_file_markers import (
+    GeneratedFileMarkerKind,
+    detect_generated_file_marker,
 )
 
 __all__ = [
@@ -48,7 +48,10 @@ __all__ = [
 
 
 INTERNAL_ORPHAN_MODULE_ALLOWLIST_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "internal-orphan-module-allowlist.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "internal-orphan-module-allowlist.toml"
 )
 INTERNAL_ORPHAN_MODULE_REPORT_PATH = (
     REPO_ROOT / "configs" / "package-governance" / "internal-orphan-modules.toml"
@@ -120,7 +123,8 @@ def build_internal_orphan_module_report(
 
     policy = policy or load_internal_orphan_module_policy()
     justification_by_key = {
-        (item.distribution_name, item.module_path): item for item in policy.justifications
+        (item.distribution_name, item.module_path): item
+        for item in policy.justifications
     }
     entries: list[InternalOrphanModuleEntry] = []
     seen_orphans: set[tuple[str, str]] = set()
@@ -150,7 +154,9 @@ def build_internal_orphan_module_report(
             )
 
     stale_justifications = tuple(
-        item for item in policy.justifications if (item.distribution_name, item.module_path) not in seen_orphans
+        item
+        for item in policy.justifications
+        if (item.distribution_name, item.module_path) not in seen_orphans
     )
     ordered_entries = tuple(
         sorted(
@@ -196,7 +202,9 @@ def _reachable_modules(package_name: str) -> set[str]:
         and not entry.module_path.endswith("/__pycache__")
         and entry.module_path.endswith(".py")
     }
-    adjacency: dict[str, set[str]] = {module_name: set() for module_name in existing_modules}
+    adjacency: dict[str, set[str]] = {
+        module_name: set() for module_name in existing_modules
+    }
     for edge in module_dependency_edges(package_name):
         if not edge.internal:
             continue
@@ -274,7 +282,9 @@ def _test_imported_modules(
         ):
             if not edge.internal:
                 continue
-            target_module = _nearest_existing_module(edge.target_module, existing_modules)
+            target_module = _nearest_existing_module(
+                edge.target_module, existing_modules
+            )
             if target_module is not None:
                 modules.add(target_module)
     return modules
@@ -297,7 +307,9 @@ def _workspace_consumer_targets() -> dict[str, tuple[str, ...]]:
     targets_by_distribution: dict[str, set[str]] = {}
     for consumer_package_name in workspace_package_names():
         for path in source_modules(consumer_package_name):
-            for edge in workspace_dependency_edges_for_path(consumer_package_name, path):
+            for edge in workspace_dependency_edges_for_path(
+                consumer_package_name, path
+            ):
                 targets_by_distribution.setdefault(edge.target_distribution, set()).add(
                     edge.target_module
                 )
@@ -353,7 +365,10 @@ def _entrypoint_source_paths() -> tuple[Path, ...]:
         paths.extend(sorted(packages_root.rglob("generated_boundary.json")))
     for path in sorted((REPO_ROOT / "configs" / "package-governance").rglob("*.toml")):
         marker = detect_generated_file_marker(path)
-        if marker is not None and marker.kind == GeneratedFileMarkerKind.GENERATED_HEADER:
+        if (
+            marker is not None
+            and marker.kind == GeneratedFileMarkerKind.GENERATED_HEADER
+        ):
             paths.append(path)
     return tuple(dict.fromkeys(paths))
 
@@ -444,7 +459,9 @@ def _render_toml(report: InternalOrphanModuleReport) -> str:
             ]
         )
         if entry.justification_reason is not None:
-            lines.append(f'justification_reason = "{_escape(entry.justification_reason)}"')
+            lines.append(
+                f'justification_reason = "{_escape(entry.justification_reason)}"'
+            )
         lines.append("")
     for item in report.stale_justifications:
         lines.extend(

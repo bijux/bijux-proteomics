@@ -15,7 +15,13 @@ def test_skip_policy_validation_rejects_raw_pytest_skip(
     monkeypatch: MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    test_file = tmp_path / "packages" / "bijux-proteomics-core" / "tests" / "test_skip_surface.py"
+    test_file = (
+        tmp_path
+        / "packages"
+        / "bijux-proteomics-core"
+        / "tests"
+        / "test_skip_surface.py"
+    )
     test_file.parent.mkdir(parents=True)
     test_file.write_text(
         "import pytest\n\n\ndef test_surface():\n    pytest.skip('blocked')\n",

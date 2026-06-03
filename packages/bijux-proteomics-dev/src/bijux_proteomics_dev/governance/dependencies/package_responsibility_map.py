@@ -323,7 +323,9 @@ def build_package_responsibility_map_report() -> PackageResponsibilityMapReport:
     """Build the checked workspace package responsibility map."""
 
     return PackageResponsibilityMapReport(
-        entries=tuple(_entry(package_name) for package_name in workspace_package_names()),
+        entries=tuple(
+            _entry(package_name) for package_name in workspace_package_names()
+        ),
         guard=PackageResponsibilityBoundaryGuard(
             max_foundation_higher_package_edges=0,
             max_knowledge_runtime_edges=0,
@@ -332,9 +334,9 @@ def build_package_responsibility_map_report() -> PackageResponsibilityMapReport:
     )
 
 
-def collect_package_responsibility_boundary_violations() -> (
-    tuple[PackageResponsibilityBoundaryViolation, ...]
-):
+def collect_package_responsibility_boundary_violations() -> tuple[
+    PackageResponsibilityBoundaryViolation, ...
+]:
     """Return live import-direction violations against the responsibility map."""
 
     return evaluate_package_responsibility_boundary_violations(

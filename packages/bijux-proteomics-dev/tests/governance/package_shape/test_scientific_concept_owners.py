@@ -45,9 +45,9 @@ def test_scientific_concept_ownership_is_clean_for_current_repo() -> None:
         if definition.concept_name == "ptm_site_group"
         and definition.symbol_name == "build_ptm_site_group_evidence"
     ]
-    assert [
-        definition.module_name for definition in ptm_site_group_definitions
-    ] == ["bijux_proteomics.ptm.sites.site_groups"]
+    assert [definition.module_name for definition in ptm_site_group_definitions] == [
+        "bijux_proteomics.ptm.sites.site_groups"
+    ]
 
 
 def test_scientific_concept_ownership_rejects_unexpected_duplicate_definitions(

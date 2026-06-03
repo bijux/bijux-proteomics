@@ -88,6 +88,7 @@ def _module_export_sources(
     tree = ast.parse(module_path.read_text(encoding="utf-8"), filename=str(module_path))
     mapping: dict[str, str] = {}
     runtime_package_name: str | None = None
+
     def _record_statements(statements: list[ast.stmt]) -> None:
         nonlocal runtime_package_name
         for node in statements:
@@ -128,9 +129,8 @@ def _module_export_sources(
                     mapping[alias.asname or alias.name] = alias.name
             elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
                 for key, value in zip(node.value.keys, node.value.values, strict=False):
-                    if (
-                        not isinstance(key, ast.Constant)
-                        or not isinstance(key.value, str)
+                    if not isinstance(key, ast.Constant) or not isinstance(
+                        key.value, str
                     ):
                         continue
                     if isinstance(value, ast.Constant) and isinstance(value.value, str):

@@ -11,8 +11,8 @@ from bijux_proteomics_dev.release.governance.final_preflight import (
     run,
 )
 from bijux_proteomics_dev.release.governance.test_collection_gate import (
-    CollectionGateReport,
     CollectionGateCheck,
+    CollectionGateReport,
 )
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-import tomllib
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (

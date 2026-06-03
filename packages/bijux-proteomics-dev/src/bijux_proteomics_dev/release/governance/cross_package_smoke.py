@@ -116,7 +116,9 @@ def load_public_package_apis() -> tuple[PublicPackageApiLoad, ...]:
     return tuple(loaded)
 
 
-def ordered_cross_package_boundary_checkpoints() -> tuple[CrossPackageBoundaryCheckpoint, ...]:
+def ordered_cross_package_boundary_checkpoints() -> tuple[
+    CrossPackageBoundaryCheckpoint, ...
+]:
     """Return the canonical ordered boundary chain for the smoke workflow."""
 
     return (
@@ -403,10 +405,7 @@ def _smoke_annotation_pack() -> AnnotationPack:
 
 
 def _smoke_fasta_payload() -> str:
-    return (
-        ">sp|P04637|TP53_HUMAN tumor protein p53\n"
-        "MEEPQSDPSVEPPLSQETFSDLWKLLPEN\n"
-    )
+    return ">sp|P04637|TP53_HUMAN tumor protein p53\nMEEPQSDPSVEPPLSQETFSDLWKLLPEN\n"
 
 
 def _smoke_sequence() -> str:
@@ -444,7 +443,9 @@ def validate_cross_package_smoke_report(
             )
             break
     if not issues and actual != expected:
-        issues.append("unexpected extra smoke stages appear after the canonical boundary chain")
+        issues.append(
+            "unexpected extra smoke stages appear after the canonical boundary chain"
+        )
     return tuple(issues)
 
 
@@ -472,7 +473,9 @@ def render_cross_package_smoke_summary(report: CrossPackageSmokeReport) -> str:
 def run(repo_root: Path | None = None) -> int:
     """Execute the cross-package smoke workflow and print a stable summary."""
 
-    report = run_cross_package_smoke_workflow(repo_root or Path.cwd() / "artifacts" / "cross-package-smoke")
+    report = run_cross_package_smoke_workflow(
+        repo_root or Path.cwd() / "artifacts" / "cross-package-smoke"
+    )
     issues = validate_cross_package_smoke_report(report)
     print(render_cross_package_smoke_summary(report))
     if issues:

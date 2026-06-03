@@ -59,7 +59,9 @@ def _raw_skip_usages_in_test_module(path: Path) -> tuple[HiddenSkipUsage, ...]:
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
-        api_name = _raw_skip_api_name(node.func, pytest_aliases, pytest_function_aliases)
+        api_name = _raw_skip_api_name(
+            node.func, pytest_aliases, pytest_function_aliases
+        )
         if api_name is None:
             continue
         usages.append(
@@ -98,9 +100,13 @@ def _raw_skip_api_name(
     pytest_aliases: set[str],
     pytest_function_aliases: dict[str, str],
 ) -> str | None:
-    if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
-        if function.value.id in pytest_aliases and function.attr in _RAW_SKIP_APIS:
-            return function.attr
+    if (
+        isinstance(function, ast.Attribute)
+        and isinstance(function.value, ast.Name)
+        and function.value.id in pytest_aliases
+        and function.attr in _RAW_SKIP_APIS
+    ):
+        return function.attr
     if isinstance(function, ast.Name):
         return pytest_function_aliases.get(function.id)
     return None

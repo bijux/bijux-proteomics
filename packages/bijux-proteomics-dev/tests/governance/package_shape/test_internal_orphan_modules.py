@@ -22,9 +22,7 @@ def test_internal_orphan_module_artifacts_are_repository_owned() -> None:
 def test_internal_orphan_module_allowlist_covers_only_manual_example_tools() -> None:
     policy = load_internal_orphan_module_policy()
 
-    assert [
-        item.module_import_path for item in policy.justifications
-    ] == [
+    assert [item.module_import_path for item in policy.justifications] == [
         "bijux_proteomics_dev.tools.golden_path_example",
         "bijux_proteomics_dev.tools.mre_agentic_protein",
         "bijux_proteomics_dev.tools.visualize_invariants",

@@ -5,11 +5,11 @@ import importlib
 from pathlib import Path
 import re
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_foundation.testing.generated_file_markers import (
     GeneratedFileMarkerKind,
     detect_generated_file_marker,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "GeneratedGovernanceFreshnessEntry",
@@ -54,7 +54,10 @@ def _generated_governance_paths() -> tuple[Path, ...]:
     paths: list[Path] = []
     for path in sorted(PACKAGE_GOVERNANCE_DIR.rglob("*.toml")):
         marker = detect_generated_file_marker(path)
-        if marker is not None and marker.kind == GeneratedFileMarkerKind.GENERATED_HEADER:
+        if (
+            marker is not None
+            and marker.kind == GeneratedFileMarkerKind.GENERATED_HEADER
+        ):
             paths.append(path)
     return tuple(paths)
 

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest import CaptureFixture
-from pytest import MonkeyPatch
+from pytest import CaptureFixture, MonkeyPatch
 
 import bijux_proteomics_dev.governance.contracts.freeze_contracts as freeze_contracts_module
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (

@@ -52,11 +52,12 @@ def _public_api_module_name(package_name: str) -> str:
 def _declared_public_module_names(package_name: str) -> tuple[str, ...]:
     with workspace_import_path():
         package_module = importlib.import_module(import_root(package_name))
-        public_api_module = importlib.import_module(_public_api_module_name(package_name))
+        public_api_module = importlib.import_module(
+            _public_api_module_name(package_name)
+        )
     declared_names = set(getattr(package_module, "__all__", ()))
     declared_names.update(
-        str(name)
-        for name in getattr(public_api_module, "PUBLIC_ROOT_MODULE_NAMES", ())
+        str(name) for name in getattr(public_api_module, "PUBLIC_ROOT_MODULE_NAMES", ())
     )
     return tuple(sorted(declared_names))
 
@@ -123,7 +124,9 @@ def _toml_text(report: PackageTopLevelModuleVisibilityReport) -> str:
     ]
     for entry in report.entries:
         public_modules = ", ".join(f'"{value}"' for value in entry.public_module_files)
-        private_modules = ", ".join(f'"{value}"' for value in entry.private_module_files)
+        private_modules = ", ".join(
+            f'"{value}"' for value in entry.private_module_files
+        )
         lines.extend(
             [
                 "[[package]]",

@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import argparse
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-import tomllib
 from typing import Any, cast
 
 from bijux_proteomics_foundation.testing.generated_file_markers import (
     GeneratedFileMarkerKind,
     detect_generated_file_marker,
 )
+
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [

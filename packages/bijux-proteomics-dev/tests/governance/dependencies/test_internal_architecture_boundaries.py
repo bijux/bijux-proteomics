@@ -53,7 +53,10 @@ def test_internal_architecture_boundaries_flag_forbidden_edges_and_cycles() -> N
         "module_family_outbound_edge",
         "workspace_cycle",
     ]
-    assert "bijux-proteomics-foundation imports disallowed package edges" in violations[0].detail
+    assert (
+        "bijux-proteomics-foundation imports disallowed package edges"
+        in violations[0].detail
+    )
     assert "workflow_pipelines imports" in violations[1].detail
     assert violations[2].detail == (
         "bijux-proteomics-core -> bijux-proteomics-runtime -> bijux-proteomics-core"

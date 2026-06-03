@@ -11,6 +11,8 @@ from typing import Protocol
 
 from bijux_proteomics_dev.release.governance.cross_package_smoke import (
     PublicPackageApiLoad,
+)
+from bijux_proteomics_dev.release.governance.cross_package_smoke import (
     load_public_package_apis as load_governed_public_package_apis,
 )
 from bijux_proteomics_dev.release.governance.cross_package_smoke import (

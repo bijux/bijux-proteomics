@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from pathlib import Path, PurePath
-from typing import Protocol
+from typing import Protocol, cast
 
 PRIMARY_TEST_SELECTION_MARKERS = frozenset(
     {
@@ -93,7 +93,7 @@ def derive_default_test_markers(
 
 
 def apply_default_test_markers(
-    items: Iterable[_CollectedTestItem],
+    items: Iterable[object],
     *,
     benchmark_dirs: Collection[str] = (),
     integration_dirs: Collection[str] = (),
@@ -107,7 +107,8 @@ def apply_default_test_markers(
 
     import pytest
 
-    for item in items:
+    for raw_item in items:
+        item = cast(_CollectedTestItem, raw_item)
         item_path = _item_path(item)
         item_markers = {mark.name for mark in item.iter_markers()}
         derived_markers = derive_default_test_markers(

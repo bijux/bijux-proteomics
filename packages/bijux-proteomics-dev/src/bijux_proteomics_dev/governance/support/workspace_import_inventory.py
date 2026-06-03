@@ -104,7 +104,9 @@ def workspace_dependency_edges_for_path(
     roots = workspace_import_roots()
     source_module = source_module_name or module_identifier(package_name, path)
     source_module_parts = tuple(source_module.split("."))
-    package_parts = source_module_parts if path.name == "__init__.py" else source_module_parts[:-1]
+    package_parts = (
+        source_module_parts if path.name == "__init__.py" else source_module_parts[:-1]
+    )
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     static_bindings = _static_module_bindings(tree)
     import_module_names, importlib_module_names = _import_module_aliases(tree)
@@ -148,7 +150,7 @@ def workspace_dependency_edges_for_path(
                     source_distribution=package_name,
                     source_module=source_module,
                     target_distribution=resolved_target_distribution,
-                        target_module=resolved_target_name,
+                    target_module=resolved_target_name,
                     internal=resolved_target_distribution == package_name,
                 )
             )
@@ -211,7 +213,9 @@ def _static_module_value(node: ast.AST) -> StaticModuleValue | None:
     if isinstance(node, (ast.Tuple, ast.List)):
         values: list[str] = []
         for element in node.elts:
-            if not isinstance(element, ast.Constant) or not isinstance(element.value, str):
+            if not isinstance(element, ast.Constant) or not isinstance(
+                element.value, str
+            ):
                 return None
             values.append(element.value)
         return tuple(values)

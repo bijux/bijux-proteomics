@@ -37,7 +37,10 @@ __all__ = [
 
 
 CROSS_PACKAGE_FUNCTION_SIGNATURES_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "cross-package-function-signatures.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "cross-package-function-signatures.toml"
 )
 
 _COMPATIBILITY_ALIAS_DISTRIBUTIONS = {
@@ -72,9 +75,7 @@ class CrossPackageFunctionSignatureEntry:
 
     @property
     def consumer_distributions(self) -> tuple[str, ...]:
-        return tuple(
-            sorted({site.consumer_distribution for site in self.import_sites})
-        )
+        return tuple(sorted({site.consumer_distribution for site in self.import_sites}))
 
     @property
     def consumer_modules(self) -> tuple[str, ...]:
@@ -139,7 +140,9 @@ def _import_references() -> dict[
     return references
 
 
-def build_cross_package_function_signature_report() -> CrossPackageFunctionSignatureReport:
+def build_cross_package_function_signature_report() -> (
+    CrossPackageFunctionSignatureReport
+):
     """Build the live report of imported public cross-package function signatures."""
 
     entries: list[CrossPackageFunctionSignatureEntry] = []
@@ -164,7 +167,9 @@ def build_cross_package_function_signature_report() -> CrossPackageFunctionSigna
                             consumer_distribution=consumer_distribution,
                             consumer_module=consumer_module,
                         )
-                        for consumer_distribution, consumer_module in sorted(import_sites)
+                        for consumer_distribution, consumer_module in sorted(
+                            import_sites
+                        )
                     ),
                 )
             )
@@ -185,14 +190,18 @@ def find_cross_package_function_signature_entry(
             and entry.function_name == function_name
         ):
             return entry
-    raise KeyError(f"unknown cross-package function signature entry {provider_module}.{function_name}")
+    raise KeyError(
+        f"unknown cross-package function signature entry {provider_module}.{function_name}"
+    )
 
 
 def _entry_key(entry: CrossPackageFunctionSignatureEntry) -> tuple[str, str]:
     return (entry.provider_module, entry.function_name)
 
 
-def _load_report(path: Path = CROSS_PACKAGE_FUNCTION_SIGNATURES_PATH) -> CrossPackageFunctionSignatureReport:
+def _load_report(
+    path: Path = CROSS_PACKAGE_FUNCTION_SIGNATURES_PATH,
+) -> CrossPackageFunctionSignatureReport:
     data = tomllib.loads(path.read_text(encoding="utf-8"))
     entries: list[CrossPackageFunctionSignatureEntry] = []
     for item in data.get("entry", []):
@@ -253,9 +262,7 @@ def validate_cross_package_function_signatures(
                 f"{baseline_entry.consumer_distributions} -> {live_entry.consumer_distributions}"
             )
         if live_entry.consumer_modules != baseline_entry.consumer_modules:
-            failures.append(
-                f"consumer module drift for {live_entry.symbol_path}"
-            )
+            failures.append(f"consumer module drift for {live_entry.symbol_path}")
     return tuple(failures)
 
 
@@ -279,7 +286,9 @@ def _toml_text(report: CrossPackageFunctionSignatureReport) -> str:
                 f"function_name = {_toml_quote(entry.function_name)}",
                 f"signature_text = {_toml_quote(entry.signature_text)}",
                 "consumer_distributions = ["
-                + ", ".join(_toml_quote(value) for value in entry.consumer_distributions)
+                + ", ".join(
+                    _toml_quote(value) for value in entry.consumer_distributions
+                )
                 + "]",
                 "consumer_modules = ["
                 + ", ".join(_toml_quote(value) for value in entry.consumer_modules)

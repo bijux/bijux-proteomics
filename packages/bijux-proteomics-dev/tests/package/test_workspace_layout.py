@@ -18,6 +18,8 @@ PACKAGE_ARTIFACT_LINKS = {
     ".hypothesis": "hypothesis",
     ".benchmarks": "benchmarks",
 }
+
+
 def _workspace_metadata() -> dict[str, Any]:
     with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
         data = tomllib.load(handle)

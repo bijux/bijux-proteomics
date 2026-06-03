@@ -93,7 +93,10 @@ def test_runtime_docs_do_not_teach_broad_root_convenience_to_internal_consumers(
 def test_runtime_docs_publish_advanced_diann_python_api_tutorial() -> None:
     readme, _, _, _, tutorial = _runtime_docs()
 
-    assert "[Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)" in readme
+    assert (
+        "[Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)"
+        in readme
+    )
     assert "run_resumable_advanced_diann_workflow" in tutorial
     assert "archive_completed_advanced_diann_run" in tutorial
     assert "load_completed_run" in tutorial

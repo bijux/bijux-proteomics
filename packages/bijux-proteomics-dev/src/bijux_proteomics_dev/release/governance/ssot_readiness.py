@@ -52,10 +52,7 @@ def _check_failures(repo_root: Path) -> tuple[tuple[str, tuple[str, ...]], ...]:
         ),
         (
             "scientific-concept-ownership",
-            tuple(
-                issue.detail
-                for issue in validate_scientific_concept_ownership()
-            ),
+            tuple(issue.detail for issue in validate_scientific_concept_ownership()),
         ),
         (
             "duplicate-model-ownership",

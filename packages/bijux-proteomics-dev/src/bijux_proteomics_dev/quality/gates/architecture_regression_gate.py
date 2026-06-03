@@ -8,13 +8,13 @@ import os
 from pathlib import Path
 import sys
 
-from bijux_proteomics_dev.governance.package_shape.public_api_snapshots import (
-    CANONICAL_PUBLIC_API_PACKAGES,
-)
 from bijux_proteomics_dev.governance.dependencies.internal_architecture_map import (
     build_internal_architecture_map_report,
     evaluate_internal_architecture_violations,
     is_internal_architecture_map_up_to_date,
+)
+from bijux_proteomics_dev.governance.package_shape.public_api_snapshots import (
+    CANONICAL_PUBLIC_API_PACKAGES,
 )
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
@@ -41,7 +41,9 @@ class ArchitectureRegressionTarget:
     required_paths: tuple[str, ...] = ()
 
 
-def default_architecture_regression_targets() -> tuple[ArchitectureRegressionTarget, ...]:
+def default_architecture_regression_targets() -> tuple[
+    ArchitectureRegressionTarget, ...
+]:
     """Return the curated post-refactor architecture regression targets."""
 
     return (
@@ -166,7 +168,9 @@ def _run_subprocess(command: tuple[str, ...], *, cwd: Path) -> tuple[bool, str]:
     )
     output = completed.stdout.strip()
     error_output = completed.stderr.strip()
-    detail = output or error_output or f"command exited with status {completed.returncode}"
+    detail = (
+        output or error_output or f"command exited with status {completed.returncode}"
+    )
     return completed.returncode == 0, detail
 
 

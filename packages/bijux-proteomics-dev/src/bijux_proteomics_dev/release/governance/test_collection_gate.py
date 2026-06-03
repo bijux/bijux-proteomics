@@ -82,7 +82,9 @@ def _run_subprocess(
     )
     output = completed.stdout.strip()
     error_output = completed.stderr.strip()
-    detail = output or error_output or f"command exited with status {completed.returncode}"
+    detail = (
+        output or error_output or f"command exited with status {completed.returncode}"
+    )
     return completed.returncode == 0, detail
 
 
@@ -173,7 +175,9 @@ def build_test_collection_gate_report(
 
     executable = python_executable or sys.executable
     package_names = tuple(
-        package_name for package_name in workspace_package_names() if tests_root(package_name).is_dir()
+        package_name
+        for package_name in workspace_package_names()
+        if tests_root(package_name).is_dir()
     )
     import_checks = tuple(
         _import_check(
@@ -183,21 +187,19 @@ def build_test_collection_gate_report(
         )
         for package_name in package_names
     )
-    collection_checks = tuple(
-        [
-            _workspace_collection_check(
+    collection_checks = (
+        _workspace_collection_check(
+            python_executable=executable,
+            repo_root=repo_root,
+        ),
+        *(
+            _collection_check(
+                package_name=package_name,
                 python_executable=executable,
                 repo_root=repo_root,
-            ),
-            *(
-                _collection_check(
-                    package_name=package_name,
-                    python_executable=executable,
-                    repo_root=repo_root,
-                )
-                for package_name in package_names
-            ),
-        ]
+            )
+            for package_name in package_names
+        ),
     )
     return CollectionGateReport(
         import_checks=import_checks,

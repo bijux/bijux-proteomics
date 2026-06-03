@@ -65,7 +65,9 @@ def load_package_tree_layout_policy(
                 top_level_families=tuple(
                     str(value) for value in table["top_level_families"]
                 ),
-                root_module_files=tuple(str(value) for value in table["root_module_files"]),
+                root_module_files=tuple(
+                    str(value) for value in table["root_module_files"]
+                ),
             )
             for table in package_tables
         ),
@@ -75,7 +77,10 @@ def load_package_tree_layout_policy(
 def build_package_tree_layout_report() -> PackageTreeLayoutPolicy:
     """Build the live top-level package tree report for workspace packages."""
 
-    entries = tuple(_actual_package_tree_entry(package_name) for package_name in workspace_package_names())
+    entries = tuple(
+        _actual_package_tree_entry(package_name)
+        for package_name in workspace_package_names()
+    )
     return PackageTreeLayoutPolicy(
         name="canonical-package-tree-layout",
         packages=tuple(sorted(entries, key=lambda entry: entry.distribution_name)),
@@ -90,12 +95,8 @@ def validate_package_tree_layout(
 
     report = report or build_package_tree_layout_report()
     policy = policy or load_package_tree_layout_policy()
-    actual_by_package = {
-        entry.distribution_name: entry for entry in report.packages
-    }
-    expected_by_package = {
-        entry.distribution_name: entry for entry in policy.packages
-    }
+    actual_by_package = {entry.distribution_name: entry for entry in report.packages}
+    expected_by_package = {entry.distribution_name: entry for entry in policy.packages}
     failures: list[str] = []
     if tuple(sorted(actual_by_package)) != tuple(sorted(expected_by_package)):
         failures.append("canonical package tree manifest package coverage drifted")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 import tomllib
 
 from bijux_proteomics_dev.governance.dependencies.package_responsibility_map import (

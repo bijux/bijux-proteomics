@@ -12,9 +12,9 @@ from bijux_proteomics_dev.quality.dependencies.core_dependency_minimization impo
 )
 
 
-def _policy(*, allowed_optional_module_prefixes: tuple[str, ...] = ()) -> (
-    CoreDependencyMinimizationPolicy
-):
+def _policy(
+    *, allowed_optional_module_prefixes: tuple[str, ...] = ()
+) -> CoreDependencyMinimizationPolicy:
     return CoreDependencyMinimizationPolicy(
         package_name="bijux-proteomics-core",
         rules=(

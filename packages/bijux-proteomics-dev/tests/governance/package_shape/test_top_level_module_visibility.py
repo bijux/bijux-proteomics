@@ -14,13 +14,17 @@ def test_top_level_module_visibility_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_top_level_module_visibility_report_tracks_public_and_private_leaf_modules() -> None:
+def test_top_level_module_visibility_report_tracks_public_and_private_leaf_modules() -> (
+    None
+):
     report = build_top_level_module_visibility_report()
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert TOP_LEVEL_MODULE_VISIBILITY_PATH.exists()
     assert len(report.entries) == 6
-    assert entries["bijux-proteomics-foundation"] == PackageTopLevelModuleVisibilityEntry(
+    assert entries[
+        "bijux-proteomics-foundation"
+    ] == PackageTopLevelModuleVisibilityEntry(
         distribution_name="bijux-proteomics-foundation",
         public_module_files=("package_aliases.py",),
         private_module_files=("_package_aliases.py",),
@@ -35,7 +39,9 @@ def test_top_level_module_visibility_report_tracks_public_and_private_leaf_modul
             "_tabular.py",
         ),
     )
-    assert entries["bijux-proteomics-intelligence"] == PackageTopLevelModuleVisibilityEntry(
+    assert entries[
+        "bijux-proteomics-intelligence"
+    ] == PackageTopLevelModuleVisibilityEntry(
         distribution_name="bijux-proteomics-intelligence",
         public_module_files=(
             "belief_audit.py",
@@ -49,7 +55,9 @@ def test_top_level_module_visibility_report_tracks_public_and_private_leaf_modul
     )
 
 
-def test_top_level_module_visibility_validator_rejects_unhidden_private_modules() -> None:
+def test_top_level_module_visibility_validator_rejects_unhidden_private_modules() -> (
+    None
+):
     report = PackageTopLevelModuleVisibilityReport(
         entries=(
             PackageTopLevelModuleVisibilityEntry(

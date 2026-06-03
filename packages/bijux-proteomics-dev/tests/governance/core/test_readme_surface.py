@@ -9,11 +9,7 @@ REPO_ROOT = next(
 )
 CORE_README = REPO_ROOT / "packages" / "bijux-proteomics-core" / "README.md"
 CORE_SHIPPED_DEMO_TUTORIAL = (
-    REPO_ROOT
-    / "packages"
-    / "bijux-proteomics-core"
-    / "docs"
-    / "SHIPPED-DEMO-CLI.md"
+    REPO_ROOT / "packages" / "bijux-proteomics-core" / "docs" / "SHIPPED-DEMO-CLI.md"
 )
 
 

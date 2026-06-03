@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_foundation.testing.generated_file_markers import (
-    GeneratedFileMarkerKind,
-)
 from bijux_proteomics_dev.quality.artifacts.generated_file_markers import (
     GENERATED_FILE_MARKER_POLICY_PATH,
     GeneratedFileMarkerPolicy,
@@ -12,6 +9,9 @@ from bijux_proteomics_dev.quality.artifacts.generated_file_markers import (
     build_generated_file_marker_violations,
     load_generated_file_marker_policy,
     run,
+)
+from bijux_proteomics_foundation.testing.generated_file_markers import (
+    GeneratedFileMarkerKind,
 )
 
 

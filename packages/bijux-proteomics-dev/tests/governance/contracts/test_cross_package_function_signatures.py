@@ -18,7 +18,9 @@ def test_cross_package_function_signature_report_stays_substantive() -> None:
     assert len(report.entries) >= 200
 
 
-def test_cross_package_function_signature_report_covers_dia_and_shared_functions() -> None:
+def test_cross_package_function_signature_report_covers_dia_and_shared_functions() -> (
+    None
+):
     report = build_cross_package_function_signature_report()
 
     dia_capability_entry = find_cross_package_function_signature_entry(
@@ -42,9 +44,7 @@ def test_cross_package_function_signature_report_covers_dia_and_shared_functions
     assert dia_support_entry.consumer_distributions == (
         "bijux-proteomics-intelligence",
     )
-    assert (
-        "imported_precursor_count: 'int'" in dia_support_entry.signature_text
-    )
+    assert "imported_precursor_count: 'int'" in dia_support_entry.signature_text
     assert (
         "sample_library_coverage_fraction: 'float | None' = None"
         in dia_support_entry.signature_text
@@ -103,7 +103,9 @@ def test_cross_package_function_signatures_detect_signature_drift(
         encoding="utf-8",
     )
 
-    failures = validate_cross_package_function_signatures(report, baseline_path=stale_path)
+    failures = validate_cross_package_function_signatures(
+        report, baseline_path=stale_path
+    )
 
     assert failures == (
         "signature drift for bijux_proteomics.dia.build_dia_capability_matrix: "

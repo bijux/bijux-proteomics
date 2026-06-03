@@ -51,9 +51,9 @@ def test_cross_package_smoke_foundation_core_knowledge_chain_keeps_root_imports_
     assert all(load.export_names for load in report.public_root_loads)
 
 
-def test_cross_package_smoke_workflow_crosses_intelligence_and_runtime(tmp_path: Path) -> (
-    None
-):
+def test_cross_package_smoke_workflow_crosses_intelligence_and_runtime(
+    tmp_path: Path,
+) -> None:
     report = run_cross_package_smoke_workflow(tmp_path)
 
     assert tuple(stage.package_name for stage in report.stages) == (

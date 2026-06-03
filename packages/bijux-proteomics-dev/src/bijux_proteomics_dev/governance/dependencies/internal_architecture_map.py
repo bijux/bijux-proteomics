@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
+from bijux_proteomics_dev.governance.dependencies.package_dependency_graph import (
+    build_package_dependency_graph_report,
+)
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     PackageDependencyPolicyEntry,
     build_package_dependency_policy_report,
-)
-from bijux_proteomics_dev.governance.dependencies.package_dependency_graph import (
-    build_package_dependency_graph_report,
 )
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_import_inventory import (

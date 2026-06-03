@@ -57,7 +57,10 @@ def build_root_module_migration_surface_report() -> RootModuleMigrationSurfaceRe
         for package_name in _CANONICAL_PACKAGES:
             root_name = import_root(package_name)
             for path in root_python_modules(package_name):
-                if path.name in {"__init__.py", "public_api.py"} or path.name.startswith("_"):
+                if path.name in {
+                    "__init__.py",
+                    "public_api.py",
+                } or path.name.startswith("_"):
                     continue
                 module = importlib.import_module(f"{root_name}.{path.stem}")
                 migration_surface = getattr(module, "MIGRATION_SURFACE", None)
@@ -67,9 +70,13 @@ def build_root_module_migration_surface_report() -> RootModuleMigrationSurfaceRe
                     RootModuleMigrationSurfaceEntry(
                         distribution_name=package_name,
                         legacy_import_path=str(migration_surface.legacy_import_path),
-                        canonical_import_path=str(migration_surface.canonical_import_path),
+                        canonical_import_path=str(
+                            migration_surface.canonical_import_path
+                        ),
                         module_file=path.name,
-                        retirement_condition=str(migration_surface.retirement_condition),
+                        retirement_condition=str(
+                            migration_surface.retirement_condition
+                        ),
                         rationale=str(migration_surface.rationale),
                     )
                 )
@@ -91,9 +98,7 @@ def validate_root_module_migration_surface_report(
     report = report or build_root_module_migration_surface_report()
     failures: list[str] = []
     for entry in report.entries:
-        expected_legacy_import = (
-            f"{import_root(entry.distribution_name)}.{entry.module_file.removesuffix('.py')}"
-        )
+        expected_legacy_import = f"{import_root(entry.distribution_name)}.{entry.module_file.removesuffix('.py')}"
         if entry.legacy_import_path != expected_legacy_import:
             failures.append(
                 f"{entry.distribution_name} migration surface {entry.module_file} no longer matches its legacy import path"
@@ -136,9 +141,9 @@ def _toml_text(report: RootModuleMigrationSurfaceReport) -> str:
 def _is_up_to_date(report: RootModuleMigrationSurfaceReport) -> bool:
     if not ROOT_MODULE_MIGRATION_SURFACES_PATH.exists():
         return False
-    return ROOT_MODULE_MIGRATION_SURFACES_PATH.read_text(encoding="utf-8") == _toml_text(
-        report
-    )
+    return ROOT_MODULE_MIGRATION_SURFACES_PATH.read_text(
+        encoding="utf-8"
+    ) == _toml_text(report)
 
 
 def run(check: bool = False) -> int:

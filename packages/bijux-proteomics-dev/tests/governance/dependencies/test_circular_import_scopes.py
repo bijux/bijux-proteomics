@@ -3,8 +3,8 @@ from __future__ import annotations
 from bijux_proteomics_dev.governance.dependencies.circular_import_scopes import (
     CIRCULAR_IMPORT_SCOPES_PATH,
     CircularImportScope,
-    build_declared_workspace_package_cycles,
     build_circular_import_scope_cycles,
+    build_declared_workspace_package_cycles,
     load_circular_import_scopes,
     run,
     validate_circular_import_scopes,

@@ -102,4 +102,6 @@ def test_duplicate_test_module_namespace_validation_allows_packaged_same_package
 
     assert len(families) == 1
     assert families[0].namespace_reason == "packaged-test-root"
-    assert test_module_basenames.validate_duplicate_test_module_namespaces(tmp_path) == ()
+    assert (
+        test_module_basenames.validate_duplicate_test_module_namespaces(tmp_path) == ()
+    )

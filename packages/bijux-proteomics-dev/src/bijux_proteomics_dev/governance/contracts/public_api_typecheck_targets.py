@@ -202,7 +202,9 @@ def _render_pyright_config_text(report: PublicApiTypecheckReport) -> str:
 def _pyright_config_is_fresh(report: PublicApiTypecheckReport) -> bool:
     if not report.pyright_config_path.exists():
         return False
-    return report.pyright_config_path.read_text(encoding="utf-8") == _render_pyright_config_text(report)
+    return report.pyright_config_path.read_text(
+        encoding="utf-8"
+    ) == _render_pyright_config_text(report)
 
 
 def _run_mypy(report: PublicApiTypecheckReport) -> int:
@@ -282,8 +284,7 @@ def run(*, check: bool = False, write_pyright_config: bool = False) -> int:
             encoding="utf-8",
         )
         print(
-            "wrote pyright public api config for "
-            f"{len(report.targets)} public modules"
+            f"wrote pyright public api config for {len(report.targets)} public modules"
         )
         return 0
     failures = validate_public_api_typecheck_manifest(report)
@@ -292,7 +293,9 @@ def run(*, check: bool = False, write_pyright_config: bool = False) -> int:
             print(failure)
         return 1
     if not _pyright_config_is_fresh(report):
-        expected_path = PUBLIC_API_TYPECHECK_ARTIFACTS_DIR / "pyright-public-api.actual.json"
+        expected_path = (
+            PUBLIC_API_TYPECHECK_ARTIFACTS_DIR / "pyright-public-api.actual.json"
+        )
         expected_path.parent.mkdir(parents=True, exist_ok=True)
         expected_path.write_text(_render_pyright_config_text(report), encoding="utf-8")
         print(
@@ -305,10 +308,7 @@ def run(*, check: bool = False, write_pyright_config: bool = False) -> int:
         if mypy_code != 0:
             return mypy_code
         return _run_pyright(report)
-    print(
-        "public api typecheck contract covers "
-        f"{len(report.targets)} public modules"
-    )
+    print(f"public api typecheck contract covers {len(report.targets)} public modules")
     return 0
 
 

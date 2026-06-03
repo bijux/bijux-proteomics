@@ -70,7 +70,8 @@ def load_scientific_concept_owners(
             owner_module=str(entry["owner_module"]),
             owned_symbols=tuple(str(symbol) for symbol in entry["owned_symbols"]),
             allowed_facade_modules=tuple(
-                str(module_name) for module_name in entry.get("allowed_facade_modules", [])
+                str(module_name)
+                for module_name in entry.get("allowed_facade_modules", [])
             ),
         )
         for entry in entries
@@ -117,7 +118,10 @@ def build_scientific_concept_symbol_inventory(
                         symbol_kind="class",
                     )
                 )
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in tracked_symbols:
+            elif (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name in tracked_symbols
+            ):
                 definitions.append(
                     ScientificConceptSymbolDefinition(
                         concept_name=concept_by_symbol[node.name],

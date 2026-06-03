@@ -41,9 +41,7 @@ PACKAGE_FIXTURE_REALISM_PATH = (
 
 
 def _fixture_name_tokens(name: str) -> tuple[str, ...]:
-    return tuple(
-        token for token in re.split(r"[^a-z0-9]+", name.lower()) if token
-    )
+    return tuple(token for token in re.split(r"[^a-z0-9]+", name.lower()) if token)
 
 
 @dataclass(frozen=True)

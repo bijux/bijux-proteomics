@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest import CaptureFixture
-from pytest import MonkeyPatch
+from pytest import CaptureFixture, MonkeyPatch
 
 from bijux_proteomics_dev.release.governance import test_collection_gate
 

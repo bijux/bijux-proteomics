@@ -64,7 +64,9 @@ def test_package_readme_public_api_examples_execute(tmp_path: Path) -> None:
         path = _package_readme(package_name)
         section = _section(path.read_text(encoding="utf-8"), "Public APIs")
         blocks = _python_blocks(section)
-        assert blocks, f"{path.relative_to(REPO_ROOT).as_posix()}: no python examples found"
+        assert blocks, (
+            f"{path.relative_to(REPO_ROOT).as_posix()}: no python examples found"
+        )
         example_tmp = tmp_path / package_name
         example_tmp.mkdir(parents=True, exist_ok=True)
         globals_dict = {

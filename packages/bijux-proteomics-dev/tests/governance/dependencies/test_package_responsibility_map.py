@@ -23,9 +23,7 @@ def test_package_responsibility_map_covers_workspace_packages_and_roles() -> Non
         by_package["bijux-proteomics-intelligence"].responsibility_kind
         == "intelligence"
     )
-    assert by_package["bijux-proteomics-knowledge"].responsibility_kind == (
-        "knowledge"
-    )
+    assert by_package["bijux-proteomics-knowledge"].responsibility_kind == ("knowledge")
     assert by_package["bijux-proteomics-lab"].responsibility_kind == "lab"
     assert by_package["bijux-proteomics"].responsibility_kind == "app_wrapper"
     assert by_package["agentic-proteins"].responsibility_kind == (
@@ -34,13 +32,12 @@ def test_package_responsibility_map_covers_workspace_packages_and_roles() -> Non
     assert by_package["proteomics-core"].canonical_surface_targets == (
         "bijux-proteomics-core",
     )
-    assert "shared document primitives" in by_package[
-        "bijux-proteomics-foundation"
-    ].reason_to_exist
+    assert (
+        "shared document primitives"
+        in by_package["bijux-proteomics-foundation"].reason_to_exist
+    )
     assert "scientific semantics" in by_package["bijux-proteomics-core"].reason_to_exist
-    assert "evidence memory" in by_package[
-        "bijux-proteomics-knowledge"
-    ].reason_to_exist
+    assert "evidence memory" in by_package["bijux-proteomics-knowledge"].reason_to_exist
 
 
 def test_package_responsibility_map_has_no_live_boundary_violations() -> None:

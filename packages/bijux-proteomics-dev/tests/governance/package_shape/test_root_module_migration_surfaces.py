@@ -15,13 +15,13 @@ def test_root_module_migration_surface_report_is_up_to_date() -> None:
 
 def test_root_module_migration_surface_report_tracks_legacy_import_paths() -> None:
     report = build_root_module_migration_surface_report()
-    by_legacy_import = {
-        entry.legacy_import_path: entry for entry in report.entries
-    }
+    by_legacy_import = {entry.legacy_import_path: entry for entry in report.entries}
 
     assert ROOT_MODULE_MIGRATION_SURFACES_PATH.exists()
     assert len(report.entries) == 3
-    assert by_legacy_import["bijux_proteomics.tabular"] == RootModuleMigrationSurfaceEntry(
+    assert by_legacy_import[
+        "bijux_proteomics.tabular"
+    ] == RootModuleMigrationSurfaceEntry(
         distribution_name="bijux-proteomics-core",
         legacy_import_path="bijux_proteomics.tabular",
         canonical_import_path="bijux_proteomics._tabular",
