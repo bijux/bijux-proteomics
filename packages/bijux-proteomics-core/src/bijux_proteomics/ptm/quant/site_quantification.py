@@ -285,7 +285,7 @@ def build_ptm_site_quantification_report(
         )
 
     excluded_site_rows = (
-        tuple(sort_rows_by_fields(excluded_ambiguous_rows, "site_key"))
+        tuple(sort_rows_by_fields(tuple(excluded_ambiguous_rows), "site_key"))
         if ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
         else ()
     )

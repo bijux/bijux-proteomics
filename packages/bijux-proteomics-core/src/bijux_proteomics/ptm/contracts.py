@@ -15,7 +15,9 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import (
+    AppliedModification,
     ModificationPosition,
+    ModificationLocalizationCandidate,
     ModificationRegistryDocument,
     build_modification_localization_advisory,
     parse_modified_peptide,
@@ -31,6 +33,7 @@ from bijux_proteomics.identification import (
     parse_target_decoy_label,
 )
 from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
+from bijux_proteomics.ptm.parsing.peptide_parser import PtmPeptideSiteEntry
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
@@ -490,9 +493,9 @@ def _site_candidate_indices(
 
 def _build_ptm_evidence_site_candidates(
     *,
-    parsed_sites: tuple,
-    parsed_modifications: tuple,
-    advisory_candidates: tuple,
+    parsed_sites: tuple[PtmPeptideSiteEntry, ...],
+    parsed_modifications: tuple[AppliedModification, ...],
+    advisory_candidates: tuple[ModificationLocalizationCandidate, ...],
     candidate_site_indices: tuple[int, ...],
 ) -> tuple[PtmEvidenceSiteCandidate, ...]:
     same_name_counts: dict[str, int] = {}
@@ -740,13 +743,15 @@ def parse_ptm_localization_tsv(
                 )
                 continue
 
+            sample_id_field = (
+                raw_fields.get(active_mapping.sample_id, "").strip()
+                if active_mapping.sample_id
+                else ""
+            )
             accepted.append(
                 PtmEvidenceRecord(
                     spectrum_id=spectrum_id,
-                    sample_id=raw_fields.get(active_mapping.sample_id, "").strip()
-                    or None
-                    if active_mapping.sample_id
-                    else None,
+                    sample_id=sample_id_field or None,
                     localized_peptide=peptide,
                     canonical_peptide=parsed.canonical_peptide,
                     sequence=parsed.sequence,
@@ -773,7 +778,7 @@ def parse_ptm_localization_tsv(
                         original_identifiers={
                             "spectrum_id": spectrum_id,
                             "localized_peptide": peptide,
-                            "sample_id": raw_fields.get(active_mapping.sample_id, "").strip(),
+                            "sample_id": sample_id_field,
                         },
                     ),
                 )
@@ -1004,7 +1009,7 @@ def build_ptm_enrichment_input(
 
     return _implementation(
         site_entries,
-        protein_sequences=protein_sequences,
+        protein_sequences=dict(protein_sequences),
         modification_name=modification_name,
     )
 
@@ -1023,7 +1028,7 @@ def build_ptm_motif_background_report(
 
     return _implementation(
         site_entries,
-        protein_sequences=protein_sequences,
+        protein_sequences=dict(protein_sequences),
         modification_name=modification_name,
         background_mode=background_mode,
     )

@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import Any, cast
 import math
 
 import numpy as np
@@ -423,7 +424,7 @@ def build_ptm_occupancy_counterpart_report(
     )
 
 
-test_occupancy_contrast.__test__ = False
+cast(Any, test_occupancy_contrast).__test__ = False
 
 
 def render_ptm_site_occupancy_summary_tsv(report: PtmSiteOccupancyReport) -> str:

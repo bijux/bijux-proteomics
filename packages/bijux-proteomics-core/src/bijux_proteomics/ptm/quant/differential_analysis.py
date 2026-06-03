@@ -15,11 +15,13 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.quant.abundance_correction import (
     PtmProteinCorrectionReference as PtmProteinAbundanceCorrectionReference,
     PtmSiteCorrectionCandidate,
+    PtmSiteProteinCorrectionEntry,
     correct_site_by_protein,
 )
 from bijux_proteomics.ptm.localization.localization_scoring import (
@@ -29,7 +31,6 @@ from bijux_proteomics.ptm.quant.site_quantification import (
     PtmSiteQuantRow,
     PtmSiteQuantificationReport,
 )
-from bijux_proteomics.ptm.parsing.peptide_parser import parse_modified_peptide
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
     DifferentialBrokenPairEntry,
@@ -412,18 +413,18 @@ def _build_label_free_table_from_site_quantification(
                 )
             )
     if include_ambiguity_groups and report.ambiguous_group_quantification is not None:
-        for row in report.ambiguous_group_quantification.rows:
-            entity_ids.append(row.group_key)
-            entity_protein_refs[row.group_key] = (row.protein_ref,)
-            entity_member_peptides[row.group_key] = row.localized_peptides
-            for value in row.values:
+        for group_row in report.ambiguous_group_quantification.rows:
+            entity_ids.append(group_row.group_key)
+            entity_protein_refs[group_row.group_key] = (group_row.protein_ref,)
+            entity_member_peptides[group_row.group_key] = group_row.localized_peptides
+            for group_value in group_row.values:
                 values.append(
                     QuantValue(
-                        sample_id=value.sample_id,
-                        entity_id=row.group_key,
-                        abundance=value.abundance,
-                        missing_value_kind=value.missing_value_kind,
-                        source_feature_count=value.contributing_feature_count,
+                        sample_id=group_value.sample_id,
+                        entity_id=group_row.group_key,
+                        abundance=group_value.abundance,
+                        missing_value_kind=group_value.missing_value_kind,
+                        source_feature_count=group_value.contributing_feature_count,
                     )
                 )
     return LabelFreeQuantTable(
@@ -564,7 +565,7 @@ def _build_site_correction_entries(
     row_by_site: dict[str, PtmSiteQuantRow],
     protein_differential_lookup: dict[str, PtmProteinDifferentialReference],
     protein_correction_mode: PtmProteinCorrectionMode,
-):
+) -> tuple[PtmSiteProteinCorrectionEntry, ...]:
     site_candidates = tuple(
         PtmSiteCorrectionCandidate(
             site_id=entry.entity_id,
