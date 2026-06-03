@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 from pathlib import Path
+from typing import TypeAlias, cast
 
 from pydantic import ConfigDict, Field
 
@@ -31,6 +32,7 @@ from bijux_proteomics.multiplex import (
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
 )
+from bijux_proteomics.multiplex.normalization import TmtNormalizationMethod
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmLocalizationColumnMapping,
@@ -89,7 +91,6 @@ from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
 from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     LabelBasedReportBundle,
     LabelBasedReportExportManifest,
-    TmtNormalizationMethod,
     build_silac_label_based_report_bundle,
     write_label_based_report_bundle,
 )
@@ -119,6 +120,8 @@ from bijux_proteomics.workflow.targeted_review_workflow import (
     export_targeted_matrix_workflow_artifacts,
 )
 from bijux_proteomics.workflow.result_types import (
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
     WorkflowResult as StandardWorkflowResult,
     artifact_name_map,
     build_rejected_evidence_entries_from_issue_rows,
@@ -402,7 +405,7 @@ WorkflowConfig = (
     | TargetedWorkflowConfig
 )
 
-WorkflowReport = (
+WorkflowReport: TypeAlias = (
     BiologicalResultReportBundle
     | DdaBiologicalWorkflowBundle
     | DiannBiologicalWorkflowBundle
@@ -415,9 +418,9 @@ WorkflowReport = (
     | TargetedValidationWorkflowReport
 )
 
-WorkflowSourceReport = TargetedResultImportReport
+WorkflowSourceReport: TypeAlias = TargetedResultImportReport
 
-WorkflowExportManifest = (
+WorkflowExportManifest: TypeAlias = (
     BiologicalResultReportExportManifest
     | DdaBiologicalWorkflowExportManifest
     | DiannBiologicalWorkflowExportManifest
@@ -846,17 +849,17 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
     )
     if config.stage is TargetedWorkflowStage.MATRIX:
         report = build_targeted_matrix_report(import_report)
-        manifest = None
-        outputs: dict[str, str] = {}
+        matrix_manifest: TargetedMatrixWorkflowExportManifest | None = None
+        matrix_outputs: dict[str, str] = {}
         if config.output_dir is not None:
-            manifest = export_targeted_matrix_workflow_artifacts(
+            matrix_manifest = export_targeted_matrix_workflow_artifacts(
                 import_report,
                 report,
                 config.output_dir,
             )
             manifest_path = config.output_dir / "targeted_matrix_workflow_manifest.json"
-            atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
-            outputs = {
+            atomic_write_text(manifest_path, matrix_manifest.to_stable_json() + "\n")
+            matrix_outputs = {
                 "output_dir": str(config.output_dir),
                 "workflow_manifest_json": str(manifest_path),
                 "manifest_json": str(manifest_path),
@@ -868,14 +871,14 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             mode=config.mode,
             report=report,
             source_report=import_report,
-            manifest=manifest,
-            artifacts=_workflow_artifact_map(outputs, manifest),
+            manifest=matrix_manifest,
+            artifacts=_workflow_artifact_map(matrix_outputs, matrix_manifest),
             warnings=_workflow_warnings(source_report=import_report, report=report),
             rejected_evidence=_workflow_rejected_evidence(
                 source_report=import_report,
                 report=report,
             ),
-            outputs=outputs,
+            outputs=matrix_outputs,
             note=note,
         )
     if config.stage is TargetedWorkflowStage.VALIDATION:
@@ -907,10 +910,10 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
                 flat_validation_log2_threshold=config.flat_validation_log2_threshold,
             )
         )
-        outputs: dict[str, str] = {}
+        validation_outputs: dict[str, str] = {}
         if config.output_dir is not None:
             manifest_path = config.output_dir / "advanced_targeted_workflow_manifest.json"
-            outputs = {
+            validation_outputs = {
                 "output_dir": str(config.output_dir),
                 "workflow_manifest_json": str(manifest_path),
                 "manifest_json": str(manifest_path),
@@ -921,7 +924,11 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             source_report=report.import_report,
             manifest=report.manifest,
             design_row_count=len(experiment_design.entries),
-            artifacts=_workflow_artifact_map(outputs, report.manifest, report=report),
+            artifacts=_workflow_artifact_map(
+                validation_outputs,
+                report.manifest,
+                report=report,
+            ),
             warnings=_workflow_warnings(
                 source_report=report.import_report,
                 report=report,
@@ -930,7 +937,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
                 source_report=report.import_report,
                 report=report,
             ),
-            outputs=outputs,
+            outputs=validation_outputs,
             note=(
                 "workflow orchestrator routed targeted observations through the governed targeted validation owner"
             ),
@@ -945,19 +952,19 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         import_report,
         design_entries,
     )
-    manifest = None
-    outputs: dict[str, str] = {}
+    assay_qc_manifest: TargetedAssayQcWorkflowExportManifest | None = None
+    assay_qc_outputs: dict[str, str] = {}
     if config.output_dir is not None:
         matrix_report = build_targeted_matrix_report(import_report)
-        manifest = export_targeted_assay_qc_workflow_artifacts(
+        assay_qc_manifest = export_targeted_assay_qc_workflow_artifacts(
             import_report,
             matrix_report,
             report,
             config.output_dir,
         )
         manifest_path = config.output_dir / "targeted_assay_qc_workflow_manifest.json"
-        atomic_write_text(manifest_path, manifest.to_stable_json() + "\n")
-        outputs = {
+        atomic_write_text(manifest_path, assay_qc_manifest.to_stable_json() + "\n")
+        assay_qc_outputs = {
             "output_dir": str(config.output_dir),
             "workflow_manifest_json": str(manifest_path),
             "manifest_json": str(manifest_path),
@@ -966,15 +973,15 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         source_report=import_report,
-        manifest=manifest,
+        manifest=assay_qc_manifest,
         design_row_count=design_row_count,
-        artifacts=_workflow_artifact_map(outputs, manifest),
+        artifacts=_workflow_artifact_map(assay_qc_outputs, assay_qc_manifest),
         warnings=_workflow_warnings(source_report=import_report, report=report),
         rejected_evidence=_workflow_rejected_evidence(
             source_report=import_report,
             report=report,
         ),
-        outputs=outputs,
+        outputs=assay_qc_outputs,
         note=(
             "workflow orchestrator routed targeted observations through the governed targeted assay-qc owner"
         ),
@@ -992,7 +999,7 @@ def _build_targeted_import_report(
     input_tsv_path: Path,
     *,
     source_kind: TargetedResultSourceKind,
-):
+) -> TargetedResultImportReport:
     if source_kind is TargetedResultSourceKind.SKYLINE_EXPORT:
         return build_skyline_result_import_report(input_tsv_path)
     return build_transition_table_result_import_report(input_tsv_path)
@@ -1016,18 +1023,24 @@ def _workflow_warnings(
     *,
     source_report: WorkflowSourceReport | None = None,
     report: object | None = None,
-):
-    warnings = []
+) -> tuple[ResultWarningEntry, ...]:
+    warnings: list[ResultWarningEntry] = []
     if report is not None and hasattr(report, "warnings"):
         warnings.extend(getattr(report, "warnings"))
-    if source_report is not None and getattr(source_report, "rejected_rows", ()):
+    source_rejected_rows: tuple[object, ...] = ()
+    if source_report is not None and hasattr(source_report, "rejected_rows"):
+        source_rejected_rows = cast(
+            tuple[object, ...],
+            getattr(source_report, "rejected_rows"),
+        )
+    if source_rejected_rows:
         warnings.append(
             build_result_warning(
                 warning_id="workflow:source-rejections",
                 warning_code="source_rejected_rows_present",
                 source_surface="workflow_orchestrator",
                 message=(
-                    f"{len(source_report.rejected_rows)} source evidence rows were rejected "
+                    f"{len(source_rejected_rows)} source evidence rows were rejected "
                     "before downstream workflow analysis"
                 ),
             )
@@ -1039,12 +1052,18 @@ def _workflow_rejected_evidence(
     *,
     source_report: WorkflowSourceReport | None = None,
     report: object | None = None,
-):
+) -> tuple[RejectedEvidenceEntry, ...]:
     if report is not None and hasattr(report, "rejected_evidence"):
         return tuple(getattr(report, "rejected_evidence"))
-    if source_report is not None and getattr(source_report, "rejected_rows", ()):
+    source_rejected_rows: tuple[object, ...] = ()
+    if source_report is not None and hasattr(source_report, "rejected_rows"):
+        source_rejected_rows = cast(
+            tuple[object, ...],
+            getattr(source_report, "rejected_rows"),
+        )
+    if source_rejected_rows:
         return build_rejected_evidence_entries_from_issue_rows(
-            source_report.rejected_rows,
+            source_rejected_rows,
             source_surface="workflow_orchestrator",
         )
     return ()
