@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Iterable
 
 from pydantic import ConfigDict, Field
 
@@ -935,7 +936,7 @@ def build_proteomics_study_result_from_ptm_workflow_bundle(
     matrix_surfaces = []
     statistic_surfaces = []
     card_surfaces = []
-    conclusions = []
+    conclusions: list[ProteomicsStudyConclusionEntry] = []
     if report.site_quantification is not None:
         matrix_surfaces.append(
             ProteomicsStudyMatrixSurface(
@@ -1360,11 +1361,11 @@ def _design_from_experimental_entries(
 
 
 def _design_from_sample_metadata(
-    entries: object,
+    entries: Iterable[ProteomicsStudyDesignEntry],
     *,
     note: str,
 ) -> ProteomicsStudyDesignSnapshot:
-    stable_entries = tuple(
+    stable_entries: tuple[ProteomicsStudyDesignEntry, ...] = tuple(
         sorted(
             tuple(entries),
             key=lambda entry: (

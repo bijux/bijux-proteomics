@@ -22,7 +22,9 @@ from bijux_proteomics.identification import (
     ParsimonyReviewReport,
     ParsimonyVariant,
     PsmRecord,
+    PsmParseReport,
     RejectedPsmRow,
+    SearchResultColumnMapping,
     SearchAdapterKind,
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
@@ -68,6 +70,7 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
 )
 from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.workflow.result_types import (
+    RejectedEvidenceEntry,
     build_rejected_evidence_entries_from_issue_rows,
     build_rejected_evidence_entry,
     render_result_rejected_evidence_tsv,
@@ -78,7 +81,7 @@ from bijux_proteomics_foundation import JsonModel
 @dataclass(frozen=True)
 class _DdaSearchNormalization:
     source_columns: tuple[str, ...]
-    parse_report: object
+    parse_report: PsmParseReport
     normalized_records: tuple[PsmRecord, ...]
 
 
@@ -617,7 +620,7 @@ def export_dda_biological_workflow_bundle(
 
 def build_dda_workflow_rejected_evidence_entries(
     report: DdaBiologicalWorkflowBundle,
-) -> tuple:
+) -> tuple[RejectedEvidenceEntry, ...]:
     parse_rejections = build_rejected_evidence_entries_from_issue_rows(
         report.parse_rejected_rows,
         source_surface="dda_import",
@@ -660,7 +663,7 @@ def _normalize_search_results(
     dialect_id: str,
     generic_mapping_path: Path | None,
     chunk_size_rows: int | None,
-):
+) -> _DdaSearchNormalization:
     if adapter_kind is SearchAdapterKind.GENERIC:
         if generic_mapping_path is None:
             raise ValueError(
@@ -699,19 +702,24 @@ def _normalize_search_results(
                 "chunked DDA biology workflows currently support only the generic search adapter"
             )
         mapping = None
-    return normalize_search_results_with_adapter(
+    normalization_report = normalize_search_results_with_adapter(
         source_path=source_path,
         adapter_kind=adapter_kind,
         dialect_id=dialect_id,
         mapping=mapping,
+    )
+    return _DdaSearchNormalization(
+        source_columns=normalization_report.source_columns,
+        parse_report=normalization_report.parse_report,
+        normalized_records=normalization_report.normalized_records,
     )
 
 
 def _attach_generic_psm_provenance(
     *,
     source_path: Path,
-    parse_report,
-    mapping,
+    parse_report: PsmParseReport,
+    mapping: SearchResultColumnMapping,
     adapter_kind: SearchAdapterKind,
     chunk_size_rows: int,
 ) -> tuple[PsmRecord, ...]:
@@ -752,7 +760,7 @@ def _attach_generic_psm_provenance(
 def _mapped_generic_psm_field_values(
     raw_fields: dict[str, str],
     *,
-    mapping,
+    mapping: SearchResultColumnMapping,
 ) -> dict[str, str]:
     values: dict[str, str] = {}
     for role_name, column_name in (
