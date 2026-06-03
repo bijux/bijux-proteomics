@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from enum import StrEnum
 from pathlib import Path
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -49,6 +51,14 @@ from bijux_proteomics_runtime.workflows.failure_reports import (
     build_workflow_failure_report,
     write_workflow_failure_report,
 )
+
+AdvancedDiannStagePayload = (
+    DiaNnBundleImportReport
+    | DiannQuantMatrixBundle
+    | DiannBiologicalWorkflowBundle
+    | AdvancedDiannWorkflowReport
+)
+WorkflowResumeStageDecision = tuple[WorkflowResumeDisposition, tuple[str, ...]]
 
 
 class AdvancedDiannRuntimeStage(StrEnum):
@@ -373,10 +383,10 @@ def run_resumable_advanced_diann_workflow(
         else None
     )
     reused_stage_ids: tuple[str, ...] = ()
-    reused_stage_outputs: dict[AdvancedDiannRuntimeStage, JsonModel] = {}
-    resume_decisions_by_stage: dict[
-        str, tuple[WorkflowResumeDisposition, tuple[str, ...]]
+    reused_stage_outputs: dict[
+        AdvancedDiannRuntimeStage, AdvancedDiannStagePayload
     ] = {}
+    resume_decisions_by_stage: dict[str, WorkflowResumeStageDecision] = {}
     if persisted_state is not None:
         resume_report = resume_workflow(
             runtime_dir,
@@ -385,10 +395,10 @@ def run_resumable_advanced_diann_workflow(
                 input_payloads=_resume_config_payloads(config),
             ),
         )
-        for decision in resume_report.decisions:
-            resume_decisions_by_stage[decision.step_id] = (
-                decision.disposition,
-                decision.reasons,
+        for resume_decision in resume_report.decisions:
+            resume_decisions_by_stage[resume_decision.step_id] = (
+                resume_decision.disposition,
+                resume_decision.reasons,
             )
         validated_reused_stages, reused_stage_outputs = _load_reusable_stage_outputs(
             config,
@@ -406,7 +416,7 @@ def run_resumable_advanced_diann_workflow(
     advanced_report: AdvancedDiannWorkflowReport | None = None
 
     for stage in _STAGE_ORDER:
-        decision = resume_decisions_by_stage.get(
+        stage_decision: WorkflowResumeStageDecision = resume_decisions_by_stage.get(
             stage.value,
             (WorkflowResumeDisposition.RERUN, ("stage_not_completed",)),
         )
@@ -416,16 +426,17 @@ def run_resumable_advanced_diann_workflow(
                 AdvancedDiannRuntimeStageDecision(
                     stage=stage,
                     disposition=WorkflowResumeDisposition.REUSED,
-                    reasons=decision[1],
+                    reasons=stage_decision[1],
                 )
             )
+            reused_payload = reused_stage_outputs[stage]
             if stage is AdvancedDiannRuntimeStage.IMPORT:
-                import_report = reused_stage_outputs[stage]
+                import_report = cast(DiaNnBundleImportReport, reused_payload)
             elif stage is AdvancedDiannRuntimeStage.MATRICES:
-                quant_matrix_bundle = reused_stage_outputs[stage]
+                quant_matrix_bundle = cast(DiannQuantMatrixBundle, reused_payload)
                 import_report = quant_matrix_bundle.import_report
             elif stage is AdvancedDiannRuntimeStage.BIOLOGY:
-                base_bundle = reused_stage_outputs[stage]
+                base_bundle = cast(DiannBiologicalWorkflowBundle, reused_payload)
                 import_report = base_bundle.import_report
                 quant_matrix_bundle = DiannQuantMatrixBundle(
                     import_report=base_bundle.import_report,
@@ -435,7 +446,7 @@ def run_resumable_advanced_diann_workflow(
                     note="reconstructed runtime matrix bundle from persisted biological bundle",
                 )
             else:
-                advanced_report = reused_stage_outputs[stage]
+                advanced_report = cast(AdvancedDiannWorkflowReport, reused_payload)
                 base_bundle = advanced_report.diann_workflow
                 import_report = base_bundle.import_report
                 quant_matrix_bundle = DiannQuantMatrixBundle(
@@ -464,7 +475,7 @@ def run_resumable_advanced_diann_workflow(
             AdvancedDiannRuntimeStageDecision(
                 stage=stage,
                 disposition=WorkflowResumeDisposition.RERUN,
-                reasons=decision[1],
+                reasons=stage_decision[1],
             )
         )
         if stage is AdvancedDiannRuntimeStage.IMPORT:
@@ -1026,15 +1037,17 @@ def _resume_config_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, ob
             config.protocol_context_tsv_path
         ),
         "result_tsv_sha256": _file_sha256(config.result_tsv_path),
-        "selection_policy_sha256": hash_payload(
+        "selection_policy_sha256": _optional_payload_sha256(
             None
             if config.selection_policy is None
-            else config.selection_policy.to_dict()
+            else cast(dict[str, object], config.selection_policy.to_dict())
         ),
         "shared_peptide_policy": config.shared_peptide_policy.value,
         "target_kind": config.target_kind.value,
-        "volcano_policy_sha256": hash_payload(
-            None if config.volcano_policy is None else config.volcano_policy.to_dict()
+        "volcano_policy_sha256": _optional_payload_sha256(
+            None
+            if config.volcano_policy is None
+            else cast(dict[str, object], config.volcano_policy.to_dict())
         ),
         "protein_rollup_method": config.protein_rollup_method.value,
     }
@@ -1118,15 +1131,17 @@ def _run_identity_payloads(config: AdvancedDiannWorkflowConfig) -> dict[str, obj
             config.protocol_context_tsv_path
         ),
         "result_tsv_sha256": _missing_tolerant_file_sha256(config.result_tsv_path),
-        "selection_policy_sha256": hash_payload(
+        "selection_policy_sha256": _optional_payload_sha256(
             None
             if config.selection_policy is None
-            else config.selection_policy.to_dict()
+            else cast(dict[str, object], config.selection_policy.to_dict())
         ),
         "shared_peptide_policy": config.shared_peptide_policy.value,
         "target_kind": config.target_kind.value,
-        "volcano_policy_sha256": hash_payload(
-            None if config.volcano_policy is None else config.volcano_policy.to_dict()
+        "volcano_policy_sha256": _optional_payload_sha256(
+            None
+            if config.volcano_policy is None
+            else cast(dict[str, object], config.volcano_policy.to_dict())
         ),
         "protein_rollup_method": config.protein_rollup_method.value,
     }
@@ -1138,7 +1153,8 @@ def _run_identity_input_checksums(
     entries: list[AdvancedDiannRuntimeInputChecksumEntry] = []
     for input_name, value in sorted(identity_payloads.items()):
         if input_name == "fragment_mzml_sha256":
-            for index, checksum in enumerate(value, start=1):
+            fragment_checksums = cast(tuple[str | None, ...], value)
+            for index, checksum in enumerate(fragment_checksums, start=1):
                 if checksum is None:
                     continue
                 entries.append(
@@ -1165,7 +1181,8 @@ def _run_identity_missing_input_names(
     missing_inputs: list[str] = []
     for input_name, value in sorted(identity_payloads.items()):
         if input_name == "fragment_mzml_sha256":
-            for index, checksum in enumerate(value, start=1):
+            fragment_checksums = cast(tuple[str | None, ...], value)
+            for index, checksum in enumerate(fragment_checksums, start=1):
                 if checksum is None:
                     missing_inputs.append(f"fragment_mzml_sha256[{index}]")
             continue
@@ -1375,15 +1392,14 @@ def _stage_entity_count(stage: AdvancedDiannRuntimeStage, payload: JsonModel) ->
 def _load_reusable_stage_outputs(
     config: AdvancedDiannWorkflowConfig,
     *,
-    resume_decisions_by_stage: dict[
-        str, tuple[WorkflowResumeDisposition, tuple[str, ...]]
-    ],
+    resume_decisions_by_stage: dict[str, WorkflowResumeStageDecision],
 ) -> tuple[
-    tuple[AdvancedDiannRuntimeStage, ...], dict[AdvancedDiannRuntimeStage, JsonModel]
+    tuple[AdvancedDiannRuntimeStage, ...],
+    dict[AdvancedDiannRuntimeStage, AdvancedDiannStagePayload],
 ]:
     runtime_dir = config.output_dir / "checkpoints" / "advanced_diann_runtime"
     reusable: list[AdvancedDiannRuntimeStage] = []
-    outputs: dict[AdvancedDiannRuntimeStage, JsonModel] = {}
+    outputs: dict[AdvancedDiannRuntimeStage, AdvancedDiannStagePayload] = {}
     for stage in _STAGE_ORDER:
         decision = resume_decisions_by_stage.get(stage.value)
         if decision is None or decision[0] is not WorkflowResumeDisposition.REUSED:
@@ -1400,14 +1416,34 @@ def _load_reusable_stage_outputs(
     return tuple(reusable), outputs
 
 
-def _stage_loader(stage: AdvancedDiannRuntimeStage):
+def _stage_loader(
+    stage: AdvancedDiannRuntimeStage,
+) -> Callable[[Path], AdvancedDiannStagePayload]:
     if stage is AdvancedDiannRuntimeStage.IMPORT:
-        return DiaNnBundleImportReport.load_json
+        return cast(
+            Callable[[Path], AdvancedDiannStagePayload],
+            DiaNnBundleImportReport.load_json,
+        )
     if stage is AdvancedDiannRuntimeStage.MATRICES:
-        return DiannQuantMatrixBundle.load_json
+        return cast(
+            Callable[[Path], AdvancedDiannStagePayload],
+            DiannQuantMatrixBundle.load_json,
+        )
     if stage is AdvancedDiannRuntimeStage.BIOLOGY:
-        return DiannBiologicalWorkflowBundle.load_json
-    return AdvancedDiannWorkflowReport.load_json
+        return cast(
+            Callable[[Path], AdvancedDiannStagePayload],
+            DiannBiologicalWorkflowBundle.load_json,
+        )
+    return cast(
+        Callable[[Path], AdvancedDiannStagePayload],
+        AdvancedDiannWorkflowReport.load_json,
+    )
+
+
+def _optional_payload_sha256(payload: Mapping[str, object] | None) -> str:
+    if payload is None:
+        return hash_payload({"value": None})
+    return hash_payload(payload)
 
 
 __all__ = [

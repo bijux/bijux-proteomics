@@ -134,15 +134,12 @@ def _protein_changes(
         right_state = _protein_state(right_entry)
         if left_state is right_state:
             continue
-        representative = (
-            None
-            if left_entry is None and right_entry is None
-            else (
-                left_entry.representative_protein_ref
-                if left_entry is not None
-                else right_entry.representative_protein_ref
-            )
-        )
+        if left_entry is not None:
+            representative = left_entry.representative_protein_ref
+        elif right_entry is not None:
+            representative = right_entry.representative_protein_ref
+        else:
+            representative = None
         changes.append(
             AdvancedDiannProteinChangeEntry(
                 protein_group_id=protein_group_id,
