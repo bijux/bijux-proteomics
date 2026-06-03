@@ -20,6 +20,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.isotope_labeling import (
     SilacColumnMapping,
+    SilacProteinRatioEntry,
     SilacQuantificationPolicy,
     SilacRatioReport,
     build_silac_ratio_report,
@@ -39,6 +40,7 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceContrast,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
+    DifferentialAbundanceTestType,
     DifferentialReplicatePolicy,
     ImputationMethod,
     MissingValueKind,
@@ -751,7 +753,7 @@ def _build_input_report_from_protein_matrix(
 def _build_input_report_from_silac_ratio_report(
     ratio_report: SilacRatioReport,
 ) -> LabelBasedDifferentialInputReport:
-    grouped: dict[str, list] = {}
+    grouped: dict[str, list[SilacProteinRatioEntry]] = {}
     sample_ids: set[str] = set()
     for entry in ratio_report.protein_ratios:
         entity_id = (
@@ -1152,7 +1154,7 @@ def _build_differential_report(
         condition_b=condition_b,
         replicate_policy=active_policy,
         assumption_report=DifferentialAbundanceAssumptionReport(
-            test_type="welch_t_test",
+            test_type=DifferentialAbundanceTestType.WELCH_T_TEST,
             variance_assumption="unequal_variance",
             multiple_testing_scope="uncorrected_report_wide_entities",
             replicate_policy=active_policy,

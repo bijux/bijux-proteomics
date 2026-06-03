@@ -456,6 +456,13 @@ def _optional_design_text(value: str | int | float | bool | None) -> str | None:
     return text or None
 
 
+def _optional_design_int(value: str | int | float | bool | None) -> int | None:
+    text = _optional_design_text(value)
+    if text is None:
+        return None
+    return int(text)
+
+
 def _default_psm_mapping() -> SearchResultColumnMapping:
     from bijux_proteomics.identification.contracts import SearchResultColumnMapping
 
@@ -698,11 +705,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 instrument=_optional_design_text(row.values.get("instrument")),
                 search_engine=_optional_design_text(row.values.get("search_engine")),
                 pair_id=_optional_design_text(row.values.get("pair_id")),
-                run_order=(
-                    int(row.values["run_order"])
-                    if row.values.get("run_order") is not None
-                    else None
-                ),
+                run_order=_optional_design_int(row.values.get("run_order")),
                 technical_replicate_id=_optional_design_text(
                     row.values.get("technical_replicate_id")
                 ),
