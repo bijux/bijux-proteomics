@@ -12,9 +12,11 @@ from bijux_proteomics.workflow.synthetic_quant_truth import (
     SyntheticQuantContaminationSpec,
     SyntheticQuantMissingnessSpec,
     SyntheticQuantPeptideOutlierSpec,
+    SyntheticQuantPeptideObservation,
     SyntheticQuantProteinSpec,
     SyntheticQuantSample,
     SyntheticQuantTruthConfig,
+    SyntheticQuantTruthDataset,
     generate_quant_truth_dataset,
     render_synthetic_quant_peptide_observation_tsv,
     render_synthetic_quant_truth_tsv,
@@ -116,7 +118,7 @@ def _config() -> SyntheticQuantTruthConfig:
     )
 
 
-def _truth_rows(dataset) -> tuple[dict[str, str], ...]:
+def _truth_rows(dataset: SyntheticQuantTruthDataset) -> tuple[dict[str, str], ...]:
     reader = csv.DictReader(
         StringIO(render_synthetic_quant_truth_tsv(dataset)), delimiter="\t"
     )
@@ -127,7 +129,12 @@ def _truth_rows(dataset) -> tuple[dict[str, str], ...]:
     )
 
 
-def _observation(dataset, protein_id: str, peptide_id: str, sample_id: str):
+def _observation(
+    dataset: SyntheticQuantTruthDataset,
+    protein_id: str,
+    peptide_id: str,
+    sample_id: str,
+) -> SyntheticQuantPeptideObservation:
     return next(
         row
         for row in dataset.peptide_observations

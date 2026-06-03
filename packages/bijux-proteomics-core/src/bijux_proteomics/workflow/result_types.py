@@ -9,7 +9,7 @@ from collections.abc import Iterable
 import csv
 from enum import StrEnum
 from io import StringIO
-from typing import Protocol
+from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -202,7 +202,7 @@ def build_rejected_evidence_entries_from_issue_rows(
 
     entries: list[RejectedEvidenceEntry] = []
     for row in rows:
-        row_number = int(row.row_number)
+        row_number = _coerce_row_number(row)
         entity_id = _resolve_row_entity_id(row, entity_prefix=entity_prefix)
         issues = tuple(getattr(row, "issues", ()))
         if not issues:
@@ -356,7 +356,7 @@ def render_result_rejected_evidence_tsv(
 def _resolve_row_entity_id(row: object, *, entity_prefix: str) -> str:
     if hasattr(row, "entity_id") and str(row.entity_id).strip():
         return str(row.entity_id).strip()
-    raw_fields = dict(getattr(row, "raw_fields", {}))
+    raw_fields = dict(_coerce_raw_fields(getattr(row, "raw_fields", {})))
     for key in (
         "candidate_id",
         "source_row_id",
@@ -369,7 +369,18 @@ def _resolve_row_entity_id(row: object, *, entity_prefix: str) -> str:
         value = raw_fields.get(key)
         if value is not None and str(value).strip():
             return str(value).strip()
-    return f"{entity_prefix}:{int(row.row_number)}"
+    return f"{entity_prefix}:{_coerce_row_number(row)}"
+
+
+def _coerce_row_number(row: object) -> int:
+    raw_row_number = getattr(row, "row_number", None)
+    if raw_row_number is None:
+        raise ValueError("rejected evidence rows must declare row_number")
+    return int(raw_row_number)
+
+
+def _coerce_raw_fields(raw_fields: object) -> dict[str, Any]:
+    return raw_fields if isinstance(raw_fields, dict) else {}
 
 
 __all__ = [

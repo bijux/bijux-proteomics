@@ -16,7 +16,9 @@ from bijux_proteomics.governance.charter import (
     list_core_domain_families,
 )
 
-CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
+CORE_SRC_ROOT = (
+    Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
+)
 REMOVED_COMPATIBILITY_PATHS = {
     "advanced_format_ingestion.py",
     "execution_backend.py",
@@ -114,10 +116,10 @@ def test_core_thin_abstractions_stay_limited_to_package_initializers() -> None:
         source = (CORE_SRC_ROOT / path).read_text(encoding="utf-8")
         tree = ast.parse(source, filename=path)
         for node in tree.body:
+            expression = node.value if isinstance(node, ast.Expr) else None
             if (
-                isinstance(node, ast.Expr)
-                and isinstance(getattr(node, "value", None), ast.Constant)
-                and isinstance(node.value.value, str)
+                isinstance(expression, ast.Constant)
+                and isinstance(expression.value, str)
             ):
                 continue
             if isinstance(node, ast.ImportFrom) and node.module == "__future__":

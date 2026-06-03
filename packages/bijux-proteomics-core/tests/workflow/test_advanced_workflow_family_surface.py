@@ -12,6 +12,7 @@ from bijux_proteomics.workflow import (
     validate_advanced_workflow_family_contract,
 )
 from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyConfigContract,
     AdvancedWorkflowFamilyContract,
 )
 
@@ -67,17 +68,17 @@ def test_validate_advanced_workflow_family_contract_rejects_summary_name_drift(
 ) -> None:
     contract = AdvancedWorkflowFamilyContract(
         workflow_name="advanced_targeted",
-        config={
-            "output_dir_field": "output_dir",
-            "primary_input_fields": ("result_tsv_path",),
-            "design_input_fields": ("design_tsv_path",),
-        },
-        artifacts={
-            "workflow_manifest_json": "advanced_targeted_workflow_manifest.json",
-            "base_workflow_manifest_json": "targeted_assay_qc_workflow_manifest.json",
-            "summary_tsv": "targeted_summary.tsv",
-            "rejected_evidence_tsv": "rejected_evidence.tsv",
-        },
+        config=AdvancedWorkflowFamilyConfigContract(
+            output_dir_field="output_dir",
+            primary_input_fields=("result_tsv_path",),
+            design_input_fields=("design_tsv_path",),
+        ),
+        artifacts=AdvancedWorkflowFamilyArtifactContract(
+            workflow_manifest_json="advanced_targeted_workflow_manifest.json",
+            base_workflow_manifest_json="targeted_assay_qc_workflow_manifest.json",
+            summary_tsv="targeted_summary.tsv",
+            rejected_evidence_tsv="rejected_evidence.tsv",
+        ),
         note=str(tmp_path),
     )
 

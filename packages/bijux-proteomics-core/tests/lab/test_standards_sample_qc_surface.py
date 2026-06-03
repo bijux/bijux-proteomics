@@ -15,6 +15,7 @@ from bijux_proteomics.lab import (
     track_internal_standards,
 )
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -60,7 +61,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _lfq_table():
+def _lfq_table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="std-weight-001",
