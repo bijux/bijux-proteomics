@@ -12,6 +12,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -47,6 +48,7 @@ from bijux_proteomics.quantification import (
     QuantValue,
 )
 from bijux_proteomics.review import (
+    EvidenceGraphFinalResultEntry,
     FinalClaimEvidenceTier,
     ProteomicsEvidenceNodeKind,
     ProteinEvidenceSummaryReport,
@@ -277,6 +279,25 @@ class ProteinEvidenceCardReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class _PreparedProteinCard(TypedDict):
+    final_entry: EvidenceGraphFinalResultEntry
+    differential_entry: DifferentialAbundanceEntry
+    graph_summary: ProteinEvidenceSummaryReport
+    representative_protein_ref: str
+    protein_refs: tuple[str, ...]
+    annotation: ProteinEvidenceCardAnnotation
+    peptides: tuple[str, ...]
+    unique_peptide_count: int
+    shared_peptide_count: int
+    coverage: ProteinEvidenceCardCoverage
+    quantification: ProteinEvidenceCardQuantification
+    contexts: tuple[ProteinEvidenceCardContextEntry, ...]
+    pathways: tuple[ProteinEvidenceCardPathwayEntry, ...]
+    functional_regions: tuple[ProteinFunctionalRegionEvidence, ...]
+    significant: bool
+    warnings: tuple[ProteinEvidenceCardWarning, ...]
+
+
 def build_protein_evidence_card_report(
     graph_report: BiologicalResultGraphReport,
     quant_table: LabelFreeQuantTable,
@@ -333,7 +354,7 @@ def build_protein_evidence_card_report(
         for entry in graph_report.final_results.entries
         if entry.subject_node_kind is ProteomicsEvidenceNodeKind.PROTEIN
     )
-    prepared_cards: list[dict[str, object]] = []
+    prepared_cards: list[_PreparedProteinCard] = []
     for final_entry in sorted(final_entries, key=lambda entry: entry.subject_node_ref):
         differential_entry = differential_by_entity.get(final_entry.subject_node_ref)
         if differential_entry is None:
@@ -911,7 +932,7 @@ def _build_peptide_region_context_report(
 
 
 def _build_identity_entries_by_entity(
-    prepared_cards: list[dict[str, object]],
+    prepared_cards: list[_PreparedProteinCard],
     *,
     protein_records: tuple[NormalizedProteinRecord, ...] | None,
     protein_sequences: dict[str, str],
@@ -937,7 +958,7 @@ def _build_identity_entries_by_entity(
 
 
 def _build_proteogenomic_support_by_entity(
-    prepared_cards: list[dict[str, object]],
+    prepared_cards: list[_PreparedProteinCard],
     *,
     protein_records: tuple[NormalizedProteinRecord, ...] | None,
     protein_sequences: dict[str, str],
@@ -1380,7 +1401,7 @@ def _build_standard_card_entry(card: ProteinEvidenceCard) -> StandardCardEntry:
     )
 
 
-def _standard_card_confidence(tier: ProteinEvidenceCardTier):
+def _standard_card_confidence(tier: ProteinEvidenceCardTier) -> ConfidenceTier:
     if tier is ProteinEvidenceCardTier.HIGH_SUPPORT:
         return ConfidenceTier.HIGH
     if tier is ProteinEvidenceCardTier.MODERATE_SUPPORT:
