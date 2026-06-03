@@ -9,6 +9,7 @@ import csv
 from collections import Counter, defaultdict
 from io import StringIO
 import re
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -257,15 +258,16 @@ def _selected_conditions(
     issues: list[ExperimentDesignValidityIssue],
 ) -> tuple[str, ...]:
     if bool(condition_a) ^ bool(condition_b):
+        incomplete_conditions = tuple(
+            cast(str, condition)
+            for condition in (condition_a, condition_b)
+            if condition not in (None, "")
+        )
         issues.append(
             ExperimentDesignValidityIssue(
                 code="invalid_contrast_incomplete_pair",
                 message="both contrast conditions are required together",
-                condition_ids=tuple(
-                    condition
-                    for condition in (condition_a, condition_b)
-                    if condition not in (None, "")
-                ),
+                condition_ids=incomplete_conditions,
             )
         )
         return ()
@@ -381,9 +383,11 @@ def _confounded_batch_condition_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if batch_field in (None, "") or len(selected_conditions) < 2:
         return ()
+    resolved_batch_field = batch_field
+    assert resolved_batch_field is not None
     report = detect_batch_condition_confounding(
         experiment_design,
-        batch_field=batch_field,
+        batch_field=resolved_batch_field,
         selected_conditions=selected_conditions,
     )
     if not report.is_confounded:
@@ -404,7 +408,7 @@ def _confounded_batch_condition_issues(
                 "batch assignments are confounded with condition labels for the "
                 "selected differential analysis"
             ),
-            field=batch_field,
+            field=resolved_batch_field,
             condition_ids=selected_conditions,
             batch_ids=batch_ids,
         ),
@@ -419,6 +423,8 @@ def _broken_pair_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if pairing_field in (None, "") or len(selected_conditions) != 2:
         return ()
+    resolved_pairing_field = pairing_field
+    assert resolved_pairing_field is not None
     relevant_entries = tuple(
         entry
         for entry in experiment_design.entries
@@ -431,11 +437,11 @@ def _broken_pair_issues(
         sorted(
             entry.sample_id
             for entry in relevant_entries
-            if _resolve_entry_value(entry, pairing_field) in (None, "")
+            if _resolve_entry_value(entry, resolved_pairing_field) in (None, "")
         )
     )
     for entry in relevant_entries:
-        pair_value = _resolve_entry_value(entry, pairing_field)
+        pair_value = _resolve_entry_value(entry, resolved_pairing_field)
         if pair_value in (None, ""):
             continue
         entries_by_pair[str(pair_value)].append(entry)
@@ -445,7 +451,7 @@ def _broken_pair_issues(
             ExperimentDesignValidityIssue(
                 code="broken_pair",
                 message="paired differential analysis requires a pair identifier for every selected sample",
-                field=pairing_field,
+                field=resolved_pairing_field,
                 sample_ids=missing_pair_samples,
                 condition_ids=selected_conditions,
             )
@@ -460,7 +466,7 @@ def _broken_pair_issues(
                         "paired differential analysis requires exactly one sample per "
                         "selected condition in each pair"
                     ),
-                    field=pairing_field,
+                    field=resolved_pairing_field,
                     sample_ids=tuple(sorted(entry.sample_id for entry in pair_entries)),
                     condition_ids=selected_conditions,
                     pair_ids=(pair_id,),
@@ -513,12 +519,14 @@ def _timepoint_order_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if timepoint_field in (None, ""):
         return ()
+    resolved_timepoint_field = timepoint_field
+    assert resolved_timepoint_field is not None
     labels = tuple(
         sorted(
             {
                 str(value)
                 for value in (
-                    _resolve_entry_value(entry, timepoint_field)
+                    _resolve_entry_value(entry, resolved_timepoint_field)
                     for entry in experiment_design.entries
                 )
                 if value not in (None, "")
@@ -537,7 +545,7 @@ def _timepoint_order_issues(
                         "declared timepoint order must contain each observed timepoint "
                         "label exactly once"
                     ),
-                    field=timepoint_field,
+                    field=resolved_timepoint_field,
                     condition_ids=labels,
                 ),
             )
@@ -551,36 +559,37 @@ def _timepoint_order_issues(
                 "unordered timepoint labels require an explicit declared order before "
                 "time-course statistics run"
             ),
-            field=timepoint_field,
+            field=resolved_timepoint_field,
             condition_ids=labels,
         ),
     )
 
 
 def _resolve_entry_value(entry: ExperimentalDesignEntry, field: str) -> str | None:
-    direct_values = {
-        "sample_id": entry.sample_id,
-        "cohort": entry.cohort,
-        "condition": entry.condition,
-        "batch": entry.batch,
-        "instrument": entry.instrument,
-        "search_engine": entry.search_engine,
-        "pair_id": entry.pair_id,
-        "spectra_file": entry.spectra_file,
-        "technical_replicate_id": entry.technical_replicate_id,
-        "multiplex_group": entry.multiplex_group,
-        "multiplex_channel": entry.multiplex_channel,
-        "sample_role": entry.sample_role.value,
+    direct_values: dict[str, str | None] = {
+        "sample_id": cast(str, entry.sample_id),
+        "cohort": cast(str | None, entry.cohort),
+        "condition": cast(str, entry.condition),
+        "batch": cast(str | None, entry.batch),
+        "instrument": cast(str | None, entry.instrument),
+        "search_engine": cast(str | None, entry.search_engine),
+        "pair_id": cast(str | None, entry.pair_id),
+        "spectra_file": cast(str, entry.spectra_file),
+        "technical_replicate_id": cast(str | None, entry.technical_replicate_id),
+        "multiplex_group": cast(str | None, entry.multiplex_group),
+        "multiplex_channel": cast(str | None, entry.multiplex_channel),
+        "sample_role": cast(str, entry.sample_role.value),
     }
+    metadata = cast(dict[str, str], entry.metadata)
     if field == "tissue_or_cell_type":
         return (
-            entry.metadata.get("tissue_or_cell_type")
-            or entry.metadata.get("tissue")
-            or entry.metadata.get("cell_type")
+            metadata.get("tissue_or_cell_type")
+            or metadata.get("tissue")
+            or metadata.get("cell_type")
         )
     if field in direct_values:
         return direct_values[field]
-    return entry.metadata.get(field)
+    return metadata.get(field)
 
 
 def _infer_numeric_timepoint_positions(labels: tuple[str, ...]) -> dict[str, float] | None:
