@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.spectrum_annotation import run_spectrum_annotate_command, run_spectrum_score_chimeric_command, run_raw_signal_evidence_card_command, run_precursor_isotope_fit_command
 

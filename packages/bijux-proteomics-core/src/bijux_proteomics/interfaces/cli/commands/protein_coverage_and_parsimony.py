@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony import run_protein_coverage_command, run_protein_coverage_plot_command, run_protein_parsimony_command, run_infer_proteins_command
 

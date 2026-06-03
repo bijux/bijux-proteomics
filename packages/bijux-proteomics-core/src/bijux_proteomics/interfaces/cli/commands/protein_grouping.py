@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.protein_grouping import run_protein_groups_command, run_protein_ambiguity_command, run_protein_inference_benchmarks_command
 

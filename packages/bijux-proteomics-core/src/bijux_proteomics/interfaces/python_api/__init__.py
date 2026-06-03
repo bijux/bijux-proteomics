@@ -8,7 +8,7 @@ from __future__ import annotations
 from importlib import import_module
 from pathlib import Path
 import re
-from typing import Final
+from typing import Any, Final
 
 _RUNNER_PATTERN: Final = re.compile(r"^def (run_[a-z0-9_]+)\(", re.MULTILINE)
 _PACKAGE_DIR: Final = Path(__file__).resolve().parent
@@ -29,7 +29,7 @@ _RUNNER_INDEX: Final = _build_runner_index()
 __all__ = sorted(_RUNNER_INDEX)
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     module_name = _RUNNER_INDEX.get(name)
     if module_name is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

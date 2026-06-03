@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.sequence_database import run_fasta_provenance_command, run_fasta_decoy_command, run_target_decoy_validate_command, run_digest_command, run_theoretical_digest_command
 

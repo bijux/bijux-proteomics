@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.dia_precursor_matrices import run_diann_precursor_matrix_command, run_spectronaut_precursor_matrix_command
 

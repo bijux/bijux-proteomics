@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import click
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.spectral_library_commands import run_spectrum_similarity_command, run_spectral_library_import_command, run_spectral_library_search_command
 

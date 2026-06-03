@@ -39,11 +39,15 @@ def _is_lazy_cli_import(exc: ImportError) -> bool:
     )
 
 
+cli: Any
+
 try:
-    from bijux_proteomics.interfaces.cli.app import cli as cli
+    from bijux_proteomics.interfaces.cli.app import cli as _loaded_cli
 except ImportError as exc:
     if not _is_lazy_cli_import(exc):
         raise
     cli = _LazyCliProxy()
+else:
+    cli = _loaded_cli
 
 __all__ = ["cli"]
