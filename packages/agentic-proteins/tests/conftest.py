@@ -8,12 +8,16 @@ import sys
 
 import pytest
 
+from bijux_proteomics_foundation.testing.pytest_artifacts import (
+    configure_hypothesis_artifacts,
+)
 from bijux_proteomics_foundation.testing.pytest_markers import (
     apply_default_test_markers,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
 PACKAGE_ROOT = ROOT / "packages" / "agentic-proteins"
+configure_hypothesis_artifacts(ROOT)
 for path in (ROOT, PACKAGE_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
