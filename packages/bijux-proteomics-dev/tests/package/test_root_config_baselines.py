@@ -102,6 +102,7 @@ def test_root_pytest_configuration_matches_shared_python_baseline() -> None:
         "--import-mode=importlib",
         "--strict-markers",
         "--tb=short",
+        "--benchmark-storage=file://artifacts/root/benchmarks",
     ]
     assert {
         line.strip() for line in pytest_config["markers"].splitlines() if line.strip()
