@@ -760,13 +760,14 @@ def build_missing_data_mechanism_report(
         for entry in design_entries
         if entry.multiplex_group and entry.multiplex_channel
     }
-    sample_ids_by_condition: dict[str, tuple[str, ...]] = {}
+    sample_ids_by_condition_lists: dict[str, list[str]] = {}
     for entry in design_entries:
-        sample_ids_by_condition.setdefault(entry.condition, [])
-        sample_ids_by_condition[entry.condition].append(entry.sample_id)
+        sample_ids_by_condition_lists.setdefault(entry.condition, []).append(
+            entry.sample_id
+        )
     sample_ids_by_condition = {
         condition: tuple(sample_ids)
-        for condition, sample_ids in sample_ids_by_condition.items()
+        for condition, sample_ids in sample_ids_by_condition_lists.items()
     }
     entries: list[MissingDataMechanismEntry] = []
     summary_counts = dict.fromkeys(MissingDataMechanism, 0)

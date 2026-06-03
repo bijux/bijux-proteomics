@@ -19,6 +19,7 @@ from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     QcOutlierSampleEntry,
+    QuantValue,
     ReplicateAndBatchQcReport,
     ReplicateCvConditionEntry,
     ReplicateCvReport,
@@ -140,10 +141,10 @@ def build_replicate_and_batch_qc_report(
         entry.sample_id: entry.outlier_reasons
         for entry in sample_exploration.sample_outlier_report.entries
     }
-    for entry in sample_exploration.sample_pca_report.entries:
-        if entry.outlier:
-            for reason in outlier_reasons_by_sample.get(entry.sample_id, ()):
-                flagged_samples.setdefault(entry.sample_id, set()).add(
+    for pca_entry in sample_exploration.sample_pca_report.entries:
+        if pca_entry.outlier:
+            for reason in outlier_reasons_by_sample.get(pca_entry.sample_id, ()):
+                flagged_samples.setdefault(pca_entry.sample_id, set()).add(
                     f"sample exploration flagged {reason}"
                 )
     outliers = tuple(
@@ -325,7 +326,9 @@ def render_sample_reliability_weights_tsv(
 
 
 def _observed_fraction_by_sample(table: LabelFreeQuantTable) -> dict[str, float]:
-    sample_values: dict[str, list[object]] = {sample_id: [] for sample_id in table.sample_ids}
+    sample_values: dict[str, list[QuantValue]] = {
+        sample_id: [] for sample_id in table.sample_ids
+    }
     for value in table.values:
         sample_values.setdefault(value.sample_id, []).append(value)
     observed_fraction_by_sample: dict[str, float] = {}
