@@ -232,7 +232,9 @@ def format_failure_explanation_for_cli(explanation: FailureExplanation) -> str:
         )
     category = explanation.failure_category
     if category is None:
-        raise ValueError("classified failure explanations must carry a failure category")
+        raise ValueError(
+            "classified failure explanations must carry a failure category"
+        )
     return (
         f"{workflow_prefix} with {category.value}: "
         f"{explanation.scientific_condition}. "
