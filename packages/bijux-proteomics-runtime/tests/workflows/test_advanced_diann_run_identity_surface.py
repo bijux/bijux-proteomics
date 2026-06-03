@@ -34,10 +34,13 @@ def _write_q_value_variant(
 ) -> None:
     with source_path.open(encoding="utf-8", newline="") as source:
         reader = csv.DictReader(source, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError(f"{source_path.name!r} must include a header row")
+        fieldnames = list(reader.fieldnames)
         with target_path.open("w", encoding="utf-8", newline="") as target:
             writer = csv.DictWriter(
                 target,
-                fieldnames=reader.fieldnames,
+                fieldnames=fieldnames,
                 delimiter="\t",
             )
             writer.writeheader()

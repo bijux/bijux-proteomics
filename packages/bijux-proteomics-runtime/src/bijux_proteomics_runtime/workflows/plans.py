@@ -1080,7 +1080,7 @@ def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
     if role is WorkflowInputRole.FEATURES:
         return "ms1-features"
     detected = detect_proteomics_format(path)
-    return detected.value
+    return str(detected.value)
 
 
 def _workflow_input_data_type(role: WorkflowInputRole) -> WorkflowDataType:
@@ -3623,21 +3623,21 @@ def build_workflow_runtime_validation_report(
     dag_validation = validate_proteomics_dag_plan(runtime_bundle.dag_plan)
 
     if not step_type_validation.valid:
-        for issue in step_type_validation.issues:
+        for step_issue in step_type_validation.issues:
             issues.append(
                 WorkflowRuntimeValidationIssue(
-                    code=f"step_type_{issue.code}",
+                    code=f"step_type_{step_issue.code}",
                     severity="error",
-                    message=issue.message,
+                    message=step_issue.message,
                 )
             )
     if not dag_validation.valid:
-        for issue in dag_validation.issues:
+        for dag_issue in dag_validation.issues:
             issues.append(
                 WorkflowRuntimeValidationIssue(
-                    code=f"dag_{issue.code}",
+                    code=f"dag_{dag_issue.code}",
                     severity="error",
-                    message=issue.message,
+                    message=dag_issue.message,
                 )
             )
 

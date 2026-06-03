@@ -5,9 +5,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
