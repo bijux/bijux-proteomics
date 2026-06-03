@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,10 +13,14 @@ from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.sequences import canonicalize_protein_reference
-from bijux_proteomics.workflow.study_result import ProteomicsStudyKind, ProteomicsStudyResult
+from bijux_proteomics.workflow.study_result import (
+    ProteomicsStudyKind,
+    ProteomicsStudyResult,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -115,7 +117,9 @@ class CrossStudyProteinExtractionReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    observations: tuple[CrossStudyProteinObservation, ...] = Field(default_factory=tuple)
+    observations: tuple[CrossStudyProteinObservation, ...] = Field(
+        default_factory=tuple
+    )
     unsupported_studies: tuple[UnsupportedCrossStudyProteinStudy, ...] = Field(
         default_factory=tuple
     )
@@ -238,7 +242,8 @@ def extract_cross_study_protein_observations(
         unsupported_study_count=len(unsupported),
         observation_count=len(observations),
         protein_card_observation_count=sum(
-            entry.source_kind is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
+            entry.source_kind
+            is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
             for entry in observations
         ),
         label_based_observation_count=sum(
@@ -247,7 +252,8 @@ def extract_cross_study_protein_observations(
             for entry in observations
         ),
         ptm_parent_protein_count=sum(
-            entry.source_kind is CrossStudyProteinObservationSourceKind.PTM_PARENT_PROTEIN
+            entry.source_kind
+            is CrossStudyProteinObservationSourceKind.PTM_PARENT_PROTEIN
             for entry in observations
         ),
     )
@@ -313,7 +319,9 @@ def build_cross_study_protein_harmonization_report_from_observations(
             ),
         )
 
-    exact_group_members, observation_group_ids = _build_exact_accession_groups(observations)
+    exact_group_members, observation_group_ids = _build_exact_accession_groups(
+        observations
+    )
     group_metadata = {
         group_id: _build_group_metadata(group_id, member_indices, observations)
         for group_id, member_indices in exact_group_members.items()
@@ -373,7 +381,8 @@ def build_cross_study_protein_harmonization_report_from_observations(
         )
         exact_only = len(group_ids) == 1
         has_ortholog = any(
-            tuple(sorted((left_group_id, right_group_id))) in ortholog_resolution.unique_links
+            tuple(sorted((left_group_id, right_group_id)))
+            in ortholog_resolution.unique_links
             for left_group_id in group_ids
             for right_group_id in group_ids
             if left_group_id < right_group_id
@@ -381,7 +390,9 @@ def build_cross_study_protein_harmonization_report_from_observations(
         if exact_only:
             exact_accession_group_count += 1
             match_basis = CrossStudyProteinMatchBasis.EXACT_ACCESSION
-            note = "study observations share exact canonical protein accessions or aliases"
+            note = (
+                "study observations share exact canonical protein accessions or aliases"
+            )
         elif has_ortholog and any(
             len(exact_group_members[group_id]) > 1 for group_id in group_ids
         ):
@@ -430,9 +441,7 @@ def build_cross_study_protein_harmonization_report_from_observations(
                 )
             )
 
-    harmonized_observation_ids = {
-        entry.observation_id for entry in harmonized_entries
-    }
+    harmonized_observation_ids = {entry.observation_id for entry in harmonized_entries}
     for group_id, member_indices in sorted(
         exact_group_members.items(),
         key=lambda item: _component_sort_key(
@@ -483,7 +492,8 @@ def build_cross_study_protein_harmonization_report_from_observations(
                 {
                     observations[index].observation_id
                     for index in candidate_indices
-                    if observations[index].observation_id not in harmonized_observation_ids
+                    if observations[index].observation_id
+                    not in harmonized_observation_ids
                 }
             )
         )
@@ -492,7 +502,8 @@ def build_cross_study_protein_harmonization_report_from_observations(
                 {
                     observations[index].study_id
                     for index in candidate_indices
-                    if observations[index].observation_id not in harmonized_observation_ids
+                    if observations[index].observation_id
+                    not in harmonized_observation_ids
                 }
             )
         )
@@ -531,7 +542,9 @@ def build_cross_study_protein_harmonization_report_from_observations(
         supported_study_count=len({entry.study_id for entry in observations}),
         unsupported_study_count=len(unsupported_studies),
         observation_count=len(observations),
-        harmonized_group_count=len({entry.harmonized_id for entry in harmonized_entries}),
+        harmonized_group_count=len(
+            {entry.harmonized_id for entry in harmonized_entries}
+        ),
         harmonized_membership_count=len(harmonized_entries),
         unresolved_entry_count=len(unresolved_entries),
         exact_accession_group_count=exact_accession_group_count,
@@ -848,7 +861,9 @@ def _build_exact_accession_groups(
         for group_id, member_indices in sorted(grouped_members.items())
     }
     observation_group_ids = {
-        index: group_id for group_id, indices in group_members.items() for index in indices
+        index: group_id
+        for group_id, indices in group_members.items()
+        for index in indices
     }
     return group_members, observation_group_ids
 
@@ -866,7 +881,8 @@ def _build_group_metadata(
     normalized_gene_symbols = {
         normalized
         for index in member_indices
-        if (normalized := _normalize_gene_symbol(observations[index].gene_symbol)) is not None
+        if (normalized := _normalize_gene_symbol(observations[index].gene_symbol))
+        is not None
     }
     normalized_species = {
         normalized
@@ -912,27 +928,32 @@ def _resolve_unique_ortholog_links(
         source_group_ids = tuple(
             group_id
             for group_id, metadata in group_metadata.items()
-            if source_ref in metadata["tokens"] and source_species in metadata["normalized_species"]
+            if source_ref in metadata["tokens"]
+            and source_species in metadata["normalized_species"]
         )
         target_group_ids = tuple(
             group_id
             for group_id, metadata in group_metadata.items()
-            if target_ref in metadata["tokens"] and target_species in metadata["normalized_species"]
+            if target_ref in metadata["tokens"]
+            and target_species in metadata["normalized_species"]
         )
         if not source_group_ids or not target_group_ids:
             continue
         for source_group_id in source_group_ids:
-            source_pair_matches.setdefault((source_group_id, target_species), set()).update(
-                target_group_ids
-            )
+            source_pair_matches.setdefault(
+                (source_group_id, target_species), set()
+            ).update(target_group_ids)
         for target_group_id in target_group_ids:
-            target_pair_matches.setdefault((target_group_id, source_species), set()).update(
-                source_group_ids
-            )
+            target_pair_matches.setdefault(
+                (target_group_id, source_species), set()
+            ).update(source_group_ids)
 
     unique_links: set[tuple[int, int]] = set()
     ambiguous_candidates: dict[int, set[int]] = {}
-    for (source_group_id, target_species), target_group_id_set in source_pair_matches.items():
+    for (
+        source_group_id,
+        _target_species,
+    ), target_group_id_set in source_pair_matches.items():
         for target_group_id in target_group_id_set:
             source_species_candidates = group_metadata[source_group_id][
                 "normalized_species"
@@ -940,7 +961,9 @@ def _resolve_unique_ortholog_links(
             if not source_species_candidates:
                 continue
             source_species = sorted(source_species_candidates)[0]
-            reverse_sources = target_pair_matches.get((target_group_id, source_species), set())
+            reverse_sources = target_pair_matches.get(
+                (target_group_id, source_species), set()
+            )
             if len(target_group_id_set) == 1 and len(reverse_sources) == 1:
                 ordered_link = (
                     (source_group_id, target_group_id)
@@ -1079,7 +1102,9 @@ def _normalize_gene_symbol(value: str | None) -> str | None:
     return normalized or None
 
 
-def _sorted_nonempty(values: tuple[str, ...] | list[str] | tuple[object, ...]) -> tuple[str, ...]:
+def _sorted_nonempty(
+    values: tuple[str, ...] | list[str] | tuple[object, ...],
+) -> tuple[str, ...]:
     return tuple(sorted({str(value).strip() for value in values if str(value).strip()}))
 
 

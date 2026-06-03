@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_multiplex_validate_metadata_command(
     design_path: Path,
     summary_tsv_out: Path | None,
@@ -49,6 +50,7 @@ def run_multiplex_validate_metadata_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_tmt_reporter_matrix_command(
     input_tsv: Path,
@@ -120,9 +122,7 @@ def run_tmt_reporter_matrix_command(
                 else str(channel_mapping_tsv_out)
             ),
             "channel_totals_tsv": (
-                None
-                if channel_totals_tsv_out is None
-                else str(channel_totals_tsv_out)
+                None if channel_totals_tsv_out is None else str(channel_totals_tsv_out)
             ),
             "peptide_matrix_tsv": (
                 None if peptide_matrix_tsv_out is None else str(peptide_matrix_tsv_out)
@@ -133,6 +133,7 @@ def run_tmt_reporter_matrix_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_tmt_interference_command(
     input_tsv: Path,
@@ -213,6 +214,7 @@ def run_tmt_interference_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_tmt_normalize_command(
     input_tsv: Path,
     design_path: Path,
@@ -285,9 +287,7 @@ def run_tmt_normalize_command(
                 None if transform_tsv_out is None else str(transform_tsv_out)
             ),
             "distribution_tsv": (
-                None
-                if distribution_tsv_out is None
-                else str(distribution_tsv_out)
+                None if distribution_tsv_out is None else str(distribution_tsv_out)
             ),
             "peptide_matrix_tsv": (
                 None if peptide_matrix_tsv_out is None else str(peptide_matrix_tsv_out)
@@ -299,4 +299,10 @@ def run_tmt_normalize_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_multiplex_validate_metadata_command', 'run_tmt_reporter_matrix_command', 'run_tmt_interference_command', 'run_tmt_normalize_command']
+
+__all__ = [
+    "run_multiplex_validate_metadata_command",
+    "run_tmt_reporter_matrix_command",
+    "run_tmt_interference_command",
+    "run_tmt_normalize_command",
+]

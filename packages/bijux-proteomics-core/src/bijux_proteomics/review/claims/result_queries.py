@@ -423,9 +423,7 @@ def _answer_protein_significance_query(
             "no governed protein card matched the requested protein subject",
         )
     warning_text = (
-        ""
-        if not card.warning_codes
-        else f" Caveats: {', '.join(card.warning_codes)}."
+        "" if not card.warning_codes else f" Caveats: {', '.join(card.warning_codes)}."
     )
     adjusted_text = (
         "unadjusted-only"
@@ -562,11 +560,7 @@ def _answer_sample_qc_failure_query(
         context=context,
     )
     reason_codes = sorted(
-        {
-            reason
-            for run in qc_runs
-            for reason in run.status_reason_codes
-        }
+        {reason for run in qc_runs for reason in run.status_reason_codes}
     )
     answer_text = (
         f"Sample {request.subject_id} failed QC because its mapped run assessments "
@@ -898,8 +892,7 @@ def _build_ptm_card_lookup_index(
         cards_by_card_id={card.card_id: card for card in cards},
         cards_by_site_key={card.site_key: card for card in cards},
         cards_by_claim_id={
-            claim_id: tuple(matches)
-            for claim_id, matches in cards_by_claim_id.items()
+            claim_id: tuple(matches) for claim_id, matches in cards_by_claim_id.items()
         },
         cards_by_protein_ref={
             protein_ref: tuple(matches)
@@ -939,7 +932,9 @@ def _load_biological_protein_cards(path: Path) -> tuple[_ProteinCardArtifact, ..
             protein_refs=_split_multi(row["protein_refs"]),
             gene_symbol=_empty_to_none(row["gene_symbol"]),
             peptides=_split_multi(row["peptides"]),
-            peptide_count=int(row.get("peptide_count", len(_split_multi(row["peptides"])))),
+            peptide_count=int(
+                row.get("peptide_count", len(_split_multi(row["peptides"])))
+            ),
             unique_peptide_count=int(row["unique_peptide_count"]),
             shared_peptide_count=int(row["shared_peptide_count"]),
             observed_sample_count=int(row.get("observed_sample_count", "0")),
@@ -1005,7 +1000,9 @@ def _load_qc_runs(paths: tuple[Path, ...]) -> tuple[_QcRunArtifact, ...]:
                 run_id,
                 {
                     "qc_status": row["qc_status"],
-                    "status_reason_codes": set(_split_multi(row["status_reason_codes"])),
+                    "status_reason_codes": set(
+                        _split_multi(row["status_reason_codes"])
+                    ),
                     "metric_keys": [],
                     "messages": [],
                 },

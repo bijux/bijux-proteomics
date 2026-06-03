@@ -6,37 +6,38 @@
 from __future__ import annotations
 
 from itertools import combinations
+
 import numpy as np
 
 from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.matrix.core_matrix import (
-    quant_matrix_to_dense_array,
-    rebuild_quant_matrix_from_dense_array,
-)
-from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
-    compare_imputation_policies,
-)
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
+    ImputationDependentHitEntry,
     ImputationEntry,
     ImputationMethod,
     ImputationReport,
     ImputationSensitivityChangedSignificanceEntry,
-    ImputationDependentHitEntry,
     ImputationSensitivityEntry,
     ImputationSensitivityOverlapEntry,
     ImputationSensitivityReport,
     LabelFreeQuantTable,
     MissingValueKind,
     PairedDifferentialPolicy,
-    QuantMeasureKind,
     QuantCellImputationProvenance,
+    QuantMeasureKind,
     QuantValue,
     QuantValueOrigin,
     build_differential_abundance_report,
+)
+from bijux_proteomics.quantification.matrix.core_matrix import (
+    quant_matrix_to_dense_array,
+    rebuild_quant_matrix_from_dense_array,
+)
+from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
+    compare_imputation_policies,
 )
 
 
@@ -143,7 +144,9 @@ def build_imputation_sensitivity_report(
     """Compare downstream differential behavior across imputation policies."""
     entries: list[ImputationSensitivityEntry] = []
     overlap_entries: list[ImputationSensitivityOverlapEntry] = []
-    changed_significance_entries: list[ImputationSensitivityChangedSignificanceEntry] = []
+    changed_significance_entries: list[
+        ImputationSensitivityChangedSignificanceEntry
+    ] = []
     imputation_dependent_hits: list[ImputationDependentHitEntry] = []
     primary_narratives: set[tuple[str | None, str | None]] = set()
     resolved_condition_a = condition_a
@@ -204,9 +207,7 @@ def build_imputation_sensitivity_report(
                     top_entity_id=None if top_entry is None else top_entry.entity_id,
                     top_entity_direction=top_direction,
                     top_entity_effect_size=(
-                        None
-                        if top_entry is None
-                        else top_entry.effect_size_cohens_d
+                        None if top_entry is None else top_entry.effect_size_cohens_d
                     ),
                     note=(
                         "downstream differential abundance was recomputed under one explicit imputation policy"
@@ -229,14 +230,19 @@ def build_imputation_sensitivity_report(
         )
 
     policy_comparison = None
-    if ImputationMethod.NONE in differential_by_method and len(differential_by_method) >= 2:
+    if (
+        ImputationMethod.NONE in differential_by_method
+        and len(differential_by_method) >= 2
+    ):
         policy_comparison = compare_imputation_policies(
             differential_by_method,
             significance_threshold=significance_threshold,
         )
 
     supported_methods = tuple(
-        entry.method for entry in entries if entry.supported and entry.method in differential_by_method
+        entry.method
+        for entry in entries
+        if entry.supported and entry.method in differential_by_method
     )
     significant_entities_by_method: dict[ImputationMethod, set[str]] = {
         method: {
@@ -247,10 +253,11 @@ def build_imputation_sensitivity_report(
         }
         for method in supported_methods
     }
-    entry_lookup_by_method: dict[ImputationMethod, dict[str, DifferentialAbundanceEntry]] = {
+    entry_lookup_by_method: dict[
+        ImputationMethod, dict[str, DifferentialAbundanceEntry]
+    ] = {
         method: {
-            entry.entity_id: entry
-            for entry in differential_by_method[method].entries
+            entry.entity_id: entry for entry in differential_by_method[method].entries
         }
         for method in supported_methods
     }
@@ -341,7 +348,8 @@ def build_imputation_sensitivity_report(
                 supporting_methods,
                 key=lambda method: (
                     entry_lookup_by_method[method][entity_id].adjusted_p_value
-                    if entry_lookup_by_method[method][entity_id].adjusted_p_value is not None
+                    if entry_lookup_by_method[method][entity_id].adjusted_p_value
+                    is not None
                     else 1.0,
                     -abs(entry_lookup_by_method[method][entity_id].log2_fold_change),
                     method.value,
@@ -355,7 +363,9 @@ def build_imputation_sensitivity_report(
                     baseline_method=baseline_method,
                     imputation_methods=supporting_methods,
                     baseline_adjusted_p_value=(
-                        None if baseline_entry is None else baseline_entry.adjusted_p_value
+                        None
+                        if baseline_entry is None
+                        else baseline_entry.adjusted_p_value
                     ),
                     best_imputation_method=best_method,
                     best_imputation_adjusted_p_value=best_entry.adjusted_p_value,
@@ -528,7 +538,10 @@ def _knn_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
                 dtype=float,
             )
             abundances = np.array(
-                [matrix[entity_index[entity_id], col_index] for entity_id, _ in neighbors],
+                [
+                    matrix[entity_index[entity_id], col_index]
+                    for entity_id, _ in neighbors
+                ],
                 dtype=float,
             )
             fill_lookup[(value.entity_id, value.sample_id)] = float(
@@ -550,7 +563,8 @@ def _knn_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
         )
         for value in table.values
         if value.abundance is None
-        and value.missing_value_kind in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
+        and value.missing_value_kind
+        in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
     }
     return _rebuild_imputed_table(
         table,
@@ -782,7 +796,9 @@ def _validate_imputation_pair(
     after: LabelFreeQuantTable,
 ) -> None:
     if before.sample_ids != after.sample_ids or before.entity_ids != after.entity_ids:
-        raise ValueError("before and after tables must cover the same sample/entity grid")
+        raise ValueError(
+            "before and after tables must cover the same sample/entity grid"
+        )
 
 
 __all__ = [

@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.sequence_database import (
+    run_digest_command,
+    run_fasta_decoy_command,
+    run_fasta_provenance_command,
+    run_target_decoy_validate_command,
+    run_theoretical_digest_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.sequence_database import run_fasta_provenance_command, run_fasta_decoy_command, run_target_decoy_validate_command, run_digest_command, run_theoretical_digest_command
+
 
 @click.command("fasta-provenance")
 @click.argument(
@@ -44,8 +51,11 @@ def fasta_provenance_command(
     operation: str,
     out_path: Path,
 ) -> None:
-    'Write a provenance manifest for one FASTA processing step.'
-    return run_fasta_provenance_command(input_fasta, mode, duplicate_accession_policy, operation, out_path)
+    "Write a provenance manifest for one FASTA processing step."
+    return run_fasta_provenance_command(
+        input_fasta, mode, duplicate_accession_policy, operation, out_path
+    )
+
 
 @click.command("fasta-decoy")
 @click.argument(
@@ -100,8 +110,19 @@ def fasta_decoy_command(
     report_out: Path | None,
     manifest_out: Path | None,
 ) -> None:
-    'Generate target/decoy FASTA output and validate the result.'
-    return run_fasta_decoy_command(input_fasta, mode, decoy_mode, prefix, seed, decoys_only, out_fasta, report_out, manifest_out)
+    "Generate target/decoy FASTA output and validate the result."
+    return run_fasta_decoy_command(
+        input_fasta,
+        mode,
+        decoy_mode,
+        prefix,
+        seed,
+        decoys_only,
+        out_fasta,
+        report_out,
+        manifest_out,
+    )
+
 
 @click.command("target-decoy-validate")
 @click.argument(
@@ -127,8 +148,9 @@ def target_decoy_validate_command(
     prefix: str,
     out_path: Path | None,
 ) -> None:
-    'Validate target/decoy pairing completeness for a FASTA collection.'
+    "Validate target/decoy pairing completeness for a FASTA collection."
     return run_target_decoy_validate_command(input_fasta, mode, prefix, out_path)
+
 
 @click.command("digest")
 @click.argument(
@@ -202,8 +224,25 @@ def digest_command(
     manifest_out: Path | None,
     peptide_protein_table_out: Path | None,
 ) -> None:
-    'Digest FASTA records into peptide exports.'
-    return run_digest_command(input_fasta, mode, protease, custom_protease, custom_protease_name, missed_cleavages, digestion_mode, min_length, max_length, min_mass, max_mass, export_format, out_path, manifest_out, peptide_protein_table_out)
+    "Digest FASTA records into peptide exports."
+    return run_digest_command(
+        input_fasta,
+        mode,
+        protease,
+        custom_protease,
+        custom_protease_name,
+        missed_cleavages,
+        digestion_mode,
+        min_length,
+        max_length,
+        min_mass,
+        max_mass,
+        export_format,
+        out_path,
+        manifest_out,
+        peptide_protein_table_out,
+    )
+
 
 @click.command("theoretical-digest")
 @click.argument(
@@ -302,8 +341,28 @@ def theoretical_digest_command(
     max_variants_per_peptide: int,
     out_dir: Path,
 ) -> None:
-    'Build the governed theoretical digest TSV bundle.'
-    return run_theoretical_digest_command(input_fasta, mode, protease, custom_protease, custom_protease_name, missed_cleavages, digestion_mode, min_length, max_length, min_mass, max_mass, static_modifications, variable_modifications, registry_path, allow_isotopic_labels, allowed_label_families, max_variants_per_peptide, out_dir)
+    "Build the governed theoretical digest TSV bundle."
+    return run_theoretical_digest_command(
+        input_fasta,
+        mode,
+        protease,
+        custom_protease,
+        custom_protease_name,
+        missed_cleavages,
+        digestion_mode,
+        min_length,
+        max_length,
+        min_mass,
+        max_mass,
+        static_modifications,
+        variable_modifications,
+        registry_path,
+        allow_isotopic_labels,
+        allowed_label_families,
+        max_variants_per_peptide,
+        out_dir,
+    )
+
 
 COMMANDS = (
     fasta_provenance_command,

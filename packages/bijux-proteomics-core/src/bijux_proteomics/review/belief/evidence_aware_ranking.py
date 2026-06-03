@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics.review.belief.contracts import (
     ReviewTrustScoreInput,
@@ -22,7 +21,6 @@ from bijux_proteomics.review.belief.contracts import (
     decompose_trust_score,
 )
 from bijux_proteomics_foundation import JsonModel
-
 
 _DEFAULT_EVIDENCE_WEIGHTS = {
     "effect_size": 0.18,
@@ -124,7 +122,9 @@ def build_evidence_aware_ranking_report(
     if weights is not None:
         active_weights.update(weights)
 
-    ranked_rows: list[tuple[EvidenceAwareRankingCandidate, TrustScoreDecomposition]] = []
+    ranked_rows: list[
+        tuple[EvidenceAwareRankingCandidate, TrustScoreDecomposition]
+    ] = []
     for candidate in candidates:
         decomposition = decompose_trust_score(
             ReviewTrustScoreInput(
@@ -238,7 +238,10 @@ def render_evidence_aware_ranking_tsv(report: EvidenceAwareRankingReport) -> str
         )
     )
     for entry in report.entries:
-        components = {component.name: component.raw_value for component in entry.decomposition.components}
+        components = {
+            component.name: component.raw_value
+            for component in entry.decomposition.components
+        }
         writer.writerow(
             (
                 entry.candidate_id,
@@ -284,26 +287,21 @@ def normalize_linear_range(values: dict[str, float | None]) -> dict[str, float]:
 
     present_values = [value for value in values.values() if value is not None]
     if not present_values:
-        return {key: 0.0 for key in values}
+        return dict.fromkeys(values, 0.0)
     minimum = min(present_values)
     maximum = max(present_values)
     if maximum == minimum:
-        return {
-            key: 0.0 if value is None else 1.0
-            for key, value in values.items()
-        }
+        return {key: 0.0 if value is None else 1.0 for key, value in values.items()}
     scale = maximum - minimum
     return {
-        key: (
-            0.0
-            if value is None
-            else min(1.0, max(0.0, (value - minimum) / scale))
-        )
+        key: (0.0 if value is None else min(1.0, max(0.0, (value - minimum) / scale)))
         for key, value in values.items()
     }
 
 
-def score_effect_size(absolute_effect_size: float | None, *, saturation: float = 2.0) -> float:
+def score_effect_size(
+    absolute_effect_size: float | None, *, saturation: float = 2.0
+) -> float:
     """Convert an absolute effect size into a bounded evidence score."""
 
     if absolute_effect_size is None or saturation <= 0.0:

@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.search_import_quant import (
+    run_comet_import_command,
+    run_diann_benchmark_command,
+    run_diann_import_command,
+    run_maxquant_benchmark_command,
+    run_maxquant_import_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.search_import_quant import run_comet_import_command, run_maxquant_import_command, run_maxquant_benchmark_command, run_diann_import_command, run_diann_benchmark_command
+
 
 @click.command("comet-import")
 @click.argument(
@@ -45,8 +52,17 @@ def comet_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one Comet tabular or pepXML result file with explicit score review.'
-    return run_comet_import_command(result_path, config_path, summary_tsv_out, canonical_psm_tsv_out, psm_tsv_out, rejected_tsv_out, out_path)
+    "Import one Comet tabular or pepXML result file with explicit score review."
+    return run_comet_import_command(
+        result_path,
+        config_path,
+        summary_tsv_out,
+        canonical_psm_tsv_out,
+        psm_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("maxquant-import")
 @click.argument(
@@ -97,8 +113,21 @@ def maxquant_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one MaxQuant evidence, peptide, and protein-group bundle.'
-    return run_maxquant_import_command(evidence_txt, peptides_txt, protein_groups_txt, config_path, summary_tsv_out, evidence_tsv_out, peptide_tsv_out, protein_group_tsv_out, lfq_candidate_tsv_out, rejected_tsv_out, out_path)
+    "Import one MaxQuant evidence, peptide, and protein-group bundle."
+    return run_maxquant_import_command(
+        evidence_txt,
+        peptides_txt,
+        protein_groups_txt,
+        config_path,
+        summary_tsv_out,
+        evidence_tsv_out,
+        peptide_tsv_out,
+        protein_group_tsv_out,
+        lfq_candidate_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("maxquant-benchmark")
 @click.argument(
@@ -162,8 +191,23 @@ def maxquant_benchmark_command(
     differential_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Benchmark governed MaxQuant import and LFQ behavior against source tables.'
-    return run_maxquant_benchmark_command(evidence_txt, peptides_txt, protein_groups_txt, config_path, design_tsv, condition_a, condition_b, summary_tsv_out, protein_identity_tsv_out, filtering_tsv_out, lfq_tsv_out, differential_tsv_out, out_path)
+    "Benchmark governed MaxQuant import and LFQ behavior against source tables."
+    return run_maxquant_benchmark_command(
+        evidence_txt,
+        peptides_txt,
+        protein_groups_txt,
+        config_path,
+        design_tsv,
+        condition_a,
+        condition_b,
+        summary_tsv_out,
+        protein_identity_tsv_out,
+        filtering_tsv_out,
+        lfq_tsv_out,
+        differential_tsv_out,
+        out_path,
+    )
+
 
 @click.command("diann-import")
 @click.argument(
@@ -196,8 +240,17 @@ def diann_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one DIA-NN report with explicit precursor and protein-group review.'
-    return run_diann_import_command(result_tsv, config_path, summary_tsv_out, precursor_tsv_out, protein_group_tsv_out, rejected_tsv_out, out_path)
+    "Import one DIA-NN report with explicit precursor and protein-group review."
+    return run_diann_import_command(
+        result_tsv,
+        config_path,
+        summary_tsv_out,
+        precursor_tsv_out,
+        protein_group_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("diann-benchmark")
 @click.argument(
@@ -232,8 +285,16 @@ def diann_benchmark_command(
     protein_quantities_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Benchmark governed DIA-NN import and protein matrix behavior against source rows.'
-    return run_diann_benchmark_command(result_tsv, config_path, summary_tsv_out, count_comparisons_tsv_out, protein_quantities_tsv_out, out_path)
+    "Benchmark governed DIA-NN import and protein matrix behavior against source rows."
+    return run_diann_benchmark_command(
+        result_tsv,
+        config_path,
+        summary_tsv_out,
+        count_comparisons_tsv_out,
+        protein_quantities_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     comet_import_command,

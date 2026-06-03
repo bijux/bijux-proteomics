@@ -179,7 +179,11 @@ def _classify_workflow_output_validation_code(
 ) -> WorkflowOutputValidationIssueCode:
     if "workflow artifact manifest is missing" in message:
         return WorkflowOutputValidationIssueCode.MISSING_MANIFEST
-    if "missing file" in message or "missing required file" in message or "declared at " in message:
+    if (
+        "missing file" in message
+        or "missing required file" in message
+        or "declared at " in message
+    ):
         return WorkflowOutputValidationIssueCode.MISSING_REQUIRED_ARTIFACT
     if "inventory" in message:
         return WorkflowOutputValidationIssueCode.INVENTORY_MISMATCH

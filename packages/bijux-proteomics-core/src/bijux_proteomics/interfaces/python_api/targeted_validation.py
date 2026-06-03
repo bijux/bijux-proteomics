@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_targeted_result_validator_command(
     biomarker_candidate_tsv: Path,
     panel_assay_tsv: Path,
@@ -137,14 +138,10 @@ def run_targeted_result_validator_command(
                 None if confirmed_tsv_out is None else str(confirmed_tsv_out)
             ),
             "contradicted_tsv": (
-                None
-                if contradicted_tsv_out is None
-                else str(contradicted_tsv_out)
+                None if contradicted_tsv_out is None else str(contradicted_tsv_out)
             ),
             "inconclusive_tsv": (
-                None
-                if inconclusive_tsv_out is None
-                else str(inconclusive_tsv_out)
+                None if inconclusive_tsv_out is None else str(inconclusive_tsv_out)
             ),
             "evidence_tsv": (
                 None if evidence_tsv_out is None else str(evidence_tsv_out)
@@ -152,6 +149,7 @@ def run_targeted_result_validator_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_biomarker_stability_analysis_command(
     biomarker_candidate_tsv: Path,
@@ -230,11 +228,15 @@ def run_biomarker_stability_analysis_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        _write_text_output(summary_tsv_out, render_biomarker_stability_summary_tsv(report))
+        _write_text_output(
+            summary_tsv_out, render_biomarker_stability_summary_tsv(report)
+        )
     if stability_tsv_out is not None:
         _write_text_output(stability_tsv_out, render_biomarker_stability_tsv(report))
     if subgroup_tsv_out is not None:
-        _write_text_output(subgroup_tsv_out, render_biomarker_stability_subgroup_tsv(report))
+        _write_text_output(
+            subgroup_tsv_out, render_biomarker_stability_subgroup_tsv(report)
+        )
     if adjusted_candidate_tsv_out is not None:
         _write_text_output(
             adjusted_candidate_tsv_out,
@@ -272,6 +274,7 @@ def run_biomarker_stability_analysis_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_biomarker_panel_redundancy_analysis_command(
     biomarker_candidate_tsv: Path,
@@ -363,6 +366,7 @@ def run_biomarker_panel_redundancy_analysis_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_validation_evidence_cards_command(
     biomarker_candidate_tsv: Path,
     panel_assay_tsv: Path,
@@ -389,15 +393,21 @@ def run_validation_evidence_cards_command(
         else _load_validation_evidence_omitted_candidates(panel_omitted_tsv)
     )
     targeted_validation_results = (
-        *(()
+        *(
+            ()
             if confirmed_tsv is None
-            else _load_validation_evidence_results(confirmed_tsv)),
-        *(()
+            else _load_validation_evidence_results(confirmed_tsv)
+        ),
+        *(
+            ()
             if contradicted_tsv is None
-            else _load_validation_evidence_results(contradicted_tsv)),
-        *(()
+            else _load_validation_evidence_results(contradicted_tsv)
+        ),
+        *(
+            ()
             if inconclusive_tsv is None
-            else _load_validation_evidence_results(inconclusive_tsv)),
+            else _load_validation_evidence_results(inconclusive_tsv)
+        ),
     )
     validation_assay_evidence = (
         ()
@@ -469,4 +479,10 @@ def run_validation_evidence_cards_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_targeted_result_validator_command', 'run_biomarker_stability_analysis_command', 'run_biomarker_panel_redundancy_analysis_command', 'run_validation_evidence_cards_command']
+
+__all__ = [
+    "run_targeted_result_validator_command",
+    "run_biomarker_stability_analysis_command",
+    "run_biomarker_panel_redundancy_analysis_command",
+    "run_validation_evidence_cards_command",
+]

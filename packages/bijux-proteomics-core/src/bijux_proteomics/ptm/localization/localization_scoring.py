@@ -18,8 +18,8 @@ from bijux_proteomics.chemistry import (
     ModificationPosition,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
-    build_modified_peptide,
     build_modification_localization_advisory,
+    build_modified_peptide,
     calculate_fragment_ions,
     parse_modified_peptide,
 )
@@ -136,18 +136,24 @@ def build_ptm_localization_scoring_report(
                 candidate_site_indices=candidate_site_indices,
                 registry=registry,
             )
-            supported_site_determining_ions = tuple(
-                ion
-                for ion in site_determining_ions
-                if ion
-                in set(fragment_ion_support_by_spectrum.get(record.spectrum_id, ()))
-            ) if fragment_ion_support_by_spectrum is not None else ()
+            supported_site_determining_ions = (
+                tuple(
+                    ion
+                    for ion in site_determining_ions
+                    if ion
+                    in set(fragment_ion_support_by_spectrum.get(record.spectrum_id, ()))
+                )
+                if fragment_ion_support_by_spectrum is not None
+                else ()
+            )
             probability, source = normalize_ptm_localization_probability(
                 localization_score=record.localization_score,
                 reported_probability=getattr(record, "localization_probability", None),
                 ambiguous=len(candidate_site_indices) > 1,
                 site_determining_ion_count=len(site_determining_ions),
-                supported_site_determining_ion_count=len(supported_site_determining_ions),
+                supported_site_determining_ion_count=len(
+                    supported_site_determining_ions
+                ),
             )
             ambiguity_group = _build_ambiguity_group(
                 modification_name=modification.name,
@@ -157,13 +163,17 @@ def build_ptm_localization_scoring_report(
                 localization_probability=probability,
                 probability_source=source,
                 candidate_site_indices=candidate_site_indices,
-                supported_site_determining_ion_count=len(supported_site_determining_ions),
+                supported_site_determining_ion_count=len(
+                    supported_site_determining_ions
+                ),
             )
             ambiguous = tier is PtmLocalizationConfidenceTier.AMBIGUOUS
             note = _localization_tier_note(
                 tier=tier,
                 probability_source=source,
-                supported_site_determining_ion_count=len(supported_site_determining_ions),
+                supported_site_determining_ion_count=len(
+                    supported_site_determining_ions
+                ),
             )
             entries.append(
                 PtmLocalizationScoringEntry(
@@ -255,7 +265,11 @@ def normalize_ptm_localization_probability(
 
     if ambiguous and site_determining_ion_count == 0:
         probability = min(probability, 0.5)
-    if ambiguous and supported_site_determining_ion_count == 0 and site_determining_ion_count > 0:
+    if (
+        ambiguous
+        and supported_site_determining_ion_count == 0
+        and site_determining_ion_count > 0
+    ):
         probability = min(probability, 0.75)
     return round(probability, 4), source
 
@@ -277,9 +291,8 @@ def _determine_localization_tier(
         and not has_reported_high_probability
         and not has_supported_site_evidence
     )
-    if (
-        localization_probability >= 0.95
-        and (has_reported_high_probability or has_supported_site_evidence)
+    if localization_probability >= 0.95 and (
+        has_reported_high_probability or has_supported_site_evidence
     ):
         return PtmLocalizationConfidenceTier.HIGH_CONFIDENCE
     if unresolved_ambiguity:
@@ -296,9 +309,8 @@ def _build_ambiguity_group(
 ) -> str:
     if not candidate_site_indices:
         return f"{modification_name}:unassigned"
-    return (
-        f"{modification_name}:"
-        + "|".join(str(site_index) for site_index in candidate_site_indices)
+    return f"{modification_name}:" + "|".join(
+        str(site_index) for site_index in candidate_site_indices
     )
 
 
@@ -313,10 +325,14 @@ def _localization_tier_note(
             return "high-confidence localization is supported by imported localization probability"
         return "high-confidence localization is supported by site-determining fragment ions"
     if tier is PtmLocalizationConfidenceTier.SUPPORTED:
-        return "localization is reviewable but remains short of high-confidence evidence"
+        return (
+            "localization is reviewable but remains short of high-confidence evidence"
+        )
     if tier is PtmLocalizationConfidenceTier.AMBIGUOUS:
         if supported_site_determining_ion_count == 0:
-            return "localization remains unresolved across multiple candidate phosphosites"
+            return (
+                "localization remains unresolved across multiple candidate phosphosites"
+            )
         return "localization has partial support but remains unresolved across candidate phosphosites"
     return "localization evidence remains too weak for site-level interpretation"
 
@@ -420,9 +436,7 @@ def _candidate_site_indices(
             site_candidate.modification_name == modification.name
             and site_candidate.peptide_site_index == modification.site_index
         ):
-            return site_candidate.candidate_site_indices or (
-                modification.site_index,
-            )
+            return site_candidate.candidate_site_indices or (modification.site_index,)
     if (
         same_name_count == 1
         and record.candidate_site_indices
@@ -464,7 +478,8 @@ def _site_determining_ions(
         differing = {
             ion_label
             for ion_label, mz in assigned_ions.items()
-            if ion_label in alternative_ions and abs(mz - alternative_ions[ion_label]) > 1e-9
+            if ion_label in alternative_ions
+            and abs(mz - alternative_ions[ion_label]) > 1e-9
         }
         differing_by_alternative.append(differing)
     if not differing_by_alternative:
@@ -512,7 +527,8 @@ def _alternative_site_indices(
     return tuple(
         site_index
         for site_index in candidate_site_indices
-        if site_index != modification.site_index and site_index not in occupied_same_name
+        if site_index != modification.site_index
+        and site_index not in occupied_same_name
     )
 
 
@@ -545,7 +561,11 @@ def _assignment_for_modification(
     override_site_index: int | None = None,
 ) -> str:
     if modification.site is ModificationPosition.ANYWHERE:
-        site = override_site_index if override_site_index is not None else modification.site_index
+        site = (
+            override_site_index
+            if override_site_index is not None
+            else modification.site_index
+        )
         if site is None:
             raise ValueError("residue-local modification is missing a site index")
         return f"{modification.name}@{site}"
@@ -572,7 +592,10 @@ def _fragment_ion_mz_map(
         charges=(1,),
         include_neutral_losses=False,
     )
-    return {_ion_label(ion.series, ion.ordinal, ion.charge): ion.mz_monoisotopic for ion in ions}
+    return {
+        _ion_label(ion.series, ion.ordinal, ion.charge): ion.mz_monoisotopic
+        for ion in ions
+    }
 
 
 def _ion_label(series: FragmentIonSeries, ordinal: int, charge: int) -> str:

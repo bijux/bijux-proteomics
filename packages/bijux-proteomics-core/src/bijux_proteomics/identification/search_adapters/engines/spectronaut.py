@@ -23,7 +23,10 @@ from ..contracts import (
     SearchScoreFamily,
     SearchToleranceUnit,
 )
-from ..parameter_support import modification_definitions_from_compact_value, parse_key_value_parameters
+from ..parameter_support import (
+    modification_definitions_from_compact_value,
+    parse_key_value_parameters,
+)
 
 if TYPE_CHECKING:
     from ..corpus import SearchEngineCorpusReport
@@ -129,6 +132,7 @@ SPECTRONAUT_DIALECTS = (
     SPECTRONAUT_REVIEW_REPORT_DIALECT,
 )
 
+
 def parse_spectronaut_parameters(path: Path) -> SearchParameterReport:
     fields = parse_key_value_parameters(path)
     fixed_modifications = modification_definitions_from_compact_value(
@@ -171,9 +175,10 @@ def parse_spectronaut_parameters(path: Path) -> SearchParameterReport:
         raw_fields=fields,
     )
 
+
 def build_spectronaut_output_corpus_report(
     corpus_root: Path,
-) -> "SearchEngineCorpusReport":
+) -> SearchEngineCorpusReport:
     """Build corpus coverage over Spectronaut-like native and pipeline exports."""
     from ..corpus import (
         SearchCorpusInputSpecification,

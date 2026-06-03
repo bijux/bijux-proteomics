@@ -14,15 +14,6 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.explanations.result_explanations import (
-    ResultExplanation,
-    ResultExplanationKind,
-    ResultExplanationRequest,
-    ResultExplanationStatus,
-    _ResultExplanationArtifactContext,
-    build_result_explanation_report_from_artifacts,
-    _load_result_explanation_artifact_context,
-)
 from bijux_proteomics.review.claims.result_queries import (
     _empty_to_none,
     _node_ids_for_entity,
@@ -31,6 +22,15 @@ from bijux_proteomics.review.claims.result_queries import (
     _read_tsv_rows,
     _sample_to_failed_qc_runs,
     _split_multi,
+)
+from bijux_proteomics.review.explanations.result_explanations import (
+    ResultExplanation,
+    ResultExplanationKind,
+    ResultExplanationRequest,
+    ResultExplanationStatus,
+    _load_result_explanation_artifact_context,
+    _ResultExplanationArtifactContext,
+    build_result_explanation_report_from_artifacts,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -208,22 +208,28 @@ def build_belief_audit_report_from_artifacts(
         summary=BeliefAuditSummary(
             entry_count=len(entries),
             protein_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.PROTEIN for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.PROTEIN
+                for entry in entries
             ),
             ptm_site_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.PTM_SITE for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.PTM_SITE
+                for entry in entries
             ),
             pathway_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.PATHWAY for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.PATHWAY
+                for entry in entries
             ),
             regulator_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.REGULATOR for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.REGULATOR
+                for entry in entries
             ),
             biomarker_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.BIOMARKER for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.BIOMARKER
+                for entry in entries
             ),
             qc_decision_entry_count=sum(
-                entry.subject_kind is BeliefAuditSubjectKind.QC_DECISION for entry in entries
+                entry.subject_kind is BeliefAuditSubjectKind.QC_DECISION
+                for entry in entries
             ),
         ),
         note=(
@@ -304,7 +310,7 @@ def render_belief_audit_html(report: BeliefAuditReport) -> str:
 
     lines = [
         "<!doctype html>",
-        "<html lang=\"en\">",
+        '<html lang="en">',
         "<head>",
         '<meta charset="utf-8">',
         "<title>Belief Audit</title>",
@@ -315,7 +321,9 @@ def render_belief_audit_html(report: BeliefAuditReport) -> str:
         "<p>Each conclusion records why it was retained, what weakens it, and what would falsify it.</p>",
     ]
     for subject_kind in BeliefAuditSubjectKind:
-        entries = [entry for entry in report.entries if entry.subject_kind is subject_kind]
+        entries = [
+            entry for entry in report.entries if entry.subject_kind is subject_kind
+        ]
         if not entries:
             continue
         lines.append(f"<section><h2>{escape(_SECTION_TITLES[subject_kind])}</h2>")
@@ -348,7 +356,9 @@ def render_belief_audit_html(report: BeliefAuditReport) -> str:
             )
         lines.append("</section>")
     if not report.entries:
-        lines.append("<p>No governed conclusion artifacts were provided for belief auditing.</p>")
+        lines.append(
+            "<p>No governed conclusion artifacts were provided for belief auditing.</p>"
+        )
     lines.extend(("</section>", "</body>", "</html>"))
     return "\n".join(lines) + "\n"
 
@@ -388,7 +398,9 @@ def _build_explanation_entries(
                 )
             )
     if biological_report_dir is not None and run_qc_assessment_tsv_paths:
-        for sample_id in sorted(_sample_to_failed_qc_runs(explanation_context.base_context)):
+        for sample_id in sorted(
+            _sample_to_failed_qc_runs(explanation_context.base_context)
+        ):
             requests.append(
                 ResultExplanationRequest(
                     explanation_id=f"qc:{sample_id}",
@@ -408,7 +420,8 @@ def _build_explanation_entries(
         _belief_entry_from_explanation(explanation)
         for explanation in report.explanations
         if explanation.status is ResultExplanationStatus.ANSWERED
-        and explanation.explanation_kind is not ResultExplanationKind.REJECTED_EVIDENCE_DECISION
+        and explanation.explanation_kind
+        is not ResultExplanationKind.REJECTED_EVIDENCE_DECISION
     )
 
 
@@ -428,7 +441,9 @@ def _belief_entry_from_explanation(explanation: ResultExplanation) -> BeliefAudi
         audit_id=explanation.explanation_id,
         subject_kind=subject_kind,
         subject_id=explanation.subject_id or explanation.explanation_id,
-        subject_label=explanation.subject_label or explanation.subject_id or explanation.explanation_id,
+        subject_label=explanation.subject_label
+        or explanation.subject_id
+        or explanation.explanation_id,
         claim=explanation.claim,
         decision=explanation.decision,
         confidence=explanation.confidence,
@@ -452,7 +467,9 @@ def _build_regulator_entries(
     inference_path = biological_report_dir / "biological_regulator_inference.tsv"
     if not inference_path.exists():
         return ()
-    unresolved_path = biological_report_dir / "biological_regulator_inference_unresolved.tsv"
+    unresolved_path = (
+        biological_report_dir / "biological_regulator_inference_unresolved.tsv"
+    )
     inferences = _load_regulator_inferences(inference_path)
     unresolved = (
         ()
@@ -472,11 +489,9 @@ def _build_regulator_entries(
         weakening_points = []
         if inference.coverage_fraction < 1.0:
             weakening_points.append(
-                (
-                    f"only {inference.matched_target_count} of {inference.target_count} "
-                    f"targets matched the current study surface "
-                    f"({inference.coverage_fraction:.0%} coverage)"
-                )
+                f"only {inference.matched_target_count} of {inference.target_count} "
+                f"targets matched the current study surface "
+                f"({inference.coverage_fraction:.0%} coverage)"
             )
         for entry in related_unresolved:
             weakening_points.append(
@@ -594,12 +609,13 @@ def _build_biomarker_entries(
     cards = _load_validation_evidence_cards(validation_evidence_card_tsv)
     warnings = (
         ()
-        if validation_evidence_warning_tsv is None or not validation_evidence_warning_tsv.exists()
+        if validation_evidence_warning_tsv is None
+        or not validation_evidence_warning_tsv.exists()
         else _load_validation_warnings(validation_evidence_warning_tsv)
     )
     warnings_by_candidate: dict[str, tuple[_ValidationWarningArtifact, ...]] = {}
     for warning in warnings:
-        warnings_by_candidate.setdefault(warning.candidate_id, tuple())
+        warnings_by_candidate.setdefault(warning.candidate_id, ())
         warnings_by_candidate[warning.candidate_id] = (
             *warnings_by_candidate[warning.candidate_id],
             warning,
@@ -609,7 +625,9 @@ def _build_biomarker_entries(
         candidate_warnings = warnings_by_candidate.get(card.candidate_id, ())
         weakening_points = list[str]()
         if card.omitted_reason is not None:
-            weakening_points.append(f"candidate omission reason was preserved as {card.omitted_reason}")
+            weakening_points.append(
+                f"candidate omission reason was preserved as {card.omitted_reason}"
+            )
         if card.contradicted_assay_count > 0:
             weakening_points.append(
                 f"{card.contradicted_assay_count} targeted assays contradicted the candidate"
@@ -744,7 +762,9 @@ def _subject_kind_for_explanation(
         return BeliefAuditSubjectKind.PATHWAY
     if explanation_kind is ResultExplanationKind.SAMPLE_QC_DECISION:
         return BeliefAuditSubjectKind.QC_DECISION
-    raise ValueError(f"unsupported explanation kind for belief audit: {explanation_kind.value}")
+    raise ValueError(
+        f"unsupported explanation kind for belief audit: {explanation_kind.value}"
+    )
 
 
 def _falsifier_for_explanation(explanation: ResultExplanation) -> str:
@@ -771,7 +791,9 @@ def _falsifier_for_explanation(explanation: ResultExplanation) -> str:
             "A regenerated QC ledger that clears the cited failing run assessments or "
             "shows those runs do not belong to this sample would falsify this QC decision."
         )
-    raise ValueError(f"unsupported explanation kind for falsifier: {explanation.explanation_kind.value}")
+    raise ValueError(
+        f"unsupported explanation kind for falsifier: {explanation.explanation_kind.value}"
+    )
 
 
 def _load_regulator_inferences(path: Path) -> tuple[_RegulatorInferenceArtifact, ...]:

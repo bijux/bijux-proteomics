@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_ptm_regulator_enrichment_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -94,7 +95,9 @@ def run_ptm_regulator_enrichment_command(
         resolved_target_species = target_species
         if resolved_target_species is None:
             observed_species = {
-                record.organism for record in fasta_report.accepted_records if record.organism
+                record.organism
+                for record in fasta_report.accepted_records
+                if record.organism
             }
             if len(observed_species) == 1:
                 resolved_target_species = next(iter(observed_species))
@@ -184,11 +187,16 @@ def run_ptm_regulator_enrichment_command(
             "mapping_report": mapping_report.to_dict(),
             "regulator_enrichment_report": enrichment_report.to_dict(),
             "outputs": {
-                "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
-                "results_tsv": None if results_tsv_out is None else str(results_tsv_out),
+                "summary_tsv": None
+                if summary_tsv_out is None
+                else str(summary_tsv_out),
+                "results_tsv": None
+                if results_tsv_out is None
+                else str(results_tsv_out),
             },
         },
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_regulator_enrichment_command']
+
+__all__ = ["run_ptm_regulator_enrichment_command"]

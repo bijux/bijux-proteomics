@@ -5,18 +5,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
-import json
 from enum import StrEnum
 from io import StringIO
+import json
 from pathlib import Path
 from time import perf_counter
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import PtmProteinCorrectionMode
 from bijux_proteomics.quantification import (
@@ -26,24 +25,13 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
 )
 from bijux_proteomics.targeted import (
+    TargetedResultSourceKind,
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
-    TargetedResultSourceKind,
-)
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
-    BiologicalResultSelectionPolicy,
-    build_biological_result_report_bundle_from_quant_table,
-    write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.demo.surprising_demo_claims import (
     build_surprising_demo_claims,
     build_surprising_demo_evidence_bundle,
-)
-from bijux_proteomics.workflow.study_result import (
-    ProteomicsStudyResult,
-    build_proteomics_study_result_from_biological_report_bundle,
 )
 from bijux_proteomics.workflow.pipelines.advanced_ptm import (
     AdvancedPtmWorkflowConfig,
@@ -61,6 +49,17 @@ from bijux_proteomics.workflow.pipelines.advanced_tmt import (
     AdvancedTmtWorkflowConfig,
     AdvancedTmtWorkflowReport,
     run_advanced_tmt_workflow,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
+    BiologicalResultSelectionPolicy,
+    build_biological_result_report_bundle_from_quant_table,
+    write_biological_result_report_bundle,
+)
+from bijux_proteomics.workflow.study_result import (
+    ProteomicsStudyResult,
+    build_proteomics_study_result_from_biological_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.belief_audit import (
@@ -231,7 +230,9 @@ def load_surprising_demo_manifest(
 def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
     """Run the shipped surprising demo and write one integrated governed bundle."""
 
-    example_root = surprising_demo_root() if config.example_root is None else config.example_root
+    example_root = (
+        surprising_demo_root() if config.example_root is None else config.example_root
+    )
     manifest = load_surprising_demo_manifest(example_root)
     output_dir = config.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -250,8 +251,12 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
 
     tmt_report = run_advanced_tmt_workflow(
         AdvancedTmtWorkflowConfig(
-            result_tsv_path=_resolve_example_path(example_root, manifest.tmt_result_tsv),
-            design_tsv_path=_resolve_example_path(example_root, manifest.tmt_design_tsv),
+            result_tsv_path=_resolve_example_path(
+                example_root, manifest.tmt_result_tsv
+            ),
+            design_tsv_path=_resolve_example_path(
+                example_root, manifest.tmt_design_tsv
+            ),
             output_dir=tmt_output_dir,
             control_channel="126",
             condition_a="control",
@@ -272,7 +277,9 @@ def run_surprising_demo(config: SurprisingDemoConfig) -> SurprisingDemoReport:
                 example_root,
                 manifest.ptm_feature_tsv,
             ),
-            design_tsv_path=_resolve_example_path(example_root, manifest.ptm_design_tsv),
+            design_tsv_path=_resolve_example_path(
+                example_root, manifest.ptm_design_tsv
+            ),
             annotation_tsv_path=_resolve_example_path(
                 example_root,
                 manifest.ptm_annotation_tsv,
@@ -490,8 +497,7 @@ def _load_targeted_discovery_claims(
 ) -> tuple[TargetedValidationDiscoveryClaimInput, ...]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     return tuple(
-        TargetedValidationDiscoveryClaimInput.model_validate(item)
-        for item in payload
+        TargetedValidationDiscoveryClaimInput.model_validate(item) for item in payload
     )
 
 
@@ -500,8 +506,7 @@ def _load_targeted_panel_assays(
 ) -> tuple[TargetedValidationPanelAssayInput, ...]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     return tuple(
-        TargetedValidationPanelAssayInput.model_validate(item)
-        for item in payload
+        TargetedValidationPanelAssayInput.model_validate(item) for item in payload
     )
 
 
@@ -527,7 +532,9 @@ def _build_demo_biological_report(
     return build_biological_result_report_bundle_from_quant_table(
         quant_table,
         design_entries,
-        proteins_fasta_path=_resolve_example_path(example_root, manifest.ptm_proteins_fasta),
+        proteins_fasta_path=_resolve_example_path(
+            example_root, manifest.ptm_proteins_fasta
+        ),
         pathway_membership_tsv_path=_resolve_example_path(
             example_root,
             manifest.biological_pathway_tsv,
@@ -566,9 +573,9 @@ def _build_strong_protein_finding(
         subject_id=card.protein_id,
         source_surface="workflow.pipelines.advanced_tmt.run_advanced_tmt_workflow",
         artifact_path=str(
-            (output_dir / "tmt_review" / report.manifest.artifacts.evidence_card_tsv).relative_to(
-                output_dir
-            )
+            (
+                output_dir / "tmt_review" / report.manifest.artifacts.evidence_card_tsv
+            ).relative_to(output_dir)
         ),
         note=card.note,
     )
@@ -599,9 +606,9 @@ def _build_downgraded_protein_finding(
         subject_id=card.protein_id,
         source_surface="workflow.pipelines.advanced_tmt.run_advanced_tmt_workflow",
         artifact_path=str(
-            (output_dir / "tmt_review" / report.manifest.artifacts.evidence_card_tsv).relative_to(
-                output_dir
-            )
+            (
+                output_dir / "tmt_review" / report.manifest.artifacts.evidence_card_tsv
+            ).relative_to(output_dir)
         ),
         note=card.note,
     )
@@ -615,7 +622,9 @@ def _build_ptm_ambiguity_finding(
 ) -> SurprisingDemoFinding:
     artifact_name = report.manifest.artifacts.excluded_ambiguous_sites_tsv
     rows = _read_tsv_rows(output_dir / "ptm_review" / artifact_name)
-    row = next((entry for entry in rows if entry["site_key"] == expected_site_key), None)
+    row = next(
+        (entry for entry in rows if entry["site_key"] == expected_site_key), None
+    )
     if row is None:
         raise ValueError(
             f"surprising demo expected an ambiguous PTM site for {expected_site_key}"
@@ -624,7 +633,9 @@ def _build_ptm_ambiguity_finding(
         finding_kind=SurprisingDemoFindingKind.PTM_AMBIGUITY,
         subject_id=row["site_key"],
         source_surface="workflow.pipelines.advanced_ptm.run_advanced_ptm_workflow",
-        artifact_path=str((output_dir / "ptm_review" / artifact_name).relative_to(output_dir)),
+        artifact_path=str(
+            (output_dir / "ptm_review" / artifact_name).relative_to(output_dir)
+        ),
         note=row["reason"],
     )
 
@@ -671,7 +682,11 @@ def _build_validation_candidate_finding(
     output_dir: Path,
 ) -> SurprisingDemoFinding:
     card = next(
-        (entry for entry in report.evidence_cards if entry.candidate_id == expected_candidate_id),
+        (
+            entry
+            for entry in report.evidence_cards
+            if entry.candidate_id == expected_candidate_id
+        ),
         None,
     )
     if card is None:
@@ -730,10 +745,12 @@ def _write_surprising_demo_artifacts(
             "biological_review/" + biological_manifest.artifacts.report_html
         ),
         evidence_graph_nodes_tsv=(
-            "biological_review/" + biological_manifest.artifacts.evidence_graph_nodes_tsv
+            "biological_review/"
+            + biological_manifest.artifacts.evidence_graph_nodes_tsv
         ),
         evidence_graph_edges_tsv=(
-            "biological_review/" + biological_manifest.artifacts.evidence_graph_edges_tsv
+            "biological_review/"
+            + biological_manifest.artifacts.evidence_graph_edges_tsv
         ),
         protein_cards_tsv=(
             "biological_review/" + biological_manifest.artifacts.protein_card_tsv
@@ -766,12 +783,26 @@ def _write_surprising_demo_artifacts(
         contradictions_tsv=contradictions_name,
         belief_audit_tsv=belief_audit_name,
     )
-    write_output_table_tsv((output_dir / summary_name), _render_surprising_demo_summary_tsv(summary))
-    write_output_table_tsv((output_dir / findings_name), _render_surprising_demo_findings_tsv(findings))
-    write_output_table_tsv((output_dir / qc_packets_name), _render_demo_qc_packets_tsv(output_dir))
-    write_output_table_tsv((output_dir / matrices_name), _render_demo_matrix_index_tsv(biological_manifest, ptm_report))
-    write_output_table_tsv((output_dir / assay_panel_name), _render_demo_assay_panel_tsv(targeted_panel_assays))
-    write_output_table_tsv((output_dir / claims_name), _render_demo_claims_tsv(claim_report))
+    write_output_table_tsv(
+        (output_dir / summary_name), _render_surprising_demo_summary_tsv(summary)
+    )
+    write_output_table_tsv(
+        (output_dir / findings_name), _render_surprising_demo_findings_tsv(findings)
+    )
+    write_output_table_tsv(
+        (output_dir / qc_packets_name), _render_demo_qc_packets_tsv(output_dir)
+    )
+    write_output_table_tsv(
+        (output_dir / matrices_name),
+        _render_demo_matrix_index_tsv(biological_manifest, ptm_report),
+    )
+    write_output_table_tsv(
+        (output_dir / assay_panel_name),
+        _render_demo_assay_panel_tsv(targeted_panel_assays),
+    )
+    write_output_table_tsv(
+        (output_dir / claims_name), _render_demo_claims_tsv(claim_report)
+    )
     write_output_table_tsv(
         (output_dir / refusals_name),
         render_claim_refusal_tsv(intelligence_report_contract.refusal_report.entries),
@@ -780,20 +811,25 @@ def _write_surprising_demo_artifacts(
         (output_dir / falsifiers_name),
         render_claim_falsifiers_tsv(
             tuple(
-                entry.falsifier
-                for entry in intelligence_report_contract.claim_entries
+                entry.falsifier for entry in intelligence_report_contract.claim_entries
             )
         ),
     )
-    write_output_table_tsv((output_dir / contradictions_name), render_claim_contradictions_tsv(contradiction_report.entries))
-    write_output_table_tsv((output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit_report.entries))
+    write_output_table_tsv(
+        (output_dir / contradictions_name),
+        render_claim_contradictions_tsv(contradiction_report.entries),
+    )
+    write_output_table_tsv(
+        (output_dir / belief_audit_name),
+        render_belief_audit_tsv(belief_audit_report.entries),
+    )
     return artifacts
 
 
 def _read_tsv_rows(path: Path) -> tuple[dict[str, str], ...]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        return tuple({key: value for key, value in row.items()} for row in reader)
+        return tuple(dict(row.items()) for row in reader)
 
 
 def _dict_rows_to_tsv(rows: list[dict[str, object]]) -> str:
@@ -890,7 +926,8 @@ def _render_demo_matrix_index_tsv(
         [
             {
                 "matrix_kind": "protein_heatmap",
-                "artifact_path": "biological_review/" + biological_manifest.artifacts.heatmap_matrix_tsv,
+                "artifact_path": "biological_review/"
+                + biological_manifest.artifacts.heatmap_matrix_tsv,
                 "note": "z-scored protein matrix from the integrated biological review",
             },
             {

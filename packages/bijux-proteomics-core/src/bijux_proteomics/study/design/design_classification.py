@@ -192,7 +192,9 @@ def render_experiment_design_classification_tsv(
     writer.writerow(
         (
             report.primary_design_type.value,
-            ";".join(detected_type.value for detected_type in report.detected_design_types),
+            ";".join(
+                detected_type.value for detected_type in report.detected_design_types
+            ),
             report.recommended_analysis_family.value,
             ";".join(report.selected_conditions),
         )
@@ -290,9 +292,7 @@ def _has_complete_pairing(
     if not relevant_entries:
         return False
     pair_ids = {entry.pair_id for entry in relevant_entries}
-    if any(pair_id in (None, "") for pair_id in pair_ids):
-        return False
-    return True
+    return not any(pair_id in (None, "") for pair_id in pair_ids)
 
 
 def _has_longitudinal_structure(

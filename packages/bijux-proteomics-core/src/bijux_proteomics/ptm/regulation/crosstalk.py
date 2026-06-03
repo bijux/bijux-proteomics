@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics.ptm.parsing.site_annotation_import import (
@@ -124,7 +123,9 @@ def build_ptm_crosstalk_report(
     }
     regulated_sites = tuple(
         site_entry
-        for site_entry in sort_rows_by_fields(site_entries, "protein_ref", "position", "site_key")
+        for site_entry in sort_rows_by_fields(
+            site_entries, "protein_ref", "position", "site_key"
+        )
         if site_entry.site_key in differential_by_site
     )
     pathways_by_site = _pathways_by_site(annotation_mapping_report)
@@ -143,7 +144,9 @@ def build_ptm_crosstalk_report(
         right_entry = differential_by_site[right_site.site_key]
         shared_peptides = tuple(
             sorted(
-                set(left_site.localized_peptides).intersection(right_site.localized_peptides)
+                set(left_site.localized_peptides).intersection(
+                    right_site.localized_peptides
+                )
             )
         )
         shared_pathways = tuple(
@@ -265,8 +268,12 @@ def render_ptm_crosstalk_summary_tsv(report: PtmCrosstalkReport) -> str:
     writer.writerow(("opposing_pair_count", report.summary.opposing_pair_count))
     writer.writerow(("same_protein_pair_count", report.summary.same_protein_pair_count))
     writer.writerow(("same_peptide_pair_count", report.summary.same_peptide_pair_count))
-    writer.writerow(("nearby_residue_pair_count", report.summary.nearby_residue_pair_count))
-    writer.writerow(("shared_pathway_pair_count", report.summary.shared_pathway_pair_count))
+    writer.writerow(
+        ("nearby_residue_pair_count", report.summary.nearby_residue_pair_count)
+    )
+    writer.writerow(
+        ("shared_pathway_pair_count", report.summary.shared_pathway_pair_count)
+    )
     writer.writerow(("protein_map_count", report.summary.protein_map_count))
     writer.writerow(
         ("nearby_residue_distance_threshold", report.nearby_residue_distance_threshold)
@@ -318,8 +325,12 @@ def render_ptm_crosstalk_pair_tsv(report: PtmCrosstalkReport) -> str:
                 entry.right_position,
                 entry.left_log2_fold_change,
                 entry.right_log2_fold_change,
-                "" if entry.left_adjusted_p_value is None else entry.left_adjusted_p_value,
-                "" if entry.right_adjusted_p_value is None else entry.right_adjusted_p_value,
+                ""
+                if entry.left_adjusted_p_value is None
+                else entry.left_adjusted_p_value,
+                ""
+                if entry.right_adjusted_p_value is None
+                else entry.right_adjusted_p_value,
                 ";".join(source.value for source in entry.evidence_sources),
                 ";".join(entry.shared_peptides),
                 ";".join(entry.shared_pathways),
@@ -480,7 +491,9 @@ def _build_protein_maps(
     site_keys_by_protein: dict[str, list[str]] = {}
     pathway_terms_by_protein: dict[str, set[str]] = {}
     for site_entry in regulated_sites:
-        site_keys_by_protein.setdefault(site_entry.protein_ref, []).append(site_entry.site_key)
+        site_keys_by_protein.setdefault(site_entry.protein_ref, []).append(
+            site_entry.site_key
+        )
         pathway_terms_by_protein.setdefault(site_entry.protein_ref, set()).update(
             pathways_by_site.get(site_entry.site_key, set())
         )
@@ -492,7 +505,9 @@ def _build_protein_maps(
             pair_keys=tuple(sorted(pair_keys_by_protein.get(protein_ref, set()))),
             co_changing_pair_count=cochanging_by_protein.get(protein_ref, 0),
             opposing_pair_count=opposing_by_protein.get(protein_ref, 0),
-            pathway_terms=tuple(sorted(pathway_terms_by_protein.get(protein_ref, set()))),
+            pathway_terms=tuple(
+                sorted(pathway_terms_by_protein.get(protein_ref, set()))
+            ),
             note=(
                 "protein map preserves every regulated PTM site plus connected co-changing "
                 "and opposing crosstalk pairs touching this protein"

@@ -5,15 +5,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import (
     ExperimentalDesignReport,
     parse_experimental_design_table,
@@ -25,8 +24,8 @@ from bijux_proteomics.multiplex import (
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
-    build_tmt_interference_report,
     build_multiplex_metadata_validation_report,
+    build_tmt_interference_report,
     export_multiplex_channel_assignment_tsv,
     export_multiplex_duplicate_assignment_tsv,
     export_multiplex_metadata_summary_tsv,
@@ -39,6 +38,9 @@ from bijux_proteomics.multiplex import (
 from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.study import build_experiment_design
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
     LabelBasedDifferentialSourceKind,
 )
@@ -48,7 +50,6 @@ from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     build_tmt_label_based_report_bundle,
     write_label_based_report_bundle,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_issue_rows,
     render_result_rejected_evidence_tsv,
@@ -230,7 +231,10 @@ def render_tmt_experiment_workflow_summary_tsv(
         ("protein_ratio_count", report.summary.protein_ratio_count),
         ("differential_result_count", report.summary.differential_result_count),
         ("sample_qc_entry_count", report.summary.sample_qc_entry_count),
-        ("interference_observation_count", report.summary.interference_observation_count),
+        (
+            "interference_observation_count",
+            report.summary.interference_observation_count,
+        ),
         ("flagged_interference_count", report.summary.flagged_interference_count),
         ("note", report.note),
     ):
@@ -317,7 +321,9 @@ def render_tmt_workflow_rejected_reporter_rows_tsv(
                 ";".join(issue.message for issue in row.issues),
                 ";".join(
                     f"{key}={value}"
-                    for key, value in sorted(row.raw_fields.items(), key=lambda item: item[0])
+                    for key, value in sorted(
+                        row.raw_fields.items(), key=lambda item: item[0]
+                    )
                 ),
             )
         )
@@ -353,10 +359,21 @@ def write_tmt_experiment_workflow_bundle(
         entity_type="reporter_row",
     )
 
-    write_output_table_tsv((output_dir / summary_name), render_tmt_experiment_workflow_summary_tsv(report))
-    write_output_table_tsv((output_dir / import_summary_name), render_tmt_workflow_import_summary_tsv(report))
-    write_output_table_tsv((output_dir / accepted_rows_name), render_tmt_workflow_accepted_reporter_rows_tsv(report))
-    write_output_table_tsv((output_dir / rejected_rows_name), render_tmt_workflow_rejected_reporter_rows_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_tmt_experiment_workflow_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / import_summary_name),
+        render_tmt_workflow_import_summary_tsv(report),
+    )
+    write_output_table_tsv(
+        (output_dir / accepted_rows_name),
+        render_tmt_workflow_accepted_reporter_rows_tsv(report),
+    )
+    write_output_table_tsv(
+        (output_dir / rejected_rows_name),
+        render_tmt_workflow_rejected_reporter_rows_tsv(report),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(rejected_evidence_entries),

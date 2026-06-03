@@ -10,9 +10,13 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.workflow_biological_reports import (
+    run_diann_biological_report_command,
+    run_maxquant_biological_report_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.workflow_biological_reports import run_diann_biological_report_command, run_maxquant_biological_report_command
+
 
 @click.command("diann-biological-report")
 @click.argument(
@@ -162,8 +166,35 @@ def diann_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build one DIA-NN-to-biology report bundle.'
-    return run_diann_biological_report_command(result_tsv, design_tsv, proteins_fasta, config_path, annotation_tsv, context_annotation_tsv, protocol_context_tsv, go_annotation_tsv, pathway_membership_tsv, complex_membership_tsv, max_q_value, peptide_rollup, target_kind, shared_peptide_policy, protein_rollup, normalization, condition_a, condition_b, max_adjusted_p_value, min_absolute_log2_fold_change, heatmap_max_entities, heatmap_min_observed_fraction, volcano_top_label_count, output_dir, out_path)
+    "Build one DIA-NN-to-biology report bundle."
+    return run_diann_biological_report_command(
+        result_tsv,
+        design_tsv,
+        proteins_fasta,
+        config_path,
+        annotation_tsv,
+        context_annotation_tsv,
+        protocol_context_tsv,
+        go_annotation_tsv,
+        pathway_membership_tsv,
+        complex_membership_tsv,
+        max_q_value,
+        peptide_rollup,
+        target_kind,
+        shared_peptide_policy,
+        protein_rollup,
+        normalization,
+        condition_a,
+        condition_b,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        heatmap_max_entities,
+        heatmap_min_observed_fraction,
+        volcano_top_label_count,
+        output_dir,
+        out_path,
+    )
+
 
 @click.command("maxquant-biological-report")
 @click.argument(
@@ -299,8 +330,34 @@ def maxquant_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build one MaxQuant-to-biology report bundle.'
-    return run_maxquant_biological_report_command(evidence_txt, peptides_txt, protein_groups_txt, design_tsv, proteins_fasta, config_path, annotation_tsv, context_annotation_tsv, protocol_context_tsv, go_annotation_tsv, pathway_membership_tsv, complex_membership_tsv, include_only_identified_by_site, allow_empty_lfq_signal, normalization, condition_a, condition_b, max_adjusted_p_value, min_absolute_log2_fold_change, heatmap_max_entities, heatmap_min_observed_fraction, volcano_top_label_count, output_dir, out_path)
+    "Build one MaxQuant-to-biology report bundle."
+    return run_maxquant_biological_report_command(
+        evidence_txt,
+        peptides_txt,
+        protein_groups_txt,
+        design_tsv,
+        proteins_fasta,
+        config_path,
+        annotation_tsv,
+        context_annotation_tsv,
+        protocol_context_tsv,
+        go_annotation_tsv,
+        pathway_membership_tsv,
+        complex_membership_tsv,
+        include_only_identified_by_site,
+        allow_empty_lfq_signal,
+        normalization,
+        condition_a,
+        condition_b,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        heatmap_max_entities,
+        heatmap_min_observed_fraction,
+        volcano_top_label_count,
+        output_dir,
+        out_path,
+    )
+
 
 COMMANDS = (
     diann_biological_report_command,

@@ -11,6 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.io.formats.spectral_library import SpectralLibraryEntry
 from bijux_proteomics.io.spectra import (
     SpectralSimilarityMethod,
     SpectrumModel,
@@ -18,7 +19,6 @@ from bijux_proteomics.io.spectra import (
     SpectrumSimilarityMode,
     calculate_spectral_similarity,
 )
-from bijux_proteomics.io.formats.spectral_library import SpectralLibraryEntry
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -152,9 +152,13 @@ def _match_library_peaks(
             if delta > tolerance_da:
                 continue
             candidate = (available_index, observed_index, observed_peak, delta)
-            if best_choice is None or candidate[3] < best_choice[3] or (
-                candidate[3] == best_choice[3]
-                and candidate[2].intensity > best_choice[2].intensity
+            if (
+                best_choice is None
+                or candidate[3] < best_choice[3]
+                or (
+                    candidate[3] == best_choice[3]
+                    and candidate[2].intensity > best_choice[2].intensity
+                )
             ):
                 best_choice = candidate
         if best_choice is None:
@@ -179,7 +183,9 @@ def _ranked_fragment_agreement(matches: tuple[_MatchedFragment, ...]) -> float:
         for right in matches[left_index + 1 :]:
             pair_count += 1
             library_delta = left.library_peak.intensity - right.library_peak.intensity
-            observed_delta = left.observed_peak.intensity - right.observed_peak.intensity
+            observed_delta = (
+                left.observed_peak.intensity - right.observed_peak.intensity
+            )
             if library_delta == 0.0 and observed_delta == 0.0:
                 agreement_score += 1.0
             elif library_delta == 0.0 or observed_delta == 0.0:
@@ -230,7 +236,11 @@ def _classify_intensity_agreement(
 ) -> SpectralLibraryIntensityAgreementTier:
     if library_peak_count == 0 or observed_peak_count == 0 or matched_peak_count == 0:
         return SpectralLibraryIntensityAgreementTier.INSUFFICIENT_SIGNAL
-    if missing_dominant_count > 0 or cosine_similarity < 0.8 or ranked_fragment_agreement < 0.6:
+    if (
+        missing_dominant_count > 0
+        or cosine_similarity < 0.8
+        or ranked_fragment_agreement < 0.6
+    ):
         return SpectralLibraryIntensityAgreementTier.DOWNGRADED
     if cosine_similarity >= 0.95 and ranked_fragment_agreement >= 0.9:
         return SpectralLibraryIntensityAgreementTier.ALIGNED

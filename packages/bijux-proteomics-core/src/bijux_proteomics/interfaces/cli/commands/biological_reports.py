@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.biological_reports import (
+    run_biological_report_command,
+    run_dda_biological_report_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.biological_reports import run_biological_report_command, run_dda_biological_report_command
+
 
 @click.command("biological-report")
 @click.argument(
@@ -153,8 +157,41 @@ def biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build one biological interpretation report bundle over governed LFQ results.'
-    return run_biological_report_command(input_tsv, design_tsv, proteins_fasta, annotation_tsv, context_annotation_tsv, protocol_context_tsv, go_annotation_tsv, pathway_membership_tsv, complex_membership_tsv, aggregation, top_n, normalization, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, condition_a, condition_b, max_adjusted_p_value, min_absolute_log2_fold_change, heatmap_max_entities, heatmap_min_observed_fraction, volcano_top_label_count, output_dir, out_path)
+    "Build one biological interpretation report bundle over governed LFQ results."
+    return run_biological_report_command(
+        input_tsv,
+        design_tsv,
+        proteins_fasta,
+        annotation_tsv,
+        context_annotation_tsv,
+        protocol_context_tsv,
+        go_annotation_tsv,
+        pathway_membership_tsv,
+        complex_membership_tsv,
+        aggregation,
+        top_n,
+        normalization,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        condition_a,
+        condition_b,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        heatmap_max_entities,
+        heatmap_min_observed_fraction,
+        volcano_top_label_count,
+        output_dir,
+        out_path,
+    )
+
 
 @click.command("dda-biological-report")
 @click.argument(
@@ -316,8 +353,37 @@ def dda_biological_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build one DDA search-result-to-biology report bundle.'
-    return run_dda_biological_report_command(search_result_tsv, design_tsv, proteins_fasta, adapter_kind, dialect_id, mapping_path, source_protein_tsv, protocol_context_tsv, annotation_tsv, go_annotation_tsv, pathway_membership_tsv, complex_membership_tsv, psm_q_value_threshold, parsimony_variant, aggregation, top_n, minimum_shared_peptides, normalization, condition_a, condition_b, max_adjusted_p_value, min_absolute_log2_fold_change, heatmap_max_entities, heatmap_min_observed_fraction, volcano_top_label_count, output_dir, out_path)
+    "Build one DDA search-result-to-biology report bundle."
+    return run_dda_biological_report_command(
+        search_result_tsv,
+        design_tsv,
+        proteins_fasta,
+        adapter_kind,
+        dialect_id,
+        mapping_path,
+        source_protein_tsv,
+        protocol_context_tsv,
+        annotation_tsv,
+        go_annotation_tsv,
+        pathway_membership_tsv,
+        complex_membership_tsv,
+        psm_q_value_threshold,
+        parsimony_variant,
+        aggregation,
+        top_n,
+        minimum_shared_peptides,
+        normalization,
+        condition_a,
+        condition_b,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        heatmap_max_entities,
+        heatmap_min_observed_fraction,
+        volcano_top_label_count,
+        output_dir,
+        out_path,
+    )
+
 
 COMMANDS = (
     biological_report_command,

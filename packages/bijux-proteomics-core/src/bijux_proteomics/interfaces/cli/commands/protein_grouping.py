@@ -10,8 +10,13 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.protein_grouping import (
+    run_protein_ambiguity_command,
+    run_protein_groups_command,
+    run_protein_inference_benchmarks_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.protein_grouping import run_protein_groups_command, run_protein_ambiguity_command, run_protein_inference_benchmarks_command
+
 
 @click.command("protein-groups")
 @click.argument(
@@ -71,8 +76,29 @@ def protein_groups_command(
     group_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review grouped protein evidence from FDR-filtered PSM rows.'
-    return run_protein_groups_command(input_tsv, threshold, score_orientation, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, group_tsv_out, out_path)
+    "Review grouped protein evidence from FDR-filtered PSM rows."
+    return run_protein_groups_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        group_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-ambiguity")
 @click.argument(
@@ -136,8 +162,31 @@ def protein_ambiguity_command(
     ambiguity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review ambiguous protein groups from FDR-filtered PSM rows.'
-    return run_protein_ambiguity_command(input_tsv, threshold, score_orientation, high_q_value, medium_q_value, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, ambiguity_tsv_out, out_path)
+    "Review ambiguous protein groups from FDR-filtered PSM rows."
+    return run_protein_ambiguity_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        high_q_value,
+        medium_q_value,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        ambiguity_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-inference-benchmarks")
 @click.option("--picked-threshold", type=float, default=0.05, show_default=True)
@@ -164,8 +213,15 @@ def protein_inference_benchmarks_command(
     assessments_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review the owned protein-inference benchmark catalog.'
-    return run_protein_inference_benchmarks_command(picked_threshold, summary_tsv_out, scenarios_tsv_out, assessments_tsv_out, out_path)
+    "Review the owned protein-inference benchmark catalog."
+    return run_protein_inference_benchmarks_command(
+        picked_threshold,
+        summary_tsv_out,
+        scenarios_tsv_out,
+        assessments_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     protein_groups_command,

@@ -89,7 +89,9 @@ def detect_carryover(
 
     intensity_by_entity_run: dict[str, dict[str, float]] = {}
     for entry in peptide_intensity_matrix:
-        intensity_by_entity_run.setdefault(entry.entity_id, {}).setdefault(entry.run_id, 0.0)
+        intensity_by_entity_run.setdefault(entry.entity_id, {}).setdefault(
+            entry.run_id, 0.0
+        )
         intensity_by_entity_run[entry.entity_id][entry.run_id] += entry.intensity
 
     rows: list[CarryoverDetectionEntry] = []
@@ -222,7 +224,9 @@ def _ordered_runs_by_id(
         )
     return {
         entry.run_id: entry
-        for entry in sorted(run_order, key=lambda entry: (entry.run_order, entry.run_id))
+        for entry in sorted(
+            run_order, key=lambda entry: (entry.run_order, entry.run_id)
+        )
     }
 
 
@@ -254,10 +258,7 @@ def _carryover_score(
     source_strength = source_intensity / max_entity_intensity
     low_level_strength = max(
         0.0,
-        1.0
-        - (
-            repeated_signal_fraction / low_level_repeated_signal_fraction_threshold
-        ),
+        1.0 - (repeated_signal_fraction / low_level_repeated_signal_fraction_threshold),
     )
     order_proximity = 1.0 / order_gap
     return (source_strength + low_level_strength + order_proximity) / 3.0

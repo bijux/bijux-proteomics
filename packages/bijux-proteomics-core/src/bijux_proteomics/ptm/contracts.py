@@ -14,17 +14,26 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableValidationIssue,
+    build_ptm_evidence_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     AppliedModification,
-    ModificationPosition,
     ModificationLocalizationCandidate,
+    ModificationPosition,
     ModificationRegistryDocument,
     build_modification_localization_advisory,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
+)
+from bijux_proteomics.domain.records import (
     PTMSite as CanonicalPtmSite,
+)
+from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.identification import (
@@ -32,14 +41,9 @@ from bijux_proteomics.identification import (
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
 )
-from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
 from bijux_proteomics.ptm.parsing.peptide_parser import PtmPeptideSiteEntry
+from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
 from bijux_proteomics.quantification import Ms1FeatureRecord
-from bijux_proteomics._scientific_tables import (
-    ScientificTableValidationIssue,
-    build_ptm_evidence_schema,
-    validate_scientific_table,
-)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -117,7 +121,7 @@ class PtmEvidenceRecord(JsonModel):
     localization_score: float = Field(..., ge=0.0)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
     modification_names: tuple[str, ...] = Field(default_factory=tuple)
-    site_candidates: tuple["PtmEvidenceSiteCandidate", ...] = Field(default_factory=tuple)
+    site_candidates: tuple[PtmEvidenceSiteCandidate, ...] = Field(default_factory=tuple)
     provenance: ImportedEvidenceProvenance
 
 
@@ -197,7 +201,9 @@ class PtmProteinSiteMappingReport(JsonModel):
     mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
     exact_mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
     ambiguous_mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
-    unmapped_peptides: tuple[PtmUnmappedPeptideEntry, ...] = Field(default_factory=tuple)
+    unmapped_peptides: tuple[PtmUnmappedPeptideEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class PtmCoordinateValidationIssue(JsonModel):
@@ -267,6 +273,7 @@ class PtmSiteEntry(JsonModel):
                 **self.provenance.to_metadata_fields(),
             },
         )
+
 
 _SITE_GROUPS_MODULE = import_module("bijux_proteomics.ptm.sites.site_groups")
 PtmSiteGroupEvidenceEntry = _SITE_GROUPS_MODULE.PtmSiteGroupEvidenceEntry
@@ -449,7 +456,9 @@ def _ptm_issues_from_scientific_issues(
         if issue.code == "wrong_type":
             if issue.column == "charge":
                 translated.append(
-                    _row_issue("invalid_charge", "invalid charge value", issue.row_number)
+                    _row_issue(
+                        "invalid_charge", "invalid charge value", issue.row_number
+                    )
                 )
                 continue
             if issue.column == "score":
@@ -505,7 +514,7 @@ def _build_ptm_evidence_site_candidates(
                 same_name_counts.get(site.modification_name, 0) + 1
             )
     site_candidates: list[PtmEvidenceSiteCandidate] = []
-    for site, modification, advisory in zip(
+    for site, _modification, advisory in zip(
         parsed_sites,
         parsed_modifications,
         advisory_candidates,

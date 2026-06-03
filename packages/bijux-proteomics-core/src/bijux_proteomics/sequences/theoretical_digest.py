@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections import defaultdict
 from pathlib import Path
 from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.chemistry import (
     IsotopicLabelingPolicy,
     ModificationRegistryDocument,
@@ -26,8 +25,8 @@ from bijux_proteomics.chemistry import (
     enumerate_variable_modifications,
 )
 from bijux_proteomics.sequences.digestion import (
-    DigestPolicy,
     DigestedPeptide,
+    DigestPolicy,
     PeptideDigestionMode,
     ProteaseRule,
     build_digest_policy,
@@ -194,9 +193,7 @@ def build_theoretical_digest_bundle(
             False if labeling_policy is None else labeling_policy.allow_isotopic_labels
         ),
         allowed_label_families=(
-            ()
-            if labeling_policy is None
-            else labeling_policy.allowed_label_families
+            () if labeling_policy is None else labeling_policy.allowed_label_families
         ),
         max_variable_variants_per_peptide=max_variable_variants_per_peptide,
         registry_content_hash=(
@@ -213,9 +210,9 @@ def build_theoretical_digest_bundle(
         }
     )
     record_sequences = _record_sequence_lookup(records)
-    grouped_occurrences: dict[
-        tuple[str, bool, bool], list[DigestedPeptide]
-    ] = defaultdict(list)
+    grouped_occurrences: dict[tuple[str, bool, bool], list[DigestedPeptide]] = (
+        defaultdict(list)
+    )
     for peptide in digested:
         context_key = (
             peptide.sequence,
@@ -406,8 +403,12 @@ def write_theoretical_digest_bundle(
     peptides_path = out_dir / "digest_peptides.tsv"
     mappings_path = out_dir / "peptide_to_protein.tsv"
     summary_path = out_dir / "digest_summary.tsv"
-    write_output_table_tsv(peptides_path, render_theoretical_digest_peptides_tsv(bundle))
-    write_output_table_tsv(mappings_path, render_theoretical_digest_mappings_tsv(bundle))
+    write_output_table_tsv(
+        peptides_path, render_theoretical_digest_peptides_tsv(bundle)
+    )
+    write_output_table_tsv(
+        mappings_path, render_theoretical_digest_mappings_tsv(bundle)
+    )
     write_output_table_tsv(summary_path, render_theoretical_digest_summary_tsv(bundle))
     return peptides_path, mappings_path, summary_path
 
@@ -497,7 +498,9 @@ def render_theoretical_digest_mappings_tsv(bundle: TheoreticalDigestBundle) -> s
                     mapping.source_accession,
                     mapping.source_identifier,
                     mapping.source_protein_family,
-                    "" if mapping.source_isoform is None else str(mapping.source_isoform),
+                    ""
+                    if mapping.source_isoform is None
+                    else str(mapping.source_isoform),
                     str(mapping.start),
                     str(mapping.end),
                     mapping.matched_sequence,

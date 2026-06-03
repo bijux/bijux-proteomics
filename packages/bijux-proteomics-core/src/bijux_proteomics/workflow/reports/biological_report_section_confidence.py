@@ -12,10 +12,12 @@ from html import escape
 from io import StringIO
 from pathlib import Path
 
+from pydantic import ConfigDict, Field
+
 from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.interpretation import (
-    BiologicalContextKind,
     BiologicalContextImportReport,
+    BiologicalContextKind,
     BiologicalContextMappingReport,
     BiologicalForegroundBackgroundModel,
     BiologicalSetEntry,
@@ -24,50 +26,37 @@ from bijux_proteomics.interpretation import (
     ComplexActivityReport,
     ComplexEnrichmentCorrectionPolicy,
     ComplexEnrichmentReport,
-    DrugTargetInterpretationPolicy,
-    DrugTargetInterpretationReport,
     DiseasePhenotypeInterpretationPolicy,
     DiseasePhenotypeInterpretationReport,
-    build_complex_activity_report,
-    build_biological_context_mapping_report,
-    build_biological_foreground_background_model,
-    build_drug_target_interpretation_report,
-    build_disease_phenotype_interpretation_report,
-    render_complex_activity_condition_comparison_tsv,
-    render_complex_activity_condition_score_tsv,
-    render_complex_activity_matrix_tsv,
-    render_complex_activity_sample_score_tsv,
-    render_complex_activity_summary_tsv,
-    render_complex_activity_unresolved_member_tsv,
-    render_complex_member_contribution_tsv,
-    render_complex_enrichment_entry_tsv,
-    render_complex_enrichment_summary_tsv,
-    render_complex_unresolved_member_tsv,
-    render_drug_target_interpretation_summary_tsv,
-    render_drug_target_interpretation_tsv,
-    render_disease_phenotype_interpretation_summary_tsv,
-    render_disease_phenotype_interpretation_tsv,
-    render_unknown_disease_phenotype_annotation_tsv,
-    PathwayEnrichmentCorrectionPolicy,
-    PathwayEnrichmentReport,
-    PathwayActivityReport,
+    DrugTargetInterpretationPolicy,
+    DrugTargetInterpretationReport,
     GoEnrichmentCorrectionPolicy,
     GoEnrichmentReport,
+    PathwayActivityReport,
+    PathwayEnrichmentCorrectionPolicy,
+    PathwayEnrichmentReport,
     ProteinAnnotationColumnMapping,
     ProteinAnnotationMappingReport,
     ProteinReferenceEntry,
     RegulatorEvidenceImportReport,
     RegulatorInferenceReport,
+    TissueCellTypeContextReport,
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
+    build_biological_context_mapping_report,
+    build_biological_foreground_background_model,
+    build_complex_activity_report,
     build_complex_enrichment_report,
+    build_disease_phenotype_interpretation_report,
+    build_drug_target_interpretation_report,
     build_go_enrichment_report,
     build_pathway_activity_report,
     build_pathway_enrichment_report,
     build_protein_annotation_mapping_report,
     build_regulator_inference_report,
     build_regulator_site_signal_entries_from_ptm_evidence_cards,
+    build_tissue_cell_type_context_report,
     parse_biological_context_table,
     parse_complex_membership_table,
     parse_go_annotation_table,
@@ -81,8 +70,20 @@ from bijux_proteomics.interpretation import (
     render_biological_foreground_background_entry_tsv,
     render_biological_foreground_background_issue_tsv,
     render_biological_foreground_background_summary_tsv,
-    render_rejected_biological_context_tsv,
-    render_unmapped_biological_context_tsv,
+    render_complex_activity_condition_comparison_tsv,
+    render_complex_activity_condition_score_tsv,
+    render_complex_activity_matrix_tsv,
+    render_complex_activity_sample_score_tsv,
+    render_complex_activity_summary_tsv,
+    render_complex_activity_unresolved_member_tsv,
+    render_complex_enrichment_entry_tsv,
+    render_complex_enrichment_summary_tsv,
+    render_complex_member_contribution_tsv,
+    render_complex_unresolved_member_tsv,
+    render_disease_phenotype_interpretation_summary_tsv,
+    render_disease_phenotype_interpretation_tsv,
+    render_drug_target_interpretation_summary_tsv,
+    render_drug_target_interpretation_tsv,
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
@@ -96,20 +97,21 @@ from bijux_proteomics.interpretation import (
     render_pathway_enrichment_summary_tsv,
     render_pathway_member_contribution_tsv,
     render_pathway_unresolved_member_tsv,
-    render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
-    render_rejected_regulator_evidence_tsv,
+    render_protein_annotation_tsv,
     render_regulator_inference_summary_tsv,
     render_regulator_inference_tsv,
+    render_rejected_biological_context_tsv,
+    render_rejected_regulator_evidence_tsv,
     render_tissue_cell_type_context_summary_tsv,
     render_tissue_cell_type_interpretation_tsv,
     render_tissue_cell_type_sample_consistency_tsv,
     render_tissue_cell_type_unexpected_signal_tsv,
-    render_unresolved_regulator_target_tsv,
+    render_unknown_disease_phenotype_annotation_tsv,
+    render_unmapped_biological_context_tsv,
     render_unmapped_protein_annotation_tsv,
+    render_unresolved_regulator_target_tsv,
     require_valid_biological_foreground_background_model,
-    TissueCellTypeContextReport,
-    build_tissue_cell_type_context_report,
 )
 from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyPolicy,
@@ -124,24 +126,19 @@ from bijux_proteomics.interpretation.compartment_biology import (
     render_compartment_enrichment_tsv,
     render_unknown_compartment_localization_tsv,
 )
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.lab.protocol_context import (
+    build_lab_protocol_interpretation_profile,
+    parse_lab_protocol_context_table,
+    require_single_lab_protocol_context,
+)
+from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification import (
-    export_heatmap_column_metadata_tsv,
-    export_heatmap_matrix_tsv,
-    export_heatmap_row_metadata_tsv,
-    export_heatmap_summary_tsv,
-    export_sample_cluster_tsv,
-    export_sample_distance_tsv,
-    export_sample_exploration_summary_tsv,
-    export_sample_pca_scores_tsv,
-    export_sample_pca_variance_tsv,
     HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
     HeatmapPreparationReport,
-    Ms1FeatureColumnMapping,
     LabelFreeQuantTable,
+    Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
@@ -153,6 +150,15 @@ from bijux_proteomics.quantification import (
     build_missingness_condition_summary_report,
     build_power_estimation_report,
     build_sample_exploration_report,
+    export_heatmap_column_metadata_tsv,
+    export_heatmap_matrix_tsv,
+    export_heatmap_row_metadata_tsv,
+    export_heatmap_summary_tsv,
+    export_sample_cluster_tsv,
+    export_sample_distance_tsv,
+    export_sample_exploration_summary_tsv,
+    export_sample_pca_scores_tsv,
+    export_sample_pca_variance_tsv,
     normalize_label_free_table,
     parse_ms1_feature_table,
     render_differential_abundance_tsv,
@@ -181,19 +187,19 @@ from bijux_proteomics.review import (
     build_quantification_volcano_review,
     export_proteomics_evidence_graph,
     export_volcano_review_html,
-    normalize_linear_range,
     export_volcano_review_json,
     export_volcano_review_svg,
-    render_proteomics_evidence_graph_edges_tsv,
-    render_proteomics_evidence_graph_nodes_tsv,
+    normalize_linear_range,
     render_biological_claim_validation_summary_tsv,
     render_biological_hypothesis_summary_tsv,
     render_biological_hypothesis_tsv,
-    render_rejected_biological_hypothesis_candidate_tsv,
+    render_evidence_aware_ranking_tsv,
+    render_proteomics_evidence_graph_edges_tsv,
+    render_proteomics_evidence_graph_nodes_tsv,
     render_rejected_biological_claim_tsv,
+    render_rejected_biological_hypothesis_candidate_tsv,
     render_supported_biological_claim_tsv,
     render_volcano_review_tsv,
-    render_evidence_aware_ranking_tsv,
     score_adjusted_p_value,
     score_effect_size,
     score_support_count,
@@ -201,10 +207,9 @@ from bijux_proteomics.review import (
 from bijux_proteomics.sequences import (
     FastaParseMode,
     parse_fasta_document,
-    parse_proteogenomic_variant_peptide_table,
     parse_protein_region_context_tsv,
+    parse_proteogenomic_variant_peptide_table,
 )
-from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
     ExperimentDesign,
@@ -216,11 +221,6 @@ from bijux_proteomics.study import (
     coerce_experiment_design,
     render_experiment_confidence_component_tsv,
     render_experiment_confidence_summary_tsv,
-)
-from bijux_proteomics.lab.protocol_context import (
-    build_lab_protocol_interpretation_profile,
-    parse_lab_protocol_context_table,
-    require_single_lab_protocol_context,
 )
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
     ProteinEvidenceCardReport,
@@ -236,10 +236,6 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     render_protein_mechanism_card_summary_tsv,
     render_protein_mechanism_card_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph import (
-    BiologicalResultGraphReport,
-    build_biological_result_graph_report,
-)
 from bijux_proteomics.workflow.cohort_stratification import (
     CohortStratificationReport,
     build_cohort_stratification_report,
@@ -248,14 +244,18 @@ from bijux_proteomics.workflow.cohort_stratification import (
     render_cohort_stratum_tsv,
     render_cohort_subgroup_effect_tsv,
 )
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.workflow.reports.biological_report_models import (
+    _BIOLOGICAL_REPORT_SECTION_TITLES,
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
-    _BIOLOGICAL_REPORT_SECTION_TITLES,
 )
+from bijux_proteomics.workflow.reports.biological_result_graph import (
+    BiologicalResultGraphReport,
+    build_biological_result_graph_report,
+)
+from bijux_proteomics_foundation import JsonModel
+
 
 def _build_section_confidence_entry(
     section_key: BiologicalReportSectionKey,
@@ -323,7 +323,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if evidence_aware_ranking_report is None or not evidence_aware_ranking_report.entries:
+    if (
+        evidence_aware_ranking_report is None
+        or not evidence_aware_ranking_report.entries
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING,
@@ -347,7 +350,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if claim_validation_report is None or claim_validation_report.summary.candidate_count == 0:
+    if (
+        claim_validation_report is None
+        or claim_validation_report.summary.candidate_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
@@ -362,21 +368,18 @@ def _build_biological_report_section_confidence_entries(
         if supported_count == 0:
             claim_label = BiologicalReportSectionConfidenceLabel.INVALID
             claim_rationale = "all candidate biological claims were rejected by directional or evidence checks"
-        elif support_fraction >= 0.75 and claim_validation_report.summary.rejected_claim_count == 0:
+        elif (
+            support_fraction >= 0.75
+            and claim_validation_report.summary.rejected_claim_count == 0
+        ):
             claim_label = BiologicalReportSectionConfidenceLabel.HIGH
-            claim_rationale = (
-                "most candidate biological claims remained supported and none were rejected"
-            )
+            claim_rationale = "most candidate biological claims remained supported and none were rejected"
         elif support_fraction >= 0.4:
             claim_label = BiologicalReportSectionConfidenceLabel.MODERATE
-            claim_rationale = (
-                "supported biological claims remain after validation, but a material fraction were rejected"
-            )
+            claim_rationale = "supported biological claims remain after validation, but a material fraction were rejected"
         else:
             claim_label = BiologicalReportSectionConfidenceLabel.WEAK
-            claim_rationale = (
-                "validated biological claims are sparse relative to the candidate claim set"
-            )
+            claim_rationale = "validated biological claims are sparse relative to the candidate claim set"
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
@@ -436,7 +439,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if regulator_inference_report is None or regulator_inference_report.summary.entry_count == 0:
+    if (
+        regulator_inference_report is None
+        or regulator_inference_report.summary.entry_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.REGULATOR_INFERENCE,
@@ -474,9 +480,15 @@ def _build_biological_report_section_confidence_entries(
         )
     else:
         summary = drug_target_report.summary
-        if summary.high_evidence_entry_count > 0 and summary.direct_target_entry_count > 0:
+        if (
+            summary.high_evidence_entry_count > 0
+            and summary.direct_target_entry_count > 0
+        ):
             drug_label = BiologicalReportSectionConfidenceLabel.HIGH
-        elif summary.high_evidence_entry_count + summary.moderate_evidence_entry_count > 0:
+        elif (
+            summary.high_evidence_entry_count + summary.moderate_evidence_entry_count
+            > 0
+        ):
             drug_label = BiologicalReportSectionConfidenceLabel.MODERATE
         else:
             drug_label = BiologicalReportSectionConfidenceLabel.WEAK
@@ -491,7 +503,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if disease_phenotype_report is None or disease_phenotype_report.summary.evaluated_term_count == 0:
+    if (
+        disease_phenotype_report is None
+        or disease_phenotype_report.summary.evaluated_term_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION,
@@ -501,7 +516,10 @@ def _build_biological_report_section_confidence_entries(
         )
     else:
         summary = disease_phenotype_report.summary
-        if summary.high_confidence_term_count > 0 and summary.unknown_foreground_protein_count == 0:
+        if (
+            summary.high_confidence_term_count > 0
+            and summary.unknown_foreground_protein_count == 0
+        ):
             disease_label = BiologicalReportSectionConfidenceLabel.HIGH
         elif summary.filter_passing_term_count > 0:
             disease_label = BiologicalReportSectionConfidenceLabel.MODERATE
@@ -518,7 +536,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if cohort_stratification_report is None or cohort_stratification_report.summary.supported_stratum_count == 0:
+    if (
+        cohort_stratification_report is None
+        or cohort_stratification_report.summary.supported_stratum_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.COHORT_STRATIFICATION,
@@ -545,7 +566,8 @@ def _build_biological_report_section_confidence_entries(
 
     if (
         tissue_cell_type_context_report is None
-        or tissue_cell_type_context_report.summary.sample_with_marker_definition_count == 0
+        or tissue_cell_type_context_report.summary.sample_with_marker_definition_count
+        == 0
     ):
         entries.append(
             _build_section_confidence_entry(
@@ -574,7 +596,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if compartment_biology_report is None or compartment_biology_report.summary.compartment_count == 0:
+    if (
+        compartment_biology_report is None
+        or compartment_biology_report.summary.compartment_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
@@ -606,7 +631,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if pathway_activity_report is None or pathway_activity_report.summary.pathway_count == 0:
+    if (
+        pathway_activity_report is None
+        or pathway_activity_report.summary.pathway_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.PATHWAY_ACTIVITY,
@@ -638,7 +666,10 @@ def _build_biological_report_section_confidence_entries(
             )
         )
 
-    if complex_activity_report is None or complex_activity_report.summary.complex_count == 0:
+    if (
+        complex_activity_report is None
+        or complex_activity_report.summary.complex_count == 0
+    ):
         entries.append(
             _build_section_confidence_entry(
                 BiologicalReportSectionKey.COMPLEX_ACTIVITY,
@@ -680,7 +711,9 @@ def _build_biological_report_section_confidence_entries(
         )
     else:
         high_card_count = sum(
-            1 for card in protein_mechanism_cards.cards if card.confidence_tier.value == "high"
+            1
+            for card in protein_mechanism_cards.cards
+            if card.confidence_tier.value == "high"
         )
         moderate_card_count = sum(
             1
@@ -713,7 +746,7 @@ def _build_biological_report_section_confidence_entries(
 def _count_section_confidence_labels(
     entries: tuple[BiologicalReportSectionConfidenceEntry, ...],
 ) -> dict[BiologicalReportSectionConfidenceLabel, int]:
-    counts = {label: 0 for label in BiologicalReportSectionConfidenceLabel}
+    counts = dict.fromkeys(BiologicalReportSectionConfidenceLabel, 0)
     for entry in entries:
         counts[entry.confidence_label] += 1
     return counts

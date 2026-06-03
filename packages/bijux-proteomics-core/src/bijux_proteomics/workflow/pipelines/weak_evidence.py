@@ -21,14 +21,14 @@ from bijux_proteomics.workflow.pipelines.advanced_tmt import (
     AdvancedTmtWorkflowReport,
     run_advanced_tmt_workflow,
 )
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+    PublicBenchmarkRunReport,
+    run_public_benchmark_descriptor,
+)
 from bijux_proteomics.workflow.public_benchmark_descriptors import (
     PublicBenchmarkDescriptor,
     load_public_benchmark_descriptor,
     public_benchmark_root,
-)
-from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
-    PublicBenchmarkRunReport,
-    run_public_benchmark_descriptor,
 )
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
@@ -239,7 +239,8 @@ def run_weak_evidence_benchmark(
     )
     tmt_report = (
         None
-        if descriptor.tmt_result_tsv_path is None or descriptor.tmt_design_tsv_path is None
+        if descriptor.tmt_result_tsv_path is None
+        or descriptor.tmt_design_tsv_path is None
         else run_advanced_tmt_workflow(
             AdvancedTmtWorkflowConfig(
                 result_tsv_path=descriptor.tmt_result_tsv_path,
@@ -332,13 +333,16 @@ def run_weak_evidence_benchmark(
 
     executed_surface_count = sum(criterion.executed for criterion in criteria)
     observed_negative_surface_count = sum(criterion.observed for criterion in criteria)
-    missing_required_criterion_count = sum(not criterion.observed for criterion in criteria)
+    missing_required_criterion_count = sum(
+        not criterion.observed for criterion in criteria
+    )
     all_outputs_positive_or_accepted = (
         executed_surface_count > 0 and observed_negative_surface_count == 0
     )
     status = (
         WeakEvidenceBenchmarkStatus.PASSED
-        if missing_required_criterion_count == 0 and not all_outputs_positive_or_accepted
+        if missing_required_criterion_count == 0
+        and not all_outputs_positive_or_accepted
         else WeakEvidenceBenchmarkStatus.FAILED
     )
 

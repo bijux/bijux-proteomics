@@ -132,6 +132,7 @@ FRAGPIPE_PSM_DIALECT = SearchAdapterDialectManifest(
 
 MSFRAGGER_DIALECTS = (MSFRAGGER_PIPELINE_DIALECT, FRAGPIPE_PSM_DIALECT)
 
+
 def parse_msfragger_parameters(path: Path) -> SearchParameterReport:
     fields = parse_key_value_parameters(path)
     precursor_unit = (
@@ -187,9 +188,10 @@ def parse_msfragger_parameters(path: Path) -> SearchParameterReport:
         raw_fields=fields,
     )
 
+
 def build_msfragger_output_corpus_report(
     corpus_root: Path,
-) -> "SearchEngineCorpusReport":
+) -> SearchEngineCorpusReport:
     """Build corpus coverage over MSFragger native and pipeline-like outputs."""
     from ..corpus import (
         SearchCorpusInputSpecification,

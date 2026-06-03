@@ -157,13 +157,15 @@ def bootstrap_effect_stability(
         design_entries=active_design_entries,
         sample_run_policy=sample_run_policy,
     )
-    design_by_sample = {
-        entry.sample_id: entry for entry in active_design_entries
-    }
+    design_by_sample = {entry.sample_id: entry for entry in active_design_entries}
     rng = np.random.default_rng(random_seed)
     condition_by_sample = _condition_lookup(active_design_entries)
-    sample_ids_a = _sample_ids_for_condition(condition_by_sample, base_report.condition_a)
-    sample_ids_b = _sample_ids_for_condition(condition_by_sample, base_report.condition_b)
+    sample_ids_a = _sample_ids_for_condition(
+        condition_by_sample, base_report.condition_a
+    )
+    sample_ids_b = _sample_ids_for_condition(
+        condition_by_sample, base_report.condition_b
+    )
     bootstrap_log2fc: dict[str, list[float]] = {
         entry.entity_id: [] for entry in base_report.entries
     }
@@ -278,7 +280,9 @@ def build_differential_abundance_robustness_report(
     )
     condition_by_sample = _condition_lookup(design_entries)
     sample_ids_by_condition: dict[str, tuple[str, ...]] = {}
-    for condition in sorted({condition for condition in condition_by_sample.values() if condition}):
+    for condition in sorted(
+        {condition for condition in condition_by_sample.values() if condition}
+    ):
         sample_ids_by_condition[condition] = tuple(
             sample_id
             for sample_id in table.sample_ids
@@ -345,7 +349,11 @@ def annotate_differential_abundance_report_robustness(
         for result_entry in report.entries
         if (
             robustness_entry := robustness_by_key[
-                (result_entry.entity_id, result_entry.condition_a, result_entry.condition_b)
+                (
+                    result_entry.entity_id,
+                    result_entry.condition_a,
+                    result_entry.condition_b,
+                )
             ]
         )
     )
@@ -367,7 +375,9 @@ def build_time_course_differential_robustness_report(
     )
     condition_by_sample = _condition_lookup(design_entries)
     sample_ids_by_condition: dict[str, tuple[str, ...]] = {}
-    for condition in sorted({condition for condition in condition_by_sample.values() if condition}):
+    for condition in sorted(
+        {condition for condition in condition_by_sample.values() if condition}
+    ):
         sample_ids_by_condition[condition] = tuple(
             sample_id
             for sample_id in table.sample_ids
@@ -540,7 +550,10 @@ def _build_time_course_robustness_entry(
 ) -> DifferentialResultRobustnessEntry:
     effect_size_score = _time_course_effect_size_score(entry)
     fdr_candidates = [entry.time_effect_adjusted_p_value or entry.time_effect_p_value]
-    if entry.interaction_adjusted_p_value is not None or entry.interaction_p_value is not None:
+    if (
+        entry.interaction_adjusted_p_value is not None
+        or entry.interaction_p_value is not None
+    ):
         fdr_candidates.append(
             entry.interaction_adjusted_p_value or entry.interaction_p_value or 1.0
         )
@@ -612,7 +625,9 @@ def _build_robustness_report(
     return DifferentialResultRobustnessReport(
         analysis_kind=analysis_kind,
         entries=entries,
-        low_robustness_entry_count=sum(entry.robustness_score < 0.6 for entry in entries),
+        low_robustness_entry_count=sum(
+            entry.robustness_score < 0.6 for entry in entries
+        ),
         caution_qc_entry_count=sum(
             entry.qc_status is DifferentialResultRobustnessQcStatus.CAUTION
             for entry in entries
@@ -686,12 +701,9 @@ def _support_scores(
             support_weights.append(0.7)
         else:
             support_weights.append(0.0)
-        if (
-            cell.imputation_provenance is not None
-            or (
-                cell.value_provenance is not None
-                and cell.value_provenance.value_origin is QuantValueOrigin.IMPUTED
-            )
+        if cell.imputation_provenance is not None or (
+            cell.value_provenance is not None
+            and cell.value_provenance.value_origin is QuantValueOrigin.IMPUTED
         ):
             imputed_count += 1
     support_score = round(sum(support_weights) / len(sample_ids), 4)
@@ -757,7 +769,11 @@ def _pairwise_replicate_consistency_score(
                 fallback=0.3,
             )
         )
-    return round(sum(condition_scores) / len(condition_scores), 4) if condition_scores else 0.5
+    return (
+        round(sum(condition_scores) / len(condition_scores), 4)
+        if condition_scores
+        else 0.5
+    )
 
 
 def _time_course_replicate_consistency_score(
@@ -858,7 +874,9 @@ def _note_for_reason_codes(
     reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...],
 ) -> str:
     if not reason_codes:
-        return "result remains robust across effect, significance, support, and qc checks"
+        return (
+            "result remains robust across effect, significance, support, and qc checks"
+        )
     messages = {
         DifferentialResultRobustnessReasonCode.LOW_EFFECT_SIZE: "effect size is modest",
         DifferentialResultRobustnessReasonCode.ELEVATED_FDR: "adjusted significance is near the reporting threshold",
@@ -1031,7 +1049,9 @@ def _bootstrap_resampled_table(
         aggregation_method=table.aggregation_method,
         normalization_method=table.normalization_method,
         imputation_method=table.imputation_method,
-        sample_ids=tuple(resampled_sample_id for resampled_sample_id, _ in resampled_sample_ids),
+        sample_ids=tuple(
+            resampled_sample_id for resampled_sample_id, _ in resampled_sample_ids
+        ),
         entity_ids=table.entity_ids,
         values=tuple(values),
         normalization_factors=normalization_factors,

@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
@@ -123,10 +122,7 @@ def build_tmt_reporter_feature_bundle(
             entry.multiplex_channel: entry.intensity
             for entry in observation.channel_intensities
         }
-        design_channels = {
-            entry.multiplex_channel or ""
-            for entry in group_entries
-        }
+        design_channels = {entry.multiplex_channel or "" for entry in group_entries}
         for channel in intensity_lookup:
             if channel not in design_channels:
                 unexpected_channels.add((observation.multiplex_group, channel))
@@ -303,7 +299,11 @@ def build_tmt_reporter_matrix_report(
             continue
         sample_records = records_by_sample.get(entry.sample_id, [])
         total_intensity = float(
-            sum(record.intensity or 0.0 for record in sample_records if record.intensity is not None)
+            sum(
+                record.intensity or 0.0
+                for record in sample_records
+                if record.intensity is not None
+            )
         )
         observed_row_count = sum(
             1 for record in sample_records if record.intensity is not None

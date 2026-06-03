@@ -111,7 +111,9 @@ def export_proteomics_evidence_graph(
     )
 
 
-def render_proteomics_evidence_graph_nodes_tsv(bundle: EvidenceGraphExportBundle) -> str:
+def render_proteomics_evidence_graph_nodes_tsv(
+    bundle: EvidenceGraphExportBundle,
+) -> str:
     """Render exported graph nodes as Cytoscape-friendly TSV."""
 
     return _dict_rows_to_tsv(
@@ -133,7 +135,9 @@ def render_proteomics_evidence_graph_nodes_tsv(bundle: EvidenceGraphExportBundle
     )
 
 
-def render_proteomics_evidence_graph_edges_tsv(bundle: EvidenceGraphExportBundle) -> str:
+def render_proteomics_evidence_graph_edges_tsv(
+    bundle: EvidenceGraphExportBundle,
+) -> str:
     """Render exported graph edges as Cytoscape-friendly TSV."""
 
     return _dict_rows_to_tsv(
@@ -153,7 +157,9 @@ def render_proteomics_evidence_graph_edges_tsv(bundle: EvidenceGraphExportBundle
     )
 
 
-def render_proteomics_evidence_graph_compact_json(bundle: EvidenceGraphExportBundle) -> str:
+def render_proteomics_evidence_graph_compact_json(
+    bundle: EvidenceGraphExportBundle,
+) -> str:
     """Render one compact deterministic JSON export for external graph tools."""
 
     return bundle.to_stable_json()

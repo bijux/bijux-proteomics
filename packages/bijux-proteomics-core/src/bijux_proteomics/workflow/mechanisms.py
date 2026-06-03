@@ -28,9 +28,13 @@ from bijux_proteomics.review import (
     BiomarkerCandidateRankingInput,
     build_biomarker_candidate_ranking_report,
 )
-from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
-from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
+    EvidenceGraphConfidenceTier,
+)
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import ProteinMechanismCard
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.study_result import ProteomicsStudyResult
 from bijux_proteomics_foundation import JsonModel
 
@@ -118,7 +122,11 @@ def build_mechanism_cards(
                 *_build_compartment_signal_cards(report),
                 *_build_biomarker_candidate_cards(report),
             ),
-            key=lambda entry: (entry.mechanism_kind.value, entry.subject_id, entry.card_id),
+            key=lambda entry: (
+                entry.mechanism_kind.value,
+                entry.subject_id,
+                entry.card_id,
+            ),
         )
     )
     return MechanismCardReport(
@@ -129,16 +137,20 @@ def build_mechanism_cards(
                 card.mechanism_kind is MechanismCardKind.PATHWAY_SHIFT for card in cards
             ),
             kinase_candidate_count=sum(
-                card.mechanism_kind is MechanismCardKind.KINASE_CANDIDATE for card in cards
+                card.mechanism_kind is MechanismCardKind.KINASE_CANDIDATE
+                for card in cards
             ),
             complex_change_count=sum(
-                card.mechanism_kind is MechanismCardKind.COMPLEX_CHANGE for card in cards
+                card.mechanism_kind is MechanismCardKind.COMPLEX_CHANGE
+                for card in cards
             ),
             compartment_signal_count=sum(
-                card.mechanism_kind is MechanismCardKind.COMPARTMENT_SIGNAL for card in cards
+                card.mechanism_kind is MechanismCardKind.COMPARTMENT_SIGNAL
+                for card in cards
             ),
             biomarker_candidate_count=sum(
-                card.mechanism_kind is MechanismCardKind.BIOMARKER_CANDIDATE for card in cards
+                card.mechanism_kind is MechanismCardKind.BIOMARKER_CANDIDATE
+                for card in cards
             ),
             high_confidence_count=sum(
                 card.confidence is MechanismCardConfidence.HIGH for card in cards
@@ -251,7 +263,9 @@ def _biological_report(
     return result.biological_report
 
 
-def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[MechanismCard, ...]:
+def _build_pathway_shift_cards(
+    report: BiologicalResultReportBundle,
+) -> tuple[MechanismCard, ...]:
     pathway_report = report.pathway_activity_report
     if pathway_report is None:
         return ()
@@ -262,7 +276,8 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
     enrichment_by_pathway = {}
     if report.pathway_enrichment_report is not None:
         enrichment_by_pathway = {
-            entry.pathway_id: entry for entry in report.pathway_enrichment_report.entries
+            entry.pathway_id: entry
+            for entry in report.pathway_enrichment_report.entries
         }
     for entry in pathway_report.condition_comparisons:
         evidence_for = [
@@ -270,10 +285,7 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
                 "pathway activity delta "
                 f"{_format_float(entry.activity_score_delta)} for {entry.condition_b} versus {entry.condition_a}"
             ),
-            (
-                "comparison confidence "
-                f"{entry.comparison_confidence_status.value}"
-            ),
+            (f"comparison confidence {entry.comparison_confidence_status.value}"),
         ]
         enrichment = enrichment_by_pathway.get(entry.pathway_id)
         if enrichment is not None:
@@ -282,22 +294,34 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
                 f"{_format_float(enrichment.enrichment_ratio)} with overlap {enrichment.foreground_overlap_count}/{enrichment.background_member_count}"
             )
         evidence_against = []
-        if entry.comparison_confidence_status is PathwayActivityConfidenceStatus.LOW_CONFIDENCE:
-            evidence_against.append("pathway activity comparison remained low confidence")
+        if (
+            entry.comparison_confidence_status
+            is PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
+            evidence_against.append(
+                "pathway activity comparison remained low confidence"
+            )
         unresolved = tuple(sorted(unresolved_by_pathway.get(entry.pathway_id, ())))
         if unresolved:
             evidence_against.append(
                 "unresolved pathway members: " + ", ".join(unresolved)
             )
         if not evidence_against:
-            evidence_against.append("no direct pathway-level contradiction was preserved")
+            evidence_against.append(
+                "no direct pathway-level contradiction was preserved"
+            )
         missing_evidence = []
         if enrichment is None:
             missing_evidence.append("pathway enrichment companion evidence")
         if unresolved:
             missing_evidence.append("complete pathway member mapping")
-        if entry.comparison_confidence_status is PathwayActivityConfidenceStatus.LOW_CONFIDENCE:
-            missing_evidence.append("additional high-confidence quantified pathway members")
+        if (
+            entry.comparison_confidence_status
+            is PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
+            missing_evidence.append(
+                "additional high-confidence quantified pathway members"
+            )
         if not missing_evidence:
             missing_evidence.append("independent perturbation validation")
         confidence_score = 0.85
@@ -305,7 +329,10 @@ def _build_pathway_shift_cards(report: BiologicalResultReportBundle) -> tuple[Me
             confidence_score -= 0.15
         if unresolved:
             confidence_score -= 0.15
-        if entry.comparison_confidence_status is PathwayActivityConfidenceStatus.LOW_CONFIDENCE:
+        if (
+            entry.comparison_confidence_status
+            is PathwayActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
             confidence_score -= 0.25
         cards.append(
             MechanismCard(
@@ -343,7 +370,9 @@ def _build_kinase_candidate_cards(
         return ()
     unresolved_by_regulator: dict[str, list[str]] = {}
     for entry in regulator_report.unresolved_targets:
-        unresolved_by_regulator.setdefault(entry.regulator, []).append(entry.target_value)
+        unresolved_by_regulator.setdefault(entry.regulator, []).append(
+            entry.target_value
+        )
     cards: list[MechanismCard] = []
     for entry in regulator_report.entries:
         if entry.evidence_type is not RegulatorEvidenceType.KINASE_SUBSTRATE:
@@ -371,7 +400,9 @@ def _build_kinase_candidate_cards(
                 "unresolved regulator targets: " + ", ".join(unresolved)
             )
         if not evidence_against:
-            evidence_against.append("no direct kinase-level contradiction was preserved")
+            evidence_against.append(
+                "no direct kinase-level contradiction was preserved"
+            )
         missing_evidence = []
         if not entry.supporting_site_keys:
             missing_evidence.append("site-level substrate regulation support")
@@ -412,7 +443,9 @@ def _build_kinase_candidate_cards(
     return tuple(cards)
 
 
-def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[MechanismCard, ...]:
+def _build_complex_change_cards(
+    report: BiologicalResultReportBundle,
+) -> tuple[MechanismCard, ...]:
     complex_report = report.complex_activity_report
     if complex_report is None:
         return ()
@@ -426,10 +459,7 @@ def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[M
                 "complex activity delta "
                 f"{_format_float(entry.activity_score_delta)} for {entry.condition_b} versus {entry.condition_a}"
             ),
-            (
-                "comparison confidence "
-                f"{entry.comparison_confidence_status.value}"
-            ),
+            (f"comparison confidence {entry.comparison_confidence_status.value}"),
         ]
         evidence_against = []
         limiting_members = tuple(
@@ -444,21 +474,31 @@ def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[M
             evidence_against.append(
                 "limiting complex members: " + ", ".join(limiting_members)
             )
-        if entry.comparison_confidence_status is ComplexActivityConfidenceStatus.LOW_CONFIDENCE:
-            evidence_against.append("complex activity comparison remained low confidence")
+        if (
+            entry.comparison_confidence_status
+            is ComplexActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
+            evidence_against.append(
+                "complex activity comparison remained low confidence"
+            )
         unresolved = tuple(sorted(unresolved_by_complex.get(entry.complex_id, ())))
         if unresolved:
             evidence_against.append(
                 "unresolved complex members: " + ", ".join(unresolved)
             )
         if not evidence_against:
-            evidence_against.append("no direct complex-level contradiction was preserved")
+            evidence_against.append(
+                "no direct complex-level contradiction was preserved"
+            )
         missing_evidence = []
         if limiting_members:
             missing_evidence.append("balanced quantification for limiting subunits")
         if unresolved:
             missing_evidence.append("complete complex member mapping")
-        if entry.comparison_confidence_status is ComplexActivityConfidenceStatus.LOW_CONFIDENCE:
+        if (
+            entry.comparison_confidence_status
+            is ComplexActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
             missing_evidence.append("additional observed complex members")
         if not missing_evidence:
             missing_evidence.append("orthogonal complex assembly evidence")
@@ -467,7 +507,10 @@ def _build_complex_change_cards(report: BiologicalResultReportBundle) -> tuple[M
             confidence_score -= 0.15
         if unresolved:
             confidence_score -= 0.15
-        if entry.comparison_confidence_status is ComplexActivityConfidenceStatus.LOW_CONFIDENCE:
+        if (
+            entry.comparison_confidence_status
+            is ComplexActivityConfidenceStatus.LOW_CONFIDENCE
+        ):
             confidence_score -= 0.25
         cards.append(
             MechanismCard(
@@ -521,10 +564,7 @@ def _build_compartment_signal_cards(
                 "compartment activity delta "
                 f"{_format_float(entry.activity_score_delta)} for {entry.condition_b} versus {entry.condition_a}"
             ),
-            (
-                "comparison confidence "
-                f"{entry.comparison_confidence_status.value}"
-            ),
+            (f"comparison confidence {entry.comparison_confidence_status.value}"),
         ]
         if enrichment is not None:
             evidence_for.append(
@@ -533,20 +573,27 @@ def _build_compartment_signal_cards(
             )
         evidence_against = []
         if entry.comparison_confidence_status.value == "low":
-            evidence_against.append("compartment activity comparison remained low confidence")
+            evidence_against.append(
+                "compartment activity comparison remained low confidence"
+            )
         if unknown_foreground:
             evidence_against.append(
-                "foreground proteins without compartment mapping: " + ", ".join(unknown_foreground)
+                "foreground proteins without compartment mapping: "
+                + ", ".join(unknown_foreground)
             )
         if not evidence_against:
-            evidence_against.append("no direct compartment-level contradiction was preserved")
+            evidence_against.append(
+                "no direct compartment-level contradiction was preserved"
+            )
         missing_evidence = []
         if enrichment is None:
             missing_evidence.append("compartment enrichment companion evidence")
         if unknown_foreground:
             missing_evidence.append("complete foreground compartment annotation")
         if entry.comparison_confidence_status.value == "low":
-            missing_evidence.append("additional localized proteins with high-confidence scores")
+            missing_evidence.append(
+                "additional localized proteins with high-confidence scores"
+            )
         if not missing_evidence:
             missing_evidence.append("orthogonal localization validation")
         confidence_score = 0.8
@@ -622,7 +669,9 @@ def _build_biomarker_candidate_cards(
                 + ", ".join(code.value for code in source_card.warning_codes)
             )
         if not evidence_against:
-            evidence_against.append("no direct biomarker-level contradiction was preserved")
+            evidence_against.append(
+                "no direct biomarker-level contradiction was preserved"
+            )
         missing_evidence = []
         if entry.decomposition.uncertainty > 0.0:
             missing_evidence.append(
@@ -721,7 +770,9 @@ def _biomarker_candidate_from_mechanism_card(
         sample_qc_score=sample_qc_score,
         annotation_labels=annotation_labels,
         source_ids=(card.card_id, card.graph_claim_node_id, card.protein_card_id),
-        uncertainty=min(1.0, 0.1 * len(card.warning_codes) + 0.05 * len(card.downgrade_reasons)),
+        uncertainty=min(
+            1.0, 0.1 * len(card.warning_codes) + 0.05 * len(card.downgrade_reasons)
+        ),
         note="protein mechanism card promoted into biomarker candidate ranking input",
     )
 
@@ -745,7 +796,9 @@ def _format_float(value: float | None) -> str:
 
 
 def _derived_no_source_reason(reason: str) -> str:
-    return SourceRowLineage.from_derived_reason(reason).derived_no_source_reason or reason
+    return (
+        SourceRowLineage.from_derived_reason(reason).derived_no_source_reason or reason
+    )
 
 
 __all__ = [

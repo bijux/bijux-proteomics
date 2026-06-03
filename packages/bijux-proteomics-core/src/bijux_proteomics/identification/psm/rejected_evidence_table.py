@@ -11,12 +11,12 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics._scientific_tables import ScientificTableRejectedRow
 from bijux_proteomics.domain.reason_codes import (
     ReasonCodeCategory,
     require_registered_reason_code,
 )
 from bijux_proteomics.identification.contracts import RejectedPsmRow
-from bijux_proteomics._scientific_tables import ScientificTableRejectedRow
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -142,7 +142,7 @@ def _build_rejected_evidence_rows(
 ) -> tuple[RejectedEvidenceTableEntry, ...]:
     entries: list[RejectedEvidenceTableEntry] = []
     for row in rows:
-        row_number = int(getattr(row, "row_number"))
+        row_number = int(row.row_number)
         raw_values = _read_raw_values(row, raw_values_attrs=raw_values_attrs)
         entity_id = _resolve_entity_id(
             raw_values=raw_values,
@@ -150,7 +150,7 @@ def _build_rejected_evidence_rows(
             default_entity_id_prefix=default_entity_id_prefix,
             row_number=row_number,
         )
-        issues = tuple(getattr(row, "issues"))
+        issues = tuple(row.issues)
         if issues:
             for issue in issues:
                 reason_code = str(issue.code).strip() or default_reason_code

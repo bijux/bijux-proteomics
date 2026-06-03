@@ -9,7 +9,9 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.explanations.scientific_story import WorkflowScientificSnapshot
+from bijux_proteomics.review.explanations.scientific_story import (
+    WorkflowScientificSnapshot,
+)
 from bijux_proteomics_foundation import JsonModel
 
 

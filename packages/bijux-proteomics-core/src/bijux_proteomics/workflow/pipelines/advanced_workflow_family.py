@@ -112,11 +112,17 @@ def validate_advanced_workflow_family_contract(
 
     failures: list[str] = []
     if not contract.workflow_name.startswith("advanced_"):
-        failures.append("advanced workflow family contract requires an advanced_* workflow_name")
+        failures.append(
+            "advanced workflow family contract requires an advanced_* workflow_name"
+        )
     if contract.config.output_dir_field != "output_dir":
-        failures.append("advanced workflow family contract requires output_dir_field='output_dir'")
+        failures.append(
+            "advanced workflow family contract requires output_dir_field='output_dir'"
+        )
     if not contract.config.primary_input_fields:
-        failures.append("advanced workflow family contract requires at least one primary_input_field")
+        failures.append(
+            "advanced workflow family contract requires at least one primary_input_field"
+        )
     failures.extend(_validate_unique_field_groups(contract.config))
     expected_manifest_name = f"{contract.workflow_name}_workflow_manifest.json"
     if contract.artifacts.workflow_manifest_json != expected_manifest_name:

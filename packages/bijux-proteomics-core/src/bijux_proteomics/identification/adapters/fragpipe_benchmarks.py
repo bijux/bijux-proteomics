@@ -62,7 +62,9 @@ class FragpipeQValueBehaviorComparison(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    psm_entries: tuple[FragpipeQValueComparisonEntry, ...] = Field(default_factory=tuple)
+    psm_entries: tuple[FragpipeQValueComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
     peptide_entries: tuple[FragpipeQValueComparisonEntry, ...] = Field(
         default_factory=tuple
     )
@@ -284,7 +286,9 @@ def render_fragpipe_count_comparisons_tsv(
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("comparison_id", "source_count", "imported_count", "matched", "note"))
+    writer.writerow(
+        ("comparison_id", "source_count", "imported_count", "matched", "note")
+    )
     for entry in report.count_comparisons:
         writer.writerow(
             (
@@ -403,7 +407,9 @@ def _build_protein_group_comparison(
     source_protein_rows: tuple[dict[str, str], ...],
     import_report: FragpipeImportReport,
 ) -> FragpipeProteinGroupComparison:
-    source_refs = tuple(sorted(str(row["Protein"]).strip() for row in source_protein_rows))
+    source_refs = tuple(
+        sorted(str(row["Protein"]).strip() for row in source_protein_rows)
+    )
     imported_refs = tuple(sorted(row.protein_ref for row in import_report.protein_rows))
     source_set = set(source_refs)
     imported_set = set(imported_refs)
@@ -461,8 +467,7 @@ def _build_q_value_behavior_comparison(
                     absolute_difference=abs(
                         source_q_value - imported_peptide_q_values[entity_id]
                     ),
-                    exact_match=source_q_value
-                    == imported_peptide_q_values[entity_id],
+                    exact_match=source_q_value == imported_peptide_q_values[entity_id],
                 )
                 for entity_id, source_q_value in source_peptide_q_values.items()
                 if imported_peptide_q_values.get(entity_id) is not None
@@ -474,14 +479,12 @@ def _build_q_value_behavior_comparison(
         psm_entries=psm_entries,
         peptide_entries=peptide_entries,
         source_psm_q_values_monotonic=_q_values_monotonic(
-            (
-                float(str(row["QValue"]).strip())
-                for row in sorted(
-                    source_psm_rows,
-                    key=lambda row: -float(str(row["Hyperscore"]).strip()),
-                )
-                if str(row.get("QValue", "")).strip()
+            float(str(row["QValue"]).strip())
+            for row in sorted(
+                source_psm_rows,
+                key=lambda row: -float(str(row["Hyperscore"]).strip()),
             )
+            if str(row.get("QValue", "")).strip()
         ),
         imported_psm_q_values_monotonic=_q_values_monotonic(
             row.q_value
@@ -492,14 +495,12 @@ def _build_q_value_behavior_comparison(
             if row.q_value is not None
         ),
         source_peptide_q_values_monotonic=_q_values_monotonic(
-            (
-                float(str(row["QValue"]).strip())
-                for row in sorted(
-                    source_peptide_rows,
-                    key=lambda row: -float(str(row["Hyperscore"]).strip()),
-                )
-                if str(row.get("QValue", "")).strip()
+            float(str(row["QValue"]).strip())
+            for row in sorted(
+                source_peptide_rows,
+                key=lambda row: -float(str(row["Hyperscore"]).strip()),
             )
+            if str(row.get("QValue", "")).strip()
         ),
         imported_peptide_q_values_monotonic=_q_values_monotonic(
             row.q_value
@@ -525,7 +526,9 @@ def _build_q_value_behavior_comparison(
 
 def _q_values_monotonic(values: Iterable[float]) -> bool:
     q_values = tuple(float(value) for value in values)
-    return all(left <= right for left, right in zip(q_values, q_values[1:], strict=False))
+    return all(
+        left <= right for left, right in zip(q_values, q_values[1:], strict=False)
+    )
 
 
 __all__ = [

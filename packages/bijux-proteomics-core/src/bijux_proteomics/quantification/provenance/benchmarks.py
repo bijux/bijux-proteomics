@@ -13,10 +13,10 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     LabelBasedQuantPolicy,
     LabelFreeQuantTable,
-    MissingValueSummaryReport,
     MissingnessConditionSummaryReport,
     MissingnessEntitySummaryReport,
     MissingnessIntensityDependenceReport,
+    MissingValueSummaryReport,
     Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
     NormalizationMethod,

@@ -16,23 +16,15 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.multiplex import build_multiplex_metadata_validation_report
-from bijux_proteomics.multiplex import TmtSearchResultSourceKind
+from bijux_proteomics.multiplex import (
+    TmtSearchResultSourceKind,
+    build_multiplex_metadata_validation_report,
+)
 from bijux_proteomics.ptm import PtmProteinCorrectionMode
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
-)
-from bijux_proteomics.workflow.public_benchmark_descriptors import (
-    PublicBenchmarkDescriptor,
-    PublicBenchmarkExpectedBiologicalSignal,
-    PublicBenchmarkExpectedSignalDirection,
-    PublicBenchmarkExpectedSignalSubjectKind,
-    PublicBenchmarkKnownLimitation,
-    PublicBenchmarkSearchEngine,
-    load_public_benchmark_descriptor,
-    list_public_benchmark_descriptor_paths,
 )
 from bijux_proteomics.workflow.pipelines.orchestrator import (
     DdaWorkflowConfig,
@@ -47,6 +39,16 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
     WorkflowMode,
     WorkflowResult,
     run_proteomics_workflow,
+)
+from bijux_proteomics.workflow.public_benchmark_descriptors import (
+    PublicBenchmarkDescriptor,
+    PublicBenchmarkExpectedBiologicalSignal,
+    PublicBenchmarkExpectedSignalDirection,
+    PublicBenchmarkExpectedSignalSubjectKind,
+    PublicBenchmarkKnownLimitation,
+    PublicBenchmarkSearchEngine,
+    list_public_benchmark_descriptor_paths,
+    load_public_benchmark_descriptor,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -600,7 +602,9 @@ def _load_targeted_panel_assays(
     if path is None:
         return ()
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return tuple(TargetedValidationPanelAssayInput.model_validate(item) for item in payload)
+    return tuple(
+        TargetedValidationPanelAssayInput.model_validate(item) for item in payload
+    )
 
 
 def _verify_approximate_counts(
@@ -681,7 +685,9 @@ def _verify_sample_metadata(
         return []
 
     design_report = parse_experimental_design_table(source_map["design_tsv"])
-    design_entries = {entry.sample_id: entry for entry in design_report.accepted_entries}
+    design_entries = {
+        entry.sample_id: entry for entry in design_report.accepted_entries
+    }
     failures: list[PublicBenchmarkFailure] = []
 
     for sample in descriptor.sample_metadata:
@@ -842,13 +848,18 @@ def _verify_expected_biological_signals(
     descriptor: PublicBenchmarkDescriptor,
     *,
     output_dir: Path,
-) -> tuple[list[PublicBenchmarkFailure], tuple[PublicBenchmarkExpectedSignalAssessment, ...]]:
+) -> tuple[
+    list[PublicBenchmarkFailure], tuple[PublicBenchmarkExpectedSignalAssessment, ...]
+]:
     assessments: list[PublicBenchmarkExpectedSignalAssessment] = []
     failures: list[PublicBenchmarkFailure] = []
     for signal in descriptor.expected_biological_signals:
         assessment = _assess_expected_signal(signal, output_dir=output_dir)
         assessments.append(assessment)
-        if assessment.status is not PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED:
+        if (
+            assessment.status
+            is not PublicBenchmarkExpectedSignalAssessmentStatus.MATCHED
+        ):
             failures.append(
                 PublicBenchmarkFailure(
                     kind=PublicBenchmarkFailureKind.EXPECTED_SIGNAL_MISMATCH,
@@ -920,7 +931,9 @@ def _assess_pathway_signal(
     rows = _load_tsv_rows(
         output_dir / "biological_pathway_activity_condition_comparisons.tsv"
     )
-    row = next((item for item in rows if item.get("pathway_id") == signal.subject_id), None)
+    row = next(
+        (item for item in rows if item.get("pathway_id") == signal.subject_id), None
+    )
     if row is None:
         return _unverified_signal_assessment(
             signal,
@@ -933,7 +946,9 @@ def _assess_pathway_signal(
     effect_size = _coerce_float(row.get("activity_score_delta"))
     observed_direction = _direction_from_effect_size(effect_size)
     comparison_confidence_status = row.get("comparison_confidence_status", "")
-    significant = coerce_confidence_tier(comparison_confidence_status) is ConfidenceTier.HIGH
+    significant = (
+        coerce_confidence_tier(comparison_confidence_status) is ConfidenceTier.HIGH
+    )
     return _finalize_directional_signal_assessment(
         signal,
         source_surface="biological_pathway_activity_condition_comparisons.tsv",
@@ -950,7 +965,9 @@ def _assess_ptm_site_signal(
     output_dir: Path,
 ) -> PublicBenchmarkExpectedSignalAssessment:
     rows = _load_tsv_rows(output_dir / "ptm_differential.tsv")
-    row = next((item for item in rows if item.get("site_key") == signal.subject_id), None)
+    row = next(
+        (item for item in rows if item.get("site_key") == signal.subject_id), None
+    )
     if row is None:
         return _unverified_signal_assessment(
             signal,

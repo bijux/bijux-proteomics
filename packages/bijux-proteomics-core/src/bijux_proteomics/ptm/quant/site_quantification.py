@@ -13,14 +13,14 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.contracts import PtmSiteEntry
+from bijux_proteomics.ptm.localization.localization_scoring import (
+    PtmLocalizationConfidenceTier,
+)
 from bijux_proteomics.ptm.sites.ambiguity_handling import (
     PtmSiteGroupQuantificationReport,
     build_ptm_ambiguity_review_report,
     build_ptm_site_group_quantification_report,
-)
-from bijux_proteomics.ptm.contracts import PtmSiteEntry
-from bijux_proteomics.ptm.localization.localization_scoring import (
-    PtmLocalizationConfidenceTier,
 )
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -138,21 +138,14 @@ def build_ptm_site_quantification_report(
     }
     exact_site_entries = tuple(
         sorted(
-            (
-                entry
-                for entry in site_entries
-                if entry.site_key in exact_site_keys
-            ),
+            (entry for entry in site_entries if entry.site_key in exact_site_keys),
             key=lambda row: row.site_key,
         )
     )
 
     sample_ids = tuple(
         sorted(
-            {
-                record.sample_id
-                for record in feature_records
-            }
+            {record.sample_id for record in feature_records}
             | {
                 sample_id
                 for entry in exact_site_entries
@@ -164,7 +157,9 @@ def build_ptm_site_quantification_report(
     feature_lookup: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
     for record in feature_records:
         for protein_ref in record.protein_refs:
-            feature_lookup.setdefault((record.sample_id, protein_ref), []).append(record)
+            feature_lookup.setdefault((record.sample_id, protein_ref), []).append(
+                record
+            )
 
     rows: list[PtmSiteQuantRow] = []
     missing_entries: list[MissingValueSummaryEntry] = []
@@ -195,9 +190,7 @@ def build_ptm_site_quantification_report(
                 and record.missing_value_kind
                 in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
             )
-            abundance = (
-                float(sum(observed_values)) if observed_values else None
-            )
+            abundance = float(sum(observed_values)) if observed_values else None
             if missing_kind is MissingValueKind.OBSERVED:
                 observed_cell_count += 1
             elif missing_kind is MissingValueKind.ZERO:
@@ -388,7 +381,9 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
         matrix_values = []
         for sample_id in sample_ids:
             value = lookup[sample_id]
-            matrix_values.append("" if value.abundance is None else f"{value.abundance:g}")
+            matrix_values.append(
+                "" if value.abundance is None else f"{value.abundance:g}"
+            )
         rows.append(
             "\t".join(
                 (
@@ -401,7 +396,9 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
                     row.localization_tier.value,
                     str(row.ambiguous).lower(),
                     str(row.shared_peptide).lower(),
-                    ";".join(str(position) for position in sorted(row.candidate_positions)),
+                    ";".join(
+                        str(position) for position in sorted(row.candidate_positions)
+                    ),
                     ";".join(sort_strings(row.localized_peptides)),
                     *matrix_values,
                 )

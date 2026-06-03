@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 import math
@@ -14,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
@@ -21,8 +20,8 @@ from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     Ms1FeatureRecord,
     MultiConditionDifferentialAbundanceReport,
-    QuantEntityLevel,
     QuantDesignMatrixReport,
+    QuantEntityLevel,
     QuantMatrixExport,
     build_quant_design_matrix_report,
     build_quant_matrix_export,
@@ -184,10 +183,11 @@ def render_limma_assay_matrix_tsv(package: LimmaCompatibleQuantPackage) -> str:
             row.sample_metadata.sample_id for row in package.matrix_export.rows
         )
     )
-    entity_ids = tuple(dict.fromkeys(row.entity_id for row in package.matrix_export.rows))
+    entity_ids = tuple(
+        dict.fromkeys(row.entity_id for row in package.matrix_export.rows)
+    )
     grouped: dict[str, dict[str, float | None]] = {
-        entity_id: {sample_id: None for sample_id in sample_ids}
-        for entity_id in entity_ids
+        entity_id: dict.fromkeys(sample_ids) for entity_id in entity_ids
     }
     for row in package.matrix_export.rows:
         grouped[row.entity_id][row.sample_metadata.sample_id] = (
@@ -218,7 +218,7 @@ def render_limma_sample_annotations_tsv(package: LimmaCompatibleQuantPackage) ->
             {
                 key
                 for annotation in package.sample_annotations
-                for key in annotation.metadata.keys()
+                for key in annotation.metadata
             }
         )
     )
@@ -257,7 +257,10 @@ def render_limma_contrast_matrix_tsv(package: LimmaCompatibleQuantPackage) -> st
     writer.writerow(
         [
             "coefficient_name",
-            *[contrast.contrast_name for contrast in package.design_matrix_report.contrasts],
+            *[
+                contrast.contrast_name
+                for contrast in package.design_matrix_report.contrasts
+            ],
         ]
     )
     for column_name in columns:
@@ -310,11 +313,7 @@ def build_msstats_compatible_input_report(
             skipped += 1
             continue
         design_entry = design_lookup.get(record.sample_id)
-        if (
-            design_entry is None
-            or not record.protein_refs
-            or record.intensity is None
-        ):
+        if design_entry is None or not record.protein_refs or record.intensity is None:
             skipped += 1
             continue
         rows.append(
@@ -416,10 +415,14 @@ def parse_limma_result_table(
                 condition_b=condition_b,
                 log2_fold_change=float(row.get("logFC") or row.get("log2FC") or "0"),
                 p_value=(
-                    None if row.get("P.Value") in (None, "") else float(row.get("P.Value") or "0")
+                    None
+                    if row.get("P.Value") in (None, "")
+                    else float(row.get("P.Value") or "0")
                 ),
                 adjusted_p_value=(
-                    None if row.get("adj.P.Val") in (None, "") else float(row.get("adj.P.Val") or "0")
+                    None
+                    if row.get("adj.P.Val") in (None, "")
+                    else float(row.get("adj.P.Val") or "0")
                 ),
             )
         )
@@ -483,7 +486,10 @@ def _reference_lookup(
 ) -> dict[tuple[str, str], float]:
     if isinstance(report, DifferentialAbundanceReport):
         return {
-            (entry.entity_id, f"{report.condition_a}_vs_{report.condition_b}"): entry.log2_fold_change
+            (
+                entry.entity_id,
+                f"{report.condition_a}_vs_{report.condition_b}",
+            ): entry.log2_fold_change
             for entry in report.entries
         }
     lookup: dict[tuple[str, str], float] = {}
@@ -508,9 +514,11 @@ def build_statistical_backend_validation_report(
         if reference_value is None:
             continue
         matched += 1
-        if (reference_value == 0 and row.log2_fold_change == 0) or (
-            reference_value > 0 and row.log2_fold_change > 0
-        ) or (reference_value < 0 and row.log2_fold_change < 0):
+        if (
+            (reference_value == 0 and row.log2_fold_change == 0)
+            or (reference_value > 0 and row.log2_fold_change > 0)
+            or (reference_value < 0 and row.log2_fold_change < 0)
+        ):
             concordant += 1
         deltas.append(abs(reference_value - row.log2_fold_change))
     return StatisticalBackendValidationReport(

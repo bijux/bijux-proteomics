@@ -17,6 +17,7 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportExportManifest,
 )
 
+
 def run_biological_report_command(
     input_tsv: Path,
     design_tsv: Path,
@@ -98,9 +99,7 @@ def run_biological_report_command(
             selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
                 adjusted_p_value_threshold=volcano_adjusted_p_value,
-                absolute_log2_fold_change_threshold=(
-                    volcano_absolute_log2_fold_change
-                ),
+                absolute_log2_fold_change_threshold=(volcano_absolute_log2_fold_change),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -125,6 +124,7 @@ def run_biological_report_command(
         },
         out_path=out_path,
     )
+
 
 def run_dda_biological_report_command(
     search_result_tsv: Path,
@@ -198,9 +198,7 @@ def run_dda_biological_report_command(
             selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
                 adjusted_p_value_threshold=volcano_adjusted_p_value,
-                absolute_log2_fold_change_threshold=(
-                    volcano_absolute_log2_fold_change
-                ),
+                absolute_log2_fold_change_threshold=(volcano_absolute_log2_fold_change),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -226,4 +224,5 @@ def run_dda_biological_report_command(
         out_path=out_path,
     )
 
-__all__ = ['run_biological_report_command', 'run_dda_biological_report_command']
+
+__all__ = ["run_biological_report_command", "run_dda_biological_report_command"]

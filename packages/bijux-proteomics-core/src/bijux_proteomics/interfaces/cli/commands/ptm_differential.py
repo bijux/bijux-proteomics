@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_differential import (
+    run_ptm_differential_command,
+    run_ptm_estimate_occupancy_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_differential import run_ptm_estimate_occupancy_command, run_ptm_differential_command
+
 
 @click.command("estimate-occupancy")
 @click.argument(
@@ -82,8 +86,30 @@ def ptm_estimate_occupancy_command(
     counterpart_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Estimate PTM occupancy and export counterpart-coverage review ledgers.'
-    return run_ptm_estimate_occupancy_command(evidence_tsv, proteins_fasta, feature_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, summary_tsv_out, occupancy_tsv_out, counterpart_tsv_out, out_path)
+    "Estimate PTM occupancy and export counterpart-coverage review ledgers."
+    return run_ptm_estimate_occupancy_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        summary_tsv_out,
+        occupancy_tsv_out,
+        counterpart_tsv_out,
+        out_path,
+    )
+
 
 @click.command("differential")
 @click.argument(
@@ -232,8 +258,45 @@ def ptm_differential_command(
     volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
-    'Test PTM site changes across conditions from localized evidence and feature intensities.'
-    return run_ptm_differential_command(evidence_tsv, proteins_fasta, feature_tsv, design_path, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, ambiguity_policy, normalization, condition_a, condition_b, design_batch_field, design_pairing_field, design_covariates, protein_correction_mode, results_tsv_out, broken_pairs_tsv_out, volcano_tsv_out, volcano_json_out, volcano_svg_out, volcano_html_out, volcano_adjusted_p_value_threshold, volcano_absolute_log2_fold_change_threshold, volcano_top_label_count, out_path)
+    "Test PTM site changes across conditions from localized evidence and feature intensities."
+    return run_ptm_differential_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        design_path,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        ambiguity_policy,
+        normalization,
+        condition_a,
+        condition_b,
+        design_batch_field,
+        design_pairing_field,
+        design_covariates,
+        protein_correction_mode,
+        results_tsv_out,
+        broken_pairs_tsv_out,
+        volcano_tsv_out,
+        volcano_json_out,
+        volcano_svg_out,
+        volcano_html_out,
+        volcano_adjusted_p_value_threshold,
+        volcano_absolute_log2_fold_change_threshold,
+        volcano_top_label_count,
+        out_path,
+    )
+
 
 COMMANDS = (
     ptm_estimate_occupancy_command,

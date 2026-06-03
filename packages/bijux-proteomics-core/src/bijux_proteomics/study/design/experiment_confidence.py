@@ -13,6 +13,14 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.lab.protocol_consistency import (
+    ProtocolConsistencyReport,
+)
+from bijux_proteomics.lab.qc import (
+    LcmsRunQcReport,
+    QcRunAssessmentReport,
+    QcStatus,
+)
 from bijux_proteomics.quantification.contracts import MissingnessConditionSummaryReport
 from bijux_proteomics.quantification.power_estimation import PowerEstimationReport
 from bijux_proteomics.study.design.design_validity import (
@@ -26,14 +34,6 @@ from bijux_proteomics.study.design.experiment_design import (
 from bijux_proteomics.study.design.experiment_feasibility import (
     ExperimentFeasibilityReport,
     build_experiment_feasibility_report,
-)
-from bijux_proteomics.lab.protocol_consistency import (
-    ProtocolConsistencyReport,
-)
-from bijux_proteomics.lab.qc import (
-    LcmsRunQcReport,
-    QcRunAssessmentReport,
-    QcStatus,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -111,11 +111,11 @@ def build_experiment_confidence_report(
     """Score one experiment from metadata, QC, balance, missingness, power, and evidence consistency."""
 
     experiment_design = coerce_experiment_design(design)
-    resolved_validity_report = validity_report or build_experiment_design_validity_report(
-        experiment_design
+    resolved_validity_report = (
+        validity_report or build_experiment_design_validity_report(experiment_design)
     )
-    resolved_feasibility_report = feasibility_report or build_experiment_feasibility_report(
-        experiment_design
+    resolved_feasibility_report = (
+        feasibility_report or build_experiment_feasibility_report(experiment_design)
     )
     components = (
         _metadata_validity_component(
@@ -145,9 +145,7 @@ def build_experiment_confidence_report(
         if assessment.qc_status is QcStatus.CAUTION
     )
     failed_run_count = sum(
-        1
-        for assessment in run_qc_assessments
-        if assessment.qc_status is QcStatus.FAIL
+        1 for assessment in run_qc_assessments if assessment.qc_status is QcStatus.FAIL
     )
     return ExperimentConfidenceReport(
         experiment_design=experiment_design,
@@ -187,7 +185,10 @@ def render_experiment_confidence_summary_tsv(
     writer.writerow(("overall_tier", report.summary.overall_tier.value))
     writer.writerow(("component_count", report.summary.component_count))
     writer.writerow(
-        ("low_confidence_component_count", report.summary.low_confidence_component_count)
+        (
+            "low_confidence_component_count",
+            report.summary.low_confidence_component_count,
+        )
     )
     writer.writerow(("metadata_issue_count", report.summary.metadata_issue_count))
     writer.writerow(("caution_run_count", report.summary.caution_run_count))
@@ -229,7 +230,10 @@ def _metadata_validity_component(
             }
         )
     )
-    issue_count = validity_report.summary.issue_count + feasibility_report.summary.missing_metadata_count
+    issue_count = (
+        validity_report.summary.issue_count
+        + feasibility_report.summary.missing_metadata_count
+    )
     score = max(0.0, 1.0 - (0.2 * issue_count))
     if not validity_report.summary.valid_for_differential_analysis:
         score = min(score, 0.25)
@@ -276,7 +280,9 @@ def _run_qc_component(
     reason_codes = tuple(
         sorted(
             {
-                "failed_run_qc" if assessment.qc_status is QcStatus.FAIL else "caution_run_qc"
+                "failed_run_qc"
+                if assessment.qc_status is QcStatus.FAIL
+                else "caution_run_qc"
                 for assessment in run_qc_assessments
                 if assessment.qc_status is not QcStatus.PASSED
             }
@@ -299,7 +305,8 @@ def _sample_balance_component(
     feasibility_report: ExperimentFeasibilityReport,
 ) -> ExperimentConfidenceComponent:
     counts = tuple(
-        entry.effective_statistical_unit_count for entry in feasibility_report.group_sizes
+        entry.effective_statistical_unit_count
+        for entry in feasibility_report.group_sizes
     )
     if not counts:
         return ExperimentConfidenceComponent(
@@ -351,9 +358,9 @@ def _missingness_component(
             message="missingness cannot be assessed without condition-level quantitative evidence",
         )
     maximum_missing_fraction = max(entry.missing_fraction for entry in report.entries)
-    mean_missing_fraction = sum(entry.missing_fraction for entry in report.entries) / len(
-        report.entries
-    )
+    mean_missing_fraction = sum(
+        entry.missing_fraction for entry in report.entries
+    ) / len(report.entries)
     condition_specific_absence_count = sum(
         len(entry.condition_specific_absence_entity_ids) for entry in report.entries
     )

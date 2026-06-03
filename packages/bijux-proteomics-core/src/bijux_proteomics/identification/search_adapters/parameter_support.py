@@ -11,7 +11,6 @@ from bijux_proteomics.identification.search_adapters.contracts import (
     SearchModificationDefinition,
 )
 
-
 SUPPORTED_ENZYMES = {
     "trypsin",
     "trypsin/p",
@@ -24,6 +23,7 @@ SUPPORTED_ENZYMES = {
     "no_enzyme",
     "unspecific",
 }
+
 
 def parse_key_value_parameters(path: Path) -> dict[str, str]:
     fields: dict[str, str] = {}
@@ -88,6 +88,7 @@ def variable_modifications_from_key_value_fields(
             )
         )
     return tuple(definitions)
+
 
 def modification_definitions_from_compact_value(
     value: str | None,

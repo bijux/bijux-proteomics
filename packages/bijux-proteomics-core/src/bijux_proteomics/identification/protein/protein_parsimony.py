@@ -194,7 +194,10 @@ def build_protein_parsimony_report(
         )
 
     variant_comparison = _compare_selected_groups(
-        tuple(variant_results[review_variant] for review_variant in normalized_review_variants)
+        tuple(
+            variant_results[review_variant]
+            for review_variant in normalized_review_variants
+        )
     )
     for difference in variant_comparison.differences:
         if (
@@ -257,7 +260,9 @@ def build_protein_parsimony_report(
         reproducibility_hash="0" * 64,
     )
     return report.model_copy(
-        update={"reproducibility_hash": hashlib.sha256(_raw_payload(report)).hexdigest()}
+        update={
+            "reproducibility_hash": hashlib.sha256(_raw_payload(report)).hexdigest()
+        }
     )
 
 
@@ -343,7 +348,9 @@ def render_protein_parsimony_ambiguities_tsv(report: ProteinParsimonyReport) -> 
                 entry.subject_id,
                 entry.kind.value,
                 ";".join(entry.candidate_proteins),
-                "" if entry.first_difference_rank is None else entry.first_difference_rank,
+                ""
+                if entry.first_difference_rank is None
+                else entry.first_difference_rank,
                 _render_strategy_assignments(entry.strategy_assignments),
                 entry.note,
             )
@@ -387,7 +394,7 @@ def _infer_selected_groups(
                 group_protein_refs=group.protein_refs,
                 covered_peptides=group.peptides,
                 newly_explained_peptides=newly_explained,
-                unresolved_shared_peptides=tuple(),
+                unresolved_shared_peptides=(),
                 best_score=group.best_score,
                 best_q_value=group.best_q_value,
                 target_decoy_label=group.target_decoy_label,
@@ -498,7 +505,9 @@ def _raw_payload(report: ProteinParsimonyReport) -> bytes:
     payload = {
         "summary": {
             "variant": report.summary.variant.value,
-            "review_variants": [variant.value for variant in report.summary.review_variants],
+            "review_variants": [
+                variant.value for variant in report.summary.review_variants
+            ],
             "total_observed_peptides": report.summary.total_observed_peptides,
             "explained_peptide_count": report.summary.explained_peptide_count,
             "unexplained_peptide_count": report.summary.unexplained_peptide_count,
@@ -510,7 +519,9 @@ def _raw_payload(report: ProteinParsimonyReport) -> bytes:
         "selected_proteins": [entry.to_dict() for entry in report.selected_proteins],
         "explained_peptides": list(report.explained_peptides),
         "unexplained_peptides": list(report.unexplained_peptides),
-        "unresolved_ambiguities": [entry.to_dict() for entry in report.unresolved_ambiguities],
+        "unresolved_ambiguities": [
+            entry.to_dict() for entry in report.unresolved_ambiguities
+        ],
         "variant_comparison": report.variant_comparison.to_dict(),
     }
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")

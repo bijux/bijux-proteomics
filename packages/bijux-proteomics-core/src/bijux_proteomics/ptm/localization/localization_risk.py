@@ -62,12 +62,19 @@ def detect_false_localization(
     if len(spectrum_ids) != 1:
         raise ValueError("false-localization detection requires one shared spectrum_id")
 
-    scoring_report = build_ptm_localization_scoring_report(candidates, registry=registry)
+    scoring_report = build_ptm_localization_scoring_report(
+        candidates, registry=registry
+    )
     probability_by_key = {
-        (candidate.spectrum_id, candidate.localized_peptide): candidate.localization_probability
+        (
+            candidate.spectrum_id,
+            candidate.localized_peptide,
+        ): candidate.localization_probability
         for candidate in candidates
     }
-    support_by_site: dict[str, tuple[float, tuple[str, ...], PtmLocalizationScoringEntry]] = {}
+    support_by_site: dict[
+        str, tuple[float, tuple[str, ...], PtmLocalizationScoringEntry]
+    ] = {}
     for entry in scoring_report.entries:
         matched_rows = score_ptm_fragments(
             entry.localized_peptide,
@@ -96,7 +103,9 @@ def detect_false_localization(
     rows: list[PtmFalseLocalizationEntry] = []
     ordered_sites = tuple(sorted(support_by_site))
     for candidate_site in ordered_sites:
-        candidate_probability, candidate_ions, candidate_entry = support_by_site[candidate_site]
+        candidate_probability, candidate_ions, candidate_entry = support_by_site[
+            candidate_site
+        ]
         for competing_site in ordered_sites:
             if candidate_site == competing_site:
                 continue

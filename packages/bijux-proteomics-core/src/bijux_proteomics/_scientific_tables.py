@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics.domain.records import ContrastKind
 from bijux_proteomics._tabular import (
     AcceptedDelimitedRow,
     DelimitedColumnSpec,
@@ -20,11 +19,14 @@ from bijux_proteomics._tabular import (
     DelimitedTableIssue,
     parse_delimited_table,
 )
+from bijux_proteomics.domain.records import ContrastKind
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
     from bijux_proteomics.identification.contracts import SearchResultColumnMapping
-    from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
+    from bijux_proteomics.isotope_labeling.silac_quantification import (
+        SilacColumnMapping,
+    )
     from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
 
 
@@ -163,7 +165,9 @@ def validate_scientific_table(
         )
 
     candidate_rows: list[AcceptedDelimitedRow] = []
-    duplicate_row_numbers = _duplicate_row_numbers(table_report.accepted_rows, schema=schema)
+    duplicate_row_numbers = _duplicate_row_numbers(
+        table_report.accepted_rows, schema=schema
+    )
     for row in table_report.accepted_rows:
         issues = _schema_row_issues(
             table_kind=schema.table_kind,
@@ -211,28 +215,28 @@ def build_psm_table_schema(
     """Build the governed schema for one generic PSM table."""
 
     column_specs = [
-            DelimitedColumnSpec(
-                name="spectrum_id",
-                source_columns=_required_mapping_source_columns(mapping, "spectrum_id"),
-                required=True,
-            ),
-            DelimitedColumnSpec(
-                name="peptide",
-                source_columns=_required_mapping_source_columns(mapping, "peptide"),
-                required=True,
-            ),
-            DelimitedColumnSpec(
-                name="charge",
-                source_columns=_required_mapping_source_columns(mapping, "charge"),
-                required=True,
-                value_type=DelimitedColumnValueType.INTEGER,
-            ),
-            DelimitedColumnSpec(
-                name="score",
-                source_columns=_required_mapping_source_columns(mapping, "score"),
-                required=True,
-                value_type=DelimitedColumnValueType.FLOAT,
-            ),
+        DelimitedColumnSpec(
+            name="spectrum_id",
+            source_columns=_required_mapping_source_columns(mapping, "spectrum_id"),
+            required=True,
+        ),
+        DelimitedColumnSpec(
+            name="peptide",
+            source_columns=_required_mapping_source_columns(mapping, "peptide"),
+            required=True,
+        ),
+        DelimitedColumnSpec(
+            name="charge",
+            source_columns=_required_mapping_source_columns(mapping, "charge"),
+            required=True,
+            value_type=DelimitedColumnValueType.INTEGER,
+        ),
+        DelimitedColumnSpec(
+            name="score",
+            source_columns=_required_mapping_source_columns(mapping, "score"),
+            required=True,
+            value_type=DelimitedColumnValueType.FLOAT,
+        ),
     ]
     q_value_columns: list[str] = []
     nonnegative_numeric_columns: list[str] = []
@@ -315,7 +319,9 @@ def build_diann_report_schema() -> ScientificTableSchema:
     return ScientificTableSchema(
         table_kind="diann_report",
         column_specs=(
-            DelimitedColumnSpec(name="precursor_id", source_columns=("Precursor.Id",), required=True),
+            DelimitedColumnSpec(
+                name="precursor_id", source_columns=("Precursor.Id",), required=True
+            ),
             DelimitedColumnSpec(
                 name="peptide_sequence",
                 source_columns=("Stripped.Sequence",),
@@ -348,7 +354,9 @@ def build_diann_report_schema() -> ScientificTableSchema:
                 source_columns=("Protein.Ids",),
                 required=True,
             ),
-            DelimitedColumnSpec(name="run_name", source_columns=("Run",), required=True),
+            DelimitedColumnSpec(
+                name="run_name", source_columns=("Run",), required=True
+            ),
             DelimitedColumnSpec(
                 name="sample_name",
                 source_columns=("Sample",),
@@ -377,9 +385,15 @@ def build_maxquant_peptides_schema() -> ScientificTableSchema:
     return ScientificTableSchema(
         table_kind="maxquant_peptides",
         column_specs=(
-            DelimitedColumnSpec(name="sequence", source_columns=("Sequence",), required=True),
-            DelimitedColumnSpec(name="modified_sequence", source_columns=("Modified sequence",)),
-            DelimitedColumnSpec(name="proteins", source_columns=("Proteins",), required=True),
+            DelimitedColumnSpec(
+                name="sequence", source_columns=("Sequence",), required=True
+            ),
+            DelimitedColumnSpec(
+                name="modified_sequence", source_columns=("Modified sequence",)
+            ),
+            DelimitedColumnSpec(
+                name="proteins", source_columns=("Proteins",), required=True
+            ),
             DelimitedColumnSpec(
                 name="score",
                 source_columns=("Score",),
@@ -413,7 +427,9 @@ def build_maxquant_protein_groups_schema() -> ScientificTableSchema:
     return ScientificTableSchema(
         table_kind="maxquant_protein_groups",
         column_specs=(
-            DelimitedColumnSpec(name="protein_ids", source_columns=("Protein IDs",), required=True),
+            DelimitedColumnSpec(
+                name="protein_ids", source_columns=("Protein IDs",), required=True
+            ),
             DelimitedColumnSpec(
                 name="majority_protein_ids",
                 source_columns=("Majority protein IDs",),
@@ -646,8 +662,16 @@ def build_ptm_evidence_schema(
     """Build the governed schema for one PTM evidence table."""
 
     column_specs = [
-        DelimitedColumnSpec(name="spectrum_id", source_columns=_required_mapping_source_columns(mapping, "spectrum_id"), required=True),
-        DelimitedColumnSpec(name="peptide", source_columns=_required_mapping_source_columns(mapping, "peptide"), required=True),
+        DelimitedColumnSpec(
+            name="spectrum_id",
+            source_columns=_required_mapping_source_columns(mapping, "spectrum_id"),
+            required=True,
+        ),
+        DelimitedColumnSpec(
+            name="peptide",
+            source_columns=_required_mapping_source_columns(mapping, "peptide"),
+            required=True,
+        ),
         DelimitedColumnSpec(
             name="charge",
             source_columns=_required_mapping_source_columns(mapping, "charge"),
@@ -667,7 +691,9 @@ def build_ptm_evidence_schema(
         ),
         DelimitedColumnSpec(
             name="localization_score",
-            source_columns=_required_mapping_source_columns(mapping, "localization_score"),
+            source_columns=_required_mapping_source_columns(
+                mapping, "localization_score"
+            ),
             required=True,
             value_type=DelimitedColumnValueType.FLOAT,
         ),
@@ -736,17 +762,39 @@ def build_silac_feature_table_schema(
     return ScientificTableSchema(
         table_kind="silac_feature_table",
         column_specs=(
-            DelimitedColumnSpec(name="feature_id", source_columns=_required_mapping_source_columns(mapping, "feature_id"), required=True),
-            DelimitedColumnSpec(name="sample_id", source_columns=_required_mapping_source_columns(mapping, "sample_id"), required=True),
-            DelimitedColumnSpec(name="peptide", source_columns=_required_mapping_source_columns(mapping, "peptide"), required=True),
-            DelimitedColumnSpec(name="protein_refs", source_columns=_required_mapping_source_columns(mapping, "protein_refs"), required=True),
+            DelimitedColumnSpec(
+                name="feature_id",
+                source_columns=_required_mapping_source_columns(mapping, "feature_id"),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="sample_id",
+                source_columns=_required_mapping_source_columns(mapping, "sample_id"),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="peptide",
+                source_columns=_required_mapping_source_columns(mapping, "peptide"),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="protein_refs",
+                source_columns=_required_mapping_source_columns(
+                    mapping, "protein_refs"
+                ),
+                required=True,
+            ),
             DelimitedColumnSpec(
                 name="charge",
                 source_columns=_required_mapping_source_columns(mapping, "charge"),
                 required=True,
                 value_type=DelimitedColumnValueType.INTEGER,
             ),
-            DelimitedColumnSpec(name="label", source_columns=_required_mapping_source_columns(mapping, "label"), required=True),
+            DelimitedColumnSpec(
+                name="label",
+                source_columns=_required_mapping_source_columns(mapping, "label"),
+                required=True,
+            ),
             DelimitedColumnSpec(
                 name="intensity",
                 source_columns=_required_mapping_source_columns(mapping, "intensity"),
@@ -939,7 +987,9 @@ def _schema_row_issues(
             issues.append(
                 ScientificTableValidationIssue(
                     table_kind=table_kind,
-                    code="invalid_label" if column in {"label", "sample_role"} else "invalid_value",
+                    code="invalid_label"
+                    if column in {"label", "sample_role"}
+                    else "invalid_value",
                     message=f"row has unsupported value {value!r} for {column!r}",
                     row_number=row.row_number,
                     column=column,
@@ -1007,7 +1057,10 @@ def _duplicate_row_numbers(
         return {}
     grouped: dict[tuple[str, ...], list[AcceptedDelimitedRow]] = defaultdict(list)
     for row in rows:
-        if not all(_present_value(row.values.get(column)) for column in schema.unique_key_columns):
+        if not all(
+            _present_value(row.values.get(column))
+            for column in schema.unique_key_columns
+        ):
             continue
         key = tuple(str(row.values.get(column)) for column in schema.unique_key_columns)
         grouped[key].append(row)

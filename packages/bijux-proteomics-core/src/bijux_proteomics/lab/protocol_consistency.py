@@ -15,15 +15,15 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.lab.protocol_context import (
     DigestionEnzyme,
     EnrichmentType,
-    LabProtocolContextEntry,
     LabelingMethod,
+    LabProtocolContextEntry,
 )
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
+    from bijux_proteomics.lab.qc import LcmsRunQcReport
     from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
     from bijux_proteomics.ptm.contracts import PtmEvidenceParseReport
-    from bijux_proteomics.lab.qc import LcmsRunQcReport
 
 
 class ProtocolConsistencyAxis(StrEnum):
@@ -79,7 +79,9 @@ class ProtocolConsistencyReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     protocol_context: LabProtocolContextEntry
-    diagnostics: tuple[ProtocolConsistencyDiagnostic, ...] = Field(default_factory=tuple)
+    diagnostics: tuple[ProtocolConsistencyDiagnostic, ...] = Field(
+        default_factory=tuple
+    )
     summary: ProtocolConsistencySummary
     note: str = Field(..., min_length=1)
 
@@ -232,7 +234,8 @@ def _append_digestion_diagnostics(
         )
         return
     specificity_lookup = {
-        str(entry.specificity): entry.fraction for entry in run_qc_report.digestion_specificity
+        str(entry.specificity): entry.fraction
+        for entry in run_qc_report.digestion_specificity
     }
     non_specific_fraction = specificity_lookup.get(
         "non_specific",
@@ -441,7 +444,9 @@ def _append_enrichment_diagnostics(
     matching_record_count = sum(
         1
         for record in ptm_evidence_report.accepted_records
-        if _matches_enrichment(record.modification_names, protocol_context.enrichment_type)
+        if _matches_enrichment(
+            record.modification_names, protocol_context.enrichment_type
+        )
     )
     observed = (
         f"matching_ptm_rows={matching_record_count};"

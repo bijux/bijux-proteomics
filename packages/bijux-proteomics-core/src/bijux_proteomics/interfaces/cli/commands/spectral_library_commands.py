@@ -10,8 +10,13 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.spectral_library_commands import (
+    run_spectral_library_import_command,
+    run_spectral_library_search_command,
+    run_spectrum_similarity_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.spectral_library_commands import run_spectrum_similarity_command, run_spectral_library_import_command, run_spectral_library_search_command
+
 
 @click.command("spectrum-similarity")
 @click.argument(
@@ -76,8 +81,24 @@ def spectrum_similarity_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare one query spectrum against one spectrum or a reference library.'
-    return run_spectrum_similarity_command(query_path, reference_path, query_kind, reference_kind, query_spectrum_id, reference_spectrum_id, method, mode, top_n, tolerance_da, bin_width_da, max_matches, tsv_out, out_path)
+    "Compare one query spectrum against one spectrum or a reference library."
+    return run_spectrum_similarity_command(
+        query_path,
+        reference_path,
+        query_kind,
+        reference_kind,
+        query_spectrum_id,
+        reference_spectrum_id,
+        method,
+        mode,
+        top_n,
+        tolerance_da,
+        bin_width_da,
+        max_matches,
+        tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectral-library-import")
 @click.argument(
@@ -119,8 +140,18 @@ def spectral_library_import_command(
     candidates_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one practical spectral library and optionally retrieve candidates.'
-    return run_spectral_library_import_command(input_path, kind, precursor_mz, tolerance_da, peptide, summary_tsv_out, candidates_tsv_out, out_path)
+    "Import one practical spectral library and optionally retrieve candidates."
+    return run_spectral_library_import_command(
+        input_path,
+        kind,
+        precursor_mz,
+        tolerance_da,
+        peptide,
+        summary_tsv_out,
+        candidates_tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectral-library-search")
 @click.argument(
@@ -198,8 +229,24 @@ def spectral_library_search_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Search one query spectrum against a practical MSP or MGF library.'
-    return run_spectral_library_search_command(query_path, library_path, query_kind, library_kind, query_spectrum_id, precursor_tolerance_da, tolerance_da, bin_width_da, method, mode, top_n, max_matches, tsv_out, out_path)
+    "Search one query spectrum against a practical MSP or MGF library."
+    return run_spectral_library_search_command(
+        query_path,
+        library_path,
+        query_kind,
+        library_kind,
+        query_spectrum_id,
+        precursor_tolerance_da,
+        tolerance_da,
+        bin_width_da,
+        method,
+        mode,
+        top_n,
+        max_matches,
+        tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     spectrum_similarity_command,

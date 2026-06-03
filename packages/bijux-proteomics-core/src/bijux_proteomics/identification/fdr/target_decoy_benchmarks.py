@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics.identification.fdr.confidence import (
     EmpiricalScoreCalibrationReport,
     build_empirical_score_calibration_report,
 )
-from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics.sequences.core import (
     DecoyGenerationMode,
     NormalizedProteinRecord,

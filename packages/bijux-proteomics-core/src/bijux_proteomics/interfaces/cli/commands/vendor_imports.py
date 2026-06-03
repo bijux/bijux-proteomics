@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.vendor_imports import (
+    run_openms_import_command,
+    run_spectronaut_import_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.vendor_imports import run_spectronaut_import_command, run_openms_import_command
+
 
 @click.command("spectronaut-import")
 @click.argument(
@@ -53,8 +57,19 @@ def spectronaut_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one Spectronaut report with explicit precursor and protein-group review.'
-    return run_spectronaut_import_command(result_tsv, config_path, summary_tsv_out, precursor_tsv_out, precursor_quantity_tsv_out, protein_group_tsv_out, protein_group_quantity_tsv_out, rejected_tsv_out, out_path)
+    "Import one Spectronaut report with explicit precursor and protein-group review."
+    return run_spectronaut_import_command(
+        result_tsv,
+        config_path,
+        summary_tsv_out,
+        precursor_tsv_out,
+        precursor_quantity_tsv_out,
+        protein_group_tsv_out,
+        protein_group_quantity_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("openms-import")
 @click.argument(
@@ -89,8 +104,18 @@ def openms_import_command(
     rejected_feature_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one OpenMS idXML bundle with practical exported feature evidence.'
-    return run_openms_import_command(idxml_path, feature_table_path, summary_tsv_out, psm_tsv_out, protein_tsv_out, feature_tsv_out, rejected_feature_tsv_out, out_path)
+    "Import one OpenMS idXML bundle with practical exported feature evidence."
+    return run_openms_import_command(
+        idxml_path,
+        feature_table_path,
+        summary_tsv_out,
+        psm_tsv_out,
+        protein_tsv_out,
+        feature_tsv_out,
+        rejected_feature_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     spectronaut_import_command,

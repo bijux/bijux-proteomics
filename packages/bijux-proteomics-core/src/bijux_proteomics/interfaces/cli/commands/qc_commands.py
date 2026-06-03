@@ -10,8 +10,9 @@ from pathlib import Path
 
 import click
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.qc_commands import run_qc_report_command
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 @click.command("report")
 @click.argument(
@@ -84,9 +85,28 @@ def qc_report_command(
     manifest_out: Path | None,
     benchmark_out: Path | None,
 ) -> None:
-    'Build QC summaries, threshold assessments, evidence manifests, and benchmark artifacts.'
-    return run_qc_report_command(spectra_path, psm_path, proteins_fasta, design_path, sample_id, run_id, policy_path, protocol_context_tsv, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, out_path, tsv_out, html_out, manifest_out, benchmark_out)
+    "Build QC summaries, threshold assessments, evidence manifests, and benchmark artifacts."
+    return run_qc_report_command(
+        spectra_path,
+        psm_path,
+        proteins_fasta,
+        design_path,
+        sample_id,
+        run_id,
+        policy_path,
+        protocol_context_tsv,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        out_path,
+        tsv_out,
+        html_out,
+        manifest_out,
+        benchmark_out,
+    )
 
-COMMANDS = (
-    qc_report_command,
-)
+
+COMMANDS = (qc_report_command,)

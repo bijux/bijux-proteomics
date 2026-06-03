@@ -132,7 +132,7 @@ def _resolve_protein_lengths(
             raise ValueError(
                 "hotspot detection requires per-protein lengths when multiple proteins are present"
             )
-        return {protein_id: protein_length for protein_id in protein_ids}
+        return dict.fromkeys(protein_ids, protein_length)
     resolved: dict[str, int] = {}
     for protein_id in protein_ids:
         length_value = protein_length.get(protein_id)
@@ -157,12 +157,19 @@ def _build_hotspot_entry(
     cluster_start = cluster[0].position
     cluster_end = cluster[-1].position
     span = max(cluster_end - cluster_start, 0)
-    direction_consistency = _direction_consistency(tuple(entry.signed_effect for entry in cluster))
-    mean_absolute_effect = sum(abs(entry.signed_effect) for entry in cluster) / len(cluster)
+    direction_consistency = _direction_consistency(
+        tuple(entry.signed_effect for entry in cluster)
+    )
+    mean_absolute_effect = sum(abs(entry.signed_effect) for entry in cluster) / len(
+        cluster
+    )
     density_factor = len(cluster) / (1.0 + span)
     compactness_factor = 1.0 - (span / float(max(protein_length, 1)))
     hotspot_score = round(
-        mean_absolute_effect * direction_consistency * density_factor * compactness_factor,
+        mean_absolute_effect
+        * direction_consistency
+        * density_factor
+        * compactness_factor,
         6,
     )
     return PtmHotspotEntry(

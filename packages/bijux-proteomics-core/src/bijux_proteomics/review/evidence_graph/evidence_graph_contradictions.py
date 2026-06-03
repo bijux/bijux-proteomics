@@ -142,7 +142,8 @@ def _detect_protein_peptide_contradictions(
                 edge
                 for peptide in peptides
                 for edge in _outgoing_edges(graph, peptide.node_id)
-                if edge.relation is ProteomicsEvidenceEdgeKind.PEPTIDE_SUPPORTS_STATISTICAL_RESULT
+                if edge.relation
+                is ProteomicsEvidenceEdgeKind.PEPTIDE_SUPPORTS_STATISTICAL_RESULT
             )
         )
         entries.append(
@@ -279,7 +280,11 @@ def _detect_pathway_support_weakness(
                 severity=EvidenceGraphContradictionSeverity.FAIL,
                 claim_node_id=pathway_result.node_id,
                 claim_node_ref=pathway_result.entity_ref,
-                related_node_ids=tuple(sorted({pathway.node_id} | {protein.node_id for protein in proteins})),
+                related_node_ids=tuple(
+                    sorted(
+                        {pathway.node_id} | {protein.node_id for protein in proteins}
+                    )
+                ),
                 source_row_refs=source_rows,
                 reason=(
                     "pathway enrichment is significant while all supporting proteins carry "

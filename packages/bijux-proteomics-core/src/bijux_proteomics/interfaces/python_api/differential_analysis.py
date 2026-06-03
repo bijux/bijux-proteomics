@@ -9,6 +9,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_dia_differential_command(
     input_path: Path,
     design_path: Path,
@@ -105,7 +106,9 @@ def run_dia_differential_command(
     if matrix_tsv_out is not None:
         export_dia_differential_matrix_tsv(report.input_report.table, matrix_tsv_out)
     if normalized_matrix_tsv_out is not None:
-        export_dia_differential_matrix_tsv(report.normalized_table, normalized_matrix_tsv_out)
+        export_dia_differential_matrix_tsv(
+            report.normalized_table, normalized_matrix_tsv_out
+        )
     if differential_tsv_out is not None:
         export_dia_differential_results_tsv(report, differential_tsv_out)
     if qc_summary_tsv_out is not None:
@@ -165,7 +168,9 @@ def run_dia_differential_command(
         "outputs": {
             "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
             "normalized_matrix_tsv": (
-                None if normalized_matrix_tsv_out is None else str(normalized_matrix_tsv_out)
+                None
+                if normalized_matrix_tsv_out is None
+                else str(normalized_matrix_tsv_out)
             ),
             "differential_tsv": (
                 None if differential_tsv_out is None else str(differential_tsv_out)
@@ -195,6 +200,7 @@ def run_dia_differential_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_dia_dda_compare_command(
     diann_report_path: Path,
@@ -264,8 +270,12 @@ def run_dia_dda_compare_command(
         "dia_source_name": comparison_report.dia_source_name,
         "dda_source_name": comparison_report.dda_source_name,
         "summary": comparison_report.summary.to_dict(),
-        "protein_overlap": [entry.to_dict() for entry in comparison_report.protein_overlap],
-        "peptide_overlap": [entry.to_dict() for entry in comparison_report.peptide_overlap],
+        "protein_overlap": [
+            entry.to_dict() for entry in comparison_report.protein_overlap
+        ],
+        "peptide_overlap": [
+            entry.to_dict() for entry in comparison_report.peptide_overlap
+        ],
         "shared_intensity_correlation": [
             entry.to_dict() for entry in comparison_report.shared_intensity_correlation
         ],
@@ -301,13 +311,12 @@ def run_dia_dda_compare_command(
                 None if conflicts_tsv_out is None else str(conflicts_tsv_out)
             ),
             "differential_tsv": (
-                None
-                if differential_tsv_out is None
-                else str(differential_tsv_out)
+                None if differential_tsv_out is None else str(differential_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_target_panel_review_command(
     input_path: Path,
@@ -386,4 +395,9 @@ def run_target_panel_review_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_dia_differential_command', 'run_dia_dda_compare_command', 'run_target_panel_review_command']
+
+__all__ = [
+    "run_dia_differential_command",
+    "run_dia_dda_compare_command",
+    "run_target_panel_review_command",
+]

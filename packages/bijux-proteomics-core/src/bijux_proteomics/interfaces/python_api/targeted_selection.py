@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_targeted_peptide_selection_command(
     protein_card_tsv: Path,
     peptide_evidence_tsv: Path,
@@ -88,6 +89,7 @@ def run_targeted_peptide_selection_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_targeted_transition_selection_command(
     selected_peptide_tsv: Path,
@@ -213,6 +215,7 @@ def run_targeted_transition_selection_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_targeted_assay_interference_command(
     selected_peptide_tsv: Path,
@@ -342,6 +345,7 @@ def run_targeted_assay_interference_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_biomarker_candidate_ranking_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -364,9 +368,7 @@ def run_biomarker_candidate_ranking_command(
     assay_interference_support = (
         None
         if assay_interference_assay_tsv is None
-        else _load_assay_interference_support_by_protein(
-            assay_interference_assay_tsv
-        )
+        else _load_assay_interference_support_by_protein(assay_interference_assay_tsv)
     )
 
     candidates: list[BiomarkerCandidateRankingInput] = []
@@ -429,4 +431,10 @@ def run_biomarker_candidate_ranking_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_targeted_peptide_selection_command', 'run_targeted_transition_selection_command', 'run_targeted_assay_interference_command', 'run_biomarker_candidate_ranking_command']
+
+__all__ = [
+    "run_targeted_peptide_selection_command",
+    "run_targeted_transition_selection_command",
+    "run_targeted_assay_interference_command",
+    "run_biomarker_candidate_ranking_command",
+]

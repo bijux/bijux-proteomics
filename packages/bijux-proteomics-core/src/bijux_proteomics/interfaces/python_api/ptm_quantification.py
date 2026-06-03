@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_ptm_ambiguity_review_command(
     evidence_tsv: Path,
@@ -54,7 +54,9 @@ def run_ptm_ambiguity_review_command(
                 fragment_support_json.read_text(encoding="utf-8")
             )
             if not isinstance(raw_fragment_support, dict):
-                raise ValueError("fragment support JSON must be an object keyed by spectrum id")
+                raise ValueError(
+                    "fragment support JSON must be an object keyed by spectrum id"
+                )
             fragment_ion_support_by_spectrum = {
                 str(spectrum_id): tuple(str(ion) for ion in ions)
                 for spectrum_id, ions in raw_fragment_support.items()
@@ -119,26 +121,39 @@ def run_ptm_ambiguity_review_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ptm_ambiguity_review_summary_tsv(ambiguity_review))
+        write_output_table_tsv(
+            summary_tsv_out, render_ptm_ambiguity_review_summary_tsv(ambiguity_review)
+        )
     if localized_tsv_out is not None:
-        write_output_table_tsv(localized_tsv_out, render_ptm_localized_site_review_tsv(ambiguity_review))
+        write_output_table_tsv(
+            localized_tsv_out, render_ptm_localized_site_review_tsv(ambiguity_review)
+        )
     if unlocalized_tsv_out is not None:
-        write_output_table_tsv(unlocalized_tsv_out, render_ptm_unlocalized_group_review_tsv(ambiguity_review))
+        write_output_table_tsv(
+            unlocalized_tsv_out,
+            render_ptm_unlocalized_group_review_tsv(ambiguity_review),
+        )
     if (
         group_quant_summary_tsv_out is not None
         and site_group_quantification is not None
     ):
-        write_output_table_tsv(group_quant_summary_tsv_out, render_ptm_site_group_quant_summary_tsv(site_group_quantification))
-    if (
-        group_quant_matrix_tsv_out is not None
-        and site_group_quantification is not None
-    ):
-        write_output_table_tsv(group_quant_matrix_tsv_out, render_ptm_site_group_quant_matrix_tsv(site_group_quantification))
+        write_output_table_tsv(
+            group_quant_summary_tsv_out,
+            render_ptm_site_group_quant_summary_tsv(site_group_quantification),
+        )
+    if group_quant_matrix_tsv_out is not None and site_group_quantification is not None:
+        write_output_table_tsv(
+            group_quant_matrix_tsv_out,
+            render_ptm_site_group_quant_matrix_tsv(site_group_quantification),
+        )
     if (
         group_quant_missingness_tsv_out is not None
         and site_group_quantification is not None
     ):
-        write_output_table_tsv(group_quant_missingness_tsv_out, render_ptm_site_group_quant_missingness_tsv(site_group_quantification))
+        write_output_table_tsv(
+            group_quant_missingness_tsv_out,
+            render_ptm_site_group_quant_missingness_tsv(site_group_quantification),
+        )
 
     _emit_json(
         {
@@ -151,6 +166,7 @@ def run_ptm_ambiguity_review_command(
         },
         out_path=out_path,
     )
+
 
 def run_ptm_quantify_sites_command(
     evidence_tsv: Path,
@@ -183,13 +199,10 @@ def run_ptm_quantify_sites_command(
         resolved_ambiguity_policy = PtmSiteQuantAmbiguityPolicy(
             ambiguity_policy.lower()
         )
-        if (
-            resolved_ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
-            and (
-                ambiguous_group_summary_tsv_out is not None
-                or ambiguous_group_matrix_tsv_out is not None
-                or ambiguous_group_missingness_tsv_out is not None
-            )
+        if resolved_ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE and (
+            ambiguous_group_summary_tsv_out is not None
+            or ambiguous_group_matrix_tsv_out is not None
+            or ambiguous_group_missingness_tsv_out is not None
         ):
             raise click.ClickException(
                 "ambiguous-group TSV outputs require --ambiguity-policy preserve because excluded ambiguous site rows are not quantified into one group matrix"
@@ -242,34 +255,49 @@ def run_ptm_quantify_sites_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ptm_site_quant_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_ptm_site_quant_summary_tsv(report)
+        )
     if matrix_tsv_out is not None:
         write_output_table_tsv(matrix_tsv_out, render_ptm_site_quant_matrix_tsv(report))
     if missingness_tsv_out is not None:
-        write_output_table_tsv(missingness_tsv_out, render_ptm_site_quant_missingness_tsv(report))
+        write_output_table_tsv(
+            missingness_tsv_out, render_ptm_site_quant_missingness_tsv(report)
+        )
     if (
         ambiguous_group_summary_tsv_out is not None
         and report.ambiguous_group_quantification is not None
     ):
-        write_output_table_tsv(ambiguous_group_summary_tsv_out, render_ptm_site_group_quant_summary_tsv(
+        write_output_table_tsv(
+            ambiguous_group_summary_tsv_out,
+            render_ptm_site_group_quant_summary_tsv(
                 report.ambiguous_group_quantification
-            ))
+            ),
+        )
     if (
         ambiguous_group_matrix_tsv_out is not None
         and report.ambiguous_group_quantification is not None
     ):
-        write_output_table_tsv(ambiguous_group_matrix_tsv_out, render_ptm_site_group_quant_matrix_tsv(
+        write_output_table_tsv(
+            ambiguous_group_matrix_tsv_out,
+            render_ptm_site_group_quant_matrix_tsv(
                 report.ambiguous_group_quantification
-            ))
+            ),
+        )
     if (
         ambiguous_group_missingness_tsv_out is not None
         and report.ambiguous_group_quantification is not None
     ):
-        write_output_table_tsv(ambiguous_group_missingness_tsv_out, render_ptm_site_group_quant_missingness_tsv(
+        write_output_table_tsv(
+            ambiguous_group_missingness_tsv_out,
+            render_ptm_site_group_quant_missingness_tsv(
                 report.ambiguous_group_quantification
-            ))
+            ),
+        )
     if excluded_tsv_out is not None:
-        write_output_table_tsv(excluded_tsv_out, render_ptm_site_quant_excluded_tsv(report))
+        write_output_table_tsv(
+            excluded_tsv_out, render_ptm_site_quant_excluded_tsv(report)
+        )
 
     _emit_json(
         {
@@ -280,4 +308,5 @@ def run_ptm_quantify_sites_command(
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_ambiguity_review_command', 'run_ptm_quantify_sites_command']
+
+__all__ = ["run_ptm_ambiguity_review_command", "run_ptm_quantify_sites_command"]

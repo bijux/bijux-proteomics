@@ -388,7 +388,9 @@ def build_skyline_targeted_matrix_report(path: Path) -> TargetedMatrixReport:
 def build_transition_table_targeted_matrix_report(path: Path) -> TargetedMatrixReport:
     """Build one targeted precursor matrix directly from an exported transition table."""
 
-    return build_targeted_matrix_report(build_transition_table_result_import_report(path))
+    return build_targeted_matrix_report(
+        build_transition_table_result_import_report(path)
+    )
 
 
 def _median(values: list[float]) -> float | None:

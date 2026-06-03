@@ -30,12 +30,14 @@ from .matrix_building import _matrix_value_index, build_label_free_intensity_tab
 from .matrix_models import QuantMatrixExport
 from .normalization_imputation import normalize_label_free_table
 
+
 class ProteinQuantAssignmentPolicy(StrEnum):
     """Shared-peptide handling policies for protein-level quant rollups."""
 
     INFERENCE_INCLUSIVE = "inference_inclusive"
     QUANT_UNIQUE_ONLY = "quant_unique_only"
     QUANT_SPLIT_SHARED = "quant_split_shared"
+
 
 class ProteinQuantPolicyValue(JsonModel):
     """One protein/sample abundance under one explicit assignment policy."""
@@ -47,6 +49,7 @@ class ProteinQuantPolicyValue(JsonModel):
     contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
     shared_peptide_count: int = Field(..., ge=0)
 
+
 class ProteinQuantPolicyComparisonEntry(JsonModel):
     """One explicit policy comparison for a protein/sample quant rollup."""
 
@@ -57,6 +60,7 @@ class ProteinQuantPolicyComparisonEntry(JsonModel):
     policy_values: tuple[ProteinQuantPolicyValue, ...] = Field(default_factory=tuple)
     max_abundance_difference: float = Field(..., ge=0.0)
 
+
 class ProteinQuantPolicyComparisonReport(JsonModel):
     """Comparison of protein-level quant outcomes across assignment policies."""
 
@@ -66,6 +70,7 @@ class ProteinQuantPolicyComparisonReport(JsonModel):
     entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(
         default_factory=tuple
     )
+
 
 class ProteinQuantRollupEvidenceEntry(JsonModel):
     """One protein/sample rollup with explicit contributing peptide and feature evidence."""
@@ -80,6 +85,7 @@ class ProteinQuantRollupEvidenceEntry(JsonModel):
     contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
     missing_value_kind: MissingValueKind
 
+
 class LabelFreeFeatureProvenanceEntry(JsonModel):
     """Feature-level provenance preserved inside an LFQ workflow bundle."""
 
@@ -92,6 +98,7 @@ class LabelFreeFeatureProvenanceEntry(JsonModel):
     intensity: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
 
+
 class LabelFreePeptideProvenanceEntry(JsonModel):
     """Peptide-level LFQ abundance plus contributing raw features."""
 
@@ -103,6 +110,7 @@ class LabelFreePeptideProvenanceEntry(JsonModel):
     missing_value_kind: MissingValueKind
     contributing_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class LabelFreeProvenanceBundle(JsonModel):
     """Reviewable LFQ provenance across features, peptides, and proteins."""
@@ -122,6 +130,7 @@ class LabelFreeProvenanceBundle(JsonModel):
         default_factory=tuple
     )
 
+
 def _protein_quant_assignment_targets(
     record: Ms1FeatureRecord,
     *,
@@ -140,6 +149,7 @@ def _protein_quant_assignment_targets(
         return ()
     split_intensity = float(record.intensity) / len(record.protein_refs)
     return tuple((protein_ref, split_intensity) for protein_ref in record.protein_refs)
+
 
 def build_protein_quant_policy_comparison_report(
     records: tuple[Ms1FeatureRecord, ...],
@@ -215,6 +225,7 @@ def build_protein_quant_policy_comparison_report(
         entries=tuple(entries),
     )
 
+
 def build_protein_quant_rollup_evidence(
     records: tuple[Ms1FeatureRecord, ...],
     *,
@@ -258,6 +269,7 @@ def build_protein_quant_rollup_evidence(
             key=lambda entry: (entry.protein_ref, entry.sample_id),
         )
     )
+
 
 def build_label_free_provenance_bundle(
     records: tuple[Ms1FeatureRecord, ...],
@@ -389,6 +401,7 @@ def build_label_free_provenance_bundle(
         }
     )
 
+
 def write_label_free_provenance_bundle(
     bundle: LabelFreeProvenanceBundle,
     path: Path,
@@ -404,6 +417,7 @@ def export_label_free_provenance_bundle(
     """Compatibility wrapper for the legacy LFQ provenance bundle export name."""
 
     write_label_free_provenance_bundle(bundle, path)
+
 
 def export_quant_matrix_tsv(
     matrix_export: QuantMatrixExport,

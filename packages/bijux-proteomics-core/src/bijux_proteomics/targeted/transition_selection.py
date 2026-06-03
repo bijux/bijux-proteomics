@@ -189,9 +189,7 @@ def build_targeted_transition_selection_report(
     if minimum_fragment_mz <= 0.0:
         raise ValueError("minimum_fragment_mz must be greater than zero")
     if maximum_fragment_mz <= minimum_fragment_mz:
-        raise ValueError(
-            "maximum_fragment_mz must be greater than minimum_fragment_mz"
-        )
+        raise ValueError("maximum_fragment_mz must be greater than minimum_fragment_mz")
     if precursor_exclusion_da <= 0.0:
         raise ValueError("precursor_exclusion_da must be greater than zero")
     if library_match_tolerance_da <= 0.0:
@@ -260,7 +258,9 @@ def build_targeted_transition_selection_report(
                 1 for entry in ordered_entries if entry.sufficient_transition_support
             ),
             peptide_without_minimum_transition_count=sum(
-                1 for entry in ordered_entries if not entry.sufficient_transition_support
+                1
+                for entry in ordered_entries
+                if not entry.sufficient_transition_support
             ),
             selected_transition_count=sum(
                 len(entry.selected_transitions) for entry in ordered_entries
@@ -320,7 +320,10 @@ def render_targeted_transition_selection_summary_tsv(
         ("rejected_transition_count", report.summary.rejected_transition_count)
     )
     writer.writerow(
-        ("library_backed_transition_count", report.summary.library_backed_transition_count)
+        (
+            "library_backed_transition_count",
+            report.summary.library_backed_transition_count,
+        )
     )
     writer.writerow(("note", report.note))
     return handle.getvalue()
@@ -378,7 +381,9 @@ def render_targeted_transition_selection_selected_tsv(
                     entry.peptide_rank,
                     entry.precursor_charge,
                     f"{entry.precursor_mz:.6f}",
-                    "" if entry.source_library_entry_id is None else entry.source_library_entry_id,
+                    ""
+                    if entry.source_library_entry_id is None
+                    else entry.source_library_entry_id,
                     entry.chemistry_supported_transition_count,
                     entry.selected_transition_count,
                     str(entry.sufficient_transition_support).lower(),
@@ -509,7 +514,9 @@ def _build_peptide_transition_selection(
         series=_DEFAULT_SERIES,
         include_neutral_losses=False,
     )
-    maximum_fragment_ordinal = max((fragment.ordinal for fragment in fragments), default=1)
+    maximum_fragment_ordinal = max(
+        (fragment.ordinal for fragment in fragments), default=1
+    )
     expected_intensity_by_label = _expected_relative_intensity_by_label(
         peptide_entry.canonical_peptide,
         fragments,
@@ -521,7 +528,9 @@ def _build_peptide_transition_selection(
     candidate_rows: list[tuple[TargetedTransitionSelectionFragment, str]] = []
     rejected_entries: list[TargetedTransitionSelectionRejectionEntry] = []
     for fragment in fragments:
-        fragment_label = _fragment_label(fragment.series, fragment.ordinal, fragment.charge)
+        fragment_label = _fragment_label(
+            fragment.series, fragment.ordinal, fragment.charge
+        )
         risk_score, risk_reasons = _score_interference_risk(
             fragment_mz=fragment.mz_monoisotopic,
             precursor_mz=precursor_mz,
@@ -656,7 +665,8 @@ def _build_peptide_transition_selection(
             "expected relative intensity is unavailable because no spectral-library evidence matched this peptide"
         )
     elif not any(
-        fragment.expected_relative_intensity is not None for fragment in selected_fragments
+        fragment.expected_relative_intensity is not None
+        for fragment in selected_fragments
     ):
         caveats.append(
             "spectral-library evidence was supplied but no selected fragment matched an observed library peak under the requested tolerance"
@@ -675,10 +685,13 @@ def _build_peptide_transition_selection(
         peptide_rank=peptide_entry.rank,
         precursor_charge=precursor_charge,
         precursor_mz=precursor_mz,
-        source_library_entry_id=None if library_entry is None else library_entry.library_entry_id,
+        source_library_entry_id=None
+        if library_entry is None
+        else library_entry.library_entry_id,
         chemistry_supported_transition_count=len(candidate_rows),
         selected_transition_count=len(selected_fragments),
-        sufficient_transition_support=len(selected_fragments) >= minimum_transition_count,
+        sufficient_transition_support=len(selected_fragments)
+        >= minimum_transition_count,
         instrument_caveats=tuple(caveats),
         selected_transitions=selected_fragments,
     )
@@ -805,7 +818,9 @@ def _score_interference_risk(
         reasons.append("fragment sits near the precursor isolation region")
     if fragment_charge > 1:
         risk_score += 0.1
-        reasons.append("higher-charge fragments are less instrument-friendly in routine targeted methods")
+        reasons.append(
+            "higher-charge fragments are less instrument-friendly in routine targeted methods"
+        )
     if fragment_series is FragmentIonSeries.B:
         risk_score += 0.1
         reasons.append("b ions are less preferred than y ions for targeted follow-up")

@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections.abc import Sequence
 import csv
 from dataclasses import dataclass
@@ -17,6 +15,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
@@ -227,18 +226,20 @@ def build_sample_pca_report(
             entries=tuple(
                 SamplePcaEntry(
                     sample_id=sample_id,
-                    condition=decomposition.condition_by_sample.get(sample_id, "unknown"),
-                batch=decomposition.batch_by_sample.get(sample_id),
-                pc1=0.0,
-                pc2=0.0,
-                distance_from_global_centroid=0.0,
-                distance_from_condition_centroid=0.0,
-                global_centroid_outlier=False,
-                condition_centroid_outlier=False,
-                outlier_reasons=(),
-                outlier=False,
-            )
-            for sample_id in decomposition.sample_ids
+                    condition=decomposition.condition_by_sample.get(
+                        sample_id, "unknown"
+                    ),
+                    batch=decomposition.batch_by_sample.get(sample_id),
+                    pc1=0.0,
+                    pc2=0.0,
+                    distance_from_global_centroid=0.0,
+                    distance_from_condition_centroid=0.0,
+                    global_centroid_outlier=False,
+                    condition_centroid_outlier=False,
+                    outlier_reasons=(),
+                    outlier=False,
+                )
+                for sample_id in decomposition.sample_ids
             ),
             note=(
                 "pca was not informative because fewer than two samples or features were available"
@@ -289,8 +290,8 @@ def build_sample_pca_report(
         condition = decomposition.condition_by_sample.get(sample_id, "unknown")
         condition_distance = condition_distances_by_sample.get(sample_id, 0.0)
         global_outlier = float(global_distances[index]) > global_threshold
-        condition_outlier = (
-            condition_distance > condition_thresholds.get(condition, 0.0)
+        condition_outlier = condition_distance > condition_thresholds.get(
+            condition, 0.0
         )
         outlier_reasons = tuple(
             reason
@@ -613,7 +614,9 @@ def build_sample_cluster_report(
                     best_distance is None
                     or distance < best_distance
                     or (
-                        math.isclose(distance, best_distance, rel_tol=0.0, abs_tol=1e-12)
+                        math.isclose(
+                            distance, best_distance, rel_tol=0.0, abs_tol=1e-12
+                        )
                         and candidate_key < (best_key or ("", ""))
                     )
                 ):
@@ -995,7 +998,9 @@ def render_sample_cluster_tsv(report: SampleExplorationReport) -> str:
             "average_linkage_distance",
         )
     )
-    for entry in sort_rows_by_fields(report.sample_cluster_report.entries, "merge_order"):
+    for entry in sort_rows_by_fields(
+        report.sample_cluster_report.entries, "merge_order"
+    ):
         writer.writerow(
             (
                 entry.merge_order,
@@ -1031,9 +1036,7 @@ def export_sample_correlation_tsv(report: SampleExplorationReport, path: Path) -
     write_output_table_tsv(path, render_sample_correlation_tsv(report))
 
 
-def export_sample_pca_variance_tsv(
-    report: SampleExplorationReport, path: Path
-) -> None:
+def export_sample_pca_variance_tsv(report: SampleExplorationReport, path: Path) -> None:
     """Write PCA explained-variance rows to a stable TSV artifact."""
 
     write_output_table_tsv(path, render_sample_pca_variance_tsv(report))
@@ -1061,7 +1064,9 @@ def build_sample_feature_matrix(table: LabelFreeQuantTable) -> np.ndarray:
     """Build one log2 sample-by-feature matrix with median-filled missing cells."""
 
     lookup = _matrix_value_index(table)
-    matrix = np.full((len(table.sample_ids), len(table.entity_ids)), np.nan, dtype=float)
+    matrix = np.full(
+        (len(table.sample_ids), len(table.entity_ids)), np.nan, dtype=float
+    )
     for sample_index, sample_id in enumerate(table.sample_ids):
         for entity_index, entity_id in enumerate(table.entity_ids):
             abundance = lookup[(entity_id, sample_id)].abundance
@@ -1164,7 +1169,9 @@ def _average_linkage_distance(
     return float(np.mean(distances)) if distances else 0.0
 
 
-def _cluster_member_key(sample_ids: tuple[str, ...], member_indexes: Sequence[int]) -> str:
+def _cluster_member_key(
+    sample_ids: tuple[str, ...], member_indexes: Sequence[int]
+) -> str:
     return ";".join(sample_ids[index] for index in member_indexes)
 
 

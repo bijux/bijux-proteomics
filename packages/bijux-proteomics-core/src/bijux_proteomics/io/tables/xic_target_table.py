@@ -7,7 +7,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
@@ -78,7 +84,9 @@ def parse_xic_target_table(path: Path) -> XicTargetParseReport:
         column_specs=(
             DelimitedColumnSpec(name="target_id", source_columns=("id",)),
             DelimitedColumnSpec(name="precursor_mz", source_columns=("mz", "q1")),
-            DelimitedColumnSpec(name="rt_expected_seconds", source_columns=("rt_expected",)),
+            DelimitedColumnSpec(
+                name="rt_expected_seconds", source_columns=("rt_expected",)
+            ),
             DelimitedColumnSpec(
                 name="rt_start_seconds",
                 source_columns=("rt_start", "rt_window_start"),
@@ -106,7 +114,9 @@ def parse_xic_target_table(path: Path) -> XicTargetParseReport:
     fieldnames = set(table_report.header)
     seen_target_ids: set[str] = set()
     for accepted_row in table_report.accepted_rows:
-        normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
+        normalized_row = _render_table_row_values(
+            accepted_row.values, accepted_row.extra_values
+        )
         try:
             entry = _parse_xic_target_row(normalized_row, fieldnames)
             if entry.target_id in seen_target_ids:
@@ -188,13 +198,17 @@ def _parse_xic_target_row(
             row.get("rt_expected_seconds") or row.get("rt_expected")
         ),
         rt_start_seconds=_optional_float(
-            row.get("rt_start_seconds") or row.get("rt_start") or row.get("rt_window_start")
+            row.get("rt_start_seconds")
+            or row.get("rt_start")
+            or row.get("rt_window_start")
         ),
         rt_end_seconds=_optional_float(
             row.get("rt_end_seconds") or row.get("rt_end") or row.get("rt_window_end")
         ),
         expected_charge=_optional_int(
-            row.get("expected_charge") or row.get("charge") or row.get("precursor_charge")
+            row.get("expected_charge")
+            or row.get("charge")
+            or row.get("precursor_charge")
         ),
         display_name=row.get("display_name") or row.get("name") or None,
         metadata=metadata,

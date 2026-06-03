@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 import csv
-from itertools import combinations
 from io import StringIO
+from itertools import combinations
 from typing import cast
 
 from pydantic import ConfigDict, Field
@@ -43,7 +43,9 @@ def detect_batch_condition_confounding(
 
     experiment_design = coerce_experiment_design(samples)
     available_conditions = tuple(
-        sorted({entry.condition for entry in experiment_design.entries if entry.condition})
+        sorted(
+            {entry.condition for entry in experiment_design.entries if entry.condition}
+        )
     )
     active_conditions = (
         tuple(
@@ -65,7 +67,9 @@ def detect_batch_condition_confounding(
         )
 
     relevant_entries = tuple(
-        entry for entry in experiment_design.entries if entry.condition in active_conditions
+        entry
+        for entry in experiment_design.entries
+        if entry.condition in active_conditions
     )
     batch_to_conditions: dict[str, set[str]] = {}
     condition_to_batches: dict[str, set[str]] = {}
@@ -111,9 +115,7 @@ def detect_batch_condition_confounding(
             + ", ".join(blocked_contrasts)
         )
     else:
-        reason = (
-            "batch assignments span the active conditions and do not fully block the selected contrasts"
-        )
+        reason = "batch assignments span the active conditions and do not fully block the selected contrasts"
     return BatchConditionConfoundingReport(
         batch_field=batch_field,
         selected_conditions=active_conditions,

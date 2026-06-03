@@ -5,18 +5,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections.abc import Sequence
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics_foundation import JsonModel
 
@@ -79,7 +78,7 @@ class DiaRunQcOutlierRunEntry(JsonModel):
 
     run_name: str = Field(..., min_length=1)
     sample_name: str = Field(..., min_length=1)
-    flags: tuple["DiaRunQcWeakRunFlagEntry", ...] = Field(default_factory=tuple)
+    flags: tuple[DiaRunQcWeakRunFlagEntry, ...] = Field(default_factory=tuple)
     reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -256,7 +255,9 @@ def build_dia_run_qc_report(
                 weak_run_flag_count=0,
             )
         )
-        for bucket, count in _intensity_distribution(observed_precursor_quantities).items():
+        for bucket, count in _intensity_distribution(
+            observed_precursor_quantities
+        ).items():
             intensity_distribution.append(
                 DiaRunQcIntensityDistributionEntry(
                     run_name=run_name,
@@ -273,7 +274,9 @@ def build_dia_run_qc_report(
     median_precursor_count = _median(
         [float(entry.precursor_key_count) for entry in run_entries]
     )
-    median_protein_count = _median([float(entry.protein_id_count) for entry in run_entries])
+    median_protein_count = _median(
+        [float(entry.protein_id_count) for entry in run_entries]
+    )
     median_correlation_by_run = _median_correlation_by_run(pairwise_correlations)
     max_shared_precursor_key_count_by_run = _max_shared_precursor_key_count_by_run(
         pairwise_correlations
@@ -284,9 +287,11 @@ def build_dia_run_qc_report(
     final_run_entries: list[DiaRunQcRunEntry] = []
     for entry in run_entries:
         flags: list[DiaRunQcWeakRunFlagEntry] = []
-        if median_precursor_count > 0 and (
-            entry.precursor_key_count / median_precursor_count
-        ) < policy.low_precursor_count_fraction:
+        if (
+            median_precursor_count > 0
+            and (entry.precursor_key_count / median_precursor_count)
+            < policy.low_precursor_count_fraction
+        ):
             flags.append(
                 DiaRunQcWeakRunFlagEntry(
                     run_name=entry.run_name,
@@ -298,9 +303,11 @@ def build_dia_run_qc_report(
                     observed_value=entry.precursor_key_count / median_precursor_count,
                 )
             )
-        if median_protein_count > 0 and (
-            entry.protein_id_count / median_protein_count
-        ) < policy.low_protein_count_fraction:
+        if (
+            median_protein_count > 0
+            and (entry.protein_id_count / median_protein_count)
+            < policy.low_protein_count_fraction
+        ):
             flags.append(
                 DiaRunQcWeakRunFlagEntry(
                     run_name=entry.run_name,
@@ -514,9 +521,7 @@ def render_dia_run_qc_intensity_distribution_tsv(report: DiaRunQcReport) -> str:
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(["run_name", "sample_name", "bucket", "count"])
     for entry in report.intensity_distribution:
-        writer.writerow(
-            [entry.run_name, entry.sample_name, entry.bucket, entry.count]
-        )
+        writer.writerow([entry.run_name, entry.sample_name, entry.bucket, entry.count])
     return buffer.getvalue()
 
 
@@ -738,7 +743,9 @@ def _median_correlation_by_run(
         for run_name in (entry.run_name_a, entry.run_name_b)
     }
     return {
-        run_name: _median(values_by_run[run_name]) if run_name in values_by_run else None
+        run_name: _median(values_by_run[run_name])
+        if run_name in values_by_run
+        else None
         for run_name in all_runs
     }
 

@@ -14,6 +14,7 @@ from bijux_proteomics.targeted.assay_qc import TargetedAssayQcReport
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics.targeted.target_matrix import TargetedMatrixReport
 
+
 def run_transition_qc_command(
     transition_table: Path,
     weak_detection_fraction_threshold: float,
@@ -63,6 +64,7 @@ def run_transition_qc_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_targeted_target_matrix_command(
     input_path: Path,
     source_kind: str,
@@ -87,18 +89,26 @@ def run_targeted_target_matrix_command(
     matrix_report = cast(TargetedMatrixReport, result.report)
 
     if summary_tsv_out is not None:
-        _write_text_output(summary_tsv_out, render_targeted_matrix_summary_tsv(matrix_report))
+        _write_text_output(
+            summary_tsv_out, render_targeted_matrix_summary_tsv(matrix_report)
+        )
     if observation_tsv_out is not None:
         _write_text_output(
             observation_tsv_out,
             render_targeted_result_observation_tsv(import_report),
         )
     if target_tsv_out is not None:
-        _write_text_output(target_tsv_out, render_targeted_matrix_target_tsv(matrix_report))
+        _write_text_output(
+            target_tsv_out, render_targeted_matrix_target_tsv(matrix_report)
+        )
     if sample_tsv_out is not None:
-        _write_text_output(sample_tsv_out, render_targeted_matrix_sample_tsv(matrix_report))
+        _write_text_output(
+            sample_tsv_out, render_targeted_matrix_sample_tsv(matrix_report)
+        )
     if flagged_tsv_out is not None:
-        _write_text_output(flagged_tsv_out, render_targeted_matrix_flagged_tsv(matrix_report))
+        _write_text_output(
+            flagged_tsv_out, render_targeted_matrix_flagged_tsv(matrix_report)
+        )
     if retained_transition_tsv_out is not None:
         _write_text_output(
             retained_transition_tsv_out,
@@ -155,6 +165,7 @@ def run_targeted_target_matrix_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_targeted_assay_qc_command(
     input_path: Path,
     design_path: Path,
@@ -183,7 +194,9 @@ def run_targeted_assay_qc_command(
     assay_qc_report = cast(TargetedAssayQcReport, result.report)
 
     if summary_tsv_out is not None:
-        _write_text_output(summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report))
+        _write_text_output(
+            summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report)
+        )
     if target_qc_tsv_out is not None:
         _write_text_output(
             target_qc_tsv_out,
@@ -248,14 +261,17 @@ def run_targeted_assay_qc_command(
             entry.to_dict() for entry in assay_qc_report.transition_consistency
         ],
         "target_coelution": [
-            entry.to_dict() for entry in assay_qc_report.transition_coelution.target_entries
+            entry.to_dict()
+            for entry in assay_qc_report.transition_coelution.target_entries
         ],
         "transition_coelution": [
             entry.to_dict()
             for entry in assay_qc_report.transition_coelution.transition_entries
         ],
         "transition_qc": [entry.to_dict() for entry in assay_qc_report.transition_qc],
-        "fragment_ratios": [entry.to_dict() for entry in assay_qc_report.fragment_ratios],
+        "fragment_ratios": [
+            entry.to_dict() for entry in assay_qc_report.fragment_ratios
+        ],
         "retention_time_consistency": [
             entry.to_dict() for entry in assay_qc_report.retention_time_consistency
         ],
@@ -281,18 +297,16 @@ def run_targeted_assay_qc_command(
                 else str(transition_coelution_tsv_out)
             ),
             "transition_qc_tsv": (
-                None
-                if transition_qc_tsv_out is None
-                else str(transition_qc_tsv_out)
+                None if transition_qc_tsv_out is None else str(transition_qc_tsv_out)
             ),
             "fragment_ratio_tsv": (
                 None if fragment_ratio_tsv_out is None else str(fragment_ratio_tsv_out)
             ),
-            "retention_tsv": None if retention_tsv_out is None else str(retention_tsv_out),
+            "retention_tsv": None
+            if retention_tsv_out is None
+            else str(retention_tsv_out),
             "replicate_cv_tsv": (
-                None
-                if replicate_cv_tsv_out is None
-                else str(replicate_cv_tsv_out)
+                None if replicate_cv_tsv_out is None else str(replicate_cv_tsv_out)
             ),
             "unreliable_tsv": (
                 None if unreliable_tsv_out is None else str(unreliable_tsv_out)
@@ -300,6 +314,7 @@ def run_targeted_assay_qc_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_targeted_carryover_review_command(
     input_path: Path,
@@ -354,4 +369,10 @@ def run_targeted_carryover_review_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_transition_qc_command', 'run_targeted_target_matrix_command', 'run_targeted_assay_qc_command', 'run_targeted_carryover_review_command']
+
+__all__ = [
+    "run_transition_qc_command",
+    "run_targeted_target_matrix_command",
+    "run_targeted_assay_qc_command",
+    "run_targeted_carryover_review_command",
+]

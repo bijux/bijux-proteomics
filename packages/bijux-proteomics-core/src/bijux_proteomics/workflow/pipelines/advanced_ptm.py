@@ -5,15 +5,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmLocalizationColumnMapping,
@@ -32,8 +31,18 @@ from bijux_proteomics.ptm import (
     render_ptm_site_group_quant_missingness_tsv,
     render_ptm_site_group_quant_summary_tsv,
 )
-from bijux_proteomics.ptm.quant.site_quantification import render_ptm_site_quant_excluded_tsv
+from bijux_proteomics.ptm.quant.site_quantification import (
+    render_ptm_site_quant_excluded_tsv,
+)
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
@@ -47,12 +56,6 @@ from bijux_proteomics.workflow.result_types import (
     artifact_name_map,
     build_rejected_evidence_entries_from_issue_rows,
     build_result_warning,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -208,7 +211,9 @@ def run_advanced_ptm_workflow(
         feature_records=feature_records,
         ambiguity_policy=PtmSiteQuantAmbiguityPolicy.EXCLUDE,
     )
-    ambiguity_group_quantification = exact_site_quantification.ambiguous_group_quantification
+    ambiguity_group_quantification = (
+        exact_site_quantification.ambiguous_group_quantification
+    )
     occupancy_counterpart_report = build_ptm_occupancy_counterpart_report(
         base_report.report.site_table,
         feature_records=feature_records,
@@ -221,16 +226,31 @@ def run_advanced_ptm_workflow(
         ambiguity_group_summary_name = "advanced_ptm_site_group_summary.tsv"
         ambiguity_group_matrix_name = "advanced_ptm_site_group_matrix.tsv"
         ambiguity_group_missingness_name = "advanced_ptm_site_group_missingness.tsv"
-        write_output_table_tsv((output_dir / ambiguity_group_summary_name), render_ptm_site_group_quant_summary_tsv(ambiguity_group_quantification))
-        write_output_table_tsv((output_dir / ambiguity_group_matrix_name), render_ptm_site_group_quant_matrix_tsv(ambiguity_group_quantification))
-        write_output_table_tsv((output_dir / ambiguity_group_missingness_name), render_ptm_site_group_quant_missingness_tsv(ambiguity_group_quantification))
+        write_output_table_tsv(
+            (output_dir / ambiguity_group_summary_name),
+            render_ptm_site_group_quant_summary_tsv(ambiguity_group_quantification),
+        )
+        write_output_table_tsv(
+            (output_dir / ambiguity_group_matrix_name),
+            render_ptm_site_group_quant_matrix_tsv(ambiguity_group_quantification),
+        )
+        write_output_table_tsv(
+            (output_dir / ambiguity_group_missingness_name),
+            render_ptm_site_group_quant_missingness_tsv(ambiguity_group_quantification),
+        )
 
     excluded_name = "advanced_ptm_excluded_ambiguous_sites.tsv"
     occupancy_name = "advanced_ptm_occupancy_counterparts.tsv"
     summary_name = "advanced_ptm_summary.tsv"
 
-    write_output_table_tsv((output_dir / excluded_name), render_advanced_ptm_excluded_ambiguity_tsv(exact_site_exclusion_audit))
-    write_output_table_tsv((output_dir / occupancy_name), render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report))
+    write_output_table_tsv(
+        (output_dir / excluded_name),
+        render_advanced_ptm_excluded_ambiguity_tsv(exact_site_exclusion_audit),
+    )
+    write_output_table_tsv(
+        (output_dir / occupancy_name),
+        render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report),
+    )
 
     report_manifest = workflow_manifest.ptm_report_manifest
     summary = AdvancedPtmWorkflowSummary(
@@ -260,7 +280,9 @@ def run_advanced_ptm_workflow(
         narrative_claim_count=base_report.report.summary.narrative_claim_count,
         protein_correction_mode=config.protein_correction_mode,
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_ptm_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_advanced_ptm_workflow_summary_tsv(summary)
+    )
 
     workflow_manifest_name = "advanced_ptm_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -379,7 +401,10 @@ def render_advanced_ptm_workflow_summary_tsv(
         ("excluded_ambiguous_row_count", summary.excluded_ambiguous_row_count),
         ("differential_site_count", summary.differential_site_count),
         ("occupancy_entry_count", summary.occupancy_entry_count),
-        ("occupancy_missing_counterpart_count", summary.occupancy_missing_counterpart_count),
+        (
+            "occupancy_missing_counterpart_count",
+            summary.occupancy_missing_counterpart_count,
+        ),
         ("occupancy_ambiguous_site_count", summary.occupancy_ambiguous_site_count),
         ("motif_term_count", summary.motif_term_count),
         ("regulator_enrichment_entry_count", summary.regulator_enrichment_entry_count),

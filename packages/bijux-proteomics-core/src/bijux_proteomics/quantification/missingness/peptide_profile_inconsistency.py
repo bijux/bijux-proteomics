@@ -14,8 +14,11 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics.quantification.contracts import MissingValueKind, Ms1FeatureRecord
-from bijux_proteomics.quantification.contracts import QuantRollupMethod
+from bijux_proteomics.quantification.contracts import (
+    MissingValueKind,
+    Ms1FeatureRecord,
+    QuantRollupMethod,
+)
 from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
     PeptideIntensityMatrixRow,
@@ -71,7 +74,9 @@ class PeptideProfileInconsistencyEntry(JsonModel):
     profile_agreement_score: float = Field(..., ge=0.0, le=1.0)
     inconsistent_with_protein_profile: bool
     outlier_reason: PeptideProfileOutlierReason
-    sample_residuals: tuple[PeptideProfileResidualEntry, ...] = Field(default_factory=tuple)
+    sample_residuals: tuple[PeptideProfileResidualEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class PeptideProfileInconsistencySummary(JsonModel):
@@ -171,10 +176,7 @@ def build_peptide_profile_inconsistency_report(
             entries.append(entry)
             if entry.inconsistent_with_protein_profile:
                 inconsistent_entry_count += 1
-            if (
-                entry.outlier_reason
-                is PeptideProfileOutlierReason.INSUFFICIENT_OVERLAP
-            ):
+            if entry.outlier_reason is PeptideProfileOutlierReason.INSUFFICIENT_OVERLAP:
                 insufficient_overlap_entry_count += 1
 
     sorted_entries = tuple(
@@ -372,14 +374,21 @@ def _build_inconsistency_entry(
             sample_residuals=(),
         )
 
-    peptide_logs = tuple(peptide_log2_by_sample[sample_id] for sample_id in overlap_sample_ids)
+    peptide_logs = tuple(
+        peptide_log2_by_sample[sample_id] for sample_id in overlap_sample_ids
+    )
     reference_logs = tuple(
         reference_log2_by_sample[sample_id] for sample_id in overlap_sample_ids
     )
     offset = _median(
-        tuple(peptide - reference for peptide, reference in zip(peptide_logs, reference_logs))
+        tuple(
+            peptide - reference
+            for peptide, reference in zip(peptide_logs, reference_logs, strict=False)
+        )
     )
-    centered_peptide_logs = tuple(value - _median(peptide_logs) for value in peptide_logs)
+    centered_peptide_logs = tuple(
+        value - _median(peptide_logs) for value in peptide_logs
+    )
     centered_reference_logs = tuple(
         value - _median(reference_logs) for value in reference_logs
     )
@@ -432,9 +441,7 @@ def _build_inconsistency_entry(
         profile_agreement_score=profile_agreement_score,
         inconsistent_with_protein_profile=inconsistent_with_protein_profile,
         outlier_reason=outlier_reason,
-        sample_residuals=tuple(
-            sort_rows_by_fields(residual_entries, "sample_id")
-        ),
+        sample_residuals=tuple(sort_rows_by_fields(residual_entries, "sample_id")),
     )
 
 
@@ -479,14 +486,10 @@ def _pearson(left: tuple[float, ...], right: tuple[float, ...]) -> float | None:
     mean_right = sum(right) / len(right)
     numerator = sum(
         (left_value - mean_left) * (right_value - mean_right)
-        for left_value, right_value in zip(left, right)
+        for left_value, right_value in zip(left, right, strict=False)
     )
-    denominator_left = math.sqrt(
-        sum((value - mean_left) ** 2 for value in left)
-    )
-    denominator_right = math.sqrt(
-        sum((value - mean_right) ** 2 for value in right)
-    )
+    denominator_left = math.sqrt(sum((value - mean_left) ** 2 for value in left))
+    denominator_right = math.sqrt(sum((value - mean_right) ** 2 for value in right))
     if denominator_left == 0.0 or denominator_right == 0.0:
         return None
     correlation = float(numerator / (denominator_left * denominator_right))

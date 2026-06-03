@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_motif_annotation import (
+    run_ptm_annotate_sites_command,
+    run_ptm_motif_enrichment_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_motif_annotation import run_ptm_motif_enrichment_command, run_ptm_annotate_sites_command
+
 
 @click.command("motif-enrichment")
 @click.argument(
@@ -191,8 +195,50 @@ def ptm_motif_enrichment_command(
     logo_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare regulated phosphosite sequence motifs against a PTM background set.'
-    return run_ptm_motif_enrichment_command(evidence_tsv, proteins_fasta, feature_tsv, design_path, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, ambiguity_policy, normalization, condition_a, condition_b, design_batch_field, design_pairing_field, design_covariates, protein_correction_mode, flank_size, max_adjusted_p_value, min_absolute_log2_fold_change, direction, include_ambiguous_regulated_sites, include_ambiguous_background_sites, background_mode, min_frequency_difference, min_enrichment_ratio, max_reported_term_count, window_tsv_out, frequency_tsv_out, enriched_term_tsv_out, logo_tsv_out, out_path)
+    "Compare regulated phosphosite sequence motifs against a PTM background set."
+    return run_ptm_motif_enrichment_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        design_path,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        ambiguity_policy,
+        normalization,
+        condition_a,
+        condition_b,
+        design_batch_field,
+        design_pairing_field,
+        design_covariates,
+        protein_correction_mode,
+        flank_size,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        direction,
+        include_ambiguous_regulated_sites,
+        include_ambiguous_background_sites,
+        background_mode,
+        min_frequency_difference,
+        min_enrichment_ratio,
+        max_reported_term_count,
+        window_tsv_out,
+        frequency_tsv_out,
+        enriched_term_tsv_out,
+        logo_tsv_out,
+        out_path,
+    )
+
 
 @click.command("annotate-sites")
 @click.argument(
@@ -248,7 +294,9 @@ def ptm_motif_enrichment_command(
     show_default=True,
 )
 @click.option("--annotation-pathway-column", default="pathways", show_default=True)
-@click.option("--annotation-source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--annotation-source-name-column", default="source_name", show_default=True
+)
 @click.option(
     "--annotation-source-accession-column",
     default="source_accession",
@@ -337,8 +385,49 @@ def ptm_annotate_sites_command(
     pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map imported PTM site annotations onto observed PTM sites.'
-    return run_ptm_annotate_sites_command(evidence_tsv, proteins_fasta, annotation_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, annotation_species_column, annotation_protein_ref_column, annotation_residue_column, annotation_position_column, annotation_modification_column, annotation_function_column, annotation_kinase_column, annotation_phosphatase_column, annotation_pathway_column, annotation_source_name_column, annotation_source_accession_column, kinase_separator, phosphatase_separator, pathway_separator, target_species, summary_tsv_out, mapped_tsv_out, unmapped_tsv_out, function_tsv_out, kinase_tsv_out, phosphatase_tsv_out, pathway_tsv_out, out_path)
+    "Map imported PTM site annotations onto observed PTM sites."
+    return run_ptm_annotate_sites_command(
+        evidence_tsv,
+        proteins_fasta,
+        annotation_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        annotation_species_column,
+        annotation_protein_ref_column,
+        annotation_residue_column,
+        annotation_position_column,
+        annotation_modification_column,
+        annotation_function_column,
+        annotation_kinase_column,
+        annotation_phosphatase_column,
+        annotation_pathway_column,
+        annotation_source_name_column,
+        annotation_source_accession_column,
+        kinase_separator,
+        phosphatase_separator,
+        pathway_separator,
+        target_species,
+        summary_tsv_out,
+        mapped_tsv_out,
+        unmapped_tsv_out,
+        function_tsv_out,
+        kinase_tsv_out,
+        phosphatase_tsv_out,
+        pathway_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     ptm_motif_enrichment_command,

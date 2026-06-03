@@ -7,13 +7,29 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.identification.search_adapters.corpus import SearchAdapterCorpusConformanceEntry, SearchAdapterCorpusConformanceMatrix, SearchEngineCorpusReport
-from bijux_proteomics.identification.search_adapters.engines.comet import build_comet_output_corpus_report
-from bijux_proteomics.identification.search_adapters.engines.diann import build_diann_output_corpus_report
-from bijux_proteomics.identification.search_adapters.engines.maxquant import build_maxquant_output_corpus_report
-from bijux_proteomics.identification.search_adapters.engines.msfragger import build_msfragger_output_corpus_report
-from bijux_proteomics.identification.search_adapters.engines.sage import build_sage_output_corpus_report
-from bijux_proteomics.identification.search_adapters.engines.spectronaut import build_spectronaut_output_corpus_report
+from bijux_proteomics.identification.search_adapters.corpus import (
+    SearchAdapterCorpusConformanceEntry,
+    SearchAdapterCorpusConformanceMatrix,
+    SearchEngineCorpusReport,
+)
+from bijux_proteomics.identification.search_adapters.engines.comet import (
+    build_comet_output_corpus_report,
+)
+from bijux_proteomics.identification.search_adapters.engines.diann import (
+    build_diann_output_corpus_report,
+)
+from bijux_proteomics.identification.search_adapters.engines.maxquant import (
+    build_maxquant_output_corpus_report,
+)
+from bijux_proteomics.identification.search_adapters.engines.msfragger import (
+    build_msfragger_output_corpus_report,
+)
+from bijux_proteomics.identification.search_adapters.engines.sage import (
+    build_sage_output_corpus_report,
+)
+from bijux_proteomics.identification.search_adapters.engines.spectronaut import (
+    build_spectronaut_output_corpus_report,
+)
 
 
 def _corpus_conformance_entry(

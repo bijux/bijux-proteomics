@@ -10,8 +10,16 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.workflow_inputs import (
+    run_experiment_feasibility_command,
+    run_format_convert_command,
+    run_protocol_consistency_report_command,
+    run_sample_sheet_repair_suggestions_command,
+    run_summarize_command,
+    run_validate_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.workflow_inputs import run_validate_command, run_summarize_command, run_experiment_feasibility_command, run_protocol_consistency_report_command, run_sample_sheet_repair_suggestions_command, run_format_convert_command
+
 
 @click.command("validate")
 @click.argument(
@@ -43,8 +51,9 @@ def validate_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    'Validate one FASTA, PSM TSV, MGF, mzML, design table, or modification registry input.'
+    "Validate one FASTA, PSM TSV, MGF, mzML, design table, or modification registry input."
     return run_validate_command(input_path, input_kind, mode, out_path)
+
 
 @click.command("summarize")
 @click.argument(
@@ -76,8 +85,9 @@ def summarize_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    'Summarize one FASTA, PSM TSV, MGF, mzML, or design-table input.'
+    "Summarize one FASTA, PSM TSV, MGF, mzML, or design-table input."
     return run_summarize_command(input_path, input_kind, mode, out_path)
+
 
 @click.command("experiment-feasibility")
 @click.argument(
@@ -143,8 +153,24 @@ def experiment_feasibility_command(
     model_support_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Report what a study design can and cannot support before analysis.'
-    return run_experiment_feasibility_command(design_path, condition_a, condition_b, batch_field, pairing_field, timepoint_field, ordered_timepoints, minimum_statistical_units_per_condition, valid_contrasts_tsv_out, invalid_contrasts_tsv_out, group_sizes_tsv_out, missing_metadata_tsv_out, model_support_tsv_out, out_path)
+    "Report what a study design can and cannot support before analysis."
+    return run_experiment_feasibility_command(
+        design_path,
+        condition_a,
+        condition_b,
+        batch_field,
+        pairing_field,
+        timepoint_field,
+        ordered_timepoints,
+        minimum_statistical_units_per_condition,
+        valid_contrasts_tsv_out,
+        invalid_contrasts_tsv_out,
+        group_sizes_tsv_out,
+        missing_metadata_tsv_out,
+        model_support_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protocol-consistency-report")
 @click.argument(
@@ -200,8 +226,18 @@ def protocol_consistency_report_command(
     diagnostics_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Check whether observed evidence matches the declared lab protocol context.'
-    return run_protocol_consistency_report_command(protocol_context_tsv, spectra_path, psm_path, proteins_fasta, reporter_table, ptm_evidence_tsv, diagnostics_tsv_out, out_path)
+    "Check whether observed evidence matches the declared lab protocol context."
+    return run_protocol_consistency_report_command(
+        protocol_context_tsv,
+        spectra_path,
+        psm_path,
+        proteins_fasta,
+        reporter_table,
+        ptm_evidence_tsv,
+        diagnostics_tsv_out,
+        out_path,
+    )
+
 
 @click.command("sample-sheet-repair-suggestions")
 @click.argument(
@@ -252,8 +288,17 @@ def sample_sheet_repair_suggestions_command(
     suggestions_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Suggest exact sample-sheet repairs without rewriting study metadata.'
-    return run_sample_sheet_repair_suggestions_command(design_path, observed_sample_ids, observed_run_ids, observed_sample_id_file, observed_run_id_file, suggestions_tsv_out, out_path)
+    "Suggest exact sample-sheet repairs without rewriting study metadata."
+    return run_sample_sheet_repair_suggestions_command(
+        design_path,
+        observed_sample_ids,
+        observed_run_ids,
+        observed_sample_id_file,
+        observed_run_id_file,
+        suggestions_tsv_out,
+        out_path,
+    )
+
 
 @click.command("format-convert")
 @click.argument(
@@ -280,8 +325,9 @@ def format_convert_command(
     target_format: str,
     out_path: Path,
 ) -> None:
-    'Convert one supported input into a normalized Bijux output surface.'
+    "Convert one supported input into a normalized Bijux output surface."
     return run_format_convert_command(input_path, input_kind, target_format, out_path)
+
 
 COMMANDS = (
     validate_command,

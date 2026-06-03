@@ -94,9 +94,9 @@ class DiannBenchmarkReport(JsonModel):
     count_comparisons: tuple[DiannBenchmarkCountComparisonEntry, ...] = Field(
         default_factory=tuple
     )
-    protein_quantity_comparisons: tuple[DiannBenchmarkProteinQuantityComparisonEntry, ...] = Field(
-        default_factory=tuple
-    )
+    protein_quantity_comparisons: tuple[
+        DiannBenchmarkProteinQuantityComparisonEntry, ...
+    ] = Field(default_factory=tuple)
     summary: DiannBenchmarkSummary
     note: str = Field(..., min_length=1)
 
@@ -160,7 +160,8 @@ def build_diann_benchmark_report(
             comparison_id="precursor_rows",
             source_count=source_precursor_count,
             imported_count=import_report.summary.accepted_precursor_count,
-            matched=source_precursor_count == import_report.summary.accepted_precursor_count,
+            matched=source_precursor_count
+            == import_report.summary.accepted_precursor_count,
             note="governed Bijux DIA-NN import should preserve the source precursor row count for the benchmark report",
         ),
         DiannBenchmarkCountComparisonEntry(
@@ -328,7 +329,9 @@ def render_diann_benchmark_count_comparisons_tsv(
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("comparison_id", "source_count", "imported_count", "matched", "note"))
+    writer.writerow(
+        ("comparison_id", "source_count", "imported_count", "matched", "note")
+    )
     for entry in report.count_comparisons:
         writer.writerow(
             (
@@ -365,7 +368,9 @@ def render_diann_benchmark_protein_quantities_tsv(
                 entry.entity_id,
                 entry.sample_id,
                 "" if entry.source_quantity is None else f"{entry.source_quantity:g}",
-                "" if entry.imported_quantity is None else f"{entry.imported_quantity:g}",
+                ""
+                if entry.imported_quantity is None
+                else f"{entry.imported_quantity:g}",
                 f"{entry.absolute_difference:g}",
                 str(entry.exact_match).lower(),
             )
@@ -462,9 +467,7 @@ def _source_protein_quantities(
         grouped.setdefault((row.protein_group_id, row.sample_id), []).append(
             row.protein_group_quantity
         )
-    return {
-        key: (max(values) if values else None) for key, values in grouped.items()
-    }
+    return {key: (max(values) if values else None) for key, values in grouped.items()}
 
 
 def _build_protein_quantity_comparisons(
@@ -477,7 +480,9 @@ def _build_protein_quantity_comparisons(
         for value in sorted(row.values, key=lambda entry: entry.sample_id):
             source_quantity = source_quantities[(row.entity_id, value.sample_id)]
             imported_quantity = value.abundance
-            absolute_difference = abs((source_quantity or 0.0) - (imported_quantity or 0.0))
+            absolute_difference = abs(
+                (source_quantity or 0.0) - (imported_quantity or 0.0)
+            )
             comparisons.append(
                 DiannBenchmarkProteinQuantityComparisonEntry(
                     entity_id=row.entity_id,
@@ -499,9 +504,7 @@ def _include_source_row(
 ) -> bool:
     if not include_decoys and row.target_decoy_label is TargetDecoyLabel.DECOY:
         return False
-    if max_q_value is not None and row.q_value > max_q_value:
-        return False
-    return True
+    return not (max_q_value is not None and row.q_value > max_q_value)
 
 
 def _build_precursor_key(row: _SourceDiannRow) -> str:

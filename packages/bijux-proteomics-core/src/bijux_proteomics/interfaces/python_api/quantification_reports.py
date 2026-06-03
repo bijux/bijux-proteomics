@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_heatmap_matrix_command(
     input_table: Path,
     entity_level: str,
@@ -103,9 +104,7 @@ def run_heatmap_matrix_command(
                 ),
                 "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
                 "row_metadata_tsv": (
-                    None
-                    if row_metadata_tsv_out is None
-                    else str(row_metadata_tsv_out)
+                    None if row_metadata_tsv_out is None else str(row_metadata_tsv_out)
                 ),
                 "column_metadata_tsv": (
                     None
@@ -116,6 +115,7 @@ def run_heatmap_matrix_command(
         },
         out_path=out_path,
     )
+
 
 def run_power_estimate_command(
     input_table: Path,
@@ -211,6 +211,7 @@ def run_power_estimate_command(
         },
         out_path=out_path,
     )
+
 
 def run_sample_exploration_command(
     input_table: Path,
@@ -308,9 +309,7 @@ def run_sample_exploration_command(
                     None if distances_tsv_out is None else str(distances_tsv_out)
                 ),
                 "correlations_tsv": (
-                    None
-                    if correlations_tsv_out is None
-                    else str(correlations_tsv_out)
+                    None if correlations_tsv_out is None else str(correlations_tsv_out)
                 ),
                 "clusters_tsv": (
                     None if clusters_tsv_out is None else str(clusters_tsv_out)
@@ -323,4 +322,9 @@ def run_sample_exploration_command(
         out_path=out_path,
     )
 
-__all__ = ['run_heatmap_matrix_command', 'run_power_estimate_command', 'run_sample_exploration_command']
+
+__all__ = [
+    "run_heatmap_matrix_command",
+    "run_power_estimate_command",
+    "run_sample_exploration_command",
+]

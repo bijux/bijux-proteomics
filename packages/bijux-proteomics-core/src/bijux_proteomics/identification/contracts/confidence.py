@@ -18,30 +18,42 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
-from bijux_proteomics.chemistry import (
-    canonicalize_modified_peptide,
-    parse_modified_peptide,
-)
-from bijux_proteomics.domain.reason_codes import (
-    ReasonCodeCategory,
-    require_registered_reason_codes,
-)
-from bijux_proteomics.domain import ConfidenceTier
-from bijux_proteomics.domain.records import (
-    ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
-    TargetDecoyState,
-)
 from bijux_proteomics._scientific_tables import (
     ScientificTableRejectedRow,
     ScientificTableValidationIssue,
     build_psm_table_schema,
     validate_scientific_table,
+)
+from bijux_proteomics.chemistry import (
+    canonicalize_modified_peptide,
+    parse_modified_peptide,
+)
+from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
+)
+from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
+    TargetDecoyState,
+)
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -53,7 +65,6 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.fdr_levels import (
     FdrEvidenceLevel,
     FdrLevelEntry,
@@ -64,6 +75,9 @@ from bijux_proteomics.identification.contracts.protein_review import (
     calculate_picked_protein_fdr,
 )
 from bijux_proteomics.identification.contracts.psm import PsmRecord, TargetDecoyLabel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
+
 class ConfidenceLabel(StrEnum):
     """Stable confidence labels over q-valued evidence."""
 
@@ -74,6 +88,7 @@ class ConfidenceLabel(StrEnum):
     REJECTED = "rejected"
     DECOY = "decoy"
 
+
 class ConfidenceAssignment(JsonModel):
     """Confidence label plus its explanation."""
 
@@ -83,7 +98,6 @@ class ConfidenceAssignment(JsonModel):
     q_value: float = Field(..., ge=0.0)
     label: ConfidenceLabel
     explanation: str = Field(..., min_length=1)
-
 
 
 class LevelSpecificConfidenceAssignment(JsonModel):
@@ -245,9 +259,7 @@ def build_grouped_confidence_report(
             shared_peptide_count=entry.shared_peptide_count,
             best_q_value=entry.best_q_value,
             evidence_tier=entry.evidence_tier.value,
-            downgrade_reasons=tuple(
-                reason.value for reason in entry.downgrade_reasons
-            ),
+            downgrade_reasons=tuple(reason.value for reason in entry.downgrade_reasons),
             confidence_label=_map_protein_evidence_tier_to_confidence_label(
                 entry.evidence_tier.value
             ),
@@ -412,17 +424,18 @@ def build_confidence_threshold_sensitivity_report(
         entries=tuple(entries),
     )
 
+
 __all__ = [
-    'ConfidenceLabel',
-    'ConfidenceAssignment',
-    'GroupedConfidenceEntry',
-    'GroupedConfidenceReport',
-    'LevelSpecificConfidenceAssignment',
-    'LevelSpecificConfidenceReport',
-    'ConfidenceThresholdSensitivityEntry',
-    'ConfidenceThresholdSensitivityReport',
-    'assign_confidence_labels',
-    'build_grouped_confidence_report',
-    'assign_level_specific_confidence_labels',
-    'build_confidence_threshold_sensitivity_report',
+    "ConfidenceLabel",
+    "ConfidenceAssignment",
+    "GroupedConfidenceEntry",
+    "GroupedConfidenceReport",
+    "LevelSpecificConfidenceAssignment",
+    "LevelSpecificConfidenceReport",
+    "ConfidenceThresholdSensitivityEntry",
+    "ConfidenceThresholdSensitivityReport",
+    "assign_confidence_labels",
+    "build_grouped_confidence_report",
+    "assign_level_specific_confidence_labels",
+    "build_confidence_threshold_sensitivity_report",
 ]

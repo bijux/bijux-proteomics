@@ -6,10 +6,10 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 import hashlib
 import io
 import json
-from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
@@ -285,9 +285,7 @@ def _build_bins(
         bucket_decoy_count = sum(
             1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.DECOY
         )
-        target_fraction = (
-            bucket_target_count / target_count if target_count else 0.0
-        )
+        target_fraction = bucket_target_count / target_count if target_count else 0.0
         decoy_fraction = bucket_decoy_count / decoy_count if decoy_count else 0.0
         bins.append(
             ScoreSeparationBin(

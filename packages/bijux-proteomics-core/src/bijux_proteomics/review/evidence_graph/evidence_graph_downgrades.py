@@ -18,15 +18,15 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.review.evidence_graph.evidence_graph_contradictions import (
-    EvidenceGraphContradictionReport,
-    EvidenceGraphContradictionSeverity,
-    detect_evidence_graph_contradictions,
-)
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
     EvidenceGraphConfidenceEntry,
     EvidenceGraphConfidenceTier,
     propagate_evidence_graph_confidence,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_contradictions import (
+    EvidenceGraphContradictionReport,
+    EvidenceGraphContradictionSeverity,
+    detect_evidence_graph_contradictions,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -66,7 +66,9 @@ class EvidenceGraphFinalResultEntry(JsonModel):
     propagated_score: float = Field(..., ge=0.0, le=1.0)
     confidence_tier: EvidenceGraphConfidenceTier
     evidence_tier: FinalClaimEvidenceTier
-    downgrade_reasons: tuple[EvidenceGraphDowngradeReason, ...] = Field(default_factory=tuple)
+    downgrade_reasons: tuple[EvidenceGraphDowngradeReason, ...] = Field(
+        default_factory=tuple
+    )
     source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
     rationale: str = Field(..., min_length=1)
 
@@ -106,7 +108,8 @@ def build_evidence_graph_final_result_table(
         evidence_tier = _evidence_tier(confidence_entry.confidence_tier, reasons)
         source_rows = set(confidence_entry.source_row_refs)
         source_rows.update(
-            edge.source_row_ref for edge in _incoming_edges(graph, confidence_entry.claim_node_id)
+            edge.source_row_ref
+            for edge in _incoming_edges(graph, confidence_entry.claim_node_id)
         )
         entries.append(
             EvidenceGraphFinalResultEntry(
@@ -129,7 +132,10 @@ def build_evidence_graph_final_result_table(
         )
 
     sorted_entries = tuple(
-        sorted(entries, key=lambda entry: (entry.subject_node_kind.value, entry.claim_node_ref))
+        sorted(
+            entries,
+            key=lambda entry: (entry.subject_node_kind.value, entry.claim_node_ref),
+        )
     )
     evidence_tier_counts: dict[str, int] = {}
     downgrade_reason_counts: dict[str, int] = {}
@@ -164,7 +170,9 @@ def render_evidence_graph_final_results_tsv(
             "propagated_score": f"{entry.propagated_score:.4f}",
             "confidence_tier": entry.confidence_tier.value,
             "evidence_tier": entry.evidence_tier.value,
-            "downgrade_reasons": "|".join(reason.value for reason in entry.downgrade_reasons),
+            "downgrade_reasons": "|".join(
+                reason.value for reason in entry.downgrade_reasons
+            ),
             "source_row_refs": "|".join(entry.source_row_refs),
             "rationale": entry.rationale,
         }
@@ -192,7 +200,9 @@ def _downgrade_reasons_for_entry(
     elif subject.entity_type is ProteomicsEvidenceNodeKind.PATHWAY:
         reasons.update(_pathway_downgrade_reasons(graph, subject))
     else:
-        raise ValueError(f"unsupported final-result subject kind: {subject.entity_type.value}")
+        raise ValueError(
+            f"unsupported final-result subject kind: {subject.entity_type.value}"
+        )
 
     reasons.update(
         _claim_level_downgrade_reasons(
@@ -214,7 +224,9 @@ def _protein_downgrade_reasons(
         protein.node_id,
         ProteomicsEvidenceEdgeKind.PEPTIDE_QUANTIFIES_PROTEIN,
     )
-    if peptides and all(_protein_mapping_count(graph, peptide.node_id) > 1 for peptide in peptides):
+    if peptides and all(
+        _protein_mapping_count(graph, peptide.node_id) > 1 for peptide in peptides
+    ):
         reasons.add(EvidenceGraphDowngradeReason.SHARED_PEPTIDE_ONLY)
     if protein.trust_class == "contaminant" or any(
         _maps_to_contaminant_protein(graph, peptide.node_id) for peptide in peptides
@@ -244,7 +256,10 @@ def _ptm_site_downgrade_reasons(
         ptm_site.node_id,
         ProteomicsEvidenceEdgeKind.MODIFIED_PEPTIDE_LOCALIZES_PTM_SITE,
     )
-    if any(edge.confidence < 0.75 for edge in localization_edges) or ptm_site.trust_class == "low":
+    if (
+        any(edge.confidence < 0.75 for edge in localization_edges)
+        or ptm_site.trust_class == "low"
+    ):
         reasons.add(EvidenceGraphDowngradeReason.LOW_LOCALIZATION)
     parent_peptides = tuple(
         peptide
@@ -259,9 +274,14 @@ def _ptm_site_downgrade_reasons(
             ProteomicsEvidenceEdgeKind.PEPTIDE_HAS_MODIFIED_FORM,
         )
     )
-    if any(_peptide_has_poor_run_qc(graph, peptide.node_id) for peptide in parent_peptides):
+    if any(
+        _peptide_has_poor_run_qc(graph, peptide.node_id) for peptide in parent_peptides
+    ):
         reasons.add(EvidenceGraphDowngradeReason.POOR_RUN_QC)
-    if any(protein.trust_class in {"single_run_only", "exploratory"} for protein in proteins):
+    if any(
+        protein.trust_class in {"single_run_only", "exploratory"}
+        for protein in proteins
+    ):
         reasons.add(EvidenceGraphDowngradeReason.POOR_REPRODUCIBILITY)
     return reasons
 
@@ -278,7 +298,10 @@ def _pathway_downgrade_reasons(
     )
     if any(protein.trust_class == "contaminant" for protein in proteins):
         reasons.add(EvidenceGraphDowngradeReason.CONTAMINANT_OVERLAP)
-    if any(protein.trust_class in {"single_run_only", "exploratory"} for protein in proteins):
+    if any(
+        protein.trust_class in {"single_run_only", "exploratory"}
+        for protein in proteins
+    ):
         reasons.add(EvidenceGraphDowngradeReason.POOR_REPRODUCIBILITY)
     if any(
         _peptide_has_poor_run_qc(graph, peptide.node_id)
@@ -310,7 +333,9 @@ def _claim_level_downgrade_reasons(
     )
     if any(quant_value.trust_class == "imputed" for quant_value in quant_values):
         reasons.add(EvidenceGraphDowngradeReason.IMPUTATION_DEPENDENCE)
-    if any(_quant_value_has_poor_run_qc(graph, quant_value) for quant_value in quant_values):
+    if any(
+        _quant_value_has_poor_run_qc(graph, quant_value) for quant_value in quant_values
+    ):
         reasons.add(EvidenceGraphDowngradeReason.POOR_RUN_QC)
     claim_node = _require_node_by_id(graph, claim_node_id)
     if claim_node.trust_class in {"single_run_only", "exploratory"}:
@@ -324,7 +349,9 @@ def _contradiction_reasons_by_claim_node_id(
 ) -> dict[str, tuple[EvidenceGraphDowngradeReason, ...]]:
     reasons_by_claim_node_id: dict[str, set[EvidenceGraphDowngradeReason]] = {}
     for contradiction in contradiction_report.entries:
-        reasons = reasons_by_claim_node_id.setdefault(contradiction.claim_node_id, set())
+        reasons = reasons_by_claim_node_id.setdefault(
+            contradiction.claim_node_id, set()
+        )
         if contradiction.severity is EvidenceGraphContradictionSeverity.FAIL:
             reasons.add(EvidenceGraphDowngradeReason.SEVERE_CONTRADICTION)
         else:
@@ -345,7 +372,9 @@ def _protein_mapping_count(graph: ProteomicsEvidenceGraph, peptide_node_id: str)
     )
 
 
-def _maps_to_contaminant_protein(graph: ProteomicsEvidenceGraph, peptide_node_id: str) -> bool:
+def _maps_to_contaminant_protein(
+    graph: ProteomicsEvidenceGraph, peptide_node_id: str
+) -> bool:
     return any(
         protein.trust_class == "contaminant"
         for protein in _target_nodes_for_relation(
@@ -356,7 +385,9 @@ def _maps_to_contaminant_protein(graph: ProteomicsEvidenceGraph, peptide_node_id
     )
 
 
-def _peptide_has_poor_run_qc(graph: ProteomicsEvidenceGraph, peptide_node_id: str) -> bool:
+def _peptide_has_poor_run_qc(
+    graph: ProteomicsEvidenceGraph, peptide_node_id: str
+) -> bool:
     psms = _source_nodes_for_relation(
         graph,
         peptide_node_id,
@@ -426,7 +457,11 @@ def _quant_value_has_poor_run_qc(
         run_refs = [
             run.entity_ref
             for sample_ref in sample_refs
-            for sample in (_require_node_by_ref(graph, ProteomicsEvidenceNodeKind.SAMPLE, sample_ref),)
+            for sample in (
+                _require_node_by_ref(
+                    graph, ProteomicsEvidenceNodeKind.SAMPLE, sample_ref
+                ),
+            )
             for run in _target_nodes_for_relation(
                 graph,
                 sample.node_id,
@@ -592,8 +627,7 @@ def _require_node_by_ref(
         if node.entity_type is entity_type and node.entity_ref == entity_ref:
             return node
     raise ValueError(
-        "graph node is missing by entity_ref: "
-        f"{entity_type.value}:{entity_ref}"
+        f"graph node is missing by entity_ref: {entity_type.value}:{entity_ref}"
     )
 
 

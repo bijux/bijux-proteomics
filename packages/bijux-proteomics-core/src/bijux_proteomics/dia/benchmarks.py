@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 

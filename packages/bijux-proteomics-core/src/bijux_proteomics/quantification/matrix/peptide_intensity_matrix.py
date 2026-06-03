@@ -14,8 +14,12 @@ from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
-    QuantMatrix as CanonicalQuantMatrix,
     QuantMeasureKind,
+)
+from bijux_proteomics.domain.records import (
+    QuantMatrix as CanonicalQuantMatrix,
+)
+from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.identification import PsmRecord
@@ -218,7 +222,9 @@ class PeptideIntensityMatrixReport(JsonModel):
         )
 
     @classmethod
-    def from_quant_matrix(cls, matrix: CanonicalQuantMatrix) -> PeptideIntensityMatrixReport:
+    def from_quant_matrix(
+        cls, matrix: CanonicalQuantMatrix
+    ) -> PeptideIntensityMatrixReport:
         """Rebuild one peptide matrix report from a canonical peptide matrix."""
 
         row_metadata_lookup = {
@@ -252,7 +258,9 @@ class PeptideIntensityMatrixReport(JsonModel):
                             sample_id=sample_id,
                             abundance=matrix.values[row_index][column_index],
                             missing_value_kind=MissingValueKind(
-                                matrix.missing_value_states[row_index][column_index].value
+                                matrix.missing_value_states[row_index][
+                                    column_index
+                                ].value
                             ),
                             source_record_count=(
                                 0
@@ -341,7 +349,9 @@ class PeptideIntensityMatrixReport(JsonModel):
         )
         return cls(
             source_kind=PeptideMatrixSourceKind(
-                matrix.metadata.get("source_kind", PeptideMatrixSourceKind.FEATURE.value)
+                matrix.metadata.get(
+                    "source_kind", PeptideMatrixSourceKind.FEATURE.value
+                )
             ),
             grouping_mode=PeptideMatrixGroupingMode(
                 matrix.metadata.get(
@@ -349,7 +359,9 @@ class PeptideIntensityMatrixReport(JsonModel):
                     PeptideMatrixGroupingMode.MODIFIED_PEPTIDE.value,
                 )
             ),
-            separate_charge_states=matrix.metadata.get("separate_charge_states", "false")
+            separate_charge_states=matrix.metadata.get(
+                "separate_charge_states", "false"
+            )
             == "true",
             aggregation_method=QuantRollupMethod(
                 matrix.metadata.get("aggregation_method", QuantRollupMethod.SUM.value)
@@ -684,7 +696,9 @@ def render_peptide_intensity_aggregation_tsv(
         "missing_value_kind",
     )
     rows = ["\t".join(header)]
-    for entry in sort_rows_by_fields(report.aggregation_entries, "entity_id", "sample_id"):
+    for entry in sort_rows_by_fields(
+        report.aggregation_entries, "entity_id", "sample_id"
+    ):
         rows.append(
             "\t".join(
                 (
@@ -703,7 +717,9 @@ def render_peptide_intensity_aggregation_tsv(
                     str(entry.not_observed_source_record_count),
                     str(entry.filtered_source_record_count),
                     ";".join(f"{value:g}" for value in entry.source_abundances),
-                    "" if entry.aggregated_abundance is None else f"{entry.aggregated_abundance:g}",
+                    ""
+                    if entry.aggregated_abundance is None
+                    else f"{entry.aggregated_abundance:g}",
                     entry.missing_value_kind.value,
                 )
             )

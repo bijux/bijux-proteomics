@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.ptm.parsing.site_annotation_import import (
     PtmSiteAnnotationMappingReport,
 )
@@ -523,6 +522,6 @@ def _site_passes_evidence_policy(
 ) -> bool:
     if not policy.include_low_localization_sites and entry.low_localization:
         return False
-    if not policy.include_ambiguous_sites and (entry.ambiguous or entry.shared_peptide):
-        return False
-    return True
+    return not (
+        not policy.include_ambiguous_sites and (entry.ambiguous or entry.shared_peptide)
+    )

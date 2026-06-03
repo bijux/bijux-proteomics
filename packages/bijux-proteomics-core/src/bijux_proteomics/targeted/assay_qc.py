@@ -206,9 +206,11 @@ class TargetedAssayQcReport(JsonModel):
         default_factory=tuple
     )
     transition_qc: tuple[TargetedTransitionQcEntry, ...] = Field(default_factory=tuple)
-    fragment_ratios: tuple[TargetedFragmentRatioEntry, ...] = Field(default_factory=tuple)
-    retention_time_consistency: tuple[TargetedRetentionTimeConsistencyEntry, ...] = Field(
+    fragment_ratios: tuple[TargetedFragmentRatioEntry, ...] = Field(
         default_factory=tuple
+    )
+    retention_time_consistency: tuple[TargetedRetentionTimeConsistencyEntry, ...] = (
+        Field(default_factory=tuple)
     )
     replicate_cv: tuple[TargetedReplicateCvEntry, ...] = Field(default_factory=tuple)
     unreliable_targets: tuple[TargetedUnreliableTargetEntry, ...] = Field(
@@ -357,9 +359,13 @@ def build_targeted_assay_qc_report(
                     expected_transition_count=expected_count,
                 ),
             )
-            detected_transition_ids = {item.transition_id for item in sample_observations}
+            detected_transition_ids = {
+                item.transition_id for item in sample_observations
+            }
             detected_count = len(detected_transition_ids)
-            missing_transition_ids = set(expected_transition_ids) - detected_transition_ids
+            missing_transition_ids = (
+                set(expected_transition_ids) - detected_transition_ids
+            )
             if missing_transition_ids:
                 missing_transitions_by_target_sample[(target_id, sample_id)] = (
                     missing_transition_ids
@@ -382,9 +388,13 @@ def build_targeted_assay_qc_report(
                 if item.quality_flag is not None and item.quality_flag != "pass"
             }
             if sample_quality_flags:
-                quality_flags_by_target_sample[(target_id, sample_id)] = sample_quality_flags
+                quality_flags_by_target_sample[(target_id, sample_id)] = (
+                    sample_quality_flags
+                )
             ratio_flags_for_sample: set[str] = set()
-            for item in sorted(sample_observations, key=lambda record: record.transition_id):
+            for item in sorted(
+                sample_observations, key=lambda record: record.transition_id
+            ):
                 ratio_observation = ratio_observation_by_target_sample_transition[
                     (target_id, sample_id, item.transition_id)
                 ]
@@ -393,9 +403,9 @@ def build_targeted_assay_qc_report(
                 ]
                 ratio_flagged = ratio_drift_entry.drift_flag
                 if ratio_flagged:
-                    ratio_flags_by_target_sample.setdefault((target_id, sample_id), set()).add(
-                        item.transition_id
-                    )
+                    ratio_flags_by_target_sample.setdefault(
+                        (target_id, sample_id), set()
+                    ).add(item.transition_id)
                     ratio_flags_for_sample.add(item.transition_id)
                 ratio_entries.append(
                     TargetedFragmentRatioEntry(
@@ -437,13 +447,15 @@ def build_targeted_assay_qc_report(
             passing_total_intensity = 0.0
             for transition_id in expected_transition_ids:
                 observation = observations_by_transition_id.get(transition_id)
-                transition_coelution_entry = transition_coelution_by_target_sample_transition.get(
-                    (target_id, sample_id, transition_id),
-                    _missing_transition_coelution_entry(
-                        target_id=target_id,
-                        sample_id=sample_id,
-                        transition_id=transition_id,
-                    ),
+                transition_coelution_entry = (
+                    transition_coelution_by_target_sample_transition.get(
+                        (target_id, sample_id, transition_id),
+                        _missing_transition_coelution_entry(
+                            target_id=target_id,
+                            sample_id=sample_id,
+                            transition_id=transition_id,
+                        ),
+                    )
                 )
                 if observation is None:
                     transition_qc_entries.append(
@@ -481,7 +493,8 @@ def build_targeted_assay_qc_report(
                 coelution_failure_reasons = tuple(
                     reason
                     for reason in transition_coelution_entry.failure_reasons
-                    if reason != "transition is misaligned from the target reference window"
+                    if reason
+                    != "transition is misaligned from the target reference window"
                 )
                 coelution_flagged = not transition_coelution_entry.coeluting
                 failure_reasons: list[str] = []
@@ -495,9 +508,7 @@ def build_targeted_assay_qc_report(
                 if ratio_observation.unstable_fragment or (
                     ratio_drift_entry.drift_flag and not ratio_observation.drift_flag
                 ):
-                    failure_reasons.append(
-                        "fragment-ion ratio is unstable across runs"
-                    )
+                    failure_reasons.append("fragment-ion ratio is unstable across runs")
                 passed = not failure_reasons
                 if passed:
                     passing_transition_ids.append(transition_id)
@@ -608,7 +619,9 @@ def build_targeted_assay_qc_report(
                 ratio_flags_by_target_sample.get((target_id, sample_id), set())
             )
             quality_flags = tuple(
-                sorted(quality_flags_by_target_sample.get((target_id, sample_id), set()))
+                sorted(
+                    quality_flags_by_target_sample.get((target_id, sample_id), set())
+                )
             )
             consistency_entry = next(
                 entry
@@ -623,12 +636,16 @@ def build_targeted_assay_qc_report(
                 if entry.target_id == target_id and entry.sample_id == sample_id
             )
             if target_qc_entry.coeluting_transition_count < 2:
-                reasons.append("fewer than two coeluting transitions support the target")
+                reasons.append(
+                    "fewer than two coeluting transitions support the target"
+                )
             elif target_qc_entry.passing_transition_count < 2:
                 reasons.append(
                     "fewer than two coeluting transitions pass transition-quality review"
                 )
-            sample_ratio_flags = ratio_flags_by_target_sample.get((target_id, sample_id), set())
+            sample_ratio_flags = ratio_flags_by_target_sample.get(
+                (target_id, sample_id), set()
+            )
             if sample_ratio_flags:
                 sample_ratio_observations = [
                     ratio_observation_by_target_sample_transition[
@@ -637,7 +654,9 @@ def build_targeted_assay_qc_report(
                     for transition_id in sample_ratio_flags
                 ]
                 sample_ratio_drift_entries = [
-                    fragment_ratio_drift_by_target_transition[(target_id, transition_id)]
+                    fragment_ratio_drift_by_target_transition[
+                        (target_id, transition_id)
+                    ]
                     for transition_id in sample_ratio_flags
                 ]
                 if any(entry.drift_flag for entry in sample_ratio_observations):
@@ -652,7 +671,9 @@ def build_targeted_assay_qc_report(
                 if entry.target_id == target_id and entry.sample_id == sample_id
             )
             if retention_entry.flagged:
-                reasons.append("retention time deviates from the target reference window")
+                reasons.append(
+                    "retention time deviates from the target reference window"
+                )
             if quality_flags:
                 reasons.append("source quality flags require review")
             if reasons:
@@ -703,30 +724,34 @@ def build_targeted_assay_qc_report(
                 )
             for entry in target_qc_entries:
                 if entry.target_id == target_id and entry.condition == condition:
-                    target_qc_entries[target_qc_entries.index(entry)] = entry.model_copy(
-                        update={
-                            "condition_replicate_cv": coefficient_of_variation,
-                            "condition_replicate_cv_flagged": flagged,
-                            "reliability_score": (
-                                (
-                                    entry.reliability_score * 3.0
-                                    + (0.0 if flagged else 1.0)
-                                )
-                                / 4.0
-                            ),
-                            "reliable": entry.reliable and not flagged,
-                            "reliability_reasons": (
-                                entry.reliability_reasons
-                                if not flagged
-                                else tuple(
-                                    sorted(
-                                        set(entry.reliability_reasons).union(
-                                            {"replicate cv is above the configured threshold"}
+                    target_qc_entries[target_qc_entries.index(entry)] = (
+                        entry.model_copy(
+                            update={
+                                "condition_replicate_cv": coefficient_of_variation,
+                                "condition_replicate_cv_flagged": flagged,
+                                "reliability_score": (
+                                    (
+                                        entry.reliability_score * 3.0
+                                        + (0.0 if flagged else 1.0)
+                                    )
+                                    / 4.0
+                                ),
+                                "reliable": entry.reliable and not flagged,
+                                "reliability_reasons": (
+                                    entry.reliability_reasons
+                                    if not flagged
+                                    else tuple(
+                                        sorted(
+                                            set(entry.reliability_reasons).union(
+                                                {
+                                                    "replicate cv is above the configured threshold"
+                                                }
+                                            )
                                         )
                                     )
-                                )
-                            ),
-                        }
+                                ),
+                            }
+                        )
                     )
 
     return TargetedAssayQcReport(
@@ -770,14 +795,18 @@ def build_targeted_assay_qc_report(
             target_count=len(target_ids),
             sample_count=len(sample_ids),
             target_qc_entry_count=len(target_qc_entries),
-            reliable_target_entry_count=sum(entry.reliable for entry in target_qc_entries),
+            reliable_target_entry_count=sum(
+                entry.reliable for entry in target_qc_entries
+            ),
             transition_consistency_entry_count=len(consistency_entries),
             coelution_target_entry_count=len(transition_coelution.target_entries),
             flagged_coelution_target_entry_count=sum(
                 not entry.reliable_transition_support
                 for entry in transition_coelution.target_entries
             ),
-            transition_coelution_entry_count=len(transition_coelution.transition_entries),
+            transition_coelution_entry_count=len(
+                transition_coelution.transition_entries
+            ),
             coeluting_transition_entry_count=sum(
                 entry.coeluting for entry in transition_coelution.transition_entries
             ),
@@ -820,10 +849,14 @@ def build_skyline_targeted_assay_qc_report(path: Path) -> TargetedAssayQcReport:
     return build_targeted_assay_qc_report(build_skyline_result_import_report(path))
 
 
-def build_transition_table_targeted_assay_qc_report(path: Path) -> TargetedAssayQcReport:
+def build_transition_table_targeted_assay_qc_report(
+    path: Path,
+) -> TargetedAssayQcReport:
     """Build targeted assay QC directly from one exported transition table."""
 
-    return build_targeted_assay_qc_report(build_transition_table_result_import_report(path))
+    return build_targeted_assay_qc_report(
+        build_transition_table_result_import_report(path)
+    )
 
 
 def _median(values: list[float]) -> float | None:
@@ -965,7 +998,9 @@ def render_targeted_assay_qc_target_tsv(report: TargetedAssayQcReport) -> str:
                 entry.passing_transition_count,
                 ";".join(entry.passing_transition_ids),
                 ";".join(entry.failing_transition_ids),
-                "" if entry.passing_total_intensity is None else f"{entry.passing_total_intensity:g}",
+                ""
+                if entry.passing_total_intensity is None
+                else f"{entry.passing_total_intensity:g}",
                 (
                     ""
                     if entry.mean_retention_time_minutes is None
@@ -1152,7 +1187,9 @@ def render_targeted_assay_qc_transition_coelution_tsv(
 ) -> str:
     """Render transition-level coelution review rows as TSV."""
 
-    return render_targeted_transition_coelution_transition_tsv(report.transition_coelution)
+    return render_targeted_transition_coelution_transition_tsv(
+        report.transition_coelution
+    )
 
 
 def render_targeted_assay_qc_retention_tsv(report: TargetedAssayQcReport) -> str:
@@ -1177,7 +1214,9 @@ def render_targeted_assay_qc_retention_tsv(report: TargetedAssayQcReport) -> str
                 entry.target_id,
                 entry.sample_id,
                 entry.observed_transition_count,
-                "" if entry.mean_retention_time_minutes is None else f"{entry.mean_retention_time_minutes:g}",
+                ""
+                if entry.mean_retention_time_minutes is None
+                else f"{entry.mean_retention_time_minutes:g}",
                 (
                     ""
                     if entry.reference_retention_time_minutes is None

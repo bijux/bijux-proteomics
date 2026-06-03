@@ -5,20 +5,19 @@
 
 from __future__ import annotations
 
-import csv
-import tracemalloc
 from collections.abc import Callable
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
+import csv
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from time import perf_counter
+import tracemalloc
 from typing import TypeVar
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
@@ -28,12 +27,12 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.quantification.contracts.matrix_building import (
-    build_label_free_intensity_table,
-)
 from bijux_proteomics.quantification.contracts.input_models import (
     Ms1FeatureParseReport,
     Ms1FeatureRecord,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    build_label_free_intensity_table,
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.review.evidence_graph import load_lazy_proteomics_evidence_graph
@@ -301,7 +300,9 @@ def run_scale_demo(config: ScaleDemoConfig) -> ScaleDemoReport:
             "datasets."
         ),
     )
-    atomic_write_text(output_dir / artifacts.report_json, report.to_stable_json() + "\n")
+    atomic_write_text(
+        output_dir / artifacts.report_json, report.to_stable_json() + "\n"
+    )
     return report
 
 
@@ -386,7 +387,9 @@ def _generate_scale_demo_dataset(
         for protein_index, protein_ref in enumerate(proteins)
     }
 
-    atomic_write_text(feature_path, _render_feature_rows(samples, proteins, peptides_by_protein))
+    atomic_write_text(
+        feature_path, _render_feature_rows(samples, proteins, peptides_by_protein)
+    )
     atomic_write_text(design_path, _render_design_rows(samples))
     atomic_write_text(
         proteins_fasta_path,
@@ -414,10 +417,14 @@ def _parse_scale_demo_inputs(
 ) -> tuple[Ms1FeatureParseReport, tuple[ExperimentalDesignEntry, ...]]:
     feature_parse_report = parse_ms1_feature_table(dataset.feature_path)
     if feature_parse_report.rejected_rows:
-        raise ValueError("generated scale demo feature table must parse without rejected rows")
+        raise ValueError(
+            "generated scale demo feature table must parse without rejected rows"
+        )
     design_report = parse_experimental_design_table(dataset.design_path)
     if design_report.rejected_rows:
-        raise ValueError("generated scale demo design table must parse without rejected rows")
+        raise ValueError(
+            "generated scale demo design table must parse without rejected rows"
+        )
     return feature_parse_report, tuple(design_report.accepted_entries)
 
 
@@ -541,19 +548,24 @@ def _write_scale_demo_artifacts(
             "biological_report/" + biological_manifest.artifacts.report_html
         ),
         evidence_graph_nodes_tsv=(
-            "biological_report/" + biological_manifest.artifacts.evidence_graph_nodes_tsv
+            "biological_report/"
+            + biological_manifest.artifacts.evidence_graph_nodes_tsv
         ),
         evidence_graph_edges_tsv=(
-            "biological_report/" + biological_manifest.artifacts.evidence_graph_edges_tsv
+            "biological_report/"
+            + biological_manifest.artifacts.evidence_graph_edges_tsv
         ),
         protein_cards_tsv=(
             "biological_report/" + biological_manifest.artifacts.protein_card_tsv
         ),
         supported_claims_tsv=(
-            "biological_report/" + (biological_manifest.artifacts.supported_claim_tsv or "")
+            "biological_report/"
+            + (biological_manifest.artifacts.supported_claim_tsv or "")
         ),
     )
-    write_output_table_tsv(output_dir / summary_name, _render_scale_demo_summary(summary))
+    write_output_table_tsv(
+        output_dir / summary_name, _render_scale_demo_summary(summary)
+    )
     write_output_table_tsv(
         output_dir / stage_metrics_name,
         _render_scale_demo_stage_metrics(stage_metrics),
@@ -580,7 +592,9 @@ def _build_scale_demo_samples(
                     "fraction": "1",
                     "spectra_file": f"{sample_id}.raw",
                     "identifications_file": f"{sample_id}.tsv",
-                    "batch": "b1" if replicate_index < max(1, replicates_per_condition // 2) else "b2",
+                    "batch": "b1"
+                    if replicate_index < max(1, replicates_per_condition // 2)
+                    else "b2",
                     "instrument": "orbitrap",
                     "search_engine": "maxquant",
                 }
@@ -596,7 +610,9 @@ def _render_feature_rows(
     rows: list[dict[str, object]] = []
     feature_index = 1
     for protein_index, protein_ref in enumerate(proteins):
-        for peptide_index, peptide_sequence in enumerate(peptides_by_protein[protein_ref]):
+        for peptide_index, peptide_sequence in enumerate(
+            peptides_by_protein[protein_ref]
+        ):
             for sample in samples:
                 rows.append(
                     {
@@ -614,7 +630,9 @@ def _render_feature_rows(
                             3,
                         ),
                         "charge": 2 + (peptide_index % 2),
-                        "mz": round(400.0 + (protein_index * 0.11) + (peptide_index * 2.75), 4),
+                        "mz": round(
+                            400.0 + (protein_index * 0.11) + (peptide_index * 2.75), 4
+                        ),
                         "retention_time_seconds": round(
                             600.0
                             + (protein_index * 1.2)

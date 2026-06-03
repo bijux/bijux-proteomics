@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.peptide_review import (
+    run_modification_resolve_command,
+    run_modified_peptide_parse_command,
+    run_peptide_detectability_command,
+    run_precursor_mass_error_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.peptide_review import run_peptide_detectability_command, run_precursor_mass_error_command, run_modified_peptide_parse_command, run_modification_resolve_command
+
 
 @click.command("peptide-detectability")
 @click.argument("sequence")
@@ -90,8 +96,22 @@ def peptide_detectability_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score peptide observability from owned sequence and chemistry semantics.'
-    return run_peptide_detectability_command(sequence, modifications, charge, protease, custom_protease, custom_protease_name, uniqueness_class, uniqueness_score, observed_psm_count, registry_path, tsv_out, out_path)
+    "Score peptide observability from owned sequence and chemistry semantics."
+    return run_peptide_detectability_command(
+        sequence,
+        modifications,
+        charge,
+        protease,
+        custom_protease,
+        custom_protease_name,
+        uniqueness_class,
+        uniqueness_score,
+        observed_psm_count,
+        registry_path,
+        tsv_out,
+        out_path,
+    )
+
 
 @click.command("precursor-mass-error")
 @click.argument(
@@ -156,8 +176,23 @@ def precursor_mass_error_command(
     isotope_distribution_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Report precursor mass error from peptide plus observed-m/z tables.'
-    return run_precursor_mass_error_command(input_tsv, peptide_column, observed_mz_column, charge_column, spectrum_id_column, max_isotope_offset, registry_path, summary_tsv_out, observations_tsv_out, ppm_distribution_tsv_out, charge_distribution_tsv_out, isotope_distribution_tsv_out, out_path)
+    "Report precursor mass error from peptide plus observed-m/z tables."
+    return run_precursor_mass_error_command(
+        input_tsv,
+        peptide_column,
+        observed_mz_column,
+        charge_column,
+        spectrum_id_column,
+        max_isotope_offset,
+        registry_path,
+        summary_tsv_out,
+        observations_tsv_out,
+        ppm_distribution_tsv_out,
+        charge_distribution_tsv_out,
+        isotope_distribution_tsv_out,
+        out_path,
+    )
+
 
 @click.command("modified-peptide-parse")
 @click.argument("notation")
@@ -187,8 +222,11 @@ def modified_peptide_parse_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Normalize one search-engine modified peptide notation.'
-    return run_modified_peptide_parse_command(notation, dialect, registry_path, out_path)
+    "Normalize one search-engine modified peptide notation."
+    return run_modified_peptide_parse_command(
+        notation, dialect, registry_path, out_path
+    )
+
 
 @click.command("modification-resolve")
 @click.argument("token")
@@ -217,8 +255,9 @@ def modification_resolve_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Resolve one modification token against builtin or custom registries.'
+    "Resolve one modification token against builtin or custom registries."
     return run_modification_resolve_command(token, residue, registry_path, out_path)
+
 
 COMMANDS = (
     peptide_detectability_command,

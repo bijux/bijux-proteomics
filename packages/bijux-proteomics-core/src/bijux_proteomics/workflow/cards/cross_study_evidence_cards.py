@@ -29,8 +29,8 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     CrossStudyPathwayStudyEntry,
 )
 from bijux_proteomics.workflow.public_dataset_comparison import (
-    PublicDatasetComparisonDatasetSummary,
     PublicDatasetComparisonDatasetStatus,
+    PublicDatasetComparisonDatasetSummary,
     PublicDatasetComparisonReport,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -172,7 +172,9 @@ def build_cross_study_evidence_card_report(
     pathway_report = public_dataset_report.pathway_comparison_report
 
     if effect_report is not None:
-        study_entries_by_harmonized_id: dict[str, list[CrossStudyProteinEffectStudyEntry]] = {}
+        study_entries_by_harmonized_id: dict[
+            str, list[CrossStudyProteinEffectStudyEntry]
+        ] = {}
         for study_entry in effect_report.study_entries:
             study_entries_by_harmonized_id.setdefault(
                 study_entry.harmonized_id,
@@ -188,7 +190,9 @@ def build_cross_study_evidence_card_report(
             if meta_report is None
             else {entry.harmonized_id: entry for entry in meta_report.rejected_entries}
         )
-        effect_unsupported_ids = {entry.study_id for entry in effect_report.unsupported_studies}
+        effect_unsupported_ids = {
+            entry.study_id for entry in effect_report.unsupported_studies
+        }
         for protein_comparison in effect_report.comparisons:
             cards.append(
                 _build_protein_card(
@@ -215,7 +219,9 @@ def build_cross_study_evidence_card_report(
             )
 
     if pathway_report is not None:
-        study_entries_by_comparison_id: dict[str, list[CrossStudyPathwayStudyEntry]] = {}
+        study_entries_by_comparison_id: dict[
+            str, list[CrossStudyPathwayStudyEntry]
+        ] = {}
         for pathway_study_entry in pathway_report.study_entries:
             study_entries_by_comparison_id.setdefault(
                 pathway_study_entry.comparison_id,
@@ -246,7 +252,11 @@ def build_cross_study_evidence_card_report(
     ordered_cards = tuple(
         sorted(
             cards,
-            key=lambda entry: (entry.subject_kind.value, entry.subject_id, entry.card_id),
+            key=lambda entry: (
+                entry.subject_kind.value,
+                entry.subject_id,
+                entry.card_id,
+            ),
         )
     )
     summary = CrossStudyEvidenceCardSummary(
@@ -412,7 +422,9 @@ def render_cross_study_evidence_card_tsv(report: CrossStudyEvidenceCardReport) -
     return buffer.getvalue()
 
 
-def render_cross_study_evidence_dataset_tsv(report: CrossStudyEvidenceCardReport) -> str:
+def render_cross_study_evidence_dataset_tsv(
+    report: CrossStudyEvidenceCardReport,
+) -> str:
     """Render per-dataset evidence nested under every card as TSV."""
 
     buffer = StringIO()

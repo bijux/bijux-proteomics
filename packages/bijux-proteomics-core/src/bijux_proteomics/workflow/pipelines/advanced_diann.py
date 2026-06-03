@@ -5,24 +5,23 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics.domain.reason_codes import (
-    ReasonCodeCategory,
-    require_registered_reason_codes,
-)
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia import (
     DiaPeptideRollupMethod,
     DiaProteinMatrixTargetKind,
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
+)
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    require_registered_reason_codes,
 )
 from bijux_proteomics.io import (
     DiaFragmentCoelutionReport,
@@ -30,6 +29,7 @@ from bijux_proteomics.io import (
     render_dia_fragment_coelution_fragments_tsv,
     render_dia_fragment_coelution_runs_tsv,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.review import (
     BeliefAuditReport,
@@ -44,17 +44,26 @@ from bijux_proteomics.review import (
     render_belief_audit_tsv,
     render_evidence_graph_final_results_tsv,
 )
-from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
-from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultSelectionPolicy,
-    VolcanoReviewPolicy,
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
+    EvidenceGraphConfidenceTier,
+)
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
     write_diann_biological_workflow_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultSelectionPolicy,
+    VolcanoReviewPolicy,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -63,12 +72,6 @@ from bijux_proteomics.workflow.result_types import (
     artifact_name_map,
     build_rejected_evidence_entries_from_table_rows,
     build_result_warning,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -271,7 +274,10 @@ def build_advanced_diann_workflow_report_from_bundle(
     belief_audit_name = "advanced_diann_belief_audit.tsv"
     summary_name = "advanced_diann_summary.tsv"
 
-    write_output_table_tsv((output_dir / final_results_name), render_evidence_graph_final_results_tsv(graph_final_results))
+    write_output_table_tsv(
+        (output_dir / final_results_name),
+        render_evidence_graph_final_results_tsv(graph_final_results),
+    )
     write_output_table_tsv(
         output_dir / accepted_name,
         render_advanced_diann_protein_decisions_tsv(
@@ -294,8 +300,13 @@ def build_advanced_diann_workflow_report_from_bundle(
     belief_audit = build_belief_audit_report_from_artifacts(
         biological_report_dir=output_dir,
     )
-    write_output_table_tsv((output_dir / belief_audit_summary_name), render_belief_audit_summary_tsv(belief_audit))
-    write_output_table_tsv((output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit))
+    write_output_table_tsv(
+        (output_dir / belief_audit_summary_name),
+        render_belief_audit_summary_tsv(belief_audit),
+    )
+    write_output_table_tsv(
+        (output_dir / belief_audit_name), render_belief_audit_tsv(belief_audit)
+    )
 
     fragment_coelution_report = _build_fragment_coelution_report(config)
     fragment_runs_name = None
@@ -303,8 +314,14 @@ def build_advanced_diann_workflow_report_from_bundle(
     if fragment_coelution_report is not None:
         fragment_runs_name = "advanced_diann_fragment_coelution_runs.tsv"
         fragment_fragments_name = "advanced_diann_fragment_coelution_fragments.tsv"
-        write_output_table_tsv((output_dir / fragment_runs_name), render_dia_fragment_coelution_runs_tsv(fragment_coelution_report))
-        write_output_table_tsv((output_dir / fragment_fragments_name), render_dia_fragment_coelution_fragments_tsv(fragment_coelution_report))
+        write_output_table_tsv(
+            (output_dir / fragment_runs_name),
+            render_dia_fragment_coelution_runs_tsv(fragment_coelution_report),
+        )
+        write_output_table_tsv(
+            (output_dir / fragment_fragments_name),
+            render_dia_fragment_coelution_fragments_tsv(fragment_coelution_report),
+        )
 
     summary = AdvancedDiannWorkflowSummary(
         imported_precursor_count=base_report.summary.imported_precursor_count,
@@ -323,7 +340,9 @@ def build_advanced_diann_workflow_report_from_bundle(
         ),
         belief_audit_entry_count=belief_audit.summary.entry_count,
         fragment_coelution_run_count=(
-            0 if fragment_coelution_report is None else len(fragment_coelution_report.run_entries)
+            0
+            if fragment_coelution_report is None
+            else len(fragment_coelution_report.run_entries)
         ),
         fragment_coelution_fragment_count=(
             0
@@ -331,7 +350,9 @@ def build_advanced_diann_workflow_report_from_bundle(
             else len(fragment_coelution_report.fragment_entries)
         ),
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_diann_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_advanced_diann_workflow_summary_tsv(summary)
+    )
 
     workflow_manifest_name = "advanced_diann_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -455,7 +476,10 @@ def render_advanced_diann_workflow_summary_tsv(
         ("rejected_claim_count", summary.rejected_claim_count),
         ("belief_audit_entry_count", summary.belief_audit_entry_count),
         ("fragment_coelution_run_count", summary.fragment_coelution_run_count),
-        ("fragment_coelution_fragment_count", summary.fragment_coelution_fragment_count),
+        (
+            "fragment_coelution_fragment_count",
+            summary.fragment_coelution_fragment_count,
+        ),
     ):
         writer.writerow((field_name, value))
     return handle.getvalue()
@@ -557,9 +581,13 @@ def render_advanced_diann_protein_decisions_tsv(
 
 def _validate_fragment_inputs(config: AdvancedDiannWorkflowConfig) -> None:
     if config.fragment_mzml_paths and config.fragment_target_tsv_path is None:
-        raise ValueError("fragment_target_tsv_path is required when fragment_mzml_paths are provided")
+        raise ValueError(
+            "fragment_target_tsv_path is required when fragment_mzml_paths are provided"
+        )
     if not config.fragment_mzml_paths and config.fragment_target_tsv_path is not None:
-        raise ValueError("fragment_mzml_paths are required when fragment_target_tsv_path is provided")
+        raise ValueError(
+            "fragment_mzml_paths are required when fragment_target_tsv_path is provided"
+        )
 
 
 def _build_fragment_coelution_report(
@@ -617,13 +645,19 @@ def _is_changed_protein_entry(
 
 
 def _is_downgraded_entry(entry: EvidenceGraphFinalResultEntry) -> bool:
-    return bool(entry.downgrade_reasons) or entry.evidence_tier in {
-        FinalClaimEvidenceTier.WEAK,
-        FinalClaimEvidenceTier.AMBIGUOUS,
-    } or entry.confidence_tier not in {
-        EvidenceGraphConfidenceTier.HIGH,
-        EvidenceGraphConfidenceTier.MODERATE,
-    }
+    return (
+        bool(entry.downgrade_reasons)
+        or entry.evidence_tier
+        in {
+            FinalClaimEvidenceTier.WEAK,
+            FinalClaimEvidenceTier.AMBIGUOUS,
+        }
+        or entry.confidence_tier
+        not in {
+            EvidenceGraphConfidenceTier.HIGH,
+            EvidenceGraphConfidenceTier.MODERATE,
+        }
+    )
 
 
 def _claim_state_by_node_id(graph: ProteomicsEvidenceGraph, node_id: str) -> str | None:
@@ -650,14 +684,19 @@ def _build_protein_decisions(
                 claim_state=_claim_state_by_node_id(graph, entry.claim_node_id),
                 evidence_tier=entry.evidence_tier,
                 confidence_tier=entry.confidence_tier,
-                downgrade_reasons=tuple(reason.value for reason in entry.downgrade_reasons),
+                downgrade_reasons=tuple(
+                    reason.value for reason in entry.downgrade_reasons
+                ),
                 source_row_refs=entry.source_row_refs,
             )
         )
     return tuple(
         sorted(
             decisions,
-            key=lambda entry: (entry.protein_group_id, entry.representative_protein_ref),
+            key=lambda entry: (
+                entry.protein_group_id,
+                entry.representative_protein_ref,
+            ),
         )
     )
 

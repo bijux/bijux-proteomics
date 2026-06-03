@@ -75,7 +75,9 @@ def test_protein_effect_from_peptides(
         raise ValueError("design must not be empty")
 
     condition_by_sample = _condition_lookup(design)
-    design_conditions = tuple(sorted({value for value in condition_by_sample.values() if value}))
+    design_conditions = tuple(
+        sorted({value for value in condition_by_sample.values() if value})
+    )
     if condition_a is None or condition_b is None:
         if len(design_conditions) != 2:
             raise ValueError(
@@ -157,7 +159,7 @@ def render_peptide_level_differential_tsv(
     return buffer.getvalue()
 
 
-setattr(test_protein_effect_from_peptides, "__test__", False)
+test_protein_effect_from_peptides.__test__ = False
 
 
 def _collect_observed_peptide_intensities(
@@ -175,7 +177,11 @@ def _collect_observed_peptide_intensities(
         for value in row.values:
             abundance = value.abundance
             condition = condition_by_sample.get(value.sample_id)
-            if abundance is None or abundance <= 0.0 or condition not in {condition_a, condition_b}:
+            if (
+                abundance is None
+                or abundance <= 0.0
+                or condition not in {condition_a, condition_b}
+            ):
                 continue
             observed.setdefault(protein_id, []).append(
                 _ObservedPeptideIntensity(
@@ -280,9 +286,9 @@ def _peptide_disagreement_score(
     peptide_effects: list[float] = []
     by_peptide: dict[str, dict[str, list[float]]] = {}
     for entry in observed:
-        by_peptide.setdefault(entry.peptide_id, {}).setdefault(entry.condition, []).append(
-            entry.log2_intensity
-        )
+        by_peptide.setdefault(entry.peptide_id, {}).setdefault(
+            entry.condition, []
+        ).append(entry.log2_intensity)
     for peptide_id in sorted(by_peptide):
         values_a = by_peptide[peptide_id].get(condition_a, [])
         values_b = by_peptide[peptide_id].get(condition_b, [])
@@ -297,8 +303,7 @@ def _peptide_disagreement_score(
     positive = np.any(effect_array >= 0.35)
     negative = np.any(effect_array <= -0.35)
     directional_conflict = 1.0 if positive and negative else 0.0
-    disagreement = min(1.0, spread / 2.0 + (0.35 * directional_conflict))
-    return disagreement
+    return min(1.0, spread / 2.0 + (0.35 * directional_conflict))
 
 
 def _benjamini_hochberg(p_values: tuple[float, ...]) -> tuple[float, ...]:

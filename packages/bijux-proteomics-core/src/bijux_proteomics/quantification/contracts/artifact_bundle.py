@@ -54,6 +54,7 @@ from .study_qc import ReplicateAndBatchQcReport
 
 _STABLE_DOCUMENT_TIME = datetime(1970, 1, 1, tzinfo=UTC)
 
+
 class QuantReproducibilityManifest(JsonModel):
     """Stable manifest proving one quant table can be reproduced exactly."""
 
@@ -68,6 +69,7 @@ class QuantReproducibilityManifest(JsonModel):
     entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     value_count: int = Field(..., ge=0)
     reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+
 
 class QuantArtifactBundle(JsonModel):
     """Review-ready quantification artifact bundle independent of runtime logs."""
@@ -96,6 +98,7 @@ class QuantArtifactBundle(JsonModel):
         MultiConditionDifferentialAbundanceReport | None
     ) = None
     time_course_differential_report: TimeCourseDifferentialReport | None = None
+
 
 def build_quant_reproducibility_manifest(
     table: LabelFreeQuantTable,
@@ -188,12 +191,14 @@ def build_quant_reproducibility_manifest(
         }
     )
 
+
 def export_quant_reproducibility_manifest(
     manifest: QuantReproducibilityManifest,
     path: Path,
 ) -> None:
     """Write a stable JSON reproducibility manifest for quantification outputs."""
     path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
 
 def build_quant_artifact_bundle(
     table: LabelFreeQuantTable,
@@ -204,7 +209,8 @@ def build_quant_artifact_bundle(
     imputation_sensitivity_report: ImputationSensitivityReport | None = None,
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None,
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None,
-    missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None,
+    missingness_intensity_dependence: MissingnessIntensityDependenceReport
+    | None = None,
     missingness_mechanism_report: MissingDataMechanismReport | None = None,
     replicate_qc_report: ReplicateAndBatchQcReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
@@ -261,6 +267,7 @@ def build_quant_artifact_bundle(
             )
         }
     )
+
 
 def write_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
     """Write a stable JSON artifact bundle for quant review."""

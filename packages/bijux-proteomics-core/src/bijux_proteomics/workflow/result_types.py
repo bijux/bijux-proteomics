@@ -5,10 +5,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from enum import StrEnum
 from io import StringIO
-from typing import Iterable, Protocol
+from typing import Protocol
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -201,7 +202,7 @@ def build_rejected_evidence_entries_from_issue_rows(
 
     entries: list[RejectedEvidenceEntry] = []
     for row in rows:
-        row_number = int(getattr(row, "row_number"))
+        row_number = int(row.row_number)
         entity_id = _resolve_row_entity_id(row, entity_prefix=entity_prefix)
         issues = tuple(getattr(row, "issues", ()))
         if not issues:
@@ -264,7 +265,9 @@ def build_rejected_evidence_entries_from_reason_rows(
             related_artifact=related_artifact,
             source_file=source_file,
             row_number=(
-                None if row_number_field is None else int(getattr(row, row_number_field))
+                None
+                if row_number_field is None
+                else int(getattr(row, row_number_field))
             ),
             entity_type=entity_type,
             entity_id=str(getattr(row, entity_field)),
@@ -351,8 +354,8 @@ def render_result_rejected_evidence_tsv(
 
 
 def _resolve_row_entity_id(row: object, *, entity_prefix: str) -> str:
-    if hasattr(row, "entity_id") and str(getattr(row, "entity_id")).strip():
-        return str(getattr(row, "entity_id")).strip()
+    if hasattr(row, "entity_id") and str(row.entity_id).strip():
+        return str(row.entity_id).strip()
     raw_fields = dict(getattr(row, "raw_fields", {}))
     for key in (
         "candidate_id",
@@ -366,7 +369,7 @@ def _resolve_row_entity_id(row: object, *, entity_prefix: str) -> str:
         value = raw_fields.get(key)
         if value is not None and str(value).strip():
             return str(value).strip()
-    return f"{entity_prefix}:{int(getattr(row, 'row_number'))}"
+    return f"{entity_prefix}:{int(row.row_number)}"
 
 
 __all__ = [

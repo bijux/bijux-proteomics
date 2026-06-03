@@ -10,14 +10,6 @@ from typing import TypedDict
 
 import numpy as np
 
-from bijux_proteomics.quantification.normalization.composition import (
-    CompositionalBiasReport,
-    detect_compositional_bias,
-)
-from bijux_proteomics.quantification.matrix.core_matrix import (
-    quant_matrix_to_dense_array,
-    rebuild_quant_matrix_from_dense_array,
-)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationComparisonReport,
@@ -30,6 +22,14 @@ from bijux_proteomics.quantification.contracts import (
     QuantMeasureKind,
     _rebuild_table_from_matrix,
     _table_matrix,
+)
+from bijux_proteomics.quantification.matrix.core_matrix import (
+    quant_matrix_to_dense_array,
+    rebuild_quant_matrix_from_dense_array,
+)
+from bijux_proteomics.quantification.normalization.composition import (
+    CompositionalBiasReport,
+    detect_compositional_bias,
 )
 
 
@@ -248,9 +248,7 @@ def _normalize_intensity_matrix_pure(
         sample_medians = _nanmedian_by_column(log_matrix)
         finite_medians = sample_medians[np.isfinite(sample_medians)]
         global_median = (
-            float(np.nanmedian(finite_medians))
-            if finite_medians.size
-            else 0.0
+            float(np.nanmedian(finite_medians)) if finite_medians.size else 0.0
         )
         shifts = np.array(
             [
@@ -290,7 +288,9 @@ def _normalize_intensity_matrix_vectorized(
     if method is NormalizationMethod.TIC:
         totals = np.nansum(matrix, axis=0)
         positive_totals = totals[totals > 0]
-        global_total = float(np.nanmean(positive_totals)) if positive_totals.size else 1.0
+        global_total = (
+            float(np.nanmean(positive_totals)) if positive_totals.size else 1.0
+        )
         factor_array = np.where(totals > 0, global_total / totals, 1.0)
         scaled = matrix * factor_array[np.newaxis, :]
         return scaled, _normalization_factors_from_array(sample_ids_array, factor_array)
@@ -298,7 +298,9 @@ def _normalize_intensity_matrix_vectorized(
     if method is NormalizationMethod.MEDIAN:
         medians = _nanmedian_by_column(matrix)
         finite_medians = medians[np.isfinite(medians)]
-        global_median = float(np.nanmedian(finite_medians)) if finite_medians.size else 1.0
+        global_median = (
+            float(np.nanmedian(finite_medians)) if finite_medians.size else 1.0
+        )
         factor_array = np.where(
             np.isfinite(medians) & (medians > 0.0),
             global_median / medians,
@@ -343,7 +345,9 @@ def _normalize_intensity_matrix_vectorized(
             return matrix.copy(), dict.fromkeys(sample_ids, 1.0)
         sample_medians = _nanmedian_by_column(log_matrix)
         finite_medians = sample_medians[np.isfinite(sample_medians)]
-        global_median = float(np.nanmedian(finite_medians)) if finite_medians.size else 0.0
+        global_median = (
+            float(np.nanmedian(finite_medians)) if finite_medians.size else 0.0
+        )
         shifts = np.where(
             np.isfinite(sample_medians),
             global_median - sample_medians,
@@ -356,7 +360,9 @@ def _normalize_intensity_matrix_vectorized(
             pseudocount=pseudocount,
         )
         factor_array = np.power(2.0, shifts)
-        return normalized, _normalization_factors_from_array(sample_ids_array, factor_array)
+        return normalized, _normalization_factors_from_array(
+            sample_ids_array, factor_array
+        )
 
     raise ValueError(f"unsupported normalization method: {method.value}")
 

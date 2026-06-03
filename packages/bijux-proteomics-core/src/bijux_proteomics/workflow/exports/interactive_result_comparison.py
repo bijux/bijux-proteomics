@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -86,7 +86,9 @@ class InteractiveResultProteinComparisonEntry(JsonModel):
     gene_symbol: str | None = None
     left_protein: InteractiveResultProtein | None = None
     right_protein: InteractiveResultProtein | None = None
-    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(default_factory=tuple)
+    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -100,7 +102,9 @@ class InteractiveResultPtmSiteComparisonEntry(JsonModel):
     protein_ref: str | None = None
     left_site: InteractiveResultPtmSite | None = None
     right_site: InteractiveResultPtmSite | None = None
-    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(default_factory=tuple)
+    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -115,7 +119,9 @@ class InteractiveResultQcComparisonEntry(JsonModel):
     entity_id: str | None = None
     left_qc_entry: InteractiveResultQcEntry | None = None
     right_qc_entry: InteractiveResultQcEntry | None = None
-    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(default_factory=tuple)
+    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -129,7 +135,9 @@ class InteractiveResultPathwayComparisonEntry(JsonModel):
     pathway_name: str | None = None
     left_pathway: InteractiveResultPathway | None = None
     right_pathway: InteractiveResultPathway | None = None
-    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(default_factory=tuple)
+    reasons: tuple[InteractiveResultComparisonReason, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -303,12 +311,24 @@ def render_interactive_result_comparison_protein_tsv(
                 entry.status.value,
                 _stringify_optional(entry.representative_protein_ref),
                 _stringify_optional(entry.gene_symbol),
-                _stringify_optional(_maybe_protein(entry.left_protein, "log2_fold_change")),
-                _stringify_optional(_maybe_protein(entry.right_protein, "log2_fold_change")),
-                _stringify_optional(_maybe_protein(entry.left_protein, "adjusted_p_value")),
-                _stringify_optional(_maybe_protein(entry.right_protein, "adjusted_p_value")),
-                _stringify_optional(_maybe_protein(entry.left_protein, "evidence_tier")),
-                _stringify_optional(_maybe_protein(entry.right_protein, "evidence_tier")),
+                _stringify_optional(
+                    _maybe_protein(entry.left_protein, "log2_fold_change")
+                ),
+                _stringify_optional(
+                    _maybe_protein(entry.right_protein, "log2_fold_change")
+                ),
+                _stringify_optional(
+                    _maybe_protein(entry.left_protein, "adjusted_p_value")
+                ),
+                _stringify_optional(
+                    _maybe_protein(entry.right_protein, "adjusted_p_value")
+                ),
+                _stringify_optional(
+                    _maybe_protein(entry.left_protein, "evidence_tier")
+                ),
+                _stringify_optional(
+                    _maybe_protein(entry.right_protein, "evidence_tier")
+                ),
                 _join_reasons(entry.reasons),
                 entry.note,
             )
@@ -434,10 +454,18 @@ def render_interactive_result_comparison_pathway_tsv(
                 _stringify_optional(
                     _maybe_pathway(entry.right_pathway, "activity_score_delta")
                 ),
-                _stringify_optional(_maybe_pathway(entry.left_pathway, "enrichment_ratio")),
-                _stringify_optional(_maybe_pathway(entry.right_pathway, "enrichment_ratio")),
-                _stringify_optional(_maybe_pathway(entry.left_pathway, "adjusted_p_value")),
-                _stringify_optional(_maybe_pathway(entry.right_pathway, "adjusted_p_value")),
+                _stringify_optional(
+                    _maybe_pathway(entry.left_pathway, "enrichment_ratio")
+                ),
+                _stringify_optional(
+                    _maybe_pathway(entry.right_pathway, "enrichment_ratio")
+                ),
+                _stringify_optional(
+                    _maybe_pathway(entry.left_pathway, "adjusted_p_value")
+                ),
+                _stringify_optional(
+                    _maybe_pathway(entry.right_pathway, "adjusted_p_value")
+                ),
                 _join_reasons(entry.reasons),
                 entry.note,
             )

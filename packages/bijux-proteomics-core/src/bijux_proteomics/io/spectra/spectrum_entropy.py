@@ -8,8 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
-from math import exp
-from math import log
+from math import exp, log
 from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field

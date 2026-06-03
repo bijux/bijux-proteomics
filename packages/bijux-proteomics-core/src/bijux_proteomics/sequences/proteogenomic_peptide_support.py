@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -203,7 +203,9 @@ def parse_proteogenomic_variant_peptide_table(
 
     reader = csv.DictReader(lines, delimiter=_infer_delimiter(lines[0]))
     if reader.fieldnames is None:
-        raise ValueError("proteogenomic variant peptide table must include a header row")
+        raise ValueError(
+            "proteogenomic variant peptide table must include a header row"
+        )
     _validate_required_columns(reader.fieldnames, (active_mapping.peptide_sequence,))
 
     accepted_records: list[ProteogenomicVariantPeptideRecord] = []
@@ -211,7 +213,9 @@ def parse_proteogenomic_variant_peptide_table(
     seen_rows: set[tuple[str, str | None, str | None, str | None]] = set()
     for row_number, raw_row in enumerate(reader, start=2):
         values = _normalize_row(raw_row)
-        peptide_sequence = values.get(active_mapping.peptide_sequence, "").strip().upper()
+        peptide_sequence = (
+            values.get(active_mapping.peptide_sequence, "").strip().upper()
+        )
         variant_token = _optional_value(values, active_mapping.variant_protein_ref)
         reference_token = _optional_value(values, active_mapping.reference_protein_ref)
         variant_label = _optional_value(values, active_mapping.variant_label)
@@ -237,7 +241,9 @@ def parse_proteogenomic_variant_peptide_table(
             )
             continue
         variant_protein_ref = (
-            None if variant_token is None else _canonical_or_stable_protein_ref(variant_token)
+            None
+            if variant_token is None
+            else _canonical_or_stable_protein_ref(variant_token)
         )
         reference_protein_ref = (
             None
@@ -256,8 +262,7 @@ def parse_proteogenomic_variant_peptide_table(
                     row_number=row_number,
                     values=values,
                     reason=(
-                        "duplicate variant peptide support row for "
-                        f"{peptide_sequence}"
+                        f"duplicate variant peptide support row for {peptide_sequence}"
                     ),
                 )
             )
@@ -363,7 +368,8 @@ def build_proteogenomic_peptide_support_report(
             reference_only_count=sum(
                 1
                 for entry in entries
-                if entry.support_class is ProteogenomicPeptideSupportClass.REFERENCE_ONLY
+                if entry.support_class
+                is ProteogenomicPeptideSupportClass.REFERENCE_ONLY
             ),
             variant_only_count=sum(
                 1
@@ -462,7 +468,9 @@ def _build_support_entry(
     *,
     reference_lookup: tuple[_ProteinLookup, ...],
     variant_lookup: tuple[_ProteinLookup, ...],
-    variant_records_by_peptide: dict[str, tuple[ProteogenomicVariantPeptideRecord, ...]],
+    variant_records_by_peptide: dict[
+        str, tuple[ProteogenomicVariantPeptideRecord, ...]
+    ],
     treat_isoleucine_as_leucine: bool,
 ) -> ProteogenomicPeptideSupportEntry:
     peptide_evidence = tuple(
@@ -506,7 +514,9 @@ def _build_support_entry(
     )
     return ProteogenomicPeptideSupportEntry(
         evidence_key=reference.evidence_key,
-        target_protein_refs=tuple(sorted({_stable_protein_ref(ref) for ref in reference.target_protein_refs})),
+        target_protein_refs=tuple(
+            sorted({_stable_protein_ref(ref) for ref in reference.target_protein_refs})
+        ),
         support_class=support_class,
         support_reason=_support_reason(
             support_class,
@@ -566,11 +576,11 @@ def _build_peptide_evidence(
             if normalized_peptide and normalized_peptide in record.lookup_residues
         )
     )
-    matched_variant_protein_refs = set(
+    matched_variant_protein_refs = {
         record.stable_ref
         for record in variant_lookup
         if normalized_peptide and normalized_peptide in record.lookup_residues
-    )
+    }
     matched_variant_protein_refs.update(
         record.variant_protein_ref
         for record in variant_records
@@ -615,9 +625,7 @@ def _resolve_peptide_support_class(
 def _resolve_entry_support_class(
     peptide_evidence: tuple[ProteogenomicPeptideEvidence, ...],
 ) -> ProteogenomicPeptideSupportClass:
-    support_classes = {
-        peptide.support_class for peptide in peptide_evidence
-    }
+    support_classes = {peptide.support_class for peptide in peptide_evidence}
     if len(support_classes) == 1:
         return next(iter(support_classes))
     return ProteogenomicPeptideSupportClass.AMBIGUOUS
@@ -670,10 +678,7 @@ def _group_variant_records_by_peptide(
                 treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
             )
         ].append(record)
-    return {
-        peptide: tuple(entries)
-        for peptide, entries in grouped.items()
-    }
+    return {peptide: tuple(entries) for peptide, entries in grouped.items()}
 
 
 def _materialize_lookup(
@@ -742,7 +747,7 @@ def _optional_value(values: dict[str, str], column: str | None) -> str | None:
     if column is None:
         return None
     value = values.get(column, "").strip()
-    return None if not value else value
+    return value if value else None
 
 
 def _normalize_row(raw_row: dict[str, str | None]) -> dict[str, str]:

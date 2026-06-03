@@ -69,7 +69,9 @@ def classify_contamination(
     for row in contaminant_evidence:
         rows_by_sample.setdefault(row.sample_id, []).append(row)
     return tuple(
-        _classify_sample(sample_id, tuple(rows_by_sample[sample_id]), annotation_by_protein)
+        _classify_sample(
+            sample_id, tuple(rows_by_sample[sample_id]), annotation_by_protein
+        )
         for sample_id in sorted(rows_by_sample)
     )
 
@@ -138,7 +140,9 @@ def _classify_sample(
         class_intensity[contaminant_class] = (
             class_intensity.get(contaminant_class, 0.0) + row.intensity
         )
-        protein_intensity[row.protein_ref] = protein_intensity.get(row.protein_ref, 0.0) + row.intensity
+        protein_intensity[row.protein_ref] = (
+            protein_intensity.get(row.protein_ref, 0.0) + row.intensity
+        )
 
     total_contaminant_intensity = sum(protein_intensity.values())
     intensity_fraction = (

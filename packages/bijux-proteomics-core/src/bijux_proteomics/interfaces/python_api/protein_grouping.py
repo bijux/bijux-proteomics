@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_protein_groups_command(
     input_tsv: Path,
     threshold: float,
@@ -85,6 +86,7 @@ def run_protein_groups_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_protein_ambiguity_command(
     input_tsv: Path,
@@ -176,6 +178,7 @@ def run_protein_ambiguity_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_protein_inference_benchmarks_command(
     picked_threshold: float,
     summary_tsv_out: Path | None,
@@ -217,4 +220,9 @@ def run_protein_inference_benchmarks_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_protein_groups_command', 'run_protein_ambiguity_command', 'run_protein_inference_benchmarks_command']
+
+__all__ = [
+    "run_protein_groups_command",
+    "run_protein_ambiguity_command",
+    "run_protein_inference_benchmarks_command",
+]

@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_contexts import (
+    run_compartment_biology_command,
+    run_drug_target_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_contexts import run_compartment_biology_command, run_drug_target_command
+
 
 @click.command("compartment-biology")
 @click.argument(
@@ -170,8 +174,49 @@ def compartment_biology_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Interpret changed proteins through explicit subcellular compartment context.'
-    return run_compartment_biology_command(input_table, context_annotation_tsv, design_path, condition_a, condition_b, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, top_n, normalization, protein_ref_column, context_id_column, context_kind_column, context_name_column, source_name_column, source_accession_column, evidence_column, max_adjusted_p_value, min_absolute_log2_fold_change, min_enrichment_ratio, minimum_observed_member_count, summary_tsv_out, enrichment_tsv_out, matrix_tsv_out, sample_score_tsv_out, condition_score_tsv_out, condition_comparison_tsv_out, unresolved_member_tsv_out, unknown_localization_tsv_out, rejected_context_tsv_out, out_path)
+    "Interpret changed proteins through explicit subcellular compartment context."
+    return run_compartment_biology_command(
+        input_table,
+        context_annotation_tsv,
+        design_path,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        min_enrichment_ratio,
+        minimum_observed_member_count,
+        summary_tsv_out,
+        enrichment_tsv_out,
+        matrix_tsv_out,
+        sample_score_tsv_out,
+        condition_score_tsv_out,
+        condition_comparison_tsv_out,
+        unresolved_member_tsv_out,
+        unknown_localization_tsv_out,
+        rejected_context_tsv_out,
+        out_path,
+    )
+
 
 @click.command("drug-target")
 @click.argument(
@@ -330,8 +375,51 @@ def drug_target_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Interpret regulated proteins as explicit drug targets or pathway neighbors.'
-    return run_drug_target_command(input_table, context_tsv, design_path, pathway_membership_tsv, fasta, annotation_tsv, condition_a, condition_b, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, top_n, normalization, context_protein_ref_column, context_id_column, context_kind_column, context_name_column, source_name_column, source_accession_column, evidence_column, pathway_id_column, pathway_name_column, pathway_source_name_column, pathway_source_accession_column, pathway_protein_ref_column, pathway_gene_symbol_column, max_adjusted_p_value, min_absolute_log2_fold_change, summary_tsv_out, interpretation_tsv_out, rejected_context_tsv_out, rejected_pathway_tsv_out, out_path)
+    "Interpret regulated proteins as explicit drug targets or pathway neighbors."
+    return run_drug_target_command(
+        input_table,
+        context_tsv,
+        design_path,
+        pathway_membership_tsv,
+        fasta,
+        annotation_tsv,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        context_protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        pathway_id_column,
+        pathway_name_column,
+        pathway_source_name_column,
+        pathway_source_accession_column,
+        pathway_protein_ref_column,
+        pathway_gene_symbol_column,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        summary_tsv_out,
+        interpretation_tsv_out,
+        rejected_context_tsv_out,
+        rejected_pathway_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     compartment_biology_command,

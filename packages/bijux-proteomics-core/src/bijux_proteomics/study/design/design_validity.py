@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import Counter, defaultdict
+import csv
 from io import StringIO
 import re
 from typing import cast
@@ -145,7 +145,9 @@ def build_experiment_design_validity_report(
                 1 for issue in issue_records if issue.code == "duplicate_run_id"
             ),
             invalid_contrast_count=sum(
-                1 for issue in issue_records if issue.code.startswith("invalid_contrast_")
+                1
+                for issue in issue_records
+                if issue.code.startswith("invalid_contrast_")
             ),
             confounded_batch_condition_count=sum(
                 1
@@ -161,9 +163,7 @@ def build_experiment_design_validity_report(
                 if issue.code == "missing_multiplex_channels"
             ),
             missing_timepoint_order_count=sum(
-                1
-                for issue in issue_records
-                if issue.code == "missing_timepoint_order"
+                1 for issue in issue_records if issue.code == "missing_timepoint_order"
             ),
             valid_for_differential_analysis=not issue_records,
         ),
@@ -290,9 +290,7 @@ def _selected_conditions(
             issues.append(
                 ExperimentDesignValidityIssue(
                     code="invalid_contrast_unknown_condition",
-                    message=(
-                        "contrast conditions must exist in the experiment design"
-                    ),
+                    message=("contrast conditions must exist in the experiment design"),
                     condition_ids=(condition_a, condition_b),
                 )
             )
@@ -324,8 +322,7 @@ def _sample_identity_conflict_issues(
             values = {
                 value
                 for value in (
-                    _resolve_entry_value(entry, field)
-                    for entry in sample_entries
+                    _resolve_entry_value(entry, field) for entry in sample_entries
                 )
                 if value not in (None, "")
             }
@@ -394,11 +391,7 @@ def _confounded_batch_condition_issues(
         return ()
     batch_ids = tuple(
         sorted(
-            {
-                term.split(":", 1)[1]
-                for term in report.confounded_terms
-                if ":" in term
-            }
+            {term.split(":", 1)[1] for term in report.confounded_terms if ":" in term}
         )
     )
     return (
@@ -537,7 +530,9 @@ def _timepoint_order_issues(
         return ()
     if ordered_timepoints:
         declared_order = tuple(ordered_timepoints)
-        if len(declared_order) != len(set(declared_order)) or set(declared_order) != set(labels):
+        if len(declared_order) != len(set(declared_order)) or set(
+            declared_order
+        ) != set(labels):
             return (
                 ExperimentDesignValidityIssue(
                     code="missing_timepoint_order",
@@ -592,7 +587,9 @@ def _resolve_entry_value(entry: ExperimentalDesignEntry, field: str) -> str | No
     return metadata.get(field)
 
 
-def _infer_numeric_timepoint_positions(labels: tuple[str, ...]) -> dict[str, float] | None:
+def _infer_numeric_timepoint_positions(
+    labels: tuple[str, ...],
+) -> dict[str, float] | None:
     direct_numeric: dict[str, float] = {}
     try:
         for label in labels:

@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.quantify_runner import (
     run_quantify_command as _run_quantify_command,
 )
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_quantify_command(
     input_table: Path,
@@ -104,4 +105,5 @@ def run_quantify_command(
         out_path,
     )
 
-__all__ = ['run_quantify_command']
+
+__all__ = ["run_quantify_command"]

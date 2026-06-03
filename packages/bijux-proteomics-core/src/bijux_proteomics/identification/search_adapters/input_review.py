@@ -10,7 +10,10 @@ import hashlib
 from pathlib import Path
 
 from bijux_proteomics.domain import ImportedEvidenceProvenance
-from bijux_proteomics.identification.contracts import PsmParseReport, SearchResultColumnMapping
+from bijux_proteomics.identification.contracts import (
+    PsmParseReport,
+    SearchResultColumnMapping,
+)
 from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterDialectManifest,
     SearchAdapterFieldAccounting,
@@ -21,8 +24,13 @@ from bijux_proteomics.identification.search_adapters.contracts import (
     SearchInputRefusalKind,
     SearchNormalizedEvidenceEntry,
 )
-from bijux_proteomics.identification.search_adapters.family_policy import build_search_result_family_policy
-from bijux_proteomics.identification.search_adapters.registry import manifest_for_dialect, resolve_search_adapter_dialect
+from bijux_proteomics.identification.search_adapters.family_policy import (
+    build_search_result_family_policy,
+)
+from bijux_proteomics.identification.search_adapters.registry import (
+    manifest_for_dialect,
+    resolve_search_adapter_dialect,
+)
 
 
 def _hash_file(path: Path | None) -> str | None:
@@ -138,7 +146,9 @@ def _build_evidence_rows(
             continue
         record = parse_report.accepted_records[accepted_index]
         accepted_index += 1
-        mapped_field_values = _mapped_field_values(raw_fields, parse_report.column_mapping)
+        mapped_field_values = _mapped_field_values(
+            raw_fields, parse_report.column_mapping
+        )
         original_identifiers = _build_original_identifiers(
             mapped_field_values=mapped_field_values,
             raw_fields=raw_fields,

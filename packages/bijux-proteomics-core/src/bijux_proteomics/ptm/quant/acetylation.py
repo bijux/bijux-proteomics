@@ -100,8 +100,7 @@ def analyze_acetylation_sites(
                     None
                     if site_candidate.protein_log2fc is None
                     else round(
-                        site_candidate.raw_site_log2fc
-                        - site_candidate.protein_log2fc,
+                        site_candidate.raw_site_log2fc - site_candidate.protein_log2fc,
                         10,
                     )
                 ),

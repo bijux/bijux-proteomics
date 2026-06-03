@@ -10,7 +10,6 @@ from pathlib import Path
 
 import click
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.python_api.results_query import (
     run_interactive_result_bundle_command,
     run_interactive_result_comparison_command,
@@ -19,6 +18,8 @@ from bijux_proteomics.interfaces.python_api.results_query import (
     run_result_search_command,
     run_validate_result_command,
 )
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 @click.command("result-search")
 @click.option(
@@ -50,8 +51,17 @@ def result_search_command(
     hit_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Search governed protein, PTM-site, pathway, and peptide result objects.'
-    return run_result_search_command(biological_report_dir, ptm_report_dir, query_text, limit, summary_tsv_out, hit_tsv_out, out_path)
+    "Search governed protein, PTM-site, pathway, and peptide result objects."
+    return run_result_search_command(
+        biological_report_dir,
+        ptm_report_dir,
+        query_text,
+        limit,
+        summary_tsv_out,
+        hit_tsv_out,
+        out_path,
+    )
+
 
 @click.command("interactive-result-comparison")
 @click.option(
@@ -111,8 +121,22 @@ def interactive_result_comparison_command(
     pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare two governed result bundles for frontend-ready review clients.'
-    return run_interactive_result_comparison_command(left_biological_report_dir, left_ptm_report_dir, left_run_qc_assessment_tsv_paths, right_biological_report_dir, right_ptm_report_dir, right_run_qc_assessment_tsv_paths, summary_tsv_out, protein_tsv_out, ptm_site_tsv_out, qc_tsv_out, pathway_tsv_out, out_path)
+    "Compare two governed result bundles for frontend-ready review clients."
+    return run_interactive_result_comparison_command(
+        left_biological_report_dir,
+        left_ptm_report_dir,
+        left_run_qc_assessment_tsv_paths,
+        right_biological_report_dir,
+        right_ptm_report_dir,
+        right_run_qc_assessment_tsv_paths,
+        summary_tsv_out,
+        protein_tsv_out,
+        ptm_site_tsv_out,
+        qc_tsv_out,
+        pathway_tsv_out,
+        out_path,
+    )
+
 
 @click.command("interactive-result-bundle")
 @click.option(
@@ -145,8 +169,15 @@ def interactive_result_bundle_command(
     summary_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build one frontend-ready result bundle from governed report artifacts.'
-    return run_interactive_result_bundle_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, summary_tsv_out, out_path)
+    "Build one frontend-ready result bundle from governed report artifacts."
+    return run_interactive_result_bundle_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        summary_tsv_out,
+        out_path,
+    )
+
 
 @click.command("result-manifest")
 @click.option(
@@ -203,8 +234,22 @@ def result_manifest_command(
     manifest_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Emit a machine-readable completeness manifest over exported result directories.'
-    return run_result_manifest_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, input_paths, commands, summary_tsv_out, input_tsv_out, command_tsv_out, file_tsv_out, warning_tsv_out, manifest_json_out, out_path)
+    "Emit a machine-readable completeness manifest over exported result directories."
+    return run_result_manifest_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        input_paths,
+        commands,
+        summary_tsv_out,
+        input_tsv_out,
+        command_tsv_out,
+        file_tsv_out,
+        warning_tsv_out,
+        manifest_json_out,
+        out_path,
+    )
+
 
 @click.command("validate-result")
 @click.argument(
@@ -239,7 +284,7 @@ def validate_result_command(
     manifest_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate one governed result root and emit a stable completeness manifest.'
+    "Validate one governed result root and emit a stable completeness manifest."
     return run_validate_result_command(
         result_root,
         commands,
@@ -251,6 +296,7 @@ def validate_result_command(
         manifest_json_out,
         out_path,
     )
+
 
 @click.command("query-result")
 @click.argument(
@@ -275,7 +321,7 @@ def query_result_command(
     hit_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Query governed result objects from one shipped result root.'
+    "Query governed result objects from one shipped result root."
     return run_query_result_command(
         result_root,
         query_text,
@@ -284,6 +330,7 @@ def query_result_command(
         hit_tsv_out,
         out_path,
     )
+
 
 COMMANDS = (
     query_result_command,

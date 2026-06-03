@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,26 +13,29 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.localization.localization_scoring import (
+    PtmLocalizationConfidenceTier,
+)
 from bijux_proteomics.ptm.quant.abundance_correction import (
     PtmProteinCorrectionReference as PtmProteinAbundanceCorrectionReference,
+)
+from bijux_proteomics.ptm.quant.abundance_correction import (
     PtmSiteCorrectionCandidate,
     PtmSiteProteinCorrectionEntry,
     correct_site_by_protein,
 )
-from bijux_proteomics.ptm.localization.localization_scoring import (
-    PtmLocalizationConfidenceTier,
-)
 from bijux_proteomics.ptm.quant.site_quantification import (
-    PtmSiteQuantRow,
     PtmSiteQuantificationReport,
+    PtmSiteQuantRow,
 )
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
     DifferentialBrokenPairEntry,
-    DifferentialAbundanceReport,
     DifferentialImputationSignificanceChangeReason,
     LabelFreeQuantTable,
     Ms1FeatureRecord,
@@ -240,7 +241,9 @@ def build_ptm_differential_analysis_report(
         batch_field=batch_field,
         pairing_field=effective_pairing_field,
     )
-    site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
+    site_quant_table = _build_label_free_table_from_site_quantification(
+        site_quantification
+    )
     normalization_reference_table = _build_label_free_table_from_site_quantification(
         site_quantification,
         include_ambiguity_groups=True,
@@ -453,7 +456,9 @@ def _project_label_free_table_entities(
         normalization_method=table.normalization_method,
         sample_ids=table.sample_ids,
         entity_ids=entity_ids,
-        values=tuple(value for value in table.values if value.entity_id in entity_id_set),
+        values=tuple(
+            value for value in table.values if value.entity_id in entity_id_set
+        ),
         entity_protein_refs={
             entity_id: table.entity_protein_refs[entity_id]
             for entity_id in entity_ids
@@ -481,9 +486,7 @@ def _build_ptm_site_differential_report(
         protein_differential_lookup=protein_differential_lookup,
         protein_correction_mode=protein_correction_mode,
     )
-    correction_by_site = {
-        entry.site_id: entry for entry in site_correction_entries
-    }
+    correction_by_site = {entry.site_id: entry for entry in site_correction_entries}
     entries: list[PtmSiteDifferentialEntry] = []
     for entry in differential.entries:
         row = row_by_site[entry.entity_id]
@@ -493,7 +496,9 @@ def _build_ptm_site_differential_report(
         }
         correction_reference = protein_differential_lookup.get(row.protein_ref)
         protein_adjusted_p_value = (
-            None if correction_reference is None else correction_reference.adjusted_p_value
+            None
+            if correction_reference is None
+            else correction_reference.adjusted_p_value
         )
         correction_entry = correction_by_site[entry.entity_id]
         entries.append(
@@ -609,7 +614,9 @@ def _resolve_selected_contrast(
     condition_a: str | None,
     condition_b: str | None,
 ) -> tuple[str, str]:
-    conditions = tuple(sorted({entry.condition for entry in design_entries if entry.condition}))
+    conditions = tuple(
+        sorted({entry.condition for entry in design_entries if entry.condition})
+    )
     if condition_a is not None and condition_b is not None:
         return condition_a, condition_b
     if len(conditions) != 2:
@@ -688,7 +695,9 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
                 f"{entry.mean_log2_abundance_a:g}",
                 f"{entry.mean_log2_abundance_b:g}",
                 f"{entry.log2_fold_change:g}",
-                "" if entry.protein_log2_fold_change is None else f"{entry.protein_log2_fold_change:g}",
+                ""
+                if entry.protein_log2_fold_change is None
+                else f"{entry.protein_log2_fold_change:g}",
                 ""
                 if entry.corrected_log2_fold_change is None
                 else f"{entry.corrected_log2_fold_change:g}",

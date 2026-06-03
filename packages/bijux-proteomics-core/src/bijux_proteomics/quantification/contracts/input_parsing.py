@@ -46,8 +46,10 @@ def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...
     refs = tuple(token.strip() for token in text.split(separator) if token.strip())
     return tuple(dict.fromkeys(refs))
 
+
 def _row_issue(code: str, message: str, row_number: int) -> QuantValidationIssue:
     return QuantValidationIssue(code=code, message=message, row_number=row_number)
+
 
 def parse_ms1_feature_table(
     path: Path,
@@ -287,9 +289,13 @@ def _parse_ms1_feature_row(
         else ""
     )
     if not sample_id:
-        issues.append(_row_issue("missing_sample_id", "missing sample identifier", row_number))
+        issues.append(
+            _row_issue("missing_sample_id", "missing sample identifier", row_number)
+        )
     if not peptide:
-        issues.append(_row_issue("missing_peptide", "missing peptide sequence", row_number))
+        issues.append(
+            _row_issue("missing_peptide", "missing peptide sequence", row_number)
+        )
     canonical_peptide = peptide
     if peptide:
         try:
@@ -311,11 +317,15 @@ def _parse_ms1_feature_row(
         try:
             intensity = float(intensity_token)
         except ValueError:
-            issues.append(_row_issue("invalid_intensity", "invalid intensity value", row_number))
+            issues.append(
+                _row_issue("invalid_intensity", "invalid intensity value", row_number)
+            )
             intensity = None
         if intensity is not None and intensity < 0:
             issues.append(
-                _row_issue("negative_intensity", "intensity must be non-negative", row_number)
+                _row_issue(
+                    "negative_intensity", "intensity must be non-negative", row_number
+                )
             )
         if intensity is not None and intensity == 0:
             missing_value_kind = MissingValueKind.ZERO
@@ -331,7 +341,9 @@ def _parse_ms1_feature_row(
                 if charge < 1:
                     raise ValueError
             except ValueError:
-                issues.append(_row_issue("invalid_charge", "invalid charge value", row_number))
+                issues.append(
+                    _row_issue("invalid_charge", "invalid charge value", row_number)
+                )
 
     mz: float | None = None
     if mapping.mz:
@@ -342,7 +354,9 @@ def _parse_ms1_feature_row(
                 if mz <= 0:
                     raise ValueError
             except ValueError:
-                issues.append(_row_issue("invalid_mz", "invalid precursor m/z value", row_number))
+                issues.append(
+                    _row_issue("invalid_mz", "invalid precursor m/z value", row_number)
+                )
 
     retention_time_seconds: float | None = None
     if mapping.retention_time_seconds:
@@ -354,7 +368,11 @@ def _parse_ms1_feature_row(
                     raise ValueError
             except ValueError:
                 issues.append(
-                    _row_issue("invalid_retention_time", "invalid retention time value", row_number)
+                    _row_issue(
+                        "invalid_retention_time",
+                        "invalid retention time value",
+                        row_number,
+                    )
                 )
 
     protein_refs = _parse_protein_refs(
@@ -414,9 +432,7 @@ def _parse_precursor_intensity_row(
         else ""
     )
     run_token = (
-        raw_fields.get(mapping.run_id, "").strip()
-        if mapping.run_id is not None
-        else ""
+        raw_fields.get(mapping.run_id, "").strip() if mapping.run_id is not None else ""
     )
     sample_id = sample_token or run_token
     if not sample_id:
@@ -448,9 +464,9 @@ def _parse_precursor_intensity_row(
     else:
         try:
             canonical_peptide = canonicalize_modified_peptide(peptide_notation)
-            peptide_sequence = peptide_token or parse_modified_peptide(
-                canonical_peptide
-            ).sequence
+            peptide_sequence = (
+                peptide_token or parse_modified_peptide(canonical_peptide).sequence
+            )
         except ValueError as exc:
             issues.append(_row_issue("invalid_peptide_notation", str(exc), row_number))
             peptide_sequence = peptide_token
@@ -482,7 +498,9 @@ def _parse_precursor_intensity_row(
             intensity = None
         if intensity is not None and intensity < 0:
             issues.append(
-                _row_issue("negative_intensity", "intensity must be non-negative", row_number)
+                _row_issue(
+                    "negative_intensity", "intensity must be non-negative", row_number
+                )
             )
         if intensity is not None and intensity == 0.0:
             missing_value_kind = MissingValueKind.ZERO
@@ -498,16 +516,16 @@ def _parse_precursor_intensity_row(
                 if charge < 1:
                     raise ValueError
             except ValueError:
-                issues.append(_row_issue("invalid_charge", "invalid charge value", row_number))
+                issues.append(
+                    _row_issue("invalid_charge", "invalid charge value", row_number)
+                )
 
     protein_refs = _parse_protein_refs(
         raw_fields.get(mapping.protein_refs, "") if mapping.protein_refs else "",
         mapping.protein_separator,
     )
     precursor_id = (
-        raw_fields.get(mapping.precursor_id, "").strip()
-        if mapping.precursor_id
-        else ""
+        raw_fields.get(mapping.precursor_id, "").strip() if mapping.precursor_id else ""
     ) or f"precursor-{row_number}"
     if issues:
         return None, RejectedPrecursorIntensityRow(

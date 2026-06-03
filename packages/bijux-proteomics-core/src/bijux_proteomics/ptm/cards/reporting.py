@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
@@ -14,9 +12,15 @@ from typing import cast
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.ambiguity_handling import (
+    render_ptm_site_group_quant_matrix_tsv,
+    render_ptm_site_group_quant_missingness_tsv,
+    render_ptm_site_group_quant_summary_tsv,
+)
 from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
     PtmSiteEntry,
@@ -25,9 +29,9 @@ from bijux_proteomics.ptm.contracts import (
 )
 from bijux_proteomics.ptm.differential_analysis import (
     PtmDifferentialAnalysisReport,
-    render_ptm_differential_volcano_tsv,
     PtmProteinCorrectionMode,
     build_ptm_differential_analysis_report,
+    render_ptm_differential_volcano_tsv,
     render_ptm_site_differential_tsv,
 )
 from bijux_proteomics.ptm.evidence_cards import (
@@ -35,8 +39,8 @@ from bijux_proteomics.ptm.evidence_cards import (
     PtmEvidenceCardPolicy,
     PtmEvidenceCardReport,
     build_ptm_evidence_card_report,
-    render_ptm_evidence_card_tsv,
     render_ptm_evidence_card_summary_tsv,
+    render_ptm_evidence_card_tsv,
     render_ptm_evidence_claim_tsv,
 )
 from bijux_proteomics.ptm.localization_scoring import (
@@ -67,6 +71,7 @@ from bijux_proteomics.ptm.ortholog_site_conservation import (
     render_ptm_ortholog_conservation_summary_tsv,
     render_ptm_ortholog_conservation_tsv,
 )
+from bijux_proteomics.ptm.protein_site_mapping import render_ptm_site_table_tsv
 from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentPolicy,
     PtmRegulatorEnrichmentReport,
@@ -74,17 +79,10 @@ from bijux_proteomics.ptm.regulator_enrichment import (
     render_ptm_regulator_enrichment_summary_tsv,
     render_ptm_regulator_enrichment_tsv,
 )
-from bijux_proteomics.ptm.protein_site_mapping import render_ptm_site_table_tsv
 from bijux_proteomics.ptm.site_annotation_import import (
     PtmSiteAnnotationRecord,
     build_ptm_site_annotation_mapping_report,
 )
-from bijux_proteomics.ptm.ambiguity_handling import (
-    render_ptm_site_group_quant_matrix_tsv,
-    render_ptm_site_group_quant_missingness_tsv,
-    render_ptm_site_group_quant_summary_tsv,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,
@@ -104,7 +102,13 @@ from bijux_proteomics.review import (
     score_effect_size,
     score_support_count,
 )
-from bijux_proteomics.sequences import NormalizedProteinRecord, ProteinRegionContextRecord
+from bijux_proteomics.sequences import (
+    NormalizedProteinRecord,
+    ProteinRegionContextRecord,
+)
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -237,7 +241,8 @@ def build_ptm_report_bundle(
     ortholog_site_records: tuple[PtmOrthologSiteRecord, ...] | None = None,
     ortholog_source_species: str | None = None,
     ortholog_target_species: str | None = None,
-    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...]
+    | None = None,
     evidence_card_policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmReportBundle:
     """Build the core PTM report bundle from evidence rows and protein context."""
@@ -385,10 +390,7 @@ def build_ptm_report_bundle(
                 else len(site_quantification.ambiguous_group_quantification.rows)
             ),
             modified_peptide_count=len(
-                {
-                    entry.localized_peptide
-                    for entry in peptide_entries
-                }
+                {entry.localized_peptide for entry in peptide_entries}
             ),
             localization_entry_count=len(localization_scoring.entries),
             quantified_site_row_count=(
@@ -406,9 +408,7 @@ def build_ptm_report_bundle(
                 0 if evidence_cards is None else len(evidence_cards.cards)
             ),
             narrative_claim_count=(
-                0
-                if evidence_cards is None
-                else len(evidence_cards.narrative_claims)
+                0 if evidence_cards is None else len(evidence_cards.narrative_claims)
             ),
             mechanism_classification_count=(
                 0
@@ -445,7 +445,9 @@ def _build_ptm_evidence_aware_ranking_report(
     for card in evidence_cards.cards:
         abundance_value = abundance_by_site[card.site_key]
         support_count = len(card.peptide_evidence)
-        localization_probability = card.localization.best_localization_probability or 0.0
+        localization_probability = (
+            card.localization.best_localization_probability or 0.0
+        )
         support_score = min(
             1.0,
             (0.7 * score_support_count(support_count, saturation=4))
@@ -708,10 +710,18 @@ def write_ptm_report_bundle(
     peptide_name = "ptm_peptides.tsv"
     site_name = "ptm_sites.tsv"
     localization_name = "ptm_localization.tsv"
-    write_output_table_tsv((output_dir / summary_name), render_ptm_report_summary_tsv(report))
-    write_output_table_tsv((output_dir / peptide_name), render_ptm_report_peptide_tsv(report))
-    write_output_table_tsv((output_dir / site_name), render_ptm_site_table_tsv(report.site_table))
-    write_output_table_tsv((output_dir / localization_name), render_ptm_report_localization_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_ptm_report_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / peptide_name), render_ptm_report_peptide_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / site_name), render_ptm_site_table_tsv(report.site_table)
+    )
+    write_output_table_tsv(
+        (output_dir / localization_name), render_ptm_report_localization_tsv(report)
+    )
 
     site_quant_matrix_name = None
     site_quant_missingness_name = None
@@ -721,31 +731,51 @@ def write_ptm_report_bundle(
     if report.site_quantification is not None:
         site_quant_matrix_name = "ptm_site_quant_matrix.tsv"
         site_quant_missingness_name = "ptm_site_quant_missingness.tsv"
-        write_output_table_tsv((output_dir / site_quant_matrix_name), render_ptm_report_site_quant_matrix_tsv(report))
-        write_output_table_tsv((output_dir / site_quant_missingness_name), render_ptm_site_quant_missingness_tsv(report.site_quantification))
+        write_output_table_tsv(
+            (output_dir / site_quant_matrix_name),
+            render_ptm_report_site_quant_matrix_tsv(report),
+        )
+        write_output_table_tsv(
+            (output_dir / site_quant_missingness_name),
+            render_ptm_site_quant_missingness_tsv(report.site_quantification),
+        )
         if report.site_quantification.ambiguous_group_quantification is not None:
             site_group_summary_name = "ptm_site_group_summary.tsv"
             site_group_matrix_name = "ptm_site_group_matrix.tsv"
             site_group_missingness_name = "ptm_site_group_missingness.tsv"
-            write_output_table_tsv((output_dir / site_group_summary_name), render_ptm_site_group_quant_summary_tsv(
+            write_output_table_tsv(
+                (output_dir / site_group_summary_name),
+                render_ptm_site_group_quant_summary_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ))
-            write_output_table_tsv((output_dir / site_group_matrix_name), render_ptm_site_group_quant_matrix_tsv(
+                ),
+            )
+            write_output_table_tsv(
+                (output_dir / site_group_matrix_name),
+                render_ptm_site_group_quant_matrix_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ))
-            write_output_table_tsv((output_dir / site_group_missingness_name), render_ptm_site_group_quant_missingness_tsv(
+                ),
+            )
+            write_output_table_tsv(
+                (output_dir / site_group_missingness_name),
+                render_ptm_site_group_quant_missingness_tsv(
                     report.site_quantification.ambiguous_group_quantification
-                ))
+                ),
+            )
 
     differential_name = None
     volcano_name = None
     if report.differential_analysis is not None:
         differential_name = "ptm_differential.tsv"
         volcano_name = "ptm_differential_volcano.tsv"
-        write_output_table_tsv((output_dir / differential_name), render_ptm_report_differential_tsv(report))
-        write_output_table_tsv((output_dir / volcano_name), render_ptm_differential_volcano_tsv(
+        write_output_table_tsv(
+            (output_dir / differential_name), render_ptm_report_differential_tsv(report)
+        )
+        write_output_table_tsv(
+            (output_dir / volcano_name),
+            render_ptm_differential_volcano_tsv(
                 report.differential_analysis.volcano_plot
-            ))
+            ),
+        )
 
     motif_window_name = None
     motif_frequency_name = None
@@ -756,36 +786,68 @@ def write_ptm_report_bundle(
         motif_frequency_name = "ptm_motif_frequency.tsv"
         motif_term_name = "ptm_motif_terms.tsv"
         motif_logo_name = "ptm_motif_logo.tsv"
-        write_output_table_tsv((output_dir / motif_window_name), render_ptm_phosphosite_motif_window_tsv(report.motif_enrichment))
-        write_output_table_tsv((output_dir / motif_frequency_name), render_ptm_phosphosite_motif_frequency_tsv(report.motif_enrichment))
-        write_output_table_tsv((output_dir / motif_term_name), render_ptm_phosphosite_motif_enriched_term_tsv(report.motif_enrichment))
-        write_output_table_tsv((output_dir / motif_logo_name), render_ptm_phosphosite_motif_logo_tsv(report.motif_enrichment))
+        write_output_table_tsv(
+            (output_dir / motif_window_name),
+            render_ptm_phosphosite_motif_window_tsv(report.motif_enrichment),
+        )
+        write_output_table_tsv(
+            (output_dir / motif_frequency_name),
+            render_ptm_phosphosite_motif_frequency_tsv(report.motif_enrichment),
+        )
+        write_output_table_tsv(
+            (output_dir / motif_term_name),
+            render_ptm_phosphosite_motif_enriched_term_tsv(report.motif_enrichment),
+        )
+        write_output_table_tsv(
+            (output_dir / motif_logo_name),
+            render_ptm_phosphosite_motif_logo_tsv(report.motif_enrichment),
+        )
 
     regulator_enrichment_summary_name = None
     regulator_enrichment_name = None
     if report.regulator_enrichment is not None:
         regulator_enrichment_summary_name = "ptm_regulator_enrichment_summary.tsv"
         regulator_enrichment_name = "ptm_regulator_enrichment.tsv"
-        write_output_table_tsv((output_dir / regulator_enrichment_summary_name), render_ptm_regulator_enrichment_summary_tsv(report.regulator_enrichment))
-        write_output_table_tsv((output_dir / regulator_enrichment_name), render_ptm_regulator_enrichment_tsv(report.regulator_enrichment))
+        write_output_table_tsv(
+            (output_dir / regulator_enrichment_summary_name),
+            render_ptm_regulator_enrichment_summary_tsv(report.regulator_enrichment),
+        )
+        write_output_table_tsv(
+            (output_dir / regulator_enrichment_name),
+            render_ptm_regulator_enrichment_tsv(report.regulator_enrichment),
+        )
 
     mechanism_classification_summary_name = None
     mechanism_classification_name = None
     if report.mechanism_classification is not None:
-        mechanism_classification_summary_name = "ptm_mechanism_classification_summary.tsv"
+        mechanism_classification_summary_name = (
+            "ptm_mechanism_classification_summary.tsv"
+        )
         mechanism_classification_name = "ptm_mechanism_classification.tsv"
-        write_output_table_tsv((output_dir / mechanism_classification_summary_name), render_ptm_mechanism_classification_summary_tsv(
+        write_output_table_tsv(
+            (output_dir / mechanism_classification_summary_name),
+            render_ptm_mechanism_classification_summary_tsv(
                 report.mechanism_classification
-            ))
-        write_output_table_tsv((output_dir / mechanism_classification_name), render_ptm_mechanism_classification_tsv(report.mechanism_classification))
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / mechanism_classification_name),
+            render_ptm_mechanism_classification_tsv(report.mechanism_classification),
+        )
 
     ortholog_conservation_summary_name = None
     ortholog_conservation_name = None
     if report.ortholog_conservation is not None:
         ortholog_conservation_summary_name = "ptm_ortholog_conservation_summary.tsv"
         ortholog_conservation_name = "ptm_ortholog_conservation.tsv"
-        write_output_table_tsv((output_dir / ortholog_conservation_summary_name), render_ptm_ortholog_conservation_summary_tsv(report.ortholog_conservation))
-        write_output_table_tsv((output_dir / ortholog_conservation_name), render_ptm_ortholog_conservation_tsv(report.ortholog_conservation))
+        write_output_table_tsv(
+            (output_dir / ortholog_conservation_summary_name),
+            render_ptm_ortholog_conservation_summary_tsv(report.ortholog_conservation),
+        )
+        write_output_table_tsv(
+            (output_dir / ortholog_conservation_name),
+            render_ptm_ortholog_conservation_tsv(report.ortholog_conservation),
+        )
 
     evidence_card_summary_name = None
     evidence_card_name = None
@@ -795,12 +857,24 @@ def write_ptm_report_bundle(
         evidence_card_summary_name = "ptm_evidence_card_summary.tsv"
         evidence_card_name = "ptm_evidence_cards.tsv"
         evidence_claim_name = "ptm_evidence_claims.tsv"
-        write_output_table_tsv((output_dir / evidence_card_summary_name), render_ptm_evidence_card_summary_tsv(report.evidence_cards))
-        write_output_table_tsv((output_dir / evidence_card_name), render_ptm_evidence_card_tsv(report.evidence_cards))
-        write_output_table_tsv((output_dir / evidence_claim_name), render_ptm_evidence_claim_tsv(report.evidence_cards))
+        write_output_table_tsv(
+            (output_dir / evidence_card_summary_name),
+            render_ptm_evidence_card_summary_tsv(report.evidence_cards),
+        )
+        write_output_table_tsv(
+            (output_dir / evidence_card_name),
+            render_ptm_evidence_card_tsv(report.evidence_cards),
+        )
+        write_output_table_tsv(
+            (output_dir / evidence_claim_name),
+            render_ptm_evidence_claim_tsv(report.evidence_cards),
+        )
     if report.evidence_aware_ranking_report is not None:
         evidence_aware_ranking_name = "ptm_evidence_aware_ranking.tsv"
-        write_output_table_tsv((output_dir / evidence_aware_ranking_name), render_ptm_report_evidence_aware_ranking_tsv(report))
+        write_output_table_tsv(
+            (output_dir / evidence_aware_ranking_name),
+            render_ptm_report_evidence_aware_ranking_tsv(report),
+        )
 
     synchronize_workflow_artifact_layout(
         output_dir,

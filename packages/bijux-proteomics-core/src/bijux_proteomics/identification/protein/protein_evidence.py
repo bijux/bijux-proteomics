@@ -51,7 +51,9 @@ class ProteinEvidenceDowngradeReason(StrEnum):
     GROUP_Q_VALUE_ABOVE_MODERATE = "group_q_value_above_moderate"
     SHARED_PEPTIDE_ONLY = "shared_peptide_only"
     MODERATE_UNIQUE_PEPTIDE_SUPPORT = "moderate_unique_peptide_support"
-    WEAK_OR_AMBIGUOUS_UNIQUE_PEPTIDE_SUPPORT = "weak_or_ambiguous_unique_peptide_support"
+    WEAK_OR_AMBIGUOUS_UNIQUE_PEPTIDE_SUPPORT = (
+        "weak_or_ambiguous_unique_peptide_support"
+    )
     SINGLE_RUN_ONLY = "single_run_only"
     CONTAMINANT_SUPPORT = "contaminant_support"
     DECOY_SUPPORT = "decoy_support"
@@ -210,7 +212,9 @@ def build_protein_evidence_report(
                 if entry.evidence_tier is ProteinEvidenceTier.MODERATE
             ),
             weak_count=sum(
-                1 for entry in entries if entry.evidence_tier is ProteinEvidenceTier.WEAK
+                1
+                for entry in entries
+                if entry.evidence_tier is ProteinEvidenceTier.WEAK
             ),
             ambiguous_count=sum(
                 1
@@ -353,7 +357,9 @@ def _build_entry(
         reproducibility_class=None
         if reproducibility is None
         else reproducibility.reproducibility_class,
-        exploratory_override=False if reproducibility is None else reproducibility.exploratory_override,
+        exploratory_override=False
+        if reproducibility is None
+        else reproducibility.exploratory_override,
         high_q_value=high_q_value,
         moderate_q_value=moderate_q_value,
     )
@@ -375,11 +381,21 @@ def _build_entry(
         representative_reproducibility_class=None
         if reproducibility is None
         else reproducibility.reproducibility_class,
-        exploratory_override=False if reproducibility is None else reproducibility.exploratory_override,
-        detected_run_count=0 if reproducibility is None else reproducibility.detected_run_count,
-        detection_frequency=0.0 if reproducibility is None else reproducibility.detection_frequency,
-        replicate_consistency=0.0 if reproducibility is None else reproducibility.replicate_consistency,
-        condition_specificity=0.0 if reproducibility is None else reproducibility.condition_specificity,
+        exploratory_override=False
+        if reproducibility is None
+        else reproducibility.exploratory_override,
+        detected_run_count=0
+        if reproducibility is None
+        else reproducibility.detected_run_count,
+        detection_frequency=0.0
+        if reproducibility is None
+        else reproducibility.detection_frequency,
+        replicate_consistency=0.0
+        if reproducibility is None
+        else reproducibility.replicate_consistency,
+        condition_specificity=0.0
+        if reproducibility is None
+        else reproducibility.condition_specificity,
         target_decoy_label=group.target_decoy_label,
         contaminant_flag=group.contaminant_flag,
         explanation=_build_explanation(evidence_tier, downgrade_reasons),
@@ -420,7 +436,9 @@ def _classify_group(
         moderate_q_value=moderate_q_value,
     )
     if q_value > high_q_value:
-        reasons.append(ProteinEvidenceDowngradeReason.GROUP_Q_VALUE_ABOVE_HIGH_CONFIDENCE)
+        reasons.append(
+            ProteinEvidenceDowngradeReason.GROUP_Q_VALUE_ABOVE_HIGH_CONFIDENCE
+        )
     if q_value > moderate_q_value:
         reasons.append(ProteinEvidenceDowngradeReason.GROUP_Q_VALUE_ABOVE_MODERATE)
 
@@ -477,9 +495,7 @@ def _build_explanation(
 ) -> str:
     if not downgrade_reasons:
         if evidence_tier is ProteinEvidenceTier.HIGH_CONFIDENCE:
-            return (
-                "group q-value and unique peptide support satisfy the high-confidence threshold and protein evidence policy"
-            )
+            return "group q-value and unique peptide support satisfy the high-confidence threshold and protein evidence policy"
         if evidence_tier is ProteinEvidenceTier.MODERATE:
             return "group remains moderate under the protein evidence policy"
         return "group remains reviewable under the protein evidence policy"

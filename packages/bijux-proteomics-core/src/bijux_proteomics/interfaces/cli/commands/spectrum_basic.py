@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.spectrum_basic import (
+    run_mzml_inspect_command,
+    run_spectrum_parse_command,
+    run_spectrum_qc_command,
+    run_spectrum_stats_command,
+    run_spectrum_summary_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.spectrum_basic import run_spectrum_parse_command, run_spectrum_stats_command, run_spectrum_summary_command, run_spectrum_qc_command, run_mzml_inspect_command
+
 
 @click.command("spectrum-parse")
 @click.argument(
@@ -42,8 +49,11 @@ def spectrum_parse_command(
     rejected_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Parse one MGF file and report accepted spectra, rejections, and streaming facts.'
-    return run_spectrum_parse_command(input_mgf, chunk_size, accepted_jsonl_out, rejected_json_out, out_path)
+    "Parse one MGF file and report accepted spectra, rejections, and streaming facts."
+    return run_spectrum_parse_command(
+        input_mgf, chunk_size, accepted_jsonl_out, rejected_json_out, out_path
+    )
+
 
 @click.command("spectrum-stats")
 @click.argument(
@@ -64,8 +74,9 @@ def spectrum_stats_command(
     provenance_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Summarize one MGF collection.'
+    "Summarize one MGF collection."
     return run_spectrum_stats_command(input_mgf, provenance_out, out_path)
+
 
 @click.command("spectrum-summary")
 @click.argument(
@@ -113,8 +124,17 @@ def spectrum_summary_command(
     peak_count_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build reviewable summary tables over one MGF or mzML spectra file.'
-    return run_spectrum_summary_command(input_path, kind, summary_tsv_out, charge_tsv_out, precursor_tsv_out, peak_count_tsv_out, out_path)
+    "Build reviewable summary tables over one MGF or mzML spectra file."
+    return run_spectrum_summary_command(
+        input_path,
+        kind,
+        summary_tsv_out,
+        charge_tsv_out,
+        precursor_tsv_out,
+        peak_count_tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectrum-qc")
 @click.argument(
@@ -199,8 +219,23 @@ def spectrum_qc_command(
     plot_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build run-level QC directly from one MGF or mzML spectra file.'
-    return run_spectrum_qc_command(input_path, kind, time_bin_seconds, summary_tsv_out, msms_tsv_out, tic_tsv_out, bpc_tsv_out, charge_tsv_out, precursor_intensity_tsv_out, flagged_tsv_out, spectrum_qc_tsv_out, plot_out, out_path)
+    "Build run-level QC directly from one MGF or mzML spectra file."
+    return run_spectrum_qc_command(
+        input_path,
+        kind,
+        time_bin_seconds,
+        summary_tsv_out,
+        msms_tsv_out,
+        tic_tsv_out,
+        bpc_tsv_out,
+        charge_tsv_out,
+        precursor_intensity_tsv_out,
+        flagged_tsv_out,
+        spectrum_qc_tsv_out,
+        plot_out,
+        out_path,
+    )
+
 
 @click.command("mzml-inspect")
 @click.argument(
@@ -229,8 +264,11 @@ def mzml_inspect_command(
     chromatograms_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Inspect one mzML run with practical spectra, decoding, and chromatogram review.'
-    return run_mzml_inspect_command(input_mzml, spectra_jsonl_out, chromatograms_json_out, out_path)
+    "Inspect one mzML run with practical spectra, decoding, and chromatogram review."
+    return run_mzml_inspect_command(
+        input_mzml, spectra_jsonl_out, chromatograms_json_out, out_path
+    )
+
 
 COMMANDS = (
     spectrum_parse_command,

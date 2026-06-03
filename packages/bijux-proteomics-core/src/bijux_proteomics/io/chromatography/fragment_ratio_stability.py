@@ -23,9 +23,9 @@ if TYPE_CHECKING:
         DiaFragmentCoelutionFragmentEntry,
     )
     from bijux_proteomics.targeted.result_import import (
+        TargetedResultImportReport,
         TargetedResultObservation,
     )
-    from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 
 
 class FragmentRatioDataKind(StrEnum):
@@ -103,7 +103,7 @@ class FragmentRatioStabilityReport(JsonModel):
 
 
 def build_targeted_fragment_ratio_stability_report(
-    import_report: "TargetedResultImportReport",
+    import_report: TargetedResultImportReport,
     *,
     absolute_ratio_delta_threshold: float = 0.12,
     ratio_cv_threshold: float = 0.25,
@@ -300,11 +300,15 @@ def _build_fragment_ratio_stability_report(
         ).append(observation)
         run_ids.add(observation.run_id)
         analyte_ids.add(observation.analyte_id)
-        runs_by_analyte.setdefault(observation.analyte_id, set()).add(observation.run_id)
+        runs_by_analyte.setdefault(observation.analyte_id, set()).add(
+            observation.run_id
+        )
 
     fragment_entries: list[FragmentRatioStabilityFragmentEntry] = []
     observation_entries: list[FragmentRatioStabilityObservationEntry] = []
-    for (analyte_id, fragment_id), fragment_observations in sorted(grouped_by_fragment.items()):
+    for (analyte_id, fragment_id), fragment_observations in sorted(
+        grouped_by_fragment.items()
+    ):
         observed_ratios = [entry.observed_ratio for entry in fragment_observations]
         peptide_ref = fragment_observations[0].peptide_ref
         expected_ratio = median(observed_ratios)
@@ -408,20 +412,20 @@ def _build_fragment_ratio_stability_report(
 
 
 def _runs_by_targeted_analyte(
-    import_report: "TargetedResultImportReport",
-) -> dict[tuple[str, str], list["TargetedResultObservation"]]:
-    grouped: dict[tuple[str, str], list["TargetedResultObservation"]] = {}
+    import_report: TargetedResultImportReport,
+) -> dict[tuple[str, str], list[TargetedResultObservation]]:
+    grouped: dict[tuple[str, str], list[TargetedResultObservation]] = {}
     for observation in import_report.observations:
-        grouped.setdefault((observation.precursor_id, observation.sample_id), []).append(
-            observation
-        )
+        grouped.setdefault(
+            (observation.precursor_id, observation.sample_id), []
+        ).append(observation)
     return grouped
 
 
 def _dia_fragments_by_run(
     report: DiaFragmentCoelutionReport,
-) -> dict[tuple[str, str], list["DiaFragmentCoelutionFragmentEntry"]]:
-    grouped: dict[tuple[str, str], list["DiaFragmentCoelutionFragmentEntry"]] = {}
+) -> dict[tuple[str, str], list[DiaFragmentCoelutionFragmentEntry]]:
+    grouped: dict[tuple[str, str], list[DiaFragmentCoelutionFragmentEntry]] = {}
     for entry in report.fragment_entries:
         grouped.setdefault((entry.precursor_id, entry.run_id), []).append(entry)
     return grouped
@@ -446,9 +450,7 @@ def _stability_score(
     observed_run_count: int,
 ) -> float:
     cv_penalty = (
-        0.0
-        if ratio_cv is None
-        else 0.5 * min(ratio_cv / ratio_cv_threshold, 1.0)
+        0.0 if ratio_cv is None else 0.5 * min(ratio_cv / ratio_cv_threshold, 1.0)
     )
     drift_penalty = (
         0.0

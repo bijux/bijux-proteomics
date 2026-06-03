@@ -96,6 +96,7 @@ DIANN_PIPELINE_DIALECT = SearchAdapterDialectManifest(
 
 DIANN_DIALECTS = (DIANN_PIPELINE_DIALECT,)
 
+
 def parse_diann_parameters(path: Path) -> SearchParameterReport:
     payload = json.loads(path.read_text())
     if not isinstance(payload, dict):
@@ -149,7 +150,8 @@ def parse_diann_parameters(path: Path) -> SearchParameterReport:
         },
     )
 
-def build_diann_output_corpus_report(corpus_root: Path) -> "SearchEngineCorpusReport":
+
+def build_diann_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusReport:
     """Build corpus coverage over DIA-NN report and pipeline-like exports."""
     from ..corpus import (
         SearchCorpusInputSpecification,

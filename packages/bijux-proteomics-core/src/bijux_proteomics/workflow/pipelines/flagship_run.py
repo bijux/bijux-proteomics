@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +12,9 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.dia.run_qc import render_dia_run_qc_summary_tsv
 from bijux_proteomics.identification import SearchAdapterKind
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
@@ -24,11 +24,6 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.review import VolcanoReviewPolicy
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
-    BiologicalResultSelectionPolicy,
-)
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
@@ -37,23 +32,27 @@ from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     build_label_free_quant_table_from_protein_lfq_report,
     write_dda_biological_workflow_bundle,
 )
+from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+    render_dia_differential_matrix_tsv,
+)
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
     write_diann_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
-    render_dia_differential_matrix_tsv,
-)
-from bijux_proteomics.dia.run_qc import render_dia_run_qc_summary_tsv
 from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
-    write_maxquant_biological_workflow_bundle,
     render_maxquant_lfq_matrix_tsv,
+    write_maxquant_biological_workflow_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
+    BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -315,14 +314,22 @@ def render_proteomics_run_qc_summary_tsv(report: ProteomicsRunBundle) -> str:
     writer.writerow(("sample_count", biological_report.summary.sample_count))
     writer.writerow(("protein_count", biological_report.summary.protein_count))
     writer.writerow(
-        ("significant_protein_count", biological_report.summary.significant_protein_count)
+        (
+            "significant_protein_count",
+            biological_report.summary.significant_protein_count,
+        )
     )
     if report.diann_workflow is not None:
-        writer.writerow(("flagged_run_count", report.diann_workflow.summary.flagged_run_count))
+        writer.writerow(
+            ("flagged_run_count", report.diann_workflow.summary.flagged_run_count)
+        )
         writer.writerow(
             (
                 "run_qc_summary",
-                _single_value_field(render_dia_run_qc_summary_tsv(report.diann_workflow.run_qc_report), "run_count"),
+                _single_value_field(
+                    render_dia_run_qc_summary_tsv(report.diann_workflow.run_qc_report),
+                    "run_count",
+                ),
             )
         )
     else:
@@ -460,16 +467,24 @@ def write_proteomics_run_bundle(
     workflow_manifest_name = "proteomics_workflow_manifest.json"
     biological_manifest_name = "biological_report_manifest.json"
 
-    write_output_table_tsv((output_dir / summary_name), render_proteomics_run_summary_tsv(report))
-    write_output_table_tsv((output_dir / qc_summary_name), render_proteomics_run_qc_summary_tsv(report))
-    write_output_table_tsv((output_dir / normalized_matrix_name), _render_normalized_matrix_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_proteomics_run_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / qc_summary_name), render_proteomics_run_qc_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / normalized_matrix_name), _render_normalized_matrix_tsv(report)
+    )
     write_output_table_tsv(
         output_dir / differential_name,
         render_differential_abundance_tsv(
             _biological_report(report).differential_report
         ),
     )
-    write_output_table_tsv((output_dir / enrichment_name), render_proteomics_run_enrichment_tsv(report))
+    write_output_table_tsv(
+        (output_dir / enrichment_name), render_proteomics_run_enrichment_tsv(report)
+    )
     source_report_path = output_dir / biological_manifest.artifacts.report_html
     atomic_write_text(
         output_dir / report_name,
@@ -557,9 +572,15 @@ def _build_summary(
 def _count_enrichment_entries(report: BiologicalResultReportBundle) -> int:
     return sum(
         (
-            0 if report.go_enrichment_report is None else len(report.go_enrichment_report.term_entries),
-            0 if report.pathway_enrichment_report is None else len(report.pathway_enrichment_report.entries),
-            0 if report.complex_enrichment_report is None else len(report.complex_enrichment_report.entries),
+            0
+            if report.go_enrichment_report is None
+            else len(report.go_enrichment_report.term_entries),
+            0
+            if report.pathway_enrichment_report is None
+            else len(report.pathway_enrichment_report.entries),
+            0
+            if report.complex_enrichment_report is None
+            else len(report.complex_enrichment_report.entries),
         )
     )
 
@@ -590,7 +611,9 @@ def _write_workflow_bundle(
             output_dir,
         )
     if report.fragpipe_workflow is not None:
-        return write_dda_biological_workflow_bundle(report.fragpipe_workflow, output_dir)
+        return write_dda_biological_workflow_bundle(
+            report.fragpipe_workflow, output_dir
+        )
     raise ValueError("flagship run bundle is missing an engine workflow")
 
 

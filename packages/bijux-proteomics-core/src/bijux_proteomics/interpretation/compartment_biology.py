@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
@@ -40,8 +41,6 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -119,7 +118,9 @@ def build_compartment_biology_report(
     """Interpret changed proteins through explicit subcellular compartment context."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
-        raise ValueError("compartment biology requires a protein-level quantification table")
+        raise ValueError(
+            "compartment biology requires a protein-level quantification table"
+        )
 
     active_policy = policy or CompartmentBiologyPolicy()
     compartment_records = tuple(
@@ -178,7 +179,9 @@ def build_compartment_biology_report(
         activity_report=activity_report,
         unknown_localization_entries=unknown_localization_entries,
         summary=CompartmentBiologySummary(
-            compartment_count=len({record.set_id for record in compartment_set_records}),
+            compartment_count=len(
+                {record.set_id for record in compartment_set_records}
+            ),
             foreground_protein_count=len(foreground_entries),
             background_protein_count=len(background_entries),
             evaluated_compartment_count=enrichment_report.summary.evaluated_set_count,
@@ -288,9 +291,7 @@ def render_compartment_enrichment_tsv(report: CompartmentBiologyReport) -> str:
                 f"{entry.expected_overlap_count:g}",
                 "" if entry.enrichment_ratio is None else f"{entry.enrichment_ratio:g}",
                 f"{entry.p_value:g}",
-                ""
-                if entry.adjusted_p_value is None
-                else f"{entry.adjusted_p_value:g}",
+                "" if entry.adjusted_p_value is None else f"{entry.adjusted_p_value:g}",
                 str(_passes_enrichment_filter(entry, report.policy)).lower(),
                 ";".join(entry.supporting_protein_refs),
             )
@@ -338,7 +339,9 @@ def render_compartment_activity_matrix_tsv(report: CompartmentBiologyReport) -> 
     return buffer.getvalue()
 
 
-def render_compartment_activity_sample_score_tsv(report: CompartmentBiologyReport) -> str:
+def render_compartment_activity_sample_score_tsv(
+    report: CompartmentBiologyReport,
+) -> str:
     """Render per-sample compartment activity scores as TSV."""
 
     buffer = StringIO()
@@ -424,7 +427,9 @@ def render_compartment_activity_condition_score_tsv(
                 entry.high_confidence_sample_count,
                 entry.low_confidence_sample_count,
                 entry.confidence_status.value,
-                "" if entry.mean_activity_score is None else f"{entry.mean_activity_score:g}",
+                ""
+                if entry.mean_activity_score is None
+                else f"{entry.mean_activity_score:g}",
             )
         )
     return buffer.getvalue()
@@ -471,7 +476,9 @@ def render_compartment_activity_condition_comparison_tsv(
                 ""
                 if entry.mean_activity_score_b is None
                 else f"{entry.mean_activity_score_b:g}",
-                "" if entry.activity_score_delta is None else f"{entry.activity_score_delta:g}",
+                ""
+                if entry.activity_score_delta is None
+                else f"{entry.activity_score_delta:g}",
             )
         )
     return buffer.getvalue()
@@ -508,7 +515,9 @@ def render_compartment_activity_unresolved_member_tsv(
     return buffer.getvalue()
 
 
-def render_unknown_compartment_localization_tsv(report: CompartmentBiologyReport) -> str:
+def render_unknown_compartment_localization_tsv(
+    report: CompartmentBiologyReport,
+) -> str:
     """Render proteins that lacked explicit compartment annotations as TSV."""
 
     buffer = StringIO()
@@ -614,7 +623,10 @@ def _build_foreground_protein_entries(
             continue
         if differential_entry.adjusted_p_value > policy.max_adjusted_p_value:
             continue
-        if abs(differential_entry.log2_fold_change) < policy.min_absolute_log2_fold_change:
+        if (
+            abs(differential_entry.log2_fold_change)
+            < policy.min_absolute_log2_fold_change
+        ):
             continue
         for protein_ref in protein_refs_by_entity.get(differential_entry.entity_id, ()):
             normalized_ref = canonicalize_protein_reference(protein_ref)
@@ -638,7 +650,9 @@ def _build_unknown_localization_entries(
     foreground_entries: tuple[ProteinReferenceEntry, ...],
     compartment_set_records: tuple[ProteinSetRecord, ...],
 ) -> tuple[CompartmentUnknownLocalizationEntry, ...]:
-    compartment_protein_refs = {record.protein_ref for record in compartment_set_records}
+    compartment_protein_refs = {
+        record.protein_ref for record in compartment_set_records
+    }
     unknown_entries: list[CompartmentUnknownLocalizationEntry] = []
     for scope, entries in (
         (CompartmentLocalizationScope.FOREGROUND, foreground_entries),

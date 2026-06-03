@@ -10,9 +10,20 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.benchmark_demo import (
+    run_build_trust_bundle_command,
+    run_public_benchmark_runner_command,
+    run_public_case_study_command,
+    run_public_dataset_comparison_command,
+    run_public_dataset_evidence_cards_command,
+    run_scale_demo_command,
+    run_surprising_demo_command,
+    run_surprising_demo_query_command,
+    run_surprising_demo_report_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.benchmark_demo import run_public_benchmark_runner_command, run_build_trust_bundle_command, run_scale_demo_command, run_surprising_demo_command, run_surprising_demo_query_command, run_surprising_demo_report_command, run_public_dataset_comparison_command, run_public_dataset_evidence_cards_command, run_public_case_study_command
+
 
 @click.command("public-benchmark-runner")
 @click.argument(
@@ -45,8 +56,16 @@ def public_benchmark_runner_command(
     signal_assessments_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run one public benchmark descriptor or a whole public benchmark root.'
-    return run_public_benchmark_runner_command(benchmark_path, run_output_root, summary_tsv_out, failures_tsv_out, signal_assessments_tsv_out, out_path)
+    "Run one public benchmark descriptor or a whole public benchmark root."
+    return run_public_benchmark_runner_command(
+        benchmark_path,
+        run_output_root,
+        summary_tsv_out,
+        failures_tsv_out,
+        signal_assessments_tsv_out,
+        out_path,
+    )
+
 
 @click.command("build-trust-bundle")
 @click.option(
@@ -73,8 +92,11 @@ def build_trust_bundle_command(
     summary_tsv_out: Path | None,
     manifest_json_out: Path | None,
 ) -> None:
-    'Build a regenerable trust bundle from public benchmark descriptors.'
-    return run_build_trust_bundle_command(benchmark_root, output_dir, summary_tsv_out, manifest_json_out)
+    "Build a regenerable trust bundle from public benchmark descriptors."
+    return run_build_trust_bundle_command(
+        benchmark_root, output_dir, summary_tsv_out, manifest_json_out
+    )
+
 
 @click.command("demo")
 @click.option(
@@ -110,8 +132,17 @@ def surprising_demo_command(
     belief_audit_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run the shipped proteomics demo from local example data only.'
-    return run_surprising_demo_command(output_dir, summary_tsv_out, findings_tsv_out, claims_tsv_out, contradictions_tsv_out, belief_audit_tsv_out, out_path)
+    "Run the shipped proteomics demo from local example data only."
+    return run_surprising_demo_command(
+        output_dir,
+        summary_tsv_out,
+        findings_tsv_out,
+        claims_tsv_out,
+        contradictions_tsv_out,
+        belief_audit_tsv_out,
+        out_path,
+    )
+
 
 @click.command("demo-scale")
 @click.option(
@@ -151,8 +182,19 @@ def scale_demo_command(
     validation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Generate a local scale dataset and run owned parsing, quant, graph, and report validation.'
-    return run_scale_demo_command(output_dir, protein_count, peptides_per_protein, replicates_per_condition, pathway_count, summary_tsv_out, stage_metrics_tsv_out, validation_tsv_out, out_path)
+    "Generate a local scale dataset and run owned parsing, quant, graph, and report validation."
+    return run_scale_demo_command(
+        output_dir,
+        protein_count,
+        peptides_per_protein,
+        replicates_per_condition,
+        pathway_count,
+        summary_tsv_out,
+        stage_metrics_tsv_out,
+        validation_tsv_out,
+        out_path,
+    )
+
 
 @click.command("demo-query")
 @click.option(
@@ -184,8 +226,11 @@ def surprising_demo_query_command(
     answers_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Answer deterministic shipped-demo questions from owned local outputs.'
-    return run_surprising_demo_query_command(output_dir, query_kind, subject_id, summary_tsv_out, answers_tsv_out, out_path)
+    "Answer deterministic shipped-demo questions from owned local outputs."
+    return run_surprising_demo_query_command(
+        output_dir, query_kind, subject_id, summary_tsv_out, answers_tsv_out, out_path
+    )
+
 
 @click.command("demo-report")
 @click.option(
@@ -211,8 +256,11 @@ def surprising_demo_report_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build the shipped integrated scientific report from owned local outputs.'
-    return run_surprising_demo_report_command(output_dir, summary_tsv_out, sentences_tsv_out, html_out, out_path)
+    "Build the shipped integrated scientific report from owned local outputs."
+    return run_surprising_demo_report_command(
+        output_dir, summary_tsv_out, sentences_tsv_out, html_out, out_path
+    )
+
 
 @click.command("public-dataset-comparison")
 @click.option(
@@ -268,8 +316,19 @@ def public_dataset_comparison_command(
     pathway_comparison_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run one biological question across multiple public dataset descriptors.'
-    return run_public_dataset_comparison_command(benchmark_root, run_output_root, dataset_summary_tsv_out, failure_tsv_out, combined_summary_tsv_out, effect_comparison_tsv_out, meta_analysis_tsv_out, pathway_comparison_tsv_out, out_path)
+    "Run one biological question across multiple public dataset descriptors."
+    return run_public_dataset_comparison_command(
+        benchmark_root,
+        run_output_root,
+        dataset_summary_tsv_out,
+        failure_tsv_out,
+        combined_summary_tsv_out,
+        effect_comparison_tsv_out,
+        meta_analysis_tsv_out,
+        pathway_comparison_tsv_out,
+        out_path,
+    )
+
 
 @click.command("public-dataset-evidence-cards")
 @click.option(
@@ -304,8 +363,16 @@ def public_dataset_evidence_cards_command(
     dataset_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build cross-study evidence cards over public dataset descriptors.'
-    return run_public_dataset_evidence_cards_command(benchmark_root, run_output_root, summary_tsv_out, cards_tsv_out, dataset_evidence_tsv_out, out_path)
+    "Build cross-study evidence cards over public dataset descriptors."
+    return run_public_dataset_evidence_cards_command(
+        benchmark_root,
+        run_output_root,
+        summary_tsv_out,
+        cards_tsv_out,
+        dataset_evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("public-case-study")
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
@@ -325,8 +392,9 @@ def public_case_study_command(
     report_dir: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run the owned public LFQ case study through final biological reporting.'
+    "Run the owned public LFQ case study through final biological reporting."
     return run_public_case_study_command(summary_tsv_out, report_dir, out_path)
+
 
 COMMANDS = (
     public_benchmark_runner_command,

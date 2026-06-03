@@ -10,8 +10,19 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.program_fasta import (
+    run_fasta_contaminants_command,
+    run_fasta_dedup_command,
+    run_fasta_filter_command,
+    run_fasta_parse_command,
+    run_fasta_profile_command,
+    run_fasta_stats_command,
+    run_program_template,
+    run_sequence_checksum_command,
+    run_summarize_program,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.program_fasta import run_program_template, run_summarize_program, run_sequence_checksum_command, run_fasta_parse_command, run_fasta_dedup_command, run_fasta_contaminants_command, run_fasta_filter_command, run_fasta_stats_command, run_fasta_profile_command
+
 
 @click.command("program-template")
 @click.option("--program-id", required=True, help="Stable program identifier.")
@@ -40,22 +51,35 @@ def program_template(
     mechanism: str,
     out_path: Path,
 ) -> None:
-    'Write a starter program manifest.'
-    return run_program_template(program_id, name, objective, target_id, target_name, sequence, organism, mechanism, out_path)
+    "Write a starter program manifest."
+    return run_program_template(
+        program_id,
+        name,
+        objective,
+        target_id,
+        target_name,
+        sequence,
+        organism,
+        mechanism,
+        out_path,
+    )
+
 
 @click.command("summarize-program")
 @click.argument("program_file", type=click.Path(exists=True, path_type=Path))
 def summarize_program(program_file: Path) -> None:
-    'Print a compact summary for a program document.'
+    "Print a compact summary for a program document."
     return run_summarize_program(program_file)
+
 
 @click.command("sequence-checksum")
 @click.option(
     "--sequence", required=True, help="Protein sequence to normalize and hash."
 )
 def sequence_checksum_command(sequence: str) -> None:
-    'Emit the normalized sequence checksum for one protein sequence string.'
+    "Emit the normalized sequence checksum for one protein sequence string."
     return run_sequence_checksum_command(sequence)
+
 
 @click.command("fasta-parse")
 @click.argument(
@@ -86,8 +110,11 @@ def fasta_parse_command(
     duplicate_accession_policy: str,
     out_path: Path | None,
 ) -> None:
-    'Parse FASTA input and emit normalized acceptance and rejection details.'
-    return run_fasta_parse_command(input_fasta, mode, duplicate_accession_policy, out_path)
+    "Parse FASTA input and emit normalized acceptance and rejection details."
+    return run_fasta_parse_command(
+        input_fasta, mode, duplicate_accession_policy, out_path
+    )
+
 
 @click.command("fasta-dedup")
 @click.argument(
@@ -124,8 +151,11 @@ def fasta_dedup_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    'Deduplicate FASTA records by accession and normalized sequence digest.'
-    return run_fasta_dedup_command(input_fasta, mode, duplicate_accession_policy, out_fasta, report_out)
+    "Deduplicate FASTA records by accession and normalized sequence digest."
+    return run_fasta_dedup_command(
+        input_fasta, mode, duplicate_accession_policy, out_fasta, report_out
+    )
+
 
 @click.command("fasta-contaminants")
 @click.argument(
@@ -177,8 +207,17 @@ def fasta_contaminants_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    'Append labeled contaminant proteins to one target FASTA database.'
-    return run_fasta_contaminants_command(input_fasta, mode, duplicate_accession_policy, include_builtin, contaminant_fastas, out_fasta, report_out)
+    "Append labeled contaminant proteins to one target FASTA database."
+    return run_fasta_contaminants_command(
+        input_fasta,
+        mode,
+        duplicate_accession_policy,
+        include_builtin,
+        contaminant_fastas,
+        out_fasta,
+        report_out,
+    )
+
 
 @click.command("fasta-filter")
 @click.argument(
@@ -231,8 +270,20 @@ def fasta_filter_command(
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
-    'Filter FASTA records while emitting explicit exclusion counts.'
-    return run_fasta_filter_command(input_fasta, mode, duplicate_accession_policy, min_length, max_length, accession_pattern, organism, exclude_contaminants, out_fasta, report_out)
+    "Filter FASTA records while emitting explicit exclusion counts."
+    return run_fasta_filter_command(
+        input_fasta,
+        mode,
+        duplicate_accession_policy,
+        min_length,
+        max_length,
+        accession_pattern,
+        organism,
+        exclude_contaminants,
+        out_fasta,
+        report_out,
+    )
+
 
 @click.command("fasta-stats")
 @click.argument(
@@ -263,8 +314,11 @@ def fasta_stats_command(
     duplicate_accession_policy: str,
     out_path: Path | None,
 ) -> None:
-    'Report FASTA record, composition, residue, duplication, and contaminant metrics.'
-    return run_fasta_stats_command(input_fasta, mode, duplicate_accession_policy, out_path)
+    "Report FASTA record, composition, residue, duplication, and contaminant metrics."
+    return run_fasta_stats_command(
+        input_fasta, mode, duplicate_accession_policy, out_path
+    )
+
 
 @click.command("fasta-profile")
 @click.argument(
@@ -323,8 +377,18 @@ def fasta_profile_command(
     organism_tsv_out: Path | None,
     invalid_sequence_tsv_out: Path | None,
 ) -> None:
-    'Profile one FASTA database with composition, organism, and rejection ledgers.'
-    return run_fasta_profile_command(input_fasta, mode, duplicate_accession_policy, out_path, summary_tsv_out, length_tsv_out, organism_tsv_out, invalid_sequence_tsv_out)
+    "Profile one FASTA database with composition, organism, and rejection ledgers."
+    return run_fasta_profile_command(
+        input_fasta,
+        mode,
+        duplicate_accession_policy,
+        out_path,
+        summary_tsv_out,
+        length_tsv_out,
+        organism_tsv_out,
+        invalid_sequence_tsv_out,
+    )
+
 
 COMMANDS = (
     program_template,

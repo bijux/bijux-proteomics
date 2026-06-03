@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -16,9 +14,10 @@ from statistics import mean
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import (
-    PathwayActivityReport,
     PathwayActivityConfidenceStatus,
+    PathwayActivityReport,
     PathwayEnrichmentCorrectionPolicy,
     PathwayMemberKind,
 )
@@ -125,7 +124,9 @@ class CrossStudyPathwayExtractionReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    observations: tuple[CrossStudyPathwayObservation, ...] = Field(default_factory=tuple)
+    observations: tuple[CrossStudyPathwayObservation, ...] = Field(
+        default_factory=tuple
+    )
     unsupported_studies: tuple[CrossStudyPathwayUnsupportedStudy, ...] = Field(
         default_factory=tuple
     )
@@ -235,7 +236,9 @@ class CrossStudyPathwayComparisonReport(JsonModel):
     unsupported_studies: tuple[CrossStudyPathwayUnsupportedStudy, ...] = Field(
         default_factory=tuple
     )
-    study_entries: tuple[CrossStudyPathwayStudyEntry, ...] = Field(default_factory=tuple)
+    study_entries: tuple[CrossStudyPathwayStudyEntry, ...] = Field(
+        default_factory=tuple
+    )
     comparisons: tuple[CrossStudyPathwayComparisonEntry, ...] = Field(
         default_factory=tuple
     )
@@ -327,18 +330,24 @@ def build_cross_study_pathway_comparison_report_from_observations(
 ) -> CrossStudyPathwayComparisonReport:
     """Compare extracted pathway signals across studies."""
 
-    grouped: dict[tuple[str, str, str, str, str], list[CrossStudyPathwayObservation]] = {}
+    grouped: dict[
+        tuple[str, str, str, str, str], list[CrossStudyPathwayObservation]
+    ] = {}
     for observation in observations:
         grouped.setdefault(_comparison_key(observation), []).append(observation)
 
     study_entries: list[CrossStudyPathwayStudyEntry] = []
     comparisons: list[CrossStudyPathwayComparisonEntry] = []
     for key in sorted(grouped):
-        group = tuple(sorted(grouped[key], key=lambda item: (item.study_id, item.observation_id)))
+        group = tuple(
+            sorted(grouped[key], key=lambda item: (item.study_id, item.observation_id))
+        )
         comparison_id = _comparison_id_from_key(key)
-        entries, alignment_status, anchor_condition_a, anchor_condition_b = _study_entries_for_group(
-            comparison_id=comparison_id,
-            observations=group,
+        entries, alignment_status, anchor_condition_a, anchor_condition_b = (
+            _study_entries_for_group(
+                comparison_id=comparison_id,
+                observations=group,
+            )
         )
         study_entries.extend(entries)
         comparisons.append(
@@ -358,7 +367,8 @@ def build_cross_study_pathway_comparison_report_from_observations(
         comparisons=tuple(comparisons),
         summary=CrossStudyPathwayComparisonSummary(
             input_study_count=(
-                len({entry.study_id for entry in observations}) + len(unsupported_studies)
+                len({entry.study_id for entry in observations})
+                + len(unsupported_studies)
                 if input_study_count is None
                 else input_study_count
             ),
@@ -453,12 +463,19 @@ def render_cross_study_pathway_comparison_tsv(
                 str(entry.shared_signal).lower(),
                 str(entry.opposite_signal).lower(),
                 str(entry.study_specific_signal).lower(),
-                ";".join(direction.value for direction in entry.normalized_significant_directions),
+                ";".join(
+                    direction.value
+                    for direction in entry.normalized_significant_directions
+                ),
                 _format_float(entry.minimum_coverage_fraction),
                 _format_float(entry.maximum_coverage_fraction),
                 _format_float(entry.coverage_fraction_range),
-                "" if entry.minimum_total_member_count is None else entry.minimum_total_member_count,
-                "" if entry.maximum_total_member_count is None else entry.maximum_total_member_count,
+                ""
+                if entry.minimum_total_member_count is None
+                else entry.minimum_total_member_count,
+                ""
+                if entry.maximum_total_member_count is None
+                else entry.maximum_total_member_count,
                 _format_float(entry.minimum_adjusted_p_value),
                 _format_float(entry.maximum_enrichment_ratio),
                 entry.note,
@@ -524,7 +541,9 @@ def render_cross_study_pathway_detail_tsv(
                 entry.condition_a or "",
                 entry.condition_b or "",
                 "" if entry.direction is None else entry.direction.value,
-                "" if entry.normalized_direction is None else entry.normalized_direction.value,
+                ""
+                if entry.normalized_direction is None
+                else entry.normalized_direction.value,
                 _format_float(entry.activity_score_delta),
                 _format_float(entry.normalized_activity_score_delta),
                 ""
@@ -535,8 +554,12 @@ def render_cross_study_pathway_detail_tsv(
                 _format_float(entry.enrichment_ratio),
                 str(entry.significant).lower(),
                 "" if entry.total_member_count is None else entry.total_member_count,
-                "" if entry.foreground_overlap_count is None else entry.foreground_overlap_count,
-                "" if entry.background_member_count is None else entry.background_member_count,
+                ""
+                if entry.foreground_overlap_count is None
+                else entry.foreground_overlap_count,
+                ""
+                if entry.background_member_count is None
+                else entry.background_member_count,
                 _format_float(entry.condition_a_coverage_fraction),
                 _format_float(entry.condition_b_coverage_fraction),
                 _format_float(entry.coverage_fraction),
@@ -639,8 +662,12 @@ def _extract_study_pathway_observations(
         coverage_lookup = _activity_condition_coverage_lookup(activity_report)
         total_member_lookup = _activity_total_member_lookup(activity_report)
         for entry in activity_report.condition_comparisons:
-            condition_a_coverage = coverage_lookup.get((entry.pathway_id, entry.condition_a))
-            condition_b_coverage = coverage_lookup.get((entry.pathway_id, entry.condition_b))
+            condition_a_coverage = coverage_lookup.get(
+                (entry.pathway_id, entry.condition_a)
+            )
+            condition_b_coverage = coverage_lookup.get(
+                (entry.pathway_id, entry.condition_b)
+            )
             activity_delta = entry.activity_score_delta
             direction = (
                 None
@@ -693,7 +720,8 @@ def _extract_study_pathway_observations(
             significant = (
                 adjusted_p_value is not None
                 and adjusted_p_value <= enrichment_policy.max_adjusted_p_value
-                and (entry.enrichment_ratio or 0.0) >= enrichment_policy.min_enrichment_ratio
+                and (entry.enrichment_ratio or 0.0)
+                >= enrichment_policy.min_enrichment_ratio
             )
             observations.append(
                 CrossStudyPathwayObservation(
@@ -739,11 +767,11 @@ def _activity_condition_coverage_lookup(
     for entry in report.sample_scores:
         if entry.condition is None:
             continue
-        grouped.setdefault((entry.pathway_id, entry.condition), []).append(entry.observed_fraction)
+        grouped.setdefault((entry.pathway_id, entry.condition), []).append(
+            entry.observed_fraction
+        )
     return {
-        key: round(float(mean(values)), 6)
-        for key, values in grouped.items()
-        if values
+        key: round(float(mean(values)), 6) for key, values in grouped.items() if values
     }
 
 
@@ -831,7 +859,10 @@ def _study_entries_for_group(
     entries: list[CrossStudyPathwayStudyEntry] = []
     reversed_seen = False
     for observation in observations:
-        if observation.condition_a == anchor_condition_a and observation.condition_b == anchor_condition_b:
+        if (
+            observation.condition_a == anchor_condition_a
+            and observation.condition_b == anchor_condition_b
+        ):
             entries.append(
                 _study_entry_from_observation(
                     comparison_id=comparison_id,
@@ -841,7 +872,10 @@ def _study_entries_for_group(
                 )
             )
             continue
-        if observation.condition_a == anchor_condition_b and observation.condition_b == anchor_condition_a:
+        if (
+            observation.condition_a == anchor_condition_b
+            and observation.condition_b == anchor_condition_a
+        ):
             reversed_seen = True
             normalized_delta = (
                 None
@@ -853,7 +887,9 @@ def _study_entries_for_group(
                     comparison_id=comparison_id,
                     observation=observation,
                     normalized_direction=(
-                        None if normalized_delta is None else _direction_from_delta(normalized_delta)
+                        None
+                        if normalized_delta is None
+                        else _direction_from_delta(normalized_delta)
                     ),
                     normalized_delta=normalized_delta,
                 )
@@ -946,7 +982,10 @@ def _build_pathway_comparison_entry(
         if direction in {CrossStudyPathwayDirection.UP, CrossStudyPathwayDirection.DOWN}
     }
     if first.signal_kind is CrossStudyPathwaySignalKind.ACTIVITY:
-        if alignment_status is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS:
+        if (
+            alignment_status
+            is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS
+        ):
             status = CrossStudyPathwayComparisonStatus.HETEROGENEOUS_CONTRASTS
             note = (
                 "studies compared different condition pairs, so pathway activity deltas "
@@ -994,9 +1033,15 @@ def _build_pathway_comparison_entry(
                 "cross-study pathway enrichment support was not strong enough to call "
                 "a shared or study-specific signal"
             )
-    coverage_values = [entry.coverage_fraction for entry in entries if entry.coverage_fraction is not None]
+    coverage_values = [
+        entry.coverage_fraction
+        for entry in entries
+        if entry.coverage_fraction is not None
+    ]
     total_member_counts = [
-        entry.total_member_count for entry in entries if entry.total_member_count is not None
+        entry.total_member_count
+        for entry in entries
+        if entry.total_member_count is not None
     ]
     adjusted_values = [
         value
@@ -1011,7 +1056,9 @@ def _build_pathway_comparison_entry(
         if value is not None
     ]
     enrichment_ratios = [
-        entry.enrichment_ratio for entry in entries if entry.enrichment_ratio is not None
+        entry.enrichment_ratio
+        for entry in entries
+        if entry.enrichment_ratio is not None
     ]
     return CrossStudyPathwayComparisonEntry(
         comparison_id=comparison_id,
@@ -1026,14 +1073,17 @@ def _build_pathway_comparison_entry(
         tested_study_count=len(entries),
         significant_study_count=len(significant_entries),
         significant_study_ids=tuple(entry.study_id for entry in significant_entries),
-        non_significant_study_ids=tuple(entry.study_id for entry in entries if not entry.significant),
+        non_significant_study_ids=tuple(
+            entry.study_id for entry in entries if not entry.significant
+        ),
         contrast_alignment_status=alignment_status,
         anchor_condition_a=anchor_condition_a,
         anchor_condition_b=anchor_condition_b,
         comparison_status=status,
         shared_signal=status is CrossStudyPathwayComparisonStatus.SHARED_SIGNAL,
         opposite_signal=status is CrossStudyPathwayComparisonStatus.OPPOSITE_SIGNAL,
-        study_specific_signal=status is CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL,
+        study_specific_signal=status
+        is CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL,
         normalized_significant_directions=directions,
         minimum_coverage_fraction=min(coverage_values, default=None),
         maximum_coverage_fraction=max(coverage_values, default=None),
@@ -1081,7 +1131,9 @@ def _render_filtered_pathway_tsv(
     filtered = report.model_copy(
         update={
             "comparisons": tuple(
-                entry for entry in report.comparisons if entry.comparison_status is status
+                entry
+                for entry in report.comparisons
+                if entry.comparison_status is status
             )
         }
     )

@@ -92,7 +92,9 @@ def fit_mean_variance_trend(
             )
         )
 
-    sorted_entries = sorted(raw_entries, key=lambda entry: (entry.mean_intensity, entry.entity_id))
+    sorted_entries = sorted(
+        raw_entries, key=lambda entry: (entry.mean_intensity, entry.entity_id)
+    )
     observed_variances = tuple(entry.observed_variance for entry in sorted_entries)
     smoothed_variances = _running_median(
         observed_variances,
@@ -101,7 +103,9 @@ def fit_mean_variance_trend(
     expected_variances = _enforce_non_increasing(smoothed_variances)
 
     entries: list[MeanVarianceTrendEntry] = []
-    for entry, expected_variance in zip(sorted_entries, expected_variances, strict=False):
+    for entry, expected_variance in zip(
+        sorted_entries, expected_variances, strict=False
+    ):
         variance_residual = entry.observed_variance - expected_variance
         quantitative_confidence = _quantitative_confidence(
             expected_variance=expected_variance,

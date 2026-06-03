@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony import (
+    run_infer_proteins_command,
+    run_protein_coverage_command,
+    run_protein_coverage_plot_command,
+    run_protein_parsimony_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony import run_protein_coverage_command, run_protein_coverage_plot_command, run_protein_parsimony_command, run_infer_proteins_command
+
 
 @click.command("protein-coverage")
 @click.argument(
@@ -90,8 +96,33 @@ def protein_coverage_command(
     peptide_coordinate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review protein sequence coverage from accepted peptide evidence.'
-    return run_protein_coverage_command(input_tsv, fasta_path, threshold, score_orientation, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, coverage_tsv_out, regions_tsv_out, uncovered_tsv_out, peptide_coordinate_tsv_out, out_path)
+    "Review protein sequence coverage from accepted peptide evidence."
+    return run_protein_coverage_command(
+        input_tsv,
+        fasta_path,
+        threshold,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        coverage_tsv_out,
+        regions_tsv_out,
+        uncovered_tsv_out,
+        peptide_coordinate_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-coverage-plot")
 @click.argument(
@@ -164,8 +195,34 @@ def protein_coverage_plot_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build plot-ready peptide-to-protein coverage payloads and static plots.'
-    return run_protein_coverage_plot_command(input_tsv, fasta_path, threshold, score_orientation, high_q_value, medium_q_value, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, intensity_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, positions_tsv_out, svg_out, html_out, out_path)
+    "Build plot-ready peptide-to-protein coverage payloads and static plots."
+    return run_protein_coverage_plot_command(
+        input_tsv,
+        fasta_path,
+        threshold,
+        score_orientation,
+        high_q_value,
+        medium_q_value,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        intensity_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        positions_tsv_out,
+        svg_out,
+        html_out,
+        out_path,
+    )
+
 
 @click.command("protein-parsimony")
 @click.argument(
@@ -247,8 +304,32 @@ def protein_parsimony_command(
     ambiguity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review one parsimony-selected protein set and its remaining ambiguity.'
-    return run_protein_parsimony_command(input_tsv, threshold, score_orientation, variant, review_variants, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, protein_tsv_out, ambiguity_tsv_out, out_path)
+    "Review one parsimony-selected protein set and its remaining ambiguity."
+    return run_protein_parsimony_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        variant,
+        review_variants,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        protein_tsv_out,
+        ambiguity_tsv_out,
+        out_path,
+    )
+
 
 @click.command("infer-proteins")
 @click.argument(
@@ -297,8 +378,25 @@ def infer_proteins_command(
     fasta_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Infer proteins, group evidence, and emit multi-level FDR artifacts.'
-    return run_infer_proteins_command(input_tsv, threshold, score_orientation, spectrum_id_column, peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, protein_separator, decoy_prefix, decoy_suffix, fasta_path, out_path)
+    "Infer proteins, group evidence, and emit multi-level FDR artifacts."
+    return run_infer_proteins_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        fasta_path,
+        out_path,
+    )
+
 
 COMMANDS = (
     protein_coverage_command,

@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from dataclasses import dataclass
 from io import StringIO
@@ -14,10 +12,11 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
-    ExperimentalDesignReport,
     ExperimentalDesignRejectedRow,
+    ExperimentalDesignReport,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -111,7 +110,9 @@ def build_multiplex_metadata_validation_report(
     channel_union = tuple(
         sorted({entry.multiplex_channel for entry in multiplex_entries})
     )
-    entries_by_group_and_channel: dict[tuple[str, str], list[_MultiplexMetadataRow]] = {}
+    entries_by_group_and_channel: dict[
+        tuple[str, str], list[_MultiplexMetadataRow]
+    ] = {}
     entries_by_group_and_sample: dict[tuple[str, str], list[_MultiplexMetadataRow]] = {}
     for entry in multiplex_entries:
         entries_by_group_and_channel.setdefault(
@@ -124,9 +125,13 @@ def build_multiplex_metadata_validation_report(
         ).append(entry)
 
     assignments: list[MultiplexChannelAssignmentEntry] = []
-    for multiplex_group in sorted({entry.multiplex_group for entry in multiplex_entries}):
+    for multiplex_group in sorted(
+        {entry.multiplex_group for entry in multiplex_entries}
+    ):
         for multiplex_channel in channel_union:
-            matches = entries_by_group_and_channel.get((multiplex_group, multiplex_channel), [])
+            matches = entries_by_group_and_channel.get(
+                (multiplex_group, multiplex_channel), []
+            )
             if not matches:
                 assignments.append(
                     MultiplexChannelAssignmentEntry(
@@ -158,7 +163,9 @@ def build_multiplex_metadata_validation_report(
             )
 
     duplicate_assignments: list[MultiplexDuplicateAssignmentEntry] = []
-    for (multiplex_group, multiplex_channel), matches in sorted(entries_by_group_and_channel.items()):
+    for (multiplex_group, multiplex_channel), matches in sorted(
+        entries_by_group_and_channel.items()
+    ):
         if len(matches) > 1:
             duplicate_assignments.append(
                 MultiplexDuplicateAssignmentEntry(
@@ -170,7 +177,9 @@ def build_multiplex_metadata_validation_report(
                     note="more than one design row assigns the same multiplex channel within one group",
                 )
             )
-    for (multiplex_group, sample_id), matches in sorted(entries_by_group_and_sample.items()):
+    for (multiplex_group, sample_id), matches in sorted(
+        entries_by_group_and_sample.items()
+    ):
         if len(matches) > 1:
             duplicate_assignments.append(
                 MultiplexDuplicateAssignmentEntry(
@@ -192,7 +201,11 @@ def build_multiplex_metadata_validation_report(
             note="design row leaves condition empty or placeholder-valued even though multiplex sample metadata requires it for biological comparison",
         )
         for entry in sorted(
-            (entry for entry in multiplex_entries if _condition_missing(entry.condition)),
+            (
+                entry
+                for entry in multiplex_entries
+                if _condition_missing(entry.condition)
+            ),
             key=lambda item: (item.multiplex_group, item.multiplex_channel),
         )
     )
@@ -261,8 +274,7 @@ def _metadata_row_from_rejected_row(
     if not multiplex_group or not multiplex_channel or not sample_id:
         return None
     sample_role = (
-        rejected_row.values.get("sample_role")
-        or "sample"
+        rejected_row.values.get("sample_role") or "sample"
     ).strip() or "sample"
     condition = rejected_row.values.get("condition")
     return _MultiplexMetadataRow(

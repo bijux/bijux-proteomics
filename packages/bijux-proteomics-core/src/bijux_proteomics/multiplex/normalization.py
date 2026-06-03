@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +13,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.multiplex.reporter_matrix import (
     TmtChannelMappingEntry,
     TmtReporterFeatureBundle,
@@ -23,8 +22,11 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     render_tmt_peptide_matrix_tsv,
     render_tmt_protein_matrix_tsv,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole, MissingValueKind
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification import (
+    LabelBasedChannelRole,
+    MissingValueKind,
+    Ms1FeatureRecord,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -114,7 +116,9 @@ class TmtNormalizationReport(JsonModel):
     policy: TmtNormalizationPolicy
     before_report: TmtReporterMatrixReport
     after_report: TmtReporterMatrixReport
-    transforms: tuple[TmtNormalizationTransformEntry, ...] = Field(default_factory=tuple)
+    transforms: tuple[TmtNormalizationTransformEntry, ...] = Field(
+        default_factory=tuple
+    )
     channel_distributions: tuple[TmtChannelDistributionEntry, ...] = Field(
         default_factory=tuple
     )
@@ -192,7 +196,11 @@ def build_tmt_normalization_report(
                 {entry.multiplex_group for entry in feature_bundle.channel_mapping}
             ),
             channel_count=len(
-                [entry for entry in feature_bundle.channel_mapping if entry.mapped_to_design]
+                [
+                    entry
+                    for entry in feature_bundle.channel_mapping
+                    if entry.mapped_to_design
+                ]
             ),
             transform_count=len(transforms),
             before_flagged_channel_count=before_flagged,
@@ -244,7 +252,11 @@ def _apply_median_normalization(
             for value in sample_medians.values()
             if np.isfinite(value) and value > 0.0
         ]
-        group_median = float(np.median(np.array(finite_medians, dtype=float))) if finite_medians else 1.0
+        group_median = (
+            float(np.median(np.array(finite_medians, dtype=float)))
+            if finite_medians
+            else 1.0
+        )
         for sample_id in sorted(group_sample_ids):
             sample_median = sample_medians[sample_id]
             factor = (
@@ -260,7 +272,8 @@ def _apply_median_normalization(
                     multiplex_channel=mapping_entry.multiplex_channel,
                     sample_id=sample_id,
                     condition=mapping_entry.condition,
-                    channel_role=mapping_entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                    channel_role=mapping_entry.channel_role
+                    or LabelBasedChannelRole.SAMPLE,
                     method=policy.method,
                     scale_factor=factor,
                     reference_sample_id=None,
@@ -316,7 +329,9 @@ def _apply_total_signal_normalization(
             for sample_id in group_sample_ids
         }
         positive_totals = [
-            value for value in sample_totals.values() if np.isfinite(value) and value > 0.0
+            value
+            for value in sample_totals.values()
+            if np.isfinite(value) and value > 0.0
         ]
         group_target = (
             float(np.mean(np.array(positive_totals, dtype=float)))
@@ -338,7 +353,8 @@ def _apply_total_signal_normalization(
                     multiplex_channel=mapping_entry.multiplex_channel,
                     sample_id=sample_id,
                     condition=mapping_entry.condition,
-                    channel_role=mapping_entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                    channel_role=mapping_entry.channel_role
+                    or LabelBasedChannelRole.SAMPLE,
                     method=policy.method,
                     scale_factor=factor,
                     reference_sample_id=None,
@@ -417,7 +433,9 @@ def _apply_reference_channel_normalization(
         group = observation.multiplex_group
         reference_entry = reference_entry_by_group[group]
         reference_intensity = intensity_lookup.get(reference_entry.multiplex_channel)
-        for entry in sorted(group_entries[group], key=lambda item: item.multiplex_channel):
+        for entry in sorted(
+            group_entries[group], key=lambda item: item.multiplex_channel
+        ):
             raw_intensity = intensity_lookup.get(entry.multiplex_channel)
             normalized_intensity, missing_kind, missing_reason = _reference_ratio_value(
                 raw_intensity=raw_intensity,
@@ -501,7 +519,11 @@ def _bundle_distribution_entries(
     for entry in mapped_entries:
         records = sample_records.get(entry.sample_id or "", [])
         observed = np.array(
-            [float(record.intensity) for record in records if record.intensity is not None],
+            [
+                float(record.intensity)
+                for record in records
+                if record.intensity is not None
+            ],
             dtype=float,
         )
         total_abundance = float(np.sum(observed)) if observed.size else 0.0
@@ -537,10 +559,7 @@ def _bundle_distribution_entries(
                 ratio_to_group_median=ratio,
                 flagged=(
                     ratio > policy.balance_ratio_threshold
-                    or (
-                        ratio > 0.0
-                        and ratio < 1.0 / policy.balance_ratio_threshold
-                    )
+                    or (ratio > 0.0 and ratio < 1.0 / policy.balance_ratio_threshold)
                 ),
                 note=entry.note,
             )

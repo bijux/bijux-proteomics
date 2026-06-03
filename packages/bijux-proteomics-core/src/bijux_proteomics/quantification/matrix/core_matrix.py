@@ -51,7 +51,9 @@ def build_numeric_quant_matrix(
                 missing_state_lookup.get(key, MissingValueState.NOT_OBSERVED)
             )
             row_support_counts.append(
-                0 if support_count_lookup is None else int(support_count_lookup.get(key, 0))
+                0
+                if support_count_lookup is None
+                else int(support_count_lookup.get(key, 0))
             )
         ordered_values.append(tuple(row_values))
         ordered_missing_states.append(tuple(row_states))
@@ -98,10 +100,7 @@ def quant_matrix_to_dense_array(matrix: QuantMatrix) -> np.ndarray:
 
     return np.array(
         [
-            [
-                np.nan if value is None else float(value)
-                for value in row_values
-            ]
+            [np.nan if value is None else float(value) for value in row_values]
             for row_values in matrix.values
         ],
         dtype=float,

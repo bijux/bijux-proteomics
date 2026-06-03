@@ -9,6 +9,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_diann_protein_matrix_command(
     result_tsv: Path,
     config_path: Path | None,
@@ -88,6 +89,7 @@ def run_diann_protein_matrix_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_spectronaut_protein_matrix_command(
     result_tsv: Path,
@@ -173,6 +175,7 @@ def run_spectronaut_protein_matrix_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_diann_run_qc_command(
     result_tsv: Path,
     config_path: Path | None,
@@ -232,12 +235,11 @@ def run_diann_run_qc_command(
             "correlation_tsv": (
                 None if correlation_tsv_out is None else str(correlation_tsv_out)
             ),
-            "outlier_tsv": (
-                None if outlier_tsv_out is None else str(outlier_tsv_out)
-            ),
+            "outlier_tsv": (None if outlier_tsv_out is None else str(outlier_tsv_out)),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_diann_library_coverage_command(
     result_tsv: Path,
@@ -339,4 +341,10 @@ def run_diann_library_coverage_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_diann_protein_matrix_command', 'run_spectronaut_protein_matrix_command', 'run_diann_run_qc_command', 'run_diann_library_coverage_command']
+
+__all__ = [
+    "run_diann_protein_matrix_command",
+    "run_spectronaut_protein_matrix_command",
+    "run_diann_run_qc_command",
+    "run_diann_library_coverage_command",
+]

@@ -17,7 +17,6 @@ from bijux_proteomics.io.chromatographic_evidence import (
 )
 from bijux_proteomics.io.dia_fragment_coelution import DiaFragmentCoelutionReport
 from bijux_proteomics.io.fragment_ratio_stability import FragmentRatioStabilityReport
-from bijux_proteomics.sequences import PeptideChemicalLiabilityReport
 from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
@@ -25,6 +24,7 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
+from bijux_proteomics.sequences import PeptideChemicalLiabilityReport
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
@@ -69,7 +69,8 @@ def propagate_evidence_graph_confidence(
     chromatographic_score_report: ChromatographicEvidenceScoreReport | None = None,
     dia_fragment_coelution_report: DiaFragmentCoelutionReport | None = None,
     dia_fragment_ratio_stability_report: FragmentRatioStabilityReport | None = None,
-    peptide_profile_inconsistency_report: PeptideProfileInconsistencyReport | None = None,
+    peptide_profile_inconsistency_report: PeptideProfileInconsistencyReport
+    | None = None,
     peptide_liability_reports: tuple[PeptideChemicalLiabilityReport, ...] = (),
 ) -> EvidenceGraphConfidenceReport:
     """Propagate upstream evidence quality into final protein, PTM, and pathway claims."""
@@ -159,18 +160,25 @@ def propagate_evidence_graph_confidence(
                     rationale=_build_rationale(
                         subject.entity_type,
                         propagated_score,
-                        peptide_chromatography_used=bool(chromatographic_scores_by_peptide),
+                        peptide_chromatography_used=bool(
+                            chromatographic_scores_by_peptide
+                        ),
                         fragment_ratio_used=bool(ratio_stability_scores_by_precursor),
                         peptide_profile_used=bool(
                             peptide_profile_scores_by_protein_and_peptide
                         ),
-                        peptide_liability_used=bool(peptide_liability_scores_by_peptide),
+                        peptide_liability_used=bool(
+                            peptide_liability_scores_by_peptide
+                        ),
                     ),
                 )
             )
 
     sorted_entries = tuple(
-        sorted(entries, key=lambda entry: (entry.subject_node_kind.value, entry.claim_node_ref))
+        sorted(
+            entries,
+            key=lambda entry: (entry.subject_node_kind.value, entry.claim_node_ref),
+        )
     )
     tier_counts: dict[str, int] = {}
     for entry in sorted_entries:
@@ -259,7 +267,9 @@ def _subject_confidence(
             ),
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
-    raise ValueError(f"unsupported confidence subject kind: {subject.entity_type.value}")
+    raise ValueError(
+        f"unsupported confidence subject kind: {subject.entity_type.value}"
+    )
 
 
 def _protein_confidence(
@@ -309,13 +319,18 @@ def _protein_confidence(
         if profile_score is not None:
             peptide_score = _average((peptide_score, profile_score))
         path_scores.append(
-            _average((edge.confidence, peptide_score, _trust_score(peptide.trust_class)))
+            _average(
+                (edge.confidence, peptide_score, _trust_score(peptide.trust_class))
+            )
         )
         upstream_ids.update(peptide_ids | {peptide.node_id})
         source_rows.update(peptide_rows | {edge.source_row_ref})
 
     if path_scores:
-        score = _average(tuple(sorted(path_scores, reverse=True)[:2]) + (_trust_score(protein.trust_class),))
+        score = _average(
+            tuple(sorted(path_scores, reverse=True)[:2])
+            + (_trust_score(protein.trust_class),)
+        )
     else:
         score = _trust_score(protein.trust_class)
 
@@ -377,8 +392,12 @@ def _ptm_site_confidence(
                         )
                     )
                 )
-                upstream_ids.update(peptide_ids | {parent_peptide.node_id, modified_peptide.node_id})
-                source_rows.update(peptide_rows | {parent_edge.source_row_ref, edge.source_row_ref})
+                upstream_ids.update(
+                    peptide_ids | {parent_peptide.node_id, modified_peptide.node_id}
+                )
+                source_rows.update(
+                    peptide_rows | {parent_edge.source_row_ref, edge.source_row_ref}
+                )
         else:
             path_scores.append(
                 _average((edge.confidence, _trust_score(modified_peptide.trust_class)))
@@ -467,7 +486,9 @@ def _pathway_confidence(
             peptide_liability_scores_by_peptide=peptide_liability_scores_by_peptide,
         )
         member_scores.append(
-            _average((edge.confidence, protein_score, _trust_score(protein.trust_class)))
+            _average(
+                (edge.confidence, protein_score, _trust_score(protein.trust_class))
+            )
         )
         upstream_ids.update(protein_ids | {protein.node_id})
         source_rows.update(protein_rows | {edge.source_row_ref})
@@ -523,7 +544,10 @@ def _peptide_confidence(
         source_rows.update(acquisition_rows | {edge.source_row_ref})
 
     if support_scores:
-        score = _average(tuple(sorted(support_scores, reverse=True)[:2]) + (_trust_score(peptide.trust_class),))
+        score = _average(
+            tuple(sorted(support_scores, reverse=True)[:2])
+            + (_trust_score(peptide.trust_class),)
+        )
     else:
         score = _trust_score(peptide.trust_class)
     chromatographic_score = chromatographic_scores_by_peptide.get(peptide.entity_ref)
@@ -683,8 +707,7 @@ def _ratio_stability_scores_by_analyte(
     for entry in report.fragment_entries:
         grouped_scores.setdefault(entry.analyte_id, []).append(entry.stability_score)
     return {
-        analyte_id: _average(scores)
-        for analyte_id, scores in grouped_scores.items()
+        analyte_id: _average(scores) for analyte_id, scores in grouped_scores.items()
     }
 
 

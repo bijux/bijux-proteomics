@@ -47,9 +47,7 @@ class GenericPsmTableColumnMapping(JsonModel):
     modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
-    score_orientation: str = Field(
-        ..., pattern="^(higher_better|lower_better)$"
-    )
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
     intensity: str | None = None
     protein_refs: str = Field(..., min_length=1)
     q_value: str | None = None
@@ -80,11 +78,7 @@ class GenericPsmTableColumnMapping(JsonModel):
             raise ValueError(
                 "generic PSM mapping requires a peptide or modified_peptide column"
             )
-        if (
-            self.decoy_label is None
-            and not self.decoy_prefix
-            and not self.decoy_suffix
-        ):
+        if self.decoy_label is None and not self.decoy_prefix and not self.decoy_suffix:
             raise ValueError(
                 "generic PSM mapping requires a decoy label column or decoy naming rule"
             )

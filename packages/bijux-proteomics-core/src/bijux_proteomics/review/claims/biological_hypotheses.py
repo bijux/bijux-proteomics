@@ -217,17 +217,20 @@ def build_biological_hypothesis_report(
             protein_hypothesis_count=sum(
                 1
                 for hypothesis in hypotheses
-                if hypothesis.hypothesis_kind is BiologicalHypothesisKind.PROTEIN_MECHANISM
+                if hypothesis.hypothesis_kind
+                is BiologicalHypothesisKind.PROTEIN_MECHANISM
             ),
             pathway_hypothesis_count=sum(
                 1
                 for hypothesis in hypotheses
-                if hypothesis.hypothesis_kind is BiologicalHypothesisKind.PATHWAY_ACTIVITY
+                if hypothesis.hypothesis_kind
+                is BiologicalHypothesisKind.PATHWAY_ACTIVITY
             ),
             regulator_hypothesis_count=sum(
                 1
                 for hypothesis in hypotheses
-                if hypothesis.hypothesis_kind is BiologicalHypothesisKind.REGULATOR_ACTIVITY
+                if hypothesis.hypothesis_kind
+                is BiologicalHypothesisKind.REGULATOR_ACTIVITY
             ),
             high_confidence_hypothesis_count=sum(
                 1
@@ -251,12 +254,23 @@ def render_biological_hypothesis_summary_tsv(report: BiologicalHypothesisReport)
     writer.writerow(("field", "value"))
     writer.writerow(("candidate_count", report.summary.candidate_count))
     writer.writerow(("hypothesis_count", report.summary.hypothesis_count))
-    writer.writerow(("rejected_candidate_count", report.summary.rejected_candidate_count))
-    writer.writerow(("protein_hypothesis_count", report.summary.protein_hypothesis_count))
-    writer.writerow(("pathway_hypothesis_count", report.summary.pathway_hypothesis_count))
-    writer.writerow(("regulator_hypothesis_count", report.summary.regulator_hypothesis_count))
     writer.writerow(
-        ("high_confidence_hypothesis_count", report.summary.high_confidence_hypothesis_count)
+        ("rejected_candidate_count", report.summary.rejected_candidate_count)
+    )
+    writer.writerow(
+        ("protein_hypothesis_count", report.summary.protein_hypothesis_count)
+    )
+    writer.writerow(
+        ("pathway_hypothesis_count", report.summary.pathway_hypothesis_count)
+    )
+    writer.writerow(
+        ("regulator_hypothesis_count", report.summary.regulator_hypothesis_count)
+    )
+    writer.writerow(
+        (
+            "high_confidence_hypothesis_count",
+            report.summary.high_confidence_hypothesis_count,
+        )
     )
     writer.writerow(("note", report.note))
     return handle.getvalue()

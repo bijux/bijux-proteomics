@@ -55,7 +55,9 @@ class WorkflowScientificSnapshot(JsonModel):
 
     @field_validator("quant_blocking_reasons")
     @classmethod
-    def _validate_quant_blocking_reasons(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+    def _validate_quant_blocking_reasons(
+        cls, value: tuple[str, ...]
+    ) -> tuple[str, ...]:
         return require_registered_reason_codes(
             value,
             ReasonCodeCategory.WORKFLOW_BLOCK,
@@ -63,7 +65,9 @@ class WorkflowScientificSnapshot(JsonModel):
 
     @field_validator("qc_blocking_issue_codes")
     @classmethod
-    def _validate_qc_blocking_issue_codes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+    def _validate_qc_blocking_issue_codes(
+        cls, value: tuple[str, ...]
+    ) -> tuple[str, ...]:
         return require_registered_reason_codes(
             value,
             ReasonCodeCategory.QC_REASON,

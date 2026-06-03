@@ -142,6 +142,7 @@ SAGE_PSM_DIALECT = SearchAdapterDialectManifest(
 
 SAGE_DIALECTS = (SAGE_PIPELINE_DIALECT, SAGE_PSM_DIALECT)
 
+
 def parse_sage_parameters(path: Path) -> SearchParameterReport:
     payload = json.loads(path.read_text())
     enzyme_payload = payload.get("enzyme", {})
@@ -306,7 +307,8 @@ def parse_sage_parameters(path: Path) -> SearchParameterReport:
         },
     )
 
-def build_sage_output_corpus_report(corpus_root: Path) -> "SearchEngineCorpusReport":
+
+def build_sage_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusReport:
     """Build corpus coverage over Sage native and pipeline-like outputs."""
     from ..corpus import (
         SearchCorpusInputSpecification,

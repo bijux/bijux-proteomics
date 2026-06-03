@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -14,7 +12,10 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.interpretation.protein_annotation_mapping import ProteinReferenceEntry
+from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -122,8 +123,12 @@ def build_biological_foreground_background_model(
 ) -> BiologicalForegroundBackgroundModel:
     """Build one explicit foreground/background enrichment model and validate it."""
 
-    stable_foreground = _stable_entries(foreground_entries, role=BiologicalSetRole.FOREGROUND)
-    stable_background = _stable_entries(background_entries, role=BiologicalSetRole.BACKGROUND)
+    stable_foreground = _stable_entries(
+        foreground_entries, role=BiologicalSetRole.FOREGROUND
+    )
+    stable_background = _stable_entries(
+        background_entries, role=BiologicalSetRole.BACKGROUND
+    )
     foreground_refs = {entry.protein_ref for entry in stable_foreground}
     background_refs = {entry.protein_ref for entry in stable_background}
 
@@ -156,7 +161,11 @@ def build_biological_foreground_background_model(
                 ),
             )
         )
-    if background_refs and foreground_refs and len(background_refs) <= len(foreground_refs):
+    if (
+        background_refs
+        and foreground_refs
+        and len(background_refs) <= len(foreground_refs)
+    ):
         issues.append(
             BiologicalSetIssue(
                 code="background_not_broader_than_foreground",
@@ -308,7 +317,9 @@ def export_biological_foreground_background_summary_tsv(
 ) -> None:
     """Write one biological foreground/background summary TSV artifact."""
 
-    write_output_table_tsv(path, render_biological_foreground_background_summary_tsv(model))
+    write_output_table_tsv(
+        path, render_biological_foreground_background_summary_tsv(model)
+    )
 
 
 def export_biological_foreground_background_entry_tsv(
@@ -317,7 +328,9 @@ def export_biological_foreground_background_entry_tsv(
 ) -> None:
     """Write one biological foreground/background entry TSV artifact."""
 
-    write_output_table_tsv(path, render_biological_foreground_background_entry_tsv(model))
+    write_output_table_tsv(
+        path, render_biological_foreground_background_entry_tsv(model)
+    )
 
 
 def export_biological_foreground_background_issue_tsv(
@@ -326,7 +339,9 @@ def export_biological_foreground_background_issue_tsv(
 ) -> None:
     """Write one biological foreground/background issue TSV artifact."""
 
-    write_output_table_tsv(path, render_biological_foreground_background_issue_tsv(model))
+    write_output_table_tsv(
+        path, render_biological_foreground_background_issue_tsv(model)
+    )
 
 
 def _stable_entries(

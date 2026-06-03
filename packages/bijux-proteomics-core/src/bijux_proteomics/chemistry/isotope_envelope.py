@@ -119,7 +119,7 @@ def build_peptide_elemental_composition(
 ) -> ElementalComposition:
     """Build elemental composition for one peptide under natural abundance."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
-    counts = {symbol: 0 for symbol in _SUPPORTED_ELEMENT_SYMBOLS}
+    counts = dict.fromkeys(_SUPPORTED_ELEMENT_SYMBOLS, 0)
     _apply_delta(counts, _PEPTIDE_TERMINI_COMPOSITION)
     for residue in parsed.sequence:
         _apply_delta(counts, _RESIDUE_ELEMENTAL_COMPOSITION[residue])
@@ -228,9 +228,7 @@ def render_isotope_envelopes_tsv(
     envelopes: Sequence[PeptideIsotopeEnvelopePrediction],
 ) -> str:
     """Render stable TSV rows for one or more predicted isotope envelopes."""
-    lines = [
-        "canonical_notation\tcharge\tformula\tisotope_index\tmz\tprobability"
-    ]
+    lines = ["canonical_notation\tcharge\tformula\tisotope_index\tmz\tprobability"]
     for envelope in envelopes:
         for peak in envelope.peaks:
             lines.append(

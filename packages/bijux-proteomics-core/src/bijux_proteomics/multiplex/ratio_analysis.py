@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.multiplex.normalization import (
     TmtNormalizationPolicy,
     build_tmt_normalization_report,
@@ -24,10 +23,10 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterMatrixReport,
     build_tmt_reporter_matrix_report,
 )
+from bijux_proteomics.quantification import LabelBasedChannelRole
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinMatrixTargetKind,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -141,8 +140,7 @@ def build_tmt_ratio_report(
     protein_ratios: list[TmtProteinRatioEntry] = []
     for peptide_row in matrix_report.peptide_matrix.rows:
         peptide_values_by_sample = {
-            value.sample_id: value
-            for value in peptide_row.values
+            value.sample_id: value for value in peptide_row.values
         }
         for entry in sorted(
             mapped_entries,
@@ -153,14 +151,17 @@ def build_tmt_ratio_report(
             numerator_value = peptide_values_by_sample.get(entry.sample_id or "")
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
-                numerator_abundance = None if numerator_value is None else numerator_value.abundance
+                numerator_abundance = (
+                    None if numerator_value is None else numerator_value.abundance
+                )
                 peptide_ratios.append(
                     TmtPeptideRatioEntry(
                         multiplex_group=entry.multiplex_group,
                         numerator_channel=entry.multiplex_channel,
                         numerator_sample_id=entry.sample_id or "",
                         numerator_condition=entry.condition,
-                        numerator_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                        numerator_role=entry.channel_role
+                        or LabelBasedChannelRole.SAMPLE,
                         control_channel=control_channel,
                         control_sample_id="",
                         control_condition=None,
@@ -216,8 +217,7 @@ def build_tmt_ratio_report(
             )
     for protein_row in matrix_report.protein_matrix.rows:
         protein_values_by_sample = {
-            value.sample_id: value
-            for value in protein_row.values
+            value.sample_id: value for value in protein_row.values
         }
         for entry in sorted(
             mapped_entries,
@@ -225,7 +225,9 @@ def build_tmt_ratio_report(
         ):
             if entry.multiplex_channel == control_channel:
                 continue
-            protein_numerator_value = protein_values_by_sample.get(entry.sample_id or "")
+            protein_numerator_value = protein_values_by_sample.get(
+                entry.sample_id or ""
+            )
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
                 numerator_abundance = (
@@ -239,7 +241,8 @@ def build_tmt_ratio_report(
                         numerator_channel=entry.multiplex_channel,
                         numerator_sample_id=entry.sample_id or "",
                         numerator_condition=entry.condition,
-                        numerator_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                        numerator_role=entry.channel_role
+                        or LabelBasedChannelRole.SAMPLE,
                         control_channel=control_channel,
                         control_sample_id="",
                         control_condition=None,

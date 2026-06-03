@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_reporting import (
+    run_ptm_report_command,
+    run_ptm_summarize_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_reporting import run_ptm_report_command, run_ptm_summarize_command
+
 
 @click.command("report")
 @click.argument(
@@ -184,8 +188,50 @@ def ptm_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build one governed PTM report directory over peptide, site, quant, and motif surfaces.'
-    return run_ptm_report_command(evidence_tsv, proteins_fasta, feature_tsv, design_path, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, fragment_support_json, ambiguity_policy, normalization, condition_a, condition_b, design_batch_field, design_pairing_field, design_covariates, protein_correction_mode, flank_size, max_adjusted_p_value, min_absolute_log2_fold_change, direction, include_ambiguous_regulated_sites, include_ambiguous_background_sites, min_frequency_difference, min_enrichment_ratio, max_reported_term_count, annotation_tsv, target_species, card_max_adjusted_p_value, output_dir, out_path)
+    "Build one governed PTM report directory over peptide, site, quant, and motif surfaces."
+    return run_ptm_report_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        design_path,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        fragment_support_json,
+        ambiguity_policy,
+        normalization,
+        condition_a,
+        condition_b,
+        design_batch_field,
+        design_pairing_field,
+        design_covariates,
+        protein_correction_mode,
+        flank_size,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        direction,
+        include_ambiguous_regulated_sites,
+        include_ambiguous_background_sites,
+        min_frequency_difference,
+        min_enrichment_ratio,
+        max_reported_term_count,
+        annotation_tsv,
+        target_species,
+        card_max_adjusted_p_value,
+        output_dir,
+        out_path,
+    )
+
 
 @click.command("summarize")
 @click.argument(
@@ -272,8 +318,33 @@ def ptm_summarize_command(
     occupancy_counterpart_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Summarize PTM site evidence from localized peptides and optional feature intensities.'
-    return run_ptm_summarize_command(evidence_tsv, proteins_fasta, feature_path, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, threshold, flank_size, site_quant_ambiguity_policy, occupancy_summary_tsv_out, occupancy_tsv_out, occupancy_counterpart_tsv_out, out_path)
+    "Summarize PTM site evidence from localized peptides and optional feature intensities."
+    return run_ptm_summarize_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_path,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        threshold,
+        flank_size,
+        site_quant_ambiguity_policy,
+        occupancy_summary_tsv_out,
+        occupancy_tsv_out,
+        occupancy_counterpart_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     ptm_report_command,

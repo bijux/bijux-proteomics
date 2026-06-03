@@ -14,8 +14,12 @@ from pydantic import ConfigDict, Field, model_validator
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
-    QuantMatrix as CanonicalQuantMatrix,
     QuantMeasureKind,
+)
+from bijux_proteomics.domain.records import (
+    QuantMatrix as CanonicalQuantMatrix,
+)
+from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.identification import PsmRecord
@@ -28,6 +32,9 @@ from bijux_proteomics.quantification.contracts import (
     Ms1FeatureRecord,
     QuantRollupMethod,
 )
+from bijux_proteomics.quantification.matrix.core_matrix import (
+    build_numeric_quant_matrix,
+)
 from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
     PeptideIntensityMatrixRow,
@@ -36,7 +43,6 @@ from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
 )
-from bijux_proteomics.quantification.matrix.core_matrix import build_numeric_quant_matrix
 from bijux_proteomics.quantification.matrix.protein_intensity_matrix import (
     ProteinMatrixTargetKind,
 )
@@ -900,7 +906,9 @@ def _build_pairwise_ratio_rows_vectorized(
     for sample_a_index, sample_a in enumerate(sample_ids):
         for sample_b_index in range(sample_a_index + 1, len(sample_ids)):
             sample_b = sample_ids[sample_b_index]
-            shared_mask = observed_mask[:, sample_a_index] & observed_mask[:, sample_b_index]
+            shared_mask = (
+                observed_mask[:, sample_a_index] & observed_mask[:, sample_b_index]
+            )
             shared_count = int(np.sum(shared_mask))
             if shared_count < minimum_shared_peptides:
                 continue
@@ -912,7 +920,9 @@ def _build_pairwise_ratio_rows_vectorized(
             contributing_peptides = tuple(
                 sorted(
                     peptide_id
-                    for peptide_id, include in zip(peptide_ids, shared_mask, strict=True)
+                    for peptide_id, include in zip(
+                        peptide_ids, shared_mask, strict=True
+                    )
                     if include
                 )
             )
@@ -969,7 +979,9 @@ def _observed_log2_intensities_by_sample_vectorized(
         sample_ids=sample_ids,
     )
     return {
-        sample_id: tuple(log2_matrix[observed_mask[:, sample_index], sample_index].tolist())
+        sample_id: tuple(
+            log2_matrix[observed_mask[:, sample_index], sample_index].tolist()
+        )
         for sample_index, sample_id in enumerate(sample_ids)
         if np.any(observed_mask[:, sample_index])
     }

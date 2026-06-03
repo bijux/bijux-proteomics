@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+    build_psm_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -48,10 +60,11 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.evidence import rollup_peptide_evidence
 from bijux_proteomics.identification.contracts.grouping import assign_razor_peptides
 from bijux_proteomics.identification.contracts.psm import PsmRecord, TargetDecoyLabel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 class ParsimonyVariant(StrEnum):
     """Named protein-parsimony policies supported by core inference."""
@@ -134,7 +147,6 @@ class ParsimonyVariantComparisonReport(JsonModel):
     differences: tuple[ParsimonyVariantDifferenceEntry, ...] = Field(
         default_factory=tuple
     )
-
 
 
 def build_inference_disagreement_report(
@@ -267,16 +279,17 @@ def compare_parsimony_variants(
     )
     return report.variant_comparison
 
+
 __all__ = [
-    'ParsimonyVariant',
-    'ParsimonyProteinEntry',
-    'InferenceDisagreementKind',
-    'InferenceDisagreementEntry',
-    'InferenceDisagreementReport',
-    'ParsimonyVariantResult',
-    'ParsimonyVariantDifferenceEntry',
-    'ParsimonyVariantComparisonReport',
-    'build_inference_disagreement_report',
-    'infer_proteins_by_parsimony',
-    'compare_parsimony_variants',
+    "ParsimonyVariant",
+    "ParsimonyProteinEntry",
+    "InferenceDisagreementKind",
+    "InferenceDisagreementEntry",
+    "InferenceDisagreementReport",
+    "ParsimonyVariantResult",
+    "ParsimonyVariantDifferenceEntry",
+    "ParsimonyVariantComparisonReport",
+    "build_inference_disagreement_report",
+    "infer_proteins_by_parsimony",
+    "compare_parsimony_variants",
 ]

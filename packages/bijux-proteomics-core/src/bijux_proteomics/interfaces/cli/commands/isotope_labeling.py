@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.isotope_labeling import (
+    run_silac_differential_command,
+    run_silac_quantify_command,
+    run_silac_report_command,
+    run_silac_validate_command,
+    run_tmt_validate_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.isotope_labeling import run_silac_quantify_command, run_silac_differential_command, run_silac_report_command, run_silac_validate_command, run_tmt_validate_command
+
 
 @click.command("silac-quantify")
 @click.argument(
@@ -60,8 +67,26 @@ def silac_quantify_command(
     protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Quantify SILAC pair or triplet evidence from labeled feature tables.'
-    return run_silac_quantify_command(input_tsv, sample_id_column, peptide_column, protein_refs_column, charge_column, label_column, intensity_column, feature_id_column, protein_separator, labels, reference_label, collapse_charge_states, summary_tsv_out, peptide_tsv_out, protein_tsv_out, out_path)
+    "Quantify SILAC pair or triplet evidence from labeled feature tables."
+    return run_silac_quantify_command(
+        input_tsv,
+        sample_id_column,
+        peptide_column,
+        protein_refs_column,
+        charge_column,
+        label_column,
+        intensity_column,
+        feature_id_column,
+        protein_separator,
+        labels,
+        reference_label,
+        collapse_charge_states,
+        summary_tsv_out,
+        peptide_tsv_out,
+        protein_tsv_out,
+        out_path,
+    )
+
 
 @click.command("silac-differential")
 @click.argument(
@@ -177,8 +202,41 @@ def silac_differential_command(
     volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
-    'Run differential analysis over governed SILAC protein ratios.'
-    return run_silac_differential_command(input_tsv, design_path, sample_id_column, peptide_column, protein_refs_column, charge_column, label_column, intensity_column, feature_id_column, protein_separator, labels, reference_label, collapse_charge_states, normalization_method, condition_a, condition_b, batch_field, covariate_fields, pairing_field, raw_matrix_tsv_out, normalized_matrix_tsv_out, results_tsv_out, balance_tsv_out, volcano_tsv_out, volcano_json_out, volcano_svg_out, volcano_html_out, volcano_adjusted_p_value_threshold, volcano_absolute_log2_fold_change_threshold, volcano_top_label_count, out_path)
+    "Run differential analysis over governed SILAC protein ratios."
+    return run_silac_differential_command(
+        input_tsv,
+        design_path,
+        sample_id_column,
+        peptide_column,
+        protein_refs_column,
+        charge_column,
+        label_column,
+        intensity_column,
+        feature_id_column,
+        protein_separator,
+        labels,
+        reference_label,
+        collapse_charge_states,
+        normalization_method,
+        condition_a,
+        condition_b,
+        batch_field,
+        covariate_fields,
+        pairing_field,
+        raw_matrix_tsv_out,
+        normalized_matrix_tsv_out,
+        results_tsv_out,
+        balance_tsv_out,
+        volcano_tsv_out,
+        volcano_json_out,
+        volcano_svg_out,
+        volcano_html_out,
+        volcano_adjusted_p_value_threshold,
+        volcano_absolute_log2_fold_change_threshold,
+        volcano_top_label_count,
+        out_path,
+    )
+
 
 @click.command("silac-report")
 @click.argument(
@@ -248,8 +306,31 @@ def silac_report_command(
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
-    'Build a governed SILAC report directory with ratios, QC, and differential results.'
-    return run_silac_report_command(input_tsv, design_path, sample_id_column, peptide_column, protein_refs_column, charge_column, label_column, intensity_column, feature_id_column, protein_separator, labels, reference_label, collapse_charge_states, differential_normalization_method, condition_a, condition_b, batch_field, covariate_fields, pairing_field, output_dir, out_path)
+    "Build a governed SILAC report directory with ratios, QC, and differential results."
+    return run_silac_report_command(
+        input_tsv,
+        design_path,
+        sample_id_column,
+        peptide_column,
+        protein_refs_column,
+        charge_column,
+        label_column,
+        intensity_column,
+        feature_id_column,
+        protein_separator,
+        labels,
+        reference_label,
+        collapse_charge_states,
+        differential_normalization_method,
+        condition_a,
+        condition_b,
+        batch_field,
+        covariate_fields,
+        pairing_field,
+        output_dir,
+        out_path,
+    )
+
 
 @click.command("silac-validate")
 @click.argument(
@@ -267,9 +348,7 @@ def silac_report_command(
 @click.option("--collapse-charge-states", is_flag=True)
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--label-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option(
-    "--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
-)
+@click.option("--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--weak-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
@@ -295,8 +374,26 @@ def silac_validate_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate expected SILAC labels and weak labeling evidence.'
-    return run_silac_validate_command(input_tsv, sample_id_column, peptide_column, protein_refs_column, charge_column, label_column, intensity_column, feature_id_column, protein_separator, labels, collapse_charge_states, summary_tsv_out, label_tsv_out, distribution_tsv_out, weak_tsv_out, out_path)
+    "Validate expected SILAC labels and weak labeling evidence."
+    return run_silac_validate_command(
+        input_tsv,
+        sample_id_column,
+        peptide_column,
+        protein_refs_column,
+        charge_column,
+        label_column,
+        intensity_column,
+        feature_id_column,
+        protein_separator,
+        labels,
+        collapse_charge_states,
+        summary_tsv_out,
+        label_tsv_out,
+        distribution_tsv_out,
+        weak_tsv_out,
+        out_path,
+    )
+
 
 @click.command("tmt-validate")
 @click.argument(
@@ -320,9 +417,7 @@ def silac_validate_command(
 @click.option("--channel-column", "channel_columns", multiple=True)
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--channel-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option(
-    "--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
-)
+@click.option("--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--weak-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
@@ -347,8 +442,25 @@ def tmt_validate_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate expected TMT channels and weak reporter evidence.'
-    return run_tmt_validate_command(input_tsv, design_path, source_kind, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, summary_tsv_out, channel_tsv_out, distribution_tsv_out, weak_tsv_out, out_path)
+    "Validate expected TMT channels and weak reporter evidence."
+    return run_tmt_validate_command(
+        input_tsv,
+        design_path,
+        source_kind,
+        row_id_column,
+        peptide_column,
+        protein_refs_column,
+        multiplex_group_column,
+        default_multiplex_group,
+        protein_separator,
+        channel_columns,
+        summary_tsv_out,
+        channel_tsv_out,
+        distribution_tsv_out,
+        weak_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     silac_quantify_command,

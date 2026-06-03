@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_spectrum_annotate_command(
     input_mgf: Path,
     peptide: str,
@@ -70,6 +71,7 @@ def run_spectrum_annotate_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_spectrum_score_chimeric_command(
     input_path: Path,
     psm_path: Path,
@@ -111,7 +113,9 @@ def run_spectrum_score_chimeric_command(
             render_chimeric_spectrum_competing_evidence_tsv(report),
         )
     payload = {
-        "spectrum_kind": kind if kind != "auto" else input_path.suffix.lower().lstrip("."),
+        "spectrum_kind": kind
+        if kind != "auto"
+        else input_path.suffix.lower().lstrip("."),
         "psm_summary": {
             "total_rows": psm_report.total_rows,
             "accepted_record_count": len(psm_report.accepted_records),
@@ -129,6 +133,7 @@ def run_spectrum_score_chimeric_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_raw_signal_evidence_card_command(
     xic_target_table: Path,
@@ -205,6 +210,7 @@ def run_raw_signal_evidence_card_command(
         out_path=out_path,
     )
 
+
 def run_precursor_isotope_fit_command(
     target_table: Path,
     input_mzml: tuple[Path, ...],
@@ -261,4 +267,10 @@ def run_precursor_isotope_fit_command(
         out_path=out_path,
     )
 
-__all__ = ['run_spectrum_annotate_command', 'run_spectrum_score_chimeric_command', 'run_raw_signal_evidence_card_command', 'run_precursor_isotope_fit_command']
+
+__all__ = [
+    "run_spectrum_annotate_command",
+    "run_spectrum_score_chimeric_command",
+    "run_raw_signal_evidence_card_command",
+    "run_precursor_isotope_fit_command",
+]

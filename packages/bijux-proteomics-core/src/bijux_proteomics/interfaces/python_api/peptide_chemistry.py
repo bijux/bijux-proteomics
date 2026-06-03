@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_peptide_index_command(
     input_fasta: Path,
     peptides: tuple[str, ...],
@@ -63,6 +64,7 @@ def run_peptide_index_command(
         },
         out_path=out_path,
     )
+
 
 def run_peptide_mass_command(
     sequence: str,
@@ -125,6 +127,7 @@ def run_peptide_mass_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_isotope_envelope_command(
     sequence: str,
     modifications: tuple[str, ...],
@@ -171,6 +174,7 @@ def run_isotope_envelope_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_fragment_ions_command(
     sequence: str,
     modifications: tuple[str, ...],
@@ -211,6 +215,7 @@ def run_fragment_ions_command(
     payload["tsv_out"] = str(tsv_out) if tsv_out else None
     _emit_json(payload, out_path=out_path)
 
+
 def run_peptide_properties_command(
     sequence: str,
     modifications: tuple[str, ...],
@@ -246,4 +251,11 @@ def run_peptide_properties_command(
     payload["custom_protease"] = custom_specification
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_peptide_index_command', 'run_peptide_mass_command', 'run_isotope_envelope_command', 'run_fragment_ions_command', 'run_peptide_properties_command']
+
+__all__ = [
+    "run_peptide_index_command",
+    "run_peptide_mass_command",
+    "run_isotope_envelope_command",
+    "run_fragment_ions_command",
+    "run_peptide_properties_command",
+]

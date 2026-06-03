@@ -16,7 +16,9 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import build_evidence_graph_final_result_table
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    build_evidence_graph_final_result_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -114,7 +116,11 @@ def compare_evidence_graph_runs(
     sorted_entries = tuple(
         sorted(
             entries,
-            key=lambda entry: (entry.category.value, entry.entity_ref, entry.change_kind.value),
+            key=lambda entry: (
+                entry.category.value,
+                entry.entity_ref,
+                entry.change_kind.value,
+            ),
         )
     )
     category_counts: dict[str, int] = {}
@@ -182,8 +188,12 @@ def _compare_claim_snapshots(
                     category=category,
                     change_kind=EvidenceGraphRunDiffKind.ADDED,
                     entity_ref=entity_ref,
-                    right_claim_state=right_snapshot.claim_state if right_snapshot else None,
-                    right_evidence_tier=right_snapshot.evidence_tier if right_snapshot else None,
+                    right_claim_state=right_snapshot.claim_state
+                    if right_snapshot
+                    else None,
+                    right_evidence_tier=right_snapshot.evidence_tier
+                    if right_snapshot
+                    else None,
                     right_confidence_tier=(
                         right_snapshot.confidence_tier if right_snapshot else None
                     ),
@@ -275,13 +285,18 @@ def _peptide_snapshots(graph: ProteomicsEvidenceGraph) -> dict[str, _ClaimSnapsh
     snapshots: dict[str, _ClaimSnapshot] = {}
     node_by_id = {node.node_id: node for node in graph.nodes}
     for edge in graph.edges:
-        if edge.relation is not ProteomicsEvidenceEdgeKind.PEPTIDE_SUPPORTS_STATISTICAL_RESULT:
+        if (
+            edge.relation
+            is not ProteomicsEvidenceEdgeKind.PEPTIDE_SUPPORTS_STATISTICAL_RESULT
+        ):
             continue
         peptide = node_by_id[edge.source_node_id]
         claim = node_by_id[edge.target_node_id]
         snapshots[peptide.entity_ref] = _ClaimSnapshot(
             claim_state=claim.claim_state,
-            confidence_tier=_confidence_tier(_average((edge.confidence, _trust_score(peptide.trust_class)))),
+            confidence_tier=_confidence_tier(
+                _average((edge.confidence, _trust_score(peptide.trust_class)))
+            ),
             source_row_refs=(edge.source_row_ref,),
         )
     return snapshots

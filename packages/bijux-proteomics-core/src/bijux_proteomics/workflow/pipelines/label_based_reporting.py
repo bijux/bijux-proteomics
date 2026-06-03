@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.isotope_labeling import (
@@ -61,6 +60,9 @@ from bijux_proteomics.multiplex import (
 )
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
     LabelBasedDifferentialAnalysisReport,
     LabelBasedDifferentialSourceKind,
@@ -70,7 +72,6 @@ from bijux_proteomics.workflow.pipelines.label_based_differential_analysis impor
     render_label_based_differential_volcano_plot_tsv,
     render_label_based_normalization_balance_plot_tsv,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -350,15 +351,23 @@ def _build_tmt_sample_qc_entries(
         after_distribution = after_distribution_by_key.get(key)
         weak_measurement_count = weak_counts_by_key.get(key, 0)
         abnormal_distribution_count = int(
-            before_distribution is not None and before_distribution.abnormal_distribution
+            before_distribution is not None
+            and before_distribution.abnormal_distribution
         ) + int(after_distribution is not None and after_distribution.flagged)
         notes: list[str] = []
         if not channel_entry.present:
             notes.append("expected multiplex channel is missing or empty")
-        if before_distribution is not None and before_distribution.abnormal_distribution:
-            notes.append("channel total intensity falls outside the study-wide same-channel envelope")
+        if (
+            before_distribution is not None
+            and before_distribution.abnormal_distribution
+        ):
+            notes.append(
+                "channel total intensity falls outside the study-wide same-channel envelope"
+            )
         if after_distribution is not None and after_distribution.flagged:
-            notes.append("normalized channel remains imbalanced within the multiplex group")
+            notes.append(
+                "normalized channel remains imbalanced within the multiplex group"
+            )
         if weak_measurement_count > 0:
             notes.append("weak channel evidence is present")
         rows.append(
@@ -407,12 +416,16 @@ def _build_silac_sample_qc_entries(
     design_by_sample = {entry.sample_id: entry for entry in design_entries}
     label_entries_by_sample: dict[str, list[SilacLabelValidationEntry]] = {}
     for label_entry in validation_report.label_entries:
-        label_entries_by_sample.setdefault(label_entry.sample_id, []).append(label_entry)
+        label_entries_by_sample.setdefault(label_entry.sample_id, []).append(
+            label_entry
+        )
     abnormal_distribution_count_by_sample: dict[str, int] = {}
     for distribution_entry in validation_report.distribution_entries:
         if distribution_entry.abnormal_distribution:
             abnormal_distribution_count_by_sample[distribution_entry.sample_id] = (
-                abnormal_distribution_count_by_sample.get(distribution_entry.sample_id, 0)
+                abnormal_distribution_count_by_sample.get(
+                    distribution_entry.sample_id, 0
+                )
                 + 1
             )
     weak_count_by_sample: dict[str, int] = {}
@@ -443,7 +456,9 @@ def _build_silac_sample_qc_entries(
         if missing_measurement_count > 0:
             notes.append("one or more expected silac label groups are missing")
         if abnormal_distribution_count > 0:
-            notes.append("label-intensity distribution falls outside the governed sample envelope")
+            notes.append(
+                "label-intensity distribution falls outside the governed sample envelope"
+            )
         if weak_measurement_count > 0:
             notes.append("weak label evidence is present")
         rows.append(
@@ -557,7 +572,9 @@ def render_label_based_sample_qc_tsv(report: LabelBasedReportBundle) -> str:
                 entry.multiplex_group or "",
                 entry.assay_axis,
                 entry.total_signal,
-                "" if entry.before_balance_ratio is None else entry.before_balance_ratio,
+                ""
+                if entry.before_balance_ratio is None
+                else entry.before_balance_ratio,
                 "" if entry.after_balance_ratio is None else entry.after_balance_ratio,
                 entry.missing_measurement_count,
                 entry.weak_measurement_count,
@@ -580,19 +597,34 @@ def write_label_based_report_bundle(
     sample_qc_name = "label_based_sample_qc.tsv"
     differential_results_name = "label_based_differential_results.tsv"
     differential_balance_name = "label_based_differential_balance.tsv"
-    write_output_table_tsv((output_dir / summary_name), render_label_based_report_summary_tsv(report))
-    write_output_table_tsv((output_dir / sample_qc_name), render_label_based_sample_qc_tsv(report))
-    write_output_table_tsv((output_dir / differential_results_name), render_label_based_differential_results_tsv(report.differential_analysis_report))
-    write_output_table_tsv((output_dir / differential_balance_name), render_label_based_normalization_balance_plot_tsv(
+    write_output_table_tsv(
+        (output_dir / summary_name), render_label_based_report_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / sample_qc_name), render_label_based_sample_qc_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / differential_results_name),
+        render_label_based_differential_results_tsv(
+            report.differential_analysis_report
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_balance_name),
+        render_label_based_normalization_balance_plot_tsv(
             report.differential_analysis_report.normalization_balance_plot
-        ))
+        ),
+    )
 
     differential_volcano_name = None
     if report.differential_analysis_report.volcano_plot is not None:
         differential_volcano_name = "label_based_differential_volcano.tsv"
-        write_output_table_tsv((output_dir / differential_volcano_name), render_label_based_differential_volcano_plot_tsv(
+        write_output_table_tsv(
+            (output_dir / differential_volcano_name),
+            render_label_based_differential_volcano_plot_tsv(
                 report.differential_analysis_report.volcano_plot
-            ))
+            ),
+        )
 
     tmt_channel_totals_name = None
     tmt_normalization_summary_name = None
@@ -605,26 +637,53 @@ def write_label_based_report_bundle(
     tmt_validation_weak_name = None
     if report.tmt_matrix_report is not None:
         tmt_channel_totals_name = "tmt_channel_totals.tsv"
-        write_output_table_tsv((output_dir / tmt_channel_totals_name), render_tmt_channel_totals_tsv(report.tmt_matrix_report))
+        write_output_table_tsv(
+            (output_dir / tmt_channel_totals_name),
+            render_tmt_channel_totals_tsv(report.tmt_matrix_report),
+        )
     if report.tmt_normalization_report is not None:
         tmt_normalization_summary_name = "tmt_normalization_summary.tsv"
         tmt_normalization_transform_name = "tmt_normalization_transforms.tsv"
         tmt_normalization_distribution_name = "tmt_normalization_distributions.tsv"
-        write_output_table_tsv((output_dir / tmt_normalization_summary_name), render_tmt_normalization_summary_tsv(report.tmt_normalization_report))
-        write_output_table_tsv((output_dir / tmt_normalization_transform_name), render_tmt_normalization_transform_tsv(report.tmt_normalization_report))
-        write_output_table_tsv((output_dir / tmt_normalization_distribution_name), render_tmt_channel_distribution_tsv(report.tmt_normalization_report))
+        write_output_table_tsv(
+            (output_dir / tmt_normalization_summary_name),
+            render_tmt_normalization_summary_tsv(report.tmt_normalization_report),
+        )
+        write_output_table_tsv(
+            (output_dir / tmt_normalization_transform_name),
+            render_tmt_normalization_transform_tsv(report.tmt_normalization_report),
+        )
+        write_output_table_tsv(
+            (output_dir / tmt_normalization_distribution_name),
+            render_tmt_channel_distribution_tsv(report.tmt_normalization_report),
+        )
     if report.tmt_ratio_report is not None:
         tmt_protein_ratio_name = "tmt_protein_ratios.tsv"
-        write_output_table_tsv((output_dir / tmt_protein_ratio_name), render_tmt_protein_ratio_tsv(report.tmt_ratio_report))
+        write_output_table_tsv(
+            (output_dir / tmt_protein_ratio_name),
+            render_tmt_protein_ratio_tsv(report.tmt_ratio_report),
+        )
     if report.tmt_validation_report is not None:
         tmt_validation_summary_name = "tmt_validation_summary.tsv"
         tmt_validation_channel_name = "tmt_validation_channels.tsv"
         tmt_validation_distribution_name = "tmt_validation_distributions.tsv"
         tmt_validation_weak_name = "tmt_validation_weak.tsv"
-        write_output_table_tsv((output_dir / tmt_validation_summary_name), render_tmt_validation_summary_tsv(report.tmt_validation_report))
-        write_output_table_tsv((output_dir / tmt_validation_channel_name), render_tmt_validation_channel_tsv(report.tmt_validation_report))
-        write_output_table_tsv((output_dir / tmt_validation_distribution_name), render_tmt_validation_distribution_tsv(report.tmt_validation_report))
-        write_output_table_tsv((output_dir / tmt_validation_weak_name), render_tmt_validation_weak_tsv(report.tmt_validation_report))
+        write_output_table_tsv(
+            (output_dir / tmt_validation_summary_name),
+            render_tmt_validation_summary_tsv(report.tmt_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / tmt_validation_channel_name),
+            render_tmt_validation_channel_tsv(report.tmt_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / tmt_validation_distribution_name),
+            render_tmt_validation_distribution_tsv(report.tmt_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / tmt_validation_weak_name),
+            render_tmt_validation_weak_tsv(report.tmt_validation_report),
+        )
 
     silac_ratio_summary_name = None
     silac_protein_ratio_name = None
@@ -635,17 +694,35 @@ def write_label_based_report_bundle(
     if report.silac_ratio_report is not None:
         silac_ratio_summary_name = "silac_ratio_summary.tsv"
         silac_protein_ratio_name = "silac_protein_ratios.tsv"
-        write_output_table_tsv((output_dir / silac_ratio_summary_name), render_silac_ratio_summary_tsv(report.silac_ratio_report))
-        write_output_table_tsv((output_dir / silac_protein_ratio_name), render_silac_protein_ratio_tsv(report.silac_ratio_report))
+        write_output_table_tsv(
+            (output_dir / silac_ratio_summary_name),
+            render_silac_ratio_summary_tsv(report.silac_ratio_report),
+        )
+        write_output_table_tsv(
+            (output_dir / silac_protein_ratio_name),
+            render_silac_protein_ratio_tsv(report.silac_ratio_report),
+        )
     if report.silac_validation_report is not None:
         silac_validation_summary_name = "silac_validation_summary.tsv"
         silac_validation_label_name = "silac_validation_labels.tsv"
         silac_validation_distribution_name = "silac_validation_distributions.tsv"
         silac_validation_weak_name = "silac_validation_weak.tsv"
-        write_output_table_tsv((output_dir / silac_validation_summary_name), render_silac_validation_summary_tsv(report.silac_validation_report))
-        write_output_table_tsv((output_dir / silac_validation_label_name), render_silac_validation_label_tsv(report.silac_validation_report))
-        write_output_table_tsv((output_dir / silac_validation_distribution_name), render_silac_validation_distribution_tsv(report.silac_validation_report))
-        write_output_table_tsv((output_dir / silac_validation_weak_name), render_silac_validation_weak_tsv(report.silac_validation_report))
+        write_output_table_tsv(
+            (output_dir / silac_validation_summary_name),
+            render_silac_validation_summary_tsv(report.silac_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / silac_validation_label_name),
+            render_silac_validation_label_tsv(report.silac_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / silac_validation_distribution_name),
+            render_silac_validation_distribution_tsv(report.silac_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / silac_validation_weak_name),
+            render_silac_validation_weak_tsv(report.silac_validation_report),
+        )
 
     synchronize_workflow_artifact_layout(
         output_dir,

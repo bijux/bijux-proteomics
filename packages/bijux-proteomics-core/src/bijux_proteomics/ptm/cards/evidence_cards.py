@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
-import re
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+import re
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.card_schema import (
     StandardCardEntry,
@@ -66,8 +65,8 @@ from bijux_proteomics.ptm.regulator_enrichment import (
 )
 from bijux_proteomics.ptm.site_annotation_import import PtmSiteAnnotationMappingReport
 from bijux_proteomics.ptm.site_quantification import (
-    PtmSiteQuantRow,
     PtmSiteQuantificationReport,
+    PtmSiteQuantRow,
 )
 from bijux_proteomics.quantification.contracts import MissingValueKind
 from bijux_proteomics.sequences import (
@@ -413,7 +412,8 @@ def build_ptm_evidence_card_report(
     ortholog_conservation_report: PtmOrthologConservationReport | None = None,
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     protein_sequences: dict[str, str] | None = None,
-    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...]
+    | None = None,
     policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmEvidenceCardReport:
     """Build one PTM evidence-card report over significant differential sites."""
@@ -436,7 +436,9 @@ def build_ptm_evidence_card_report(
         for entry in regulator_enrichment.entries:
             for site_key in entry.supporting_sites:
                 regulator_entries_by_site.setdefault(site_key, []).append(entry)
-    functional_context_by_site: dict[str, tuple[ProteinFunctionalRegionEvidence, ...]] = {}
+    functional_context_by_site: dict[
+        str, tuple[ProteinFunctionalRegionEvidence, ...]
+    ] = {}
     if protein_region_context_records:
         functional_context_report = build_protein_site_region_context_report(
             tuple(
@@ -652,7 +654,9 @@ def build_ptm_evidence_card_report(
                 1 for entry in stable_cards if entry.crosstalk_partners
             ),
             mechanism_classified_card_count=sum(
-                1 for entry in stable_cards if entry.mechanism_classification is not None
+                1
+                for entry in stable_cards
+                if entry.mechanism_classification is not None
             ),
             ortholog_context_card_count=sum(
                 1 for entry in stable_cards if entry.ortholog_conservation is not None
@@ -780,7 +784,9 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                 entry.identity_reason,
                 entry.differential_result.condition_a,
                 entry.differential_result.condition_b,
-                "" if entry.differential_result.adjusted_p_value is None else entry.differential_result.adjusted_p_value,
+                ""
+                if entry.differential_result.adjusted_p_value is None
+                else entry.differential_result.adjusted_p_value,
                 entry.differential_result.log2_fold_change,
                 (
                     ""
@@ -803,7 +809,9 @@ def render_ptm_evidence_card_tsv(report: PtmEvidenceCardReport) -> str:
                     )
                 ),
                 len(entry.peptide_evidence),
-                0 if entry.quantification is None else entry.quantification.observed_sample_count,
+                0
+                if entry.quantification is None
+                else entry.quantification.observed_sample_count,
                 ";".join(entry.motif_evidence.centered_windows),
                 (
                     ""
@@ -1118,10 +1126,7 @@ def _build_identity_entries_by_site(
         protein_records=() if protein_records is None else protein_records,
         protein_sequences=protein_sequences,
     )
-    return {
-        entry.evidence_key: entry
-        for entry in report.entries
-    }
+    return {entry.evidence_key: entry for entry in report.entries}
 
 
 def _build_crosstalk_partners_by_site(
@@ -1168,9 +1173,7 @@ def _build_crosstalk_partners_by_site(
             )
         )
     return {
-        site_key: tuple(
-            sorted(partners, key=lambda partner: partner.partner_site_key)
-        )
+        site_key: tuple(sorted(partners, key=lambda partner: partner.partner_site_key))
         for site_key, partners in partners_by_site.items()
     }
 

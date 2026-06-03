@@ -230,7 +230,11 @@ def _length_score(length: int) -> float:
 
 
 def _mass_score(monoisotopic_mass: float) -> float:
-    if _TOP_TIER_MIN_MONOISOTOPIC_MASS <= monoisotopic_mass <= _TOP_TIER_MAX_MONOISOTOPIC_MASS:
+    if (
+        _TOP_TIER_MIN_MONOISOTOPIC_MASS
+        <= monoisotopic_mass
+        <= _TOP_TIER_MAX_MONOISOTOPIC_MASS
+    ):
         return 1.0
     if 550.0 <= monoisotopic_mass < _TOP_TIER_MIN_MONOISOTOPIC_MASS:
         return 0.45

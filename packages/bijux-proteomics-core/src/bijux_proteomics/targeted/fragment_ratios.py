@@ -49,9 +49,13 @@ def score_fragment_ratio_drift(
     if observed_ratio_cv_threshold <= 0.0:
         raise ValueError("observed_ratio_cv_threshold must be greater than zero")
 
-    grouped_by_sample: dict[tuple[str, str], list[TargetedFragmentRatioMatrixEntry]] = {}
+    grouped_by_sample: dict[
+        tuple[str, str], list[TargetedFragmentRatioMatrixEntry]
+    ] = {}
     for entry in transition_matrix:
-        grouped_by_sample.setdefault((entry.target_id, entry.sample_id), []).append(entry)
+        grouped_by_sample.setdefault((entry.target_id, entry.sample_id), []).append(
+            entry
+        )
 
     ratios_by_transition: dict[tuple[str, str], list[float]] = {}
     for (target_id, _sample_id), sample_entries in sorted(grouped_by_sample.items()):
@@ -59,12 +63,14 @@ def score_fragment_ratio_drift(
         if total_intensity <= 0.0:
             continue
         for entry in sample_entries:
-            ratios_by_transition.setdefault((target_id, entry.transition_id), []).append(
-                entry.intensity / total_intensity
-            )
+            ratios_by_transition.setdefault(
+                (target_id, entry.transition_id), []
+            ).append(entry.intensity / total_intensity)
 
     rows: list[TargetedFragmentRatioDriftEntry] = []
-    for (target_id, transition_id), observed_ratios in sorted(ratios_by_transition.items()):
+    for (target_id, transition_id), observed_ratios in sorted(
+        ratios_by_transition.items()
+    ):
         expected_ratio = median(observed_ratios)
         observed_ratio_cv = _coefficient_of_variation(observed_ratios)
         drift_flag = bool(

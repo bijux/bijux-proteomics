@@ -5,15 +5,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
-import csv
 from collections.abc import Sequence
+import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics_foundation import JsonModel
 
@@ -95,7 +94,9 @@ class PtmSiteAnnotationImportReport(JsonModel):
 
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[PtmSiteAnnotationRecord, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedPtmSiteAnnotationRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedPtmSiteAnnotationRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: PtmSiteAnnotationColumnMapping
     summary: PtmSiteAnnotationImportSummary
     note: str = Field(..., min_length=1)
@@ -239,13 +240,19 @@ def parse_ptm_site_annotation_tsv(
             protein_ref = raw_fields.get(active_mapping.protein_ref, "").strip()
             residue = raw_fields.get(active_mapping.residue, "").strip()
             position_token = raw_fields.get(active_mapping.position, "").strip()
-            modification_name = raw_fields.get(active_mapping.modification_name, "").strip()
+            modification_name = raw_fields.get(
+                active_mapping.modification_name, ""
+            ).strip()
 
             if not species:
-                issues.append(_row_issue("missing_species", "missing species", row_number))
+                issues.append(
+                    _row_issue("missing_species", "missing species", row_number)
+                )
             if not protein_ref:
                 issues.append(
-                    _row_issue("missing_protein_ref", "missing protein reference", row_number)
+                    _row_issue(
+                        "missing_protein_ref", "missing protein reference", row_number
+                    )
                 )
             if len(residue) != 1:
                 issues.append(
@@ -296,7 +303,9 @@ def parse_ptm_site_annotation_tsv(
                         residue=residue,
                         position=position,
                         modification_name=modification_name,
-                        site_function=_row_value(raw_fields, active_mapping.site_function),
+                        site_function=_row_value(
+                            raw_fields, active_mapping.site_function
+                        ),
                         kinases=_split_multi_value(
                             _row_value(raw_fields, active_mapping.kinases),
                             separator=kinase_separator,
@@ -681,7 +690,9 @@ def export_ptm_site_annotation_biology_tsv(
 ) -> None:
     """Write one PTM site-annotation biology category to a stable TSV artifact."""
 
-    write_output_table_tsv(path, render_ptm_site_annotation_biology_tsv(summary, category=category))
+    write_output_table_tsv(
+        path, render_ptm_site_annotation_biology_tsv(summary, category=category)
+    )
 
 
 def _validate_required_columns(
@@ -723,9 +734,7 @@ def _split_multi_value(value: str | None, *, separator: str) -> tuple[str, ...]:
     if value is None:
         return ()
     return tuple(
-        token
-        for token in (part.strip() for part in value.split(separator))
-        if token
+        token for token in (part.strip() for part in value.split(separator)) if token
     )
 
 
@@ -746,10 +755,7 @@ def _summarize_annotation_terms(
         value = getattr(entry, field_name)
         if value is None:
             continue
-        if isinstance(value, tuple):
-            terms = value
-        else:
-            terms = (value,)
+        terms = value if isinstance(value, tuple) else (value,)
         for term in terms:
             grouped.setdefault(term, set()).add(entry.site_key)
     return tuple(

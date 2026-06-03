@@ -37,18 +37,9 @@ from bijux_proteomics.domain.criteria import (
 from bijux_proteomics.domain.errors import (
     DesignError,
     InvalidWorkflowError,
-    ScientificEvidenceError,
     SchemaError,
+    ScientificEvidenceError,
     UnsupportedFormatError,
-)
-from bijux_proteomics.domain.reason_codes import (
-    ReasonCodeCategory,
-    ReasonCodeEntry,
-    is_registered_reason_code,
-    reason_code_categories,
-    reason_code_registry,
-    require_registered_reason_code,
-    require_registered_reason_codes,
 )
 from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.domain.lifecycle import (
@@ -72,6 +63,35 @@ from bijux_proteomics.domain.program_spec import (
     program_summary,
     revise_program,
 )
+from bijux_proteomics.domain.reason_codes import (
+    ReasonCodeCategory,
+    ReasonCodeEntry,
+    is_registered_reason_code,
+    reason_code_categories,
+    reason_code_registry,
+    require_registered_reason_code,
+    require_registered_reason_codes,
+)
+from bijux_proteomics.domain.records import (
+    Contrast,
+    ContrastKind,
+    ImportedEvidenceProvenance,
+    MissingValueState,
+    ModifiedPeptide,
+    PeptideRecord,
+    ProteinGroup,
+    ProteinRecord,
+    PSMRecord,
+    PTMSite,
+    QuantEntityKind,
+    QuantMatrix,
+    QuantMeasureKind,
+    RejectedEvidence,
+    SampleMetadata,
+    SpectrumRecord,
+    TargetDecoyState,
+    TransitionRecord,
+)
 from bijux_proteomics.domain.repositories import (
     DecisionQuery,
     DuplicateReviewDecisionError,
@@ -92,6 +112,29 @@ from bijux_proteomics.domain.repositories import (
     validate_review_decision,
 )
 from bijux_proteomics.domain.reviews import ReviewGate
+from bijux_proteomics.domain.semantic_ids import (
+    SemanticIdNamespace,
+    build_artifact_id,
+    build_cross_study_card_id,
+    build_matrix_id,
+    build_mechanism_card_id,
+    build_pathway_card_id,
+    build_pathway_claim_id,
+    build_peptide_id,
+    build_protein_card_id,
+    build_protein_claim_id,
+    build_protein_id,
+    build_protein_mechanism_card_id,
+    build_psm_id,
+    build_ptm_card_id,
+    build_ptm_claim_id,
+    build_raw_signal_card_id,
+    build_regulator_claim_id,
+    build_sample_card_id,
+    build_site_id,
+    classify_semantic_id,
+    ensure_semantic_id_namespace,
+)
 from bijux_proteomics.domain.sequence import (
     HYDROPATHY,
     PKA_C_TERM,
@@ -99,6 +142,7 @@ from bijux_proteomics.domain.sequence import (
     PKA_SIDE,
     primary_summary_from_sequence,
 )
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.structure import (
     _res3_to1,
     best_ca,
@@ -120,30 +164,6 @@ from bijux_proteomics.domain.summary import (
     SecondarySummary,
     TertiarySummary,
 )
-from bijux_proteomics.domain.semantic_ids import (
-    SemanticIdNamespace,
-    build_artifact_id,
-    build_cross_study_card_id,
-    build_mechanism_card_id,
-    build_pathway_card_id,
-    build_matrix_id,
-    build_pathway_claim_id,
-    build_peptide_id,
-    build_protein_card_id,
-    build_protein_claim_id,
-    build_protein_id,
-    build_protein_mechanism_card_id,
-    build_psm_id,
-    build_ptm_card_id,
-    build_ptm_claim_id,
-    build_raw_signal_card_id,
-    build_regulator_claim_id,
-    build_sample_card_id,
-    build_site_id,
-    classify_semantic_id,
-    ensure_semantic_id_namespace,
-)
-from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.targets import (
     ComplexMembership,
     MechanismLiability,
@@ -157,26 +177,6 @@ from bijux_proteomics.domain.targets import (
     TractabilityFlag,
     summarize_tractability,
     target_summary,
-)
-from bijux_proteomics.domain.records import (
-    Contrast,
-    ContrastKind,
-    ImportedEvidenceProvenance,
-    MissingValueState,
-    ModifiedPeptide,
-    PSMRecord,
-    PTMSite,
-    PeptideRecord,
-    ProteinGroup,
-    ProteinRecord,
-    QuantEntityKind,
-    QuantMatrix,
-    QuantMeasureKind,
-    RejectedEvidence,
-    SampleMetadata,
-    SpectrumRecord,
-    TargetDecoyState,
-    TransitionRecord,
 )
 from bijux_proteomics.domain.validation import validate_program
 

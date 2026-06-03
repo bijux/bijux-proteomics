@@ -20,12 +20,12 @@ from bijux_proteomics.sequences import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.targeted import (
-    DiscoveryTargetProteinEntry,
     DiscoveryTargetedPeptideSelectionEntry,
     DiscoveryTargetedPeptideSelectionReport,
+    DiscoveryTargetProteinEntry,
     TargetedAssayInterferenceReport,
-    TargetedPanelAssayInput,
     TargetedPanelAssayEntry,
+    TargetedPanelAssayInput,
     TargetedPanelBiomarkerCandidateInput,
     TargetedPanelCandidateKind,
     TargetedPanelDesignReport,
@@ -45,17 +45,16 @@ from bijux_proteomics.targeted import (
     build_validation_evidence_card_report,
     render_discovery_targeted_peptide_selection_rejected_tsv,
     render_discovery_targeted_peptide_selection_selected_tsv,
-    render_validation_evidence_card_assay_tsv,
-    render_validation_evidence_card_summary_tsv,
-    render_validation_evidence_card_tsv,
-    render_validation_evidence_card_warning_tsv,
     render_targeted_panel_design_assay_tsv,
     render_targeted_panel_design_omitted_candidate_tsv,
     render_targeted_panel_design_panel_tsv,
     render_targeted_transition_selection_rejected_tsv,
     render_targeted_transition_selection_selected_tsv,
+    render_validation_evidence_card_assay_tsv,
+    render_validation_evidence_card_summary_tsv,
+    render_validation_evidence_card_tsv,
+    render_validation_evidence_card_warning_tsv,
 )
-from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics.workflow.result_types import (
     RejectedEvidenceEntry,
     ResultWarningEntry,
@@ -64,6 +63,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class DiscoveryAssaySourceResult(JsonModel):
@@ -316,7 +316,8 @@ def design_assay_from_discovery(
         blocked_target_count=sum(
             1
             for entry in target_entries
-            if entry.assay_feasibility is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
+            if entry.assay_feasibility
+            is not DiscoveryAssayFeasibilityStatus.ASSAY_READY
         ),
         retained_assay_count=len(panel_design_report.assay_entries),
         panel_transition_count=len(panel_design_report.panel_entries),
@@ -360,7 +361,9 @@ def render_discovery_to_assay_summary_tsv(report: DiscoveryToAssayReport) -> str
             report.summary.target_with_acceptable_peptide_count,
         )
     )
-    writer.writerow(("assay_ready_target_count", report.summary.assay_ready_target_count))
+    writer.writerow(
+        ("assay_ready_target_count", report.summary.assay_ready_target_count)
+    )
     writer.writerow(("blocked_target_count", report.summary.blocked_target_count))
     writer.writerow(("retained_assay_count", report.summary.retained_assay_count))
     writer.writerow(("panel_transition_count", report.summary.panel_transition_count))
@@ -412,7 +415,9 @@ def render_discovery_to_assay_targets_tsv(report: DiscoveryToAssayReport) -> str
                 entry.retained_assay_count,
                 entry.panel_transition_count,
                 str(entry.expected_retention_time_available).lower(),
-                "" if entry.best_peptide_sequence is None else entry.best_peptide_sequence,
+                ""
+                if entry.best_peptide_sequence is None
+                else entry.best_peptide_sequence,
                 ""
                 if entry.best_uniqueness_class is None
                 else entry.best_uniqueness_class.value,
@@ -491,7 +496,9 @@ def render_discovery_to_assay_panel_tsv(report: DiscoveryToAssayReport) -> str:
     return cast(str, render_targeted_panel_design_panel_tsv(report.panel_design_report))
 
 
-def render_discovery_to_assay_omitted_targets_tsv(report: DiscoveryToAssayReport) -> str:
+def render_discovery_to_assay_omitted_targets_tsv(
+    report: DiscoveryToAssayReport,
+) -> str:
     """Render omitted-target rows from the composed workflow report."""
 
     return cast(
@@ -826,7 +833,9 @@ def _build_target_entries(
     selected_by_protein: dict[str, list[DiscoveryTargetedPeptideSelectionEntry]] = {}
     for entry in peptide_selection_report.selected_entries:
         selected_by_protein.setdefault(entry.target_protein_ref, []).append(entry)
-    transitions_by_protein: dict[str, list[TargetedTransitionSelectionPeptideEntry]] = {}
+    transitions_by_protein: dict[
+        str, list[TargetedTransitionSelectionPeptideEntry]
+    ] = {}
     for entry in transition_selection_report.peptide_entries:
         transitions_by_protein.setdefault(entry.target_protein_ref, []).append(entry)
     assays_by_candidate: dict[str, list[TargetedPanelAssayEntry]] = {}
@@ -880,7 +889,9 @@ def _build_target_entries(
                 priority_rank=target.priority_rank,
                 acceptable_peptide_count=len(selected_peptides),
                 transition_supported_peptide_count=sum(
-                    1 for entry in transition_entries if entry.sufficient_transition_support
+                    1
+                    for entry in transition_entries
+                    if entry.sufficient_transition_support
                 ),
                 retained_assay_count=len(retained_assays),
                 panel_transition_count=len(panel_entries),

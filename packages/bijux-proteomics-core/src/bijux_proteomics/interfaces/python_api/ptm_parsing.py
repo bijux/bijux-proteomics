@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_ptm_parse_peptide_command(
     modified_peptide: str,
@@ -30,6 +30,7 @@ def run_ptm_parse_peptide_command(
         raise click.ClickException(str(exc)) from exc
 
     _emit_json(record.to_dict(), out_path=out_path)
+
 
 def run_ptm_parse_peptides_command(
     peptide_tsv: Path,
@@ -65,9 +66,12 @@ def run_ptm_parse_peptides_command(
     if site_tsv_out is not None:
         write_output_table_tsv(site_tsv_out, render_ptm_peptide_site_tsv(report))
     if rejected_tsv_out is not None:
-        write_output_table_tsv(rejected_tsv_out, render_ptm_peptide_rejected_tsv(report))
+        write_output_table_tsv(
+            rejected_tsv_out, render_ptm_peptide_rejected_tsv(report)
+        )
 
     _emit_json(report.to_dict(), out_path=out_path)
+
 
 def run_ptm_map_sites_command(
     evidence_tsv: Path,
@@ -134,9 +138,7 @@ def run_ptm_map_sites_command(
         )
         mappings = mapping_report.mappings
         site_table = build_ptm_site_table(mappings)
-        localization = build_ptm_localization_scoring_report(
-            evidence.accepted_records
-        )
+        localization = build_ptm_localization_scoring_report(evidence.accepted_records)
         ambiguity_review = build_ptm_ambiguity_review_report(
             site_table,
             localization_scoring_report=localization,
@@ -151,23 +153,42 @@ def run_ptm_map_sites_command(
         raise click.ClickException(str(exc)) from exc
 
     if mapping_tsv_out is not None:
-        write_output_table_tsv(mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mappings))
+        write_output_table_tsv(
+            mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mappings)
+        )
     if exact_mapping_tsv_out is not None:
-        write_output_table_tsv(exact_mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mapping_report.exact_mappings))
+        write_output_table_tsv(
+            exact_mapping_tsv_out,
+            render_ptm_protein_site_mapping_tsv(mapping_report.exact_mappings),
+        )
     if ambiguous_mapping_tsv_out is not None:
-        write_output_table_tsv(ambiguous_mapping_tsv_out, render_ptm_protein_site_mapping_tsv(mapping_report.ambiguous_mappings))
+        write_output_table_tsv(
+            ambiguous_mapping_tsv_out,
+            render_ptm_protein_site_mapping_tsv(mapping_report.ambiguous_mappings),
+        )
     if unmapped_tsv_out is not None:
-        write_output_table_tsv(unmapped_tsv_out, render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides))
+        write_output_table_tsv(
+            unmapped_tsv_out,
+            render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides),
+        )
     if candidate_tsv_out is not None:
-        write_output_table_tsv(candidate_tsv_out, render_ptm_evidence_site_candidate_tsv(evidence))
+        write_output_table_tsv(
+            candidate_tsv_out, render_ptm_evidence_site_candidate_tsv(evidence)
+        )
     if site_table_tsv_out is not None:
-        write_output_table_tsv(site_table_tsv_out, render_ptm_site_table_tsv(site_table))
+        write_output_table_tsv(
+            site_table_tsv_out, render_ptm_site_table_tsv(site_table)
+        )
     if ambiguity_tsv_out is not None:
-        write_output_table_tsv(ambiguity_tsv_out, render_ptm_unlocalized_group_review_tsv(ambiguity_review))
+        write_output_table_tsv(
+            ambiguity_tsv_out, render_ptm_unlocalized_group_review_tsv(ambiguity_review)
+        )
     if coverage_tsv_out is not None:
         write_output_table_tsv(coverage_tsv_out, render_ptm_site_coverage_tsv(coverage))
     if validation_tsv_out is not None:
-        write_output_table_tsv(validation_tsv_out, render_ptm_coordinate_validation_tsv(validation))
+        write_output_table_tsv(
+            validation_tsv_out, render_ptm_coordinate_validation_tsv(validation)
+        )
 
     _emit_json(
         {
@@ -187,6 +208,7 @@ def run_ptm_map_sites_command(
         },
         out_path=out_path,
     )
+
 
 def run_ptm_score_localization_command(
     evidence_tsv: Path,
@@ -215,7 +237,9 @@ def run_ptm_score_localization_command(
                 fragment_support_json.read_text(encoding="utf-8")
             )
             if not isinstance(raw_fragment_support, dict):
-                raise ValueError("fragment support JSON must be an object keyed by spectrum id")
+                raise ValueError(
+                    "fragment support JSON must be an object keyed by spectrum id"
+                )
             fragment_ion_support_by_spectrum = {
                 str(spectrum_id): tuple(str(ion) for ion in ions)
                 for spectrum_id, ions in raw_fragment_support.items()
@@ -246,9 +270,13 @@ def run_ptm_score_localization_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ptm_localization_scoring_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_ptm_localization_scoring_summary_tsv(report)
+        )
     if entry_tsv_out is not None:
-        write_output_table_tsv(entry_tsv_out, render_ptm_localization_scoring_entry_tsv(report))
+        write_output_table_tsv(
+            entry_tsv_out, render_ptm_localization_scoring_entry_tsv(report)
+        )
 
     _emit_json(
         {
@@ -259,4 +287,10 @@ def run_ptm_score_localization_command(
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_parse_peptide_command', 'run_ptm_parse_peptides_command', 'run_ptm_map_sites_command', 'run_ptm_score_localization_command']
+
+__all__ = [
+    "run_ptm_parse_peptide_command",
+    "run_ptm_parse_peptides_command",
+    "run_ptm_map_sites_command",
+    "run_ptm_score_localization_command",
+]

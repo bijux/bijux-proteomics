@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from html import escape
@@ -17,6 +14,15 @@ from typing import TypeAlias
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+    PublicBenchmarkRunReport,
+    PublicBenchmarkSuiteReport,
+    render_public_benchmark_suite_failures_tsv,
+    render_public_benchmark_suite_summary_tsv,
+    run_public_benchmark_descriptor,
+)
 from bijux_proteomics.workflow.pipelines.weak_evidence import (
     WeakEvidenceBenchmarkDescriptor,
     WeakEvidenceBenchmarkReport,
@@ -30,15 +36,7 @@ from bijux_proteomics.workflow.public_benchmark_descriptors import (
     load_public_benchmark_descriptor,
     public_benchmark_root,
 )
-from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
-    PublicBenchmarkRunReport,
-    PublicBenchmarkSuiteReport,
-    render_public_benchmark_suite_failures_tsv,
-    render_public_benchmark_suite_summary_tsv,
-    run_public_benchmark_descriptor,
-)
 from bijux_proteomics_foundation import JsonModel
-
 
 TrustBundleDescriptorInput: TypeAlias = Path | WeakEvidenceBenchmarkDescriptor
 
@@ -107,8 +105,12 @@ class TrustBundleReport(JsonModel):
     rejected_evidence_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
         default_factory=tuple
     )
-    qc_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(default_factory=tuple)
-    card_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(default_factory=tuple)
+    qc_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
+        default_factory=tuple
+    )
+    card_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
+        default_factory=tuple
+    )
     comparison_artifacts: tuple[TrustBundleArtifactReference, ...] = Field(
         default_factory=tuple
     )
@@ -121,9 +123,13 @@ def build_flagship_trust_bundle_descriptors(
 ) -> tuple[TrustBundleDescriptorInput, ...]:
     """Build the shipped trust-bundle descriptor set."""
 
-    public_descriptor_paths = list_public_benchmark_descriptor_paths(public_benchmark_root())
+    public_descriptor_paths = list_public_benchmark_descriptor_paths(
+        public_benchmark_root()
+    )
     weak_evidence_descriptor = build_flagship_weak_evidence_benchmark_descriptor(
-        output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS / "flagship_weak_evidence_benchmark"
+        output_dir
+        / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS
+        / "flagship_weak_evidence_benchmark"
     )
     return (*public_descriptor_paths, weak_evidence_descriptor)
 
@@ -153,8 +159,10 @@ def build_trust_bundle(
     ):
         path.mkdir(parents=True, exist_ok=True)
 
-    public_descriptor_paths, weak_evidence_descriptors = _split_trust_bundle_descriptors(
-        descriptors,
+    public_descriptor_paths, weak_evidence_descriptors = (
+        _split_trust_bundle_descriptors(
+            descriptors,
+        )
     )
     suite = _run_public_descriptor_suite(
         public_descriptor_paths,
@@ -257,23 +265,21 @@ def build_trust_bundle(
         weak_evidence_reports=weak_evidence_reports,
         descriptor_count=len(descriptors),
         handwritten_result_table_count=handwritten_result_table_count,
-        runs=tuple(
-            [
-                *(
-                    _summarize_public_run(
-                        run,
-                        workflow_artifacts=workflow_artifacts,
-                    )
-                    for run in suite.runs
-                ),
-                *(
-                    _summarize_weak_evidence_run(
-                        report,
-                        workflow_artifacts=workflow_artifacts,
-                    )
-                    for report in weak_evidence_reports
-                ),
-            ]
+        runs=(
+            *(
+                _summarize_public_run(
+                    run,
+                    workflow_artifacts=workflow_artifacts,
+                )
+                for run in suite.runs
+            ),
+            *(
+                _summarize_weak_evidence_run(
+                    report,
+                    workflow_artifacts=workflow_artifacts,
+                )
+                for report in weak_evidence_reports
+            ),
         ),
         benchmark_artifacts=benchmark_artifacts,
         evidence_graph_artifacts=evidence_graph_artifacts,
@@ -308,7 +314,9 @@ def build_public_benchmark_trust_bundle(
 
     public_descriptor_paths = list_public_benchmark_descriptor_paths(benchmark_root)
     weak_evidence_descriptor = build_flagship_weak_evidence_benchmark_descriptor(
-        output_dir / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS / "flagship_weak_evidence_benchmark"
+        output_dir
+        / TrustBundleArtifactCategory.WORKFLOW_OUTPUTS
+        / "flagship_weak_evidence_benchmark"
     )
     return build_trust_bundle(
         (*public_descriptor_paths, weak_evidence_descriptor),
@@ -353,8 +361,12 @@ def _write_benchmark_result_artifacts(
     run_root = benchmark_result_root / "runs"
     run_root.mkdir(parents=True, exist_ok=True)
 
-    write_output_table_tsv(summary_path, render_public_benchmark_suite_summary_tsv(suite))
-    write_output_table_tsv(failures_path, render_public_benchmark_suite_failures_tsv(suite))
+    write_output_table_tsv(
+        summary_path, render_public_benchmark_suite_summary_tsv(suite)
+    )
+    write_output_table_tsv(
+        failures_path, render_public_benchmark_suite_failures_tsv(suite)
+    )
     write_output_table_tsv(source_audit_path, _render_source_audits_tsv(suite))
     write_output_table_tsv(verified_count_path, _render_verified_counts_tsv(suite))
     atomic_write_text(suite_json_path, suite.to_stable_json() + "\n")
@@ -401,7 +413,7 @@ def _write_benchmark_result_artifacts(
                 relative_path=str(run_json_path.relative_to(output_dir)),
                 note="machine-readable benchmark run report",
             )
-    )
+        )
     return tuple(references)
 
 
@@ -420,8 +432,12 @@ def _write_weak_evidence_result_artifacts(
         summary_path = benchmark_dir / "summary.tsv"
         criteria_path = benchmark_dir / "criteria.tsv"
         report_path = benchmark_dir / "report.json"
-        write_output_table_tsv(summary_path, render_weak_evidence_benchmark_summary_tsv(report))
-        write_output_table_tsv(criteria_path, render_weak_evidence_benchmark_criteria_tsv(report))
+        write_output_table_tsv(
+            summary_path, render_weak_evidence_benchmark_summary_tsv(report)
+        )
+        write_output_table_tsv(
+            criteria_path, render_weak_evidence_benchmark_criteria_tsv(report)
+        )
         atomic_write_text(report_path, report.to_stable_json() + "\n")
         references.extend(
             (
@@ -510,20 +526,22 @@ def _write_comparison_artifacts(
     output_dir: Path,
 ) -> tuple[TrustBundleArtifactReference, ...]:
     comparison_index_path = comparison_root / "index.tsv"
-    references = list(
+    references = [
         artifact
         for artifact in benchmark_artifacts
         if artifact.relative_path.endswith("summary.tsv")
         or artifact.relative_path.endswith("failures.tsv")
         or artifact.relative_path.endswith("source_audits.tsv")
         or artifact.relative_path.endswith("verified_counts.tsv")
-    )
+    ]
     references.extend(
         artifact
         for artifact in workflow_artifacts
         if artifact.category is TrustBundleArtifactCategory.COMPARISON_TABLES
     )
-    _write_category_index(comparison_index_path, tuple(references), output_dir=output_dir)
+    _write_category_index(
+        comparison_index_path, tuple(references), output_dir=output_dir
+    )
     references.append(
         TrustBundleArtifactReference(
             dataset_id="suite",
@@ -580,7 +598,9 @@ def _classify_workflow_artifact(filename: str) -> TrustBundleArtifactCategory | 
         return TrustBundleArtifactCategory.EVIDENCE_GRAPHS
     if "card" in name:
         return TrustBundleArtifactCategory.CARDS
-    if any(token in name for token in ("comparison", "correlation", "overlap", "conflict")):
+    if any(
+        token in name for token in ("comparison", "correlation", "overlap", "conflict")
+    ):
         return TrustBundleArtifactCategory.COMPARISON_TABLES
     if "qc" in name or "quality" in name:
         return TrustBundleArtifactCategory.QC_FAILURES
@@ -593,7 +613,9 @@ def _summarize_public_run(
     workflow_artifacts: tuple[TrustBundleArtifactReference, ...],
 ) -> TrustBundleRunSummary:
     run_artifacts = tuple(
-        artifact for artifact in workflow_artifacts if artifact.dataset_id == run.dataset_id
+        artifact
+        for artifact in workflow_artifacts
+        if artifact.dataset_id == run.dataset_id
     )
     return TrustBundleRunSummary(
         dataset_id=run.dataset_id,
@@ -725,7 +747,8 @@ def _descriptor_source_basenames(
         if isinstance(descriptor, Path):
             public_descriptor = load_public_benchmark_descriptor(descriptor)
             basenames.update(
-                Path(source.repo_relative_path).name for source in public_descriptor.source_files
+                Path(source.repo_relative_path).name
+                for source in public_descriptor.source_files
             )
             continue
         for path in (
@@ -779,7 +802,7 @@ def _render_html_index(report: TrustBundleReport, *, output_dir: Path) -> str:
             f"<td>{escape(run.accession)}</td>"
             f"<td>{escape(run.status)}</td>"
             f"<td>{run.failure_count}</td>"
-            f"<td><a href=\"{escape(Path(run.workflow_output_dir).relative_to(output_dir).as_posix())}/\">workflow outputs</a></td>"
+            f'<td><a href="{escape(Path(run.workflow_output_dir).relative_to(output_dir).as_posix())}/">workflow outputs</a></td>'
             "</tr>"
         )
         for run in report.runs
@@ -797,9 +820,9 @@ def _render_html_index(report: TrustBundleReport, *, output_dir: Path) -> str:
     )
     return (
         "<!DOCTYPE html>\n"
-        "<html lang=\"en\">\n"
+        '<html lang="en">\n'
         "<head>\n"
-        "  <meta charset=\"utf-8\" />\n"
+        '  <meta charset="utf-8" />\n'
         "  <title>Bijux Proteomics Trust Bundle</title>\n"
         "  <style>"
         "body{font-family:ui-sans-serif,system-ui,sans-serif;margin:2rem;line-height:1.5;}"
@@ -835,7 +858,7 @@ def _render_html_artifact_section(
         (
             "<tr>"
             f"<td>{escape(artifact.dataset_id)}</td>"
-            f"<td><a href=\"{escape(artifact.relative_path)}\">{escape(artifact.relative_path)}</a></td>"
+            f'<td><a href="{escape(artifact.relative_path)}">{escape(artifact.relative_path)}</a></td>'
             f"<td>{escape(artifact.note)}</td>"
             "</tr>"
         )

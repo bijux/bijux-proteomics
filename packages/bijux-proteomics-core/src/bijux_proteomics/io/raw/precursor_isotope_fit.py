@@ -19,6 +19,11 @@ from bijux_proteomics.io.chromatography.chromatographic_peak_picking import (
     ChromatographicPeak,
     ChromatographicPeakPickingReport,
 )
+from bijux_proteomics.io.chromatography.xic import (
+    XicToleranceUnit,
+    XicTracePoint,
+    XicTraceReport,
+)
 from bijux_proteomics.io.raw.chromatographic_peak_picking import (
     extract_mzml_chromatographic_peaks,
 )
@@ -29,11 +34,6 @@ from bijux_proteomics.io.tables.xic_target_table import (
     XicTargetEntry,
     XicTargetParseReport,
     coerce_xic_target_report,
-)
-from bijux_proteomics.io.chromatography.xic import (
-    XicTracePoint,
-    XicTraceReport,
-    XicToleranceUnit,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -231,7 +231,9 @@ def build_precursor_isotope_fit_report(
                 if "inconsistent_charge_spacing" in entry.concern_codes
             ),
             weak_pattern_entry_count=sum(
-                1 for entry in sorted_entries if "weak_isotope_pattern" in entry.concern_codes
+                1
+                for entry in sorted_entries
+                if "weak_isotope_pattern" in entry.concern_codes
             ),
         ),
         note=(
@@ -406,9 +408,7 @@ def render_precursor_isotope_fit_peaks_tsv(report: PrecursorIsotopeFitReport) ->
                     if peak.observed_intensity is None
                     else f"{peak.observed_intensity:.4f}",
                     "" if peak.mass_error_da is None else f"{peak.mass_error_da:.6f}",
-                    ""
-                    if peak.mass_error_ppm is None
-                    else f"{peak.mass_error_ppm:.4f}",
+                    "" if peak.mass_error_ppm is None else f"{peak.mass_error_ppm:.4f}",
                     str(peak.matched).lower(),
                 )
             )
@@ -488,9 +488,7 @@ def _build_fit_entry(
         concern_codes.add("missing_apex_spectrum")
     if monoisotopic_peak is None or not monoisotopic_peak.matched:
         concern_codes.add("missing_monoisotopic_peak")
-    if any(
-        peak.isotope_index > 0 and not peak.matched for peak in peak_observations
-    ):
+    if any(peak.isotope_index > 0 and not peak.matched for peak in peak_observations):
         concern_codes.add("missing_isotope_peak")
     if (
         monoisotopic_peak is not None
@@ -510,16 +508,14 @@ def _build_fit_entry(
         precursor_id=target.metadata.get("precursor_id") or target.target_id,
         peptide_ref=peptide_ref,
         charge=charge,
-        chromatographic_peak_id=None if selected_peak is None else selected_peak.peak_id,
+        chromatographic_peak_id=None
+        if selected_peak is None
+        else selected_peak.peak_id,
         apex_spectrum_id=None if apex_spectrum is None else apex_spectrum.spectrum_id,
         apex_time_seconds=(
             apex_trace_point.time_seconds
             if apex_trace_point is not None
-            else (
-                None
-                if selected_peak is None
-                else selected_peak.apex_time_seconds
-            )
+            else (None if selected_peak is None else selected_peak.apex_time_seconds)
         ),
         theoretical_monoisotopic_mz=theoretical_monoisotopic_mz,
         observed_monoisotopic_mz=(
@@ -574,9 +570,7 @@ def _build_peak_observations(
             tolerance_value=tolerance_value,
         )
         candidates = [
-            peak
-            for peak in remaining_peaks
-            if lower_bound <= peak.mz <= upper_bound
+            peak for peak in remaining_peaks if lower_bound <= peak.mz <= upper_bound
         ]
         if not candidates:
             observations.append(
@@ -626,7 +620,11 @@ def _charge_consistency_score(
     charge: int,
     mass_error_limit_ppm: float,
 ) -> float:
-    matched = [peak for peak in peak_observations if peak.matched and peak.observed_mz is not None]
+    matched = [
+        peak
+        for peak in peak_observations
+        if peak.matched and peak.observed_mz is not None
+    ]
     if len(matched) < 2:
         return 0.0
     expected_spacing = _C13_NEUTRON_SHIFT / charge
@@ -635,7 +633,7 @@ def _charge_consistency_score(
         (peak_observations[0].expected_mz * mass_error_limit_ppm) / 1_000_000.0,
     )
     scores: list[float] = []
-    for previous, current in zip(matched, matched[1:]):
+    for previous, current in zip(matched, matched[1:], strict=False):
         isotope_gap = current.isotope_index - previous.isotope_index
         if isotope_gap <= 0:
             continue
@@ -740,7 +738,9 @@ def _select_peak_for_target(
 ) -> ChromatographicPeak | None:
     if not peaks:
         return None
-    return max(peaks, key=lambda peak: (peak.area, peak.height, -peak.start_time_seconds))
+    return max(
+        peaks, key=lambda peak: (peak.area, peak.height, -peak.start_time_seconds)
+    )
 
 
 def _select_apex_trace_point(
@@ -787,7 +787,10 @@ def _resolve_apex_spectrum(
     return min(
         spectra_by_time,
         key=lambda spectrum: (
-            abs((spectrum.retention_time_seconds or 0.0) - selected_peak.apex_time_seconds),
+            abs(
+                (spectrum.retention_time_seconds or 0.0)
+                - selected_peak.apex_time_seconds
+            ),
             spectrum.spectrum_id,
         ),
     )

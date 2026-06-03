@@ -16,7 +16,9 @@ from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
     BiologicalContextRecord,
 )
-from bijux_proteomics.interpretation.protein_annotation_mapping import ProteinReferenceEntry
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
 from bijux_proteomics.interpretation.protein_set_enrichment import (
     ProteinSetEnrichmentEntry,
     ProteinSetEnrichmentPolicy,
@@ -31,7 +33,6 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
-
 
 DiseasePhenotypeConfidenceStatus = ConfidenceTier
 
@@ -112,7 +113,9 @@ class DiseasePhenotypeInterpretationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     policy: DiseasePhenotypeInterpretationPolicy
-    entries: tuple[DiseasePhenotypeInterpretationEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[DiseasePhenotypeInterpretationEntry, ...] = Field(
+        default_factory=tuple
+    )
     unknown_annotation_entries: tuple[DiseasePhenotypeUnknownAnnotationEntry, ...] = (
         Field(default_factory=tuple)
     )
@@ -138,7 +141,8 @@ def build_disease_phenotype_interpretation_report(
     disease_phenotype_records = tuple(
         record
         for record in context_records
-        if record.context_kind in {
+        if record.context_kind
+        in {
             BiologicalContextKind.DISEASE_TERM,
             BiologicalContextKind.PHENOTYPE_TERM,
         }
@@ -148,7 +152,9 @@ def build_disease_phenotype_interpretation_report(
             "disease and phenotype interpretation requires disease_term or phenotype_term context records"
         )
 
-    protein_set_records = _build_disease_phenotype_set_records(disease_phenotype_records)
+    protein_set_records = _build_disease_phenotype_set_records(
+        disease_phenotype_records
+    )
     foreground_entries = _build_foreground_protein_entries(
         differential_report,
         protein_refs_by_entity=table.entity_protein_refs,
@@ -189,7 +195,9 @@ def build_disease_phenotype_interpretation_report(
         summary=DiseasePhenotypeInterpretationSummary(
             term_count=len({entry.term_id for entry in entries}),
             disease_term_count=sum(
-                1 for entry in entries if entry.context_kind is BiologicalContextKind.DISEASE_TERM
+                1
+                for entry in entries
+                if entry.context_kind is BiologicalContextKind.DISEASE_TERM
             ),
             phenotype_term_count=sum(
                 1
@@ -205,7 +213,8 @@ def build_disease_phenotype_interpretation_report(
             high_confidence_term_count=sum(
                 1
                 for entry in entries
-                if entry.confidence_status is DiseasePhenotypeConfidenceStatus.HIGH_CONFIDENCE
+                if entry.confidence_status
+                is DiseasePhenotypeConfidenceStatus.HIGH_CONFIDENCE
             ),
             unknown_foreground_protein_count=sum(
                 1
@@ -367,7 +376,10 @@ def _build_foreground_protein_entries(
         adjusted_p_value = differential_entry.adjusted_p_value
         if adjusted_p_value is None or adjusted_p_value > policy.max_adjusted_p_value:
             continue
-        if abs(differential_entry.log2_fold_change) < policy.min_absolute_log2_fold_change:
+        if (
+            abs(differential_entry.log2_fold_change)
+            < policy.min_absolute_log2_fold_change
+        ):
             continue
         for protein_ref in protein_refs_by_entity.get(
             differential_entry.entity_id,
@@ -414,8 +426,7 @@ def _build_evidence_lookup(
         if record.evidence is not None:
             evidence_by_term[key].add(record.evidence)
     return {
-        key: sort_strings(tuple(values))
-        for key, values in evidence_by_term.items()
+        key: sort_strings(tuple(values)) for key, values in evidence_by_term.items()
     }
 
 
@@ -457,7 +468,10 @@ def _resolve_confidence(
     *,
     policy: DiseasePhenotypeInterpretationPolicy,
 ) -> tuple[DiseasePhenotypeConfidenceStatus, str]:
-    if len(entry.supporting_protein_refs) < policy.high_confidence_min_supporting_protein_count:
+    if (
+        len(entry.supporting_protein_refs)
+        < policy.high_confidence_min_supporting_protein_count
+    ):
         return (
             DiseasePhenotypeConfidenceStatus.LOW_CONFIDENCE,
             (
@@ -502,7 +516,8 @@ def _build_unknown_annotation_entries(
     protein_set_records: tuple[ProteinSetRecord, ...],
 ) -> tuple[DiseasePhenotypeUnknownAnnotationEntry, ...]:
     annotated_protein_refs = {
-        canonicalize_protein_reference(record.protein_ref) for record in protein_set_records
+        canonicalize_protein_reference(record.protein_ref)
+        for record in protein_set_records
     }
     seen: set[tuple[DiseasePhenotypeAnnotationScope, str]] = set()
     entries: list[DiseasePhenotypeUnknownAnnotationEntry] = []

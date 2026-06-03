@@ -20,9 +20,13 @@ from bijux_proteomics.io.raw.mgf_streaming import (
 from bijux_proteomics.io.raw.mzml_reader import (
     MzmlDecodingSupportReport,
     MzmlPracticalReviewReport,
-    build_mzml_practical_review_report as _build_mzml_practical_review_report,
-    inspect_mzml_decoding_support as _inspect_mzml_decoding_support,
     stream_mzml_spectra,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
+    build_mzml_practical_review_report as _build_mzml_practical_review_report,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
+    inspect_mzml_decoding_support as _inspect_mzml_decoding_support,
 )
 from bijux_proteomics.io.spectra import SpectrumModel
 from bijux_proteomics.quantification import (

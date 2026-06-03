@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -16,6 +14,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia.protein_matrix import (
     DiaPeptideRollupMethod,
     DiaProteinMatrixReport,
@@ -31,11 +30,11 @@ from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
-    NormalizationMethod,
     NormalizationComparisonReport,
-    QuantEntityLevel,
+    NormalizationMethod,
     QuantDesignMatrixReport,
     QuantDesignModelFitReport,
+    QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
@@ -57,8 +56,8 @@ from bijux_proteomics.quantification.normalization import (
     normalize_label_free_table,
 )
 from bijux_proteomics.study import (
-    ExperimentDesignAnalysisFamily,
     ExperimentDesign,
+    ExperimentDesignAnalysisFamily,
     coerce_experiment_design,
     require_feasible_experiment_design_for_analysis,
 )
@@ -266,7 +265,9 @@ def build_dia_differential_input_report(
         source_name=protein_matrix.source_name,
         entity_count=len(table.entity_ids),
         sample_count=len(table.sample_ids),
-        observed_cell_count=sum(1 for value in table.values if value.abundance is not None),
+        observed_cell_count=sum(
+            1 for value in table.values if value.abundance is not None
+        ),
         missing_cell_count=sum(1 for value in table.values if value.abundance is None),
     )
     return DiaDifferentialInputReport(
@@ -499,7 +500,7 @@ def _count_significant_differential_entries(
         1
         for entry in entries
         if getattr(entry, "adjusted_p_value", None) is not None
-        and getattr(entry, "adjusted_p_value") <= adjusted_p_value_threshold
+        and entry.adjusted_p_value <= adjusted_p_value_threshold
     )
 
 
@@ -632,29 +633,27 @@ def build_dia_normalization_balance_plot(
 ) -> DiaNormalizationBalancePlot:
     """Build one before/after sample-balance plot payload from normalization review."""
 
-    points = tuple(
-        [
-            *[
-                DiaNormalizationBalancePoint(
-                    sample_id=entry.sample_id,
-                    stage="before",
-                    total_abundance=entry.total_abundance,
-                    median_abundance=entry.median_abundance,
-                    interquartile_range=entry.interquartile_range,
-                )
-                for entry in comparison.before
-            ],
-            *[
-                DiaNormalizationBalancePoint(
-                    sample_id=entry.sample_id,
-                    stage="after",
-                    total_abundance=entry.total_abundance,
-                    median_abundance=entry.median_abundance,
-                    interquartile_range=entry.interquartile_range,
-                )
-                for entry in comparison.after
-            ],
-        ]
+    points = (
+        *[
+            DiaNormalizationBalancePoint(
+                sample_id=entry.sample_id,
+                stage="before",
+                total_abundance=entry.total_abundance,
+                median_abundance=entry.median_abundance,
+                interquartile_range=entry.interquartile_range,
+            )
+            for entry in comparison.before
+        ],
+        *[
+            DiaNormalizationBalancePoint(
+                sample_id=entry.sample_id,
+                stage="after",
+                total_abundance=entry.total_abundance,
+                median_abundance=entry.median_abundance,
+                interquartile_range=entry.interquartile_range,
+            )
+            for entry in comparison.after
+        ],
     )
     return DiaNormalizationBalancePlot(
         method=comparison.method,
@@ -761,7 +760,9 @@ def render_dia_differential_results_tsv(
         return render_multi_condition_differential_abundance_tsv(
             report.differential_abundance_multi_condition_report
         )
-    raise ValueError("dia differential analysis report does not contain differential results")
+    raise ValueError(
+        "dia differential analysis report does not contain differential results"
+    )
 
 
 def render_dia_differential_qc_summary_tsv(
@@ -780,8 +781,14 @@ def render_dia_differential_qc_summary_tsv(
         ("sample_count", report.qc_summary.sample_count),
         ("observed_raw_cell_count", report.qc_summary.observed_raw_cell_count),
         ("missing_raw_cell_count", report.qc_summary.missing_raw_cell_count),
-        ("observed_normalized_cell_count", report.qc_summary.observed_normalized_cell_count),
-        ("missing_normalized_cell_count", report.qc_summary.missing_normalized_cell_count),
+        (
+            "observed_normalized_cell_count",
+            report.qc_summary.observed_normalized_cell_count,
+        ),
+        (
+            "missing_normalized_cell_count",
+            report.qc_summary.missing_normalized_cell_count,
+        ),
         ("design_sample_count", report.qc_summary.design_sample_count),
         ("design_column_count", report.qc_summary.design_column_count),
         ("fitted_entity_count", report.qc_summary.fitted_entity_count),

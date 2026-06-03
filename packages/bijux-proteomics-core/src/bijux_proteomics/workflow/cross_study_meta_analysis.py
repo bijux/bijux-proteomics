@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -16,12 +14,13 @@ import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectContrastAlignmentStatus,
     CrossStudyEffectDirection,
-    CrossStudyProteinEffectComparisonEntry,
     CrossStudyEffectUnsupportedStudy,
+    CrossStudyProteinEffectComparisonEntry,
     CrossStudyProteinEffectComparisonReport,
     CrossStudyProteinEffectObservation,
     CrossStudyProteinEffectStudyEntry,
@@ -335,14 +334,17 @@ def build_cross_study_meta_analysis_report_from_comparison(
         combined_entry_count=len(ordered_combined_entries),
         rejected_group_count=len(ordered_rejections),
         fixed_model_count=sum(
-            entry.effect_model is CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE
+            entry.effect_model
+            is CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE
             for entry in ordered_combined_entries
         ),
         random_model_count=sum(
             entry.effect_model is CrossStudyMetaAnalysisEffectModel.RANDOM_EFFECTS
             for entry in ordered_combined_entries
         ),
-        conflict_flag_count=sum(entry.direction_conflict for entry in ordered_combined_entries),
+        conflict_flag_count=sum(
+            entry.direction_conflict for entry in ordered_combined_entries
+        ),
         high_heterogeneity_count=sum(
             entry.heterogeneity_tier is CrossStudyMetaAnalysisHeterogeneityTier.HIGH
             for entry in ordered_combined_entries
@@ -542,7 +544,9 @@ def export_cross_study_meta_analysis_study_weight_tsv(
 ) -> None:
     """Write per-study meta-analysis weights to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_meta_analysis_study_weight_tsv(report))
+    write_output_table_tsv(
+        path, render_cross_study_meta_analysis_study_weight_tsv(report)
+    )
 
 
 def export_cross_study_meta_analysis_rejected_tsv(
@@ -658,7 +662,10 @@ def _normalize_study_entries_to_comparison_anchor(
 
     normalized_entries: list[CrossStudyProteinEffectStudyEntry] = []
     for entry in study_entries:
-        if entry.condition_a == anchor_condition_a and entry.condition_b == anchor_condition_b:
+        if (
+            entry.condition_a == anchor_condition_a
+            and entry.condition_b == anchor_condition_b
+        ):
             normalized_entries.append(
                 entry.model_copy(
                     update={
@@ -668,7 +675,10 @@ def _normalize_study_entries_to_comparison_anchor(
                 )
             )
             continue
-        if entry.condition_a == anchor_condition_b and entry.condition_b == anchor_condition_a:
+        if (
+            entry.condition_a == anchor_condition_b
+            and entry.condition_b == anchor_condition_a
+        ):
             normalized_log2_fold_change = -entry.log2_fold_change
             normalized_entries.append(
                 entry.model_copy(
@@ -713,9 +723,13 @@ def _build_meta_analysis_entry(
     variances = [value * value for value in standard_errors]
     fixed_weights = [1.0 / variance for variance in variances]
     fixed_weight_total = sum(fixed_weights)
-    fixed_effect = sum(
-        weight * effect for weight, effect in zip(fixed_weights, effects, strict=True)
-    ) / fixed_weight_total
+    fixed_effect = (
+        sum(
+            weight * effect
+            for weight, effect in zip(fixed_weights, effects, strict=True)
+        )
+        / fixed_weight_total
+    )
     fixed_standard_error = math.sqrt(1.0 / fixed_weight_total)
     q_statistic = sum(
         weight * ((effect - fixed_effect) ** 2)
@@ -731,9 +745,13 @@ def _build_meta_analysis_entry(
     )
     random_weights = [1.0 / (variance + tau_squared) for variance in variances]
     random_weight_total = sum(random_weights)
-    random_effect = sum(
-        weight * effect for weight, effect in zip(random_weights, effects, strict=True)
-    ) / random_weight_total
+    random_effect = (
+        sum(
+            weight * effect
+            for weight, effect in zip(random_weights, effects, strict=True)
+        )
+        / random_weight_total
+    )
     random_standard_error = math.sqrt(1.0 / random_weight_total)
     i_squared = (
         max(0.0, (q_statistic - degrees_of_freedom) / q_statistic)
@@ -777,7 +795,9 @@ def _build_meta_analysis_entry(
         random_standard_error,
     )
     fixed_weight_fractions = [weight / fixed_weight_total for weight in fixed_weights]
-    random_weight_fractions = [weight / random_weight_total for weight in random_weights]
+    random_weight_fractions = [
+        weight / random_weight_total for weight in random_weights
+    ]
     weight_entries = [
         CrossStudyMetaAnalysisStudyWeightEntry(
             harmonized_id=comparison.harmonized_id,
@@ -824,22 +844,28 @@ def _build_meta_analysis_entry(
         sorted(
             entry.study_id
             for entry in study_entries
-            if entry.normalized_direction in {
+            if entry.normalized_direction
+            in {
                 CrossStudyEffectDirection.UP,
                 CrossStudyEffectDirection.DOWN,
             }
         )
     )
-    direction_conflict = comparison.conflicting_hit or len(
-        {
-            entry.normalized_direction
-            for entry in study_entries
-            if entry.normalized_direction in {
-                CrossStudyEffectDirection.UP,
-                CrossStudyEffectDirection.DOWN,
+    direction_conflict = (
+        comparison.conflicting_hit
+        or len(
+            {
+                entry.normalized_direction
+                for entry in study_entries
+                if entry.normalized_direction
+                in {
+                    CrossStudyEffectDirection.UP,
+                    CrossStudyEffectDirection.DOWN,
+                }
             }
-        }
-    ) > 1
+        )
+        > 1
+    )
     entry = CrossStudyMetaAnalysisEntry(
         meta_analysis_id=_meta_analysis_id(comparison.harmonized_id),
         harmonized_id=comparison.harmonized_id,

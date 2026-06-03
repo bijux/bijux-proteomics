@@ -108,10 +108,7 @@ def _build_lookup_index(
         delimiter=spec.delimiter,
     ):
         grouped_rows[_row_key(row, spec.lookup_key_columns)].append(row)
-    return {
-        key: tuple(rows)
-        for key, rows in grouped_rows.items()
-    }
+    return {key: tuple(rows) for key, rows in grouped_rows.items()}
 
 
 def _normalize_delimited_row(raw_row: dict[str | None, str | None]) -> dict[str, str]:

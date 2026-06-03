@@ -424,10 +424,9 @@ class Contrast(_CanonicalRecord):
             if not isinstance(value, Iterable):
                 raise ValueError("condition_set must be iterable")
             raw_items = [str(item) for item in value]
-        normalized = tuple(
+        return tuple(
             dict.fromkeys(item.strip() for item in raw_items if item and item.strip())
         )
-        return normalized
 
     @model_validator(mode="after")
     def _validate_semantics(self) -> Contrast:
@@ -513,7 +512,9 @@ class QuantMatrix(_CanonicalRecord):
         if self.sample_metadata:
             metadata_sample_ids = tuple(item.sample_id for item in self.sample_metadata)
             if metadata_sample_ids != self.sample_ids:
-                raise ValueError("sample_metadata sample_id order must match sample_ids")
+                raise ValueError(
+                    "sample_metadata sample_id order must match sample_ids"
+                )
         return self
 
 

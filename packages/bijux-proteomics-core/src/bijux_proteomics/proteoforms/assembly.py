@@ -133,7 +133,11 @@ def assemble_proteoform_candidates(
             )
             required_peptides = tuple(
                 sorted(
-                    {peptide for entry in included for peptide in entry.required_peptides}
+                    {
+                        peptide
+                        for entry in included
+                        for peptide in entry.required_peptides
+                    }
                 )
             )
             excluded_by_evidence = tuple(sorted(_excluded_labels(subset, constraints)))
@@ -260,7 +264,10 @@ def _excluded_labels(
     for index, entry in enumerate(constraints):
         if index in selected:
             continue
-        if entry.required_sites & excluded_sites or entry.excluded_sites & required_sites:
+        if (
+            entry.required_sites & excluded_sites
+            or entry.excluded_sites & required_sites
+        ):
             excluded_labels.add(entry.label)
     return excluded_labels
 

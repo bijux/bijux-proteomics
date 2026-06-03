@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 import csv
-import io
 from enum import StrEnum
+import io
 from math import floor
 
 from pydantic import ConfigDict, Field
@@ -169,9 +169,7 @@ def build_spectrum_run_qc_report(
             "medium_quality_entropy_threshold must be between zero and one"
         )
     if high_quality_peak_count_threshold <= 0:
-        raise ValueError(
-            "high_quality_peak_count_threshold must be greater than zero"
-        )
+        raise ValueError("high_quality_peak_count_threshold must be greater than zero")
     if high_quality_total_ion_current_threshold < 0:
         raise ValueError(
             "high_quality_total_ion_current_threshold must be zero or greater"

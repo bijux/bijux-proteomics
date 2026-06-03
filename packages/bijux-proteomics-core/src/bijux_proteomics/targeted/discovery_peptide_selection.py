@@ -183,7 +183,9 @@ def build_discovery_targeted_peptide_selection_report(
     if missed_cleavages < 0:
         raise ValueError("missed_cleavages must be non-negative")
 
-    protease_rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    protease_rule = (
+        get_protease_rule(protease) if isinstance(protease, str) else protease
+    )
     uniqueness_report = (
         uniqueness_index
         if uniqueness_index is not None
@@ -259,9 +261,7 @@ def build_discovery_targeted_peptide_selection_report(
                 )
                 continue
             selected_entries.append(
-                candidate.model_copy(
-                    update={"rank": len(chosen_sequences) + 1}
-                )
+                candidate.model_copy(update={"rank": len(chosen_sequences) + 1})
             )
             chosen_sequences.add(candidate.peptide_sequence)
 
@@ -305,9 +305,7 @@ def build_discovery_targeted_peptide_selection_report(
                 if candidate.peptide_sequence in chosen_sequences:
                     continue
                 selected_entries.append(
-                    candidate.model_copy(
-                        update={"rank": len(chosen_sequences) + 1}
-                    )
+                    candidate.model_copy(update={"rank": len(chosen_sequences) + 1})
                 )
                 chosen_sequences.add(candidate.peptide_sequence)
 
@@ -392,7 +390,9 @@ def render_discovery_targeted_peptide_selection_summary_tsv(
             report.summary.theoretical_selected_entry_count,
         )
     )
-    writer.writerow(("rejected_candidate_count", report.summary.rejected_candidate_count))
+    writer.writerow(
+        ("rejected_candidate_count", report.summary.rejected_candidate_count)
+    )
     writer.writerow(("note", report.note))
     return handle.getvalue()
 
@@ -505,9 +505,7 @@ def render_discovery_targeted_peptide_selection_rejected_tsv(
                 ""
                 if entry.primary_evidence_class is None
                 else entry.primary_evidence_class.value,
-                ""
-                if entry.uniqueness_class is None
-                else entry.uniqueness_class.value,
+                "" if entry.uniqueness_class is None else entry.uniqueness_class.value,
                 ""
                 if entry.detectability_score is None
                 else f"{entry.detectability_score:.6f}",
@@ -584,7 +582,10 @@ def _score_observed_candidates(
         )
 
         rejection_codes: list[TargetedPeptideSelectionRejectionCode] = []
-        if evidence.primary_class not in _SUPPORTED_OBSERVED_CLASSES or not evidence.accepted:
+        if (
+            evidence.primary_class not in _SUPPORTED_OBSERVED_CLASSES
+            or not evidence.accepted
+        ):
             rejection_codes.append(
                 TargetedPeptideSelectionRejectionCode.DISCOVERY_EVIDENCE_REJECTED
             )
@@ -641,9 +642,7 @@ def _score_observed_candidates(
                 detectability_tier=detectability.detectability_tier,
                 suitability_score=liability.suitability_score,
                 liability_tier=liability.liability_tier,
-                liability_codes=tuple(
-                    code.value for code in liability.liability_codes
-                ),
+                liability_codes=tuple(code.value for code in liability.liability_codes),
                 selection_score=_selection_score(
                     uniqueness_score=detectability.uniqueness_score,
                     detectability_score=detectability.detectability_score,
@@ -684,7 +683,9 @@ def _score_theoretical_candidates(
         mode=PeptideDigestionMode.FULL,
     )
     seen_sequences: set[str] = set()
-    for peptide in sorted(digest_entries, key=lambda entry: (entry.start, entry.sequence)):
+    for peptide in sorted(
+        digest_entries, key=lambda entry: (entry.start, entry.sequence)
+    ):
         if peptide.sequence in seen_sequences:
             continue
         seen_sequences.add(peptide.sequence)
@@ -749,9 +750,7 @@ def _score_theoretical_candidates(
                 detectability_tier=detectability.detectability_tier,
                 suitability_score=liability.suitability_score,
                 liability_tier=liability.liability_tier,
-                liability_codes=tuple(
-                    code.value for code in liability.liability_codes
-                ),
+                liability_codes=tuple(code.value for code in liability.liability_codes),
                 selection_score=_selection_score(
                     uniqueness_score=detectability.uniqueness_score,
                     detectability_score=detectability.detectability_score,

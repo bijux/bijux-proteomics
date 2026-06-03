@@ -135,7 +135,9 @@ class ExperimentFeasibilityReport(JsonModel):
 
 
 def build_experiment_feasibility_report(
-    design: ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    design: ExperimentalDesignReport
+    | ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...],
     *,
     condition_a: str | None = None,
     condition_b: str | None = None,
@@ -213,7 +215,9 @@ def build_experiment_feasibility_report(
         minimum_statistical_units_per_condition=minimum_statistical_units_per_condition,
     )
     valid_contrasts = tuple(entry for entry in contrast_entries if entry.supported)
-    invalid_contrasts = tuple(entry for entry in contrast_entries if not entry.supported)
+    invalid_contrasts = tuple(
+        entry for entry in contrast_entries if not entry.supported
+    )
     return ExperimentFeasibilityReport(
         experiment_design=experiment_design,
         replicate_structure_report=replicate_structure_report,
@@ -248,7 +252,9 @@ def build_experiment_feasibility_report(
 
 
 def require_feasible_experiment_design_for_analysis(
-    design: ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    design: ExperimentalDesignReport
+    | ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...],
     *,
     chosen_analysis_family: ExperimentDesignAnalysisFamily,
     condition_a: str | None = None,
@@ -301,7 +307,10 @@ def require_feasible_experiment_design_for_analysis(
                 f"{chosen_analysis_family.value}: requested contrast "
                 f"{condition_a} vs {condition_b} is not available"
             )
-        if chosen_analysis_family is ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL:
+        if (
+            chosen_analysis_family
+            is ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+        ):
             if not contrast_entry.supported:
                 raise ValueError(
                     "experiment design is not feasible for "
@@ -413,7 +422,9 @@ def render_experiment_feasibility_model_support_tsv(
 
 
 def _coerce_design_entries(
-    design: ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    design: ExperimentalDesignReport
+    | ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[tuple[ExperimentalDesignEntry, ...], int]:
     if isinstance(design, ExperimentalDesignReport):
         return design.accepted_entries, len(design.rejected_rows)
@@ -486,9 +497,7 @@ def _build_contrast_entries(
             condition_b=condition_b,
             pairing_field=pairing_field,
         )
-        supports_paired_model = (
-            pairing_field is not None and complete_pair_count >= 2
-        )
+        supports_paired_model = pairing_field is not None and complete_pair_count >= 2
         supported = not reason_codes
         message = (
             f"contrast {condition_a} vs {condition_b} is supportable"
@@ -623,7 +632,9 @@ def _build_model_support_entries(
     effective_timepoint_field: str | None,
     minimum_statistical_units_per_condition: int,
 ) -> tuple[ExperimentFeasibilityModelEntry, ...]:
-    valid_pairwise_contrast_count = sum(1 for entry in contrast_entries if entry.supported)
+    valid_pairwise_contrast_count = sum(
+        1 for entry in contrast_entries if entry.supported
+    )
     invalid_pairwise_reason_codes = {
         reason_code
         for entry in contrast_entries

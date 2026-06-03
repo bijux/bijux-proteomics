@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.fdr_review import (
+    run_fdr_command,
+    run_fdr_levels_command,
+    run_fdr_reference_check_command,
+    run_picked_protein_fdr_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.fdr_review import run_fdr_command, run_fdr_reference_check_command, run_fdr_levels_command, run_picked_protein_fdr_command
+
 
 @click.command("fdr")
 @click.argument(
@@ -113,8 +119,39 @@ def fdr_command(
     error_rate_entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Apply basic target-decoy FDR and emit filtered PSM summaries.'
-    return run_fdr_command(input_tsv, threshold, score_orientation, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, pep_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, jsonl_out, tsv_out, provenance_out, summary_tsv_out, entries_tsv_out, audit_out, calibration_out, score_separation_summary_tsv_out, score_separation_bins_tsv_out, error_rate_summary_tsv_out, error_rate_entries_tsv_out, out_path)
+    "Apply basic target-decoy FDR and emit filtered PSM summaries."
+    return run_fdr_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        pep_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        jsonl_out,
+        tsv_out,
+        provenance_out,
+        summary_tsv_out,
+        entries_tsv_out,
+        audit_out,
+        calibration_out,
+        score_separation_summary_tsv_out,
+        score_separation_bins_tsv_out,
+        error_rate_summary_tsv_out,
+        error_rate_entries_tsv_out,
+        out_path,
+    )
+
 
 @click.command("fdr-reference-check")
 @click.argument(
@@ -139,8 +176,11 @@ def fdr_reference_check_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate curated target-decoy reference cases against the owned FDR surface.'
-    return run_fdr_reference_check_command(reference_json, summary_tsv_out, entries_tsv_out, out_path)
+    "Validate curated target-decoy reference cases against the owned FDR surface."
+    return run_fdr_reference_check_command(
+        reference_json, summary_tsv_out, entries_tsv_out, out_path
+    )
+
 
 @click.command("fdr-levels")
 @click.argument(
@@ -207,8 +247,29 @@ def fdr_levels_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare PSM, peptide, and protein FDR counts across explicit thresholds.'
-    return run_fdr_levels_command(input_tsv, thresholds, score_orientation, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, entries_tsv_out, out_path)
+    "Compare PSM, peptide, and protein FDR counts across explicit thresholds."
+    return run_fdr_levels_command(
+        input_tsv,
+        thresholds,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        entries_tsv_out,
+        out_path,
+    )
+
 
 @click.command("picked-protein-fdr")
 @click.argument(
@@ -275,8 +336,29 @@ def picked_protein_fdr_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review picked target-decoy protein FDR across explicit thresholds.'
-    return run_picked_protein_fdr_command(input_tsv, thresholds, score_orientation, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, entries_tsv_out, out_path)
+    "Review picked target-decoy protein FDR across explicit thresholds."
+    return run_picked_protein_fdr_command(
+        input_tsv,
+        thresholds,
+        score_orientation,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        entries_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     fdr_command,

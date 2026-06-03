@@ -245,7 +245,9 @@ class TargetedPanelDesignReport(JsonModel):
     retention_window_radius_minutes: float = Field(..., gt=0.0)
     summary: TargetedPanelDesignSummary
     assay_entries: tuple[TargetedPanelAssayEntry, ...] = Field(default_factory=tuple)
-    panel_entries: tuple[TargetedPanelTransitionEntry, ...] = Field(default_factory=tuple)
+    panel_entries: tuple[TargetedPanelTransitionEntry, ...] = Field(
+        default_factory=tuple
+    )
     omitted_candidates: tuple[TargetedPanelOmittedCandidateEntry, ...] = Field(
         default_factory=tuple
     )
@@ -272,12 +274,16 @@ def build_targeted_panel_design_report(
     omitted_candidates: list[TargetedPanelOmittedCandidateEntry] = []
     for candidate in sorted(
         biomarker_candidates,
-        key=lambda item: (item.priority_rank, item.target_protein_ref, item.candidate_id),
+        key=lambda item: (
+            item.priority_rank,
+            item.target_protein_ref,
+            item.candidate_id,
+        ),
     ):
         if candidate.candidate_kind is TargetedPanelCandidateKind.PROTEIN:
-            protein_candidates_by_ref.setdefault(candidate.target_protein_ref, []).append(
-                candidate
-            )
+            protein_candidates_by_ref.setdefault(
+                candidate.target_protein_ref, []
+            ).append(candidate)
         else:
             omitted_candidates.append(
                 TargetedPanelOmittedCandidateEntry(
@@ -302,7 +308,11 @@ def build_targeted_panel_design_report(
     retained_transitions_by_assay: dict[str, list[TargetedPanelTransitionInput]] = {}
     for transition in transition_entries:
         assay = assay_by_id.get(transition.assay_entry_id)
-        if assay is None or not assay.panel_export_allowed or not transition.export_allowed:
+        if (
+            assay is None
+            or not assay.panel_export_allowed
+            or not transition.export_allowed
+        ):
             continue
         retained_transitions_by_assay.setdefault(transition.assay_entry_id, []).append(
             transition
@@ -386,7 +396,9 @@ def build_targeted_panel_design_report(
                     else selected_peptide.uniqueness_class
                 ),
                 uniqueness_score=(
-                    1.0 if selected_peptide is None else selected_peptide.uniqueness_score
+                    1.0
+                    if selected_peptide is None
+                    else selected_peptide.uniqueness_score
                 ),
                 precursor_charge=assay.precursor_charge,
                 precursor_mz=assay.precursor_mz,
@@ -423,7 +435,9 @@ def build_targeted_panel_design_report(
                         else selected_peptide.uniqueness_class
                     ),
                     uniqueness_score=(
-                        1.0 if selected_peptide is None else selected_peptide.uniqueness_score
+                        1.0
+                        if selected_peptide is None
+                        else selected_peptide.uniqueness_score
                     ),
                     precursor_charge=assay.precursor_charge,
                     precursor_mz=assay.precursor_mz,
@@ -505,9 +519,13 @@ def build_targeted_panel_design_report(
             panel_transition_count=len(ordered_panel),
             omitted_candidate_count=len(ordered_omitted),
             assay_with_expected_retention_time_count=sum(
-                1 for entry in ordered_assays if entry.expected_retention_time_minutes is not None
+                1
+                for entry in ordered_assays
+                if entry.expected_retention_time_minutes is not None
             ),
-            warning_entry_count=sum(1 for entry in ordered_assays if entry.warning_codes),
+            warning_entry_count=sum(
+                1 for entry in ordered_assays if entry.warning_codes
+            ),
         ),
         assay_entries=ordered_assays,
         panel_entries=ordered_panel,
@@ -529,9 +547,14 @@ def render_targeted_panel_design_summary_tsv(
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(("field", "value"))
     writer.writerow(
-        ("retention_window_radius_minutes", f"{report.retention_window_radius_minutes:.6f}")
+        (
+            "retention_window_radius_minutes",
+            f"{report.retention_window_radius_minutes:.6f}",
+        )
     )
-    writer.writerow(("biomarker_candidate_count", report.summary.biomarker_candidate_count))
+    writer.writerow(
+        ("biomarker_candidate_count", report.summary.biomarker_candidate_count)
+    )
     writer.writerow(("retained_assay_count", report.summary.retained_assay_count))
     writer.writerow(("panel_transition_count", report.summary.panel_transition_count))
     writer.writerow(("omitted_candidate_count", report.summary.omitted_candidate_count))
@@ -611,7 +634,9 @@ def render_targeted_panel_design_assay_tsv(
                 entry.assay_interference_risk_tier.value,
                 ";".join(code.value for code in entry.warning_codes),
                 entry.warning_note,
-                "" if entry.source_library_entry_id is None else entry.source_library_entry_id,
+                ""
+                if entry.source_library_entry_id is None
+                else entry.source_library_entry_id,
             )
         )
     return handle.getvalue()
@@ -742,7 +767,9 @@ def _best_candidate_for_protein(
 ) -> TargetedPanelBiomarkerCandidateInput | None:
     if not candidates:
         return None
-    return sorted(candidates, key=lambda item: (item.priority_rank, item.candidate_id))[0]
+    return sorted(candidates, key=lambda item: (item.priority_rank, item.candidate_id))[
+        0
+    ]
 
 
 def _candidate_priority_rank_for_protein(
@@ -794,7 +821,10 @@ def _warning_codes_for_assay(
         warnings.append(TargetedPanelWarningCode.ELEVATED_INTERFERENCE_RISK)
     if expected_retention_time_minutes is None:
         warnings.append(TargetedPanelWarningCode.MISSING_EXPECTED_RETENTION_TIME)
-    if selected_peptide is not None and selected_peptide.uniqueness_class is not PeptideUniquenessClass.UNIQUE:
+    if (
+        selected_peptide is not None
+        and selected_peptide.uniqueness_class is not PeptideUniquenessClass.UNIQUE
+    ):
         warnings.append(TargetedPanelWarningCode.NON_UNIQUE_TARGET)
     if assay.exported_transition_count < assay.selected_transition_count:
         warnings.append(TargetedPanelWarningCode.REDUCED_TRANSITION_SUPPORT)
@@ -825,7 +855,9 @@ def _warning_note_for_assay(
     if TargetedPanelWarningCode.NON_UNIQUE_TARGET in warning_codes:
         notes.append("selected peptide is not unique to one target protein")
     if TargetedPanelWarningCode.REDUCED_TRANSITION_SUPPORT in warning_codes:
-        notes.append("one or more chemistry-supported transitions were withheld from export")
+        notes.append(
+            "one or more chemistry-supported transitions were withheld from export"
+        )
     if not notes:
         uniqueness_text = (
             "unique peptide support"
@@ -841,7 +873,10 @@ def _warning_note_for_assay(
         notes.append(
             f"panel row is retained for ranked biomarker candidate {candidate.display_label} with {uniqueness_text} {rt_text}"
         )
-    if assay.panel_export_caveat and "retained for panel export" not in assay.panel_export_caveat.lower():
+    if (
+        assay.panel_export_caveat
+        and "retained for panel export" not in assay.panel_export_caveat.lower()
+    ):
         notes.append(assay.panel_export_caveat)
     return " ".join(notes)
 

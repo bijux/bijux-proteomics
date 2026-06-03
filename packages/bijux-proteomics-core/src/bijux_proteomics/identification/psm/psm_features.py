@@ -166,7 +166,9 @@ def _extract_psm_feature_row(
         tolerance_da=fragment_tolerance_da,
         tolerance_ppm=None,
     )
-    expected_precursor_mz = calculate_peptide_mz(psm.canonical_peptide, charge=psm.charge)
+    expected_precursor_mz = calculate_peptide_mz(
+        psm.canonical_peptide, charge=psm.charge
+    )
     precursor_ppm_error = _ppm_error(
         observed_mz=spectrum.precursor_mz,
         expected_mz=expected_precursor_mz,
@@ -195,10 +197,7 @@ def _normalize_spectra(
     spectra: tuple[SpectrumModel, ...] | dict[str, SpectrumModel],
 ) -> dict[str, SpectrumModel]:
     if isinstance(spectra, dict):
-        return {
-            spectrum_id: spectrum
-            for spectrum_id, spectrum in spectra.items()
-        }
+        return dict(spectra.items())
     index: dict[str, SpectrumModel] = {}
     for spectrum in spectra:
         index[spectrum.spectrum_id] = spectrum

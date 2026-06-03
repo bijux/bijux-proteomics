@@ -12,7 +12,6 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
     PtmEvidenceRecord,
-    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
     PtmMotifBackgroundMode,
     PtmOccupancyCounterpartEvidenceEntry,
     PtmOccupancyUncertainty,
@@ -20,6 +19,9 @@ from bijux_proteomics.ptm import (
     PtmSiteEntry,
     build_ptm_motif_enrichment_background_provenance_report,
     build_ptm_occupancy_counterpart_report,
+)
+from bijux_proteomics.ptm import (
+    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
 )
 from bijux_proteomics.ptm.cards.proteoforms import (
     ProteoformEvidenceLevel,

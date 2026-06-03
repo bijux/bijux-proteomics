@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections.abc import Mapping
 import csv
 from io import StringIO
@@ -16,15 +14,16 @@ from pathlib import Path
 
 import numpy as np
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     BrokenPairDisposition,
-    DifferentialAbundanceContrast,
     DifferentialAbundanceAssumptionReport,
-    DifferentialBrokenPairEntry,
+    DifferentialAbundanceContrast,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
+    DifferentialBrokenPairEntry,
     DifferentialReplicatePolicy,
     ImputationMethod,
     LabelFreeQuantTable,
@@ -42,12 +41,12 @@ from bijux_proteomics.quantification.contracts import (
     _student_t_two_sided_p_value,
     _welch_t_test,
 )
-from bijux_proteomics.quantification.matrix.design_matrix import (
-    build_quant_design_matrix_report,
-)
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,
     missing_value_kind_to_code,
+)
+from bijux_proteomics.quantification.matrix.design_matrix import (
+    build_quant_design_matrix_report,
 )
 from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
     annotate_differential_abundance_report_imputation_dependence,
@@ -56,18 +55,18 @@ from bijux_proteomics.quantification.statistics.differential_imputation_dependen
 from bijux_proteomics.quantification.statistics.differential_result_robustness import (
     annotate_differential_abundance_report_robustness,
 )
-from bijux_proteomics.study.sample_run_identity import (
-    SampleRunAnalysisPolicy,
-    resolve_sample_run_analysis_entries,
-)
-from bijux_proteomics.study.replicate_structure import (
-    count_effective_statistical_units_by_condition,
+from bijux_proteomics.study.design_classification import (
+    ExperimentDesignAnalysisFamily,
 )
 from bijux_proteomics.study.experiment_feasibility import (
     require_feasible_experiment_design_for_analysis,
 )
-from bijux_proteomics.study.design_classification import (
-    ExperimentDesignAnalysisFamily,
+from bijux_proteomics.study.replicate_structure import (
+    count_effective_statistical_units_by_condition,
+)
+from bijux_proteomics.study.sample_run_identity import (
+    SampleRunAnalysisPolicy,
+    resolve_sample_run_analysis_entries,
 )
 
 
@@ -118,7 +117,9 @@ def build_differential_abundance_report(
         if entry.condition in {condition_a, condition_b}
     )
     biological_contrast_design_entries = tuple(
-        entry for entry in design_entries if entry.condition in {condition_a, condition_b}
+        entry
+        for entry in design_entries
+        if entry.condition in {condition_a, condition_b}
     )
 
     active_paired_policy: PairedDifferentialPolicy | None = None
@@ -208,8 +209,7 @@ def build_differential_abundance_report(
             paired_policy=active_paired_policy,
         )
         if (
-            active_paired_policy.broken_pair_disposition
-            is BrokenPairDisposition.BLOCK
+            active_paired_policy.broken_pair_disposition is BrokenPairDisposition.BLOCK
             and broken_pairs
         ):
             raise ValueError(
@@ -233,7 +233,10 @@ def build_differential_abundance_report(
     )
     sample_weights = _sample_weight_lookup(sample_weights_report)
     sample_weight_vector = np.array(
-        [1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0)) for sample_id in dense_view.sample_ids],
+        [
+            1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0))
+            for sample_id in dense_view.sample_ids
+        ],
         dtype=float,
     )
     entries: list[DifferentialAbundanceEntry] = []
@@ -695,7 +698,9 @@ def export_multi_condition_differential_abundance_tsv(
     path: Path,
 ) -> None:
     """Write a multi-condition DA collection to one flattened TSV artifact."""
-    write_output_table_tsv(path, render_multi_condition_differential_abundance_tsv(report))
+    write_output_table_tsv(
+        path, render_multi_condition_differential_abundance_tsv(report)
+    )
 
 
 def _sample_ids_for_condition(
@@ -737,7 +742,9 @@ def _collect_condition_values(
         if cell.abundance is not None:
             values.append(math.log2(cell.abundance + 1.0))
             weights.append(
-                1.0 if sample_weights is None else float(sample_weights.get(sample_id, 1.0))
+                1.0
+                if sample_weights is None
+                else float(sample_weights.get(sample_id, 1.0))
             )
     return np.array(values, dtype=float), np.array(weights, dtype=float), counts
 
@@ -799,14 +806,9 @@ def _resolve_design_contrast(
                 return contrast
         raise ValueError(f"unknown design contrast {contrast_name!r}")
     for contrast in design_matrix.contrasts:
-        if (
-            contrast.condition_a == condition_a
-            and contrast.condition_b == condition_b
-        ):
+        if contrast.condition_a == condition_a and contrast.condition_b == condition_b:
             return contrast
-    raise ValueError(
-        "design matrix does not preserve the requested condition contrast"
-    )
+    raise ValueError("design matrix does not preserve the requested condition contrast")
 
 
 def _resolve_design_pairs(
@@ -827,8 +829,12 @@ def _resolve_design_pairs(
                     condition_a=condition_a,
                     condition_b=condition_b,
                     pair_id=None,
-                    sample_ids_a=(row.sample_id,) if row.condition == condition_a else (),
-                    sample_ids_b=(row.sample_id,) if row.condition == condition_b else (),
+                    sample_ids_a=(row.sample_id,)
+                    if row.condition == condition_a
+                    else (),
+                    sample_ids_b=(row.sample_id,)
+                    if row.condition == condition_b
+                    else (),
                     reason_code="missing_pair_id",
                     detail=(
                         f"sample {row.sample_id} in condition {row.condition} is missing "
@@ -858,9 +864,7 @@ def _resolve_design_pairs(
                 )
             else:
                 reason_code = "duplicated_pair_members"
-                detail = (
-                    f"pair {pair_id} contains duplicated samples within at least one condition"
-                )
+                detail = f"pair {pair_id} contains duplicated samples within at least one condition"
             broken_pairs.append(
                 DifferentialBrokenPairEntry(
                     condition_a=condition_a,
@@ -918,7 +922,11 @@ def _linear_model_contrast_statistics(
         cell = lookup.get((entity_id, row.sample_id))
         if cell is None or cell.abundance is None:
             continue
-        weight = 1.0 if sample_weights is None else float(sample_weights.get(row.sample_id, 1.0))
+        weight = (
+            1.0
+            if sample_weights is None
+            else float(sample_weights.get(row.sample_id, 1.0))
+        )
         if weight <= exclusion_weight_threshold:
             continue
         observed_rows.append(full_matrix[row_index])
@@ -1037,8 +1045,12 @@ def _paired_t_test_statistics(
         ):
             continue
         pair_weight = min(
-            1.0 if sample_weights is None else float(sample_weights.get(sample_id_a, 1.0)),
-            1.0 if sample_weights is None else float(sample_weights.get(sample_id_b, 1.0)),
+            1.0
+            if sample_weights is None
+            else float(sample_weights.get(sample_id_a, 1.0)),
+            1.0
+            if sample_weights is None
+            else float(sample_weights.get(sample_id_b, 1.0)),
         )
         if pair_weight <= exclusion_weight_threshold:
             continue
@@ -1186,7 +1198,9 @@ def _weighted_sample_variance(values: np.ndarray, weights: np.ndarray) -> float 
         return None
     weight_sum = float(np.sum(weights))
     weight_square_sum = float(np.sum(weights * weights))
-    denominator = weight_sum - (weight_square_sum / weight_sum) if weight_sum > 0 else 0.0
+    denominator = (
+        weight_sum - (weight_square_sum / weight_sum) if weight_sum > 0 else 0.0
+    )
     if denominator <= 0.0:
         return None
     mean_value = _weighted_or_unweighted_mean(values, weights)
@@ -1230,9 +1244,10 @@ def _weighted_effect_size_and_uncertainty(
     effective_b = _effective_weighted_sample_size(weights_b)
     standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
     interval_radius = 1.96 * standard_error
-    pooled_variance_numerator = max(effective_a - 1.0, 0.0) * variance_a + max(
-        effective_b - 1.0, 0.0
-    ) * variance_b
+    pooled_variance_numerator = (
+        max(effective_a - 1.0, 0.0) * variance_a
+        + max(effective_b - 1.0, 0.0) * variance_b
+    )
     pooled_variance_denominator = effective_a + effective_b - 2.0
     pooled_sd = (
         math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
@@ -1263,7 +1278,9 @@ def _weighted_welch_statistics(
     weights_b: np.ndarray,
     *,
     exclusion_weight_threshold: float,
-) -> tuple[float, float, float | None, float | None, float | None, float | None, str | None]:
+) -> tuple[
+    float, float, float | None, float | None, float | None, float | None, str | None
+]:
     mean_a = _weighted_or_unweighted_mean(values_a, weights_a)
     mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
     estimate = mean_b - mean_a
@@ -1287,19 +1304,35 @@ def _weighted_welch_statistics(
     effective_a = _effective_weighted_sample_size(weights_a)
     effective_b = _effective_weighted_sample_size(weights_b)
     if variance_a == 0.0 and variance_b == 0.0:
-        return estimate, 1.0, 0.0, estimate, estimate, None, _weighted_observation_note(
-            weights_a,
-            weights_b,
-            exclusion_weight_threshold=exclusion_weight_threshold,
-        )
-    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
-    if standard_error == 0.0 or not math.isfinite(standard_error):
-        return estimate, 1.0, None, None, None, None, _combine_notes(
-            "weighted differential uncertainty collapsed to zero",
+        return (
+            estimate,
+            1.0,
+            0.0,
+            estimate,
+            estimate,
+            None,
             _weighted_observation_note(
                 weights_a,
                 weights_b,
                 exclusion_weight_threshold=exclusion_weight_threshold,
+            ),
+        )
+    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
+    if standard_error == 0.0 or not math.isfinite(standard_error):
+        return (
+            estimate,
+            1.0,
+            None,
+            None,
+            None,
+            None,
+            _combine_notes(
+                "weighted differential uncertainty collapsed to zero",
+                _weighted_observation_note(
+                    weights_a,
+                    weights_b,
+                    exclusion_weight_threshold=exclusion_weight_threshold,
+                ),
             ),
         )
     t_statistic = estimate / standard_error
@@ -1484,11 +1517,7 @@ def _render_differential_rows(
                         else entry.imputation_significance_change_reason.value
                     ),
                     str(entry.imputation_dependent_hit).lower(),
-                    (
-                        ""
-                        if entry.robustness_score is None
-                        else entry.robustness_score
-                    ),
+                    ("" if entry.robustness_score is None else entry.robustness_score),
                     (
                         ""
                         if entry.robustness_qc_status is None

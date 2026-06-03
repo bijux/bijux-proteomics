@@ -9,7 +9,6 @@ from bijux_proteomics.identification.contracts import TargetDecoyLabelPolicy
 
 from ..contracts import ScoreOrientation, SearchAdapterKind, SearchAdapterManifest
 
-
 GENERIC_MANIFEST = SearchAdapterManifest(
     adapter_kind=SearchAdapterKind.GENERIC,
     display_name="Generic search table",

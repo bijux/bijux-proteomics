@@ -9,12 +9,12 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.identification.search_adapters.contracts import (
-    SearchAdapterKind,
-)
 from bijux_proteomics.identification.search_adapters.conformance import (
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
+)
+from bijux_proteomics.identification.search_adapters.contracts import (
+    SearchAdapterKind,
 )
 from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,

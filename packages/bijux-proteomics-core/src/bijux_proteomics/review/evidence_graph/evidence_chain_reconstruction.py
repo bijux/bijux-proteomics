@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import deque
+import csv
 from enum import StrEnum
 from io import StringIO
 
@@ -248,7 +248,7 @@ def _walk_chain(
     max_depth: int,
 ) -> tuple[dict[str, int], tuple[ProteomicsEvidenceEdge, ...]]:
     queue: deque[tuple[str, int]] = deque((node_id, 0) for node_id in seed_node_ids)
-    node_depths = {node_id: 0 for node_id in seed_node_ids}
+    node_depths = dict.fromkeys(seed_node_ids, 0)
     collected_edges: list[ProteomicsEvidenceEdge] = []
 
     while queue:
@@ -260,7 +260,9 @@ def _walk_chain(
                 continue
             collected_edges.append(edge)
             neighbor_id = (
-                edge.target_node_id if edge.source_node_id == node_id else edge.source_node_id
+                edge.target_node_id
+                if edge.source_node_id == node_id
+                else edge.source_node_id
             )
             next_depth = depth + 1
             if neighbor_id not in node_depths or next_depth < node_depths[neighbor_id]:

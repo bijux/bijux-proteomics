@@ -5,27 +5,25 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
+from dataclasses import dataclass
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import (
     ParsimonyReviewReport,
     ParsimonyVariant,
-    PsmRecord,
     PsmParseReport,
+    PsmRecord,
     RejectedPsmRow,
-    SearchResultColumnMapping,
     SearchAdapterKind,
+    SearchResultColumnMapping,
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
     build_parsimony_review_report,
@@ -54,12 +52,15 @@ from bijux_proteomics.quantification import (
     QuantValue,
     build_protein_lfq_report_from_psms,
     render_protein_lfq_matrix_tsv,
-    render_protein_lfq_missingness_tsv,
     render_protein_lfq_missingness_mask_tsv,
+    render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
 )
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -68,7 +69,6 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
     write_biological_result_report_bundle,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.workflow.result_types import (
     RejectedEvidenceEntry,
     build_rejected_evidence_entries_from_issue_rows,
@@ -548,24 +548,58 @@ def write_dda_biological_workflow_bundle(
     biological_manifest_name = "biological_report_manifest.json"
     rejected_evidence_entries = build_dda_workflow_rejected_evidence_entries(report)
 
-    write_output_table_tsv((output_dir / summary_name), render_dda_biological_workflow_summary_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_dda_biological_workflow_summary_tsv(report)
+    )
     export_psm_tsv(report.accepted_psms, output_dir / accepted_name)
-    write_output_table_tsv((output_dir / filtered_name), render_filtered_dda_psms_tsv(report.filtered_psms))
-    write_output_table_tsv((output_dir / rejected_name), render_rejected_psm_rows_tsv(report.parse_rejected_rows))
+    write_output_table_tsv(
+        (output_dir / filtered_name), render_filtered_dda_psms_tsv(report.filtered_psms)
+    )
+    write_output_table_tsv(
+        (output_dir / rejected_name),
+        render_rejected_psm_rows_tsv(report.parse_rejected_rows),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(rejected_evidence_entries),
     )
-    write_output_table_tsv((output_dir / parsimony_summary_name), render_parsimony_review_summary_tsv(report.parsimony_review))
-    write_output_table_tsv((output_dir / parsimony_proteins_name), render_parsimony_review_proteins_tsv(report.parsimony_review))
-    write_output_table_tsv((output_dir / parsimony_ambiguities_name), render_parsimony_review_ambiguities_tsv(report.parsimony_review))
-    write_output_table_tsv((output_dir / protein_lfq_summary_name), render_protein_lfq_summary_tsv(report.protein_lfq_report))
-    write_output_table_tsv((output_dir / protein_lfq_matrix_name), render_protein_lfq_matrix_tsv(report.protein_lfq_report))
-    write_output_table_tsv((output_dir / protein_lfq_pairwise_name), render_protein_lfq_pairwise_ratios_tsv(report.protein_lfq_report))
-    write_output_table_tsv((output_dir / protein_lfq_missingness_name), render_protein_lfq_missingness_tsv(report.protein_lfq_report))
-    write_output_table_tsv((output_dir / protein_lfq_missingness_mask_name), render_protein_lfq_missingness_mask_tsv(report.protein_lfq_report))
+    write_output_table_tsv(
+        (output_dir / parsimony_summary_name),
+        render_parsimony_review_summary_tsv(report.parsimony_review),
+    )
+    write_output_table_tsv(
+        (output_dir / parsimony_proteins_name),
+        render_parsimony_review_proteins_tsv(report.parsimony_review),
+    )
+    write_output_table_tsv(
+        (output_dir / parsimony_ambiguities_name),
+        render_parsimony_review_ambiguities_tsv(report.parsimony_review),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_lfq_summary_name),
+        render_protein_lfq_summary_tsv(report.protein_lfq_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_lfq_matrix_name),
+        render_protein_lfq_matrix_tsv(report.protein_lfq_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_lfq_pairwise_name),
+        render_protein_lfq_pairwise_ratios_tsv(report.protein_lfq_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_lfq_missingness_name),
+        render_protein_lfq_missingness_tsv(report.protein_lfq_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_lfq_missingness_mask_name),
+        render_protein_lfq_missingness_mask_tsv(report.protein_lfq_report),
+    )
     if report.protein_group_discrepancies:
-        write_output_table_tsv((output_dir / protein_discrepancy_name), render_protein_group_discrepancies_tsv(report.protein_group_discrepancies))
+        write_output_table_tsv(
+            (output_dir / protein_discrepancy_name),
+            render_protein_group_discrepancies_tsv(report.protein_group_discrepancies),
+        )
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
@@ -595,9 +629,7 @@ def write_dda_biological_workflow_bundle(
             protein_lfq_missingness_tsv=protein_lfq_missingness_name,
             protein_lfq_missingness_mask_tsv=protein_lfq_missingness_mask_name,
             protein_group_discrepancy_tsv=(
-                protein_discrepancy_name
-                if report.protein_group_discrepancies
-                else None
+                protein_discrepancy_name if report.protein_group_discrepancies else None
             ),
             biological_manifest_json=biological_manifest_name,
             report_html=biological_manifest.artifacts.report_html,
@@ -728,7 +760,9 @@ def _attach_generic_psm_provenance(
     }
     accepted_index = 0
     enriched_records: list[PsmRecord] = []
-    for chunk in iter_delimited_row_chunks(source_path, chunk_size_rows=chunk_size_rows):
+    for chunk in iter_delimited_row_chunks(
+        source_path, chunk_size_rows=chunk_size_rows
+    ):
         for row_offset, raw_fields in enumerate(chunk.rows):
             row_number = chunk.row_number_start + row_offset
             if row_number in rejected_row_numbers:
@@ -812,12 +846,8 @@ def _build_protein_group_discrepancies(
     if source_protein_tsv_path is None:
         return ()
     source_refs = set(_parse_source_protein_refs(source_protein_tsv_path))
-    inferred_refs = {
-        entry.protein_ref for entry in parsimony_review.selected_proteins
-    }
-    quantified_refs = {
-        row.entity_id for row in protein_lfq_report.rows
-    }
+    inferred_refs = {entry.protein_ref for entry in parsimony_review.selected_proteins}
+    quantified_refs = {row.entity_id for row in protein_lfq_report.rows}
     significant_refs = {
         card.protein_group_id
         for card in biological_report.protein_cards.cards
@@ -827,7 +857,9 @@ def _build_protein_group_discrepancies(
     discrepancies: list[DdaProteinGroupDiscrepancyEntry] = []
     for protein_ref in all_refs:
         source_present = protein_ref in source_refs
-        workflow_present = protein_ref in inferred_refs or protein_ref in quantified_refs
+        workflow_present = (
+            protein_ref in inferred_refs or protein_ref in quantified_refs
+        )
         if source_present and workflow_present:
             status = DdaProteinGroupDiscrepancyStatus.SHARED
         elif source_present:
@@ -877,14 +909,10 @@ def _filter_psms_for_biological_workflow(
             reasons.append(DdaPsmAcceptanceReason.Q_VALUE_ABOVE_THRESHOLD)
         if policy.exclude_decoys and row.target_decoy_label is TargetDecoyLabel.DECOY:
             reasons.append(DdaPsmAcceptanceReason.DECOY)
-        if (
-            policy.exclude_contaminants
-            and row.target_decoy_contaminant_class
-            in {
-                TargetDecoyContaminantClass.CONTAMINANT,
-                TargetDecoyContaminantClass.MIXED,
-            }
-        ):
+        if policy.exclude_contaminants and row.target_decoy_contaminant_class in {
+            TargetDecoyContaminantClass.CONTAMINANT,
+            TargetDecoyContaminantClass.MIXED,
+        }:
             reasons.append(DdaPsmAcceptanceReason.CONTAMINANT)
         if policy.require_run_id and not row.run_id:
             reasons.append(DdaPsmAcceptanceReason.MISSING_RUN_ID)
@@ -916,5 +944,6 @@ def _filter_psms_for_biological_workflow(
 
 def _render_raw_field_dict(raw_fields: dict[str, str]) -> str:
     return ";".join(
-        f"{key}={value}" for key, value in sorted(raw_fields.items(), key=lambda item: item[0])
+        f"{key}={value}"
+        for key, value in sorted(raw_fields.items(), key=lambda item: item[0])
     )

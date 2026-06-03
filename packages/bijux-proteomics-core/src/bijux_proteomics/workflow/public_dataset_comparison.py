@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -14,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyProteinEffectComparisonReport,
     CrossStudyProteinStudyInput,
@@ -30,14 +29,9 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     build_cross_study_pathway_comparison_report,
     render_cross_study_pathway_comparison_tsv,
 )
-from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
-    PublicBenchmarkRunReport,
-    PublicBenchmarkRunStatus,
-    PublicBenchmarkSuiteReport,
-    load_public_benchmark_descriptor,
-    run_public_benchmark_descriptor_suite,
+from bijux_proteomics.workflow.pipelines.advanced_diann import (
+    AdvancedDiannWorkflowReport,
 )
-from bijux_proteomics.workflow.pipelines.advanced_diann import AdvancedDiannWorkflowReport
 from bijux_proteomics.workflow.pipelines.advanced_fragpipe import (
     AdvancedFragpipeWorkflowReport,
 )
@@ -45,6 +39,9 @@ from bijux_proteomics.workflow.pipelines.advanced_maxquant import (
     AdvancedMaxquantWorkflowReport,
 )
 from bijux_proteomics.workflow.pipelines.advanced_ptm import AdvancedPtmWorkflowReport
+from bijux_proteomics.workflow.pipelines.advanced_targeted import (
+    TargetedValidationWorkflowReport,
+)
 from bijux_proteomics.workflow.pipelines.advanced_tmt import AdvancedTmtWorkflowReport
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
@@ -57,11 +54,15 @@ from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import PtmSiteWorkflowBundle
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+    PublicBenchmarkRunReport,
+    PublicBenchmarkRunStatus,
+    PublicBenchmarkSuiteReport,
+    load_public_benchmark_descriptor,
+    run_public_benchmark_descriptor_suite,
+)
 from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
-)
-from bijux_proteomics.workflow.pipelines.advanced_targeted import (
-    TargetedValidationWorkflowReport,
 )
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
@@ -291,18 +292,12 @@ def build_public_dataset_comparison_report_from_suite(
     effect_unsupported_ids = (
         set()
         if effect_comparison_report is None
-        else {
-            entry.study_id
-            for entry in effect_comparison_report.unsupported_studies
-        }
+        else {entry.study_id for entry in effect_comparison_report.unsupported_studies}
     )
     pathway_unsupported_ids = (
         set()
         if pathway_comparison_report is None
-        else {
-            entry.study_id
-            for entry in pathway_comparison_report.unsupported_studies
-        }
+        else {entry.study_id for entry in pathway_comparison_report.unsupported_studies}
     )
     dataset_summaries = [
         PublicDatasetComparisonDatasetSummary(
@@ -645,6 +640,8 @@ def export_public_dataset_pathway_comparison_tsv(
     """Write the combined cross-study pathway comparison to TSV."""
 
     write_output_table_tsv(path, render_public_dataset_pathway_comparison_tsv(report))
+
+
 def _format_int(value: int | None) -> str:
     return "" if value is None else str(value)
 

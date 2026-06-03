@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
-from pathlib import Path
 import csv
 from io import StringIO
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow import build_biological_result_report_bundle
 from bijux_proteomics.workflow.reports.biological_reporting import (
@@ -207,7 +206,9 @@ def build_lfq_cohort_biological_case_study_report() -> PublicBiologicalCaseStudy
         design_entries,
         proteins_fasta_path=_repo_path(case_study.input_paths.proteins_fasta_path),
         annotation_tsv_path=_repo_path(case_study.input_paths.annotation_tsv_path),
-        go_annotation_tsv_path=_repo_path(case_study.input_paths.go_annotation_tsv_path),
+        go_annotation_tsv_path=_repo_path(
+            case_study.input_paths.go_annotation_tsv_path
+        ),
         pathway_membership_tsv_path=_repo_path(
             case_study.input_paths.pathway_membership_tsv_path
         ),
@@ -292,7 +293,10 @@ def write_public_biological_case_study_bundle(
     summary_name = "public_case_study_summary.tsv"
     biological_dir_name = "biological-report"
     biological_manifest_name = "biological_report_manifest.json"
-    write_output_table_tsv((output_dir / summary_name), render_public_biological_case_study_summary_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_public_biological_case_study_summary_tsv(report),
+    )
     biological_dir = output_dir / biological_dir_name
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
@@ -339,9 +343,7 @@ def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) 
         case_study.input_paths.pathway_membership_tsv_path,
         case_study.input_paths.complex_membership_tsv_path,
     )
-    missing = tuple(
-        path for path in required_paths if not _repo_path(path).is_file()
-    )
+    missing = tuple(path for path in required_paths if not _repo_path(path).is_file())
     if missing:
         raise FileNotFoundError(
             "public case study is missing required assets: " + ", ".join(missing)

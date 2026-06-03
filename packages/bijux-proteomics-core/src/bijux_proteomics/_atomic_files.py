@@ -10,7 +10,6 @@ import os
 from pathlib import Path
 import shutil
 
-
 _ATOMIC_WRITE_COUNTER = itertools.count()
 
 
@@ -47,11 +46,13 @@ def atomic_copy_file(source_path: Path, destination_path: Path) -> None:
     destination_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = _reserve_temporary_path(destination_path)
     try:
-        with source_path.open("rb") as source_handle:
-            with temporary_path.open("xb") as destination_handle:
-                shutil.copyfileobj(source_handle, destination_handle)
-                destination_handle.flush()
-                os.fsync(destination_handle.fileno())
+        with (
+            source_path.open("rb") as source_handle,
+            temporary_path.open("xb") as destination_handle,
+        ):
+            shutil.copyfileobj(source_handle, destination_handle)
+            destination_handle.flush()
+            os.fsync(destination_handle.fileno())
         os.replace(temporary_path, destination_path)
     except Exception:
         temporary_path.unlink(missing_ok=True)

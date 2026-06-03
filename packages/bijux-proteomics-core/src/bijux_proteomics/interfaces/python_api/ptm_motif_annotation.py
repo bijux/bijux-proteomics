@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_ptm_motif_enrichment_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -162,6 +163,7 @@ def run_ptm_motif_enrichment_command(
         out_path=out_path,
     )
 
+
 def run_ptm_annotate_sites_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -240,7 +242,9 @@ def run_ptm_annotate_sites_command(
         resolved_target_species = target_species
         if resolved_target_species is None:
             observed_species = {
-                record.organism for record in fasta_report.accepted_records if record.organism
+                record.organism
+                for record in fasta_report.accepted_records
+                if record.organism
             }
             if len(observed_species) == 1:
                 resolved_target_species = next(iter(observed_species))
@@ -320,7 +324,9 @@ def run_ptm_annotate_sites_command(
             "mapping_report": mapping_report.to_dict(),
             "biology_summary": biology_summary.to_dict(),
             "outputs": {
-                "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+                "summary_tsv": None
+                if summary_tsv_out is None
+                else str(summary_tsv_out),
                 "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
                 "unmapped_tsv": None
                 if unmapped_tsv_out is None
@@ -340,4 +346,5 @@ def run_ptm_annotate_sites_command(
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_motif_enrichment_command', 'run_ptm_annotate_sites_command']
+
+__all__ = ["run_ptm_motif_enrichment_command", "run_ptm_annotate_sites_command"]

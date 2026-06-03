@@ -5,12 +5,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain import (
     ConfidenceTier,
     StandardCardEntry,
@@ -40,7 +39,9 @@ def build_sample_evidence_cards(
             report=report,
             outlier=outliers_by_sample.get(entry.sample_id),
         )
-        for entry in sorted(report.sample_pca_report.entries, key=lambda item: item.sample_id)
+        for entry in sorted(
+            report.sample_pca_report.entries, key=lambda item: item.sample_id
+        )
     )
 
 
@@ -128,8 +129,12 @@ def _build_sample_card(
             outlier=outlier,
             clustered_by_condition=report.summary.clustered_by_condition,
         ),
-        confidence=_confidence(entry, clustered_by_condition=report.summary.clustered_by_condition),
-        warning_codes=_warning_codes(entry, clustered_by_condition=report.summary.clustered_by_condition),
+        confidence=_confidence(
+            entry, clustered_by_condition=report.summary.clustered_by_condition
+        ),
+        warning_codes=_warning_codes(
+            entry, clustered_by_condition=report.summary.clustered_by_condition
+        ),
         source_ids=tuple(
             part
             for part in (
@@ -161,7 +166,9 @@ def _evidence_against_text(
     if outlier is not None and outlier.outlier_reasons:
         parts.append("outlier reasons were " + ", ".join(outlier.outlier_reasons))
     if not clustered_by_condition:
-        parts.append("samples did not cluster cleanly by condition in the governed study summary")
+        parts.append(
+            "samples did not cluster cleanly by condition in the governed study summary"
+        )
     if not parts:
         return "no explicit weakening evidence was preserved on this sample exploration card."
     return ". ".join(parts) + "."

@@ -101,9 +101,7 @@ def _score_groups(
     tie_handling: str,
 ) -> tuple[tuple[int, tuple[PsmRecord, ...]], ...]:
     if tie_handling == "stable_record_order":
-        return tuple(
-            (rank, (record,)) for rank, record in enumerate(records, start=1)
-        )
+        return tuple((rank, (record,)) for rank, record in enumerate(records, start=1))
     groups: list[tuple[int, tuple[PsmRecord, ...]]] = []
     current_score: float | None = None
     current_group: list[PsmRecord] = []
@@ -213,16 +211,21 @@ def build_psm_target_decoy_fdr_report(
     summary = PsmTargetDecoyFdrSummary(
         total_psm_count=len(entries),
         target_psm_count=sum(
-            1 for record in records if record.target_decoy_label is not TargetDecoyLabel.DECOY
+            1
+            for record in records
+            if record.target_decoy_label is not TargetDecoyLabel.DECOY
         ),
         decoy_psm_count=sum(
-            1 for record in records if record.target_decoy_label is TargetDecoyLabel.DECOY
+            1
+            for record in records
+            if record.target_decoy_label is TargetDecoyLabel.DECOY
         ),
         accepted_psm_count=sum(1 for entry in entries if entry.accepted),
         accepted_target_count=sum(
             1
             for entry in entries
-            if entry.accepted and entry.psm.target_decoy_label is not TargetDecoyLabel.DECOY
+            if entry.accepted
+            and entry.psm.target_decoy_label is not TargetDecoyLabel.DECOY
         ),
         accepted_decoy_count=sum(
             1

@@ -174,8 +174,7 @@ def build_sample_run_identity_report(
 
     biological_samples = tuple(sorted(sample_entries))
     technical_replicates = {
-        _technical_replicate_id(entry)
-        for entry in experiment_design.entries
+        _technical_replicate_id(entry) for entry in experiment_design.entries
     }
     return SampleRunIdentityReport(
         experiment_design=experiment_design,
@@ -248,10 +247,7 @@ def _combine_analysis_entry(
     for field in consistency_fields:
         values = {
             value
-            for value in (
-                _resolve_entry_field(entry, field)
-                for entry in entries
-            )
+            for value in (_resolve_entry_field(entry, field) for entry in entries)
             if value not in (None, "")
         }
         if len(values) <= 1:
@@ -284,9 +280,7 @@ def _analysis_sample_id(
     biological_sample_id: str,
     technical_replicate_id: str,
 ) -> str:
-    return (
-        f"{biological_sample_id}__technical_replicate_{technical_replicate_id}"
-    )
+    return f"{biological_sample_id}__technical_replicate_{technical_replicate_id}"
 
 
 def _entries_by_sample(

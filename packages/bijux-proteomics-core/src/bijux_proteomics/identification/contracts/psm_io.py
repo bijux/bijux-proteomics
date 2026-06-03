@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
+)
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.io.tables import (
     iter_delimited_row_chunks,
     read_delimited_table_header,
 )
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
     build_peptide_uniqueness_index,
@@ -47,7 +59,6 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.psm import (
     PsmParseReport,
     PsmRecord,
@@ -60,11 +71,13 @@ from bijux_proteomics.identification.contracts.psm import (
     _derive_canonical_psm_peptide_fields,
     _parse_contaminant_label,
     _parse_protein_refs,
-    _rank_label,
     _raise_on_target_decoy_accession_collisions,
+    _rank_label,
     classify_target_decoy_contaminant,
     validate_target_decoy_policy,
 )
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 def _row_issue(code: str, message: str, row_number: int) -> SearchResultValidationIssue:
     return SearchResultValidationIssue(
@@ -227,9 +240,7 @@ def _parse_psm_row(
         protein_refs=protein_refs,
         target_decoy_label=classification.target_decoy_label,
         contaminant_flag=classification.contaminant_flag,
-        target_decoy_contaminant_class=(
-            classification.target_decoy_contaminant_class
-        ),
+        target_decoy_contaminant_class=(classification.target_decoy_contaminant_class),
     )
 
 
@@ -491,12 +502,13 @@ def select_best_psm_per_spectrum(
             best_by_spectrum[record.spectrum_id] = record
     return tuple(best_by_spectrum[key] for key in sorted(best_by_spectrum))
 
+
 __all__ = [
-    'parse_psm_tsv',
-    'parse_psm_tsv_chunked',
-    'normalize_psm_records',
-    'export_psm_jsonl',
-    'export_psm_tsv',
-    'sort_psm_records',
-    'select_best_psm_per_spectrum',
+    "parse_psm_tsv",
+    "parse_psm_tsv_chunked",
+    "normalize_psm_records",
+    "export_psm_jsonl",
+    "export_psm_tsv",
+    "sort_psm_records",
+    "select_best_psm_per_spectrum",
 ]

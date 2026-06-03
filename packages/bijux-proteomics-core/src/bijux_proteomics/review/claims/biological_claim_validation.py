@@ -13,8 +13,12 @@ from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.domain import SourceRowLineage, coerce_confidence_tier
 from bijux_proteomics.io.stable_outputs import sort_strings
-from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import EvidenceGraphConfidenceTier
-from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import FinalClaimEvidenceTier
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
+    EvidenceGraphConfidenceTier,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    FinalClaimEvidenceTier,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -353,11 +357,15 @@ def _validate_pathway_claim(
     policy: BiologicalClaimValidationPolicy,
 ) -> set[BiologicalClaimValidationReason]:
     reasons: set[BiologicalClaimValidationReason] = set()
-    if candidate.pathway_delta is None:
+    if (
+        candidate.pathway_delta is None
+        or abs(candidate.pathway_delta) < policy.min_pathway_activity_delta
+    ):
         reasons.add(BiologicalClaimValidationReason.MISSING_DIRECTIONAL_DELTA)
-    elif abs(candidate.pathway_delta) < policy.min_pathway_activity_delta:
-        reasons.add(BiologicalClaimValidationReason.MISSING_DIRECTIONAL_DELTA)
-    if coerce_confidence_tier(candidate.pathway_confidence_status) is not EvidenceGraphConfidenceTier.HIGH:
+    if (
+        coerce_confidence_tier(candidate.pathway_confidence_status)
+        is not EvidenceGraphConfidenceTier.HIGH
+    ):
         reasons.add(BiologicalClaimValidationReason.LOW_PATHWAY_CONFIDENCE)
     if not reasons:
         reasons.add(BiologicalClaimValidationReason.PATHWAY_DIRECTIONAL_ACTIVITY)
@@ -474,10 +482,16 @@ def _render_claim_rows(
                 str(entry.imputation_dependent).lower(),
                 "" if entry.evidence_tier is None else entry.evidence_tier.value,
                 "" if entry.confidence_tier is None else entry.confidence_tier.value,
-                "" if entry.pathway_confidence_status is None else entry.pathway_confidence_status,
+                ""
+                if entry.pathway_confidence_status is None
+                else entry.pathway_confidence_status,
                 "" if entry.pathway_delta is None else entry.pathway_delta,
-                "" if entry.regulator_evidence_type is None else entry.regulator_evidence_type,
-                "" if entry.regulator_signal_surface is None else entry.regulator_signal_surface,
+                ""
+                if entry.regulator_evidence_type is None
+                else entry.regulator_evidence_type,
+                ""
+                if entry.regulator_signal_surface is None
+                else entry.regulator_signal_surface,
                 "" if entry.regulator_score is None else entry.regulator_score,
                 ";".join(reason.value for reason in entry.reason_codes),
                 ";".join(entry.source_ids),

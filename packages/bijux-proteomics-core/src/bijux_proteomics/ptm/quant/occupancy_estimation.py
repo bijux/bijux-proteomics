@@ -8,11 +8,10 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
-from typing import Any, cast
 import math
+from typing import Any, cast
 
 import numpy as np
-
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
@@ -143,7 +142,8 @@ def build_ptm_site_occupancy_report(
             continue
         localized_peptides = set(entry.localized_peptides)
         stripped_sequences = {
-            parse_modified_peptide(peptide).sequence for peptide in entry.localized_peptides
+            parse_modified_peptide(peptide).sequence
+            for peptide in entry.localized_peptides
         }
         for sample_id in entry.sample_ids:
             sample_records = feature_by_sample.get(sample_id, [])
@@ -162,7 +162,9 @@ def build_ptm_site_occupancy_report(
                 and record.canonical_peptide in stripped_sequences
                 and record.canonical_peptide not in localized_peptides
             ]
-            numerator = float(sum(record.intensity or 0.0 for record in modified_records))
+            numerator = float(
+                sum(record.intensity or 0.0 for record in modified_records)
+            )
             denominator_unmodified = float(
                 sum(record.intensity or 0.0 for record in unmodified_records)
             )
@@ -170,23 +172,15 @@ def build_ptm_site_occupancy_report(
             if entry.ambiguous:
                 confidence_tier = PtmOccupancyConfidenceTier.AMBIGUOUS_SITE
                 uncertainty = PtmOccupancyUncertainty.AMBIGUOUS_SITE
-                note = (
-                    "occupancy remains ambiguous because the PTM site mapping is not unique"
-                )
+                note = "occupancy remains ambiguous because the PTM site mapping is not unique"
             elif denominator_unmodified == 0.0:
-                confidence_tier = (
-                    PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
-                )
+                confidence_tier = PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
                 uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
-                note = (
-                    "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
-                )
+                note = "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
             elif numerator == 0.0:
                 confidence_tier = PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
                 uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
-                note = (
-                    "modified counterpart evidence is missing, so occupancy should be treated as a lower-confidence proxy"
-                )
+                note = "modified counterpart evidence is missing, so occupancy should be treated as a lower-confidence proxy"
             else:
                 confidence_tier = PtmOccupancyConfidenceTier.HIGH_CONFIDENCE
                 uncertainty = PtmOccupancyUncertainty.NONE
@@ -202,10 +196,14 @@ def build_ptm_site_occupancy_report(
                     uncertainty=uncertainty,
                     note=note,
                     modified_peptides=tuple(
-                        sorted({record.canonical_peptide for record in modified_records})
+                        sorted(
+                            {record.canonical_peptide for record in modified_records}
+                        )
                     ),
                     unmodified_peptides=tuple(
-                        sorted({record.canonical_peptide for record in unmodified_records})
+                        sorted(
+                            {record.canonical_peptide for record in unmodified_records}
+                        )
                     ),
                     modified_feature_count=len(modified_records),
                     unmodified_feature_count=len(unmodified_records),
@@ -284,7 +282,9 @@ def test_occupancy_contrast(
         if condition == condition_case
     )
     if not samples_control or not samples_case:
-        raise ValueError("occupancy contrast requires at least one sample per condition")
+        raise ValueError(
+            "occupancy contrast requires at least one sample per condition"
+        )
 
     modified_lookup = _matrix_abundance_lookup(modified_table)
     unmodified_lookup = _matrix_abundance_lookup(unmodified_table)
@@ -355,23 +355,21 @@ def build_ptm_occupancy_counterpart_report(
     for occupancy in occupancy_report.entries:
         if occupancy.confidence_tier is PtmOccupancyConfidenceTier.AMBIGUOUS_SITE:
             status = PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
-            caveat = "site mapping ambiguity limits interpretation of occupancy estimates"
+            caveat = (
+                "site mapping ambiguity limits interpretation of occupancy estimates"
+            )
         elif (
             occupancy.confidence_tier
             is PtmOccupancyConfidenceTier.MISSING_UNMODIFIED_EVIDENCE
         ):
             status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
-            caveat = (
-                "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
-            )
+            caveat = "unmodified counterpart evidence is missing, so occupancy cannot be treated as high-confidence"
         elif (
             occupancy.confidence_tier
             is PtmOccupancyConfidenceTier.MISSING_MODIFIED_EVIDENCE
         ):
             status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
-            caveat = (
-                "modified counterpart evidence is missing, so occupancy should be interpreted cautiously"
-            )
+            caveat = "modified counterpart evidence is missing, so occupancy should be interpreted cautiously"
         else:
             status = PtmOccupancyCounterpartStatus.COMPLETE
             caveat = "modified and unmodified counterpart evidence is both present"
@@ -402,7 +400,8 @@ def build_ptm_occupancy_counterpart_report(
         missing_counterpart_count=sum(
             1
             for entry in entries
-            if entry.counterpart_status is PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
+            if entry.counterpart_status
+            is PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
         ),
         missing_unmodified_evidence_count=sum(
             1
@@ -563,7 +562,9 @@ def render_ptm_occupancy_contrast_tsv(report: PtmOccupancyContrastReport) -> str
         writer.writerow(
             [
                 entry.site_id,
-                "" if entry.occupancy_proxy_case is None else entry.occupancy_proxy_case,
+                ""
+                if entry.occupancy_proxy_case is None
+                else entry.occupancy_proxy_case,
                 (
                     ""
                     if entry.occupancy_proxy_control is None
@@ -582,7 +583,9 @@ def _resolve_occupancy_contrast_conditions(
     design: tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[str, str]:
     conditions = tuple(
-        sorted({entry.condition for entry in design if entry.condition not in (None, "")})
+        sorted(
+            {entry.condition for entry in design if entry.condition not in (None, "")}
+        )
     )
     if len(conditions) != 2:
         raise ValueError(

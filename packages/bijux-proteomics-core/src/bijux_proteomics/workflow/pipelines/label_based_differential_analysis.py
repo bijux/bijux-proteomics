@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -17,6 +15,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.isotope_labeling import (
     SilacColumnMapping,
@@ -48,9 +47,9 @@ from bijux_proteomics.quantification.contracts import (
     NormalizationMethod,
     QuantAssessmentDisposition,
     QuantDesignContrastEstimateEntry,
+    QuantDesignMatrixReport,
     QuantDesignModelCoefficientEntry,
     QuantDesignModelFitReport,
-    QuantDesignMatrixReport,
     QuantEntityLevel,
     _condition_lookup,
     _effect_size_and_uncertainty,
@@ -68,11 +67,11 @@ from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
 )
 from bijux_proteomics.study import (
-    ExperimentDesignAnalysisFamily,
     ExperimentDesign,
+    ExperimentDesignAnalysisFamily,
     build_experiment_design,
-    count_effective_statistical_units_by_condition,
     coerce_experiment_design,
+    count_effective_statistical_units_by_condition,
     require_feasible_experiment_design_for_analysis,
     require_valid_experiment_design_for_differential_analysis,
 )
@@ -160,7 +159,9 @@ class LabelBasedNormalizationBalancePlot(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     method: NormalizationMethod
-    points: tuple[LabelBasedNormalizationBalancePoint, ...] = Field(default_factory=tuple)
+    points: tuple[LabelBasedNormalizationBalancePoint, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -186,7 +187,9 @@ class LabelBasedDifferentialVolcanoPlot(JsonModel):
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     significant_point_count: int = Field(..., ge=0)
-    points: tuple[LabelBasedDifferentialVolcanoPoint, ...] = Field(default_factory=tuple)
+    points: tuple[LabelBasedDifferentialVolcanoPoint, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -239,15 +242,11 @@ def build_tmt_differential_input_report(
     if len(mapped_groups) > 1:
         integration_report = build_tmt_plex_integration_report(feature_bundle)
         protein_matrix = integration_report.integrated_protein_matrix
-        note = (
-            "labeled differential input preserves a bridge-normalized TMT protein matrix across multiplex groups"
-        )
+        note = "labeled differential input preserves a bridge-normalized TMT protein matrix across multiplex groups"
     else:
         matrix_report = build_tmt_reporter_matrix_report(feature_bundle)
         protein_matrix = matrix_report.protein_matrix
-        note = (
-            "labeled differential input preserves a protein-level TMT reporter matrix for one multiplex group"
-        )
+        note = "labeled differential input preserves a protein-level TMT reporter matrix for one multiplex group"
     return _build_input_report_from_protein_matrix(
         protein_matrix,
         source_kind=LabelBasedDifferentialSourceKind.TMT,
@@ -299,12 +298,14 @@ def build_label_based_differential_analysis_report(
         input_report,
         design_entries=experiment_design.entries,
     )
-    analysis_experiment_design = require_valid_experiment_design_for_differential_analysis(
-        build_experiment_design(analysis_design_entries),
-        condition_a=condition_a,
-        condition_b=condition_b,
-        batch_field=batch_field if batch_field else None,
-        pairing_field=pairing_field,
+    analysis_experiment_design = (
+        require_valid_experiment_design_for_differential_analysis(
+            build_experiment_design(analysis_design_entries),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field if batch_field else None,
+            pairing_field=pairing_field,
+        )
     )
     analysis_design_entries = analysis_experiment_design.entries
     normalized_matrix, normalization_factors = _normalize_input_report(
@@ -535,7 +536,9 @@ def render_label_based_differential_matrix_tsv(
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("entity_id", "protein_refs", "member_peptides", *report.sample_ids))
+    writer.writerow(
+        ("entity_id", "protein_refs", "member_peptides", *report.sample_ids)
+    )
     for row in report.rows:
         value_lookup = {value.sample_id: value for value in row.values}
         writer.writerow(
@@ -561,7 +564,9 @@ def render_label_based_differential_missingness_tsv(
 
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("entity_id", "protein_refs", "member_peptides", *report.sample_ids))
+    writer.writerow(
+        ("entity_id", "protein_refs", "member_peptides", *report.sample_ids)
+    )
     for row in report.rows:
         value_lookup = {value.sample_id: value for value in row.values}
         writer.writerow(
@@ -671,7 +676,9 @@ def export_label_based_differential_missingness_tsv(
 ) -> None:
     """Write one labeled differential missingness mask to a stable TSV artifact."""
 
-    write_output_table_tsv(path, render_label_based_differential_missingness_tsv(report))
+    write_output_table_tsv(
+        path, render_label_based_differential_missingness_tsv(report)
+    )
 
 
 def export_label_based_differential_results_tsv(
@@ -689,7 +696,9 @@ def export_label_based_normalization_balance_plot_tsv(
 ) -> None:
     """Write one labeled normalization-balance plot payload as TSV."""
 
-    write_output_table_tsv(path, render_label_based_normalization_balance_plot_tsv(plot))
+    write_output_table_tsv(
+        path, render_label_based_normalization_balance_plot_tsv(plot)
+    )
 
 
 def export_label_based_differential_volcano_plot_tsv(
@@ -851,25 +860,21 @@ def _normalize_input_report(
             "labeled differential analysis currently supports only none or median normalization"
         )
 
-    sample_values: dict[str, list[float]] = {sample_id: [] for sample_id in report.sample_ids}
+    sample_values: dict[str, list[float]] = {
+        sample_id: [] for sample_id in report.sample_ids
+    }
     for row in report.rows:
         for value in row.values:
             if value.abundance is not None and value.abundance > 0.0:
                 sample_values[value.sample_id].append(float(value.abundance))
     sample_medians = {
-        sample_id: (
-            float(np.median(values))
-            if values
-            else 0.0
-        )
+        sample_id: (float(np.median(values)) if values else 0.0)
         for sample_id, values in sample_values.items()
     }
     finite_medians = [median for median in sample_medians.values() if median > 0.0]
     global_median = float(np.median(finite_medians)) if finite_medians else 1.0
     normalization_factors = {
-        sample_id: (
-            global_median / median if median > 0.0 else 1.0
-        )
+        sample_id: (global_median / median if median > 0.0 else 1.0)
         for sample_id, median in sample_medians.items()
     }
     normalized_rows = tuple(
@@ -913,17 +918,15 @@ def build_label_based_normalization_balance_plot(
 ) -> LabelBasedNormalizationBalancePlot:
     """Build one before/after sample-balance plot payload for labeled matrices."""
 
-    points = tuple(
-        [
-            *[
-                _balance_point(before, sample_id=sample_id, stage="before")
-                for sample_id in before.sample_ids
-            ],
-            *[
-                _balance_point(after, sample_id=sample_id, stage="after")
-                for sample_id in after.sample_ids
-            ],
-        ]
+    points = (
+        *[
+            _balance_point(before, sample_id=sample_id, stage="before")
+            for sample_id in before.sample_ids
+        ],
+        *[
+            _balance_point(after, sample_id=sample_id, stage="after")
+            for sample_id in after.sample_ids
+        ],
     )
     return LabelBasedNormalizationBalancePlot(
         method=method,
@@ -970,7 +973,9 @@ def _fit_design_matrix_model(
     design_matrix: QuantDesignMatrixReport,
 ) -> QuantDesignModelFitReport:
     sample_ids = tuple(row.sample_id for row in design_matrix.rows)
-    full_matrix = np.array([row.column_values for row in design_matrix.rows], dtype=float)
+    full_matrix = np.array(
+        [row.column_values for row in design_matrix.rows], dtype=float
+    )
     column_index = {
         column.column_name: index for index, column in enumerate(design_matrix.columns)
     }
@@ -1144,7 +1149,11 @@ def _build_differential_report(
         )
     entries = sorted(
         entries,
-        key=lambda entry: (entry.p_value, -abs(entry.log2_fold_change), entry.entity_id),
+        key=lambda entry: (
+            entry.p_value,
+            -abs(entry.log2_fold_change),
+            entry.entity_id,
+        ),
     )
     return DifferentialAbundanceReport(
         entity_level=QuantEntityLevel.PROTEIN,
@@ -1225,7 +1234,9 @@ def _analysis_design_entries(
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[ExperimentalDesignEntry, ...]:
     sample_id_set = set(report.sample_ids)
-    filtered = tuple(entry for entry in design_entries if entry.sample_id in sample_id_set)
+    filtered = tuple(
+        entry for entry in design_entries if entry.sample_id in sample_id_set
+    )
     if not filtered:
         raise ValueError(
             "labeled differential analysis requires design entries for the analysis sample ids"

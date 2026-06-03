@@ -23,7 +23,10 @@ from ..contracts import (
     SearchScoreFamily,
     SearchToleranceUnit,
 )
-from ..parameter_support import modification_definitions_from_compact_value, parse_key_value_parameters
+from ..parameter_support import (
+    modification_definitions_from_compact_value,
+    parse_key_value_parameters,
+)
 
 if TYPE_CHECKING:
     from ..corpus import SearchEngineCorpusReport
@@ -126,6 +129,7 @@ MAXQUANT_BUNDLE_EVIDENCE_DIALECT = SearchAdapterDialectManifest(
 
 MAXQUANT_DIALECTS = (MAXQUANT_PIPELINE_DIALECT, MAXQUANT_BUNDLE_EVIDENCE_DIALECT)
 
+
 def parse_maxquant_parameters(path: Path) -> SearchParameterReport:
     fields = parse_key_value_parameters(path)
     fixed_modifications = modification_definitions_from_compact_value(
@@ -168,9 +172,10 @@ def parse_maxquant_parameters(path: Path) -> SearchParameterReport:
         raw_fields=fields,
     )
 
+
 def build_maxquant_output_corpus_report(
     corpus_root: Path,
-) -> "SearchEngineCorpusReport":
+) -> SearchEngineCorpusReport:
     """Build corpus coverage over MaxQuant evidence native and pipeline-like outputs."""
     from ..corpus import (
         SearchCorpusInputSpecification,

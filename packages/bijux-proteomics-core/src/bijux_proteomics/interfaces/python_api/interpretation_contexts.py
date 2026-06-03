@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_compartment_biology_command(
     input_table: Path,
@@ -122,23 +122,46 @@ def run_compartment_biology_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_compartment_biology_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_compartment_biology_summary_tsv(report)
+        )
     if enrichment_tsv_out is not None:
-        write_output_table_tsv(enrichment_tsv_out, render_compartment_enrichment_tsv(report))
+        write_output_table_tsv(
+            enrichment_tsv_out, render_compartment_enrichment_tsv(report)
+        )
     if matrix_tsv_out is not None:
-        write_output_table_tsv(matrix_tsv_out, render_compartment_activity_matrix_tsv(report))
+        write_output_table_tsv(
+            matrix_tsv_out, render_compartment_activity_matrix_tsv(report)
+        )
     if sample_score_tsv_out is not None:
-        write_output_table_tsv(sample_score_tsv_out, render_compartment_activity_sample_score_tsv(report))
+        write_output_table_tsv(
+            sample_score_tsv_out, render_compartment_activity_sample_score_tsv(report)
+        )
     if condition_score_tsv_out is not None:
-        write_output_table_tsv(condition_score_tsv_out, render_compartment_activity_condition_score_tsv(report))
+        write_output_table_tsv(
+            condition_score_tsv_out,
+            render_compartment_activity_condition_score_tsv(report),
+        )
     if condition_comparison_tsv_out is not None:
-        write_output_table_tsv(condition_comparison_tsv_out, render_compartment_activity_condition_comparison_tsv(report))
+        write_output_table_tsv(
+            condition_comparison_tsv_out,
+            render_compartment_activity_condition_comparison_tsv(report),
+        )
     if unresolved_member_tsv_out is not None:
-        write_output_table_tsv(unresolved_member_tsv_out, render_compartment_activity_unresolved_member_tsv(report))
+        write_output_table_tsv(
+            unresolved_member_tsv_out,
+            render_compartment_activity_unresolved_member_tsv(report),
+        )
     if unknown_localization_tsv_out is not None:
-        write_output_table_tsv(unknown_localization_tsv_out, render_unknown_compartment_localization_tsv(report))
+        write_output_table_tsv(
+            unknown_localization_tsv_out,
+            render_unknown_compartment_localization_tsv(report),
+        )
     if rejected_context_tsv_out is not None:
-        write_output_table_tsv(rejected_context_tsv_out, render_rejected_biological_context_tsv(context_report))
+        write_output_table_tsv(
+            rejected_context_tsv_out,
+            render_rejected_biological_context_tsv(context_report),
+        )
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -186,6 +209,7 @@ def run_compartment_biology_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_drug_target_command(
     input_table: Path,
@@ -356,11 +380,18 @@ def run_drug_target_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_drug_target_interpretation_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_drug_target_interpretation_summary_tsv(report)
+        )
     if interpretation_tsv_out is not None:
-        write_output_table_tsv(interpretation_tsv_out, render_drug_target_interpretation_tsv(report))
+        write_output_table_tsv(
+            interpretation_tsv_out, render_drug_target_interpretation_tsv(report)
+        )
     if rejected_context_tsv_out is not None:
-        write_output_table_tsv(rejected_context_tsv_out, render_rejected_biological_context_tsv(context_report))
+        write_output_table_tsv(
+            rejected_context_tsv_out,
+            render_rejected_biological_context_tsv(context_report),
+        )
     if rejected_pathway_tsv_out is not None:
         rejected_pathway_tsv_out.write_text(
             ""
@@ -398,4 +429,5 @@ def run_drug_target_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_compartment_biology_command', 'run_drug_target_command']
+
+__all__ = ["run_compartment_biology_command", "run_drug_target_command"]

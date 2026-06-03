@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_validate_command(
     input_path: Path,
     input_kind: str,
@@ -23,6 +24,7 @@ def run_validate_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(report, out_path=out_path)
+
 
 def run_summarize_command(
     input_path: Path,
@@ -110,6 +112,7 @@ def run_summarize_command(
             "summarize currently supports fasta, psm, mgf, mzml, and design-table inputs"
         )
     _emit_json(payload, out_path=out_path)
+
 
 def run_experiment_feasibility_command(
     design_path: Path,
@@ -202,6 +205,7 @@ def run_experiment_feasibility_command(
         out_path=out_path,
     )
 
+
 def run_protocol_consistency_report_command(
     protocol_context_tsv: Path,
     spectra_path: Path | None,
@@ -273,6 +277,7 @@ def run_protocol_consistency_report_command(
         out_path=out_path,
     )
 
+
 def run_sample_sheet_repair_suggestions_command(
     design_path: Path,
     observed_sample_ids: tuple[str, ...],
@@ -313,6 +318,7 @@ def run_sample_sheet_repair_suggestions_command(
         out_path=out_path,
     )
 
+
 def run_format_convert_command(
     input_path: Path,
     input_kind: str,
@@ -331,4 +337,12 @@ def run_format_convert_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(report)
 
-__all__ = ['run_validate_command', 'run_summarize_command', 'run_experiment_feasibility_command', 'run_protocol_consistency_report_command', 'run_sample_sheet_repair_suggestions_command', 'run_format_convert_command']
+
+__all__ = [
+    "run_validate_command",
+    "run_summarize_command",
+    "run_experiment_feasibility_command",
+    "run_protocol_consistency_report_command",
+    "run_sample_sheet_repair_suggestions_command",
+    "run_format_convert_command",
+]

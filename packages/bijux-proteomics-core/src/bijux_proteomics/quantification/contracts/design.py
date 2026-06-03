@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 from .input_models import ImputationMethod, NormalizationMethod, QuantEntityLevel
 from .matrix_models import LabelFreeQuantTable
 
+
 class QuantDesignMatrixColumnKind(StrEnum):
     """Durable ownership categories for design-matrix columns."""
 
@@ -34,12 +35,14 @@ class QuantDesignMatrixColumnKind(StrEnum):
     COVARIATE = "covariate"
     PAIRING = "pairing"
 
+
 class QuantDesignMatrixColumnEncoding(StrEnum):
     """Encoding applied to one design-matrix column."""
 
     BINARY = "binary"
     CATEGORICAL_ONE_HOT = "categorical_one_hot"
     NUMERIC = "numeric"
+
 
 class QuantDesignMatrixColumn(JsonModel):
     """One explicit design-matrix column with stable ownership metadata."""
@@ -53,6 +56,7 @@ class QuantDesignMatrixColumn(JsonModel):
     level: str | None = None
     reference_level: str | None = None
 
+
 class QuantDesignMatrixSampleRow(JsonModel):
     """One sample row plus encoded matrix values and preserved design metadata."""
 
@@ -65,6 +69,7 @@ class QuantDesignMatrixSampleRow(JsonModel):
     metadata: dict[str, str] = Field(default_factory=dict)
     column_values: tuple[float, ...] = Field(default_factory=tuple)
 
+
 class QuantDesignContrast(JsonModel):
     """One named condition contrast expressed against design-matrix columns."""
 
@@ -75,6 +80,7 @@ class QuantDesignContrast(JsonModel):
     condition_b: str = Field(..., min_length=1)
     coefficient_weights: dict[str, float] = Field(default_factory=dict)
     coefficient_vector: tuple[float, ...] = Field(default_factory=tuple)
+
 
 class QuantDesignMatrixReport(JsonModel):
     """Stable design-matrix report over conditions, batches, covariates, and pairs."""
@@ -93,6 +99,7 @@ class QuantDesignMatrixReport(JsonModel):
     contrasts: tuple[QuantDesignContrast, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
+
 class QuantDesignModelCoefficientEntry(JsonModel):
     """One per-entity coefficient estimated from the owned design matrix."""
 
@@ -105,6 +112,7 @@ class QuantDesignModelCoefficientEntry(JsonModel):
     design_rank: int = Field(..., ge=1)
     residual_degrees_of_freedom: int = Field(..., ge=0)
 
+
 class QuantDesignContrastEstimateEntry(JsonModel):
     """One per-entity estimate for a named condition contrast."""
 
@@ -115,6 +123,7 @@ class QuantDesignContrastEstimateEntry(JsonModel):
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     estimate: float
+
 
 class QuantDesignModelFitReport(JsonModel):
     """Least-squares coefficient report over a quantification table and design matrix."""
@@ -135,6 +144,7 @@ class QuantDesignModelFitReport(JsonModel):
     )
     note: str = Field(..., min_length=1)
 
+
 def build_quant_design_matrix_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
@@ -143,7 +153,7 @@ def build_quant_design_matrix_report(
     pairing_field: str | None = None,
     timepoint_field: str | None = None,
     condition_field: str = "condition",
-    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
+    sample_run_policy: SampleRunAnalysisPolicy | None = None,
 ) -> QuantDesignMatrixReport:
     """Build an explicit design matrix over one quantification study design."""
     from bijux_proteomics.quantification.design_matrix import (
@@ -165,6 +175,7 @@ def build_quant_design_matrix_report(
         sample_run_policy=resolved_sample_run_policy,
     )
 
+
 def fit_quant_design_matrix_model(
     table: LabelFreeQuantTable,
     design_matrix: QuantDesignMatrixReport,
@@ -176,6 +187,7 @@ def fit_quant_design_matrix_model(
 
     return _implementation(table, design_matrix)
 
+
 def render_quant_design_matrix_tsv(
     report: QuantDesignMatrixReport,
 ) -> str:
@@ -185,6 +197,7 @@ def render_quant_design_matrix_tsv(
     )
 
     return _implementation(report)
+
 
 def export_quant_design_matrix_tsv(
     report: QuantDesignMatrixReport,
@@ -197,6 +210,7 @@ def export_quant_design_matrix_tsv(
 
     _implementation(report, path)
 
+
 def render_quant_design_model_coefficients_tsv(
     report: QuantDesignModelFitReport,
 ) -> str:
@@ -206,6 +220,7 @@ def render_quant_design_model_coefficients_tsv(
     )
 
     return _implementation(report)
+
 
 def export_quant_design_model_coefficients_tsv(
     report: QuantDesignModelFitReport,
@@ -218,6 +233,7 @@ def export_quant_design_model_coefficients_tsv(
 
     _implementation(report, path)
 
+
 def render_quant_design_contrast_estimates_tsv(
     report: QuantDesignModelFitReport,
 ) -> str:
@@ -227,6 +243,7 @@ def render_quant_design_contrast_estimates_tsv(
     )
 
     return _implementation(report)
+
 
 def export_quant_design_contrast_estimates_tsv(
     report: QuantDesignModelFitReport,

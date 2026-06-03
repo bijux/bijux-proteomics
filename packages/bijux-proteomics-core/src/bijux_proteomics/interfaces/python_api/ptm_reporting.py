@@ -14,6 +14,7 @@ from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
     PtmSiteWorkflowExportManifest,
 )
 
+
 def run_ptm_report_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -128,6 +129,7 @@ def run_ptm_report_command(
         out_path=out_path,
     )
 
+
 def run_ptm_summarize_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -171,13 +173,13 @@ def run_ptm_summarize_command(
             peptide=peptide_column,
             charge=charge_column,
             score=score_column,
-                protein_refs=protein_refs_column,
-                q_value=q_value_column,
-                localization_score=localization_score_column,
-                localization_probability=localization_probability_column,
-                candidate_sites=candidate_sites_column,
-                decoy_label=decoy_label_column,
-                protein_separator=protein_separator,
+            protein_refs=protein_refs_column,
+            q_value=q_value_column,
+            localization_score=localization_score_column,
+            localization_probability=localization_probability_column,
+            candidate_sites=candidate_sites_column,
+            decoy_label=decoy_label_column,
+            protein_separator=protein_separator,
             site_separator=site_separator,
         )
         evidence = parse_ptm_localization_tsv(evidence_tsv, mapping=mapping)
@@ -200,9 +202,7 @@ def run_ptm_summarize_command(
             protein_sequences=protein_sequences,
         )
         site_table = build_ptm_site_table(mappings)
-        localization = build_ptm_localization_scoring_report(
-            evidence.accepted_records
-        )
+        localization = build_ptm_localization_scoring_report(evidence.accepted_records)
         ambiguity_review = build_ptm_ambiguity_review_report(
             site_table,
             localization_scoring_report=localization,
@@ -247,14 +247,22 @@ def run_ptm_summarize_command(
         raise click.ClickException(str(exc)) from exc
 
     if occupancy_summary_tsv_out is not None and occupancy_report is not None:
-        write_output_table_tsv(occupancy_summary_tsv_out, render_ptm_site_occupancy_summary_tsv(occupancy_report))
+        write_output_table_tsv(
+            occupancy_summary_tsv_out,
+            render_ptm_site_occupancy_summary_tsv(occupancy_report),
+        )
     if occupancy_tsv_out is not None and occupancy_report is not None:
-        write_output_table_tsv(occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report))
+        write_output_table_tsv(
+            occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report)
+        )
     if (
         occupancy_counterpart_tsv_out is not None
         and occupancy_counterpart_report is not None
     ):
-        write_output_table_tsv(occupancy_counterpart_tsv_out, render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report))
+        write_output_table_tsv(
+            occupancy_counterpart_tsv_out,
+            render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report),
+        )
 
     payload = {
         "accepted_rows": len(evidence.accepted_records),
@@ -283,4 +291,5 @@ def run_ptm_summarize_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_ptm_report_command', 'run_ptm_summarize_command']
+
+__all__ = ["run_ptm_report_command", "run_ptm_summarize_command"]

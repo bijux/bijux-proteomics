@@ -195,7 +195,9 @@ def build_biomarker_stability_report(
     }
     total_sample_ids = tuple(sorted(design_by_sample))
     total_condition_values = tuple(
-        sorted({entry.condition for entry in design_by_sample.values() if entry.condition})
+        sorted(
+            {entry.condition for entry in design_by_sample.values() if entry.condition}
+        )
     )
 
     assays_by_candidate: dict[str, list[TargetedValidationPanelAssayInput]] = {}
@@ -214,15 +216,17 @@ def build_biomarker_stability_report(
                 key=lambda item: (item.biomarker_priority_rank, item.assay_entry_id),
             )
         )
-        candidate_entry, candidate_subgroups, rank_reason_codes = _build_candidate_entry(
-            candidate=candidate,
-            assays=candidate_assays,
-            descriptors=descriptors,
-            qc_by_target_sample=qc_by_target_sample,
-            design_by_sample=design_by_sample,
-            total_sample_ids=total_sample_ids,
-            total_condition_values=total_condition_values,
-            policy=active_policy,
+        candidate_entry, candidate_subgroups, rank_reason_codes = (
+            _build_candidate_entry(
+                candidate=candidate,
+                assays=candidate_assays,
+                descriptors=descriptors,
+                qc_by_target_sample=qc_by_target_sample,
+                design_by_sample=design_by_sample,
+                total_sample_ids=total_sample_ids,
+                total_condition_values=total_condition_values,
+                policy=active_policy,
+            )
         )
         entries_with_aux.append((candidate_entry, rank_reason_codes))
         subgroup_behavior_entries.extend(candidate_subgroups)
@@ -236,7 +240,9 @@ def build_biomarker_stability_report(
         ),
     )
     ranked_entries: list[BiomarkerStabilityEntry] = []
-    for rank, (entry, _rank_reason_codes) in enumerate(ranked_entries_with_aux, start=1):
+    for rank, (entry, _rank_reason_codes) in enumerate(
+        ranked_entries_with_aux, start=1
+    ):
         ranked_entries.append(entry.model_copy(update={"adjusted_priority_rank": rank}))
 
     return BiomarkerStabilityReport(
@@ -307,7 +313,9 @@ def render_biomarker_stability_summary_tsv(report: BiomarkerStabilityReport) -> 
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(("field", "value"))
     writer.writerow(("candidate_count", report.summary.candidate_count))
-    writer.writerow(("downgraded_candidate_count", report.summary.downgraded_candidate_count))
+    writer.writerow(
+        ("downgraded_candidate_count", report.summary.downgraded_candidate_count)
+    )
     writer.writerow(
         (
             "low_reliable_sample_fraction_count",
@@ -321,7 +329,10 @@ def render_biomarker_stability_summary_tsv(report: BiomarkerStabilityReport) -> 
         )
     )
     writer.writerow(
-        ("batch_sensitive_candidate_count", report.summary.batch_sensitive_candidate_count)
+        (
+            "batch_sensitive_candidate_count",
+            report.summary.batch_sensitive_candidate_count,
+        )
     )
     writer.writerow(
         (
@@ -342,7 +353,10 @@ def render_biomarker_stability_summary_tsv(report: BiomarkerStabilityReport) -> 
         )
     )
     writer.writerow(
-        ("sparse_subgroup_candidate_count", report.summary.sparse_subgroup_candidate_count)
+        (
+            "sparse_subgroup_candidate_count",
+            report.summary.sparse_subgroup_candidate_count,
+        )
     )
     writer.writerow(("note", report.note))
     return handle.getvalue()
@@ -527,9 +541,12 @@ def _build_candidate_entry(
     total_sample_ids: tuple[str, ...],
     total_condition_values: tuple[str, ...],
     policy: BiomarkerStabilityPolicy,
-) -> tuple[BiomarkerStabilityEntry, list[BiomarkerSubgroupBehaviorEntry], tuple[str, ...]]:
+) -> tuple[
+    BiomarkerStabilityEntry, list[BiomarkerSubgroupBehaviorEntry], tuple[str, ...]
+]:
     target_ids_by_assay = {
-        assay.assay_entry_id: _match_assay_target_ids(assay, descriptors) for assay in assays
+        assay.assay_entry_id: _match_assay_target_ids(assay, descriptors)
+        for assay in assays
     }
     assay_values_by_sample: dict[str, dict[str, float]] = {}
     reliable_sample_ids: set[str] = set()
@@ -537,15 +554,18 @@ def _build_candidate_entry(
     for assay in assays:
         for target_id in target_ids_by_assay[assay.assay_entry_id]:
             matched_target_ids.add(target_id)
-            for sample_id, design_entry in design_by_sample.items():
+            for sample_id, _design_entry in design_by_sample.items():
                 qc_entry = qc_by_target_sample.get((target_id, sample_id))
                 if qc_entry is None:
                     continue
-                if qc_entry.passing_total_intensity is None or qc_entry.passing_total_intensity <= 0.0:
+                if (
+                    qc_entry.passing_total_intensity is None
+                    or qc_entry.passing_total_intensity <= 0.0
+                ):
                     continue
-                assay_values_by_sample.setdefault(sample_id, {})[assay.assay_entry_id] = math.log2(
-                    qc_entry.passing_total_intensity
-                )
+                assay_values_by_sample.setdefault(sample_id, {})[
+                    assay.assay_entry_id
+                ] = math.log2(qc_entry.passing_total_intensity)
                 if qc_entry.reliable:
                     reliable_sample_ids.add(sample_id)
 
@@ -555,7 +575,11 @@ def _build_candidate_entry(
         if assay_values
     }
     reliable_sample_count = len(
-        {sample_id for sample_id in candidate_sample_values if sample_id in reliable_sample_ids}
+        {
+            sample_id
+            for sample_id in candidate_sample_values
+            if sample_id in reliable_sample_ids
+        }
     )
     total_sample_count = len(total_sample_ids)
     reliable_sample_fraction = (
@@ -584,7 +608,9 @@ def _build_candidate_entry(
         assay_agreement_score,
     ]
     if not matched_target_ids:
-        instability_reasons.append(BiomarkerStabilityReasonCode.NO_MATCHING_TARGETED_SIGNAL)
+        instability_reasons.append(
+            BiomarkerStabilityReasonCode.NO_MATCHING_TARGETED_SIGNAL
+        )
     if reliable_sample_fraction < policy.minimum_reliable_sample_fraction:
         instability_reasons.append(
             BiomarkerStabilityReasonCode.LOW_RELIABLE_SAMPLE_FRACTION
@@ -664,14 +690,18 @@ def _build_candidate_entry(
         if score is not None:
             component_scores.append(score)
         if sparse:
-            instability_reasons.append(BiomarkerStabilityReasonCode.SPARSE_SUBGROUP_COVERAGE)
+            instability_reasons.append(
+                BiomarkerStabilityReasonCode.SPARSE_SUBGROUP_COVERAGE
+            )
         if reason is not None:
             instability_reasons.append(reason)
         if entries and entries[0].dimension is BiomarkerStabilityDimension.BATCH:
             batch_stability_score = score
         elif entries and entries[0].dimension is BiomarkerStabilityDimension.TIMEPOINT:
             timepoint_stability_score = score
-        elif entries and entries[0].dimension is BiomarkerStabilityDimension.SAMPLE_TYPE:
+        elif (
+            entries and entries[0].dimension is BiomarkerStabilityDimension.SAMPLE_TYPE
+        ):
             sample_type_stability_score = score
 
     deduped_reasons = tuple(dict.fromkeys(instability_reasons))
@@ -794,9 +824,7 @@ def _build_subgroup_dimension_entries(
             subgroup_median = None
             subgroup_mean = None
             subgroup_cv = None
-            note = (
-                f"{dimension.value} subgroup {subgroup_value} has no reliable targeted samples"
-            )
+            note = f"{dimension.value} subgroup {subgroup_value} has no reliable targeted samples"
         entries.append(
             BiomarkerSubgroupBehaviorEntry(
                 candidate_id=candidate_id,
@@ -818,7 +846,8 @@ def _build_subgroup_dimension_entries(
         median_delta_threshold is not None
         and len(valid_medians) >= 2
         and all(
-            len(grouped.get(entry.subgroup_value, ())) >= minimum_reliable_samples_per_group
+            len(grouped.get(entry.subgroup_value, ()))
+            >= minimum_reliable_samples_per_group
             for entry in entries
             if grouped.get(entry.subgroup_value)
         )
@@ -865,16 +894,16 @@ def _build_batch_entries(
         sample_id: group_value
         for sample_id in sample_values
         if sample_id in design_by_sample
-        for group_value in [_design_dimension_value(design_by_sample[sample_id], batch_field)]
+        for group_value in [
+            _design_dimension_value(design_by_sample[sample_id], batch_field)
+        ]
         if group_value is not None
     }
     if not group_values:
         return [], None, None, False
 
     condition_medians = {
-        condition: median(
-            [sample_values[sample_id] for sample_id in sample_ids]
-        )
+        condition: median([sample_values[sample_id] for sample_id in sample_ids])
         for condition, sample_ids in _group_sample_ids_by_condition(
             sample_values, design_by_sample
         ).items()
@@ -920,7 +949,9 @@ def _build_batch_entries(
     if score is not None and score < 1.0:
         spread = max(
             entry.residual_median_log2_intensity or 0.0 for entry in updated_entries
-        ) - min(entry.residual_median_log2_intensity or 0.0 for entry in updated_entries)
+        ) - min(
+            entry.residual_median_log2_intensity or 0.0 for entry in updated_entries
+        )
         if spread > residual_delta_threshold:
             reason = BiomarkerStabilityReasonCode.BATCH_SENSITIVE_SIGNAL
     return updated_entries, score, reason, sparse

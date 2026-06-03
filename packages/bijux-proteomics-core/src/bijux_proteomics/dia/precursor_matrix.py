@@ -5,16 +5,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
+from collections.abc import Callable
 import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, TypeAlias, TypedDict
+from typing import TYPE_CHECKING, TypeAlias, TypedDict
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.quantification.contracts import MissingValueKind
 from bijux_proteomics_foundation import JsonModel
@@ -160,8 +160,12 @@ class DiaPrecursorMatrixReport(JsonModel):
     run_names: tuple[str, ...] = Field(default_factory=tuple)
     policy: DiaPrecursorMatrixPolicy
     rows: tuple[DiaPrecursorMatrixRow, ...] = Field(default_factory=tuple)
-    metadata_entries: tuple[DiaPrecursorMetadataEntry, ...] = Field(default_factory=tuple)
-    excluded_entries: tuple[DiaPrecursorExclusionEntry, ...] = Field(default_factory=tuple)
+    metadata_entries: tuple[DiaPrecursorMetadataEntry, ...] = Field(
+        default_factory=tuple
+    )
+    excluded_entries: tuple[DiaPrecursorExclusionEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaPrecursorMatrixSummary
     note: str = Field(..., min_length=1)
 
@@ -312,7 +316,9 @@ def build_dia_precursor_matrix_report(
                     DiaPrecursorMatrixValue(
                         sample_id=sample_id,
                         run_names=tuple(
-                            sorted({observation.run_name for observation in observations})
+                            sorted(
+                                {observation.run_name for observation in observations}
+                            )
                         ),
                         source_precursor_ids=tuple(
                             sorted(

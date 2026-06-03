@@ -145,18 +145,10 @@ def score_fragment_coelution(
             for fragment_id, trace in detected_traces_by_fragment.items()
         }
         apex_values = tuple(fragment_apexes.values())
-        apex_rt_spread = (
-            0.0
-            if not apex_values
-            else max(apex_values) - min(apex_values)
-        )
+        apex_rt_spread = 0.0 if not apex_values else max(apex_values) - min(apex_values)
         correlations: list[float] = []
         failed_fragments: list[str] = []
-        reference_apex = (
-            None
-            if reference_fragment_id not in fragment_apexes
-            else fragment_apexes[reference_fragment_id]
-        )
+        reference_apex = fragment_apexes.get(reference_fragment_id)
         for fragment_id, trace in sorted(traces_by_fragment.items()):
             if max(trace.values(), default=0.0) <= 0.0:
                 failed_fragments.append(fragment_id)
@@ -205,7 +197,9 @@ def score_dia_fragment_trace_coelution(
     """Score coelution among DIA fragment traces assigned to one precursor."""
 
     if not peak_reports:
-        raise ValueError("DIA fragment coelution scoring requires at least one run report")
+        raise ValueError(
+            "DIA fragment coelution scoring requires at least one run report"
+        )
     if apex_tolerance_seconds <= 0.0:
         raise ValueError("apex_tolerance_seconds must be greater than zero")
     if not -1.0 <= min_correlation <= 1.0:
@@ -220,7 +214,9 @@ def score_dia_fragment_trace_coelution(
     for peak_report in peak_reports:
         run_id = _run_id_from_peak_report(peak_report)
         run_ids.append(run_id)
-        targets_by_precursor = _targets_by_precursor(peak_report.trace_report.accepted_targets)
+        targets_by_precursor = _targets_by_precursor(
+            peak_report.trace_report.accepted_targets
+        )
         peaks_by_target = _peaks_by_target(peak_report)
         traces_by_target = _trace_series_by_target(peak_report)
         raw_scores_by_precursor = _raw_trace_scores_by_precursor(
@@ -246,9 +242,7 @@ def score_dia_fragment_trace_coelution(
 
             reference_target = _reference_target(targets, selected_peaks)
             reference_fragment_id = (
-                None
-                if reference_target is None
-                else _fragment_id(reference_target)
+                None if reference_target is None else _fragment_id(reference_target)
             )
             reference_series = (
                 None
@@ -363,11 +357,15 @@ def score_dia_fragment_trace_coelution(
                     fragment_count=len(targets),
                     detected_fragment_count=len(selected_peaks),
                     passing_fragment_count=len(passing_fragment_ids),
-                    apex_spread_seconds=raw_scores_by_precursor[precursor_id].apex_rt_spread,
+                    apex_spread_seconds=raw_scores_by_precursor[
+                        precursor_id
+                    ].apex_rt_spread,
                     mean_correlation=raw_scores_by_precursor[
                         precursor_id
                     ].mean_trace_correlation,
-                    coelution_score=raw_scores_by_precursor[precursor_id].coelution_score,
+                    coelution_score=raw_scores_by_precursor[
+                        precursor_id
+                    ].coelution_score,
                     failed_fragment_ids=raw_scores_by_precursor[
                         precursor_id
                     ].failed_fragments,
@@ -422,7 +420,9 @@ def render_dia_fragment_coelution_runs_tsv(
                 entry.run_id,
                 entry.precursor_id,
                 entry.peptide_ref,
-                "" if entry.reference_fragment_id is None else entry.reference_fragment_id,
+                ""
+                if entry.reference_fragment_id is None
+                else entry.reference_fragment_id,
                 entry.fragment_count,
                 entry.detected_fragment_count,
                 entry.passing_fragment_count,
@@ -472,10 +472,14 @@ def render_dia_fragment_coelution_fragments_tsv(
                 entry.fragment_id,
                 entry.reference_fragment_id,
                 "" if entry.peak_id is None else entry.peak_id,
-                "" if entry.apex_time_seconds is None else f"{entry.apex_time_seconds:.4f}",
+                ""
+                if entry.apex_time_seconds is None
+                else f"{entry.apex_time_seconds:.4f}",
                 f"{entry.apex_intensity:.4f}",
                 f"{entry.area:.4f}",
-                "" if entry.apex_shift_seconds is None else f"{entry.apex_shift_seconds:.4f}",
+                ""
+                if entry.apex_shift_seconds is None
+                else f"{entry.apex_shift_seconds:.4f}",
                 (
                     ""
                     if entry.correlation_to_reference is None
@@ -563,9 +567,7 @@ def _raw_trace_scores_by_precursor(
     for target in targets:
         precursor_id = _precursor_id(target)
         fragment_id = _fragment_id(target)
-        for rt, intensity in sorted(
-            traces_by_target.get(target.target_id, {}).items()
-        ):
+        for rt, intensity in sorted(traces_by_target.get(target.target_id, {}).items()):
             raw_points.append(
                 DiaFragmentTracePoint(
                     precursor_id=precursor_id,

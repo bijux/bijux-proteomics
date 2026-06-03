@@ -25,6 +25,7 @@ from bijux_proteomics.quantification import (
     MissingnessIntensityDependenceReport,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
+    MultiConditionDifferentialAbundanceReport,
     MultiplexNormalizationPolicy,
     NormalizationComparisonReport,
     NormalizationMethod,
@@ -36,7 +37,6 @@ from bijux_proteomics.quantification import (
     ReplicateAndBatchQcReport,
     TimeCourseDifferentialReport,
     TimeCourseTestingPolicy,
-    MultiConditionDifferentialAbundanceReport,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_imputation_report,
@@ -44,10 +44,10 @@ from bijux_proteomics.quantification import (
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
-    build_multi_condition_differential_abundance_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
+    build_multi_condition_differential_abundance_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -63,12 +63,12 @@ from bijux_proteomics.quantification.missingness.readiness import (
     QuantDecisionReadinessReport,
     build_quant_decision_readiness_report,
 )
+from bijux_proteomics.quantification.provenance.replicate_qc import (
+    build_replicate_and_batch_qc_report,
+)
 from bijux_proteomics.quantification.statistics.multi_contrast_consistency import (
     MultiContrastConsistencyReport,
     build_multi_contrast_consistency_report,
-)
-from bijux_proteomics.quantification.provenance.replicate_qc import (
-    build_replicate_and_batch_qc_report,
 )
 from bijux_proteomics.study.replicate_structure import (
     count_effective_statistical_units_by_condition,
@@ -639,7 +639,9 @@ def validate_differential_abundance_design_context(
     multiple_testing_scope: str = "global_per_analysis",
 ) -> DifferentialAbundanceDesignValidationReport:
     """Validate DA design assumptions before running statistical comparisons."""
-    condition_replicates = count_effective_statistical_units_by_condition(design_entries)
+    condition_replicates = count_effective_statistical_units_by_condition(
+        design_entries
+    )
     issues: list[DifferentialAbundanceDesignIssue] = []
     known_conditions = set(condition_replicates)
     for left, right in contrasts:
@@ -1136,9 +1138,7 @@ def build_quant_review_bundle(
         normalized_table,
         imputed_table,
     )
-    missingness_entity_summary = build_missingness_entity_summary_report(
-        imputed_table
-    )
+    missingness_entity_summary = build_missingness_entity_summary_report(imputed_table)
     missingness_condition_summary = build_missingness_condition_summary_report(
         imputed_table,
         design_entries=measured_design_entries,

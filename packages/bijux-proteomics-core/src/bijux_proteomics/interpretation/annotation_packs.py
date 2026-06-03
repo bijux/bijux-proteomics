@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import json
 from enum import StrEnum
+import json
 from pathlib import Path
 from typing import TypeVar
 
@@ -120,7 +120,9 @@ class AnnotationPack(JsonModel):
     compartments: tuple[BiologicalContextRecord, ...] = Field(default_factory=tuple)
     drug_targets: tuple[BiologicalContextRecord, ...] = Field(default_factory=tuple)
     disease_terms: tuple[BiologicalContextRecord, ...] = Field(default_factory=tuple)
-    kinase_substrates: tuple[RegulatorEvidenceRecord, ...] = Field(default_factory=tuple)
+    kinase_substrates: tuple[RegulatorEvidenceRecord, ...] = Field(
+        default_factory=tuple
+    )
     orthologs: tuple[OrthologRecord, ...] = Field(default_factory=tuple)
     metadata: dict[str, str] = Field(default_factory=dict)
     summary: AnnotationPackSummary
@@ -256,26 +258,21 @@ def render_annotation_pack_json(pack: AnnotationPack) -> str:
         "pack_name": pack.pack_name,
         "pack_version": pack.pack_version,
         "protein_features": [
-            _serialize_protein_feature_row(record)
-            for record in pack.protein_features
+            _serialize_protein_feature_row(record) for record in pack.protein_features
         ],
         "pathways": [_serialize_pathway_row(record) for record in pack.pathways],
         "complexes": [_serialize_complex_row(record) for record in pack.complexes],
         "compartments": [
-            _serialize_biological_context_row(record)
-            for record in pack.compartments
+            _serialize_biological_context_row(record) for record in pack.compartments
         ],
         "drug_targets": [
-            _serialize_biological_context_row(record)
-            for record in pack.drug_targets
+            _serialize_biological_context_row(record) for record in pack.drug_targets
         ],
         "disease_terms": [
-            _serialize_disease_term_row(record)
-            for record in pack.disease_terms
+            _serialize_disease_term_row(record) for record in pack.disease_terms
         ],
         "kinase_substrates": [
-            _serialize_kinase_substrate_row(record)
-            for record in pack.kinase_substrates
+            _serialize_kinase_substrate_row(record) for record in pack.kinase_substrates
         ],
         "orthologs": [_serialize_ortholog_row(record) for record in pack.orthologs],
         "metadata": dict(pack.metadata),
@@ -288,7 +285,9 @@ def render_annotation_pack_json(pack: AnnotationPack) -> str:
 def load_annotation_pack(path: Path) -> AnnotationPack:
     """Load one governed JSON annotation pack with row-level validation."""
 
-    raw_document = _RawAnnotationPack.model_validate_json(path.read_text(encoding="utf-8"))
+    raw_document = _RawAnnotationPack.model_validate_json(
+        path.read_text(encoding="utf-8")
+    )
     rejected_rows: list[AnnotationPackRejectedRow] = []
 
     protein_features = _load_protein_features(
@@ -859,10 +858,7 @@ def _validate_row(
 def _stringify_mapping(raw_row: object) -> dict[str, str]:
     if not isinstance(raw_row, dict):
         return {"_raw_row": _stringify_scalar(raw_row)}
-    return {
-        str(key): _stringify_scalar(value)
-        for key, value in raw_row.items()
-    }
+    return {str(key): _stringify_scalar(value) for key, value in raw_row.items()}
 
 
 def _normalize_disease_context_kind(

@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections.abc import Callable
+import csv
 from enum import StrEnum
 from io import StringIO
 from typing import TypedDict
@@ -120,7 +120,8 @@ def build_failure_explanation_report(
                 for entry in explanations
             ),
             insufficient_evidence_count=sum(
-                entry.failure_category is FailureExplanationCategory.INSUFFICIENT_EVIDENCE
+                entry.failure_category
+                is FailureExplanationCategory.INSUFFICIENT_EVIDENCE
                 for entry in explanations
             ),
             statistical_impossibility_count=sum(

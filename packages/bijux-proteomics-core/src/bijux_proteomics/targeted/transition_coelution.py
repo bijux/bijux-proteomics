@@ -160,9 +160,7 @@ def score_transition_coelution(
             for transition_id, trace in detected_traces.items()
         }
         apex_values = tuple(apexes.values())
-        apex_rt_spread = (
-            0.0 if not apex_values else max(apex_values) - min(apex_values)
-        )
+        apex_rt_spread = 0.0 if not apex_values else max(apex_values) - min(apex_values)
         passing_transition_count = 0
         if detected_traces:
             reference_transition_id, reference_trace = max(
@@ -174,7 +172,7 @@ def score_transition_coelution(
                 ),
             )
             reference_apex = apexes[reference_transition_id]
-            for transition_id, trace in detected_traces.items():
+            for transition_id, _trace in detected_traces.items():
                 if transition_id == reference_transition_id:
                     passing_transition_count += 1
                     continue
@@ -232,7 +230,8 @@ def build_targeted_transition_coelution_report(
             [
                 item.retention_time_minutes
                 for item in import_report.observations
-                if item.precursor_id == target_id and item.retention_time_minutes is not None
+                if item.precursor_id == target_id
+                and item.retention_time_minutes is not None
             ]
         )
         for target_id in target_ids
@@ -337,9 +336,7 @@ def build_targeted_transition_coelution_report(
                     coelution_delta is not None
                     and coelution_delta > coelution_rt_delta_threshold_minutes
                 ):
-                    reason = (
-                        "transition does not coelute with the sample apex"
-                    )
+                    reason = "transition does not coelute with the sample apex"
                     failure_reasons.append(reason)
                     coelution_reasons.append(reason)
                 if (
@@ -403,7 +400,9 @@ def build_targeted_transition_coelution_report(
                     observed_transition_count=len(sample_observations),
                     coeluting_transition_count=len(coeluting_transition_ids),
                     coeluting_transition_ids=tuple(sorted(coeluting_transition_ids)),
-                    noncoeluting_transition_ids=tuple(sorted(noncoeluting_transition_ids)),
+                    noncoeluting_transition_ids=tuple(
+                        sorted(noncoeluting_transition_ids)
+                    ),
                     anchor_transition_id=anchor_transition_id,
                     anchor_retention_time_minutes=anchor_retention_time,
                     mean_retention_time_minutes=mean_retention_time,
@@ -412,7 +411,8 @@ def build_targeted_transition_coelution_report(
                     alignment_flagged=alignment_flagged,
                     coelution_tier=target_coelution_tier,
                     reliable_transition_support=(
-                        target_coelution_tier is TargetedTransitionCoelutionTier.RELIABLE
+                        target_coelution_tier
+                        is TargetedTransitionCoelutionTier.RELIABLE
                         and not reliability_reasons
                     ),
                     reliability_reasons=tuple(sorted(reliability_reasons)),
@@ -427,7 +427,11 @@ def build_targeted_transition_coelution_report(
         transition_entries=tuple(
             sorted(
                 transition_entries,
-                key=lambda entry: (entry.target_id, entry.sample_id, entry.transition_id),
+                key=lambda entry: (
+                    entry.target_id,
+                    entry.sample_id,
+                    entry.transition_id,
+                ),
             )
         ),
         summary=TargetedTransitionCoelutionSummary(
@@ -515,7 +519,9 @@ def render_targeted_transition_coelution_target_tsv(
                 entry.coeluting_transition_count,
                 ";".join(entry.coeluting_transition_ids),
                 ";".join(entry.noncoeluting_transition_ids),
-                "" if entry.anchor_transition_id is None else entry.anchor_transition_id,
+                ""
+                if entry.anchor_transition_id is None
+                else entry.anchor_transition_id,
                 (
                     ""
                     if entry.anchor_retention_time_minutes is None
@@ -580,7 +586,9 @@ def render_targeted_transition_coelution_transition_tsv(
                     if entry.retention_time_minutes is None
                     else f"{entry.retention_time_minutes:g}"
                 ),
-                "" if entry.anchor_transition_id is None else entry.anchor_transition_id,
+                ""
+                if entry.anchor_transition_id is None
+                else entry.anchor_transition_id,
                 (
                     ""
                     if entry.anchor_retention_time_minutes is None

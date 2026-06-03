@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_psm_map_command(
     input_tsv: Path,
     mapping_path: Path,
@@ -56,6 +57,7 @@ def run_psm_map_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_psm_inspect_command(
     input_tsv: Path,
@@ -190,6 +192,7 @@ def run_psm_inspect_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_peptide_evidence_command(
     input_tsv: Path,
     threshold: float,
@@ -267,6 +270,7 @@ def run_peptide_evidence_command(
         "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_protein_evidence_command(
     input_tsv: Path,
@@ -354,6 +358,7 @@ def run_protein_evidence_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_cross_run_reproducibility_command(
     input_tsv: Path,
     entity_type: str,
@@ -438,4 +443,11 @@ def run_cross_run_reproducibility_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_psm_map_command', 'run_psm_inspect_command', 'run_peptide_evidence_command', 'run_protein_evidence_command', 'run_cross_run_reproducibility_command']
+
+__all__ = [
+    "run_psm_map_command",
+    "run_psm_inspect_command",
+    "run_peptide_evidence_command",
+    "run_protein_evidence_command",
+    "run_cross_run_reproducibility_command",
+]

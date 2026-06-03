@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import Counter
+import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
@@ -82,7 +82,9 @@ class RetentionTimeAlignmentFitReport(JsonModel):
 
     min_anchor_count: int = Field(..., ge=1)
     models: tuple[RetentionTimeAlignmentFitModel, ...] = Field(default_factory=tuple)
-    residuals: tuple[RetentionTimeAlignmentFitResidual, ...] = Field(default_factory=tuple)
+    residuals: tuple[RetentionTimeAlignmentFitResidual, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class RetentionTimeIdentificationRow(JsonModel):
@@ -170,8 +172,12 @@ class RetentionTimeAlignmentReport(JsonModel):
     reference_run_id: str = Field(..., min_length=1)
     aligned_rt_tolerance_seconds: float = Field(..., gt=0.0)
     min_anchor_count: int = Field(..., ge=1)
-    peak_reports: tuple[ChromatographicPeakPickingReport, ...] = Field(default_factory=tuple)
-    run_models: tuple[RetentionTimeAlignmentRunModel, ...] = Field(default_factory=tuple)
+    peak_reports: tuple[ChromatographicPeakPickingReport, ...] = Field(
+        default_factory=tuple
+    )
+    run_models: tuple[RetentionTimeAlignmentRunModel, ...] = Field(
+        default_factory=tuple
+    )
     residuals: tuple[RetentionTimeAlignmentResidual, ...] = Field(default_factory=tuple)
     failed_anchors: tuple[RetentionTimeAlignmentFailedAnchor, ...] = Field(
         default_factory=tuple
@@ -337,8 +343,7 @@ def fit_rt_alignment(
 
         shift = _weighted_median(
             tuple(
-                anchor.observed_rt - anchor.reference_rt
-                for anchor in usable_anchors
+                anchor.observed_rt - anchor.reference_rt for anchor in usable_anchors
             ),
             tuple(anchor.anchor_confidence for anchor in usable_anchors),
         )
@@ -572,7 +577,8 @@ def align_chromatographic_peak_retention_times(
                 alignment_model=fit_model.alignment_model,
                 rt_shift=fit_model.rt_shift,
                 rt_residual_median=fit_model.rt_residual_median,
-                failed_anchor_count=run_failed_anchor_count + fit_model.failed_anchor_count,
+                failed_anchor_count=run_failed_anchor_count
+                + fit_model.failed_anchor_count,
                 shift_seconds=shift_seconds,
                 median_absolute_residual_seconds=(
                     fit_model.rt_residual_median
@@ -602,7 +608,10 @@ def align_chromatographic_peak_retention_times(
         min_anchor_count=min_anchor_count,
         peak_reports=peak_reports,
         run_models=tuple(
-            sorted(run_models, key=lambda item: (item.run_id != reference_entry.run_id, item.run_id))
+            sorted(
+                run_models,
+                key=lambda item: (item.run_id != reference_entry.run_id, item.run_id),
+            )
         ),
         residuals=tuple(
             sorted(residuals, key=lambda item: (item.run_id, item.target_id))
@@ -836,9 +845,7 @@ def _select_reference_run(
     if reference_run_id is None:
         return run_entries[0]
     try:
-        return next(
-            entry for entry in run_entries if entry.run_id == reference_run_id
-        )
+        return next(entry for entry in run_entries if entry.run_id == reference_run_id)
     except StopIteration as exc:
         raise ValueError(f"unknown reference_run_id {reference_run_id!r}") from exc
 
@@ -876,9 +883,7 @@ def _build_residual(
     aligned_rt_tolerance_seconds: float,
 ) -> RetentionTimeAlignmentResidual:
     aligned_apex_time_seconds = run_peak.apex_time_seconds - shift_seconds
-    residual_seconds = (
-        aligned_apex_time_seconds - reference_peak.apex_time_seconds
-    )
+    residual_seconds = aligned_apex_time_seconds - reference_peak.apex_time_seconds
     absolute_residual_seconds = abs(residual_seconds)
     return RetentionTimeAlignmentResidual(
         run_id=run_id,
@@ -922,7 +927,9 @@ def _weighted_median(
     weights: tuple[float, ...],
 ) -> float:
     if not values or not weights or len(values) != len(weights):
-        raise ValueError("weighted median requires matched non-empty values and weights")
+        raise ValueError(
+            "weighted median requires matched non-empty values and weights"
+        )
     ordered = sorted(zip(values, weights, strict=True), key=lambda item: item[0])
     total_weight = sum(weight for _, weight in ordered)
     if total_weight <= 0.0:

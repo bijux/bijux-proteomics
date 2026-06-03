@@ -215,7 +215,9 @@ def build_targeted_assay_interference_report(
     if minimum_export_transitions < 1:
         raise ValueError("minimum_export_transitions must be at least 1")
 
-    protease_rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    protease_rule = (
+        get_protease_rule(protease) if isinstance(protease, str) else protease
+    )
     selected_by_key = {
         _selected_peptide_key(entry): entry for entry in selected_peptides
     }
@@ -282,13 +284,15 @@ def build_targeted_assay_interference_report(
                 fragment_charge=transition.fragment_charge,
                 fragment_tolerance_da=fragment_tolerance_da,
             )
-            library_overlap_count, coeluting_overlap_count = _count_library_fragment_overlaps(
-                competing_library_entries,
-                source_library_entry=source_library_entry,
-                fragment_mz=transition.fragment_mz,
-                fragment_charge=transition.fragment_charge,
-                fragment_tolerance_da=fragment_tolerance_da,
-                coelution_rt_window_minutes=coelution_rt_window_minutes,
+            library_overlap_count, coeluting_overlap_count = (
+                _count_library_fragment_overlaps(
+                    competing_library_entries,
+                    source_library_entry=source_library_entry,
+                    fragment_mz=transition.fragment_mz,
+                    fragment_charge=transition.fragment_charge,
+                    fragment_tolerance_da=fragment_tolerance_da,
+                    coelution_rt_window_minutes=coelution_rt_window_minutes,
+                )
             )
             interference_risk_score = _transition_interference_risk_score(
                 intrinsic_transition_risk_score=transition.interference_risk_score,
@@ -505,7 +509,8 @@ def build_targeted_assay_interference_report(
             high_risk_assay_count=sum(
                 1
                 for entry in ordered_assays
-                if entry.interference_risk_tier is TargetedAssayInterferenceRiskTier.HIGH
+                if entry.interference_risk_tier
+                is TargetedAssayInterferenceRiskTier.HIGH
             ),
             downgraded_assay_count=sum(
                 1 for entry in ordered_assays if not entry.panel_export_allowed
@@ -619,7 +624,9 @@ def render_targeted_assay_interference_assay_tsv(
                 ";".join(reason.value for reason in entry.downgrade_reasons),
                 str(entry.panel_export_allowed).lower(),
                 entry.panel_export_caveat,
-                "" if entry.source_library_entry_id is None else entry.source_library_entry_id,
+                ""
+                if entry.source_library_entry_id is None
+                else entry.source_library_entry_id,
             )
         )
     return handle.getvalue()
@@ -776,7 +783,10 @@ def _background_competitor_peptides(
             sequence,
             charge=assay_entry.precursor_charge,
         )
-        if abs(competitor_precursor_mz - assay_entry.precursor_mz) <= precursor_tolerance_da:
+        if (
+            abs(competitor_precursor_mz - assay_entry.precursor_mz)
+            <= precursor_tolerance_da
+        ):
             competing_sequences.append(sequence)
     return tuple(competing_sequences)
 
@@ -1020,7 +1030,10 @@ def _assay_downgrade_reasons(
     coeluting_overlap_peptide_count: int,
 ) -> tuple[TargetedAssayInterferenceReason, ...]:
     reasons: list[TargetedAssayInterferenceReason] = []
-    if selected_peptide is not None and selected_peptide.uniqueness_class is not PeptideUniquenessClass.UNIQUE:
+    if (
+        selected_peptide is not None
+        and selected_peptide.uniqueness_class is not PeptideUniquenessClass.UNIQUE
+    ):
         reasons.append(TargetedAssayInterferenceReason.SHARED_PEPTIDE)
     if intrinsic_transition_risk_score >= 0.4:
         reasons.append(TargetedAssayInterferenceReason.INTRINSIC_TRANSITION_RISK)
@@ -1073,7 +1086,5 @@ def _assay_export_caveat(
             "or surviving transition support is insufficient before acquisition"
         )
     if risk_tier is TargetedAssayInterferenceRiskTier.MEDIUM or downgrade_reasons:
-        return (
-            "assay remains exportable with explicit pre-acquisition interference caveats"
-        )
+        return "assay remains exportable with explicit pre-acquisition interference caveats"
     return "assay is exportable without additional pre-acquisition interference caveats"

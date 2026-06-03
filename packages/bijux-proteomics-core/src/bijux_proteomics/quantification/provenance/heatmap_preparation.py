@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -16,6 +14,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
@@ -121,7 +120,9 @@ class HeatmapPreparationReport(JsonModel):
     policy: HeatmapPreparationPolicy
     rows: tuple[HeatmapMatrixRow, ...] = Field(default_factory=tuple)
     row_metadata: tuple[HeatmapRowMetadataEntry, ...] = Field(default_factory=tuple)
-    column_metadata: tuple[HeatmapColumnMetadataEntry, ...] = Field(default_factory=tuple)
+    column_metadata: tuple[HeatmapColumnMetadataEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -198,15 +199,22 @@ def build_heatmap_preparation_report(
             observed_fraction=observed_fraction,
             missing_value_policy=active_policy.missing_value_policy,
             mean_log2_abundance=(
-                float(np.mean(raw_values[finite_mask])) if observed_sample_count else None
+                float(np.mean(raw_values[finite_mask]))
+                if observed_sample_count
+                else None
             ),
             variance_log2_abundance=(
-                float(np.var(raw_values[finite_mask])) if observed_sample_count else None
+                float(np.var(raw_values[finite_mask]))
+                if observed_sample_count
+                else None
             ),
         )
         row_entries.append((metadata, prepared_values))
 
-    if active_policy.max_entity_count is not None and len(row_entries) > active_policy.max_entity_count:
+    if (
+        active_policy.max_entity_count is not None
+        and len(row_entries) > active_policy.max_entity_count
+    ):
         row_entries = sorted(
             row_entries,
             key=lambda item: (
@@ -214,7 +222,15 @@ def build_heatmap_preparation_report(
                 item[0].entity_id,
             ),
         )[: active_policy.max_entity_count]
-        truncated_entity_count = max(0, len(table.entity_ids) - filtered_entity_id_count - filtered_protein_ref_count - filtered_observed_fraction_count - filtered_missing_policy_count - len(row_entries))
+        truncated_entity_count = max(
+            0,
+            len(table.entity_ids)
+            - filtered_entity_id_count
+            - filtered_protein_ref_count
+            - filtered_observed_fraction_count
+            - filtered_missing_policy_count
+            - len(row_entries),
+        )
 
     row_entries = sorted(row_entries, key=lambda item: item[0].entity_id)
     rows = tuple(
@@ -271,11 +287,12 @@ def render_heatmap_matrix_tsv(report: HeatmapPreparationReport) -> str:
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(("entity_id", *ordered_sample_ids))
     for row in sort_rows_by_fields(report.rows, "entity_id"):
-        value_lookup = {
-            sample_id: value for sample_id, value in zip(report.sample_ids, row.values, strict=True)
-        }
+        value_lookup = dict(zip(report.sample_ids, row.values, strict=True))
         writer.writerow(
-            (row.entity_id, *[f"{value_lookup[sample_id]:g}" for sample_id in ordered_sample_ids])
+            (
+                row.entity_id,
+                *[f"{value_lookup[sample_id]:g}" for sample_id in ordered_sample_ids],
+            )
         )
     return handle.getvalue()
 
@@ -352,7 +369,9 @@ def render_heatmap_row_metadata_tsv(report: HeatmapPreparationReport) -> str:
                 row.filled_missing_sample_count,
                 f"{row.observed_fraction:g}",
                 row.missing_value_policy.value,
-                "" if row.mean_log2_abundance is None else f"{row.mean_log2_abundance:g}",
+                ""
+                if row.mean_log2_abundance is None
+                else f"{row.mean_log2_abundance:g}",
                 ""
                 if row.variance_log2_abundance is None
                 else f"{row.variance_log2_abundance:g}",
@@ -389,8 +408,12 @@ def render_heatmap_column_metadata_tsv(report: HeatmapPreparationReport) -> str:
                 column.column_index,
                 column.sample_metadata.sample_id,
                 column.sample_metadata.condition or "",
-                "" if column.sample_metadata.replicate is None else column.sample_metadata.replicate,
-                "" if column.sample_metadata.fraction is None else column.sample_metadata.fraction,
+                ""
+                if column.sample_metadata.replicate is None
+                else column.sample_metadata.replicate,
+                ""
+                if column.sample_metadata.fraction is None
+                else column.sample_metadata.fraction,
                 column.sample_metadata.batch or "",
                 column.sample_metadata.instrument or "",
                 column.sample_metadata.search_engine or "",

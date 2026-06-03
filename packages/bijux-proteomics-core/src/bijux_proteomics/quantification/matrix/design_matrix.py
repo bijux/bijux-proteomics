@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from itertools import combinations
@@ -16,18 +14,19 @@ from typing import cast
 
 import numpy as np
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QuantDesignContrast,
+    QuantDesignContrastEstimateEntry,
     QuantDesignMatrixColumn,
     QuantDesignMatrixColumnEncoding,
     QuantDesignMatrixColumnKind,
-    QuantDesignContrastEstimateEntry,
     QuantDesignMatrixReport,
+    QuantDesignMatrixSampleRow,
     QuantDesignModelCoefficientEntry,
     QuantDesignModelFitReport,
-    QuantDesignMatrixSampleRow,
     _matrix_value_index,
 )
 from bijux_proteomics.study.sample_run_identity import (
@@ -79,7 +78,11 @@ def _build_numeric_covariate_column(
         numeric = tuple(float(value) for value in values)
     except ValueError:
         return None
-    column_name = "timepoint" if kind is QuantDesignMatrixColumnKind.TIMEPOINT else f"covariate[{field}]"
+    column_name = (
+        "timepoint"
+        if kind is QuantDesignMatrixColumnKind.TIMEPOINT
+        else f"covariate[{field}]"
+    )
     return (
         QuantDesignMatrixColumn(
             column_name=column_name,
@@ -121,9 +124,7 @@ def _build_categorical_columns(
                 reference_level=reference,
             )
         )
-        data_columns.append(
-            tuple(1.0 if value == level else 0.0 for value in values)
-        )
+        data_columns.append(tuple(1.0 if value == level else 0.0 for value in values))
     return tuple(columns), tuple(data_columns)
 
 
@@ -236,12 +237,11 @@ def build_quant_design_matrix_report(
 
     conditions = tuple(
         sorted(
-            {
-                value
-                for value in _require_populated_design_field(
+            set(
+                _require_populated_design_field(
                     analysis_design_entries, condition_field
                 )
-            }
+            )
         )
     )
     if len(conditions) < 2:
@@ -409,8 +409,7 @@ def fit_quant_design_matrix_model(
     fitted_entity_count = 0
     skipped_entity_count = 0
     column_index = {
-        column.column_name: index
-        for index, column in enumerate(design_matrix.columns)
+        column.column_name: index for index, column in enumerate(design_matrix.columns)
     }
     for entity_id in table.entity_ids:
         observed_rows: list[np.ndarray] = []
@@ -479,7 +478,7 @@ def render_quant_design_matrix_tsv(
 ) -> str:
     """Render one design matrix as a stable TSV table."""
     metadata_fields = tuple(
-        sorted({key for row in report.rows for key in row.metadata.keys()})
+        sorted({key for row in report.rows for key in row.metadata})
     )
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")

@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+    build_psm_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -49,6 +61,7 @@ if TYPE_CHECKING:
     )
 from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 class TargetDecoyLabel(StrEnum):
     """Normalized target/decoy state for one evidence record."""
@@ -292,7 +305,9 @@ class PsmRecord(JsonModel):
             canonical_peptide=self.canonical_peptide,
             modified_peptide=modified_peptide,
             modification_names=tuple(
-                dict.fromkeys(modification.name for modification in parsed.modifications)
+                dict.fromkeys(
+                    modification.name for modification in parsed.modifications
+                )
             ),
             charge_state=self.charge,
             protein_refs=self.protein_refs,
@@ -322,7 +337,9 @@ class RejectedPsmRow(JsonModel):
     def to_domain_record(self) -> CanonicalRejectedEvidence:
         """Expose one rejected PSM row as canonical rejected evidence."""
 
-        issue_message = "; ".join(issue.message for issue in self.issues) or "rejected psm row"
+        issue_message = (
+            "; ".join(issue.message for issue in self.issues) or "rejected psm row"
+        )
         return CanonicalRejectedEvidence(
             record_kind="psm",
             rejection_reason=issue_message,
@@ -366,7 +383,6 @@ class TargetDecoyCollisionReport(JsonModel):
     collisions: tuple[TargetDecoyCollisionEntry, ...] = Field(default_factory=tuple)
 
 
-
 class DecoyStrategyValidationIssue(JsonModel):
     """One validation issue for a custom target-decoy strategy."""
 
@@ -385,7 +401,6 @@ class DecoyStrategyValidationReport(JsonModel):
     policy: TargetDecoyLabelPolicy
     valid: bool
     issues: tuple[DecoyStrategyValidationIssue, ...] = Field(default_factory=tuple)
-
 
 
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
@@ -657,7 +672,6 @@ def validate_target_decoy_policy(
     )
 
 
-
 def parse_target_decoy_label(
     *,
     protein_refs: tuple[str, ...] = (),
@@ -758,24 +772,25 @@ def _raise_on_target_decoy_accession_collisions(
         f"decoys={','.join(collision.decoy_refs)}"
     )
 
+
 __all__ = [
-    'TargetDecoyLabel',
-    'TargetDecoyContaminantClass',
-    'PsmSortField',
-    'SearchResultColumnMapping',
-    'TargetDecoyLabelPolicy',
-    'TargetDecoyContaminantClassification',
-    'PsmRecord',
-    'SearchResultValidationIssue',
-    'RejectedPsmRow',
-    'PsmParseReport',
-    'TargetDecoyCollisionEntry',
-    'TargetDecoyCollisionReport',
-    'DecoyStrategyValidationIssue',
-    'DecoyStrategyValidationReport',
-    'classify_target_decoy_contaminant',
-    'is_biological_foreground_class',
-    'validate_target_decoy_policy',
-    'parse_target_decoy_label',
-    'validate_target_decoy_accession_collisions',
+    "TargetDecoyLabel",
+    "TargetDecoyContaminantClass",
+    "PsmSortField",
+    "SearchResultColumnMapping",
+    "TargetDecoyLabelPolicy",
+    "TargetDecoyContaminantClassification",
+    "PsmRecord",
+    "SearchResultValidationIssue",
+    "RejectedPsmRow",
+    "PsmParseReport",
+    "TargetDecoyCollisionEntry",
+    "TargetDecoyCollisionReport",
+    "DecoyStrategyValidationIssue",
+    "DecoyStrategyValidationReport",
+    "classify_target_decoy_contaminant",
+    "is_biological_foreground_class",
+    "validate_target_decoy_policy",
+    "parse_target_decoy_label",
+    "validate_target_decoy_accession_collisions",
 ]

@@ -9,8 +9,16 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationError,
+    ScientificTableValidationIssue,
+    build_diann_report_schema,
+    validate_scientific_table,
+)
+from bijux_proteomics._tabular import AcceptedDelimitedRow
 from bijux_proteomics.dia import DiaNnImportReport, DiaNnImportRow, import_dia_nn_rows
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
@@ -24,14 +32,6 @@ from bijux_proteomics.identification.search_adapters import (
     parse_search_parameter_file,
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationError,
-    ScientificTableValidationIssue,
-    build_diann_report_schema,
-    validate_scientific_table,
-)
-from bijux_proteomics._tabular import AcceptedDelimitedRow
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -426,10 +426,14 @@ def _build_diann_precursor_rows(
                 charge=_required_int(values, "charge"),
                 q_value=_required_float(values, "q_value"),
                 protein_group_id=protein_group_id,
-                protein_refs=_split_protein_refs(_required_text(values, "protein_refs")),
+                protein_refs=_split_protein_refs(
+                    _required_text(values, "protein_refs")
+                ),
                 run_name=run_name,
                 sample_name=sample_name,
-                precursor_quantity=_optional_float_value(values.get("precursor_quantity")),
+                precursor_quantity=_optional_float_value(
+                    values.get("precursor_quantity")
+                ),
                 protein_group_quantity=_optional_float_value(
                     values.get("protein_group_quantity")
                 ),

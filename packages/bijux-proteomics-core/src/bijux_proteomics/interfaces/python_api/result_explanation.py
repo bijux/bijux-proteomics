@@ -9,6 +9,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_result_question_answer_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -56,7 +57,9 @@ def run_result_question_answer_command(
             None if biological_report_dir is None else str(biological_report_dir)
         ),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "report": report.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -67,6 +70,7 @@ def run_result_question_answer_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_result_explanation_command(
     biological_report_dir: Path | None,
@@ -125,7 +129,9 @@ def run_result_explanation_command(
             None if biological_report_dir is None else str(biological_report_dir)
         ),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "report": report.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -138,6 +144,7 @@ def run_result_explanation_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_failure_explanation_command(
     failure_text: str,
@@ -178,6 +185,7 @@ def run_failure_explanation_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_analysis_recommendations_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -208,7 +216,9 @@ def run_analysis_recommendations_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        _write_text_output(summary_tsv_out, render_analysis_recommendation_summary_tsv(report))
+        _write_text_output(
+            summary_tsv_out, render_analysis_recommendation_summary_tsv(report)
+        )
     if recommendation_tsv_out is not None:
         _write_text_output(
             recommendation_tsv_out,
@@ -220,7 +230,9 @@ def run_analysis_recommendations_command(
             None if biological_report_dir is None else str(biological_report_dir)
         ),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "batch_effect_summary_tsv": (
             None if batch_effect_summary_tsv is None else str(batch_effect_summary_tsv)
         ),
@@ -228,13 +240,12 @@ def run_analysis_recommendations_command(
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "recommendation_tsv": (
-                None
-                if recommendation_tsv_out is None
-                else str(recommendation_tsv_out)
+                None if recommendation_tsv_out is None else str(recommendation_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_compact_result_summary_command(
     biological_report_dir: Path,
@@ -273,7 +284,9 @@ def run_compact_result_summary_command(
     payload = {
         "biological_report_dir": str(biological_report_dir),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "batch_effect_summary_tsv": (
             None if batch_effect_summary_tsv is None else str(batch_effect_summary_tsv)
         ),
@@ -287,4 +300,11 @@ def run_compact_result_summary_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_result_question_answer_command', 'run_result_explanation_command', 'run_failure_explanation_command', 'run_analysis_recommendations_command', 'run_compact_result_summary_command']
+
+__all__ = [
+    "run_result_question_answer_command",
+    "run_result_explanation_command",
+    "run_failure_explanation_command",
+    "run_analysis_recommendations_command",
+    "run_compact_result_summary_command",
+]

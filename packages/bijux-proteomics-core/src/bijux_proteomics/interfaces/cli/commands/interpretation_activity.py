@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_activity import (
+    run_complex_activity_command,
+    run_pathway_activity_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_activity import run_pathway_activity_command, run_complex_activity_command
+
 
 @click.command("pathway-activity")
 @click.argument(
@@ -43,10 +47,17 @@ from bijux_proteomics.interfaces.python_api.interpretation_activity import run_p
 @click.option("--protein-refs-column", default="proteins", show_default=True)
 @click.option("--charge-column", default="charge", show_default=True)
 @click.option("--mz-column", default="mz", show_default=True)
-@click.option("--retention-time-column", default="retention_time_seconds", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
 @click.option("--missing-reason-column", default="missing_reason", show_default=True)
 @click.option("--protein-separator", default=";", show_default=True)
-@click.option("--aggregation", type=click.Choice(["sum", "top_n"]), default="sum", show_default=True)
+@click.option(
+    "--aggregation",
+    type=click.Choice(["sum", "top_n"]),
+    default="sum",
+    show_default=True,
+)
 @click.option("--top-n", default=3, show_default=True, type=int)
 @click.option(
     "--normalization",
@@ -146,8 +157,44 @@ def pathway_activity_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score pathway activity across normalized study samples.'
-    return run_pathway_activity_command(input_table, pathway_membership_tsv, design_path, fasta, annotation_tsv, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, top_n, normalization, pathway_id_column, pathway_name_column, pathway_source_name_column, pathway_source_accession_column, pathway_protein_ref_column, pathway_gene_symbol_column, minimum_observed_member_count, summary_tsv_out, matrix_tsv_out, sample_score_tsv_out, condition_score_tsv_out, condition_comparison_tsv_out, member_contribution_tsv_out, unresolved_member_tsv_out, rejected_pathway_tsv_out, out_path)
+    "Score pathway activity across normalized study samples."
+    return run_pathway_activity_command(
+        input_table,
+        pathway_membership_tsv,
+        design_path,
+        fasta,
+        annotation_tsv,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        pathway_id_column,
+        pathway_name_column,
+        pathway_source_name_column,
+        pathway_source_accession_column,
+        pathway_protein_ref_column,
+        pathway_gene_symbol_column,
+        minimum_observed_member_count,
+        summary_tsv_out,
+        matrix_tsv_out,
+        sample_score_tsv_out,
+        condition_score_tsv_out,
+        condition_comparison_tsv_out,
+        member_contribution_tsv_out,
+        unresolved_member_tsv_out,
+        rejected_pathway_tsv_out,
+        out_path,
+    )
+
 
 @click.command("complex-activity")
 @click.argument(
@@ -295,8 +342,44 @@ def complex_activity_command(
     rejected_complex_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score protein complex activity across normalized study samples.'
-    return run_complex_activity_command(input_table, complex_membership_tsv, design_path, fasta, annotation_tsv, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, normalization, top_n, complex_id_column, complex_name_column, source_name_column, source_accession_column, complex_protein_ref_column, gene_symbol_column, minimum_observed_member_count, summary_tsv_out, matrix_tsv_out, sample_score_tsv_out, condition_score_tsv_out, condition_comparison_tsv_out, member_contribution_tsv_out, unresolved_member_tsv_out, rejected_complex_tsv_out, out_path)
+    "Score protein complex activity across normalized study samples."
+    return run_complex_activity_command(
+        input_table,
+        complex_membership_tsv,
+        design_path,
+        fasta,
+        annotation_tsv,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        normalization,
+        top_n,
+        complex_id_column,
+        complex_name_column,
+        source_name_column,
+        source_accession_column,
+        complex_protein_ref_column,
+        gene_symbol_column,
+        minimum_observed_member_count,
+        summary_tsv_out,
+        matrix_tsv_out,
+        sample_score_tsv_out,
+        condition_score_tsv_out,
+        condition_comparison_tsv_out,
+        member_contribution_tsv_out,
+        unresolved_member_tsv_out,
+        rejected_complex_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     pathway_activity_command,

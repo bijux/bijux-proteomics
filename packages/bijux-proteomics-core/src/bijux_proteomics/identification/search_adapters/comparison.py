@@ -44,6 +44,7 @@ def _score_families_compatible(
         f"score families {left.value} and {right.value} are orientation-normalizable but not natively interchangeable",
     )
 
+
 def compare_search_result_reports(
     left: SearchAdapterNormalizationReport,
     right: SearchAdapterNormalizationReport,

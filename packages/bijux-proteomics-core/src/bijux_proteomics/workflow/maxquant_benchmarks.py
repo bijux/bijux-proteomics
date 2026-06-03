@@ -36,8 +36,8 @@ from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
 from bijux_proteomics.study import (
-    ExperimentDesignAnalysisFamily,
     ExperimentDesign,
+    ExperimentDesignAnalysisFamily,
     coerce_experiment_design,
     require_feasible_experiment_design_for_analysis,
 )
@@ -68,7 +68,9 @@ class MaxquantBenchmarkSourceProteinGroup(JsonModel):
     contaminant_flag: bool = False
     only_identified_by_site: bool = False
     observed_lfq_experiment_count: int = Field(..., ge=0)
-    lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(default_factory=tuple)
+    lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class MaxquantBenchmarkProteinIdentityComparison(JsonModel):
@@ -178,9 +180,9 @@ class MaxquantBenchmarkReport(JsonModel):
     lfq_comparisons: tuple[MaxquantBenchmarkLfqComparisonEntry, ...] = Field(
         default_factory=tuple
     )
-    differential_comparisons: tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...] = (
-        Field(default_factory=tuple)
-    )
+    differential_comparisons: tuple[
+        MaxquantBenchmarkDifferentialComparisonEntry, ...
+    ] = Field(default_factory=tuple)
     summary: MaxquantBenchmarkSummary
     note: str = Field(..., min_length=1)
 
@@ -191,7 +193,9 @@ def build_maxquant_benchmark_report(
     peptides_txt_path: Path,
     protein_groups_txt_path: Path,
     config_path: Path | None = None,
-    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...] | None = None,
+    design_entries: ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...]
+    | None = None,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
@@ -233,7 +237,9 @@ def build_maxquant_benchmark_report(
         lfq_table=lfq_table,
     )
     differential_report: DifferentialAbundanceReport | None = None
-    differential_comparisons: tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...] = ()
+    differential_comparisons: tuple[
+        MaxquantBenchmarkDifferentialComparisonEntry, ...
+    ] = ()
     source_differential_entry_count = 0
     imported_differential_entry_count = 0
     exact_differential_match_count = 0
@@ -343,9 +349,7 @@ def build_maxquant_benchmark_report(
                 max_differential_adjusted_p_value_difference
             ),
             protein_identity_matched=protein_identity_comparison.matched,
-            filtering_matched=all(
-                entry.matched for entry in filtering_comparisons
-            ),
+            filtering_matched=all(entry.matched for entry in filtering_comparisons),
             lfq_values_matched=all(entry.exact_match for entry in lfq_comparisons),
             differential_comparison_applied=differential_comparison_applied,
             differential_matched=differential_matched,
@@ -762,7 +766,9 @@ def _build_lfq_comparisons(
     ):
         source_intensity = source_by_entity_sample[(value.entity_id, value.sample_id)]
         imported_intensity = value.abundance
-        absolute_difference = abs((source_intensity or 0.0) - (imported_intensity or 0.0))
+        absolute_difference = abs(
+            (source_intensity or 0.0) - (imported_intensity or 0.0)
+        )
         comparisons.append(
             MaxquantBenchmarkLfqComparisonEntry(
                 entity_id=value.entity_id,
@@ -822,12 +828,8 @@ def _build_differential_comparisons(
     source_report: DifferentialAbundanceReport,
     imported_report: DifferentialAbundanceReport,
 ) -> tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...]:
-    source_by_entity = {
-        entry.entity_id: entry for entry in source_report.entries
-    }
-    imported_by_entity = {
-        entry.entity_id: entry for entry in imported_report.entries
-    }
+    source_by_entity = {entry.entity_id: entry for entry in source_report.entries}
+    imported_by_entity = {entry.entity_id: entry for entry in imported_report.entries}
     comparisons: list[MaxquantBenchmarkDifferentialComparisonEntry] = []
     for entity_id in sorted(source_by_entity):
         source_entry = source_by_entity[entity_id]

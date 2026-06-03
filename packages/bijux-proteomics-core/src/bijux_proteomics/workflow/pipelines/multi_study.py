@@ -10,7 +10,10 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.interpretation import OrthologRecord, PathwayEnrichmentCorrectionPolicy
+from bijux_proteomics.interpretation import (
+    OrthologRecord,
+    PathwayEnrichmentCorrectionPolicy,
+)
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,
@@ -36,7 +39,6 @@ from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     render_cross_study_protein_harmonization_tsv,
     render_cross_study_protein_unresolved_tsv,
 )
-from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
     RejectedEvidenceEntry,
@@ -45,6 +47,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class MultiStudyComparisonSummary(JsonModel):
@@ -95,7 +98,9 @@ class MultiStudyComparisonReport(BiologyResult):
 
     model_config = ConfigDict(extra="forbid")
 
-    manifest: MultiStudyComparisonManifest = Field(default_factory=MultiStudyComparisonManifest)
+    manifest: MultiStudyComparisonManifest = Field(
+        default_factory=MultiStudyComparisonManifest
+    )
     harmonization_report: CrossStudyProteinHarmonizationReport
     effect_comparison_report: CrossStudyProteinEffectComparisonReport
     pathway_comparison_report: CrossStudyPathwayComparisonReport
@@ -166,7 +171,8 @@ def compare_studies(
     study_specific_pathways = tuple(
         entry
         for entry in pathway_comparison_report.comparisons
-        if entry.comparison_status is CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL
+        if entry.comparison_status
+        is CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL
     )
     manifest = MultiStudyComparisonManifest()
     summary = MultiStudyComparisonSummary(
@@ -212,7 +218,9 @@ def compare_studies(
     )
 
 
-def render_multi_study_comparison_summary_tsv(report: MultiStudyComparisonReport) -> str:
+def render_multi_study_comparison_summary_tsv(
+    report: MultiStudyComparisonReport,
+) -> str:
     """Render one-row multi-study comparison summary as TSV."""
 
     buffer = StringIO()
@@ -252,13 +260,17 @@ def render_multi_study_comparison_summary_tsv(report: MultiStudyComparisonReport
     return buffer.getvalue()
 
 
-def render_multi_study_harmonized_proteins_tsv(report: MultiStudyComparisonReport) -> str:
+def render_multi_study_harmonized_proteins_tsv(
+    report: MultiStudyComparisonReport,
+) -> str:
     """Render harmonized proteins as TSV."""
 
     return render_cross_study_protein_harmonization_tsv(report.harmonization_report)
 
 
-def render_multi_study_unresolved_proteins_tsv(report: MultiStudyComparisonReport) -> str:
+def render_multi_study_unresolved_proteins_tsv(
+    report: MultiStudyComparisonReport,
+) -> str:
     """Render unresolved proteins as TSV."""
 
     return render_cross_study_protein_unresolved_tsv(report.harmonization_report)
@@ -270,7 +282,9 @@ def render_multi_study_shared_effects_tsv(report: MultiStudyComparisonReport) ->
     return render_cross_study_replicated_hit_tsv(report.effect_comparison_report)
 
 
-def render_multi_study_conflicting_effects_tsv(report: MultiStudyComparisonReport) -> str:
+def render_multi_study_conflicting_effects_tsv(
+    report: MultiStudyComparisonReport,
+) -> str:
     """Render conflicting cross-study protein effects as TSV."""
 
     return render_cross_study_conflicting_hit_tsv(report.effect_comparison_report)
@@ -279,7 +293,9 @@ def render_multi_study_conflicting_effects_tsv(report: MultiStudyComparisonRepor
 def render_multi_study_shared_pathways_tsv(report: MultiStudyComparisonReport) -> str:
     """Render shared pathways as TSV."""
 
-    return render_cross_study_shared_pathway_signal_tsv(report.pathway_comparison_report)
+    return render_cross_study_shared_pathway_signal_tsv(
+        report.pathway_comparison_report
+    )
 
 
 def render_multi_study_study_specific_pathways_tsv(
@@ -287,7 +303,9 @@ def render_multi_study_study_specific_pathways_tsv(
 ) -> str:
     """Render study-specific pathways as TSV."""
 
-    return render_cross_study_study_specific_pathway_tsv(report.pathway_comparison_report)
+    return render_cross_study_study_specific_pathway_tsv(
+        report.pathway_comparison_report
+    )
 
 
 def _build_multi_study_warnings(

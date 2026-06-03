@@ -24,11 +24,13 @@ class QuantEntityLevel(StrEnum):
     PEPTIDE = "peptide"
     PROTEIN = "protein"
 
+
 class QuantMeasureKind(StrEnum):
     """Supported quantification measurement kinds."""
 
     INTENSITY = "intensity"
     SPECTRAL_COUNT = "spectral_count"
+
 
 class MissingValueKind(StrEnum):
     """Stable semantics for observed, absent, imputed, and excluded quant cells."""
@@ -42,12 +44,14 @@ class MissingValueKind(StrEnum):
     EXCLUDED = "excluded"
     NOT_APPLICABLE = "not_applicable"
 
+
 class QuantRollupMethod(StrEnum):
     """Supported peptide-to-protein quant rollup policies."""
 
     SUM = "sum"
     MEDIAN = "median"
     TOP_N = "top_n"
+
 
 class NormalizationMethod(StrEnum):
     """Supported label-free normalization methods."""
@@ -59,6 +63,7 @@ class NormalizationMethod(StrEnum):
     LOG2_MEDIAN_CENTERING = "log2_median_centering"
     VSN_LIKE = "vsn_like"
 
+
 class ImputationMethod(StrEnum):
     """Supported label-free missing-value imputation methods."""
 
@@ -67,17 +72,20 @@ class ImputationMethod(StrEnum):
     GROUP_AWARE_LOW_INTENSITY = "group_aware_low_intensity"
     KNN = "knn"
 
+
 class QuantAssessmentDisposition(StrEnum):
     """Whether a quantification report changes behavior or remains advisory."""
 
     ENFORCED = "ENFORCED"
     ADVISORY = "ADVISORY"
 
+
 class MissingValueCorrectionPolicy(StrEnum):
     """Deterministic remapping policy for missing-value summary categories."""
 
     PRESERVE = "preserve"
     TREAT_AS_NOT_OBSERVED = "treat_as_not_observed"
+
 
 class MissingChannelPolicy(StrEnum):
     """Policy for expected multiplex channels that are absent from a run."""
@@ -86,6 +94,7 @@ class MissingChannelPolicy(StrEnum):
     TREAT_AS_MISSING = "treat_as_missing"
     ERROR = "error"
 
+
 class LabelBasedChannelRole(StrEnum):
     """Stable role classification for multiplex quantification channels."""
 
@@ -93,6 +102,7 @@ class LabelBasedChannelRole(StrEnum):
     CARRIER = "carrier"
     REFERENCE = "reference"
     QC_BRIDGE = "qc_bridge"
+
 
 class Ms1FeatureColumnMapping(JsonModel):
     """User-supplied mapping from feature-table columns to the quant contract."""
@@ -110,6 +120,7 @@ class Ms1FeatureColumnMapping(JsonModel):
     missing_reason: str | None = None
     protein_separator: str = ";"
 
+
 class QuantValidationIssue(JsonModel):
     """One validation issue while parsing feature quantification input."""
 
@@ -119,6 +130,7 @@ class QuantValidationIssue(JsonModel):
     message: str = Field(..., min_length=1)
     row_number: int = Field(..., ge=2)
 
+
 class RejectedMs1FeatureRow(JsonModel):
     """One rejected MS1 feature row with stable issue details."""
 
@@ -127,6 +139,7 @@ class RejectedMs1FeatureRow(JsonModel):
     row_number: int = Field(..., ge=2)
     raw_fields: dict[str, str] = Field(default_factory=dict)
     issues: tuple[QuantValidationIssue, ...] = Field(default_factory=tuple)
+
 
 class Ms1FeatureRecord(JsonModel):
     """One normalized MS1 feature quantification row."""
@@ -175,6 +188,7 @@ class Ms1FeatureRecord(JsonModel):
         normalized = tuple(token.strip() for token in refs if token.strip())
         return tuple(dict.fromkeys(normalized))
 
+
 class Ms1FeatureParseReport(JsonModel):
     """Stable parse report for one MS1 feature quantification table."""
 
@@ -184,6 +198,7 @@ class Ms1FeatureParseReport(JsonModel):
     accepted_records: tuple[Ms1FeatureRecord, ...] = Field(default_factory=tuple)
     rejected_rows: tuple[RejectedMs1FeatureRow, ...] = Field(default_factory=tuple)
     column_mapping: Ms1FeatureColumnMapping
+
 
 class PrecursorIntensityColumnMapping(JsonModel):
     """User-supplied mapping from precursor-quant columns to the quant contract."""
@@ -207,6 +222,7 @@ class PrecursorIntensityColumnMapping(JsonModel):
             raise ValueError("precursor intensity mapping requires sample_id or run_id")
         return self
 
+
 class RejectedPrecursorIntensityRow(JsonModel):
     """One rejected precursor-intensity row with stable issue details."""
 
@@ -215,6 +231,7 @@ class RejectedPrecursorIntensityRow(JsonModel):
     row_number: int = Field(..., ge=2)
     raw_fields: dict[str, str] = Field(default_factory=dict)
     issues: tuple[QuantValidationIssue, ...] = Field(default_factory=tuple)
+
 
 class PrecursorIntensityRecord(JsonModel):
     """One normalized precursor-intensity quantification row."""
@@ -265,13 +282,16 @@ class PrecursorIntensityRecord(JsonModel):
         normalized = tuple(token.strip() for token in refs if token.strip())
         return tuple(dict.fromkeys(normalized))
 
+
 class PrecursorIntensityParseReport(JsonModel):
     """Stable parse report for one precursor-intensity quantification table."""
 
     model_config = ConfigDict(extra="forbid")
 
     total_rows: int = Field(..., ge=0)
-    accepted_records: tuple[PrecursorIntensityRecord, ...] = Field(default_factory=tuple)
+    accepted_records: tuple[PrecursorIntensityRecord, ...] = Field(
+        default_factory=tuple
+    )
     rejected_rows: tuple[RejectedPrecursorIntensityRow, ...] = Field(
         default_factory=tuple
     )

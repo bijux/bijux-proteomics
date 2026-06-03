@@ -59,7 +59,9 @@ def estimate_protein_uncertainty(
 
     residuals_by_protein: dict[str, list[float]] = {}
     for entry in model_rollup_result.residuals:
-        residuals_by_protein.setdefault(entry.protein_id, []).append(entry.residual_log2)
+        residuals_by_protein.setdefault(entry.protein_id, []).append(
+            entry.residual_log2
+        )
 
     peptide_counts_by_protein = {
         protein_id: len(
@@ -161,7 +163,9 @@ def _half_width_and_source(
     support_term = 0.45 / math.sqrt(float(supporting_peptide_count))
     residual_term = residual_sd_log2 * 1.96
     single_peptide_penalty = 0.55 if distinct_peptide_count <= 1 else 0.0
-    half_width = minimum_half_width_log2 + support_term + residual_term + single_peptide_penalty
+    half_width = (
+        minimum_half_width_log2 + support_term + residual_term + single_peptide_penalty
+    )
 
     if distinct_peptide_count <= 1 or supporting_peptide_count <= 1:
         source = ProteinUncertaintySource.SINGLE_PEPTIDE_SUPPORT

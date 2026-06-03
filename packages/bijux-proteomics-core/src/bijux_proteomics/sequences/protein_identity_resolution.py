@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
-import hashlib
 from enum import StrEnum
+import hashlib
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.sequences.core import (
     NormalizedProteinRecord,
     canonicalize_protein_reference,
@@ -149,19 +148,29 @@ def build_protein_identity_resolution_report(
         summary=ProteinIdentityResolutionSummary(
             evidence_count=len(entries),
             isoform_level_count=sum(
-                1 for entry in entries if entry.identity_level is ProteinIdentityLevel.ISOFORM_LEVEL
+                1
+                for entry in entries
+                if entry.identity_level is ProteinIdentityLevel.ISOFORM_LEVEL
             ),
             protein_level_count=sum(
-                1 for entry in entries if entry.identity_level is ProteinIdentityLevel.PROTEIN_LEVEL
+                1
+                for entry in entries
+                if entry.identity_level is ProteinIdentityLevel.PROTEIN_LEVEL
             ),
             gene_level_count=sum(
-                1 for entry in entries if entry.identity_level is ProteinIdentityLevel.GENE_LEVEL
+                1
+                for entry in entries
+                if entry.identity_level is ProteinIdentityLevel.GENE_LEVEL
             ),
             family_level_count=sum(
-                1 for entry in entries if entry.identity_level is ProteinIdentityLevel.FAMILY_LEVEL
+                1
+                for entry in entries
+                if entry.identity_level is ProteinIdentityLevel.FAMILY_LEVEL
             ),
             ambiguous_count=sum(
-                1 for entry in entries if entry.identity_level is ProteinIdentityLevel.AMBIGUOUS
+                1
+                for entry in entries
+                if entry.identity_level is ProteinIdentityLevel.AMBIGUOUS
             ),
         ),
         note=(
@@ -272,8 +281,7 @@ def _resolve_identity_entry(
         evidence_key=reference.evidence_key,
         target_protein_ref=reference.target_protein_ref,
         candidate_protein_refs=(
-            reference.candidate_protein_refs
-            or (reference.target_protein_ref,)
+            reference.candidate_protein_refs or (reference.target_protein_ref,)
         ),
         identity_level=identity_level,
         identity_reason=identity_reason,
@@ -320,10 +328,14 @@ def _build_peptide_identity_evidence(
         treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
     )
     matches = tuple(
-        record for record in records if lookup_sequence and lookup_sequence in record.lookup_residues
+        record
+        for record in records
+        if lookup_sequence and lookup_sequence in record.lookup_residues
     )
     accessions = tuple(sorted({record.stable_accession for record in matches}))
-    canonical_accessions = tuple(sorted({record.canonical_accession for record in matches}))
+    canonical_accessions = tuple(
+        sorted({record.canonical_accession for record in matches})
+    )
     genes = tuple(
         sorted(
             {
@@ -431,9 +443,7 @@ def _resolve_identity_level(
         )
 
     matched_gene_symbols = {
-        gene
-        for evidence in mapped_evidence
-        for gene in evidence.matched_gene_symbols
+        gene for evidence in mapped_evidence for gene in evidence.matched_gene_symbols
     }
     if len(matched_gene_symbols) == 1:
         return (
@@ -463,9 +473,7 @@ def _materialize_records(
     *,
     protein_sequences: dict[str, str] | None,
 ) -> tuple[NormalizedProteinRecord, ...]:
-    by_accession = {
-        _stable_accession(record): record for record in protein_records
-    }
+    by_accession = {_stable_accession(record): record for record in protein_records}
     if protein_sequences:
         for protein_ref, residues in protein_sequences.items():
             stable_accession = _stable_protein_ref(protein_ref)

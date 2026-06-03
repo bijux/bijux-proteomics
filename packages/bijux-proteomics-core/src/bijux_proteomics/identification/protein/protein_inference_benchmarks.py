@@ -488,9 +488,7 @@ def build_protein_inference_benchmark_report(
             recall_denominator,
         )
         trustworthy = (
-            precision_low >= 0.5
-            and not false_positives
-            and not selected_missing_fasta
+            precision_low >= 0.5 and not false_positives and not selected_missing_fasta
         )
         note = (
             "strategy keeps the expected proteins without absent-protein bleed"
@@ -563,7 +561,8 @@ def build_protein_inference_benchmark_report(
             for record in scenario.records
         ),
         tied_score_pressure=_has_tied_top_score(scenario.records),
-        missing_fasta_pressure=bool(fasta_protein_refs) and any(
+        missing_fasta_pressure=bool(fasta_protein_refs)
+        and any(
             protein_ref not in fasta_protein_refs
             for record in scenario.records
             for protein_ref in record.protein_refs
@@ -927,8 +926,7 @@ def build_identification_workflow_claim_review(
         ),
         WorkflowTrustCriterionResult(
             criterion_id="decoy-pressure-covered",
-            passed=ProteinInferenceBenchmarkScenarioKind.ALL_DECOY
-            in scenario_kinds,
+            passed=ProteinInferenceBenchmarkScenarioKind.ALL_DECOY in scenario_kinds,
             detail="all-decoy truth pressure is present in the benchmark suite",
         ),
         WorkflowTrustCriterionResult(

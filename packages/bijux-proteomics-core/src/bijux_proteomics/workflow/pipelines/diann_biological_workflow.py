@@ -5,18 +5,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia import (
-    DiaPeptideRollupMethod,
     DiaPeptideMatrixReport,
+    DiaPeptideRollupMethod,
     DiaPrecursorMatrixPolicy,
     DiaPrecursorMatrixReport,
     DiaProteinMatrixReport,
@@ -30,13 +29,13 @@ from bijux_proteomics.dia import (
     build_dia_run_qc_report,
     render_dia_peptide_missingness_tsv,
     render_dia_peptide_quantity_matrix_tsv,
-    render_dia_precursor_missingness_tsv,
     render_dia_precursor_matrix_summary_tsv,
     render_dia_precursor_metadata_tsv,
+    render_dia_precursor_missingness_tsv,
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
-    render_dia_protein_missingness_tsv,
     render_dia_protein_matrix_summary_tsv,
+    render_dia_protein_missingness_tsv,
     render_dia_protein_quantity_matrix_tsv,
     render_dia_protein_rollup_evidence_tsv,
     render_dia_run_qc_correlation_tsv,
@@ -57,13 +56,8 @@ from bijux_proteomics.identification.rejected_evidence_table import (
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
-    BiologicalResultSelectionPolicy,
-    VolcanoReviewPolicy,
-    build_biological_result_report_bundle_from_quant_table,
-    write_biological_result_report_bundle,
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
 )
 from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
     DiaDifferentialAnalysisReport,
@@ -76,7 +70,14 @@ from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
     render_dia_differential_results_tsv,
     render_dia_normalization_balance_plot_tsv,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
+    BiologicalResultSelectionPolicy,
+    VolcanoReviewPolicy,
+    build_biological_result_report_bundle_from_quant_table,
+    write_biological_result_report_bundle,
+)
 from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_table_rows,
     render_result_rejected_evidence_tsv,
@@ -396,7 +397,10 @@ def render_diann_biological_workflow_summary_tsv(
         ("imported_precursor_count", report.summary.imported_precursor_count),
         ("rejected_precursor_count", report.summary.rejected_precursor_count),
         ("rejected_evidence_count", report.summary.rejected_evidence_count),
-        ("imported_protein_group_row_count", report.summary.imported_protein_group_row_count),
+        (
+            "imported_protein_group_row_count",
+            report.summary.imported_protein_group_row_count,
+        ),
         ("filtered_q_value_row_count", report.summary.filtered_q_value_row_count),
         ("precursor_matrix_row_count", report.summary.precursor_matrix_row_count),
         ("protein_matrix_row_count", report.summary.protein_matrix_row_count),
@@ -446,16 +450,30 @@ def write_diann_biological_workflow_bundle(
     differential_raw_name = "diann_differential_raw_matrix.tsv"
     differential_normalized_name = "diann_differential_normalized_matrix.tsv"
     differential_raw_missingness_name = "diann_differential_raw_missingness.tsv"
-    differential_normalized_missingness_name = "diann_differential_normalized_missingness.tsv"
+    differential_normalized_missingness_name = (
+        "diann_differential_normalized_missingness.tsv"
+    )
     differential_results_name = "diann_differential_results.tsv"
     differential_qc_summary_name = "diann_differential_qc_summary.tsv"
     differential_balance_name = "diann_differential_balance.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
-    write_output_table_tsv((output_dir / summary_name), render_diann_biological_workflow_summary_tsv(report))
-    write_output_table_tsv((output_dir / import_summary_name), render_diann_summary_tsv(report.import_report.summary))
-    write_output_table_tsv((output_dir / import_rejected_rows_name), render_diann_rejected_row_tsv(report.import_report.rejected_rows))
-    write_output_table_tsv((output_dir / import_rejected_evidence_name), render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_diann_biological_workflow_summary_tsv(report),
+    )
+    write_output_table_tsv(
+        (output_dir / import_summary_name),
+        render_diann_summary_tsv(report.import_report.summary),
+    )
+    write_output_table_tsv(
+        (output_dir / import_rejected_rows_name),
+        render_diann_rejected_row_tsv(report.import_report.rejected_rows),
+    )
+    write_output_table_tsv(
+        (output_dir / import_rejected_evidence_name),
+        render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(
@@ -466,39 +484,108 @@ def write_diann_biological_workflow_bundle(
             )
         ),
     )
-    write_output_table_tsv((output_dir / precursor_summary_name), render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report))
-    write_output_table_tsv((output_dir / precursor_matrix_name), render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report))
-    write_output_table_tsv((output_dir / precursor_q_value_name), render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report))
-    write_output_table_tsv((output_dir / precursor_missingness_name), render_dia_precursor_missingness_tsv(report.precursor_matrix_report))
-    write_output_table_tsv((output_dir / precursor_metadata_name), render_dia_precursor_metadata_tsv(report.precursor_matrix_report))
-    write_output_table_tsv((output_dir / peptide_matrix_name), render_dia_peptide_quantity_matrix_tsv(report.peptide_matrix_report))
-    write_output_table_tsv((output_dir / peptide_missingness_name), render_dia_peptide_missingness_tsv(report.peptide_matrix_report))
-    write_output_table_tsv((output_dir / protein_summary_name), render_dia_protein_matrix_summary_tsv(report.protein_matrix_report))
-    write_output_table_tsv((output_dir / protein_matrix_name), render_dia_protein_quantity_matrix_tsv(report.protein_matrix_report))
-    write_output_table_tsv((output_dir / protein_missingness_name), render_dia_protein_missingness_tsv(report.protein_matrix_report))
-    write_output_table_tsv((output_dir / protein_rollup_evidence_name), render_dia_protein_rollup_evidence_tsv(report.protein_matrix_report))
-    write_output_table_tsv((output_dir / run_qc_summary_name), render_dia_run_qc_summary_tsv(report.run_qc_report))
-    write_output_table_tsv((output_dir / run_qc_runs_name), render_dia_run_qc_run_table_tsv(report.run_qc_report))
-    write_output_table_tsv((output_dir / run_qc_intensity_name), render_dia_run_qc_intensity_distribution_tsv(report.run_qc_report))
-    write_output_table_tsv((output_dir / run_qc_correlation_name), render_dia_run_qc_correlation_tsv(report.run_qc_report))
-    write_output_table_tsv((output_dir / run_qc_outliers_name), render_dia_run_qc_outlier_tsv(report.run_qc_report))
-    write_output_table_tsv((output_dir / differential_raw_name), render_dia_differential_matrix_tsv(
+    write_output_table_tsv(
+        (output_dir / precursor_summary_name),
+        render_dia_precursor_matrix_summary_tsv(report.precursor_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / precursor_matrix_name),
+        render_dia_precursor_quantity_matrix_tsv(report.precursor_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / precursor_q_value_name),
+        render_dia_precursor_q_value_matrix_tsv(report.precursor_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / precursor_missingness_name),
+        render_dia_precursor_missingness_tsv(report.precursor_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / precursor_metadata_name),
+        render_dia_precursor_metadata_tsv(report.precursor_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / peptide_matrix_name),
+        render_dia_peptide_quantity_matrix_tsv(report.peptide_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / peptide_missingness_name),
+        render_dia_peptide_missingness_tsv(report.peptide_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_summary_name),
+        render_dia_protein_matrix_summary_tsv(report.protein_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_matrix_name),
+        render_dia_protein_quantity_matrix_tsv(report.protein_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_missingness_name),
+        render_dia_protein_missingness_tsv(report.protein_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_rollup_evidence_name),
+        render_dia_protein_rollup_evidence_tsv(report.protein_matrix_report),
+    )
+    write_output_table_tsv(
+        (output_dir / run_qc_summary_name),
+        render_dia_run_qc_summary_tsv(report.run_qc_report),
+    )
+    write_output_table_tsv(
+        (output_dir / run_qc_runs_name),
+        render_dia_run_qc_run_table_tsv(report.run_qc_report),
+    )
+    write_output_table_tsv(
+        (output_dir / run_qc_intensity_name),
+        render_dia_run_qc_intensity_distribution_tsv(report.run_qc_report),
+    )
+    write_output_table_tsv(
+        (output_dir / run_qc_correlation_name),
+        render_dia_run_qc_correlation_tsv(report.run_qc_report),
+    )
+    write_output_table_tsv(
+        (output_dir / run_qc_outliers_name),
+        render_dia_run_qc_outlier_tsv(report.run_qc_report),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_raw_name),
+        render_dia_differential_matrix_tsv(
             report.differential_analysis_report.input_report.table
-        ))
-    write_output_table_tsv((output_dir / differential_normalized_name), render_dia_differential_matrix_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_normalized_name),
+        render_dia_differential_matrix_tsv(
             report.differential_analysis_report.normalized_table
-        ))
-    write_output_table_tsv((output_dir / differential_raw_missingness_name), render_dia_differential_missingness_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_raw_missingness_name),
+        render_dia_differential_missingness_tsv(
             report.differential_analysis_report.input_report.table
-        ))
-    write_output_table_tsv((output_dir / differential_normalized_missingness_name), render_dia_differential_missingness_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_normalized_missingness_name),
+        render_dia_differential_missingness_tsv(
             report.differential_analysis_report.normalized_table
-        ))
-    write_output_table_tsv((output_dir / differential_results_name), render_dia_differential_results_tsv(report.differential_analysis_report))
-    write_output_table_tsv((output_dir / differential_qc_summary_name), render_dia_differential_qc_summary_tsv(report.differential_analysis_report))
-    write_output_table_tsv((output_dir / differential_balance_name), render_dia_normalization_balance_plot_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_results_name),
+        render_dia_differential_results_tsv(report.differential_analysis_report),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_qc_summary_name),
+        render_dia_differential_qc_summary_tsv(report.differential_analysis_report),
+    )
+    write_output_table_tsv(
+        (output_dir / differential_balance_name),
+        render_dia_normalization_balance_plot_tsv(
             report.differential_analysis_report.normalization_balance_plot
-        ))
+        ),
+    )
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,

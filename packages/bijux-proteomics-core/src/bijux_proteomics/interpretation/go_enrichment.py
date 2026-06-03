@@ -5,13 +5,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
 from io import StringIO
 import json
 import math
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -286,7 +286,9 @@ def parse_go_annotation_table(
             distinct_protein_ref_count=len(
                 {record.protein_ref for record in accepted_records}
             ),
-            distinct_go_term_count=len({record.go_term_id for record in accepted_records}),
+            distinct_go_term_count=len(
+                {record.go_term_id for record in accepted_records}
+            ),
             aspect_counts=dict(sorted(aspect_counts.items())),
         ),
         note="GO memberships were canonicalized onto the shared protein reference surface",
@@ -316,10 +318,14 @@ def build_go_enrichment_report(
     term_to_proteins = _background_term_memberships(background, go_annotations)
     annotation_by_term = _term_metadata(go_annotations)
     annotated_foreground = {
-        protein_ref for protein_ref in foreground if protein_ref in _annotated_proteins(go_annotations)
+        protein_ref
+        for protein_ref in foreground
+        if protein_ref in _annotated_proteins(go_annotations)
     }
     annotated_background = {
-        protein_ref for protein_ref in background if protein_ref in _annotated_proteins(go_annotations)
+        protein_ref
+        for protein_ref in background
+        if protein_ref in _annotated_proteins(go_annotations)
     }
     unannotated_entries = tuple(
         sorted(
@@ -352,7 +358,9 @@ def build_go_enrichment_report(
             continue
         background_protein_refs = tuple(sorted(background_proteins))
         background_term_count = len(background_protein_refs)
-        expected_overlap_count = foreground_size * background_term_count / background_size
+        expected_overlap_count = (
+            foreground_size * background_term_count / background_size
+        )
         enrichment_ratio = (
             len(foreground_proteins) / expected_overlap_count
             if expected_overlap_count > 0.0

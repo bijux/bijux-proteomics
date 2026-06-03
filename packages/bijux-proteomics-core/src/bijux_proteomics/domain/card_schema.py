@@ -111,7 +111,9 @@ def load_standard_card_tsv(path: Path) -> tuple[StandardCardEntry, ...]:
         if reader.fieldnames is None:
             raise ValueError(f"{path} does not contain a TSV header")
         missing_columns = tuple(
-            column for column in STANDARD_CARD_TSV_COLUMNS if column not in reader.fieldnames
+            column
+            for column in STANDARD_CARD_TSV_COLUMNS
+            if column not in reader.fieldnames
         )
         if missing_columns:
             raise ValueError(
@@ -121,7 +123,9 @@ def load_standard_card_tsv(path: Path) -> tuple[StandardCardEntry, ...]:
             StandardCardEntry(
                 card_id=_required_text(row, "card_id"),
                 card_kind=StandardCardKind(_required_text(row, "card_kind")),
-                subject_kind=StandardCardSubjectKind(_required_text(row, "subject_kind")),
+                subject_kind=StandardCardSubjectKind(
+                    _required_text(row, "subject_kind")
+                ),
                 subject_id=_required_text(row, "subject_id"),
                 subject_label=_required_text(row, "subject_label"),
                 claim=_required_text(row, "claim"),

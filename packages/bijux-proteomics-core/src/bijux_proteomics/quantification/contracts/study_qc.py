@@ -31,6 +31,7 @@ from .input_models import QuantAssessmentDisposition, QuantEntityLevel
 from .matrix_building import _condition_lookup, _matrix_value_index
 from .matrix_models import LabelFreeQuantTable
 
+
 class StudyScaleReplicateSampleEntry(JsonModel):
     """Per-sample correlation summary for larger replicate studies."""
 
@@ -51,6 +52,7 @@ class StudyScaleReplicateSampleEntry(JsonModel):
         le=1.0,
     )
 
+
 class StudyScaleReplicateCorrelationReport(JsonModel):
     """Compact replicate-correlation summary for realistic study sizes."""
 
@@ -67,6 +69,7 @@ class StudyScaleReplicateCorrelationReport(JsonModel):
         default_factory=tuple
     )
 
+
 class StudyScaleBatchEffectEntry(JsonModel):
     """Batch-level compact summary for larger quantification studies."""
 
@@ -76,6 +79,7 @@ class StudyScaleBatchEffectEntry(JsonModel):
     sample_count: int = Field(..., ge=1)
     flagged: bool
     median_shift_from_global: float
+
 
 class StudyScaleBatchEffectReport(JsonModel):
     """Compact batch-effect summary that stays reviewable at study scale."""
@@ -88,6 +92,7 @@ class StudyScaleBatchEffectReport(JsonModel):
     batch_variance_proxy: float = Field(..., ge=0.0, le=1.0)
     batch_correction_blocked: bool
 
+
 class QcOutlierSampleEntry(JsonModel):
     """One sample flagged as an outlier from replicate or batch QC context."""
 
@@ -99,6 +104,7 @@ class QcOutlierSampleEntry(JsonModel):
     instrument: str | None = None
     spectra_file: str = Field(..., min_length=1)
     reasons: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class ReplicateAndBatchQcReport(JsonModel):
     """Integrated replicate and batch QC report for quantification outputs."""
@@ -115,12 +121,14 @@ class ReplicateAndBatchQcReport(JsonModel):
     outlier_samples: tuple[QcOutlierSampleEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
+
 class SampleReliabilityQcStatus(StrEnum):
     """Stable sample-QC status classes that can affect quantitative weighting."""
 
     PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
+
 
 class SampleReliabilityQcEntry(JsonModel):
     """One explicit sample-QC posture used for replicate reliability weighting."""
@@ -140,6 +148,7 @@ class SampleReliabilityQcEntry(JsonModel):
             ReasonCodeCategory.QC_REASON,
         )
 
+
 class SampleReliabilityWeightEntry(JsonModel):
     """One sample-level reliability weight carried into downstream statistics."""
 
@@ -148,6 +157,7 @@ class SampleReliabilityWeightEntry(JsonModel):
     sample_id: str = Field(..., min_length=1)
     reliability_weight: float = Field(..., ge=0.0, le=1.0)
     low_weight_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class SampleReliabilityWeightReport(JsonModel):
     """Stable report over sample-level replicate reliability weights."""
@@ -162,6 +172,7 @@ class SampleReliabilityWeightReport(JsonModel):
     entries: tuple[SampleReliabilityWeightEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
+
 class ReplicateCvConditionEntry(JsonModel):
     """Condition-level coefficient-of-variation summary over shared entities."""
 
@@ -175,6 +186,7 @@ class ReplicateCvConditionEntry(JsonModel):
     high_cv_entity_count: int = Field(..., ge=0)
     flagged: bool
 
+
 class ReplicateCvReport(JsonModel):
     """Replicate-spread summary that makes within-condition variance explicit."""
 
@@ -184,6 +196,7 @@ class ReplicateCvReport(JsonModel):
     high_cv_threshold: float = Field(..., ge=0.0)
     entries: tuple[ReplicateCvConditionEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
 
 class SamplePcaEntry(JsonModel):
     """One sample projected into a compact principal-component QC space."""
@@ -202,6 +215,7 @@ class SamplePcaEntry(JsonModel):
     outlier_reasons: tuple[str, ...] = Field(default_factory=tuple)
     outlier: bool
 
+
 class SamplePcaReport(JsonModel):
     """Principal-component view over replicate structure and sample outliers."""
 
@@ -212,6 +226,7 @@ class SamplePcaReport(JsonModel):
     explained_variance_ratio_pc2: float = Field(..., ge=0.0, le=1.0)
     entries: tuple[SamplePcaEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
 
 class ConditionClusteringReport(JsonModel):
     """Condition-separation summary over sample-level QC space."""
@@ -226,6 +241,7 @@ class ConditionClusteringReport(JsonModel):
     clustered_by_condition: bool
     note: str = Field(..., min_length=1)
 
+
 class BatchEffectBatchEntry(JsonModel):
     """One batch-level median-shift advisory row."""
 
@@ -237,6 +253,7 @@ class BatchEffectBatchEntry(JsonModel):
     shift_from_global: float
     flagged: bool
 
+
 class BatchAssociatedPrincipalComponentEntry(JsonModel):
     """One principal component annotated for batch association strength."""
 
@@ -247,6 +264,7 @@ class BatchAssociatedPrincipalComponentEntry(JsonModel):
     explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
     batch_association_ratio: float = Field(..., ge=0.0, le=1.0)
     associated_with_batch: bool
+
 
 class BatchEffectAdvisoryReport(JsonModel):
     """Owned batch-effect estimator over quantification samples."""
@@ -267,6 +285,7 @@ class BatchEffectAdvisoryReport(JsonModel):
     batch_warning: str | None = None
     note: str = Field(..., min_length=1)
 
+
 class ReplicateCorrelationEntry(JsonModel):
     """One sample-pair replicate correlation row."""
 
@@ -279,6 +298,7 @@ class ReplicateCorrelationEntry(JsonModel):
     correlation: float = Field(..., ge=-1.0, le=1.0)
     shared_entity_count: int = Field(..., ge=2)
 
+
 class ReplicateCorrelationReport(JsonModel):
     """Pairwise replicate-correlation report over a quantification matrix."""
 
@@ -288,6 +308,7 @@ class ReplicateCorrelationReport(JsonModel):
     entries: tuple[ReplicateCorrelationEntry, ...] = Field(default_factory=tuple)
     within_condition_mean: float | None = Field(default=None, ge=-1.0, le=1.0)
     between_condition_mean: float | None = Field(default=None, ge=-1.0, le=1.0)
+
 
 def build_batch_effect_estimator_report(
     table: LabelFreeQuantTable,
@@ -310,6 +331,7 @@ def build_batch_effect_estimator_report(
         component_association_threshold=component_association_threshold,
     )
 
+
 def build_batch_effect_advisory(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -327,6 +349,7 @@ def build_batch_effect_advisory(
         component_association_threshold=component_association_threshold,
     )
 
+
 def render_batch_effect_summary_tsv(report: BatchEffectAdvisoryReport) -> str:
     """Render a stable one-row batch-effect summary table."""
     from bijux_proteomics.quantification.batch_effect import (
@@ -335,6 +358,7 @@ def render_batch_effect_summary_tsv(report: BatchEffectAdvisoryReport) -> str:
 
     return _implementation(report)
 
+
 def render_batch_effect_batches_tsv(report: BatchEffectAdvisoryReport) -> str:
     """Render stable batch-level median-shift rows for one batch-effect report."""
     from bijux_proteomics.quantification.batch_effect import (
@@ -342,6 +366,7 @@ def render_batch_effect_batches_tsv(report: BatchEffectAdvisoryReport) -> str:
     )
 
     return _implementation(report)
+
 
 def render_batch_effect_principal_components_tsv(
     report: BatchEffectAdvisoryReport,
@@ -352,6 +377,7 @@ def render_batch_effect_principal_components_tsv(
     )
 
     return _implementation(report)
+
 
 def export_batch_effect_summary_tsv(
     report: BatchEffectAdvisoryReport,
@@ -364,6 +390,7 @@ def export_batch_effect_summary_tsv(
 
     _implementation(report, path)
 
+
 def export_batch_effect_batches_tsv(
     report: BatchEffectAdvisoryReport,
     path: Path,
@@ -375,6 +402,7 @@ def export_batch_effect_batches_tsv(
 
     _implementation(report, path)
 
+
 def export_batch_effect_principal_components_tsv(
     report: BatchEffectAdvisoryReport,
     path: Path,
@@ -385,6 +413,7 @@ def export_batch_effect_principal_components_tsv(
     )
 
     _implementation(report, path)
+
 
 def build_replicate_correlation_report(
     table: LabelFreeQuantTable,
@@ -433,6 +462,7 @@ def build_replicate_correlation_report(
         if between_condition
         else None,
     )
+
 
 def build_study_scale_replicate_correlation_report(
     table: LabelFreeQuantTable,
@@ -499,6 +529,7 @@ def build_study_scale_replicate_correlation_report(
         weakest_within_condition_pairs=weakest_within,
         strongest_between_condition_pairs=strongest_between,
     )
+
 
 def build_study_scale_batch_effect_report(
     table: LabelFreeQuantTable,

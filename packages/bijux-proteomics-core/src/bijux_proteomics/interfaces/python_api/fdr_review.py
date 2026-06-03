@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_fdr_command(
     input_tsv: Path,
@@ -91,9 +91,13 @@ def run_fdr_command(
     if tsv_out is not None:
         export_psm_tsv(accepted, tsv_out)
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_psm_target_decoy_fdr_summary_tsv(fdr_report))
+        write_output_table_tsv(
+            summary_tsv_out, render_psm_target_decoy_fdr_summary_tsv(fdr_report)
+        )
     if entries_tsv_out is not None:
-        write_output_table_tsv(entries_tsv_out, render_psm_target_decoy_fdr_tsv(fdr_report))
+        write_output_table_tsv(
+            entries_tsv_out, render_psm_target_decoy_fdr_tsv(fdr_report)
+        )
 
     fdr_policy = FdrPolicy(
         threshold=threshold,
@@ -126,13 +130,25 @@ def run_fdr_command(
     if calibration_out is not None:
         calibration_out.write_text(calibration_plot.to_stable_json() + "\n")
     if score_separation_summary_tsv_out is not None:
-        write_output_table_tsv(score_separation_summary_tsv_out, render_score_separation_summary_tsv(score_separation))
+        write_output_table_tsv(
+            score_separation_summary_tsv_out,
+            render_score_separation_summary_tsv(score_separation),
+        )
     if score_separation_bins_tsv_out is not None:
-        write_output_table_tsv(score_separation_bins_tsv_out, render_score_separation_bins_tsv(score_separation))
+        write_output_table_tsv(
+            score_separation_bins_tsv_out,
+            render_score_separation_bins_tsv(score_separation),
+        )
     if error_rate_summary_tsv_out is not None:
-        write_output_table_tsv(error_rate_summary_tsv_out, render_psm_error_rate_annotation_summary_tsv(error_rate_report))
+        write_output_table_tsv(
+            error_rate_summary_tsv_out,
+            render_psm_error_rate_annotation_summary_tsv(error_rate_report),
+        )
     if error_rate_entries_tsv_out is not None:
-        write_output_table_tsv(error_rate_entries_tsv_out, render_psm_error_rate_annotation_tsv(error_rate_report))
+        write_output_table_tsv(
+            error_rate_entries_tsv_out,
+            render_psm_error_rate_annotation_tsv(error_rate_report),
+        )
 
     payload = {
         "threshold": threshold,
@@ -152,6 +168,7 @@ def run_fdr_command(
         "provenance": provenance.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_fdr_reference_check_command(
     reference_json: Path,
@@ -185,6 +202,7 @@ def run_fdr_reference_check_command(
         "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_fdr_levels_command(
     input_tsv: Path,
@@ -257,6 +275,7 @@ def run_fdr_levels_command(
         "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_picked_protein_fdr_command(
     input_tsv: Path,
@@ -331,4 +350,10 @@ def run_picked_protein_fdr_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_fdr_command', 'run_fdr_reference_check_command', 'run_fdr_levels_command', 'run_picked_protein_fdr_command']
+
+__all__ = [
+    "run_fdr_command",
+    "run_fdr_reference_check_command",
+    "run_fdr_levels_command",
+    "run_picked_protein_fdr_command",
+]

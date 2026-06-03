@@ -10,8 +10,11 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_disease import (
+    run_disease_phenotype_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_disease import run_disease_phenotype_command
+
 
 @click.command("disease-phenotype")
 @click.argument(
@@ -150,9 +153,43 @@ def disease_phenotype_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Interpret changed proteins through explicit disease and phenotype annotation.'
-    return run_disease_phenotype_command(input_table, context_tsv, design_path, condition_a, condition_b, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, top_n, normalization, context_protein_ref_column, context_id_column, context_kind_column, context_name_column, source_name_column, source_accession_column, evidence_column, max_adjusted_p_value, min_absolute_log2_fold_change, min_enrichment_ratio, high_confidence_min_supporting_protein_count, summary_tsv_out, interpretation_tsv_out, unknown_annotation_tsv_out, rejected_context_tsv_out, out_path)
+    "Interpret changed proteins through explicit disease and phenotype annotation."
+    return run_disease_phenotype_command(
+        input_table,
+        context_tsv,
+        design_path,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        context_protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        min_enrichment_ratio,
+        high_confidence_min_supporting_protein_count,
+        summary_tsv_out,
+        interpretation_tsv_out,
+        unknown_annotation_tsv_out,
+        rejected_context_tsv_out,
+        out_path,
+    )
 
-COMMANDS = (
-    disease_phenotype_command,
-)
+
+COMMANDS = (disease_phenotype_command,)

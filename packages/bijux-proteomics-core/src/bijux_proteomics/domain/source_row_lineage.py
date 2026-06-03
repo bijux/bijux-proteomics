@@ -97,7 +97,9 @@ class SourceRowLineage(JsonModel):
 
         source_row_refs: list[str] = []
         for provenance in provenances:
-            source_row_refs.extend(_source_row_refs_from_imported_provenance(provenance))
+            source_row_refs.extend(
+                _source_row_refs_from_imported_provenance(provenance)
+            )
         if source_row_refs:
             return cls.from_source_row_refs(source_row_refs)
         if derived_no_source_reason is None:
@@ -127,8 +129,7 @@ def _source_row_refs_from_imported_provenance(
     if len(provenance.source_row_numbers) == 1:
         row_number = provenance.source_row_numbers[0]
         return tuple(
-            f"{source_file}:{row_number}"
-            for source_file in provenance.source_files
+            f"{source_file}:{row_number}" for source_file in provenance.source_files
         )
     raise ValueError(
         "imported provenance must preserve one exact file-row pairing or one file with multiple row numbers"

@@ -36,7 +36,9 @@ from bijux_proteomics.targeted import (
     render_targeted_matrix_target_tsv,
     render_targeted_result_observation_tsv,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics_foundation import JsonModel
 
 

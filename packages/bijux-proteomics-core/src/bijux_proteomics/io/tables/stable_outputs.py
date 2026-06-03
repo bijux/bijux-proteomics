@@ -32,7 +32,8 @@ def sort_rows_by_fields(rows: tuple[Any, ...], *field_names: str) -> tuple[Any, 
         sorted(
             rows,
             key=lambda row: tuple(
-                _stable_sort_value(getattr(row, field_name)) for field_name in field_names
+                _stable_sort_value(getattr(row, field_name))
+                for field_name in field_names
             ),
         )
     )

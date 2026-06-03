@@ -5,12 +5,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
-import json
 from io import StringIO
+import json
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -68,7 +68,9 @@ class ProteinReferenceTableReport(JsonModel):
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
     accepted_entries: tuple[ProteinReferenceEntry, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedProteinReferenceRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedProteinReferenceRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: ProteinReferenceColumnMapping
     summary: ProteinReferenceTableSummary
     note: str = Field(..., min_length=1)
@@ -131,7 +133,9 @@ class ProteinAnnotationImportReport(JsonModel):
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[ProteinAnnotationRecord, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedProteinAnnotationRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedProteinAnnotationRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: ProteinAnnotationColumnMapping
     summary: ProteinAnnotationImportSummary
     note: str = Field(..., min_length=1)
@@ -232,7 +236,9 @@ class ProteinAnnotationMappingReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    result_entries: tuple[ProteinAnnotationResultEntry, ...] = Field(default_factory=tuple)
+    result_entries: tuple[ProteinAnnotationResultEntry, ...] = Field(
+        default_factory=tuple
+    )
     mapped_entries: tuple[ProteinAnnotationEntry, ...] = Field(default_factory=tuple)
     unmapped_entries: tuple[UnmappedProteinAnnotationEntry, ...] = Field(
         default_factory=tuple
@@ -305,8 +311,7 @@ def parse_protein_reference_table(
         metadata = {
             key: value
             for key, value in normalized_row.items()
-            if key not in {active_mapping.protein_ref, active_mapping.row_id}
-            and value
+            if key not in {active_mapping.protein_ref, active_mapping.row_id} and value
         }
         for token in protein_tokens:
             accepted_entries.append(
@@ -456,7 +461,9 @@ def parse_protein_annotation_table(
         summary=ProteinAnnotationImportSummary(
             accepted_record_count=len(accepted_records),
             rejected_row_count=len(rejected_rows),
-            distinct_protein_ref_count=len({record.protein_ref for record in accepted_records}),
+            distinct_protein_ref_count=len(
+                {record.protein_ref for record in accepted_records}
+            ),
             gene_annotated_count=sum(
                 1 for record in accepted_records if record.gene_symbol is not None
             ),
@@ -485,7 +492,9 @@ def build_protein_annotation_mapping_report(
     """Map protein-reference entries onto FASTA and custom biological annotations."""
 
     fasta_annotations = {
-        record.canonical_accession: record for record in fasta_records if not record.decoy
+        record.canonical_accession: record
+        for record in fasta_records
+        if not record.decoy
     }
     custom_annotation_map = {
         record.protein_ref: record for record in custom_annotations
@@ -586,7 +595,9 @@ def build_protein_annotation_mapping_report(
         input_entry_count=len(protein_entries),
         mapped_entry_count=len(mapped_entries),
         unmapped_entry_count=len(unmapped_entries),
-        distinct_protein_ref_count=len({entry.protein_ref for entry in protein_entries}),
+        distinct_protein_ref_count=len(
+            {entry.protein_ref for entry in protein_entries}
+        ),
         fasta_annotation_count=sum(
             1
             for entry in mapped_entries
@@ -701,7 +712,9 @@ def render_protein_annotation_tsv(report: ProteinAnnotationMappingReport) -> str
                 entry.description or "",
                 entry.organism or "",
                 entry.annotation_identifier or "",
-                "" if entry.annotation_source is None else entry.annotation_source.value,
+                ""
+                if entry.annotation_source is None
+                else entry.annotation_source.value,
                 _metadata_json(entry.custom_annotation),
                 entry.annotation_status.value,
                 entry.unmapped_reason or "",
@@ -914,6 +927,4 @@ def _validate_required_columns(
     available = {field.strip() for field in fieldnames}
     missing = [column for column in required_columns if column not in available]
     if missing:
-        raise ValueError(
-            "missing required columns: " + ", ".join(sorted(missing))
-        )
+        raise ValueError("missing required columns: " + ", ".join(sorted(missing)))

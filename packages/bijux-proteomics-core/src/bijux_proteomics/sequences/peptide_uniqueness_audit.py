@@ -201,9 +201,7 @@ def build_peptide_database_lookup_report(
         digestion_mode=digestion_mode,
         treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
     )
-    index_by_sequence = {
-        entry.lookup_sequence: entry for entry in index_report.entries
-    }
+    index_by_sequence = {entry.lookup_sequence: entry for entry in index_report.entries}
 
     entries: list[PeptideDatabaseLookupEntry] = []
     for input_peptide in dict.fromkeys(peptides):
@@ -329,6 +327,7 @@ def build_peptide_database_lookup_report(
             if entry.database_membership is PeptideDatabaseMembership.MIXED
         ),
     )
+
 
 def _normalize_lookup_sequence(
     sequence: str, *, treat_isoleucine_as_leucine: bool

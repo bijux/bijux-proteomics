@@ -9,6 +9,7 @@ from collections import defaultdict
 import csv
 from io import StringIO
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -23,18 +24,16 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
 )
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
+    NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    NormalizationMethod,
     _condition_lookup,
     _matrix_value_index,
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics_foundation import JsonModel
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -179,7 +178,9 @@ class PathwayActivityReport(JsonModel):
 
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     sample_scores: tuple[PathwaySampleScoreEntry, ...] = Field(default_factory=tuple)
-    condition_scores: tuple[PathwayConditionScoreEntry, ...] = Field(default_factory=tuple)
+    condition_scores: tuple[PathwayConditionScoreEntry, ...] = Field(
+        default_factory=tuple
+    )
     condition_comparisons: tuple[PathwayConditionComparisonEntry, ...] = Field(
         default_factory=tuple
     )
@@ -205,7 +206,9 @@ def build_pathway_activity_report(
     """Score pathway activity per sample over one protein quantification table."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
-        raise ValueError("pathway activity scoring requires a protein-level quantification table")
+        raise ValueError(
+            "pathway activity scoring requires a protein-level quantification table"
+        )
 
     active_policy = policy or PathwayActivityPolicy()
     sample_ids = table.sample_ids
@@ -317,7 +320,9 @@ def build_pathway_activity_report(
                     condition=sample_conditions.get(sample_id),
                     batch=sample_batches.get(sample_id),
                     activity_score=(
-                        round(float(np.mean(member_scores)), 6) if member_scores else None
+                        round(float(np.mean(member_scores)), 6)
+                        if member_scores
+                        else None
                     ),
                     total_member_count=total_member_count,
                     observed_member_count=observed_member_count,
@@ -581,7 +586,9 @@ def render_pathway_activity_condition_score_tsv(report: PathwayActivityReport) -
                 entry.high_confidence_sample_count,
                 entry.low_confidence_sample_count,
                 entry.confidence_status.value,
-                "" if entry.mean_activity_score is None else f"{entry.mean_activity_score:g}",
+                ""
+                if entry.mean_activity_score is None
+                else f"{entry.mean_activity_score:g}",
             )
         )
     return buffer.getvalue()
@@ -628,7 +635,9 @@ def render_pathway_activity_condition_comparison_tsv(
                 ""
                 if entry.mean_activity_score_b is None
                 else f"{entry.mean_activity_score_b:g}",
-                "" if entry.activity_score_delta is None else f"{entry.activity_score_delta:g}",
+                ""
+                if entry.activity_score_delta is None
+                else f"{entry.activity_score_delta:g}",
             )
         )
     return buffer.getvalue()
@@ -676,7 +685,9 @@ def render_pathway_member_contribution_tsv(report: PathwayActivityReport) -> str
                 entry.resolved_protein_count,
                 entry.observed_protein_count,
                 entry.missing_protein_count,
-                "" if entry.member_activity_score is None else f"{entry.member_activity_score:g}",
+                ""
+                if entry.member_activity_score is None
+                else f"{entry.member_activity_score:g}",
                 str(entry.observed).lower(),
             )
         )
@@ -726,8 +737,12 @@ def _group_pathway_records(
 def _protein_refs_in_table(table: LabelFreeQuantTable) -> tuple[str, ...]:
     protein_refs: list[str] = []
     for entity_id in table.entity_ids:
-        protein_refs.extend(table.entity_protein_refs.get(entity_id, ()) or (entity_id,))
-    return tuple(dict.fromkeys(canonicalize_protein_reference(ref) for ref in protein_refs))
+        protein_refs.extend(
+            table.entity_protein_refs.get(entity_id, ()) or (entity_id,)
+        )
+    return tuple(
+        dict.fromkeys(canonicalize_protein_reference(ref) for ref in protein_refs)
+    )
 
 
 def _standardized_protein_ref_values(
@@ -759,7 +774,9 @@ def _standardized_protein_ref_values(
             elif std_value <= 1e-12:
                 entity_standardized[(entity_id, sample_id)] = 0.0
             else:
-                entity_standardized[(entity_id, sample_id)] = (value - mean_value) / std_value
+                entity_standardized[(entity_id, sample_id)] = (
+                    value - mean_value
+                ) / std_value
 
     protein_ref_values: dict[tuple[str, str], list[float]] = defaultdict(list)
     for entity_id in table.entity_ids:
@@ -879,7 +896,9 @@ def _sample_confidence_status(
 def _aggregate_confidence_status(
     statuses: tuple[PathwayActivityConfidenceStatus, ...],
 ) -> PathwayActivityConfidenceStatus:
-    if all(status is PathwayActivityConfidenceStatus.HIGH_CONFIDENCE for status in statuses):
+    if all(
+        status is PathwayActivityConfidenceStatus.HIGH_CONFIDENCE for status in statuses
+    ):
         return PathwayActivityConfidenceStatus.HIGH_CONFIDENCE
     return PathwayActivityConfidenceStatus.LOW_CONFIDENCE
 
@@ -925,7 +944,9 @@ def _build_condition_scores(
     for (pathway_id, condition), entries in sorted(grouped.items()):
         first = entries[0]
         scored_values = [
-            entry.activity_score for entry in entries if entry.activity_score is not None
+            entry.activity_score
+            for entry in entries
+            if entry.activity_score is not None
         ]
         results.append(
             PathwayConditionScoreEntry(

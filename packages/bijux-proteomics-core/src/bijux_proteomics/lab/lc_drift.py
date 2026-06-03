@@ -158,12 +158,14 @@ def detect_lc_drift(
             _metric_value(entry, dimension) for entry in ordered_runs[:baseline_window]
         )
         scale = max(abs(baseline_value), abs(median(values)), 1.0)
-        trend_support = abs(correlation) * directional_fraction * (
-            1.0 - step_concentration
+        trend_support = (
+            abs(correlation) * directional_fraction * (1.0 - step_concentration)
         )
 
         for entry in ordered_runs[baseline_window:]:
-            relative_shift = abs(_metric_value(entry, dimension) - baseline_value) / scale
+            relative_shift = (
+                abs(_metric_value(entry, dimension) - baseline_value) / scale
+            )
             if relative_shift < policy.minimum_row_shift:
                 continue
             drift_metric = round(relative_shift * trend_support, 4)
@@ -242,7 +244,9 @@ def _ordered_runs(
             "lc_drift analysis requires unique run_order values and found duplicates for: "
             + ", ".join(str(value) for value in sorted(duplicate_run_orders))
         )
-    return tuple(sorted(run_qc_table, key=lambda entry: (entry.run_order, entry.run_id)))
+    return tuple(
+        sorted(run_qc_table, key=lambda entry: (entry.run_order, entry.run_id))
+    )
 
 
 def _metric_value(entry: LcDriftRunQcEntry, dimension: LcDriftDimension) -> float:

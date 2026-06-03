@@ -253,9 +253,7 @@ def _default_table_meaning(table_name: str) -> str:
 
 
 def _default_column_meaning(table_name: str, column_name: str) -> str:
-    return (
-        f"Stable column {column_name!r} in TSV output {table_name!r}."
-    )
+    return f"Stable column {column_name!r} in TSV output {table_name!r}."
 
 
 def _is_int(value: str) -> bool:

@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +12,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import (
     MaxquantImportReport,
     MaxquantLfqMatrixCandidateEntry,
@@ -39,6 +38,9 @@ from bijux_proteomics.quantification import (
     render_label_free_quant_missingness_matrix_tsv,
 )
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -47,7 +49,6 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
     write_biological_result_report_bundle,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
 from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     render_result_rejected_evidence_tsv,
@@ -144,8 +145,8 @@ class MaxquantBiologicalWorkflowBundle(JsonModel):
     filtered_protein_groups: tuple[MaxquantFilteredProteinGroupEntry, ...] = Field(
         default_factory=tuple
     )
-    enrichment_foreground_entries: tuple[MaxquantBiologicalForegroundEntry, ...] = Field(
-        default_factory=tuple
+    enrichment_foreground_entries: tuple[MaxquantBiologicalForegroundEntry, ...] = (
+        Field(default_factory=tuple)
     )
     lfq_table: LabelFreeQuantTable
     biological_report: BiologicalResultReportBundle
@@ -341,10 +342,7 @@ def build_label_free_quant_table_from_maxquant_lfq_candidates(
         entity_ids=tuple(row.entity_id for row in rows),
         values=tuple(values),
         entity_protein_refs=entity_protein_refs,
-        entity_member_peptides={
-            row.entity_id: row.member_peptides
-            for row in rows
-        },
+        entity_member_peptides={row.entity_id: row.member_peptides for row in rows},
     )
 
 
@@ -488,9 +486,7 @@ def render_maxquant_lfq_summary_tsv(report: MaxquantBiologicalWorkflowBundle) ->
 def render_maxquant_lfq_matrix_tsv(table: LabelFreeQuantTable) -> str:
     """Render one accepted MaxQuant LFQ matrix as TSV."""
 
-    value_lookup = {
-        (value.entity_id, value.sample_id): value for value in table.values
-    }
+    value_lookup = {(value.entity_id, value.sample_id): value for value in table.values}
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(
@@ -554,21 +550,52 @@ def write_maxquant_biological_workflow_bundle(
         for reason in row.reasons
     )
 
-    write_output_table_tsv((output_dir / summary_name), render_maxquant_biological_workflow_summary_tsv(report))
-    write_output_table_tsv((output_dir / import_summary_name), render_maxquant_summary_tsv(report.import_report.summary))
-    write_output_table_tsv((output_dir / evidence_name), render_maxquant_evidence_tsv(report.import_report.evidence_rows))
-    write_output_table_tsv((output_dir / peptides_name), render_maxquant_peptide_tsv(report.import_report.peptide_rows))
-    write_output_table_tsv((output_dir / protein_groups_name), render_maxquant_protein_group_tsv(report.import_report.protein_group_rows))
-    write_output_table_tsv((output_dir / accepted_groups_name), render_maxquant_protein_group_tsv(report.accepted_protein_groups))
-    write_output_table_tsv((output_dir / filtered_groups_name), render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_maxquant_biological_workflow_summary_tsv(report),
+    )
+    write_output_table_tsv(
+        (output_dir / import_summary_name),
+        render_maxquant_summary_tsv(report.import_report.summary),
+    )
+    write_output_table_tsv(
+        (output_dir / evidence_name),
+        render_maxquant_evidence_tsv(report.import_report.evidence_rows),
+    )
+    write_output_table_tsv(
+        (output_dir / peptides_name),
+        render_maxquant_peptide_tsv(report.import_report.peptide_rows),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_groups_name),
+        render_maxquant_protein_group_tsv(report.import_report.protein_group_rows),
+    )
+    write_output_table_tsv(
+        (output_dir / accepted_groups_name),
+        render_maxquant_protein_group_tsv(report.accepted_protein_groups),
+    )
+    write_output_table_tsv(
+        (output_dir / filtered_groups_name),
+        render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(rejected_evidence_entries),
     )
-    write_output_table_tsv((output_dir / foreground_name), render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries))
-    write_output_table_tsv((output_dir / lfq_summary_name), render_maxquant_lfq_summary_tsv(report))
-    write_output_table_tsv((output_dir / lfq_matrix_name), render_maxquant_lfq_matrix_tsv(report.lfq_table))
-    write_output_table_tsv((output_dir / lfq_missingness_name), render_label_free_quant_missingness_matrix_tsv(report.lfq_table))
+    write_output_table_tsv(
+        (output_dir / foreground_name),
+        render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries),
+    )
+    write_output_table_tsv(
+        (output_dir / lfq_summary_name), render_maxquant_lfq_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / lfq_matrix_name), render_maxquant_lfq_matrix_tsv(report.lfq_table)
+    )
+    write_output_table_tsv(
+        (output_dir / lfq_missingness_name),
+        render_label_free_quant_missingness_matrix_tsv(report.lfq_table),
+    )
     biological_manifest = write_biological_result_report_bundle(
         report.biological_report,
         output_dir,
@@ -672,9 +699,7 @@ def _build_enrichment_foreground_entries(
     biological_report: BiologicalResultReportBundle,
     accepted_groups: tuple[MaxquantProteinGroupReviewEntry, ...],
 ) -> tuple[MaxquantBiologicalForegroundEntry, ...]:
-    accepted_by_entity = {
-        _protein_group_entity_id(row): row for row in accepted_groups
-    }
+    accepted_by_entity = {_protein_group_entity_id(row): row for row in accepted_groups}
     foreground_entries: list[MaxquantBiologicalForegroundEntry] = []
     for card in biological_report.protein_cards.cards:
         if not card.significant:
@@ -691,7 +716,9 @@ def _build_enrichment_foreground_entries(
                     else card.protein_refs
                 ),
                 majority_protein_ids=(
-                    source_group.majority_protein_ids if source_group is not None else ()
+                    source_group.majority_protein_ids
+                    if source_group is not None
+                    else ()
                 ),
                 contaminant_flag=(
                     source_group.contaminant_flag if source_group is not None else False

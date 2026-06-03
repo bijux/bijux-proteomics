@@ -169,8 +169,7 @@ def build_peptide_evidence_report(
             )
         )
         contaminant_flag = (
-            target_decoy_contaminant_class
-            is TargetDecoyContaminantClass.CONTAMINANT
+            target_decoy_contaminant_class is TargetDecoyContaminantClass.CONTAMINANT
         ) or any(record.contaminant_flag for record in supporting_records)
         shared = len(rollup.protein_refs) > 1
         modified = "[" in rollup.canonical_peptide
@@ -267,7 +266,9 @@ def build_peptide_evidence_report(
             for entry in entries
             if entry.primary_class is PeptideEvidenceClass.AMBIGUOUS
         ),
-        unique_count=sum(1 for entry in entries if PeptideEvidenceTag.UNIQUE in entry.tags),
+        unique_count=sum(
+            1 for entry in entries if PeptideEvidenceTag.UNIQUE in entry.tags
+        ),
         modified_count=sum(
             1 for entry in entries if PeptideEvidenceTag.MODIFIED in entry.tags
         ),
@@ -450,8 +451,7 @@ def _combine_target_decoy_contaminant_class(
     if not active:
         return TargetDecoyContaminantClass.UNKNOWN
     if all(
-        evidence_class is TargetDecoyContaminantClass.DECOY
-        for evidence_class in active
+        evidence_class is TargetDecoyContaminantClass.DECOY for evidence_class in active
     ):
         return TargetDecoyContaminantClass.DECOY
     if all(
@@ -510,10 +510,7 @@ def _classify_primary_class(
             reasons.append("protein mapping remains shared")
         return (PeptideEvidenceClass.WEAK, "; ".join(reasons))
     if shared:
-        if (
-            reproducible
-            and q_value <= strong_q_value
-        ):
+        if reproducible and q_value <= strong_q_value:
             return (
                 PeptideEvidenceClass.SHARED,
                 "shared peptide is accepted with stable support but cannot support protein-specific evidence on its own",
@@ -522,10 +519,7 @@ def _classify_primary_class(
             PeptideEvidenceClass.WEAK,
             "shared peptide is accepted but lacks the q-value or reproducible support required for stronger non-unique evidence",
         )
-    if (
-        q_value <= strong_q_value
-        and reproducible
-    ):
+    if q_value <= strong_q_value and reproducible:
         return (
             PeptideEvidenceClass.STRONG,
             f"unique peptide passes peptide-level FDR, meets the strong-evidence q-value threshold at {strong_q_value:.4f}, and is reproducibly observed",

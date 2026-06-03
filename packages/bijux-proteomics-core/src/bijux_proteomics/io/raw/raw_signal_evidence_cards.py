@@ -120,8 +120,8 @@ class RawSignalEvidenceCard(JsonModel):
     retention_time_residuals: tuple[RetentionTimeAlignmentResidual, ...] = Field(
         default_factory=tuple
     )
-    retention_time_failed_anchors: tuple[RetentionTimeAlignmentFailedAnchor, ...] = Field(
-        default_factory=tuple
+    retention_time_failed_anchors: tuple[RetentionTimeAlignmentFailedAnchor, ...] = (
+        Field(default_factory=tuple)
     )
     spectrum_evidence: tuple[ChimericSpectrumEntry, ...] = Field(default_factory=tuple)
     competing_spectrum_evidence: tuple[ChimericSpectrumCompetingEvidenceEntry, ...] = (
@@ -191,7 +191,9 @@ def build_raw_signal_evidence_card_report(
     selected_precursor_set = {
         value.strip() for value in selected_precursor_ids if value.strip()
     }
-    selected_peptide_set = {value.strip() for value in selected_peptide_refs if value.strip()}
+    selected_peptide_set = {
+        value.strip() for value in selected_peptide_refs if value.strip()
+    }
 
     precursor_specs = _collect_precursor_specs(
         peak_reports,
@@ -209,7 +211,9 @@ def build_raw_signal_evidence_card_report(
         if spectrum_report is None
         else {entry.spectrum_id: entry for entry in spectrum_report.spectra}
     )
-    competing_entries_by_spectrum_id = _competing_entries_by_spectrum_id(spectrum_report)
+    competing_entries_by_spectrum_id = _competing_entries_by_spectrum_id(
+        spectrum_report
+    )
 
     for precursor_id, spec in sorted(
         precursor_specs.items(),
@@ -218,9 +222,12 @@ def build_raw_signal_evidence_card_report(
         if selected_precursor_set and precursor_id not in selected_precursor_set:
             if not (selected_peptide_set and spec.peptide_ref in selected_peptide_set):
                 continue
-        elif selected_peptide_set and spec.peptide_ref not in selected_peptide_set:
-            if precursor_id not in selected_precursor_set:
-                continue
+        elif (
+            selected_peptide_set
+            and spec.peptide_ref not in selected_peptide_set
+            and precursor_id not in selected_precursor_set
+        ):
+            continue
 
         chromatographic_targets = tuple(
             sorted(
@@ -320,7 +327,9 @@ def build_raw_signal_evidence_card_report(
                 peptide_ref=spec.peptide_ref,
                 display_name=spec.display_name,
                 precursor_mz=spec.precursor_mz,
-                chromatographic_target_ids=tuple(sorted(spec.chromatographic_target_ids)),
+                chromatographic_target_ids=tuple(
+                    sorted(spec.chromatographic_target_ids)
+                ),
                 chromatographic_targets=chromatographic_targets,
                 chromatographic_peaks=chromatographic_peaks,
                 retention_time_models=retention_time_models,
@@ -390,7 +399,9 @@ def extract_mzml_raw_signal_evidence_cards(
     """Extract raw-signal evidence-card inputs from mzML and normalized targets."""
 
     if not chromatogram_mzml_paths:
-        raise ValueError("raw-signal evidence cards require at least one chromatogram mzML")
+        raise ValueError(
+            "raw-signal evidence cards require at least one chromatogram mzML"
+        )
     if (spectrum_mzml_path is None) ^ (psm_path is None):
         raise ValueError(
             "spectrum_mzml_path and psm_path must be provided together for spectrum evidence"
@@ -571,9 +582,9 @@ def render_raw_signal_evidence_cards_html(report: RawSignalEvidenceCardReport) -
 
     lines = [
         "<!DOCTYPE html>",
-        "<html lang=\"en\">",
+        '<html lang="en">',
         "<head>",
-        "<meta charset=\"utf-8\">",
+        '<meta charset="utf-8">',
         "<title>Raw Signal Evidence Cards</title>",
         "<style>",
         "body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin: 24px; }",
@@ -592,10 +603,7 @@ def render_raw_signal_evidence_cards_html(report: RawSignalEvidenceCardReport) -
         lines.extend(
             [
                 "<section>",
-                (
-                    f"<h2>{escape(card.peptide_ref)} "
-                    f"({escape(card.precursor_id)})</h2>"
-                ),
+                (f"<h2>{escape(card.peptide_ref)} ({escape(card.precursor_id)})</h2>"),
                 "<p>"
                 f"Card id: {escape(card.card_id)}<br>"
                 f"Display name: {escape(card.display_name or '')}<br>"
@@ -607,7 +615,7 @@ def render_raw_signal_evidence_cards_html(report: RawSignalEvidenceCardReport) -
             lines.append("<ul>")
             for warning in card.warnings:
                 lines.append(
-                    "<li class=\"warning\">"
+                    '<li class="warning">'
                     f"{escape(warning.code.value)}: {escape(warning.message)}"
                     "</li>"
                 )
@@ -644,7 +652,9 @@ def _collect_precursor_specs(
     for target in peak_reports[0].trace_report.accepted_targets:
         precursor_id = target.metadata.get("precursor_id") or target.target_id
         peptide_ref = (
-            target.metadata.get("peptide_ref") or target.display_name or target.target_id
+            target.metadata.get("peptide_ref")
+            or target.display_name
+            or target.target_id
         )
         current = specs.get(precursor_id)
         target_ids = (
@@ -689,7 +699,11 @@ def _peaks_by_target_id(
         target_id: tuple(
             sorted(
                 observations,
-                key=lambda item: (item.run_id, item.peak.apex_time_seconds, item.peak.peak_id),
+                key=lambda item: (
+                    item.run_id,
+                    item.peak.apex_time_seconds,
+                    item.peak.peak_id,
+                ),
             )
         )
         for target_id, observations in grouped.items()
@@ -739,9 +753,7 @@ def _retention_time_models_for_card(
     run_ids = {observation.run_id for observation in chromatographic_peaks}
     run_ids.add(alignment_report.reference_run_id)
     return tuple(
-        model
-        for model in alignment_report.run_models
-        if model.run_id in run_ids
+        model for model in alignment_report.run_models if model.run_id in run_ids
     )
 
 
@@ -767,7 +779,9 @@ def _competing_entries_by_spectrum_id(
 def _spectrum_ids_for_peptide(
     peptide_ref: str,
     spectrum_report: ChimericSpectrumReport | None,
-    competing_entries_by_spectrum_id: dict[str, tuple[ChimericSpectrumCompetingEvidenceEntry, ...]],
+    competing_entries_by_spectrum_id: dict[
+        str, tuple[ChimericSpectrumCompetingEvidenceEntry, ...]
+    ],
 ) -> tuple[str, ...]:
     if spectrum_report is None:
         return ()

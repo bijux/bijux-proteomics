@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import deque
+import csv
 from io import StringIO
 
 from pydantic import ConfigDict, Field
@@ -42,7 +42,9 @@ class ProteinEvidenceSummaryReport(JsonModel):
 
     protein: ProteomicsEvidenceNode
     mapped_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
-    quantifying_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
+    quantifying_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(
+        default_factory=tuple
+    )
     protein_groups: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
     quant_values: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
     support_edges: tuple[ProteomicsEvidenceEdge, ...] = Field(default_factory=tuple)
@@ -70,9 +72,13 @@ class PtmSiteEvidenceReport(JsonModel):
     localized_modified_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(
         default_factory=tuple
     )
-    supporting_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
+    supporting_peptides: tuple[ProteomicsEvidenceNode, ...] = Field(
+        default_factory=tuple
+    )
     supporting_psms: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
-    supporting_spectra: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
+    supporting_spectra: tuple[ProteomicsEvidenceNode, ...] = Field(
+        default_factory=tuple
+    )
     proteins: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
     support_edges: tuple[ProteomicsEvidenceEdge, ...] = Field(default_factory=tuple)
     support_edge_count: int = Field(..., ge=0)
@@ -96,7 +102,9 @@ class PathwaySupportProteinReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     pathway: ProteomicsEvidenceNode
-    supporting_proteins: tuple[ProteomicsEvidenceNode, ...] = Field(default_factory=tuple)
+    supporting_proteins: tuple[ProteomicsEvidenceNode, ...] = Field(
+        default_factory=tuple
+    )
     support_edges: tuple[ProteomicsEvidenceEdge, ...] = Field(default_factory=tuple)
     support_edge_count: int = Field(..., ge=0)
 
@@ -388,7 +396,9 @@ def query_rejected_evidence_path(
     rejected_node = _require_node_by_id(graph, node_id)
     if rejected_node.claim_state != "rejected":
         raise ValueError(f"node is not rejected evidence: {node_id}")
-    path = _walk_edges(graph, seed_node_id=node_id, relation_filter=None, max_depth=max_depth)
+    path = _walk_edges(
+        graph, seed_node_id=node_id, relation_filter=None, max_depth=max_depth
+    )
     return RejectedEvidencePathReport(
         rejected_node=rejected_node,
         path_steps=path[0],
@@ -433,7 +443,9 @@ def query_pathway_support_proteins(
             ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_PATHWAY,
         )
     )
-    supporting_proteins = _unique_nodes(tuple(_source_node(graph, edge) for edge in incoming))
+    supporting_proteins = _unique_nodes(
+        tuple(_source_node(graph, edge) for edge in incoming)
+    )
     return PathwaySupportProteinReport(
         pathway=pathway,
         supporting_proteins=supporting_proteins,
@@ -504,7 +516,9 @@ def render_sample_qc_reasons_tsv(report: SampleQcReasonReport) -> str:
             {
                 "sample_id": report.sample.entity_ref,
                 "run_id": _source_node_id_from_qc_edge(report, edge),
-                "qc_decision_id": _target_node(graph_nodes=report.qc_decisions, edge=edge).entity_ref,
+                "qc_decision_id": _target_node(
+                    graph_nodes=report.qc_decisions, edge=edge
+                ).entity_ref,
                 "source_row_ref": edge.source_row_ref,
                 "confidence": edge.confidence,
                 "evidence_type": edge.evidence_type.value,
@@ -576,7 +590,9 @@ def _target_nodes_for_relation(
     relation: ProteomicsEvidenceEdgeKind,
 ) -> tuple[ProteomicsEvidenceNode, ...]:
     return tuple(
-        _target_node_for_edge(graph, edge) for edge in edges if edge.relation is relation
+        _target_node_for_edge(graph, edge)
+        for edge in edges
+        if edge.relation is relation
     )
 
 
@@ -600,7 +616,9 @@ def _walk_edges(
                 continue
             collected_edges.append(edge)
             neighbor_id = (
-                edge.target_node_id if edge.source_node_id == node_id else edge.source_node_id
+                edge.target_node_id
+                if edge.source_node_id == node_id
+                else edge.source_node_id
             )
             next_depth = depth + 1
             if neighbor_id not in depths or next_depth < depths[neighbor_id]:
@@ -610,7 +628,9 @@ def _walk_edges(
     steps = tuple(
         sorted(
             (
-                EvidenceGraphPathStep(depth=depth, node=_require_node_by_id(graph, node_id))
+                EvidenceGraphPathStep(
+                    depth=depth, node=_require_node_by_id(graph, node_id)
+                )
                 for node_id, depth in depths.items()
             ),
             key=lambda step: (step.depth, step.node.node_id),
@@ -706,7 +726,12 @@ def _require_node_by_id(
 def _unique_nodes(
     nodes: tuple[ProteomicsEvidenceNode, ...],
 ) -> tuple[ProteomicsEvidenceNode, ...]:
-    return tuple(sorted({node.node_id: node for node in nodes}.values(), key=lambda node: node.node_id))
+    return tuple(
+        sorted(
+            {node.node_id: node for node in nodes}.values(),
+            key=lambda node: node.node_id,
+        )
+    )
 
 
 def _unique_edges(
@@ -739,7 +764,9 @@ def _dict_rows_to_tsv(rows: list[dict[str, object]]) -> str:
         return ""
     fieldnames = list(rows[0])
     buffer = StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=fieldnames, delimiter="\t", lineterminator="\n")
+    writer = csv.DictWriter(
+        buffer, fieldnames=fieldnames, delimiter="\t", lineterminator="\n"
+    )
     writer.writeheader()
     writer.writerows(rows)
     return buffer.getvalue()

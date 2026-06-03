@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_ptm_annotate_context_command(
     evidence_tsv: Path,
     proteins_fasta: Path,
@@ -114,11 +115,16 @@ def run_ptm_annotate_context_command(
             "rejected_context_rows": context_import_report.summary.rejected_row_count,
             "context_report": context_report.to_dict(),
             "outputs": {
-                "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
-                "context_tsv": None if context_tsv_out is None else str(context_tsv_out),
+                "summary_tsv": None
+                if summary_tsv_out is None
+                else str(summary_tsv_out),
+                "context_tsv": None
+                if context_tsv_out is None
+                else str(context_tsv_out),
             },
         },
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_annotate_context_command']
+
+__all__ = ["run_ptm_annotate_context_command"]

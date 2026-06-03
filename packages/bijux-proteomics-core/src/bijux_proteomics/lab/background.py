@@ -33,11 +33,17 @@ def compare_samples_to_blanks(
 ) -> tuple[BackgroundComparisonEntry, ...]:
     """Compare biological sample intensities against blank or wash runs."""
 
-    blank_sample_ids = tuple(dict.fromkeys(sample_id.strip() for sample_id in blank_runs if sample_id.strip()))
+    blank_sample_ids = tuple(
+        dict.fromkeys(
+            sample_id.strip() for sample_id in blank_runs if sample_id.strip()
+        )
+    )
     if not blank_sample_ids:
         raise ValueError("blank_runs must include at least one sample_id")
     missing_blank_sample_ids = tuple(
-        sample_id for sample_id in blank_sample_ids if sample_id not in sample_matrix.sample_ids
+        sample_id
+        for sample_id in blank_sample_ids
+        if sample_id not in sample_matrix.sample_ids
     )
     if missing_blank_sample_ids:
         raise ValueError(
@@ -70,7 +76,9 @@ def compare_samples_to_blanks(
             )
             background_ratio = 0.0
             if blank_intensity > 0.0:
-                background_ratio = round(blank_intensity / max(sample_intensity, 1e-9), 4)
+                background_ratio = round(
+                    blank_intensity / max(sample_intensity, 1e-9), 4
+                )
             rows.append(
                 BackgroundComparisonEntry(
                     entity_id=entity_id,
@@ -126,7 +134,9 @@ def _blank_intensity_for_row(
 ) -> float:
     return max(
         (
-            _matrix_intensity(matrix, entity_index=entity_index, sample_index=sample_index)
+            _matrix_intensity(
+                matrix, entity_index=entity_index, sample_index=sample_index
+            )
             for sample_index in blank_indexes
         ),
         default=0.0,

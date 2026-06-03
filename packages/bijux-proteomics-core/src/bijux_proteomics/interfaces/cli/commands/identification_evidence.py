@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.identification_evidence import (
+    run_cross_run_reproducibility_command,
+    run_peptide_evidence_command,
+    run_protein_evidence_command,
+    run_psm_inspect_command,
+    run_psm_map_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.identification_evidence import run_psm_map_command, run_psm_inspect_command, run_peptide_evidence_command, run_protein_evidence_command, run_cross_run_reproducibility_command
+
 
 @click.command("psm-map")
 @click.argument(
@@ -43,8 +50,11 @@ def psm_map_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map a lab-local PSM table through an explicit YAML or JSON column map.'
-    return run_psm_map_command(input_tsv, mapping_path, normalized_tsv_out, rejected_tsv_out, out_path)
+    "Map a lab-local PSM table through an explicit YAML or JSON column map."
+    return run_psm_map_command(
+        input_tsv, mapping_path, normalized_tsv_out, rejected_tsv_out, out_path
+    )
+
 
 @click.command("psm-inspect")
 @click.argument(
@@ -133,8 +143,36 @@ def psm_inspect_command(
     missed_cleavage_distribution_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Inspect a generic PSM TSV and emit normalized summaries.'
-    return run_psm_inspect_command(input_tsv, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, pep_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, protease, decoy_prefix, decoy_suffix, jsonl_out, tsv_out, provenance_out, summary_tsv_out, score_distribution_tsv_out, q_value_distribution_tsv_out, charge_distribution_tsv_out, peptide_length_distribution_tsv_out, missed_cleavage_distribution_tsv_out, out_path)
+    "Inspect a generic PSM TSV and emit normalized summaries."
+    return run_psm_inspect_command(
+        input_tsv,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        pep_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        protease,
+        decoy_prefix,
+        decoy_suffix,
+        jsonl_out,
+        tsv_out,
+        provenance_out,
+        summary_tsv_out,
+        score_distribution_tsv_out,
+        q_value_distribution_tsv_out,
+        charge_distribution_tsv_out,
+        peptide_length_distribution_tsv_out,
+        missed_cleavage_distribution_tsv_out,
+        out_path,
+    )
+
 
 @click.command("peptide-evidence")
 @click.argument(
@@ -148,9 +186,7 @@ def psm_inspect_command(
     show_default=True,
 )
 @click.option("--strong-q-value", type=float, default=0.01, show_default=True)
-@click.option(
-    "--reproducible-spectrum-count", type=int, default=2, show_default=True
-)
+@click.option("--reproducible-spectrum-count", type=int, default=2, show_default=True)
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
 @click.option("--run-id-column", default=None)
@@ -198,8 +234,32 @@ def peptide_evidence_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review classified peptide evidence with strong, moderate, shared, and weak states.'
-    return run_peptide_evidence_command(input_tsv, threshold, score_orientation, strong_q_value, reproducible_spectrum_count, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, pep_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, entries_tsv_out, out_path)
+    "Review classified peptide evidence with strong, moderate, shared, and weak states."
+    return run_peptide_evidence_command(
+        input_tsv,
+        threshold,
+        score_orientation,
+        strong_q_value,
+        reproducible_spectrum_count,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        pep_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        entries_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-evidence")
 @click.argument(
@@ -267,8 +327,33 @@ def protein_evidence_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review final protein evidence tiers with explicit downgrade reasons.'
-    return run_protein_evidence_command(input_tsv, high_q_value, moderate_q_value, score_orientation, design_tsv, exploratory_protein, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, pep_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, entries_tsv_out, out_path)
+    "Review final protein evidence tiers with explicit downgrade reasons."
+    return run_protein_evidence_command(
+        input_tsv,
+        high_q_value,
+        moderate_q_value,
+        score_orientation,
+        design_tsv,
+        exploratory_protein,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        pep_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        entries_tsv_out,
+        out_path,
+    )
+
 
 @click.command("cross-run-reproducibility")
 @click.argument(
@@ -330,8 +415,30 @@ def cross_run_reproducibility_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score peptide or protein evidence by cross-run detection consistency.'
-    return run_cross_run_reproducibility_command(input_tsv, entity_type, design_tsv, exploratory_entity, spectrum_id_column, peptide_column, run_id_column, modified_peptide_column, charge_column, score_column, q_value_column, protein_refs_column, decoy_label_column, contaminant_label_column, protein_separator, decoy_prefix, decoy_suffix, summary_tsv_out, entries_tsv_out, out_path)
+    "Score peptide or protein evidence by cross-run detection consistency."
+    return run_cross_run_reproducibility_command(
+        input_tsv,
+        entity_type,
+        design_tsv,
+        exploratory_entity,
+        spectrum_id_column,
+        peptide_column,
+        run_id_column,
+        modified_peptide_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        protein_refs_column,
+        decoy_label_column,
+        contaminant_label_column,
+        protein_separator,
+        decoy_prefix,
+        decoy_suffix,
+        summary_tsv_out,
+        entries_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     psm_map_command,

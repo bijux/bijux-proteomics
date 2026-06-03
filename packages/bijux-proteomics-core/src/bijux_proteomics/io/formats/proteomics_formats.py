@@ -13,26 +13,58 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableValidationIssue,
+    build_experimental_design_schema,
+    validate_scientific_table,
+)
+from bijux_proteomics._tabular import DelimitedTableIssue
 from bijux_proteomics.chemistry import load_modification_registry
 from bijux_proteomics.domain.records import (
     Contrast,
     ContrastKind,
+)
+from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
+)
+from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.io.formats.format_validation import FormatValidationIssue
 from bijux_proteomics.io.raw.mzml_reader import (
     MzmlChromatogramPoint as _MzmlChromatogramPoint,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     MzmlChromatogramReport as _MzmlChromatogramReport,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     MzmlChromatogramTrace as _MzmlChromatogramTrace,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     MzmlParseReport as _MzmlParseReport,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     MzmlRunMetadata as _MzmlRunMetadata,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     RejectedMzmlChromatogram as _RejectedMzmlChromatogram,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     RejectedMzmlSpectrum as _RejectedMzmlSpectrum,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     build_mzml_collection_summary as _build_mzml_collection_summary,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     extract_mzml_chromatograms as _extract_mzml_chromatograms,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     extract_mzml_metadata as _extract_mzml_metadata,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     parse_mzml as _parse_mzml,
+)
+from bijux_proteomics.io.raw.mzml_reader import (
     stream_mzml_spectra as _stream_mzml_spectra,
 )
 from bijux_proteomics.io.spectra import (
@@ -42,13 +74,7 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
     render_mgf,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableValidationIssue,
-    build_experimental_design_schema,
-    validate_scientific_table,
-)
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics._tabular import DelimitedTableIssue
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 if TYPE_CHECKING:
@@ -689,7 +715,8 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         values = _render_design_row_values(row.values, row.extra_values)
         try:
             sample_role_value = (
-                row.values.get("sample_role") or ExperimentalDesignSampleRole.SAMPLE.value
+                row.values.get("sample_role")
+                or ExperimentalDesignSampleRole.SAMPLE.value
             )
             entry = ExperimentalDesignEntry(
                 sample_id=str(row.values.get("sample_id") or ""),
@@ -709,7 +736,9 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 technical_replicate_id=_optional_design_text(
                     row.values.get("technical_replicate_id")
                 ),
-                multiplex_group=_optional_design_text(row.values.get("multiplex_group")),
+                multiplex_group=_optional_design_text(
+                    row.values.get("multiplex_group")
+                ),
                 multiplex_channel=_optional_design_text(
                     row.values.get("multiplex_channel")
                 ),
@@ -903,7 +932,9 @@ def convert_proteomics_format(
 
         if resolved_kind is not ProteomicsFormatKind.PSM:
             raise ValueError("psm-jsonl conversion requires PSM TSV input")
-        records = parse_psm_tsv(input_path, mapping=_default_psm_mapping()).accepted_records
+        records = parse_psm_tsv(
+            input_path, mapping=_default_psm_mapping()
+        ).accepted_records
         export_psm_jsonl(records, output_path)
         written_record_count = len(records)
     else:

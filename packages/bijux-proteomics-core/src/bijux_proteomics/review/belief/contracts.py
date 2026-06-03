@@ -7,12 +7,6 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.evidence_graph import (
-    ProteomicsEvidenceEdge as EvidenceGraphEdge,
-)
-from bijux_proteomics.review.evidence_graph import (
-    ProteomicsEvidenceNode as EvidenceGraphNode,
-)
 from bijux_proteomics.review.cards.inference_packets import (
     InferenceDisagreementReviewEntry as InferenceDisagreementReviewEntry,
 )
@@ -24,6 +18,12 @@ from bijux_proteomics.review.cards.inference_packets import (
 )
 from bijux_proteomics.review.cards.inference_packets import (
     build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
+)
+from bijux_proteomics.review.evidence_graph import (
+    ProteomicsEvidenceEdge as EvidenceGraphEdge,
+)
+from bijux_proteomics.review.evidence_graph import (
+    ProteomicsEvidenceNode as EvidenceGraphNode,
 )
 from bijux_proteomics_foundation import JsonModel
 

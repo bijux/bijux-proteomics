@@ -9,8 +9,11 @@ from collections.abc import Mapping
 import csv
 from io import StringIO
 
-from bijux_proteomics.chemistry import ModificationPosition, ModificationRegistryDocument
-from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.chemistry import (
+    ModificationPosition,
+    ModificationRegistryDocument,
+    parse_modified_peptide,
+)
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
@@ -321,6 +324,7 @@ def build_ptm_site_table(
         )
     return tuple(entries)
 
+
 def build_ptm_site_ambiguity_report(
     site_entries: tuple[PtmSiteEntry, ...],
 ) -> tuple[PtmSiteAmbiguityEntry, ...]:
@@ -332,7 +336,9 @@ def build_ptm_site_ambiguity_report(
         if entry.shared_peptide:
             reason = "localized peptide is shared across multiple protein references"
         elif len(entry.candidate_positions) > 1:
-            reason = "multiple candidate protein positions for the localized modification"
+            reason = (
+                "multiple candidate protein positions for the localized modification"
+            )
         else:
             reason = "localized peptide mapped to multiple candidate occurrences"
         entries.append(
@@ -493,7 +499,8 @@ def render_ptm_protein_site_mapping_tsv(
                 mapping.localization_score,
                 mapping.q_value if mapping.q_value is not None else "",
                 ";".join(
-                    str(position) for position in sorted(mapping.candidate_protein_positions)
+                    str(position)
+                    for position in sorted(mapping.candidate_protein_positions)
                 ),
                 str(mapping.ambiguous).lower(),
                 str(mapping.shared_peptide).lower(),
@@ -590,7 +597,9 @@ def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
                 entry.spectrum_count,
                 entry.peptide_count,
                 ";".join(sort_strings(entry.sample_ids)),
-                ";".join(str(position) for position in sorted(entry.candidate_positions)),
+                ";".join(
+                    str(position) for position in sorted(entry.candidate_positions)
+                ),
                 str(entry.ambiguous).lower(),
                 str(entry.shared_peptide).lower(),
                 entry.target_decoy_label.value,
@@ -624,7 +633,9 @@ def render_ptm_site_ambiguity_tsv(
                 entry.site_key,
                 entry.protein_ref,
                 entry.modification_name,
-                ";".join(str(position) for position in sorted(entry.candidate_positions)),
+                ";".join(
+                    str(position) for position in sorted(entry.candidate_positions)
+                ),
                 ";".join(sort_strings(entry.localized_peptides)),
                 str(entry.shared_peptide).lower(),
                 entry.reason,
@@ -633,7 +644,9 @@ def render_ptm_site_ambiguity_tsv(
     return buffer.getvalue()
 
 
-def render_ptm_site_coverage_tsv(coverage_entries: tuple[PtmSiteCoverageEntry, ...]) -> str:
+def render_ptm_site_coverage_tsv(
+    coverage_entries: tuple[PtmSiteCoverageEntry, ...],
+) -> str:
     """Render PTM site coverage rows as TSV."""
 
     buffer = StringIO()

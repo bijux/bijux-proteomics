@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_spectrum_similarity_command(
     query_path: Path,
     reference_path: Path,
@@ -94,6 +95,7 @@ def run_spectrum_similarity_command(
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
+
 def run_spectral_library_import_command(
     input_path: Path,
     kind: str,
@@ -150,6 +152,7 @@ def run_spectral_library_import_command(
         _emit_json(payload, out_path=out_path)
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
+
 
 def run_spectral_library_search_command(
     query_path: Path,
@@ -211,4 +214,9 @@ def run_spectral_library_search_command(
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
-__all__ = ['run_spectrum_similarity_command', 'run_spectral_library_import_command', 'run_spectral_library_search_command']
+
+__all__ = [
+    "run_spectrum_similarity_command",
+    "run_spectral_library_import_command",
+    "run_spectral_library_search_command",
+]

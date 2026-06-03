@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections.abc import Iterable
+import csv
 import hashlib
 import io
 import json
@@ -160,10 +160,7 @@ def fit_target_decoy_logistic_model(
     native_scores = np.array([row.score_native for row in feature_table], dtype=float)
     native_auc = _binary_auc(native_scores, labels)
     native_rank = _rank_map(
-        (
-            (row.psm_id, row.score_native)
-            for row in feature_table
-        ),
+        ((row.psm_id, row.score_native) for row in feature_table),
         higher_better=True,
     )
 
@@ -501,7 +498,7 @@ def _rank_map(
     higher_better: bool,
 ) -> dict[str, int]:
     ranked: list[tuple[str, float]] = sorted(
-        tuple(pairs),
+        pairs,
         key=lambda pair: ((-pair[1]) if higher_better else pair[1], pair[0]),
     )
     return {psm_id: rank for rank, (psm_id, _score) in enumerate(ranked, start=1)}

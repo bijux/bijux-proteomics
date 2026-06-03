@@ -12,7 +12,9 @@ from bijux_proteomics.workflow.demo.scale_demo import ScaleDemoReport
 from bijux_proteomics.workflow.demo.surprising_demo import SurprisingDemoReport
 
 
-def _resolve_result_root_report_dirs(result_root: Path) -> tuple[Path | None, Path | None]:
+def _resolve_result_root_report_dirs(
+    result_root: Path,
+) -> tuple[Path | None, Path | None]:
     if not result_root.exists():
         raise click.ClickException(f"result root does not exist: {result_root}")
     if not result_root.is_dir():
@@ -33,7 +35,9 @@ def _resolve_result_root_report_dirs(result_root: Path) -> tuple[Path | None, Pa
             surprising_report_path.read_text(encoding="utf-8")
         )
         return (
-            _resolve_relative_result_dir(result_root, report.artifacts.biological_output_dir),
+            _resolve_relative_result_dir(
+                result_root, report.artifacts.biological_output_dir
+            ),
             _resolve_relative_result_dir(result_root, report.artifacts.ptm_output_dir),
         )
 
@@ -97,6 +101,7 @@ def _resolve_relative_result_dir(root: Path, relative_dir: str) -> Path:
         )
     return path
 
+
 def run_result_search_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -153,12 +158,10 @@ def run_validate_result_command(
     manifest_json_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    biological_report_dir, ptm_report_dir = _resolve_result_root_report_dirs(result_root)
-    command_texts = (
-        commands
-        if commands
-        else (f"validate-result {result_root}",)
+    biological_report_dir, ptm_report_dir = _resolve_result_root_report_dirs(
+        result_root
     )
+    command_texts = commands if commands else (f"validate-result {result_root}",)
     manifest_path = (
         manifest_json_out
         if manifest_json_out is not None
@@ -189,7 +192,9 @@ def run_query_result_command(
     hit_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    biological_report_dir, ptm_report_dir = _resolve_result_root_report_dirs(result_root)
+    biological_report_dir, ptm_report_dir = _resolve_result_root_report_dirs(
+        result_root
+    )
     run_result_search_command(
         biological_report_dir=biological_report_dir,
         ptm_report_dir=ptm_report_dir,
@@ -199,6 +204,7 @@ def run_query_result_command(
         hit_tsv_out=hit_tsv_out,
         out_path=out_path,
     )
+
 
 def run_interactive_result_comparison_command(
     left_biological_report_dir: Path | None,
@@ -288,6 +294,7 @@ def run_interactive_result_comparison_command(
     }
     _emit_json(json_payload, out_path=out_path)
 
+
 def run_interactive_result_bundle_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -324,13 +331,16 @@ def run_interactive_result_bundle_command(
             None if biological_report_dir is None else str(biological_report_dir)
         ),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "bundle": bundle.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_result_manifest_command(
     biological_report_dir: Path | None,
@@ -375,7 +385,9 @@ def run_result_manifest_command(
             None if biological_report_dir is None else str(biological_report_dir)
         ),
         "ptm_report_dir": None if ptm_report_dir is None else str(ptm_report_dir),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "input_paths": [str(path) for path in input_paths],
         "commands": list(commands),
         "report": report.to_dict(),
@@ -391,6 +403,7 @@ def run_result_manifest_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 __all__ = [
     "run_interactive_result_bundle_command",

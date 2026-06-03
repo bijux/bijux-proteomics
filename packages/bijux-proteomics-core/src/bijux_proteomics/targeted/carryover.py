@@ -65,7 +65,9 @@ class TargetedCarryoverReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_name: str = Field(..., min_length=1)
-    candidates: tuple[TargetedCarryoverCandidateEntry, ...] = Field(default_factory=tuple)
+    candidates: tuple[TargetedCarryoverCandidateEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: TargetedCarryoverSummary
     note: str = Field(..., min_length=1)
 
@@ -100,7 +102,10 @@ def build_targeted_carryover_report(
             )
             for run in ordered_runs.values()
         ),
-        _carryover_matrix(ordered_runs=ordered_runs, totals_by_precursor_sample=totals_by_precursor_sample),
+        _carryover_matrix(
+            ordered_runs=ordered_runs,
+            totals_by_precursor_sample=totals_by_precursor_sample,
+        ),
         high_source_relative_fraction_threshold=high_source_relative_fraction_threshold,
         low_level_repeated_signal_fraction_threshold=low_level_repeated_signal_fraction_threshold,
     )
@@ -109,7 +114,9 @@ def build_targeted_carryover_report(
         run.run_id: sample_id for sample_id, run in ordered_runs.items()
     }
     for row in carryover_rows:
-        peptide_sequence, protein_ref = _precursor_identity(import_report, row.entity_id)
+        peptide_sequence, protein_ref = _precursor_identity(
+            import_report, row.entity_id
+        )
         candidates.append(
             TargetedCarryoverCandidateEntry(
                 source_run_id=row.source_run,
@@ -147,7 +154,9 @@ def build_targeted_carryover_report(
             run_count=len(ordered_runs),
             precursor_count=len(totals_by_precursor_sample),
             candidate_entry_count=len(sorted_candidates),
-            affected_run_count=len({entry.affected_run_id for entry in sorted_candidates}),
+            affected_run_count=len(
+                {entry.affected_run_id for entry in sorted_candidates}
+            ),
             source_run_count=len({entry.source_run_id for entry in sorted_candidates}),
         ),
         note=(
@@ -237,9 +246,7 @@ def _ordered_design_runs_by_sample_id(
     design: ExperimentDesign,
 ) -> dict[str, ExperimentDesignRun]:
     runs_by_sample_id: dict[str, ExperimentDesignRun] = {}
-    missing_run_order = [
-        run.sample_id for run in design.runs if run.run_order is None
-    ]
+    missing_run_order = [run.sample_id for run in design.runs if run.run_order is None]
     if missing_run_order:
         raise ValueError(
             "run_order is required for carryover analysis and is missing for: "
@@ -297,7 +304,11 @@ def _precursor_identity(
     if not matching:
         raise ValueError(f"precursor identity is missing for {precursor_id!r}")
     protein_ref = next(
-        (observation.protein_ref for observation in matching if observation.protein_ref),
+        (
+            observation.protein_ref
+            for observation in matching
+            if observation.protein_ref
+        ),
         None,
     )
     return matching[0].peptide_sequence, protein_ref

@@ -13,11 +13,13 @@ import math
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.interpretation.protein_set_scoring import (
-    ProteinSetRecord,
-    ProteinSetImportReport,
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
 )
-from bijux_proteomics.interpretation.protein_annotation_mapping import ProteinReferenceEntry
+from bijux_proteomics.interpretation.protein_set_scoring import (
+    ProteinSetImportReport,
+    ProteinSetRecord,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -225,7 +227,9 @@ def build_protein_set_enrichment_report(
             sorted(
                 corrected_entries,
                 key=lambda entry: (
-                    entry.adjusted_p_value if entry.adjusted_p_value is not None else 1.0,
+                    entry.adjusted_p_value
+                    if entry.adjusted_p_value is not None
+                    else 1.0,
                     entry.p_value,
                     entry.set_id,
                 ),
@@ -253,7 +257,9 @@ def build_protein_set_enrichment_report(
     )
 
 
-def render_protein_set_enrichment_summary_tsv(report: ProteinSetEnrichmentReport) -> str:
+def render_protein_set_enrichment_summary_tsv(
+    report: ProteinSetEnrichmentReport,
+) -> str:
     """Render one compact protein-set enrichment summary as TSV."""
 
     buffer = StringIO()
@@ -321,7 +327,9 @@ def render_protein_set_enrichment_tsv(report: ProteinSetEnrichmentReport) -> str
                 entry.foreground_size,
                 entry.background_size,
                 f"{entry.expected_overlap_count:.6f}",
-                "" if entry.enrichment_ratio is None else f"{entry.enrichment_ratio:.6f}",
+                ""
+                if entry.enrichment_ratio is None
+                else f"{entry.enrichment_ratio:.6f}",
                 f"{entry.p_value:.6f}",
                 ""
                 if entry.adjusted_p_value is None
@@ -417,7 +425,9 @@ def _benjamini_hochberg(p_values: tuple[float, ...]) -> tuple[float, ...]:
 
 
 def _category_counts_tsv(category_counts: dict[str, int]) -> str:
-    return ";".join(f"{category}:{count}" for category, count in sorted(category_counts.items()))
+    return ";".join(
+        f"{category}:{count}" for category, count in sorted(category_counts.items())
+    )
 
 
 def _metadata_json(values: dict[str, str]) -> str:

@@ -16,16 +16,32 @@ from bijux_proteomics.identification.search_adapters.contracts import (
     SearchParameterDifferenceEntry,
     SearchParameterReport,
 )
-from bijux_proteomics.identification.search_adapters.engines.comet import parse_comet_parameters
-from bijux_proteomics.identification.search_adapters.engines.diann import parse_diann_parameters
-from bijux_proteomics.identification.search_adapters.engines.maxquant import parse_maxquant_parameters
-from bijux_proteomics.identification.search_adapters.engines.msfragger import parse_msfragger_parameters
-from bijux_proteomics.identification.search_adapters.engines.sage import parse_sage_parameters
-from bijux_proteomics.identification.search_adapters.engines.spectronaut import parse_spectronaut_parameters
-from bijux_proteomics.identification.search_adapters.parameter_support import SUPPORTED_ENZYMES
+from bijux_proteomics.identification.search_adapters.engines.comet import (
+    parse_comet_parameters,
+)
+from bijux_proteomics.identification.search_adapters.engines.diann import (
+    parse_diann_parameters,
+)
+from bijux_proteomics.identification.search_adapters.engines.maxquant import (
+    parse_maxquant_parameters,
+)
+from bijux_proteomics.identification.search_adapters.engines.msfragger import (
+    parse_msfragger_parameters,
+)
+from bijux_proteomics.identification.search_adapters.engines.sage import (
+    parse_sage_parameters,
+)
+from bijux_proteomics.identification.search_adapters.engines.spectronaut import (
+    parse_spectronaut_parameters,
+)
+from bijux_proteomics.identification.search_adapters.parameter_support import (
+    SUPPORTED_ENZYMES,
+)
 
 
-def parse_search_parameter_file(*, source_path: Path, adapter_kind: SearchAdapterKind) -> SearchParameterReport:
+def parse_search_parameter_file(
+    *, source_path: Path, adapter_kind: SearchAdapterKind
+) -> SearchParameterReport:
     """Parse one supported search-engine parameter file into a stable contract."""
     if adapter_kind is SearchAdapterKind.COMET:
         return parse_comet_parameters(source_path)
@@ -39,7 +55,9 @@ def parse_search_parameter_file(*, source_path: Path, adapter_kind: SearchAdapte
         return parse_diann_parameters(source_path)
     if adapter_kind is SearchAdapterKind.SPECTRONAUT:
         return parse_spectronaut_parameters(source_path)
-    raise ValueError(f"search parameter parsing is not supported for adapter {adapter_kind.value!r}")
+    raise ValueError(
+        f"search parameter parsing is not supported for adapter {adapter_kind.value!r}"
+    )
 
 
 def supports_search_parameter_parsing(adapter_kind: SearchAdapterKind) -> bool:

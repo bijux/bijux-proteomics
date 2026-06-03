@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
+import csv
 from io import StringIO
 from typing import cast
 
@@ -141,10 +141,7 @@ def build_replicate_structure_report(
             biological_sample_count=len(sample_role_entries),
             condition_count=len(condition_entries),
             effective_statistical_unit_count=len(
-                {
-                    entry.effective_statistical_unit_id
-                    for entry in sample_role_entries
-                }
+                {entry.effective_statistical_unit_id for entry in sample_role_entries}
             ),
             technical_replicate_count=sum(
                 entry.technical_replicate_count for entry in sample_role_entries
@@ -229,7 +226,10 @@ def _build_sample_entry(
         len(explicit_technical_groups) if explicit_technical_groups else len(entries)
     )
     injection_replicate_count = (
-        sum(max(len(group_entries) - 1, 0) for group_entries in explicit_technical_groups.values())
+        sum(
+            max(len(group_entries) - 1, 0)
+            for group_entries in explicit_technical_groups.values()
+        )
         if explicit_technical_groups
         else 0
     )
@@ -244,20 +244,24 @@ def _build_sample_entry(
     repeated_measure_subject_id = (
         sample.pair_id if sample.pair_id in repeated_measure_subject_ids else None
     )
-    effective_statistical_unit_id = (
-        repeated_measure_subject_id or sample.sample_id
-    )
+    effective_statistical_unit_id = repeated_measure_subject_id or sample.sample_id
     notes: list[str] = []
     if technical_replicate_count > 1:
-        notes.append("technical replicates add run support without adding biological power")
+        notes.append(
+            "technical replicates add run support without adding biological power"
+        )
     if injection_replicate_count > 0:
         notes.append("reinjections stay within one technical replicate")
     if fraction_count > 1:
         notes.append("fractions stay within one biological sample")
     if multiplex_channel_count > 0:
-        notes.append("multiplex channels preserve assay placement without adding replicates")
+        notes.append(
+            "multiplex channels preserve assay placement without adding replicates"
+        )
     if repeated_measure_subject_id is not None:
-        notes.append("repeated-measure rows collapse to one subject-level statistical unit")
+        notes.append(
+            "repeated-measure rows collapse to one subject-level statistical unit"
+        )
     return ReplicateStructureSampleEntry(
         biological_sample_id=sample.sample_id,
         condition=sample.condition,
@@ -269,7 +273,8 @@ def _build_sample_entry(
         multiplex_channel_count=multiplex_channel_count,
         repeated_measure_subject_id=repeated_measure_subject_id,
         effective_statistical_unit_id=effective_statistical_unit_id,
-        note="; ".join(notes) or "single biological sample without nested replicate structure",
+        note="; ".join(notes)
+        or "single biological sample without nested replicate structure",
     )
 
 
@@ -286,10 +291,7 @@ def _build_condition_entries(
     for condition in sorted(by_condition):
         condition_samples = by_condition[condition]
         effective_statistical_unit_count = len(
-            {
-                entry.effective_statistical_unit_id
-                for entry in condition_samples
-            }
+            {entry.effective_statistical_unit_id for entry in condition_samples}
         )
         biological_replicate_count = len(condition_samples)
         technical_replicate_count = sum(
@@ -351,15 +353,21 @@ def _condition_note(
 ) -> str:
     notes: list[str] = []
     if effective_statistical_unit_count != biological_replicate_count:
-        notes.append("subject-level repeated measures reduce independent statistical units")
+        notes.append(
+            "subject-level repeated measures reduce independent statistical units"
+        )
     if technical_replicate_count > biological_replicate_count:
         notes.append("technical replicate runs do not raise replicate power")
     if injection_replicate_count > 0:
         notes.append("reinjections remain within existing technical replicate support")
     if fractionated_sample_count > 0:
-        notes.append("fractionated samples add depth without adding biological replicates")
+        notes.append(
+            "fractionated samples add depth without adding biological replicates"
+        )
     if multiplex_channel_count > 0:
-        notes.append("multiplex channels record assay placement without increasing independent units")
+        notes.append(
+            "multiplex channels record assay placement without increasing independent units"
+        )
     return "; ".join(notes) or "biological samples and statistical units are aligned"
 
 
@@ -404,8 +412,8 @@ def _entries_by_sample(
 def _explicit_technical_groups(
     entries: tuple[ExperimentalDesignEntry, ...],
 ) -> dict[tuple[str, int, str, str], tuple[ExperimentalDesignEntry, ...]]:
-    groups: dict[tuple[str, int, str, str], list[ExperimentalDesignEntry]] = defaultdict(
-        list
+    groups: dict[tuple[str, int, str, str], list[ExperimentalDesignEntry]] = (
+        defaultdict(list)
     )
     for entry in entries:
         if entry.technical_replicate_id in (None, ""):
@@ -419,9 +427,7 @@ def _explicit_technical_groups(
             )
         ].append(entry)
     return {
-        key: tuple(
-            sorted(group_entries, key=lambda entry: entry.spectra_file)
-        )
+        key: tuple(sorted(group_entries, key=lambda entry: entry.spectra_file))
         for key, group_entries in groups.items()
     }
 

@@ -137,6 +137,7 @@ COMET_PSM_DIALECT = SearchAdapterDialectManifest(
 
 COMET_DIALECTS = (COMET_PIPELINE_DIALECT, COMET_PSM_DIALECT)
 
+
 def parse_comet_parameters(path: Path) -> SearchParameterReport:
     fields = parse_key_value_parameters(path)
     precursor_units = (
@@ -176,7 +177,8 @@ def parse_comet_parameters(path: Path) -> SearchParameterReport:
         raw_fields=fields,
     )
 
-def build_comet_output_corpus_report(corpus_root: Path) -> "SearchEngineCorpusReport":
+
+def build_comet_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusReport:
     """Build corpus coverage over Comet native and pipeline-like outputs."""
     from ..corpus import (
         SearchCorpusInputSpecification,

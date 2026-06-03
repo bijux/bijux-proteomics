@@ -35,7 +35,9 @@ def extract_mzml_chromatographic_evidence(
     """Extract peaks and score chromatographic evidence from one or more mzML runs."""
 
     if not mzml_paths:
-        raise ValueError("chromatographic evidence scoring requires at least one mzML file")
+        raise ValueError(
+            "chromatographic evidence scoring requires at least one mzML file"
+        )
     if len(mzml_paths) == 1:
         peak_reports = (
             extract_mzml_chromatographic_peaks(

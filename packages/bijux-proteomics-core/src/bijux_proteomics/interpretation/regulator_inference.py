@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-from typing import DefaultDict, Sequence
 
 from pydantic import ConfigDict, Field
 
@@ -126,7 +126,9 @@ class RegulatorEvidenceImportReport(JsonModel):
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[RegulatorEvidenceRecord, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedRegulatorEvidenceRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedRegulatorEvidenceRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: RegulatorEvidenceColumnMapping
     summary: RegulatorEvidenceImportSummary
     note: str = Field(..., min_length=1)
@@ -181,8 +183,12 @@ class RegulatorSiteSignalImportReport(JsonModel):
 
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
-    accepted_entries: tuple[RegulatorSiteSignalEntry, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedRegulatorSiteSignalRow, ...] = Field(default_factory=tuple)
+    accepted_entries: tuple[RegulatorSiteSignalEntry, ...] = Field(
+        default_factory=tuple
+    )
+    rejected_rows: tuple[RejectedRegulatorSiteSignalRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: RegulatorSiteSignalColumnMapping
     summary: RegulatorSiteSignalImportSummary
     note: str = Field(..., min_length=1)
@@ -407,7 +413,9 @@ def parse_regulator_evidence_table(
                 pathway_id=pathway_id,
                 site_key=site_key,
                 source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(values, active_mapping.source_accession),
+                source_accession=_optional_value(
+                    values, active_mapping.source_accession
+                ),
                 metadata={
                     key: value
                     for key, value in values.items()
@@ -441,7 +449,7 @@ def parse_regulator_evidence_table(
             ),
         )
     )
-    counts: DefaultDict[RegulatorEvidenceType, int] = defaultdict(int)
+    counts: defaultdict[RegulatorEvidenceType, int] = defaultdict(int)
     for record in accepted_tuple:
         counts[record.evidence_type] += 1
     return RegulatorEvidenceImportReport(
@@ -454,7 +462,9 @@ def parse_regulator_evidence_table(
             accepted_record_count=len(accepted_tuple),
             rejected_row_count=len(rejected_rows),
             regulator_count=len({record.regulator for record in accepted_tuple}),
-            kinase_substrate_record_count=counts[RegulatorEvidenceType.KINASE_SUBSTRATE],
+            kinase_substrate_record_count=counts[
+                RegulatorEvidenceType.KINASE_SUBSTRATE
+            ],
             transcription_factor_target_record_count=counts[
                 RegulatorEvidenceType.TRANSCRIPTION_FACTOR_TARGET
             ],
@@ -530,7 +540,9 @@ def parse_regulator_site_signal_table(
             )
             continue
         try:
-            log2_fold_change = float(values.get(active_mapping.log2_fold_change, "").strip())
+            log2_fold_change = float(
+                values.get(active_mapping.log2_fold_change, "").strip()
+            )
         except ValueError:
             rejected_rows.append(
                 RejectedRegulatorSiteSignalRow(
@@ -565,7 +577,10 @@ def parse_regulator_site_signal_table(
         )
 
     accepted_tuple = tuple(
-        sorted(accepted_entries, key=lambda entry: (entry.site_key, entry.protein_ref or ""))
+        sorted(
+            accepted_entries,
+            key=lambda entry: (entry.site_key, entry.protein_ref or ""),
+        )
     )
     return RegulatorSiteSignalImportReport(
         source_path=str(path),
@@ -594,7 +609,9 @@ def build_regulator_site_signal_entries_from_ptm_evidence_cards(
             log2_fold_change=card.differential_result.log2_fold_change,
             adjusted_p_value=card.differential_result.adjusted_p_value,
         )
-        for card in sorted(report.cards, key=lambda card: (card.protein_ref, card.site_key))
+        for card in sorted(
+            report.cards, key=lambda card: (card.protein_ref, card.site_key)
+        )
     )
 
 
@@ -622,7 +639,9 @@ def build_regulator_inference_report(
         condition_b=differential_report.condition_b,
     )
     site_signal_lookup = {entry.site_key: entry for entry in site_signal_entries}
-    pathway_support_proteins = _pathway_supporting_protein_lookup(pathway_activity_report)
+    pathway_support_proteins = _pathway_supporting_protein_lookup(
+        pathway_activity_report
+    )
 
     grouped_records: dict[
         tuple[str, RegulatorEvidenceType, str | None, str | None],
@@ -857,7 +876,9 @@ def render_unresolved_regulator_target_tsv(report: RegulatorInferenceReport) -> 
     return buffer.getvalue()
 
 
-def render_rejected_regulator_evidence_tsv(report: RegulatorEvidenceImportReport) -> str:
+def render_rejected_regulator_evidence_tsv(
+    report: RegulatorEvidenceImportReport,
+) -> str:
     """Render rejected regulator evidence rows with stable reasons."""
 
     buffer = StringIO()
@@ -921,7 +942,9 @@ def _build_site_regulation_entry(
         significance.append(_significance_score(signal.adjusted_p_value))
         supporting_site_keys.add(signal.site_key)
         if signal.protein_ref is not None:
-            supporting_protein_refs.add(canonicalize_protein_reference(signal.protein_ref))
+            supporting_protein_refs.add(
+                canonicalize_protein_reference(signal.protein_ref)
+            )
     return (
         _build_inference_entry(
             regulator=regulator,
@@ -1072,9 +1095,15 @@ def _build_pathway_activity_entry(
         if delta_value is None:
             raise RuntimeError("validated pathway signal unexpectedly lost its delta")
         values.append(delta_value)
-        significance.append(1.0 if confidence is PathwayActivityConfidenceStatus.HIGH_CONFIDENCE else 0.5)
+        significance.append(
+            1.0
+            if confidence is PathwayActivityConfidenceStatus.HIGH_CONFIDENCE
+            else 0.5
+        )
         supporting_pathway_ids.add(record.pathway_id)
-        supporting_protein_refs.update(pathway_support_proteins.get(record.pathway_id, ()))
+        supporting_protein_refs.update(
+            pathway_support_proteins.get(record.pathway_id, ())
+        )
     return (
         _build_inference_entry(
             regulator=regulator,
@@ -1111,7 +1140,9 @@ def _build_inference_entry(
     significance_scores: list[float],
     policy: RegulatorInferencePolicy,
 ) -> RegulatorInferenceEntry:
-    coverage_fraction = 0.0 if target_count == 0 else matched_target_count / target_count
+    coverage_fraction = (
+        0.0 if target_count == 0 else matched_target_count / target_count
+    )
     direction = _resolve_direction(signal_values)
     mean_log2_fold_change = None
     mean_activity_score_delta = None
@@ -1246,7 +1277,9 @@ def _score_regulator_support(
     effect_score = (
         0.0
         if not signal_values
-        else min(1.0, sum(abs(value) for value in signal_values) / len(signal_values) / 2.0)
+        else min(
+            1.0, sum(abs(value) for value in signal_values) / len(signal_values) / 2.0
+        )
     )
     significance_score = (
         0.0
@@ -1348,9 +1381,7 @@ def _is_better_signal(
 
 def _read_delimited_lines(path: Path) -> list[str]:
     return [
-        line
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
     ]
 
 
@@ -1362,7 +1393,9 @@ def _validate_required_columns(
     fieldnames: Sequence[str],
     required: tuple[str | None, ...],
 ) -> None:
-    missing = [field for field in required if field is not None and field not in fieldnames]
+    missing = [
+        field for field in required if field is not None and field not in fieldnames
+    ]
     if missing:
         raise ValueError(
             "table is missing required columns: " + ", ".join(sorted(missing))

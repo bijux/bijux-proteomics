@@ -13,35 +13,37 @@ from statistics import median
 
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.domain.reason_codes import (
     ReasonCodeCategory,
     require_registered_reason_code,
 )
-from bijux_proteomics.chemistry import calculate_peptide_mz
+from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.identification.contaminant_evidence import (
     build_contaminant_evidence_report,
 )
-from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.spectra import SpectrumModel, calculate_precursor_mass_error
-from bijux_proteomics.quantification import (
-    LabelFreeQuantTable,
-    MissingValueKind,
-    QuantEntityLevel,
-)
 from bijux_proteomics.lab.protocol_context import (
     AcquisitionType,
     DepletionMode,
     EnrichmentType,
     FractionationMode,
-    LabProtocolContextEntry,
     LabelingMethod,
+    LabProtocolContextEntry,
+)
+from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
+    MissingValueKind,
+    QuantEntityLevel,
 )
 from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,
-    count_missed_cleavages as count_sequence_missed_cleavages,
     get_protease_rule,
+)
+from bijux_proteomics.sequences.digestion import (
+    count_missed_cleavages as count_sequence_missed_cleavages,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_model
 
@@ -743,14 +745,17 @@ def _build_run_status_reasons(
     specificity_lookup = {
         entry.specificity: entry.fraction for entry in run_report.digestion_specificity
     }
-    non_specific_fraction = specificity_lookup.get(QcDigestionSpecificity.NON_SPECIFIC, 0.0)
+    non_specific_fraction = specificity_lookup.get(
+        QcDigestionSpecificity.NON_SPECIFIC, 0.0
+    )
     if run_report.missed_cleavage_rate >= 0.2 or non_specific_fraction >= 0.15:
         reasons.append(
             QcStatusReasonEntry(
                 code="digestion_inefficiency",
                 status=(
                     QcStatus.FAIL
-                    if run_report.missed_cleavage_rate >= 0.35 or non_specific_fraction >= 0.25
+                    if run_report.missed_cleavage_rate >= 0.35
+                    or non_specific_fraction >= 0.25
                     else QcStatus.CAUTION
                 ),
                 source=QcStatusReasonSource.LAB,
@@ -762,12 +767,19 @@ def _build_run_status_reasons(
             )
         )
 
-    contamination_fraction = run_report.contaminant_summary.contaminant_intensity_fraction
-    if contamination_fraction >= 0.05 or run_report.contaminant_summary.contaminant_psm_fraction >= 0.1:
+    contamination_fraction = (
+        run_report.contaminant_summary.contaminant_intensity_fraction
+    )
+    if (
+        contamination_fraction >= 0.05
+        or run_report.contaminant_summary.contaminant_psm_fraction >= 0.1
+    ):
         reasons.append(
             QcStatusReasonEntry(
                 code="contamination_burden",
-                status=QcStatus.FAIL if contamination_fraction >= 0.15 else QcStatus.CAUTION,
+                status=QcStatus.FAIL
+                if contamination_fraction >= 0.15
+                else QcStatus.CAUTION,
                 source=QcStatusReasonSource.LAB,
                 message=(
                     "contaminant intensity fraction "
@@ -780,7 +792,11 @@ def _build_run_status_reasons(
         run_report.design_metadata, "carryover_marker_refs"
     )
     carryover_hits = tuple(
-        sorted(ref for ref in carryover_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+        sorted(
+            ref
+            for ref in carryover_refs
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
     )
     if carryover_hits:
         reasons.append(
@@ -796,7 +812,11 @@ def _build_run_status_reasons(
         run_report.design_metadata, "expected_species_marker_refs"
     )
     expected_species_hits = tuple(
-        sorted(ref for ref in expected_species_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+        sorted(
+            ref
+            for ref in expected_species_refs
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
     )
     forbidden_species_hits = tuple(
         sorted(
@@ -826,7 +846,11 @@ def _build_run_status_reasons(
         run_report.design_metadata, "expected_sex_marker_refs"
     )
     expected_sex_hits = tuple(
-        sorted(ref for ref in expected_sex_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+        sorted(
+            ref
+            for ref in expected_sex_refs
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
     )
     forbidden_sex_hits = tuple(
         sorted(
@@ -868,7 +892,11 @@ def _build_run_status_reasons(
         run_report.design_metadata, "enrichment_marker_refs"
     )
     enrichment_hits = tuple(
-        sorted(ref for ref in expected_enrichment_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+        sorted(
+            ref
+            for ref in expected_enrichment_refs
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
     )
     if expected_enrichment_refs and not enrichment_hits:
         reasons.append(
@@ -895,7 +923,8 @@ def _build_run_status_reasons(
                 code="depletion_inefficiency",
                 status=QcStatus.CAUTION,
                 source=QcStatusReasonSource.LAB,
-                message="depletion markers remained visible: " + ", ".join(depletion_hits),
+                message="depletion markers remained visible: "
+                + ", ".join(depletion_hits),
             )
         )
 
@@ -903,12 +932,18 @@ def _build_run_status_reasons(
     for reason in reasons:
         key = (reason.code, reason.message)
         incumbent = unique_reasons.get(key)
-        if incumbent is None or _status_rank(reason.status) > _status_rank(incumbent.status):
+        if incumbent is None or _status_rank(reason.status) > _status_rank(
+            incumbent.status
+        ):
             unique_reasons[key] = reason
     return tuple(
         sorted(
             unique_reasons.values(),
-            key=lambda entry: (_status_rank(entry.status), entry.source.value, entry.code),
+            key=lambda entry: (
+                _status_rank(entry.status),
+                entry.source.value,
+                entry.code,
+            ),
             reverse=True,
         )
     )
@@ -1188,9 +1223,7 @@ def build_protocol_aware_qc_threshold_policy(
                 f"{active_policy.policy_name}:{protocol_context.protocol_id}"
             ),
             "rules": tuple(
-                rule.model_copy(
-                    update=thresholds_by_metric.get(rule.metric_key, {})
-                )
+                rule.model_copy(update=thresholds_by_metric.get(rule.metric_key, {}))
                 for rule in active_policy.rules
             ),
         }
@@ -1867,7 +1900,9 @@ def build_lcms_run_qc_report(
         None,
     )
     contaminant_summary = QcContaminantSummary(
-        contaminant_psm_count=0 if run_burden is None else run_burden.contaminant_psm_count,
+        contaminant_psm_count=0
+        if run_burden is None
+        else run_burden.contaminant_psm_count,
         contaminant_psm_fraction=0.0
         if run_burden is None
         else run_burden.contaminant_psm_fraction,
@@ -1885,7 +1920,8 @@ def build_lcms_run_qc_report(
         if run_burden is None
         else run_burden.contaminant_intensity_fraction,
         contaminant_protein_counts={
-            entry.protein_ref: entry.psm_count for entry in contaminant_report.protein_entries
+            entry.protein_ref: entry.psm_count
+            for entry in contaminant_report.protein_entries
         },
     )
 
@@ -1952,7 +1988,9 @@ def build_lcms_run_qc_report(
         fraction=design_entry.fraction if design_entry else None,
         batch=design_entry.batch if design_entry else None,
         instrument=design_entry.instrument if design_entry else None,
-        design_metadata={} if design_entry is None else dict(sorted(design_entry.metadata.items())),
+        design_metadata={}
+        if design_entry is None
+        else dict(sorted(design_entry.metadata.items())),
         instrument_summary=instrument_summary,
         identification_summary=identification_summary,
         quant_summary=quant_summary,
@@ -1979,7 +2017,11 @@ def build_lcms_run_qc_report(
         missed_cleavage_rate=_fraction(missed_cleavage_count, len(psm_records)),
         contaminant_summary=contaminant_summary,
         protein_psm_counts=dict(
-            sorted(Counter(ref for record in psm_records for ref in record.protein_refs).items())
+            sorted(
+                Counter(
+                    ref for record in psm_records for ref in record.protein_refs
+                ).items()
+            )
         ),
         digestion_specificity=digestion_specificity,
     )

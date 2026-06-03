@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.search_import_fragpipe import (
+    run_fragpipe_benchmark_command,
+    run_fragpipe_import_command,
+    run_psm_contaminants_command,
+    run_sage_import_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.search_import_fragpipe import run_psm_contaminants_command, run_fragpipe_import_command, run_fragpipe_benchmark_command, run_sage_import_command
+
 
 @click.command("psm-contaminants")
 @click.argument(
@@ -49,8 +55,17 @@ def psm_contaminants_command(
     protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Separate contaminant-carrying peptide-spectrum matches from target-only evidence.'
-    return run_psm_contaminants_command(input_tsv, contaminant_prefixes, run_id_column, intensity_column, burden_tsv_out, protein_tsv_out, out_path)
+    "Separate contaminant-carrying peptide-spectrum matches from target-only evidence."
+    return run_psm_contaminants_command(
+        input_tsv,
+        contaminant_prefixes,
+        run_id_column,
+        intensity_column,
+        burden_tsv_out,
+        protein_tsv_out,
+        out_path,
+    )
+
 
 @click.command("fragpipe-import")
 @click.argument("psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
@@ -112,8 +127,23 @@ def fragpipe_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one FragPipe result bundle with explicit PSM, peptide, and protein review.'
-    return run_fragpipe_import_command(psm_tsv, peptide_tsv, protein_tsv, quant_tsv, summary_tsv_out, canonical_psm_tsv_out, psm_tsv_out, peptide_review_tsv_out, protein_review_tsv_out, open_search_tsv_out, protein_quantity_tsv_out, rejected_tsv_out, out_path)
+    "Import one FragPipe result bundle with explicit PSM, peptide, and protein review."
+    return run_fragpipe_import_command(
+        psm_tsv,
+        peptide_tsv,
+        protein_tsv,
+        quant_tsv,
+        summary_tsv_out,
+        canonical_psm_tsv_out,
+        psm_tsv_out,
+        peptide_review_tsv_out,
+        protein_review_tsv_out,
+        open_search_tsv_out,
+        protein_quantity_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("fragpipe-benchmark")
 @click.argument("psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
@@ -161,8 +191,19 @@ def fragpipe_benchmark_command(
     peptide_qvalues_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Benchmark governed FragPipe import behavior against the source FragPipe bundle.'
-    return run_fragpipe_benchmark_command(psm_tsv, peptide_tsv, protein_tsv, summary_tsv_out, count_comparisons_tsv_out, protein_groups_tsv_out, psm_qvalues_tsv_out, peptide_qvalues_tsv_out, out_path)
+    "Benchmark governed FragPipe import behavior against the source FragPipe bundle."
+    return run_fragpipe_benchmark_command(
+        psm_tsv,
+        peptide_tsv,
+        protein_tsv,
+        summary_tsv_out,
+        count_comparisons_tsv_out,
+        protein_groups_tsv_out,
+        psm_qvalues_tsv_out,
+        peptide_qvalues_tsv_out,
+        out_path,
+    )
+
 
 @click.command("sage-import")
 @click.argument(
@@ -196,8 +237,17 @@ def sage_import_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import one Sage result table with explicit score, q-value, and modification review.'
-    return run_sage_import_command(result_tsv, config_path, summary_tsv_out, canonical_psm_tsv_out, psm_tsv_out, rejected_tsv_out, out_path)
+    "Import one Sage result table with explicit score, q-value, and modification review."
+    return run_sage_import_command(
+        result_tsv,
+        config_path,
+        summary_tsv_out,
+        canonical_psm_tsv_out,
+        psm_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     psm_contaminants_command,

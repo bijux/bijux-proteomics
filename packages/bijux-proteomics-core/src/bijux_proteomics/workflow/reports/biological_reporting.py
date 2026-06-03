@@ -22,9 +22,9 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
 )
 from bijux_proteomics.workflow.reports.biological_report_rendering import (
     export_biological_result_report_bundle,
-    write_biological_result_report_bundle,
     render_biological_report_section_confidence_tsv,
     render_biological_result_report_summary_tsv,
+    write_biological_result_report_bundle,
 )
 
 __all__ = [

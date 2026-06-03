@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.multiplex_matrix import (
+    run_multiplex_validate_metadata_command,
+    run_tmt_interference_command,
+    run_tmt_normalize_command,
+    run_tmt_reporter_matrix_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.multiplex_matrix import run_multiplex_validate_metadata_command, run_tmt_reporter_matrix_command, run_tmt_interference_command, run_tmt_normalize_command
+
 
 @click.command("validate-metadata")
 @click.argument(
@@ -19,9 +25,7 @@ from bijux_proteomics.interfaces.python_api.multiplex_matrix import run_multiple
 )
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--channel-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option(
-    "--duplicate-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
-)
+@click.option("--duplicate-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--missing-condition-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -40,8 +44,16 @@ def multiplex_validate_metadata_command(
     missing_condition_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate multiplex sample metadata mappings from the design table.'
-    return run_multiplex_validate_metadata_command(design_path, summary_tsv_out, channel_tsv_out, duplicate_tsv_out, missing_condition_tsv_out, out_path)
+    "Validate multiplex sample metadata mappings from the design table."
+    return run_multiplex_validate_metadata_command(
+        design_path,
+        summary_tsv_out,
+        channel_tsv_out,
+        duplicate_tsv_out,
+        missing_condition_tsv_out,
+        out_path,
+    )
+
 
 @click.command("tmt-reporter-matrix")
 @click.argument(
@@ -104,8 +116,26 @@ def tmt_reporter_matrix_command(
     protein_matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import TMT reporter-ion search results and build sample-channel matrices.'
-    return run_tmt_reporter_matrix_command(input_tsv, design_path, source_kind, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, summary_tsv_out, channel_mapping_tsv_out, channel_totals_tsv_out, peptide_matrix_tsv_out, protein_matrix_tsv_out, out_path)
+    "Import TMT reporter-ion search results and build sample-channel matrices."
+    return run_tmt_reporter_matrix_command(
+        input_tsv,
+        design_path,
+        source_kind,
+        row_id_column,
+        peptide_column,
+        protein_refs_column,
+        multiplex_group_column,
+        default_multiplex_group,
+        protein_separator,
+        channel_columns,
+        summary_tsv_out,
+        channel_mapping_tsv_out,
+        channel_totals_tsv_out,
+        peptide_matrix_tsv_out,
+        protein_matrix_tsv_out,
+        out_path,
+    )
+
 
 @click.command("tmt-interference")
 @click.argument(
@@ -172,8 +202,27 @@ def tmt_interference_command(
     channel_summary_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review TMT reporter-ion isolation interference and export filter ledgers.'
-    return run_tmt_interference_command(input_tsv, design_path, source_kind, interference_threshold, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, interference_column, protein_separator, channel_columns, summary_tsv_out, observation_tsv_out, filtered_tsv_out, channel_summary_tsv_out, out_path)
+    "Review TMT reporter-ion isolation interference and export filter ledgers."
+    return run_tmt_interference_command(
+        input_tsv,
+        design_path,
+        source_kind,
+        interference_threshold,
+        row_id_column,
+        peptide_column,
+        protein_refs_column,
+        multiplex_group_column,
+        default_multiplex_group,
+        interference_column,
+        protein_separator,
+        channel_columns,
+        summary_tsv_out,
+        observation_tsv_out,
+        filtered_tsv_out,
+        channel_summary_tsv_out,
+        out_path,
+    )
+
 
 @click.command("tmt-normalize")
 @click.argument(
@@ -243,8 +292,27 @@ def tmt_normalize_command(
     protein_matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Normalize TMT reporter-channel evidence and export before/after review ledgers.'
-    return run_tmt_normalize_command(input_tsv, design_path, source_kind, method, row_id_column, peptide_column, protein_refs_column, multiplex_group_column, default_multiplex_group, protein_separator, channel_columns, summary_tsv_out, transform_tsv_out, distribution_tsv_out, peptide_matrix_tsv_out, protein_matrix_tsv_out, out_path)
+    "Normalize TMT reporter-channel evidence and export before/after review ledgers."
+    return run_tmt_normalize_command(
+        input_tsv,
+        design_path,
+        source_kind,
+        method,
+        row_id_column,
+        peptide_column,
+        protein_refs_column,
+        multiplex_group_column,
+        default_multiplex_group,
+        protein_separator,
+        channel_columns,
+        summary_tsv_out,
+        transform_tsv_out,
+        distribution_tsv_out,
+        peptide_matrix_tsv_out,
+        protein_matrix_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     multiplex_validate_metadata_command,

@@ -9,7 +9,10 @@ from collections.abc import Iterable
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import ExperimentalDesignEntry, ExperimentalDesignSampleRole
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -171,7 +174,9 @@ def build_experiment_design(
     )
     sample_records: list[ExperimentDesignSample] = []
     for sample_id in sorted({entry.sample_id for entry in entries}):
-        sample_entries = tuple(entry for entry in entries if entry.sample_id == sample_id)
+        sample_entries = tuple(
+            entry for entry in entries if entry.sample_id == sample_id
+        )
         primary = sample_entries[0]
         sample_records.append(
             ExperimentDesignSample(
@@ -188,15 +193,25 @@ def build_experiment_design(
                     sorted({_technical_replicate_id(entry) for entry in sample_entries})
                 ),
                 batch_ids=_sorted_nonempty(entry.batch for entry in sample_entries),
-                instrument_ids=_sorted_nonempty(entry.instrument for entry in sample_entries),
-                plex_ids=_sorted_nonempty(entry.multiplex_group for entry in sample_entries),
-                channel_ids=_sorted_nonempty(entry.multiplex_channel for entry in sample_entries),
+                instrument_ids=_sorted_nonempty(
+                    entry.instrument for entry in sample_entries
+                ),
+                plex_ids=_sorted_nonempty(
+                    entry.multiplex_group for entry in sample_entries
+                ),
+                channel_ids=_sorted_nonempty(
+                    entry.multiplex_channel for entry in sample_entries
+                ),
                 metadata=dict(sorted(primary.metadata.items())),
             )
         )
     plex_records: list[ExperimentDesignPlex] = []
-    for plex_id in sorted({entry.multiplex_group for entry in entries if entry.multiplex_group}):
-        plex_entries = tuple(entry for entry in entries if entry.multiplex_group == plex_id)
+    for plex_id in sorted(
+        {entry.multiplex_group for entry in entries if entry.multiplex_group}
+    ):
+        plex_entries = tuple(
+            entry for entry in entries if entry.multiplex_group == plex_id
+        )
         channels = tuple(
             sorted(
                 (
@@ -210,7 +225,11 @@ def build_experiment_design(
                     for entry in plex_entries
                     if entry.multiplex_channel is not None
                 ),
-                key=lambda channel: (channel.channel_id, channel.sample_id, channel.run_id),
+                key=lambda channel: (
+                    channel.channel_id,
+                    channel.sample_id,
+                    channel.run_id,
+                ),
             )
         )
         plex_records.append(
@@ -221,13 +240,21 @@ def build_experiment_design(
                 channel_count=len(channels),
             )
         )
-    conditions = tuple(sorted({entry.condition for entry in entries if entry.condition}))
+    conditions = tuple(
+        sorted({entry.condition for entry in entries if entry.condition})
+    )
     batches = _sorted_nonempty(entry.batch for entry in entries)
     pair_ids = _sorted_nonempty(entry.pair_id for entry in entries)
-    timepoints = _sorted_nonempty(_metadata_value(entry, "timepoint") for entry in entries)
+    timepoints = _sorted_nonempty(
+        _metadata_value(entry, "timepoint") for entry in entries
+    )
     species = _sorted_nonempty(_metadata_value(entry, "species") for entry in entries)
-    tissue_or_cell_types = _sorted_nonempty(_tissue_or_cell_type(entry) for entry in entries)
-    perturbations = _sorted_nonempty(_metadata_value(entry, "perturbation") for entry in entries)
+    tissue_or_cell_types = _sorted_nonempty(
+        _tissue_or_cell_type(entry) for entry in entries
+    )
+    perturbations = _sorted_nonempty(
+        _metadata_value(entry, "perturbation") for entry in entries
+    )
     instruments = _sorted_nonempty(entry.instrument for entry in entries)
     return ExperimentDesign(
         entries=entries,
@@ -246,10 +273,7 @@ def build_experiment_design(
             sample_count=len(sample_records),
             run_count=len(runs),
             technical_replicate_count=len(
-                {
-                    _technical_replicate_id(entry)
-                    for entry in entries
-                }
+                {_technical_replicate_id(entry) for entry in entries}
             ),
             condition_count=len(conditions),
             batch_count=len(batches),
@@ -288,7 +312,9 @@ def _technical_replicate_id(entry: ExperimentalDesignEntry) -> str:
 
 
 def _sorted_nonempty(values: Iterable[str | None]) -> tuple[str, ...]:
-    return tuple(sorted({value for value in values if isinstance(value, str) and value}))
+    return tuple(
+        sorted({value for value in values if isinstance(value, str) and value})
+    )
 
 
 def _metadata_value(entry: ExperimentalDesignEntry, key: str) -> str | None:

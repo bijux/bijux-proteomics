@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections import Counter, defaultdict
 import csv
 from enum import StrEnum
@@ -16,6 +14,7 @@ from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.card_schema import (
     StandardCardEntry,
     StandardCardKind,
@@ -50,14 +49,12 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.review import (
     EvidenceGraphFinalResultEntry,
     FinalClaimEvidenceTier,
-    ProteomicsEvidenceNodeKind,
     ProteinEvidenceSummaryReport,
+    ProteomicsEvidenceNodeKind,
     query_protein_evidence_summary,
 )
 from bijux_proteomics.sequences import (
     NormalizedProteinRecord,
-    ProteogenomicPeptideReference,
-    ProteogenomicPeptideSupportEntry,
     ProteinFunctionalRegionEvidence,
     ProteinFunctionalRegionKind,
     ProteinIdentityLevel,
@@ -66,12 +63,16 @@ from bijux_proteomics.sequences import (
     ProteinPeptideRegionContextReport,
     ProteinPeptideRegionReference,
     ProteinRegionContextRecord,
+    ProteogenomicPeptideReference,
+    ProteogenomicPeptideSupportEntry,
     ProteogenomicVariantPeptideRecord,
-    build_proteogenomic_peptide_support_report,
     build_protein_identity_resolution_report,
     build_protein_peptide_region_context_report,
+    build_proteogenomic_peptide_support_report,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph import BiologicalResultGraphReport
+from bijux_proteomics.workflow.reports.biological_result_graph import (
+    BiologicalResultGraphReport,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -155,7 +156,9 @@ class ProteinEvidenceCardQuantification(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    sample_values: tuple[ProteinEvidenceCardSampleValue, ...] = Field(default_factory=tuple)
+    sample_values: tuple[ProteinEvidenceCardSampleValue, ...] = Field(
+        default_factory=tuple
+    )
     observed_sample_count: int = Field(..., ge=0)
     zero_sample_count: int = Field(..., ge=0)
     missing_sample_count: int = Field(..., ge=0)
@@ -241,7 +244,9 @@ class ProteinEvidenceCard(JsonModel):
     coverage: ProteinEvidenceCardCoverage
     quantification: ProteinEvidenceCardQuantification
     differential_result: ProteinEvidenceCardDifferentialResult
-    context_terms: tuple[ProteinEvidenceCardContextEntry, ...] = Field(default_factory=tuple)
+    context_terms: tuple[ProteinEvidenceCardContextEntry, ...] = Field(
+        default_factory=tuple
+    )
     pathways: tuple[ProteinEvidenceCardPathwayEntry, ...] = Field(default_factory=tuple)
     functional_regions: tuple[ProteinFunctionalRegionEvidence, ...] = Field(
         default_factory=tuple
@@ -307,26 +312,28 @@ def build_protein_evidence_card_report(
     protein_sequences: dict[str, str],
     protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
     variant_protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
-    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] | None = None,
+    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...]
+    | None = None,
     selection_policy: ProteinEvidenceCardSelectionPolicy,
     sample_conditions: dict[str, str | None] | None = None,
     context_mapping_report: BiologicalContextMappingReport | None = None,
     pathway_enrichment_report: PathwayEnrichmentReport | None = None,
     complex_enrichment_report: ComplexEnrichmentReport | None = None,
-    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None = None,
+    protein_region_context_records: tuple[ProteinRegionContextRecord, ...]
+    | None = None,
     ptm_evidence_card_report: PtmEvidenceCardReport | None = None,
 ) -> ProteinEvidenceCardReport:
     """Build one structured card per final protein result."""
 
     values_by_entity = _group_values_by_entity(quant_table.values)
     protein_peptides = {
-        entity_id: tuple(sorted(set(quant_table.entity_member_peptides.get(entity_id, ()))))
+        entity_id: tuple(
+            sorted(set(quant_table.entity_member_peptides.get(entity_id, ())))
+        )
         for entity_id in quant_table.entity_ids
     }
     peptide_membership_counts = Counter(
-        peptide
-        for peptides in protein_peptides.values()
-        for peptide in peptides
+        peptide for peptides in protein_peptides.values() for peptide in peptides
     )
     coverage_by_protein = _build_coverage_by_protein(
         quant_table,
@@ -378,7 +385,9 @@ def build_protein_evidence_card_report(
             representative_protein_ref,
             ProteinEvidenceCardCoverage(
                 coverage_protein_ref=representative_protein_ref,
-                residue_count=len(protein_sequences.get(representative_protein_ref, "")),
+                residue_count=len(
+                    protein_sequences.get(representative_protein_ref, "")
+                ),
                 covered_residue_count=0,
                 coverage_fraction=0.0,
                 covered_peptides=(),
@@ -562,8 +571,12 @@ def render_protein_evidence_card_summary_tsv(report: ProteinEvidenceCardReport) 
             report.summary.proteogenomic_annotated_card_count,
         )
     )
-    writer.writerow(("ptm_annotated_card_count", report.summary.ptm_annotated_card_count))
-    writer.writerow(("max_adjusted_p_value", report.selection_policy.max_adjusted_p_value))
+    writer.writerow(
+        ("ptm_annotated_card_count", report.summary.ptm_annotated_card_count)
+    )
+    writer.writerow(
+        ("max_adjusted_p_value", report.selection_policy.max_adjusted_p_value)
+    )
     writer.writerow(
         (
             "min_absolute_log2_fold_change",
@@ -647,7 +660,9 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
                 ";".join(card.protein_refs),
                 card.identity_level.value,
                 card.identity_reason,
-                "" if card.annotation.gene_symbol is None else card.annotation.gene_symbol,
+                ""
+                if card.annotation.gene_symbol is None
+                else card.annotation.gene_symbol,
                 card.annotation.annotation_status.value,
                 ";".join(card.peptides),
                 card.peptide_count,
@@ -803,10 +818,14 @@ def _build_quantification_payload(
     return ProteinEvidenceCardQuantification(
         sample_values=sample_values,
         observed_sample_count=sum(
-            1 for value in sample_values if value.missing_value_kind is MissingValueKind.OBSERVED
+            1
+            for value in sample_values
+            if value.missing_value_kind is MissingValueKind.OBSERVED
         ),
         zero_sample_count=sum(
-            1 for value in sample_values if value.missing_value_kind is MissingValueKind.ZERO
+            1
+            for value in sample_values
+            if value.missing_value_kind is MissingValueKind.ZERO
         ),
         missing_sample_count=sum(
             1
@@ -814,7 +833,9 @@ def _build_quantification_payload(
             if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
         ),
         filtered_sample_count=sum(
-            1 for value in sample_values if value.missing_value_kind is MissingValueKind.FILTERED
+            1
+            for value in sample_values
+            if value.missing_value_kind is MissingValueKind.FILTERED
         ),
     )
 
@@ -921,7 +942,9 @@ def _build_peptide_region_context_report(
             peptide_sequence=peptide,
         )
         for entity_id, peptides in quant_table.entity_member_peptides.items()
-        for protein_ref in (quant_table.entity_protein_refs.get(entity_id, ()) or (entity_id,))
+        for protein_ref in (
+            quant_table.entity_protein_refs.get(entity_id, ()) or (entity_id,)
+        )
         for peptide in sorted(set(peptides))
     )
     return build_protein_peptide_region_context_report(
@@ -952,9 +975,7 @@ def _build_identity_entries_by_entity(
         protein_records=() if protein_records is None else protein_records,
         protein_sequences=protein_sequences,
     )
-    return {
-        entry.evidence_key: entry for entry in report.entries
-    }
+    return {entry.evidence_key: entry for entry in report.entries}
 
 
 def _build_proteogenomic_support_by_entity(
@@ -965,12 +986,8 @@ def _build_proteogenomic_support_by_entity(
     variant_protein_records: tuple[NormalizedProteinRecord, ...] | None,
     variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] | None,
 ) -> dict[str, ProteogenomicPeptideSupportEntry]:
-    if (
-        not prepared_cards
-        or (
-            not variant_protein_records
-            and not variant_peptide_records
-        )
+    if not prepared_cards or (
+        not variant_protein_records and not variant_peptide_records
     ):
         return {}
     report = build_proteogenomic_peptide_support_report(
@@ -991,9 +1008,7 @@ def _build_proteogenomic_support_by_entity(
         if variant_peptide_records is None
         else variant_peptide_records,
     )
-    return {
-        entry.evidence_key: entry for entry in report.entries
-    }
+    return {entry.evidence_key: entry for entry in report.entries}
 
 
 def _group_functional_regions_by_protein(
@@ -1165,7 +1180,9 @@ def _build_coverage_by_protein(
 ) -> dict[str, ProteinEvidenceCardCoverage]:
     synthetic_records: list[PsmRecord] = []
     for entity_id, peptides in quant_table.entity_member_peptides.items():
-        protein_refs = quant_table.entity_protein_refs.get(entity_id, ()) or (entity_id,)
+        protein_refs = quant_table.entity_protein_refs.get(entity_id, ()) or (
+            entity_id,
+        )
         for peptide_index, peptide in enumerate(sorted(set(peptides)), start=1):
             synthetic_records.append(
                 PsmRecord(
@@ -1178,7 +1195,9 @@ def _build_coverage_by_protein(
                     q_value=0.0,
                     protein_refs=protein_refs,
                     target_decoy_label=_target_decoy_label_for_refs(protein_refs),
-                    contaminant_flag=all(ref.upper().startswith("CON__") for ref in protein_refs),
+                    contaminant_flag=all(
+                        ref.upper().startswith("CON__") for ref in protein_refs
+                    ),
                 )
             )
     report = build_protein_coverage_report(
@@ -1199,7 +1218,9 @@ def _build_coverage_by_protein(
 
 def _target_decoy_label_for_refs(protein_refs: tuple[str, ...]) -> TargetDecoyLabel:
     normalized_refs = tuple(ref.upper() for ref in protein_refs)
-    if normalized_refs and all(ref.startswith(("REV__", "DECOY__", "DECOY:")) for ref in normalized_refs):
+    if normalized_refs and all(
+        ref.startswith(("REV__", "DECOY__", "DECOY:")) for ref in normalized_refs
+    ):
         return TargetDecoyLabel.DECOY
     return TargetDecoyLabel.TARGET
 
@@ -1268,9 +1289,7 @@ def _select_pathway_entries(
     by_member: dict[str, tuple[ProteinEvidenceCardPathwayEntry, ...]],
 ) -> tuple[ProteinEvidenceCardPathwayEntry, ...]:
     gene_symbols = {
-        entry.gene_symbol
-        for entry in annotation_entries
-        if entry.gene_symbol
+        entry.gene_symbol for entry in annotation_entries if entry.gene_symbol
     }
     entries = {
         (
@@ -1349,7 +1368,9 @@ def _build_warnings(
     return tuple(warnings)
 
 
-def _graph_evidence_tier(evidence_tier: FinalClaimEvidenceTier) -> ProteinEvidenceCardTier:
+def _graph_evidence_tier(
+    evidence_tier: FinalClaimEvidenceTier,
+) -> ProteinEvidenceCardTier:
     if evidence_tier is FinalClaimEvidenceTier.HIGH_CONFIDENCE:
         return ProteinEvidenceCardTier.HIGH_SUPPORT
     if evidence_tier is FinalClaimEvidenceTier.MODERATE:

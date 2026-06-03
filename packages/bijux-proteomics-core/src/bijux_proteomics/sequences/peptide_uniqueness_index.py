@@ -5,18 +5,18 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections.abc import Sequence
 from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
-    DigestPolicy,
     DigestedPeptide,
+    DigestPolicy,
     PeptideDigestionMode,
     PeptideOriginCoordinate,
     ProteaseRule,
@@ -24,7 +24,6 @@ from bijux_proteomics.sequences.digestion import (
     digest_protein_records,
     get_protease_rule,
 )
-from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import JsonModel
 
 

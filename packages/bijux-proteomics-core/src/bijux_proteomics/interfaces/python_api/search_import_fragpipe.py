@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_psm_contaminants_command(
     input_tsv: Path,
     contaminant_prefixes: tuple[str, ...],
@@ -59,6 +60,7 @@ def run_psm_contaminants_command(
         },
         out_path=out_path,
     )
+
 
 def run_fragpipe_import_command(
     psm_tsv: Path,
@@ -134,7 +136,9 @@ def run_fragpipe_import_command(
         "peptide_rows": [row.to_dict() for row in report.peptide_rows],
         "protein_rows": [row.to_dict() for row in report.protein_rows],
         "open_search_evidence": [row.to_dict() for row in report.open_search_evidence],
-        "protein_quantity_rows": [row.to_dict() for row in report.protein_quantity_rows],
+        "protein_quantity_rows": [
+            row.to_dict() for row in report.protein_quantity_rows
+        ],
         "rejected_evidence_rows": [
             row.to_dict() for row in report.rejected_evidence_rows
         ],
@@ -156,12 +160,11 @@ def run_fragpipe_import_command(
             "protein_quantity_tsv": None
             if protein_quantity_tsv_out is None
             else str(protein_quantity_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_fragpipe_benchmark_command(
     psm_tsv: Path,
@@ -233,6 +236,7 @@ def run_fragpipe_benchmark_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_sage_import_command(
     result_tsv: Path,
     config_path: Path | None,
@@ -284,11 +288,15 @@ def run_sage_import_command(
             if canonical_psm_tsv_out is None
             else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_psm_contaminants_command', 'run_fragpipe_import_command', 'run_fragpipe_benchmark_command', 'run_sage_import_command']
+
+__all__ = [
+    "run_psm_contaminants_command",
+    "run_fragpipe_import_command",
+    "run_fragpipe_benchmark_command",
+    "run_sage_import_command",
+]

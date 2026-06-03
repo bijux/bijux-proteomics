@@ -15,11 +15,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.review.claims.result_queries import (
     _GraphNodeArtifact,
+    _load_result_artifact_context,
     _PtmCardArtifact,
     _QcRunArtifact,
-    _ResultArtifactContext,
-    _load_result_artifact_context,
     _read_tsv_rows,
+    _ResultArtifactContext,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -117,7 +117,9 @@ def build_analysis_recommendation_report_from_artifacts(
     recommendations = tuple(
         sorted(
             (
-                *_ptm_correction_recommendations(context.ptm_cards, context.graph_nodes),
+                *_ptm_correction_recommendations(
+                    context.ptm_cards, context.graph_nodes
+                ),
                 *_failed_run_recommendations(context.qc_runs, context.graph_nodes),
                 *_contamination_recommendations(context.qc_runs, context.graph_nodes),
                 *_batch_recommendations(batch_summary),
@@ -251,11 +253,7 @@ def _ptm_correction_recommendations(
     cards: tuple[_PtmCardArtifact, ...],
     graph_nodes: tuple[_GraphNodeArtifact, ...],
 ) -> tuple[AnalysisRecommendation, ...]:
-    rows = [
-        card
-        for card in cards
-        if card.protein_correction_status == "not_requested"
-    ]
+    rows = [card for card in cards if card.protein_correction_status == "not_requested"]
     if not rows:
         return ()
     row_ids = tuple(card.card_id for card in rows)
@@ -330,9 +328,7 @@ def _contamination_recommendations(
     recommendations: list[AnalysisRecommendation] = []
     for run in sorted(qc_runs, key=lambda entry: entry.run_id):
         contamination_reasons = tuple(
-            code
-            for code in run.status_reason_codes
-            if "contamin" in code.lower()
+            code for code in run.status_reason_codes if "contamin" in code.lower()
         )
         contamination_messages = tuple(
             message for message in run.messages if "contamin" in message.lower()
@@ -371,7 +367,9 @@ def _batch_recommendations(
 ) -> tuple[AnalysisRecommendation, ...]:
     if summary is None:
         return ()
-    if not (summary.batch_correction_blocked or summary.fully_confounded_with_condition):
+    if not (
+        summary.batch_correction_blocked or summary.fully_confounded_with_condition
+    ):
         return ()
     return (
         AnalysisRecommendation(

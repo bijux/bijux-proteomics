@@ -8,7 +8,6 @@ from __future__ import annotations
 from enum import StrEnum
 import re
 
-
 _SEMANTIC_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 
 
@@ -297,10 +296,7 @@ def build_artifact_id(
 
 
 def _compose_id(namespace: SemanticIdNamespace, *parts: object) -> str:
-    normalized_parts = [
-        _normalize_component(part, lowercase=False)
-        for part in parts
-    ]
+    normalized_parts = [_normalize_component(part, lowercase=False) for part in parts]
     identifier = f"{namespace.value}:{':'.join(normalized_parts)}"
     if not _SEMANTIC_ID_PATTERN.fullmatch(identifier):
         raise ValueError(f"identifier {identifier!r} violates semantic id policy")

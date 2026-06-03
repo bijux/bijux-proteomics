@@ -178,9 +178,7 @@ def build_result_search_index_from_artifacts(
         pathway.pathway_id: pathway.pathway_name or pathway.pathway_id
         for pathway in bundle.pathways
     }
-    peptides_by_id = {
-        peptide.peptide_id: peptide for peptide in bundle.peptides
-    }
+    peptides_by_id = {peptide.peptide_id: peptide for peptide in bundle.peptides}
     documents = tuple(
         sorted(
             (
@@ -388,10 +386,7 @@ def _load_protein_annotation_terms(
         for key in keys:
             if key:
                 grouped.setdefault(key, set()).update(terms)
-    return {
-        key: tuple(sorted(values))
-        for key, values in grouped.items()
-    }
+    return {key: tuple(sorted(values)) for key, values in grouped.items()}
 
 
 def _load_ptm_annotation_terms(
@@ -425,10 +420,7 @@ def _load_ptm_annotation_terms(
                 if value.strip()
             )
         grouped.setdefault(row["site_key"], set()).update(terms)
-    return {
-        key: tuple(sorted(values))
-        for key, values in grouped.items()
-    }
+    return {key: tuple(sorted(values)) for key, values in grouped.items()}
 
 
 def _build_protein_documents(
@@ -493,7 +485,10 @@ def _build_protein_documents(
                 )
         annotation_terms = {
             term
-            for protein_ref in (protein.representative_protein_ref, *protein.protein_refs)
+            for protein_ref in (
+                protein.representative_protein_ref,
+                *protein.protein_refs,
+            )
             for term in protein_annotation_terms.get(protein_ref, ())
         }
         terms.extend(
@@ -589,7 +584,8 @@ def _build_pathway_documents(
                 sorted(
                     node.node_id
                     for node in bundle.graph_nodes
-                    if node.entity_ref in (pathway.pathway_id, pathway.source_accession or "")
+                    if node.entity_ref
+                    in (pathway.pathway_id, pathway.source_accession or "")
                 )
             ),
             search_terms=_deduplicate_terms(
@@ -677,7 +673,9 @@ def _build_peptide_documents(
                 document_id=f"peptide:{peptide.peptide_id}",
                 object_id=peptide.peptide_id,
                 document_kind=ResultSearchDocumentKind.PEPTIDE,
-                title=peptide.localized_peptide or peptide.canonical_peptide or peptide.sequence,
+                title=peptide.localized_peptide
+                or peptide.canonical_peptide
+                or peptide.sequence,
                 source_surface=f"interactive_result_bundle:{peptide.source_surface}",
                 graph_node_ids=(),
                 search_terms=_deduplicate_terms(tuple(terms)),
@@ -711,14 +709,8 @@ def _candidate_document_ids(
 ) -> tuple[str, ...]:
     postings = index.token_postings
     exact_documents = set(postings.get(normalized_query, ()))
-    token_documents = [
-        set(postings.get(token, ()))
-        for token in query_tokens
-    ]
-    if token_documents:
-        candidates = set.intersection(*token_documents)
-    else:
-        candidates = set()
+    token_documents = [set(postings.get(token, ())) for token in query_tokens]
+    candidates = set.intersection(*token_documents) if token_documents else set()
     candidates.update(exact_documents)
     return tuple(sorted(candidates))
 
@@ -746,9 +738,7 @@ def _build_search_hit(
         if not phrase_match and not token_match:
             continue
         matched_fields.add(term.field)
-        snippets.append(
-            ResultSearchSnippet(field=term.field, text=term.text)
-        )
+        snippets.append(ResultSearchSnippet(field=term.field, text=term.text))
         if exact_match:
             score += 40
         elif phrase_match:
@@ -761,8 +751,7 @@ def _build_search_hit(
         snippet
         for _, snippet in sorted(
             {
-                (snippet.field.value, snippet.text): snippet
-                for snippet in snippets
+                (snippet.field.value, snippet.text): snippet for snippet in snippets
             }.items()
         )
     )
@@ -861,11 +850,7 @@ def _normalize_phrase(text: str) -> str:
 
 
 def _tokenize_search_text(text: str) -> tuple[str, ...]:
-    return tuple(
-        token
-        for token in re.findall(r"[a-z0-9]+", text.lower())
-        if token
-    )
+    return tuple(token for token in re.findall(r"[a-z0-9]+", text.lower()) if token)
 
 
 __all__ = [

@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.spectrum_annotation import (
+    run_precursor_isotope_fit_command,
+    run_raw_signal_evidence_card_command,
+    run_spectrum_annotate_command,
+    run_spectrum_score_chimeric_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.spectrum_annotation import run_spectrum_annotate_command, run_spectrum_score_chimeric_command, run_raw_signal_evidence_card_command, run_precursor_isotope_fit_command
+
 
 @click.command("spectrum-annotate")
 @click.argument(
@@ -54,8 +60,19 @@ def spectrum_annotate_command(
     unmatched_peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Annotate one spectrum against a peptide sequence.'
-    return run_spectrum_annotate_command(input_mgf, peptide, spectrum_id, tolerance_da, tolerance_ppm, tsv_out, plot_out, unmatched_peak_tsv_out, out_path)
+    "Annotate one spectrum against a peptide sequence."
+    return run_spectrum_annotate_command(
+        input_mgf,
+        peptide,
+        spectrum_id,
+        tolerance_da,
+        tolerance_ppm,
+        tsv_out,
+        plot_out,
+        unmatched_peak_tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectrum-score-chimeric")
 @click.argument(
@@ -111,8 +128,20 @@ def spectrum_score_chimeric_command(
     competition_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score spectra for competing peptide evidence that suggests chimeric MS/MS.'
-    return run_spectrum_score_chimeric_command(input_path, psm_path, kind, tolerance_da, tolerance_ppm, default_isolation_window_half_width_da, chimeric_score_threshold, spectra_tsv_out, competition_tsv_out, out_path)
+    "Score spectra for competing peptide evidence that suggests chimeric MS/MS."
+    return run_spectrum_score_chimeric_command(
+        input_path,
+        psm_path,
+        kind,
+        tolerance_da,
+        tolerance_ppm,
+        default_isolation_window_half_width_da,
+        chimeric_score_threshold,
+        spectra_tsv_out,
+        competition_tsv_out,
+        out_path,
+    )
+
 
 @click.command("raw-signal-evidence-card")
 @click.argument(
@@ -215,8 +244,31 @@ def raw_signal_evidence_card_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build one structured raw-signal evidence-card review for selected precursors.'
-    return run_raw_signal_evidence_card_command(xic_target_table, chromatogram_mzml, fragment_target_table, spectrum_mzml, psm_tsv, precursor_ids, peptide_refs, tolerance_da, tolerance_ppm, aligned_rt_tolerance_seconds, min_anchor_count, apex_tolerance_seconds, min_correlation, min_passing_fragment_count, fragment_ms_level, default_isolation_window_half_width_da, chimeric_score_threshold, summary_tsv_out, card_tsv_out, html_out, out_path)
+    "Build one structured raw-signal evidence-card review for selected precursors."
+    return run_raw_signal_evidence_card_command(
+        xic_target_table,
+        chromatogram_mzml,
+        fragment_target_table,
+        spectrum_mzml,
+        psm_tsv,
+        precursor_ids,
+        peptide_refs,
+        tolerance_da,
+        tolerance_ppm,
+        aligned_rt_tolerance_seconds,
+        min_anchor_count,
+        apex_tolerance_seconds,
+        min_correlation,
+        min_passing_fragment_count,
+        fragment_ms_level,
+        default_isolation_window_half_width_da,
+        chimeric_score_threshold,
+        summary_tsv_out,
+        card_tsv_out,
+        html_out,
+        out_path,
+    )
+
 
 @click.command("precursor-isotope-fit")
 @click.argument(
@@ -267,8 +319,21 @@ def precursor_isotope_fit_command(
     peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare predicted precursor isotope envelopes against observed MS1 peaks.'
-    return run_precursor_isotope_fit_command(target_table, input_mzml, extraction_tolerance_da, extraction_tolerance_ppm, fit_tolerance_da, fit_tolerance_ppm, max_isotope_index, summary_tsv_out, entry_tsv_out, peak_tsv_out, out_path)
+    "Compare predicted precursor isotope envelopes against observed MS1 peaks."
+    return run_precursor_isotope_fit_command(
+        target_table,
+        input_mzml,
+        extraction_tolerance_da,
+        extraction_tolerance_ppm,
+        fit_tolerance_da,
+        fit_tolerance_ppm,
+        max_isotope_index,
+        summary_tsv_out,
+        entry_tsv_out,
+        peak_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     spectrum_annotate_command,

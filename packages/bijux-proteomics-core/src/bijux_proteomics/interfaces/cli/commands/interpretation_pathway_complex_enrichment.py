@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_pathway_complex_enrichment import (
+    run_complex_enrichment_command,
+    run_pathway_enrichment_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_pathway_complex_enrichment import run_pathway_enrichment_command, run_complex_enrichment_command
+
 
 @click.command("pathway-enrichment")
 @click.argument(
@@ -138,8 +142,36 @@ def pathway_enrichment_command(
     rejected_pathway_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run pathway enrichment over foreground and background protein sets.'
-    return run_pathway_enrichment_command(foreground_tsv, background_tsv, pathway_tsv, proteins_fasta, annotation_tsv, protein_ref_column, row_id_column, protein_separator, pathway_id_column, pathway_name_column, source_name_column, source_accession_column, pathway_protein_ref_column, gene_symbol_column, annotation_protein_ref_column, annotation_gene_symbol_column, annotation_description_column, annotation_organism_column, annotation_identifier_column, max_adjusted_p_value, min_enrichment_ratio, summary_tsv_out, pathway_tsv_out, unresolved_tsv_out, rejected_pathway_tsv_out, out_path)
+    "Run pathway enrichment over foreground and background protein sets."
+    return run_pathway_enrichment_command(
+        foreground_tsv,
+        background_tsv,
+        pathway_tsv,
+        proteins_fasta,
+        annotation_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        pathway_id_column,
+        pathway_name_column,
+        source_name_column,
+        source_accession_column,
+        pathway_protein_ref_column,
+        gene_symbol_column,
+        annotation_protein_ref_column,
+        annotation_gene_symbol_column,
+        annotation_description_column,
+        annotation_organism_column,
+        annotation_identifier_column,
+        max_adjusted_p_value,
+        min_enrichment_ratio,
+        summary_tsv_out,
+        pathway_tsv_out,
+        unresolved_tsv_out,
+        rejected_pathway_tsv_out,
+        out_path,
+    )
+
 
 @click.command("complex-enrichment")
 @click.argument(
@@ -266,8 +298,36 @@ def complex_enrichment_command(
     rejected_complex_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run protein complex enrichment over foreground and background protein sets.'
-    return run_complex_enrichment_command(foreground_tsv, background_tsv, complex_tsv, proteins_fasta, annotation_tsv, protein_ref_column, row_id_column, protein_separator, complex_id_column, complex_name_column, source_name_column, source_accession_column, complex_protein_ref_column, gene_symbol_column, annotation_protein_ref_column, annotation_gene_symbol_column, annotation_description_column, annotation_organism_column, annotation_identifier_column, max_adjusted_p_value, min_enrichment_ratio, summary_tsv_out, complex_tsv_out, unresolved_tsv_out, rejected_complex_tsv_out, out_path)
+    "Run protein complex enrichment over foreground and background protein sets."
+    return run_complex_enrichment_command(
+        foreground_tsv,
+        background_tsv,
+        complex_tsv,
+        proteins_fasta,
+        annotation_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        complex_id_column,
+        complex_name_column,
+        source_name_column,
+        source_accession_column,
+        complex_protein_ref_column,
+        gene_symbol_column,
+        annotation_protein_ref_column,
+        annotation_gene_symbol_column,
+        annotation_description_column,
+        annotation_organism_column,
+        annotation_identifier_column,
+        max_adjusted_p_value,
+        min_enrichment_ratio,
+        summary_tsv_out,
+        complex_tsv_out,
+        unresolved_tsv_out,
+        rejected_complex_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     pathway_enrichment_command,

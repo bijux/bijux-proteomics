@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Iterable
 
 from pydantic import ConfigDict, Field
 
@@ -18,8 +18,17 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.lab import LabActionPacket
 from bijux_proteomics.ptm import PtmReportBundle
 from bijux_proteomics.review.evidence_graph import ProteomicsEvidenceGraph
-from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
-from bijux_proteomics.workflow.pipelines.advanced_diann import AdvancedDiannWorkflowReport
+from bijux_proteomics.workflow.exports.interactive_result_bundle import (
+    InteractiveResultBundle,
+    InteractiveResultPathway,
+    InteractiveResultPeptide,
+    InteractiveResultProtein,
+    InteractiveResultPtmSite,
+)
+from bijux_proteomics.workflow.exports.result_manifest import ResultManifestReport
+from bijux_proteomics.workflow.pipelines.advanced_diann import (
+    AdvancedDiannWorkflowReport,
+)
 from bijux_proteomics.workflow.pipelines.advanced_fragpipe import (
     AdvancedFragpipeWorkflowReport,
 )
@@ -31,25 +40,26 @@ from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowReport,
 )
 from bijux_proteomics.workflow.pipelines.advanced_tmt import AdvancedTmtWorkflowReport
-from bijux_proteomics.workflow.pipelines.dda_biological_workflow import DdaBiologicalWorkflowBundle
+from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
+    DdaBiologicalWorkflowBundle,
+)
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.pipelines.flagship_run import ProteomicsRunBundle
-from bijux_proteomics.workflow.exports.interactive_result_bundle import (
-    InteractiveResultBundle,
-    InteractiveResultPathway,
-    InteractiveResultPeptide,
-    InteractiveResultProtein,
-    InteractiveResultPtmSite,
+from bijux_proteomics.workflow.pipelines.label_based_reporting import (
+    LabelBasedReportBundle,
 )
-from bijux_proteomics.workflow.pipelines.label_based_reporting import LabelBasedReportBundle
 from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import PtmSiteWorkflowBundle
-from bijux_proteomics.workflow.exports.result_manifest import ResultManifestReport
-from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import TmtExperimentWorkflowBundle
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
+    TmtExperimentWorkflowBundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -256,7 +266,9 @@ class ProteomicsStudyResult(JsonModel):
     biological_conclusions: tuple[ProteomicsStudyConclusionEntry, ...] = Field(
         default_factory=tuple
     )
-    archived_lab_action_packets: tuple[LabActionPacket, ...] = Field(default_factory=tuple)
+    archived_lab_action_packets: tuple[LabActionPacket, ...] = Field(
+        default_factory=tuple
+    )
     biological_report: BiologicalResultReportBundle | None = None
     label_based_report: LabelBasedReportBundle | None = None
     ptm_report: PtmReportBundle | None = None
@@ -952,7 +964,9 @@ def build_proteomics_study_result_from_ptm_workflow_bundle(
             ProteomicsStudyStatisticSurface(
                 surface_name="differential_analysis",
                 kind=ProteomicsStudyStatisticKind.DIFFERENTIAL_PTM_SITE,
-                entity_count=len(report.differential_analysis.differential_report.entries),
+                entity_count=len(
+                    report.differential_analysis.differential_report.entries
+                ),
                 significant_entity_count=report.summary.differential_site_count,
                 note=report.differential_analysis.note,
             )
@@ -1065,12 +1079,11 @@ def build_proteomics_study_result_from_targeted_validation_workflow_report(
 ) -> ProteomicsStudyResult:
     """Normalize one advanced targeted-validation workflow report into a study result."""
 
-    sample_ids = tuple(sorted({item.sample_id for item in report.import_report.observations}))
+    sample_ids = tuple(
+        sorted({item.sample_id for item in report.import_report.observations})
+    )
     design = _design_from_sample_metadata(
-        (
-            ProteomicsStudyDesignEntry(sample_id=sample_id)
-            for sample_id in sample_ids
-        ),
+        (ProteomicsStudyDesignEntry(sample_id=sample_id) for sample_id in sample_ids),
         note=(
             "targeted validation preserves sample identifiers directly from the "
             "imported targeted observations even when the design-condition mapping "
@@ -1188,7 +1201,9 @@ def _copy_study_result(
     qc_surfaces: tuple[ProteomicsStudyQcSurface, ...] | None = None,
     card_surfaces: tuple[ProteomicsStudyCardSurface, ...] | None = None,
 ) -> ProteomicsStudyResult:
-    stable_qc_surfaces = study_result.qc_surfaces if qc_surfaces is None else qc_surfaces
+    stable_qc_surfaces = (
+        study_result.qc_surfaces if qc_surfaces is None else qc_surfaces
+    )
     stable_card_surfaces = (
         study_result.card_surfaces if card_surfaces is None else card_surfaces
     )
@@ -1367,7 +1382,7 @@ def _design_from_sample_metadata(
 ) -> ProteomicsStudyDesignSnapshot:
     stable_entries: tuple[ProteomicsStudyDesignEntry, ...] = tuple(
         sorted(
-            tuple(entries),
+            entries,
             key=lambda entry: (
                 entry.sample_id,
                 entry.condition or "",
@@ -1379,7 +1394,9 @@ def _design_from_sample_metadata(
     return ProteomicsStudyDesignSnapshot(
         entries=stable_entries,
         sample_count=len(stable_entries),
-        condition_count=len({entry.condition for entry in stable_entries if entry.condition}),
+        condition_count=len(
+            {entry.condition for entry in stable_entries if entry.condition}
+        ),
         batch_count=len({entry.batch for entry in stable_entries if entry.batch}),
         paired_sample_count=sum(1 for entry in stable_entries if entry.pair_id),
         multiplexed_sample_count=sum(
@@ -1391,7 +1408,9 @@ def _design_from_sample_metadata(
     )
 
 
-def _conclusion_kind_from_targeted_verdict(verdict: str) -> ProteomicsStudyConclusionKind:
+def _conclusion_kind_from_targeted_verdict(
+    verdict: str,
+) -> ProteomicsStudyConclusionKind:
     if verdict == "confirmed":
         return ProteomicsStudyConclusionKind.SUPPORTED_CLAIM
     if verdict == "contradicted":

@@ -11,11 +11,13 @@ from bijux_proteomics.identification.confidence import (
     ProteinInferenceStrategyKind,
     compare_protein_inference_strategies,
 )
+from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics.identification.psm.contaminant_evidence import (
     ContaminantSeparatedPsmEntry as ContaminantPsmEntry,
+)
+from bijux_proteomics.identification.psm.contaminant_evidence import (
     build_contaminant_evidence_report,
 )
-from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics_foundation import JsonModel
 
 

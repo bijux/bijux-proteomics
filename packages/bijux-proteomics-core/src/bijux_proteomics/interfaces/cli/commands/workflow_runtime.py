@@ -10,9 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.workflow_runtime import (
+    run_bundle_run_command,
+    run_proteomics_run_command,
+    run_workflow_plan_command,
+    run_workflow_validate_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.workflow_runtime import run_bundle_run_command, run_proteomics_run_command, run_workflow_plan_command, run_workflow_validate_command
+
 
 @click.command("bundle-run")
 @click.option(
@@ -46,8 +52,11 @@ def bundle_run_command(
     design_path: Path | None,
     out_dir: Path,
 ) -> None:
-    'Build one normalized run bundle from spectra, IDs, and optional design metadata.'
-    return run_bundle_run_command(spectra_path, identifications_path, design_path, out_dir)
+    "Build one normalized run bundle from spectra, IDs, and optional design metadata."
+    return run_bundle_run_command(
+        spectra_path, identifications_path, design_path, out_dir
+    )
+
 
 @click.command("run")
 @click.option(
@@ -200,8 +209,33 @@ def proteomics_run_command(
     output_dir: Path,
     json_out: Path | None,
 ) -> None:
-    'Run one flagship proteomics workflow from engine output to final biology report.'
-    return run_proteomics_run_command(engine, report_path, peptides_path, protein_groups_path, source_protein_tsv, metadata_path, proteins_fasta, contrast, config_path, annotation_tsv, go_annotation_tsv, pathway_membership_tsv, complex_membership_tsv, normalization, max_q_value, psm_q_value_threshold, max_adjusted_p_value, min_absolute_log2_fold_change, heatmap_max_entities, heatmap_min_observed_fraction, volcano_top_label_count, output_dir, json_out)
+    "Run one flagship proteomics workflow from engine output to final biology report."
+    return run_proteomics_run_command(
+        engine,
+        report_path,
+        peptides_path,
+        protein_groups_path,
+        source_protein_tsv,
+        metadata_path,
+        proteins_fasta,
+        contrast,
+        config_path,
+        annotation_tsv,
+        go_annotation_tsv,
+        pathway_membership_tsv,
+        complex_membership_tsv,
+        normalization,
+        max_q_value,
+        psm_q_value_threshold,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        heatmap_max_entities,
+        heatmap_min_observed_fraction,
+        volcano_top_label_count,
+        output_dir,
+        json_out,
+    )
+
 
 @click.command("workflow-plan")
 @click.option(
@@ -285,8 +319,25 @@ def workflow_plan_command(
     job_out: Path | None,
     checkpoint_out: Path | None,
 ) -> None:
-    'Build a workflow-runtime bundle for digest/search/FDR/quant/QC execution.'
-    return run_workflow_plan_command(proteins_path, spectra_path, identifications_path, features_path, design_path, sample_id, search_adapter, scheduler, container_image, artifacts_dir, completed_steps, out_path, dag_out, job_out, checkpoint_out)
+    "Build a workflow-runtime bundle for digest/search/FDR/quant/QC execution."
+    return run_workflow_plan_command(
+        proteins_path,
+        spectra_path,
+        identifications_path,
+        features_path,
+        design_path,
+        sample_id,
+        search_adapter,
+        scheduler,
+        container_image,
+        artifacts_dir,
+        completed_steps,
+        out_path,
+        dag_out,
+        job_out,
+        checkpoint_out,
+    )
+
 
 @click.command("workflow-validate")
 @click.option(
@@ -358,8 +409,22 @@ def workflow_validate_command(
     completed_steps: tuple[str, ...],
     out_path: Path | None,
 ) -> None:
-    'Validate workflow runtime integrity without executing the workflow.'
-    return run_workflow_validate_command(proteins_path, spectra_path, identifications_path, features_path, design_path, sample_id, search_adapter, scheduler, container_image, artifacts_dir, completed_steps, out_path)
+    "Validate workflow runtime integrity without executing the workflow."
+    return run_workflow_validate_command(
+        proteins_path,
+        spectra_path,
+        identifications_path,
+        features_path,
+        design_path,
+        sample_id,
+        search_adapter,
+        scheduler,
+        container_image,
+        artifacts_dir,
+        completed_steps,
+        out_path,
+    )
+
 
 COMMANDS = (
     bundle_run_command,

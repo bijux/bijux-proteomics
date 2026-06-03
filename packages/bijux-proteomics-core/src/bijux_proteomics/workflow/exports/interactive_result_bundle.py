@@ -88,7 +88,9 @@ class InteractiveResultSample(JsonModel):
     pc2: float | None = None
     outlier: bool | None = None
     outlier_reasons: tuple[str, ...] = Field(default_factory=tuple)
-    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(default_factory=tuple)
+    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class InteractiveResultProtein(JsonModel):
@@ -112,7 +114,9 @@ class InteractiveResultProtein(JsonModel):
     ptm_site_keys: tuple[str, ...] = Field(default_factory=tuple)
     warning_codes: tuple[str, ...] = Field(default_factory=tuple)
     graph_node_ids: tuple[str, ...] = Field(default_factory=tuple)
-    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(default_factory=tuple)
+    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class InteractiveResultPeptide(JsonModel):
@@ -132,7 +136,9 @@ class InteractiveResultPeptide(JsonModel):
     charge: int | None = Field(default=None, ge=1)
     score: float | None = None
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
-    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(default_factory=tuple)
+    source_reports: tuple[InteractiveResultSourceKind, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class InteractiveResultPtmSite(JsonModel):
@@ -277,7 +283,9 @@ class InteractiveResultBundle(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    source_reports: tuple[InteractiveResultSourceReport, ...] = Field(default_factory=tuple)
+    source_reports: tuple[InteractiveResultSourceReport, ...] = Field(
+        default_factory=tuple
+    )
     summary: InteractiveResultBundleSummary
     samples: tuple[InteractiveResultSample, ...] = Field(default_factory=tuple)
     proteins: tuple[InteractiveResultProtein, ...] = Field(default_factory=tuple)
@@ -438,7 +446,9 @@ def build_interactive_result_bundle_from_artifacts(
     source_reports = tuple(
         report
         for report in (
-            None if biological_artifacts is None else biological_artifacts["source_report"],
+            None
+            if biological_artifacts is None
+            else biological_artifacts["source_report"],
             None if ptm_artifacts is None else ptm_artifacts["source_report"],
         )
         if report is not None
@@ -477,14 +487,19 @@ def build_interactive_result_bundle_from_artifacts(
     )
 
 
-def render_interactive_result_bundle_summary_tsv(bundle: InteractiveResultBundle) -> str:
+def render_interactive_result_bundle_summary_tsv(
+    bundle: InteractiveResultBundle,
+) -> str:
     """Render a compact interactive result bundle summary as TSV."""
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(("field", "value"))
     for field, value in (
-        ("biological_report_available", str(bundle.summary.biological_report_available).lower()),
+        (
+            "biological_report_available",
+            str(bundle.summary.biological_report_available).lower(),
+        ),
         ("ptm_report_available", str(bundle.summary.ptm_report_available).lower()),
         ("run_qc_input_count", bundle.summary.run_qc_input_count),
         ("sample_count", bundle.summary.sample_count),
@@ -528,7 +543,9 @@ def _load_report_artifacts(
         manifest_json = manifest_filename
     else:
         artifact_paths = {
-            key: value for key, value in fallback_artifacts.items() if (report_dir / value).exists()
+            key: value
+            for key, value in fallback_artifacts.items()
+            if (report_dir / value).exists()
         }
     return {
         "report_dir": report_dir,
@@ -551,7 +568,9 @@ def _build_samples(
     if biological_artifacts is not None:
         report_dir = biological_artifacts["report_dir"]
         artifact_paths = biological_artifacts["artifact_paths"]
-        for row in _read_optional_rows(report_dir, artifact_paths, "heatmap_column_metadata_tsv"):
+        for row in _read_optional_rows(
+            report_dir, artifact_paths, "heatmap_column_metadata_tsv"
+        ):
             entry = entries.setdefault(
                 row["sample_id"],
                 {
@@ -570,7 +589,9 @@ def _build_samples(
                 },
             )
             entry["source_reports"].add(InteractiveResultSourceKind.BIOLOGICAL_REPORT)
-        for row in _read_optional_rows(report_dir, artifact_paths, "sample_pca_scores_tsv"):
+        for row in _read_optional_rows(
+            report_dir, artifact_paths, "sample_pca_scores_tsv"
+        ):
             entry = entries.setdefault(
                 row["sample_id"],
                 {
@@ -588,7 +609,9 @@ def _build_samples(
                     "source_reports": {InteractiveResultSourceKind.BIOLOGICAL_REPORT},
                 },
             )
-            entry["condition"] = entry["condition"] or _empty_to_none(row.get("condition"))
+            entry["condition"] = entry["condition"] or _empty_to_none(
+                row.get("condition")
+            )
             entry["batch"] = entry["batch"] or _empty_to_none(row.get("batch"))
             entry["pc1"] = _parse_optional_float(row.get("pc1"))
             entry["pc2"] = _parse_optional_float(row.get("pc2"))
@@ -620,7 +643,9 @@ def _build_samples(
                 },
             )
             entry["source_reports"].add(InteractiveResultSourceKind.PTM_REPORT)
-        for row in _read_optional_matrix_rows(report_dir, artifact_paths, "site_quant_matrix_tsv"):
+        for row in _read_optional_matrix_rows(
+            report_dir, artifact_paths, "site_quant_matrix_tsv"
+        ):
             sample_id = row["sample_id"]
             entry = entries.setdefault(
                 sample_id,
@@ -653,7 +678,9 @@ def _build_samples(
             pc2=entry["pc2"],
             outlier=entry["outlier"],
             outlier_reasons=tuple(entry["outlier_reasons"]),
-            source_reports=tuple(sorted(entry["source_reports"], key=lambda value: value.value)),
+            source_reports=tuple(
+                sorted(entry["source_reports"], key=lambda value: value.value)
+            ),
         )
         for entry in sorted(entries.values(), key=lambda item: str(item["sample_id"]))
     )
@@ -909,7 +936,9 @@ def _build_pathways(
             "comparison_confidence_status": _empty_to_none(
                 row.get("comparison_confidence_status")
             ),
-            "activity_score_delta": _parse_optional_float(row.get("activity_score_delta")),
+            "activity_score_delta": _parse_optional_float(
+                row.get("activity_score_delta")
+            ),
             "enrichment_ratio": None,
             "adjusted_p_value": None,
             "foreground_overlap_count": None,
@@ -949,8 +978,7 @@ def _build_pathways(
             row.get("foreground_overlap_count")
         )
     return tuple(
-        InteractiveResultPathway(**entry)
-        for _, entry in sorted(entries.items())
+        InteractiveResultPathway(**entry) for _, entry in sorted(entries.items())
     )
 
 
@@ -1109,13 +1137,17 @@ def _build_cards(
                     source_surface="ptm_evidence_cards",
                 )
             )
-    return tuple(sorted(cards, key=lambda entry: (entry.card_kind.value, entry.card_id)))
+    return tuple(
+        sorted(cards, key=lambda entry: (entry.card_kind.value, entry.card_id))
+    )
 
 
 def _build_graph(
     *,
     biological_artifacts: _LoadedReportArtifacts | None,
-) -> tuple[tuple[InteractiveResultGraphNode, ...], tuple[InteractiveResultGraphEdge, ...]]:
+) -> tuple[
+    tuple[InteractiveResultGraphNode, ...], tuple[InteractiveResultGraphEdge, ...]
+]:
     if biological_artifacts is None:
         return (), ()
     report_dir = biological_artifacts["report_dir"]
@@ -1131,7 +1163,9 @@ def _build_graph(
             contradiction_ids=_split_pipe(row.get("contradiction_ids", "")),
             context_refs=_split_pipe(row.get("context_refs", "")),
         )
-        for row in _read_optional_rows(report_dir, artifact_paths, "evidence_graph_nodes_tsv")
+        for row in _read_optional_rows(
+            report_dir, artifact_paths, "evidence_graph_nodes_tsv"
+        )
     )
     edges = tuple(
         InteractiveResultGraphEdge(
@@ -1144,7 +1178,9 @@ def _build_graph(
             reason=_empty_to_none(row.get("reason")),
             support_count=_parse_optional_int(row.get("support_count")),
         )
-        for row in _read_optional_rows(report_dir, artifact_paths, "evidence_graph_edges_tsv")
+        for row in _read_optional_rows(
+            report_dir, artifact_paths, "evidence_graph_edges_tsv"
+        )
     )
     return nodes, edges
 
@@ -1202,7 +1238,11 @@ def _build_plots(
                         media_type=_media_type_from_suffix(relative_path),
                     )
                 )
-    return tuple(sorted(plots, key=lambda entry: (entry.source_kind.value, entry.plot_kind.value)))
+    return tuple(
+        sorted(
+            plots, key=lambda entry: (entry.source_kind.value, entry.plot_kind.value)
+        )
+    )
 
 
 def _artifact_path(artifacts: _LoadedReportArtifacts, artifact_key: str) -> str | None:
@@ -1254,7 +1294,7 @@ def _read_optional_matrix_rows(
         "candidate_positions",
         "localized_peptides",
     }
-    sample_ids = tuple(key for key in rows[0].keys() if key not in static_fields)
+    sample_ids = tuple(key for key in rows[0] if key not in static_fields)
     return tuple({"sample_id": sample_id} for sample_id in sample_ids)
 
 
@@ -1286,7 +1326,7 @@ def _empty_to_none(value: str | None) -> str | None:
     if value is None:
         return None
     normalized = value.strip()
-    return None if not normalized else normalized
+    return normalized if normalized else None
 
 
 def _parse_optional_float(value: str | None) -> float | None:

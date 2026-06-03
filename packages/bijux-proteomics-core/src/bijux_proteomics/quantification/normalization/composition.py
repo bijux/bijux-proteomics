@@ -55,7 +55,9 @@ def detect_compositional_bias(
 
     if dominant_entity_count < 1:
         raise ValueError("dominant_entity_count must be at least one")
-    values_by_sample: dict[str, list[QuantValue]] = {sample_id: [] for sample_id in table.sample_ids}
+    values_by_sample: dict[str, list[QuantValue]] = {
+        sample_id: [] for sample_id in table.sample_ids
+    }
     for value in table.values:
         if value.abundance is None or value.abundance <= 0.0:
             continue
@@ -66,9 +68,7 @@ def detect_compositional_bias(
     }
     positive_totals = sorted(total for total in sample_totals.values() if total > 0.0)
     median_total = (
-        positive_totals[len(positive_totals) // 2]
-        if positive_totals
-        else 1.0
+        positive_totals[len(positive_totals) // 2] if positive_totals else 1.0
     )
 
     entries = tuple(
@@ -84,8 +84,7 @@ def detect_compositional_bias(
     return CompositionalBiasReport(
         entries=entries,
         high_risk_sample_count=sum(
-            entry.normalization_risk is CompositionalBiasRisk.HIGH
-            for entry in entries
+            entry.normalization_risk is CompositionalBiasRisk.HIGH for entry in entries
         ),
         caution_sample_count=sum(
             entry.normalization_risk is CompositionalBiasRisk.CAUTION
@@ -168,9 +167,8 @@ def _normalization_risk(
     dominant_fraction: float,
     total_signal_skew: float,
 ) -> CompositionalBiasRisk:
-    if (
-        dominant_fraction >= 0.7
-        or (dominant_fraction >= 0.55 and total_signal_skew >= 1.5)
+    if dominant_fraction >= 0.7 or (
+        dominant_fraction >= 0.55 and total_signal_skew >= 1.5
     ):
         return CompositionalBiasRisk.HIGH
     if dominant_fraction >= 0.45 or total_signal_skew >= 1.25:

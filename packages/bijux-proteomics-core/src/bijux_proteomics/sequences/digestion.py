@@ -1058,11 +1058,7 @@ def _regex_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ..
     if rule.cleavage_pattern is None or rule.cleavage_cut_side is None:
         return ()
     compiled = re.compile(rule.cleavage_pattern)
-    group = (
-        None
-        if rule.cleavage_group in (None, "", "0")
-        else rule.cleavage_group
-    )
+    group = None if rule.cleavage_group in (None, "", "0") else rule.cleavage_group
     boundaries: list[int] = []
     for match in compiled.finditer(sequence):
         if rule.cleavage_cut_side == "after":

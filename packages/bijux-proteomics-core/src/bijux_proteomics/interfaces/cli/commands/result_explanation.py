@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.result_explanation import (
+    run_analysis_recommendations_command,
+    run_compact_result_summary_command,
+    run_failure_explanation_command,
+    run_result_explanation_command,
+    run_result_question_answer_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.result_explanation import run_result_question_answer_command, run_result_explanation_command, run_failure_explanation_command, run_analysis_recommendations_command, run_compact_result_summary_command
+
 
 @click.command("result-question-answer")
 @click.option(
@@ -56,8 +63,19 @@ def result_question_answer_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Answer deterministic result questions from governed report artifacts.'
-    return run_result_question_answer_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, query_kind, subject_id, summary_tsv_out, answer_tsv_out, evidence_tsv_out, out_path)
+    "Answer deterministic result questions from governed report artifacts."
+    return run_result_question_answer_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        query_kind,
+        subject_id,
+        summary_tsv_out,
+        answer_tsv_out,
+        evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("result-explanation")
 @click.option(
@@ -105,8 +123,19 @@ def result_explanation_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Explain deterministic result decisions from governed report artifacts.'
-    return run_result_explanation_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, explanation_kind, subject_id, summary_tsv_out, explanation_tsv_out, evidence_tsv_out, out_path)
+    "Explain deterministic result decisions from governed report artifacts."
+    return run_result_explanation_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        explanation_kind,
+        subject_id,
+        summary_tsv_out,
+        explanation_tsv_out,
+        evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("failure-explanation")
 @click.argument("failure_text")
@@ -129,8 +158,11 @@ def failure_explanation_command(
     explanation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Explain one expected scientific workflow failure deterministically.'
-    return run_failure_explanation_command(failure_text, workflow_name, summary_tsv_out, explanation_tsv_out, out_path)
+    "Explain one expected scientific workflow failure deterministically."
+    return run_failure_explanation_command(
+        failure_text, workflow_name, summary_tsv_out, explanation_tsv_out, out_path
+    )
+
 
 @click.command("analysis-recommendations")
 @click.option(
@@ -174,8 +206,17 @@ def analysis_recommendations_command(
     recommendation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Recommend deterministic next analysis actions from governed artifacts.'
-    return run_analysis_recommendations_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, batch_effect_summary_tsv, summary_tsv_out, recommendation_tsv_out, out_path)
+    "Recommend deterministic next analysis actions from governed artifacts."
+    return run_analysis_recommendations_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        batch_effect_summary_tsv,
+        summary_tsv_out,
+        recommendation_tsv_out,
+        out_path,
+    )
+
 
 @click.command("compact-result-summary")
 @click.option(
@@ -218,8 +259,18 @@ def compact_result_summary_command(
     markdown_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Render a short collaborator summary constrained to governed evidence surfaces.'
-    return run_compact_result_summary_command(biological_report_dir, ptm_report_dir, run_qc_assessment_tsv_paths, batch_effect_summary_tsv, overview_tsv_out, entry_tsv_out, markdown_out, out_path)
+    "Render a short collaborator summary constrained to governed evidence surfaces."
+    return run_compact_result_summary_command(
+        biological_report_dir,
+        ptm_report_dir,
+        run_qc_assessment_tsv_paths,
+        batch_effect_summary_tsv,
+        overview_tsv_out,
+        entry_tsv_out,
+        markdown_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     result_question_answer_command,

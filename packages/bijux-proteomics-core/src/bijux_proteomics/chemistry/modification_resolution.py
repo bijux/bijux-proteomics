@@ -87,6 +87,8 @@ def build_modification_resolution_report(
         residue_query=normalized_residue,
         residue_allowed=resolution.residue_allowed,
         rejection_code=resolution.rejection.code if resolution.rejection else None,
-        rejection_message=resolution.rejection.message if resolution.rejection else None,
+        rejection_message=resolution.rejection.message
+        if resolution.rejection
+        else None,
         issues=tuple(issues),
     )

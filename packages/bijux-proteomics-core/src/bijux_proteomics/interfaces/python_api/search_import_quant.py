@@ -9,6 +9,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_comet_import_command(
     result_path: Path,
     config_path: Path | None,
@@ -62,12 +63,11 @@ def run_comet_import_command(
             if canonical_psm_tsv_out is None
             else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_maxquant_import_command(
     evidence_txt: Path,
@@ -152,12 +152,11 @@ def run_maxquant_import_command(
             "lfq_candidate_tsv": None
             if lfq_candidate_tsv_out is None
             else str(lfq_candidate_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_maxquant_benchmark_command(
     evidence_txt: Path,
@@ -244,6 +243,7 @@ def run_maxquant_benchmark_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_diann_import_command(
     result_tsv: Path,
     config_path: Path | None,
@@ -303,12 +303,11 @@ def run_diann_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_diann_benchmark_command(
     result_tsv: Path,
@@ -355,4 +354,11 @@ def run_diann_benchmark_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_comet_import_command', 'run_maxquant_import_command', 'run_maxquant_benchmark_command', 'run_diann_import_command', 'run_diann_benchmark_command']
+
+__all__ = [
+    "run_comet_import_command",
+    "run_maxquant_import_command",
+    "run_maxquant_benchmark_command",
+    "run_diann_import_command",
+    "run_diann_benchmark_command",
+]

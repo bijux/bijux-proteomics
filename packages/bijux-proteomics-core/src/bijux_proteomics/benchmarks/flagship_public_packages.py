@@ -910,9 +910,7 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="targeted_validation_discovery_claims",
-            path=(
-                f"{package_root}/evidence/targeted_validation_discovery_claims.json"
-            ),
+            path=(f"{package_root}/evidence/targeted_validation_discovery_claims.json"),
             evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
             public_identity_note=(
                 "Discovery-claim inputs keep the public targeted benchmark validation run anchored to explicit candidate expectations."

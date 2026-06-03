@@ -44,10 +44,14 @@ def detect_sample_swaps(
     metadata_by_sample: dict[str, ExperimentalDesignEntry] = {}
     for entry in metadata:
         if entry.sample_id in metadata_by_sample:
-            raise ValueError("sample swap detection requires unique metadata sample_id rows")
+            raise ValueError(
+                "sample swap detection requires unique metadata sample_id rows"
+            )
         metadata_by_sample[entry.sample_id] = entry
     missing_metadata = tuple(
-        sample_id for sample_id in matrix.sample_ids if sample_id not in metadata_by_sample
+        sample_id
+        for sample_id in matrix.sample_ids
+        if sample_id not in metadata_by_sample
     )
     if missing_metadata:
         raise ValueError(
@@ -130,14 +134,15 @@ def _nearest_neighbor(
             right_index=candidate_index,
             minimum_shared_entities=minimum_shared_entities,
         )
-        if similarity > best_similarity or (
-            similarity == best_similarity
-            and best_neighbor is not None
-            and candidate_sample_id < best_neighbor
+        if (
+            similarity > best_similarity
+            or (
+                similarity == best_similarity
+                and best_neighbor is not None
+                and candidate_sample_id < best_neighbor
+            )
+            or best_neighbor is None
         ):
-            best_neighbor = candidate_sample_id
-            best_similarity = similarity
-        elif best_neighbor is None:
             best_neighbor = candidate_sample_id
             best_similarity = similarity
     if best_neighbor is None:
@@ -162,7 +167,9 @@ def _pairwise_similarity(
             shared_right.append(right_value)
     if len(shared_left) < minimum_shared_entities:
         return -1.0
-    correlation = float(np.corrcoef(np.array(shared_left), np.array(shared_right))[0, 1])
+    correlation = float(
+        np.corrcoef(np.array(shared_left), np.array(shared_right))[0, 1]
+    )
     if not np.isfinite(correlation):
         return -1.0
     return correlation

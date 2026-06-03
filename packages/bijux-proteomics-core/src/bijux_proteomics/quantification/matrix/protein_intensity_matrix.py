@@ -13,8 +13,12 @@ from pydantic import ConfigDict, Field, model_validator
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,
-    QuantMatrix as CanonicalQuantMatrix,
     QuantMeasureKind,
+)
+from bijux_proteomics.domain.records import (
+    QuantMatrix as CanonicalQuantMatrix,
+)
+from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.identification import PsmRecord
@@ -28,15 +32,15 @@ from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
     QuantRollupMethod,
 )
+from bijux_proteomics.quantification.matrix.core_matrix import (
+    build_numeric_quant_matrix,
+)
 from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
     PeptideMatrixGroupingMode,
     PeptideMatrixSourceKind,
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
-)
-from bijux_proteomics.quantification.matrix.core_matrix import (
-    build_numeric_quant_matrix,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -390,7 +394,9 @@ def build_protein_intensity_matrix_from_peptides(
             }
         )
         values: list[ProteinIntensityMatrixValue] = []
-        sample_contributions: dict[str, tuple[ProteinPeptideContributionEntry, ...]] = {}
+        sample_contributions: dict[
+            str, tuple[ProteinPeptideContributionEntry, ...]
+        ] = {}
         for sample_id in peptide_matrix.sample_ids:
             entries = target_rows.get((target_id, sample_id), [])
             missing_kind = _aggregate_missing_kind(
@@ -816,10 +822,9 @@ def _aggregate_abundance(
 
 
 def _is_observed_contribution(value: ProteinIntensityMatrixValue) -> bool:
-    return (
-        value.abundance is not None
-        and value.missing_value_kind
-        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    return value.abundance is not None and value.missing_value_kind in (
+        MissingValueKind.OBSERVED,
+        MissingValueKind.ZERO,
     )
 
 

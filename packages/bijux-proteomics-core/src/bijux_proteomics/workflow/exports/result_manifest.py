@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-import hashlib
 from enum import StrEnum
+import hashlib
 from io import StringIO
 from pathlib import Path
 
@@ -20,11 +20,11 @@ from bijux_proteomics.domain.reason_codes import (
 )
 from bijux_proteomics.io.formats import DocumentSchema
 from bijux_proteomics.ptm.reporting import PtmReportExportManifest
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportExportManifest,
-)
 from bijux_proteomics.workflow.exports.interactive_result_bundle import (
     build_interactive_result_bundle_from_artifacts,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportExportManifest,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -160,7 +160,9 @@ class ResultManifestReport(JsonModel):
 
     document_schema: DocumentSchema
     summary: ResultManifestSummary
-    source_reports: tuple[ResultManifestSourceReport, ...] = Field(default_factory=tuple)
+    source_reports: tuple[ResultManifestSourceReport, ...] = Field(
+        default_factory=tuple
+    )
     inputs: tuple[ResultManifestInput, ...] = Field(default_factory=tuple)
     commands: tuple[ResultManifestCommand, ...] = Field(default_factory=tuple)
     files: tuple[ResultManifestFileEntry, ...] = Field(default_factory=tuple)
@@ -230,7 +232,9 @@ def build_result_manifest_from_artifacts(
             report_dir=str(context.report_dir),
             manifest_json=context.manifest_filename,
             artifact_count=len(context.artifact_requirements) + 1,
-            required_artifact_count=sum(1 for _, required, _ in context.artifact_requirements if required)
+            required_artifact_count=sum(
+                1 for _, required, _ in context.artifact_requirements if required
+            )
             + 1,
         )
         for context in source_contexts
@@ -429,7 +433,9 @@ def _load_source_context(
     report_dir: Path | None,
     source_kind: ResultManifestSourceKind,
     manifest_filename: str,
-    manifest_model: type[BiologicalResultReportExportManifest | PtmReportExportManifest],
+    manifest_model: type[
+        BiologicalResultReportExportManifest | PtmReportExportManifest
+    ],
 ) -> _SourceArtifactContext | None:
     if report_dir is None:
         return None
@@ -526,7 +532,9 @@ def _build_input_entries(
     return tuple(entries)
 
 
-def _build_command_entries(commands: tuple[str, ...]) -> tuple[ResultManifestCommand, ...]:
+def _build_command_entries(
+    commands: tuple[str, ...],
+) -> tuple[ResultManifestCommand, ...]:
     return tuple(
         ResultManifestCommand(
             command_id=f"command:{index}",
@@ -639,9 +647,7 @@ def _build_warning_entries(
             entity_id = row.get("entity_id") or None
             entries.append(
                 ResultManifestWarningEntry(
-                    warning_id=(
-                        f"warning:run_qc:{path.name}:{entity_id or 'unknown'}"
-                    ),
+                    warning_id=(f"warning:run_qc:{path.name}:{entity_id or 'unknown'}"),
                     severity=ResultManifestWarningSeverity.ERROR,
                     warning_code="run_qc_failure",
                     source_surface="run_qc_assessment",
@@ -706,7 +712,7 @@ def _hash_file(path: Path) -> str:
 
 
 def _media_type(path: Path | None, relative_path: str) -> str:
-    suffix = ((path.suffix if path is not None else Path(relative_path).suffix)).lower()
+    suffix = (path.suffix if path is not None else Path(relative_path).suffix).lower()
     if suffix == ".tsv":
         return "text/tab-separated-values"
     if suffix == ".json":

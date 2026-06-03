@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_protein_coverage_command(
     input_tsv: Path,
     fasta_path: Path,
@@ -127,6 +128,7 @@ def run_protein_coverage_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_protein_coverage_plot_command(
     input_tsv: Path,
     fasta_path: Path,
@@ -228,6 +230,7 @@ def run_protein_coverage_plot_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_protein_parsimony_command(
     input_tsv: Path,
     threshold: float,
@@ -322,6 +325,7 @@ def run_protein_parsimony_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_infer_proteins_command(
     input_tsv: Path,
@@ -462,4 +466,10 @@ def run_infer_proteins_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_protein_coverage_command', 'run_protein_coverage_plot_command', 'run_protein_parsimony_command', 'run_infer_proteins_command']
+
+__all__ = [
+    "run_protein_coverage_command",
+    "run_protein_coverage_plot_command",
+    "run_protein_parsimony_command",
+    "run_infer_proteins_command",
+]

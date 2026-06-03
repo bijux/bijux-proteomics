@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +12,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.card_schema import (
     StandardCardEntry,
     StandardCardKind,
@@ -27,17 +26,17 @@ from bijux_proteomics.io import parse_experimental_design_table
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.targeted import (
     TargetedAssayQcReport,
-    TargetedTargetQcEntry,
     TargetedPanelCandidateKind,
     TargetedResultImportReport,
     TargetedResultSourceKind,
     TargetedResultValidationPolicy,
+    TargetedResultValidationReport,
+    TargetedTargetQcEntry,
     TargetedTransitionQcEntry,
     TargetedValidationAssayEvidenceEntry,
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationEntry,
     TargetedValidationPanelAssayInput,
-    TargetedResultValidationReport,
     TargetedValidationReasonCode,
     TargetedValidationVerdict,
     build_skyline_result_import_report,
@@ -49,9 +48,13 @@ from bijux_proteomics.targeted import (
     render_targeted_result_validation_summary_tsv,
     render_targeted_result_validation_tsv,
 )
-from bijux_proteomics.workflow.targeted_review_workflow import (
-    TargetedAssayQcWorkflowExportManifest,
-    export_targeted_assay_qc_workflow_artifacts,
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -62,11 +65,9 @@ from bijux_proteomics.workflow.result_types import (
     build_result_warning,
     render_result_rejected_evidence_tsv,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
+from bijux_proteomics.workflow.targeted_review_workflow import (
+    TargetedAssayQcWorkflowExportManifest,
+    export_targeted_assay_qc_workflow_artifacts,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -184,7 +185,9 @@ class AdvancedTargetedEvidenceCardEntry(JsonModel):
     ratio_drift_issue_count: int = Field(..., ge=0)
     validation_log2_effect: float | None = None
     discovery_effect_size: float | None = None
-    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(default_factory=tuple)
+    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -264,21 +267,39 @@ def run_targeted_validation_workflow(
     rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_targeted_summary.tsv"
 
-    write_output_table_tsv((output_dir / validation_summary_name), render_targeted_result_validation_summary_tsv(validation_report))
-    write_output_table_tsv((output_dir / confirmed_name), render_targeted_result_validation_tsv(
+    write_output_table_tsv(
+        (output_dir / validation_summary_name),
+        render_targeted_result_validation_summary_tsv(validation_report),
+    )
+    write_output_table_tsv(
+        (output_dir / confirmed_name),
+        render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.CONFIRMED,
-        ))
-    write_output_table_tsv((output_dir / contradicted_name), render_targeted_result_validation_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / contradicted_name),
+        render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.CONTRADICTED,
-        ))
-    write_output_table_tsv((output_dir / inconclusive_name), render_targeted_result_validation_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / inconclusive_name),
+        render_targeted_result_validation_tsv(
             validation_report,
             TargetedValidationVerdict.INCONCLUSIVE,
-        ))
-    write_output_table_tsv((output_dir / validation_evidence_name), render_targeted_result_validation_evidence_tsv(validation_report))
-    write_output_table_tsv((output_dir / evidence_card_name), render_advanced_targeted_evidence_cards_tsv(evidence_cards))
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / validation_evidence_name),
+        render_targeted_result_validation_evidence_tsv(validation_report),
+    )
+    write_output_table_tsv(
+        (output_dir / evidence_card_name),
+        render_advanced_targeted_evidence_cards_tsv(evidence_cards),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(
@@ -307,7 +328,10 @@ def run_targeted_validation_workflow(
         inconclusive_count=validation_report.summary.inconclusive_count,
         evidence_card_count=len(evidence_cards),
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_targeted_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_advanced_targeted_workflow_summary_tsv(summary),
+    )
 
     workflow_manifest_name = "advanced_targeted_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -498,8 +522,12 @@ def render_advanced_targeted_evidence_cards_tsv(
                 entry.inconclusive_assay_count,
                 entry.coelution_issue_count,
                 entry.ratio_drift_issue_count,
-                "" if entry.validation_log2_effect is None else f"{entry.validation_log2_effect:g}",
-                "" if entry.discovery_effect_size is None else f"{entry.discovery_effect_size:g}",
+                ""
+                if entry.validation_log2_effect is None
+                else f"{entry.validation_log2_effect:g}",
+                ""
+                if entry.discovery_effect_size is None
+                else f"{entry.discovery_effect_size:g}",
                 ";".join(reason.value for reason in entry.reason_codes),
                 entry.note,
             )
@@ -549,7 +577,8 @@ def _standard_card_confidence(
 ) -> ConfidenceTier:
     if (
         entry.validation_verdict is TargetedValidationVerdict.CONFIRMED
-        and entry.assay_reliability_status is AdvancedTargetedAssayReliabilityStatus.RELIABLE
+        and entry.assay_reliability_status
+        is AdvancedTargetedAssayReliabilityStatus.RELIABLE
     ):
         return ConfidenceTier.HIGH
     if entry.validation_verdict is TargetedValidationVerdict.INCONCLUSIVE:
@@ -648,7 +677,9 @@ def _build_evidence_cards(
     validation_report: TargetedResultValidationReport,
     assay_qc_report: TargetedAssayQcReport,
 ) -> tuple[AdvancedTargetedEvidenceCardEntry, ...]:
-    assay_evidence_by_candidate: dict[str, list[TargetedValidationAssayEvidenceEntry]] = {}
+    assay_evidence_by_candidate: dict[
+        str, list[TargetedValidationAssayEvidenceEntry]
+    ] = {}
     for entry in validation_report.assay_evidence:
         assay_evidence_by_candidate.setdefault(entry.candidate_id, []).append(entry)
     target_qc_by_target: dict[str, list[TargetedTargetQcEntry]] = {}
@@ -679,7 +710,9 @@ def _build_evidence_cards(
                 reliable_assay_count += 1
             if assay_entry.matched_target_id is None:
                 continue
-            target_qc_entries = target_qc_by_target.get(assay_entry.matched_target_id, ())
+            target_qc_entries = target_qc_by_target.get(
+                assay_entry.matched_target_id, ()
+            )
             transition_qc_entries = transition_qc_by_target.get(
                 assay_entry.matched_target_id,
                 (),

@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_protein_set_enrichment_command(
     foreground_tsv: Path,
@@ -84,13 +84,22 @@ def run_protein_set_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_protein_set_enrichment_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_protein_set_enrichment_summary_tsv(report)
+        )
     if result_tsv_out is not None:
-        write_output_table_tsv(result_tsv_out, render_protein_set_enrichment_tsv(report))
+        write_output_table_tsv(
+            result_tsv_out, render_protein_set_enrichment_tsv(report)
+        )
     if universe_gap_tsv_out is not None:
-        write_output_table_tsv(universe_gap_tsv_out, render_protein_set_universe_gap_tsv(report))
+        write_output_table_tsv(
+            universe_gap_tsv_out, render_protein_set_universe_gap_tsv(report)
+        )
     if rejected_set_tsv_out is not None:
-        write_output_table_tsv(rejected_set_tsv_out, render_rejected_protein_set_membership_tsv(protein_sets))
+        write_output_table_tsv(
+            rejected_set_tsv_out,
+            render_rejected_protein_set_membership_tsv(protein_sets),
+        )
 
     payload = {
         "foreground": foreground.to_dict(),
@@ -101,18 +110,15 @@ def run_protein_set_enrichment_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "result_tsv": None if result_tsv_out is None else str(result_tsv_out),
             "universe_gap_tsv": (
-                None
-                if universe_gap_tsv_out is None
-                else str(universe_gap_tsv_out)
+                None if universe_gap_tsv_out is None else str(universe_gap_tsv_out)
             ),
             "rejected_set_tsv": (
-                None
-                if rejected_set_tsv_out is None
-                else str(rejected_set_tsv_out)
+                None if rejected_set_tsv_out is None else str(rejected_set_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_go_enrichment_command(
     foreground_tsv: Path,
@@ -178,13 +184,19 @@ def run_go_enrichment_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_go_enrichment_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_go_enrichment_summary_tsv(report)
+        )
     if term_tsv_out is not None:
         write_output_table_tsv(term_tsv_out, render_go_enrichment_term_tsv(report))
     if unannotated_tsv_out is not None:
-        write_output_table_tsv(unannotated_tsv_out, render_go_enrichment_unannotated_tsv(report))
+        write_output_table_tsv(
+            unannotated_tsv_out, render_go_enrichment_unannotated_tsv(report)
+        )
     if rejected_annotation_tsv_out is not None:
-        write_output_table_tsv(rejected_annotation_tsv_out, render_rejected_go_annotation_tsv(annotations))
+        write_output_table_tsv(
+            rejected_annotation_tsv_out, render_rejected_go_annotation_tsv(annotations)
+        )
 
     payload = {
         "foreground": foreground.to_dict(),
@@ -206,4 +218,5 @@ def run_go_enrichment_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_protein_set_enrichment_command', 'run_go_enrichment_command']
+
+__all__ = ["run_protein_set_enrichment_command", "run_go_enrichment_command"]

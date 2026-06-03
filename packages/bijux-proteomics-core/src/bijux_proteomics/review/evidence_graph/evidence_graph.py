@@ -105,7 +105,9 @@ class ProteomicsEvidenceNode(JsonModel):
     claim_state: str = Field(default="observed", min_length=1)
     trust_class: str = Field(default="unreviewed", min_length=1)
     contradiction_ids: tuple[str, ...] = Field(default_factory=tuple)
-    context_refs: tuple[ProteomicsEvidenceContextRef, ...] = Field(default_factory=tuple)
+    context_refs: tuple[ProteomicsEvidenceContextRef, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ProteomicsEvidenceEdge(JsonModel):
@@ -178,9 +180,13 @@ def build_proteomics_evidence_graph(
     edge_kind_counts: dict[str, int] = {}
     evidence_type_counts: dict[str, int] = {}
     for node in sorted_nodes:
-        kind_counts[node.entity_type.value] = kind_counts.get(node.entity_type.value, 0) + 1
+        kind_counts[node.entity_type.value] = (
+            kind_counts.get(node.entity_type.value, 0) + 1
+        )
     for edge in sorted_edges:
-        edge_kind_counts[edge.relation.value] = edge_kind_counts.get(edge.relation.value, 0) + 1
+        edge_kind_counts[edge.relation.value] = (
+            edge_kind_counts.get(edge.relation.value, 0) + 1
+        )
         evidence_type_counts[edge.evidence_type.value] = (
             evidence_type_counts.get(edge.evidence_type.value, 0) + 1
         )
@@ -188,7 +194,9 @@ def build_proteomics_evidence_graph(
     summary = ProteomicsEvidenceGraphSummary(
         node_count=len(sorted_nodes),
         edge_count=len(sorted_edges),
-        contradiction_node_count=sum(bool(node.contradiction_ids) for node in sorted_nodes),
+        contradiction_node_count=sum(
+            bool(node.contradiction_ids) for node in sorted_nodes
+        ),
         node_kind_counts=dict(sorted(kind_counts.items())),
         edge_kind_counts=dict(sorted(edge_kind_counts.items())),
         evidence_type_counts=dict(sorted(evidence_type_counts.items())),
@@ -680,7 +688,9 @@ class ProteomicsEvidenceGraphBuilder:
     def add_candidate(
         self, candidate_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.CANDIDATE, candidate_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.CANDIDATE, candidate_id, **kwargs
+        )
 
     def add_sample(
         self, sample_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
@@ -695,17 +705,23 @@ class ProteomicsEvidenceGraphBuilder:
     def add_spectrum(
         self, spectrum_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.SPECTRUM, spectrum_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.SPECTRUM, spectrum_id, **kwargs
+        )
 
     def add_precursor(
         self, precursor_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.PRECURSOR, precursor_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.PRECURSOR, precursor_id, **kwargs
+        )
 
     def add_peptide(
         self, peptide_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.PEPTIDE, peptide_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.PEPTIDE, peptide_id, **kwargs
+        )
 
     def add_modified_peptide(
         self, modified_peptide_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
@@ -724,7 +740,9 @@ class ProteomicsEvidenceGraphBuilder:
     def add_protein(
         self, protein_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.PROTEIN, protein_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.PROTEIN, protein_id, **kwargs
+        )
 
     def add_protein_group(
         self, protein_group_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
@@ -738,12 +756,16 @@ class ProteomicsEvidenceGraphBuilder:
     def add_ptm_site(
         self, ptm_site_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.PTM_SITE, ptm_site_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.PTM_SITE, ptm_site_id, **kwargs
+        )
 
     def add_transition(
         self, transition_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.TRANSITION, transition_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.TRANSITION, transition_id, **kwargs
+        )
 
     def add_quant_value(
         self, quant_value_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
@@ -766,7 +788,9 @@ class ProteomicsEvidenceGraphBuilder:
     def add_pathway(
         self, pathway_id: str, **kwargs: Unpack[_EnsureNodeKwargs]
     ) -> ProteomicsEvidenceNode:
-        return self.ensure_node(ProteomicsEvidenceNodeKind.PATHWAY, pathway_id, **kwargs)
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.PATHWAY, pathway_id, **kwargs
+        )
 
     def add_qc_decision(
         self, qc_decision_id: str, **kwargs: Unpack[_EnsureNodeKwargs]

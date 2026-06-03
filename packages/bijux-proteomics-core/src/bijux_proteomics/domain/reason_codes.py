@@ -473,7 +473,7 @@ _CODES_BY_CATEGORY = {
 _CATEGORY_LOOKUP: dict[str, tuple[ReasonCodeCategory, ...]] = {}
 for category, codes in _CODES_BY_CATEGORY.items():
     for code in sorted(codes):
-        _CATEGORY_LOOKUP.setdefault(code, tuple())
+        _CATEGORY_LOOKUP.setdefault(code, ())
         if category not in _CATEGORY_LOOKUP[code]:
             _CATEGORY_LOOKUP[code] = (*_CATEGORY_LOOKUP[code], category)
 
@@ -482,7 +482,10 @@ def reason_code_registry() -> tuple[ReasonCodeEntry, ...]:
     """Return the full stable reason-code registry."""
 
     return tuple(
-        ReasonCodeEntry(code=code, categories=tuple(sorted(categories, key=lambda value: value.value)))
+        ReasonCodeEntry(
+            code=code,
+            categories=tuple(sorted(categories, key=lambda value: value.value)),
+        )
         for code, categories in sorted(_CATEGORY_LOOKUP.items())
     )
 
@@ -516,10 +519,11 @@ def require_registered_reason_code(
     normalized = code.strip()
     if is_registered_reason_code(normalized, *categories):
         return normalized
-    expected = ", ".join(category.value for category in categories) or "any registered category"
-    raise ValueError(
-        f"reason code {normalized!r} is not registered for {expected}"
+    expected = (
+        ", ".join(category.value for category in categories)
+        or "any registered category"
     )
+    raise ValueError(f"reason code {normalized!r} is not registered for {expected}")
 
 
 def require_registered_reason_codes(
@@ -528,9 +532,7 @@ def require_registered_reason_codes(
 ) -> tuple[str, ...]:
     """Validate and return a tuple of registered reason codes."""
 
-    return tuple(
-        require_registered_reason_code(code, *categories) for code in codes
-    )
+    return tuple(require_registered_reason_code(code, *categories) for code in codes)
 
 
 __all__ = [

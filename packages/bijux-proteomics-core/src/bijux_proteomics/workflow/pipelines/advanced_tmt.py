@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -16,6 +13,8 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.isotope_labeling.validation import TmtValidationReport
 from bijux_proteomics.multiplex import (
@@ -29,6 +28,14 @@ from bijux_proteomics.multiplex import (
     render_tmt_peptide_ratio_tsv,
 )
 from bijux_proteomics.quantification import LabelBasedChannelRole, NormalizationMethod
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
+)
 from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
@@ -44,12 +51,6 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
     render_result_rejected_evidence_tsv,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -267,7 +268,9 @@ def run_advanced_tmt_workflow(
         base_report.report.differential_analysis_report.differential_abundance_report
     )
     if differential_report is None:
-        raise ValueError("advanced tmt workflow requires differential abundance results")
+        raise ValueError(
+            "advanced tmt workflow requires differential abundance results"
+        )
     label_manifest = workflow_manifest.label_based_report_manifest
 
     peptide_confidence_entries = _build_peptide_confidence_entries(base_report)
@@ -288,10 +291,21 @@ def run_advanced_tmt_workflow(
     rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_tmt_summary.tsv"
 
-    write_output_table_tsv((output_dir / peptide_ratio_name), render_tmt_peptide_ratio_tsv(ratio_report))
-    write_output_table_tsv((output_dir / peptide_confidence_name), render_advanced_tmt_peptide_confidence_tsv(peptide_confidence_entries))
-    write_output_table_tsv((output_dir / protein_compression_name), render_advanced_tmt_protein_compression_tsv(protein_compression_entries))
-    write_output_table_tsv((output_dir / evidence_card_name), render_advanced_tmt_evidence_cards_tsv(evidence_cards))
+    write_output_table_tsv(
+        (output_dir / peptide_ratio_name), render_tmt_peptide_ratio_tsv(ratio_report)
+    )
+    write_output_table_tsv(
+        (output_dir / peptide_confidence_name),
+        render_advanced_tmt_peptide_confidence_tsv(peptide_confidence_entries),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_compression_name),
+        render_advanced_tmt_protein_compression_tsv(protein_compression_entries),
+    )
+    write_output_table_tsv(
+        (output_dir / evidence_card_name),
+        render_advanced_tmt_evidence_cards_tsv(evidence_cards),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(
@@ -323,7 +337,8 @@ def run_advanced_tmt_workflow(
             [
                 entry
                 for entry in peptide_confidence_entries
-                if entry.disposition is AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
+                if entry.disposition
+                is AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
             ]
         ),
         protein_ratio_count=ratio_report.summary.protein_ratio_count,
@@ -354,7 +369,9 @@ def run_advanced_tmt_workflow(
         ),
         evidence_card_count=len(evidence_cards),
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_tmt_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_advanced_tmt_workflow_summary_tsv(summary)
+    )
 
     workflow_manifest_name = "advanced_tmt_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -579,7 +596,9 @@ def render_advanced_tmt_protein_compression_tsv(
                     if entry.protein_median_abs_log2_ratio is None
                     else f"{entry.protein_median_abs_log2_ratio:g}"
                 ),
-                "" if entry.attenuation_delta is None else f"{entry.attenuation_delta:g}",
+                ""
+                if entry.attenuation_delta is None
+                else f"{entry.attenuation_delta:g}",
                 entry.compression_status.value,
                 entry.note,
             )
@@ -683,28 +702,25 @@ def _build_advanced_tmt_rejected_evidence(
     matrix_report = report.report.tmt_matrix_report
     if matrix_report is None:
         raise ValueError("advanced tmt workflow requires a TMT matrix report")
-    return (
-        build_rejected_evidence_entries_from_issue_rows(
-            matrix_report.source_report.rejected_rows,
+    return build_rejected_evidence_entries_from_issue_rows(
+        matrix_report.source_report.rejected_rows,
+        source_surface="advanced_tmt_workflow",
+        related_artifact=related_artifact,
+        entity_prefix="reporter_row",
+        entity_type="reporter_row",
+    ) + tuple(
+        build_rejected_evidence_entry(
+            evidence_id=f"advanced_tmt:{card.protein_id}",
             source_surface="advanced_tmt_workflow",
+            reason_code=card.confidence_status.value,
+            message=card.note,
             related_artifact=related_artifact,
-            entity_prefix="reporter_row",
-            entity_type="reporter_row",
+            entity_type="protein",
+            entity_id=card.protein_id,
         )
-        + tuple(
-            build_rejected_evidence_entry(
-                evidence_id=f"advanced_tmt:{card.protein_id}",
-                source_surface="advanced_tmt_workflow",
-                reason_code=card.confidence_status.value,
-                message=card.note,
-                related_artifact=related_artifact,
-                entity_type="protein",
-                entity_id=card.protein_id,
-            )
-            for card in evidence_cards
-            if card.confidence_status
-            is AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
-        )
+        for card in evidence_cards
+        if card.confidence_status
+        is AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
     )
 
 
@@ -736,14 +752,17 @@ def _build_peptide_confidence_entries(
     for entry in ratio_report.peptide_ratios:
         if entry.numerator_role is not LabelBasedChannelRole.SAMPLE:
             continue
-        protein_id = _representative_protein_ref(entry.protein_refs, fallback=entry.peptide_id)
+        protein_id = _representative_protein_ref(
+            entry.protein_refs, fallback=entry.peptide_id
+        )
         matching = _matching_interference_observations(entry, observations)
-        high_interference = any(observation.threshold_exceeded for observation in matching)
-        if entry.missing_reason is None:
-            if not high_interference:
-                clean_support_by_protein[protein_id] = (
-                    clean_support_by_protein.get(protein_id, 0) + 1
-                )
+        high_interference = any(
+            observation.threshold_exceeded for observation in matching
+        )
+        if entry.missing_reason is None and not high_interference:
+            clean_support_by_protein[protein_id] = (
+                clean_support_by_protein.get(protein_id, 0) + 1
+            )
 
     entries: list[AdvancedTmtPeptideConfidenceEntry] = []
     for ratio_entry in ratio_report.peptide_ratios:
@@ -760,20 +779,18 @@ def _build_peptide_confidence_entries(
             if observation.isolation_interference_fraction is not None
         ]
         max_fraction = None if not fractions else max(fractions)
-        high_interference = any(observation.threshold_exceeded for observation in matching)
+        high_interference = any(
+            observation.threshold_exceeded for observation in matching
+        )
         if ratio_entry.missing_reason is not None:
             disposition = AdvancedTmtPeptideDisposition.MISSING_RATIO
             note = "sample ratio is missing before interference-aware confidence review"
         elif high_interference and clean_support_by_protein.get(protein_id, 0) == 0:
             disposition = AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
-            note = (
-                "high interference dominates the available sample peptide support for this protein, so the peptide is excluded from confident downstream support"
-            )
+            note = "high interference dominates the available sample peptide support for this protein, so the peptide is excluded from confident downstream support"
         elif high_interference:
             disposition = AdvancedTmtPeptideDisposition.DOWNGRADED_BY_INTERFERENCE
-            note = (
-                "high interference is preserved, but clean peptide support still exists for the same protein so the peptide only downgrades confidence"
-            )
+            note = "high interference is preserved, but clean peptide support still exists for the same protein so the peptide only downgrades confidence"
         else:
             disposition = AdvancedTmtPeptideDisposition.RETAINED
             note = "sample peptide ratio stays in confident support because interference remains below threshold"
@@ -842,7 +859,9 @@ def _build_protein_compression_entries(
             if entry.log2_ratio is not None and entry.high_interference
         ]
         protein_values = protein_ratio_by_id.get(protein_id, [])
-        representative_protein_ref = _representative_protein_ref((protein_id,), fallback=protein_id)
+        representative_protein_ref = _representative_protein_ref(
+            (protein_id,), fallback=protein_id
+        )
         clean_median = None if not clean else float(median(clean))
         flagged_median = None if not flagged else float(median(flagged))
         protein_median = None if not protein_values else float(median(protein_values))
@@ -893,10 +912,10 @@ def _build_evidence_cards(
         base_report.report.differential_analysis_report.differential_abundance_report
     )
     if differential_report is None:
-        raise ValueError("advanced tmt workflow requires differential abundance results")
-    compression_by_protein = {
-        entry.protein_id: entry for entry in compression_entries
-    }
+        raise ValueError(
+            "advanced tmt workflow requires differential abundance results"
+        )
+    compression_by_protein = {entry.protein_id: entry for entry in compression_entries}
     peptide_by_protein: dict[str, list[AdvancedTmtPeptideConfidenceEntry]] = {}
     for entry in peptide_confidence_entries:
         peptide_by_protein.setdefault(entry.protein_id, []).append(entry)
@@ -914,10 +933,14 @@ def _build_evidence_cards(
             is AdvancedTmtPeptideDisposition.EXCLUDED_DUE_TO_INTERFERENCE
         )
         if flagged_count > 0 and clean_count == 0:
-            confidence_status = AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
+            confidence_status = (
+                AdvancedTmtProteinConfidenceStatus.EXCLUDED_DUE_TO_INTERFERENCE
+            )
             note = "all observed sample peptide support crosses the interference threshold, so the protein result is excluded from confident interpretation"
         elif flagged_count > 0:
-            confidence_status = AdvancedTmtProteinConfidenceStatus.DOWNGRADED_BY_INTERFERENCE
+            confidence_status = (
+                AdvancedTmtProteinConfidenceStatus.DOWNGRADED_BY_INTERFERENCE
+            )
             note = "high-interference peptides are present, so the protein result is retained only with downgraded confidence"
         else:
             confidence_status = AdvancedTmtProteinConfidenceStatus.SUPPORTED

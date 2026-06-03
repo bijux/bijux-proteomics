@@ -16,8 +16,8 @@ from bijux_proteomics.sequences.core import (
     parse_fasta_document,
 )
 from bijux_proteomics.sequences.digestion import (
-    DigestPolicy,
     DigestedPeptide,
+    DigestPolicy,
     PeptideDigestionMode,
     ProteaseRule,
     build_digest_policy,
@@ -275,9 +275,7 @@ def _assemble_protein_index(
     )
     payload = document.to_dict()
     return document.model_copy(
-        update={
-            "document_schema": document.document_schema.with_content_hash(payload)
-        }
+        update={"document_schema": document.document_schema.with_content_hash(payload)}
     )
 
 

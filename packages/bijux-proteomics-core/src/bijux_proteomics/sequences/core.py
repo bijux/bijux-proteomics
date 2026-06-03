@@ -521,8 +521,7 @@ def parse_fasta_document(
                     code="duplicate_accession",
                     severity=(
                         SequenceIssueSeverity.ERROR
-                        if duplicate_accession_policy
-                        is DuplicateAccessionPolicy.REJECT
+                        if duplicate_accession_policy is DuplicateAccessionPolicy.REJECT
                         else SequenceIssueSeverity.WARNING
                     ),
                     message=f"duplicate normalized accession {accession_key!r}",

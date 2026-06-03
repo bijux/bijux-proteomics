@@ -131,7 +131,8 @@ def build_protein_grouping_report(
                 unique_peptide_count=len(unique_peptides),
                 shared_peptide_count=len(shared_peptides),
                 best_score=max(
-                    max(protein_to_scores[protein_ref]) for protein_ref in sorted_proteins
+                    max(protein_to_scores[protein_ref])
+                    for protein_ref in sorted_proteins
                 ),
                 best_q_value=min(
                     (
@@ -153,7 +154,9 @@ def build_protein_grouping_report(
     summary = ProteinGroupingSummary(
         total_groups=len(groups),
         total_proteins=sum(len(group.protein_refs) for group in groups),
-        singleton_group_count=sum(1 for group in groups if len(group.protein_refs) == 1),
+        singleton_group_count=sum(
+            1 for group in groups if len(group.protein_refs) == 1
+        ),
         ambiguous_group_count=sum(1 for group in groups if len(group.protein_refs) > 1),
         grouped_protein_count=sum(
             len(group.protein_refs) for group in groups if len(group.protein_refs) > 1
@@ -167,9 +170,7 @@ def build_protein_grouping_report(
     grouped_entries = tuple(groups)
     return ProteinGroupingReport(
         summary=summary,
-        reproducibility_hash=hashlib.sha256(
-            _raw_payload(grouped_entries)
-        ).hexdigest(),
+        reproducibility_hash=hashlib.sha256(_raw_payload(grouped_entries)).hexdigest(),
         groups=grouped_entries,
     )
 

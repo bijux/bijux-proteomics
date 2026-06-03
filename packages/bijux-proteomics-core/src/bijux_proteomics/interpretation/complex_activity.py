@@ -181,7 +181,9 @@ class ComplexActivityReport(JsonModel):
 
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     sample_scores: tuple[ComplexSampleScoreEntry, ...] = Field(default_factory=tuple)
-    condition_scores: tuple[ComplexConditionScoreEntry, ...] = Field(default_factory=tuple)
+    condition_scores: tuple[ComplexConditionScoreEntry, ...] = Field(
+        default_factory=tuple
+    )
     condition_comparisons: tuple[ComplexConditionComparisonEntry, ...] = Field(
         default_factory=tuple
     )
@@ -207,7 +209,9 @@ def build_complex_activity_report(
     """Score complex activity per sample over one protein quantification table."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
-        raise ValueError("complex activity scoring requires a protein-level quantification table")
+        raise ValueError(
+            "complex activity scoring requires a protein-level quantification table"
+        )
 
     active_policy = policy or ComplexActivityPolicy()
     sample_ids = table.sample_ids
@@ -556,7 +560,9 @@ def render_complex_activity_condition_score_tsv(report: ComplexActivityReport) -
                 entry.high_confidence_sample_count,
                 entry.low_confidence_sample_count,
                 entry.confidence_status.value,
-                "" if entry.mean_activity_score is None else f"{entry.mean_activity_score:g}",
+                ""
+                if entry.mean_activity_score is None
+                else f"{entry.mean_activity_score:g}",
                 ";".join(entry.limiting_member_ids),
             )
         )
@@ -606,7 +612,9 @@ def render_complex_activity_condition_comparison_tsv(
                 ""
                 if entry.mean_activity_score_b is None
                 else f"{entry.mean_activity_score_b:g}",
-                "" if entry.activity_score_delta is None else f"{entry.activity_score_delta:g}",
+                ""
+                if entry.activity_score_delta is None
+                else f"{entry.activity_score_delta:g}",
                 ";".join(entry.condition_a_limiting_member_ids),
                 ";".join(entry.condition_b_limiting_member_ids),
             )
@@ -656,7 +664,9 @@ def render_complex_member_contribution_tsv(report: ComplexActivityReport) -> str
                 entry.resolved_protein_count,
                 entry.observed_protein_count,
                 entry.missing_protein_count,
-                "" if entry.member_activity_score is None else f"{entry.member_activity_score:g}",
+                ""
+                if entry.member_activity_score is None
+                else f"{entry.member_activity_score:g}",
                 str(entry.observed).lower(),
             )
         )
@@ -706,8 +716,12 @@ def _group_complex_records(
 def _protein_refs_in_table(table: LabelFreeQuantTable) -> tuple[str, ...]:
     protein_refs: list[str] = []
     for entity_id in table.entity_ids:
-        protein_refs.extend(table.entity_protein_refs.get(entity_id, ()) or (entity_id,))
-    return tuple(dict.fromkeys(canonicalize_protein_reference(ref) for ref in protein_refs))
+        protein_refs.extend(
+            table.entity_protein_refs.get(entity_id, ()) or (entity_id,)
+        )
+    return tuple(
+        dict.fromkeys(canonicalize_protein_reference(ref) for ref in protein_refs)
+    )
 
 
 def _standardized_protein_ref_values(
@@ -739,7 +753,9 @@ def _standardized_protein_ref_values(
             elif std_value <= 1e-12:
                 entity_standardized[(entity_id, sample_id)] = 0.0
             else:
-                entity_standardized[(entity_id, sample_id)] = (value - mean_value) / std_value
+                entity_standardized[(entity_id, sample_id)] = (
+                    value - mean_value
+                ) / std_value
 
     protein_ref_values: dict[tuple[str, str], list[float]] = defaultdict(list)
     for entity_id in table.entity_ids:
@@ -856,7 +872,9 @@ def _sample_confidence_status(
 def _aggregate_confidence_status(
     statuses: tuple[ComplexActivityConfidenceStatus, ...],
 ) -> ComplexActivityConfidenceStatus:
-    if all(status is ComplexActivityConfidenceStatus.HIGH_CONFIDENCE for status in statuses):
+    if all(
+        status is ComplexActivityConfidenceStatus.HIGH_CONFIDENCE for status in statuses
+    ):
         return ComplexActivityConfidenceStatus.HIGH_CONFIDENCE
     return ComplexActivityConfidenceStatus.LOW_CONFIDENCE
 
@@ -884,9 +902,9 @@ def _build_condition_scores(
             continue
         grouped[(entry.complex_id, entry.condition)].append(entry)
 
-    contribution_lookup: dict[tuple[str, str, str], list[ComplexMemberContributionEntry]] = (
-        defaultdict(list)
-    )
+    contribution_lookup: dict[
+        tuple[str, str, str], list[ComplexMemberContributionEntry]
+    ] = defaultdict(list)
     for member_entry in member_contributions:
         if member_entry.condition is None:
             continue
@@ -898,10 +916,16 @@ def _build_condition_scores(
     for (complex_id, condition), entries in sorted(grouped.items()):
         first = entries[0]
         scored_values = [
-            entry.activity_score for entry in entries if entry.activity_score is not None
+            entry.activity_score
+            for entry in entries
+            if entry.activity_score is not None
         ]
         member_means: dict[str, float] = {}
-        for (entry_complex_id, entry_condition, member_id), contribution_entries in contribution_lookup.items():
+        for (
+            entry_complex_id,
+            entry_condition,
+            member_id,
+        ), contribution_entries in contribution_lookup.items():
             if entry_complex_id != complex_id or entry_condition != condition:
                 continue
             observed_values = [
@@ -910,7 +934,9 @@ def _build_condition_scores(
                 if entry.member_activity_score is not None
             ]
             if observed_values:
-                member_means[_member_label(contribution_entries[0].member_kind, member_id)] = round(
+                member_means[
+                    _member_label(contribution_entries[0].member_kind, member_id)
+                ] = round(
                     float(np.mean(observed_values)),
                     6,
                 )

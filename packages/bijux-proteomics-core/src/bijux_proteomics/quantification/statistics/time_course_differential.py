@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 import math
@@ -15,6 +13,7 @@ import re
 
 import numpy as np
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
@@ -140,7 +139,7 @@ def build_time_course_differential_report(
     for entity_id in table.entity_ids:
         observed_rows: list[np.ndarray] = []
         observed_values: list[float] = []
-        observed_count_by_condition = {condition: 0 for condition in conditions}
+        observed_count_by_condition = dict.fromkeys(conditions, 0)
         observed_timepoints_by_condition: dict[str, set[str]] = {
             condition: set() for condition in conditions
         }
@@ -261,7 +260,7 @@ def build_time_course_differential_report(
         entries=ordered_entries,
         note=(
             "time-course differential analysis preserves ordered timepoints, per-condition slopes, and condition-by-time interaction testing"
-            + f"; {order_note}"
+            f"; {order_note}"
         ),
     )
     return annotate_time_course_differential_report_robustness(
@@ -347,7 +346,9 @@ def render_time_course_differential_tsv(
                 entry.observed_sample_count,
                 entry.observed_timepoint_count,
                 entry.slope_per_timepoint,
-                "" if entry.slope_standard_error is None else entry.slope_standard_error,
+                ""
+                if entry.slope_standard_error is None
+                else entry.slope_standard_error,
                 (
                     ""
                     if entry.slope_confidence_interval_low is None
@@ -371,11 +372,7 @@ def render_time_course_differential_tsv(
                     if entry.interaction_adjusted_p_value is None
                     else entry.interaction_adjusted_p_value
                 ),
-                (
-                    ""
-                    if entry.robustness_score is None
-                    else entry.robustness_score
-                ),
+                ("" if entry.robustness_score is None else entry.robustness_score),
                 (
                     ""
                     if entry.robustness_qc_status is None
@@ -525,9 +522,7 @@ def _resolve_timepoint_positions(
             raise ValueError(
                 "timepoint order must contain exactly the timepoint labels present in the design"
             )
-        positions = {
-            label: float(index) for index, label in enumerate(declared_order)
-        }
+        positions = {label: float(index) for index, label in enumerate(declared_order)}
         return (
             {
                 sample_id: positions[str(label)]
@@ -539,9 +534,7 @@ def _resolve_timepoint_positions(
         )
     inferred_positions = _infer_numeric_timepoint_positions(unique_labels)
     if inferred_positions is None:
-        raise ValueError(
-            "unordered timepoint labels require an explicit order file"
-        )
+        raise ValueError("unordered timepoint labels require an explicit order file")
     ordered = tuple(
         sorted(unique_labels, key=lambda label: (inferred_positions[label], label))
     )
@@ -657,9 +650,7 @@ def _condition_support_note(
     if observed_sample_count == 0:
         return f"condition {condition} has no observed samples for this entity"
     if observed_timepoint_count < 2:
-        return (
-            f"condition {condition} has fewer than two observed timepoints for this entity"
-        )
+        return f"condition {condition} has fewer than two observed timepoints for this entity"
     return None
 
 

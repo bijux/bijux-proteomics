@@ -10,14 +10,23 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.search_adapter import (
+    run_search_adapter_compare_command,
+    run_search_adapter_conformance_command,
+    run_search_adapter_inspect_command,
+    run_search_adapter_normalize_command,
+    run_search_adapter_params_command,
+    run_search_adapter_validate_config_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.search_adapter import run_search_adapter_inspect_command, run_search_adapter_params_command, run_search_adapter_validate_config_command, run_search_adapter_normalize_command, run_search_adapter_compare_command, run_search_adapter_conformance_command
+
 
 @click.command("inspect")
 @click.option("--adapter", "adapter_name", type=_search_adapter_choice(), default=None)
 def search_adapter_inspect_command(adapter_name: str | None) -> None:
-    'Inspect one adapter manifest or the full capability matrix.'
+    "Inspect one adapter manifest or the full capability matrix."
     return run_search_adapter_inspect_command(adapter_name)
+
 
 @click.command("params")
 @click.argument("adapter_name", type=_search_adapter_choice())
@@ -32,8 +41,9 @@ def search_adapter_params_command(
     config_path: Path,
     out_path: Path | None,
 ) -> None:
-    'Parse one supported search-engine parameter file.'
+    "Parse one supported search-engine parameter file."
     return run_search_adapter_params_command(adapter_name, config_path, out_path)
+
 
 @click.command("validate-config")
 @click.argument("adapter_name", type=_search_adapter_choice())
@@ -48,8 +58,11 @@ def search_adapter_validate_config_command(
     config_path: Path,
     out_path: Path | None,
 ) -> None:
-    'Validate one supported search-engine parameter file.'
-    return run_search_adapter_validate_config_command(adapter_name, config_path, out_path)
+    "Validate one supported search-engine parameter file."
+    return run_search_adapter_validate_config_command(
+        adapter_name, config_path, out_path
+    )
+
 
 @click.command("normalize")
 @click.argument("adapter_name", type=_search_adapter_choice())
@@ -91,8 +104,18 @@ def search_adapter_normalize_command(
     provenance_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Normalize one engine-specific search-result table into stable PSM records.'
-    return run_search_adapter_normalize_command(adapter_name, input_path, mapping_json, adapter_version, config_path, jsonl_out, provenance_out, out_path)
+    "Normalize one engine-specific search-result table into stable PSM records."
+    return run_search_adapter_normalize_command(
+        adapter_name,
+        input_path,
+        mapping_json,
+        adapter_version,
+        config_path,
+        jsonl_out,
+        provenance_out,
+        out_path,
+    )
+
 
 @click.command("compare")
 @click.argument("left_adapter_name", type=_search_adapter_choice())
@@ -125,8 +148,17 @@ def search_adapter_compare_command(
     right_mapping_json: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare two normalized adapter outputs on a shared score scale.'
-    return run_search_adapter_compare_command(left_adapter_name, left_input_path, right_adapter_name, right_input_path, left_mapping_json, right_mapping_json, out_path)
+    "Compare two normalized adapter outputs on a shared score scale."
+    return run_search_adapter_compare_command(
+        left_adapter_name,
+        left_input_path,
+        right_adapter_name,
+        right_input_path,
+        left_mapping_json,
+        right_mapping_json,
+        out_path,
+    )
+
 
 @click.command("conformance")
 @click.argument("adapter_name", type=_search_adapter_choice())
@@ -147,8 +179,11 @@ def search_adapter_conformance_command(
     mapping_json: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run the built-in adapter conformance checks on one search-result table.'
-    return run_search_adapter_conformance_command(adapter_name, input_path, mapping_json, out_path)
+    "Run the built-in adapter conformance checks on one search-result table."
+    return run_search_adapter_conformance_command(
+        adapter_name, input_path, mapping_json, out_path
+    )
+
 
 COMMANDS = (
     search_adapter_inspect_command,

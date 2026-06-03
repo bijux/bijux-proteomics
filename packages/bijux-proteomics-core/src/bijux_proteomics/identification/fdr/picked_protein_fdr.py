@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 import csv
 import hashlib
 import io
 import json
-from collections import defaultdict
 
 from pydantic import ConfigDict, Field
 
@@ -171,21 +171,39 @@ def build_picked_protein_fdr_report(
 
     paired: dict[str, list[ProteinEvidenceEntry]] = defaultdict(list)
     for evidence in protein_evidence:
-        paired[_base_accession(evidence.protein_ref, policy=active_decoy_policy)].append(
-            evidence
-        )
+        paired[
+            _base_accession(evidence.protein_ref, policy=active_decoy_policy)
+        ].append(evidence)
 
-    winners: list[tuple[str, str, ProteinEvidenceEntry | None, ProteinEvidenceEntry | None, ProteinEvidenceEntry]] = []
+    winners: list[
+        tuple[
+            str,
+            str,
+            ProteinEvidenceEntry | None,
+            ProteinEvidenceEntry | None,
+            ProteinEvidenceEntry,
+        ]
+    ] = []
     for base_accession, members in sorted(paired.items()):
         target_entry = next(
-            (entry for entry in members if entry.target_decoy_label is TargetDecoyLabel.TARGET),
+            (
+                entry
+                for entry in members
+                if entry.target_decoy_label is TargetDecoyLabel.TARGET
+            ),
             None,
         )
         decoy_entry = next(
-            (entry for entry in members if entry.target_decoy_label is TargetDecoyLabel.DECOY),
+            (
+                entry
+                for entry in members
+                if entry.target_decoy_label is TargetDecoyLabel.DECOY
+            ),
             None,
         )
-        candidates = [entry for entry in (target_entry, decoy_entry) if entry is not None]
+        candidates = [
+            entry for entry in (target_entry, decoy_entry) if entry is not None
+        ]
         winner = sorted(
             candidates,
             key=lambda entry: _winner_key(entry, score_orientation=score_orientation),

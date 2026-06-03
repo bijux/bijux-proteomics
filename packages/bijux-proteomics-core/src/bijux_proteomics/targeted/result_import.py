@@ -14,6 +14,8 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
+)
+from bijux_proteomics.domain.records import (
     TransitionRecord as CanonicalTransitionRecord,
 )
 from bijux_proteomics.io.transition_table import parse_transition_table
@@ -98,7 +100,9 @@ class TargetedResultImportReport(JsonModel):
 def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport:
     """Import one Skyline-style transition export into owned targeted observations."""
 
-    reader = csv.DictReader(path.read_text(encoding="utf-8").splitlines(), delimiter="\t")
+    reader = csv.DictReader(
+        path.read_text(encoding="utf-8").splitlines(), delimiter="\t"
+    )
     observations: list[TargetedResultObservation] = []
     for row_number, row in enumerate(reader, start=2):
         peptide_sequence = _required_value(
@@ -111,10 +115,9 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
             _optional_value(row, "PrecursorName", "PrecursorId")
             or f"{peptide_sequence}/{precursor_charge}"
         )
-        transition_id = (
-            _optional_value(row, "TransitionName", "TransitionId")
-            or _required_value(row, "FragmentIon")
-        )
+        transition_id = _optional_value(
+            row, "TransitionName", "TransitionId"
+        ) or _required_value(row, "FragmentIon")
         observations.append(
             TargetedResultObservation(
                 source_kind=TargetedResultSourceKind.SKYLINE_EXPORT,
@@ -139,7 +142,9 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
                     original_identifiers={
                         "transition_id": transition_id,
                         "precursor_id": precursor_id,
-                        "sample_id": _required_value(row, "ReplicateName", "SampleName"),
+                        "sample_id": _required_value(
+                            row, "ReplicateName", "SampleName"
+                        ),
                     },
                 ),
             )
@@ -163,7 +168,9 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
     )
 
 
-def build_transition_table_result_import_report(path: Path) -> TargetedResultImportReport:
+def build_transition_table_result_import_report(
+    path: Path,
+) -> TargetedResultImportReport:
     """Import one exported transition table into owned targeted observations."""
 
     parse_report = parse_transition_table(path)
@@ -177,7 +184,8 @@ def build_transition_table_result_import_report(path: Path) -> TargetedResultImp
             sample_id=entry.sample_id,
             intensity=entry.intensity,
             retention_time_minutes=entry.retention_time_minutes,
-            quality_flag=entry.metadata.get("quality_flag") or entry.metadata.get("flag"),
+            quality_flag=entry.metadata.get("quality_flag")
+            or entry.metadata.get("flag"),
             protein_ref=entry.protein_ref,
             fragment_label=entry.fragment_label,
             precursor_mz=entry.precursor_mz,

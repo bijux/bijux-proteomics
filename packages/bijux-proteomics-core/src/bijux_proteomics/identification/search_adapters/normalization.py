@@ -21,13 +21,18 @@ from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterManifest,
     SearchAdapterNormalizationReport,
 )
-from bijux_proteomics.identification.search_adapters.family_policy import build_search_result_family_policy
+from bijux_proteomics.identification.search_adapters.family_policy import (
+    build_search_result_family_policy,
+)
 from bijux_proteomics.identification.search_adapters.input_review import (
     _build_evidence_rows,
     _hash_file,
     _read_search_result_rows,
 )
-from bijux_proteomics.identification.search_adapters.registry import manifest_for_dialect, resolve_search_adapter_dialect
+from bijux_proteomics.identification.search_adapters.registry import (
+    manifest_for_dialect,
+    resolve_search_adapter_dialect,
+)
 from bijux_proteomics_foundation import DocumentSchema
 
 

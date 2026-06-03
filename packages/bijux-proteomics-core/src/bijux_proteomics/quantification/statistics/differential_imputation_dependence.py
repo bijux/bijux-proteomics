@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from io import StringIO
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.quantification.contracts import (
@@ -123,9 +124,13 @@ def compare_imputation_policies(
     """Compare significance stability across no-impute and imputed differential results."""
 
     if ImputationMethod.NONE not in results_by_policy:
-        raise ValueError("imputation policy comparison requires a no-impute result table")
+        raise ValueError(
+            "imputation policy comparison requires a no-impute result table"
+        )
     if len(results_by_policy) < 2:
-        raise ValueError("imputation policy comparison requires at least one imputed result table")
+        raise ValueError(
+            "imputation policy comparison requires at least one imputed result table"
+        )
 
     baseline = results_by_policy[ImputationMethod.NONE]
     compared_methods = tuple(
@@ -139,7 +144,9 @@ def compare_imputation_policies(
         )
     )
     if not compared_methods:
-        raise ValueError("imputation policy comparison requires at least one imputed result table")
+        raise ValueError(
+            "imputation policy comparison requires at least one imputed result table"
+        )
     for method in compared_methods:
         _require_matching_differential_reports(baseline, results_by_policy[method])
 
@@ -239,7 +246,9 @@ def annotate_differential_abundance_report_imputation_dependence(
         report,
         significance_threshold=significance_threshold,
     )
-    dependence_by_entity = {entry.entity_id: entry for entry in dependence_report.entries}
+    dependence_by_entity = {
+        entry.entity_id: entry for entry in dependence_report.entries
+    }
     entries = tuple(
         result_entry.model_copy(
             update={
@@ -314,7 +323,9 @@ def _build_policy_comparison_entry(
     *,
     entity_id: str,
     results_by_policy: dict[ImputationMethod, DifferentialAbundanceReport],
-    entry_lookup_by_method: dict[ImputationMethod, dict[str, DifferentialAbundanceEntry]],
+    entry_lookup_by_method: dict[
+        ImputationMethod, dict[str, DifferentialAbundanceEntry]
+    ],
     compared_methods: tuple[ImputationMethod, ...],
     significance_threshold: float,
 ) -> ImputationPolicyComparisonEntry:
@@ -349,8 +360,7 @@ def _build_policy_comparison_entry(
             significant_signs.add(0)
 
     policy_sensitive = (
-        len(set(imputed_significance.values())) > 1
-        or len(significant_signs) > 1
+        len(set(imputed_significance.values())) > 1 or len(significant_signs) > 1
     )
     return ImputationPolicyComparisonEntry(
         entity_id=entity_id,
@@ -378,13 +388,9 @@ def _build_dependence_entry(
         significance_threshold,
     )
     if imputed_significant and not no_impute_significant:
-        reason = (
-            DifferentialImputationSignificanceChangeReason.SIGNIFICANT_ONLY_AFTER_IMPUTATION
-        )
+        reason = DifferentialImputationSignificanceChangeReason.SIGNIFICANT_ONLY_AFTER_IMPUTATION
     elif no_impute_significant and not imputed_significant:
-        reason = (
-            DifferentialImputationSignificanceChangeReason.SIGNIFICANCE_LOST_AFTER_IMPUTATION
-        )
+        reason = DifferentialImputationSignificanceChangeReason.SIGNIFICANCE_LOST_AFTER_IMPUTATION
     elif imputed_significant:
         reason = DifferentialImputationSignificanceChangeReason.STABLE_SIGNIFICANT
     else:

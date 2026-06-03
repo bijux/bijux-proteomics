@@ -9,12 +9,12 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import RejectedEvidence, SampleMetadata
 from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
     build_samples_table_schema,
     validate_scientific_table,
 )
+from bijux_proteomics.domain.records import RejectedEvidence, SampleMetadata
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -132,9 +132,7 @@ def parse_sample_metadata_table(path: Path) -> StudySampleMetadataReport:
             )
         )
 
-    rejected_row_numbers = {
-        row.row_number for row in rejected_rows
-    }
+    rejected_row_numbers = {row.row_number for row in rejected_rows}
     rejected_rows.extend(
         _shared_run_semantic_rejections(provisional_entries, rejected_row_numbers)
     )
@@ -235,7 +233,9 @@ def _shared_run_semantic_rejections(
     for row_number, raw_values, entry in provisional_entries:
         if row_number in rejected_row_numbers:
             continue
-        grouped_by_run.setdefault(entry.run_id, []).append((row_number, raw_values, entry))
+        grouped_by_run.setdefault(entry.run_id, []).append(
+            (row_number, raw_values, entry)
+        )
 
     semantic_rejections: list[StudySampleMetadataRejectedRow] = []
     for run_entries in grouped_by_run.values():

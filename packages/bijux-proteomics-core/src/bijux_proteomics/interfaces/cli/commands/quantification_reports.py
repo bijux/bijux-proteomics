@@ -10,8 +10,13 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.quantification_reports import (
+    run_heatmap_matrix_command,
+    run_power_estimate_command,
+    run_sample_exploration_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.quantification_reports import run_heatmap_matrix_command, run_power_estimate_command, run_sample_exploration_command
+
 
 @click.command("heatmap-matrix")
 @click.argument(
@@ -125,8 +130,37 @@ def heatmap_matrix_command(
     column_metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Prepare one normalized matrix for heatmaps and clustering.'
-    return run_heatmap_matrix_command(input_table, entity_level, aggregation, top_n, normalization, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, design_path, entity_ids, protein_refs, min_observed_fraction, max_entities, z_score, missing_value_policy, summary_tsv_out, matrix_tsv_out, row_metadata_tsv_out, column_metadata_tsv_out, out_path)
+    "Prepare one normalized matrix for heatmaps and clustering."
+    return run_heatmap_matrix_command(
+        input_table,
+        entity_level,
+        aggregation,
+        top_n,
+        normalization,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        design_path,
+        entity_ids,
+        protein_refs,
+        min_observed_fraction,
+        max_entities,
+        z_score,
+        missing_value_policy,
+        summary_tsv_out,
+        matrix_tsv_out,
+        row_metadata_tsv_out,
+        column_metadata_tsv_out,
+        out_path,
+    )
+
 
 @click.command("power-estimate")
 @click.argument(
@@ -223,8 +257,33 @@ def power_estimate_command(
     effect_size_grid_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Estimate pilot variance and detectable effect sizes across replicate counts.'
-    return run_power_estimate_command(input_table, entity_level, aggregation, top_n, normalization, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, design_path, fdr_target, target_power, replicate_counts, summary_tsv_out, variance_tsv_out, effect_size_grid_tsv_out, out_path)
+    "Estimate pilot variance and detectable effect sizes across replicate counts."
+    return run_power_estimate_command(
+        input_table,
+        entity_level,
+        aggregation,
+        top_n,
+        normalization,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        design_path,
+        fdr_target,
+        target_power,
+        replicate_counts,
+        summary_tsv_out,
+        variance_tsv_out,
+        effect_size_grid_tsv_out,
+        out_path,
+    )
+
 
 @click.command("sample-exploration")
 @click.argument(
@@ -334,8 +393,34 @@ def sample_exploration_command(
     outliers_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Prepare sample-level PCA, correlation, distance, clustering, and outlier outputs.'
-    return run_sample_exploration_command(input_table, entity_level, aggregation, top_n, normalization, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, retention_time_column, mz_column, missing_reason_column, protein_separator, design_path, summary_tsv_out, scores_tsv_out, explained_variance_tsv_out, distances_tsv_out, correlations_tsv_out, clusters_tsv_out, outliers_tsv_out, out_path)
+    "Prepare sample-level PCA, correlation, distance, clustering, and outlier outputs."
+    return run_sample_exploration_command(
+        input_table,
+        entity_level,
+        aggregation,
+        top_n,
+        normalization,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        retention_time_column,
+        mz_column,
+        missing_reason_column,
+        protein_separator,
+        design_path,
+        summary_tsv_out,
+        scores_tsv_out,
+        explained_variance_tsv_out,
+        distances_tsv_out,
+        correlations_tsv_out,
+        clusters_tsv_out,
+        outliers_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     heatmap_matrix_command,

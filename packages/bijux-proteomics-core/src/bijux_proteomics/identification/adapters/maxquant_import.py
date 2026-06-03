@@ -10,11 +10,16 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics._scientific_tables import (
+    build_maxquant_peptides_schema,
+    build_maxquant_protein_groups_schema,
+    require_valid_scientific_table,
+)
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -32,11 +37,6 @@ from bijux_proteomics.identification.search_adapters import (
     parse_search_parameter_file,
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics._scientific_tables import (
-    build_maxquant_peptides_schema,
-    build_maxquant_protein_groups_schema,
-    require_valid_scientific_table,
-)
 from bijux_proteomics_foundation import JsonModel
 
 _MAXQUANT_DECOY_POLICY = TargetDecoyLabelPolicy(
@@ -648,14 +648,10 @@ def _parse_maxquant_peptide_table(
                         if modified_sequence is not None
                         else {}
                     ),
-                    **(
-                        {
-                            "leading_razor_protein": _optional_text(
-                                raw_row.get("Leading razor protein")
-                            )
-                            or ""
-                        }
-                    ),
+                    "leading_razor_protein": _optional_text(
+                        raw_row.get("Leading razor protein")
+                    )
+                    or "",
                 },
             )
             rows.append(

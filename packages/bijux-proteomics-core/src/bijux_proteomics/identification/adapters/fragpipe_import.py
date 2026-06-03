@@ -11,11 +11,11 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     PsmRecord,
     TargetDecoyLabel,
@@ -169,7 +169,9 @@ class FragpipeImportReport(JsonModel):
     psm_normalization: SearchAdapterNormalizationReport
     canonical_psms: tuple[FragpipeCanonicalPsmEntry, ...] = Field(default_factory=tuple)
     psm_rows: tuple[FragpipePsmReviewEntry, ...] = Field(default_factory=tuple)
-    peptide_evidence: tuple[FragpipePeptideReviewEntry, ...] = Field(default_factory=tuple)
+    peptide_evidence: tuple[FragpipePeptideReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
     peptide_rows: tuple[FragpipePeptideReviewEntry, ...] = Field(default_factory=tuple)
     protein_references: tuple[FragpipeProteinReviewEntry, ...] = Field(
         default_factory=tuple
@@ -686,7 +688,9 @@ def _build_fragpipe_psm_rows(
             continue
         provenance = record.provenance
         if provenance is None:
-            raise ValueError("normalized FragPipe PSM rows must preserve row provenance")
+            raise ValueError(
+                "normalized FragPipe PSM rows must preserve row provenance"
+            )
         raw = row.raw_fields
         modified_peptide = raw.get("Modified Peptide", "").strip() or None
         canonical_modified = _canonical_modified_peptide(modified_peptide)
@@ -862,10 +866,7 @@ def _build_fragpipe_open_search_evidence(
             )
         )
     for peptide_row in peptide_rows:
-        if (
-            not peptide_row.open_search_candidate
-            or peptide_row.mass_difference is None
-        ):
+        if not peptide_row.open_search_candidate or peptide_row.mass_difference is None:
             continue
         rows.append(
             FragpipeOpenSearchEvidenceEntry(

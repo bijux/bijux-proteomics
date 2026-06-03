@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.chromatogram_commands import (
+    run_dia_fragment_coelution_command,
+    run_xic_align_retention_times_command,
+    run_xic_extract_command,
+    run_xic_pick_peaks_command,
+    run_xic_score_evidence_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.chromatogram_commands import run_xic_extract_command, run_xic_pick_peaks_command, run_xic_align_retention_times_command, run_xic_score_evidence_command, run_dia_fragment_coelution_command
+
 
 @click.command("xic-extract")
 @click.argument(
@@ -40,8 +47,11 @@ def xic_extract_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Extract precursor XIC traces directly from mzML MS1 spectra.'
-    return run_xic_extract_command(input_mzml, target_table, tolerance_da, tolerance_ppm, tsv_out, out_path)
+    "Extract precursor XIC traces directly from mzML MS1 spectra."
+    return run_xic_extract_command(
+        input_mzml, target_table, tolerance_da, tolerance_ppm, tsv_out, out_path
+    )
+
 
 @click.command("xic-pick-peaks")
 @click.argument(
@@ -74,8 +84,17 @@ def xic_pick_peaks_command(
     peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Extract XIC traces and detect chromatographic peaks from mzML.'
-    return run_xic_pick_peaks_command(input_mzml, target_table, tolerance_da, tolerance_ppm, trace_tsv_out, peak_tsv_out, out_path)
+    "Extract XIC traces and detect chromatographic peaks from mzML."
+    return run_xic_pick_peaks_command(
+        input_mzml,
+        target_table,
+        tolerance_da,
+        tolerance_ppm,
+        trace_tsv_out,
+        peak_tsv_out,
+        out_path,
+    )
+
 
 @click.command("xic-align-retention-times")
 @click.argument(
@@ -133,8 +152,21 @@ def xic_align_retention_times_command(
     failed_anchor_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Align run-to-run retention times from common chromatographic anchors.'
-    return run_xic_align_retention_times_command(target_table, input_mzml, tolerance_da, tolerance_ppm, reference_run_id, aligned_rt_tolerance_seconds, min_anchor_count, model_tsv_out, residual_tsv_out, failed_anchor_tsv_out, out_path)
+    "Align run-to-run retention times from common chromatographic anchors."
+    return run_xic_align_retention_times_command(
+        target_table,
+        input_mzml,
+        tolerance_da,
+        tolerance_ppm,
+        reference_run_id,
+        aligned_rt_tolerance_seconds,
+        min_anchor_count,
+        model_tsv_out,
+        residual_tsv_out,
+        failed_anchor_tsv_out,
+        out_path,
+    )
+
 
 @click.command("xic-score-evidence")
 @click.argument(
@@ -178,8 +210,19 @@ def xic_score_evidence_command(
     peptide_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score chromatographic precursor and peptide evidence across mzML runs.'
-    return run_xic_score_evidence_command(target_table, input_mzml, tolerance_da, tolerance_ppm, aligned_rt_tolerance_seconds, min_anchor_count, target_tsv_out, peptide_tsv_out, out_path)
+    "Score chromatographic precursor and peptide evidence across mzML runs."
+    return run_xic_score_evidence_command(
+        target_table,
+        input_mzml,
+        tolerance_da,
+        tolerance_ppm,
+        aligned_rt_tolerance_seconds,
+        min_anchor_count,
+        target_tsv_out,
+        peptide_tsv_out,
+        out_path,
+    )
+
 
 @click.command("dia-fragment-coelution")
 @click.argument(
@@ -239,8 +282,22 @@ def dia_fragment_coelution_command(
     ratio_observation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score coelution among DIA fragment traces assigned to one precursor.'
-    return run_dia_fragment_coelution_command(target_table, input_mzml, tolerance_da, tolerance_ppm, apex_tolerance_seconds, min_correlation, min_passing_fragment_count, run_tsv_out, fragment_tsv_out, ratio_fragment_tsv_out, ratio_observation_tsv_out, out_path)
+    "Score coelution among DIA fragment traces assigned to one precursor."
+    return run_dia_fragment_coelution_command(
+        target_table,
+        input_mzml,
+        tolerance_da,
+        tolerance_ppm,
+        apex_tolerance_seconds,
+        min_correlation,
+        min_passing_fragment_count,
+        run_tsv_out,
+        fragment_tsv_out,
+        ratio_fragment_tsv_out,
+        ratio_observation_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     xic_extract_command,

@@ -73,7 +73,9 @@ def score_ptm_fragments(
         if match is None:
             continue
         observed_mz, intensity = match
-        ppm_error = ((observed_mz - ion.mz_monoisotopic) / ion.mz_monoisotopic) * 1_000_000.0
+        ppm_error = (
+            (observed_mz - ion.mz_monoisotopic) / ion.mz_monoisotopic
+        ) * 1_000_000.0
         matched_rows.append(
             PtmFragmentScoreRow(
                 ion_id=_ion_id(ion),

@@ -10,16 +10,16 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
+from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
     build_rejected_evidence_rows_from_psm_rows,
 )
-from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
@@ -276,7 +276,9 @@ def render_sage_canonical_psm_tsv(rows: tuple[SageCanonicalPsmEntry, ...]) -> st
 
 def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
     """Render reviewer-facing Sage PSM rows as TSV."""
-    ordered_rows = sort_rows_by_fields(rows, "spectrum_id", "charge", "canonical_peptide")
+    ordered_rows = sort_rows_by_fields(
+        rows, "spectrum_id", "charge", "canonical_peptide"
+    )
     lines = [
         "\t".join(
             (

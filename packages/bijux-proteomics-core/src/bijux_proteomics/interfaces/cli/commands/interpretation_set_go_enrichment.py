@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment import (
+    run_go_enrichment_command,
+    run_protein_set_enrichment_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment import run_protein_set_enrichment_command, run_go_enrichment_command
+
 
 @click.command("protein-set-enrichment")
 @click.argument(
@@ -106,8 +110,30 @@ def protein_set_enrichment_command(
     rejected_set_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run generic enrichment over compartment and custom protein-set definitions.'
-    return run_protein_set_enrichment_command(foreground_tsv, protein_set_tsv, background_tsv, protein_ref_column, row_id_column, protein_separator, set_id_column, set_name_column, set_category_column, source_name_column, source_accession_column, set_protein_ref_column, missing_background_policy, max_adjusted_p_value, min_enrichment_ratio, summary_tsv_out, result_tsv_out, universe_gap_tsv_out, rejected_set_tsv_out, out_path)
+    "Run generic enrichment over compartment and custom protein-set definitions."
+    return run_protein_set_enrichment_command(
+        foreground_tsv,
+        protein_set_tsv,
+        background_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        set_id_column,
+        set_name_column,
+        set_category_column,
+        source_name_column,
+        source_accession_column,
+        set_protein_ref_column,
+        missing_background_policy,
+        max_adjusted_p_value,
+        min_enrichment_ratio,
+        summary_tsv_out,
+        result_tsv_out,
+        universe_gap_tsv_out,
+        rejected_set_tsv_out,
+        out_path,
+    )
+
 
 @click.command("go-enrichment")
 @click.argument(
@@ -185,8 +211,28 @@ def go_enrichment_command(
     rejected_annotation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run GO term enrichment over foreground and background protein sets.'
-    return run_go_enrichment_command(foreground_tsv, background_tsv, go_annotation_tsv, protein_ref_column, row_id_column, protein_separator, go_protein_ref_column, go_term_id_column, go_term_name_column, go_aspect_column, evidence_code_column, max_adjusted_p_value, min_enrichment_ratio, summary_tsv_out, term_tsv_out, unannotated_tsv_out, rejected_annotation_tsv_out, out_path)
+    "Run GO term enrichment over foreground and background protein sets."
+    return run_go_enrichment_command(
+        foreground_tsv,
+        background_tsv,
+        go_annotation_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        go_protein_ref_column,
+        go_term_id_column,
+        go_term_name_column,
+        go_aspect_column,
+        evidence_code_column,
+        max_adjusted_p_value,
+        min_enrichment_ratio,
+        summary_tsv_out,
+        term_tsv_out,
+        unannotated_tsv_out,
+        rejected_annotation_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     protein_set_enrichment_command,

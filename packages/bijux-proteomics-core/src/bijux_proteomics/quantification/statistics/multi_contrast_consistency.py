@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +13,7 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
@@ -132,7 +131,9 @@ def build_multi_contrast_consistency_report(
                 significance_threshold=significance_threshold,
             )
             comparison_entries.append(comparison_entry)
-            comparisons_by_entity.setdefault(entry.entity_id, []).append(comparison_entry)
+            comparisons_by_entity.setdefault(entry.entity_id, []).append(
+                comparison_entry
+            )
 
     entity_entries = tuple(
         _build_entity_entry(
@@ -157,7 +158,9 @@ def build_multi_contrast_consistency_report(
         contrast_specific_hit_count=sum(
             entry.contrast_specific_hit for entry in entity_entries
         ),
-        direction_conflict_count=sum(entry.direction_conflict for entry in entity_entries),
+        direction_conflict_count=sum(
+            entry.direction_conflict for entry in entity_entries
+        ),
         magnitude_consistent_count=sum(
             entry.magnitude_consistency_status
             is MultiContrastMagnitudeConsistencyStatus.CONSISTENT
@@ -252,7 +255,9 @@ def _build_comparison_entry(
     protein_refs: tuple[str, ...],
     significance_threshold: float,
 ) -> MultiContrastConsistencyComparisonEntry:
-    adjusted_p_value = entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value
+    adjusted_p_value = (
+        entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value
+    )
     higher_condition: str | None = None
     lower_condition: str | None = None
     if entry.log2_fold_change > 0:

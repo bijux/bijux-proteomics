@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import Counter
+import csv
 from io import StringIO
 from pathlib import Path
 from statistics import mean
@@ -89,14 +89,18 @@ def score_chromatographic_evidence(
     """Score chromatographic precursor and peptide evidence across one or more runs."""
 
     if not peak_reports:
-        raise ValueError("chromatographic evidence scoring requires at least one run report")
+        raise ValueError(
+            "chromatographic evidence scoring requires at least one run report"
+        )
 
     run_entries = _build_run_entries(peak_reports)
     target_entries: list[ChromatographicTargetEvidenceEntry] = []
     peptide_index: dict[str, list[ChromatographicTargetEvidenceEntry]] = {}
     total_run_count = len(run_entries)
     max_apex_by_run = {
-        entry.run_id: max((peak.apex_intensity for peak in entry.report.peaks), default=1.0)
+        entry.run_id: max(
+            (peak.apex_intensity for peak in entry.report.peaks), default=1.0
+        )
         for entry in run_entries
     }
     residuals_by_target_run = _alignment_residual_scores(alignment_report)
@@ -109,7 +113,8 @@ def score_chromatographic_evidence(
             or target.target_id
         )
         run_peaks_by_run = {
-            entry.run_id: _peaks_for_target(entry.report, target_id) for entry in run_entries
+            entry.run_id: _peaks_for_target(entry.report, target_id)
+            for entry in run_entries
         }
         per_run_shape_scores: list[float] = []
         per_run_apex_scores: list[float] = []
@@ -143,7 +148,11 @@ def score_chromatographic_evidence(
             per_run_apex_scores.append(run_apex_score)
             per_run_snr_scores.append(run_snr_score)
 
-            if ambiguous_run or selected_peak.overlap_flag or selected_peak.shoulder_flag:
+            if (
+                ambiguous_run
+                or selected_peak.overlap_flag
+                or selected_peak.shoulder_flag
+            ):
                 flagged_run_ids.append(entry.run_id)
             if ambiguous_run:
                 concern_codes.add("multiple_peaks")
@@ -444,9 +453,7 @@ def _build_peptide_entry(
 ) -> ChromatographicPeptideEvidenceEntry:
     total_run_count = entries[0].total_run_count
     detected_run_count = max(entry.detected_run_count for entry in entries)
-    concern_codes = {
-        code for entry in entries for code in entry.concern_codes
-    }
+    concern_codes = {code for entry in entries for code in entry.concern_codes}
     return ChromatographicPeptideEvidenceEntry(
         peptide_ref=peptide_ref,
         target_ids=tuple(sorted(entry.target_id for entry in entries)),
@@ -462,9 +469,7 @@ def _build_peptide_entry(
         rt_agreement_score=round(
             mean(entry.rt_agreement_score for entry in entries), 4
         ),
-        missingness_score=round(
-            mean(entry.missingness_score for entry in entries), 4
-        ),
+        missingness_score=round(mean(entry.missingness_score for entry in entries), 4),
         chromatographic_evidence_score=round(
             mean(entry.chromatographic_evidence_score for entry in entries), 4
         ),

@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 import json
@@ -15,6 +12,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
@@ -23,13 +22,13 @@ from bijux_proteomics.ptm import (
     PtmMotifComparisonPolicy,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
+    PtmRegulatorEnrichmentPolicy,
     PtmReportBundle,
     PtmReportExportManifest,
-    PtmRegulatorEnrichmentPolicy,
     PtmSiteQuantAmbiguityPolicy,
-    write_ptm_report_bundle,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
+    write_ptm_report_bundle,
 )
 from bijux_proteomics.ptm.reporting import build_ptm_report_bundle
 from bijux_proteomics.quantification import (
@@ -38,7 +37,9 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import ExperimentDesign, build_experiment_design
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
 from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_issue_rows,
     render_result_rejected_evidence_tsv,
@@ -332,10 +333,21 @@ def write_ptm_site_workflow_bundle(
         entity_type="ptm_evidence_row",
     )
 
-    write_output_table_tsv((output_dir / summary_name), render_ptm_site_workflow_summary_tsv(report))
-    write_output_table_tsv((output_dir / accepted_name), render_ptm_site_workflow_accepted_evidence_tsv(report))
-    write_output_table_tsv((output_dir / rejected_name), render_result_rejected_evidence_tsv(rejected_evidence_entries))
-    write_output_table_tsv((output_dir / parse_rejected_name), render_ptm_site_workflow_rejected_evidence_tsv(report))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_ptm_site_workflow_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / accepted_name),
+        render_ptm_site_workflow_accepted_evidence_tsv(report),
+    )
+    write_output_table_tsv(
+        (output_dir / rejected_name),
+        render_result_rejected_evidence_tsv(rejected_evidence_entries),
+    )
+    write_output_table_tsv(
+        (output_dir / parse_rejected_name),
+        render_ptm_site_workflow_rejected_evidence_tsv(report),
+    )
     ptm_report_manifest = write_ptm_report_bundle(report.report, output_dir)
     atomic_write_text(
         output_dir / ptm_report_manifest_name,

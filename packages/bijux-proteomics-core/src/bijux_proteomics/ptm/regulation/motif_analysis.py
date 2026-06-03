@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm.contracts import (
     PtmEnrichmentInput,
@@ -28,7 +29,6 @@ from bijux_proteomics.ptm.quant.differential_analysis import (
 )
 from bijux_proteomics.ptm.quant.site_quantification import PtmSiteQuantRow
 from bijux_proteomics_foundation import JsonModel
-from pydantic import ConfigDict, Field
 
 
 class PtmMotifRegulationDirection(StrEnum):
@@ -241,7 +241,9 @@ def build_ptm_motif_background_report(
         background_counts = foreground_counts
     else:
         background_counts = {
-            residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+            residue: sum(
+                sequence.count(residue) for sequence in protein_sequences.values()
+            )
             for residue in target_residues
         }
     entries = tuple(
@@ -383,10 +385,15 @@ def build_ptm_phosphosite_motif_enrichment_report(
         regulated_site_count=len(regulated_windows),
         background_site_count=len(background_windows),
         regulated_windows=tuple(
-            sorted(regulated_windows, key=lambda entry: (entry.site_key, entry.window_role))
+            sorted(
+                regulated_windows, key=lambda entry: (entry.site_key, entry.window_role)
+            )
         ),
         background_windows=tuple(
-            sorted(background_windows, key=lambda entry: (entry.site_key, entry.window_role))
+            sorted(
+                background_windows,
+                key=lambda entry: (entry.site_key, entry.window_role),
+            )
         ),
         frequency_entries=frequency_entries,
         enriched_terms=enriched_terms,
@@ -526,7 +533,9 @@ def build_ptm_motif_enrichment_background_provenance_report(
         background_universe = "observed_phosphosite_background"
     else:
         residue_background_counts = {
-            residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+            residue: sum(
+                sequence.count(residue) for sequence in protein_sequences.values()
+            )
             for residue in residues
         }
         background_universe = "whole_proteome_background"
@@ -838,14 +847,10 @@ def _build_position_frequency_entries(
                 residue=residue,
                 regulated_window_count=regulated_count,
                 background_window_count=background_count,
-                regulated_frequency=round(
-                    regulated_count / regulated_total, 6
-                )
+                regulated_frequency=round(regulated_count / regulated_total, 6)
                 if regulated_total
                 else 0.0,
-                background_frequency=round(
-                    background_count / background_total, 6
-                )
+                background_frequency=round(background_count / background_total, 6)
                 if background_total
                 else 0.0,
             )

@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.targeted_matrix_qc import (
+    run_targeted_assay_qc_command,
+    run_targeted_carryover_review_command,
+    run_targeted_target_matrix_command,
+    run_transition_qc_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.targeted_matrix_qc import run_transition_qc_command, run_targeted_target_matrix_command, run_targeted_assay_qc_command, run_targeted_carryover_review_command
+
 
 @click.command("transition-qc")
 @click.argument(
@@ -49,8 +55,18 @@ def transition_qc_command(
     weak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review transition-level quantitative evidence from one canonical table.'
-    return run_transition_qc_command(transition_table, weak_detection_fraction_threshold, weak_relative_share_threshold, summary_tsv_out, transition_tsv_out, sample_tsv_out, weak_tsv_out, out_path)
+    "Review transition-level quantitative evidence from one canonical table."
+    return run_transition_qc_command(
+        transition_table,
+        weak_detection_fraction_threshold,
+        weak_relative_share_threshold,
+        summary_tsv_out,
+        transition_tsv_out,
+        sample_tsv_out,
+        weak_tsv_out,
+        out_path,
+    )
+
 
 @click.command("targeted-target-matrix")
 @click.argument(
@@ -92,8 +108,21 @@ def targeted_target_matrix_command(
     missingness_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import targeted assay results and build a precursor-target matrix review.'
-    return run_targeted_target_matrix_command(input_path, source_kind, summary_tsv_out, observation_tsv_out, target_tsv_out, sample_tsv_out, flagged_tsv_out, retained_transition_tsv_out, excluded_transition_tsv_out, missingness_tsv_out, out_path)
+    "Import targeted assay results and build a precursor-target matrix review."
+    return run_targeted_target_matrix_command(
+        input_path,
+        source_kind,
+        summary_tsv_out,
+        observation_tsv_out,
+        target_tsv_out,
+        sample_tsv_out,
+        flagged_tsv_out,
+        retained_transition_tsv_out,
+        excluded_transition_tsv_out,
+        missingness_tsv_out,
+        out_path,
+    )
+
 
 @click.command("targeted-assay-qc")
 @click.argument(
@@ -147,8 +176,24 @@ def targeted_assay_qc_command(
     unreliable_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Import targeted assay results and build assay-QC review ledgers.'
-    return run_targeted_assay_qc_command(input_path, design_path, source_kind, summary_tsv_out, target_qc_tsv_out, transition_tsv_out, coelution_tsv_out, transition_coelution_tsv_out, transition_qc_tsv_out, fragment_ratio_tsv_out, retention_tsv_out, replicate_cv_tsv_out, unreliable_tsv_out, out_path)
+    "Import targeted assay results and build assay-QC review ledgers."
+    return run_targeted_assay_qc_command(
+        input_path,
+        design_path,
+        source_kind,
+        summary_tsv_out,
+        target_qc_tsv_out,
+        transition_tsv_out,
+        coelution_tsv_out,
+        transition_coelution_tsv_out,
+        transition_qc_tsv_out,
+        fragment_ratio_tsv_out,
+        retention_tsv_out,
+        replicate_cv_tsv_out,
+        unreliable_tsv_out,
+        out_path,
+    )
+
 
 @click.command("targeted-carryover-review")
 @click.argument(
@@ -178,8 +223,16 @@ def targeted_carryover_review_command(
     candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review ordered targeted runs for carryover candidates.'
-    return run_targeted_carryover_review_command(input_path, design_path, source_kind, summary_tsv_out, candidate_tsv_out, out_path)
+    "Review ordered targeted runs for carryover candidates."
+    return run_targeted_carryover_review_command(
+        input_path,
+        design_path,
+        source_kind,
+        summary_tsv_out,
+        candidate_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     transition_qc_command,

@@ -239,7 +239,8 @@ def _compute_local_fdr_by_rank(
     labeled_positions = [
         index
         for index, entry in enumerate(ranked_entries)
-        if entry.psm.target_decoy_label in {TargetDecoyLabel.TARGET, TargetDecoyLabel.DECOY}
+        if entry.psm.target_decoy_label
+        in {TargetDecoyLabel.TARGET, TargetDecoyLabel.DECOY}
     ]
     labeled_count = len(labeled_positions)
     if labeled_count == 0:
@@ -249,7 +250,9 @@ def _compute_local_fdr_by_rank(
     for position_index, entry_index in enumerate(labeled_positions):
         start = max(0, position_index - half_window)
         end = min(labeled_count, position_index + half_window + 1)
-        window_entries = [ranked_entries[labeled_positions[index]] for index in range(start, end)]
+        window_entries = [
+            ranked_entries[labeled_positions[index]] for index in range(start, end)
+        ]
         target_count = sum(
             1
             for window_entry in window_entries

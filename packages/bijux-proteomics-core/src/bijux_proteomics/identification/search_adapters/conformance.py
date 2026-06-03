@@ -19,9 +19,17 @@ from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterNormalizationReport,
     SearchAdapterProvenanceManifest,
 )
-from bijux_proteomics.identification.search_adapters.input_review import _hash_file, build_search_adapter_field_accounting
-from bijux_proteomics.identification.search_adapters.parameter_review import parse_search_parameter_file, supports_search_parameter_parsing
-from bijux_proteomics.identification.search_adapters.normalization import _build_parse_provenance
+from bijux_proteomics.identification.search_adapters.input_review import (
+    _hash_file,
+    build_search_adapter_field_accounting,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
+    _build_parse_provenance,
+)
+from bijux_proteomics.identification.search_adapters.parameter_review import (
+    parse_search_parameter_file,
+    supports_search_parameter_parsing,
+)
 from bijux_proteomics_foundation import DocumentSchema
 
 

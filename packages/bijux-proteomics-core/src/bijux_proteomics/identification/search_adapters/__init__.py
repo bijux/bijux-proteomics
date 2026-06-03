@@ -117,14 +117,14 @@ from bijux_proteomics.identification.search_adapters.parameter_review import (
     parse_search_parameter_file,
     validate_search_parameters,
 )
-from bijux_proteomics.identification.search_adapters.regression import (
-    build_search_adapter_regression_corpus_manifest,
-)
 from bijux_proteomics.identification.search_adapters.registry import (
     build_search_adapter_capability_matrix,
     get_search_adapter_manifest,
     search_adapter_dialect_registry,
     search_adapter_registry,
+)
+from bijux_proteomics.identification.search_adapters.regression import (
+    build_search_adapter_regression_corpus_manifest,
 )
 
 __all__ = [

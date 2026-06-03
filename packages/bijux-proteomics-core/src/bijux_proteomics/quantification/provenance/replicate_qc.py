@@ -6,31 +6,31 @@
 from __future__ import annotations
 
 import csv
-import math
 from io import StringIO
+import math
 
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.normalization.batch_effect import (
-    build_batch_effect_estimator_report,
-)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     QcOutlierSampleEntry,
     QuantValue,
     ReplicateAndBatchQcReport,
+    ReplicateCorrelationReport,
     ReplicateCvConditionEntry,
     ReplicateCvReport,
-    ReplicateCorrelationReport,
     SampleReliabilityQcEntry,
     SampleReliabilityQcStatus,
     SampleReliabilityWeightEntry,
     SampleReliabilityWeightReport,
-    build_replicate_correlation_report,
     _condition_lookup,
     _matrix_value_index,
+    build_replicate_correlation_report,
+)
+from bijux_proteomics.quantification.normalization.batch_effect import (
+    build_batch_effect_estimator_report,
 )
 from bijux_proteomics.quantification.provenance.sample_exploration import (
     build_sample_exploration_report,
@@ -97,6 +97,7 @@ def build_replicate_cv_report(
         entries=tuple(entries),
         note=note,
     )
+
 
 def build_replicate_and_batch_qc_report(
     table: LabelFreeQuantTable,
@@ -195,7 +196,11 @@ def estimate_sample_weights(
     """Estimate sample-level reliability weights from replicate and sample QC evidence."""
     condition_by_sample = _condition_lookup(design_entries)
     missing_design = tuple(
-        sorted(sample_id for sample_id in table.sample_ids if sample_id not in condition_by_sample)
+        sorted(
+            sample_id
+            for sample_id in table.sample_ids
+            if sample_id not in condition_by_sample
+        )
     )
     if missing_design:
         raise ValueError(
@@ -270,7 +275,8 @@ def estimate_sample_weights(
         condition_median = condition_median_observed_fraction.get(condition)
         if (
             condition_median is not None
-            and condition_median - observed_fraction >= relative_missingness_drop_threshold
+            and condition_median - observed_fraction
+            >= relative_missingness_drop_threshold
         ):
             weight = min(weight, 0.6)
             reasons.add("high_relative_missingness")
@@ -337,7 +343,8 @@ def _observed_fraction_by_sample(table: LabelFreeQuantTable) -> dict[str, float]
             observed_fraction_by_sample[sample_id] = 0.0
             continue
         observed_count = sum(
-            value.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+            value.missing_value_kind
+            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
             for value in values
         )
         observed_fraction_by_sample[sample_id] = observed_count / len(values)
@@ -414,7 +421,9 @@ def _merge_sample_qc_entries(
             ),
             blocked=existing.blocked or entry.blocked,
             status_reason_codes=tuple(
-                sorted(set(existing.status_reason_codes) | set(entry.status_reason_codes))
+                sorted(
+                    set(existing.status_reason_codes) | set(entry.status_reason_codes)
+                )
             ),
         )
     return merged

@@ -137,7 +137,11 @@ def build_surprising_demo_example_requests(
         None if not context.ambiguous_sites else context.ambiguous_sites[0]["site_key"]
     )
     sample_subject = next(
-        (row["sample_id"] for row in context.unreliable_target_rows if row["sample_id"]),
+        (
+            row["sample_id"]
+            for row in context.unreliable_target_rows
+            if row["sample_id"]
+        ),
         None,
     )
     target_subject = (
@@ -349,10 +353,7 @@ def _answer_why_protein_changed(
         dict.fromkeys(
             (
                 f"evidence_tier:{card['evidence_tier']}",
-                *(
-                    f"warning:{entry}"
-                    for entry in _split_multi(card["warning_codes"])
-                ),
+                *(f"warning:{entry}" for entry in _split_multi(card["warning_codes"])),
             )
         )
     )
@@ -430,10 +431,7 @@ def _answer_why_site_ambiguous(
     source_row_refs = (
         f"advanced_ptm_excluded_ambiguous_sites:{excluded_row['site_key']}",
         f"advanced_ptm_site_group_matrix:{excluded_row['group_key']}",
-        *(
-            f"ptm_localization:{row['spectrum_id']}"
-            for row in localization_rows
-        ),
+        *(f"ptm_localization:{row['spectrum_id']}" for row in localization_rows),
     )
     confidence_reasons = tuple(
         dict.fromkeys(
@@ -591,7 +589,11 @@ def _answer_what_validates_target(
             (
                 card["candidate_id"],
                 *(row["assay_entry_id"] for row in validation_rows),
-                *(row["matched_target_id"] for row in validation_rows if row["matched_target_id"]),
+                *(
+                    row["matched_target_id"]
+                    for row in validation_rows
+                    if row["matched_target_id"]
+                ),
             )
         )
     )
@@ -603,10 +605,7 @@ def _answer_what_validates_target(
                     f"targeted_validation_evidence:{row['assay_entry_id']}"
                     for row in validation_rows
                 ),
-                *(
-                    f"demo_assay_panel:{row['assay_entry_id']}"
-                    for row in assay_rows
-                ),
+                *(f"demo_assay_panel:{row['assay_entry_id']}" for row in assay_rows),
             )
         )
     )
@@ -615,10 +614,7 @@ def _answer_what_validates_target(
             (
                 f"validation_verdict:{card['validation_verdict']}",
                 f"assay_reliability:{card['assay_reliability_status']}",
-                *(
-                    f"reason:{entry}"
-                    for entry in _split_multi(card["reason_codes"])
-                ),
+                *(f"reason:{entry}" for entry in _split_multi(card["reason_codes"])),
                 *(
                     f"reason:{entry}"
                     for row in validation_rows
@@ -688,9 +684,7 @@ def _load_surprising_demo_context(demo_output_dir: Path) -> _SurprisingDemoConte
             demo_output_dir / "biological_review" / "biological_protein_cards.tsv"
         ),
         ambiguous_sites=_read_tsv_rows(
-            demo_output_dir
-            / "ptm_review"
-            / "advanced_ptm_excluded_ambiguous_sites.tsv"
+            demo_output_dir / "ptm_review" / "advanced_ptm_excluded_ambiguous_sites.tsv"
         ),
         ambiguity_group_rows=_read_tsv_rows(
             demo_output_dir / "ptm_review" / "advanced_ptm_site_group_matrix.tsv"
@@ -709,9 +703,7 @@ def _load_surprising_demo_context(demo_output_dir: Path) -> _SurprisingDemoConte
             / "advanced_targeted_evidence_cards.tsv"
         ),
         target_validation_rows=_read_tsv_rows(
-            demo_output_dir
-            / "targeted_validation"
-            / "targeted_validation_evidence.tsv"
+            demo_output_dir / "targeted_validation" / "targeted_validation_evidence.tsv"
         ),
         assay_panel_rows=_read_tsv_rows(demo_output_dir / "demo_assay_panel.tsv"),
     )

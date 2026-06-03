@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
+import csv
 from io import StringIO
 from statistics import median, stdev
 
@@ -42,16 +42,22 @@ def track_internal_standards(
     """Track expected internal standards across all samples in one matrix."""
 
     standard_ids = tuple(
-        dict.fromkeys(standard_id.strip() for standard_id in standard_list if standard_id.strip())
+        dict.fromkeys(
+            standard_id.strip() for standard_id in standard_list if standard_id.strip()
+        )
     )
     if not standard_ids:
         raise ValueError("standard_list must include at least one standard_id")
     if not 0.0 < relative_drift_threshold < 1.0:
         raise ValueError("relative_drift_threshold must be between zero and one")
 
-    entity_index_by_id = {entity_id: index for index, entity_id in enumerate(matrix.entity_ids)}
+    entity_index_by_id = {
+        entity_id: index for index, entity_id in enumerate(matrix.entity_ids)
+    }
     missing_standard_ids = tuple(
-        standard_id for standard_id in standard_ids if standard_id not in entity_index_by_id
+        standard_id
+        for standard_id in standard_ids
+        if standard_id not in entity_index_by_id
     )
     if missing_standard_ids:
         raise ValueError(
@@ -65,11 +71,15 @@ def track_internal_standards(
         observed_intensities = tuple(
             intensity
             for sample_index in range(len(matrix.sample_ids))
-            for intensity, missing in (_matrix_intensity(matrix, entity_index, sample_index),)
+            for intensity, missing in (
+                _matrix_intensity(matrix, entity_index, sample_index),
+            )
             if not missing
         )
         standard_cv = _coefficient_of_variation(observed_intensities)
-        baseline_intensity = float(median(observed_intensities)) if observed_intensities else 0.0
+        baseline_intensity = (
+            float(median(observed_intensities)) if observed_intensities else 0.0
+        )
         for sample_index, sample_id in enumerate(matrix.sample_ids):
             intensity, missing = _matrix_intensity(matrix, entity_index, sample_index)
             rows.append(
@@ -96,7 +106,9 @@ def build_internal_standard_sample_qc(
     """Convert tracked internal-standard rows into sample-level QC posture."""
 
     if not entries:
-        raise ValueError("internal standard sample qc requires at least one tracking row")
+        raise ValueError(
+            "internal standard sample qc requires at least one tracking row"
+        )
 
     seen_pairs: set[tuple[str, str]] = set()
     by_sample: dict[str, list[InternalStandardTrackingEntry]] = defaultdict(list)
@@ -112,7 +124,10 @@ def build_internal_standard_sample_qc(
     qc_rows: list[SampleReliabilityQcEntry] = []
     for sample_id in sorted(by_sample):
         sample_entries = tuple(
-            sorted(by_sample[sample_id], key=lambda entry: (entry.standard_id, entry.sample_id))
+            sorted(
+                by_sample[sample_id],
+                key=lambda entry: (entry.standard_id, entry.sample_id),
+            )
         )
         drift_count = sum(entry.drift_flag for entry in sample_entries)
         missing_count = sum(entry.missing for entry in sample_entries)

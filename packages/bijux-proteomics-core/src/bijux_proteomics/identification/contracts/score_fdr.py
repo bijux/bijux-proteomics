@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+    build_psm_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -48,7 +60,6 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.evidence import (
     rollup_peptide_evidence,
     rollup_protein_evidence,
@@ -59,6 +70,8 @@ from bijux_proteomics.identification.contracts.psm import (
     TargetDecoyLabelPolicy,
     _raise_on_target_decoy_accession_collisions,
 )
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 class FdrPolicy(JsonModel):
     """Stable policy for basic target-decoy FDR evaluation."""
@@ -225,7 +238,6 @@ class FdrLevelEntry(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
 
 
-
 class FdrEdgeCaseKind(StrEnum):
     """Explicit edge-case classification for target-decoy result sets."""
 
@@ -303,7 +315,6 @@ class ConfidenceCalibrationReport(JsonModel):
     score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
     entries: tuple[ConfidenceCalibrationEntry, ...] = Field(default_factory=tuple)
     calibration_plot: CalibrationPlotData
-
 
 
 def calculate_basic_target_decoy_fdr(
@@ -936,33 +947,34 @@ def filter_psms_by_fdr(
         if entry.accepted
     )
 
+
 __all__ = [
-    'FdrPolicy',
-    'FdrAnnotatedPsm',
-    'NormalizedScoreEntry',
-    'CalibrationPlotBin',
-    'CalibrationPlotData',
-    'ScoreOrientationAdvisoryCandidate',
-    'ScoreOrientationAdvisory',
-    'FdrAuditEntry',
-    'FdrAuditTrail',
-    'FdrEvidenceLevel',
-    'FdrLevelEntry',
-    'FdrEdgeCaseKind',
-    'FdrEdgeCaseReport',
-    'GroupedFdrBucket',
-    'GroupedFdrReport',
-    'ConfidenceCalibrationLevel',
-    'ConfidenceCalibrationEntry',
-    'ConfidenceCalibrationReport',
-    'calculate_basic_target_decoy_fdr',
-    'normalize_psm_score_orientation',
-    'detect_score_orientation_advisory',
-    'build_confidence_calibration_report',
-    'build_calibration_plot_data',
-    'build_fdr_edge_case_report',
-    'compute_fdr_reproducibility_hash',
-    'build_fdr_audit_trail',
-    'apply_q_values',
-    'filter_psms_by_fdr',
+    "FdrPolicy",
+    "FdrAnnotatedPsm",
+    "NormalizedScoreEntry",
+    "CalibrationPlotBin",
+    "CalibrationPlotData",
+    "ScoreOrientationAdvisoryCandidate",
+    "ScoreOrientationAdvisory",
+    "FdrAuditEntry",
+    "FdrAuditTrail",
+    "FdrEvidenceLevel",
+    "FdrLevelEntry",
+    "FdrEdgeCaseKind",
+    "FdrEdgeCaseReport",
+    "GroupedFdrBucket",
+    "GroupedFdrReport",
+    "ConfidenceCalibrationLevel",
+    "ConfidenceCalibrationEntry",
+    "ConfidenceCalibrationReport",
+    "calculate_basic_target_decoy_fdr",
+    "normalize_psm_score_orientation",
+    "detect_score_orientation_advisory",
+    "build_confidence_calibration_report",
+    "build_calibration_plot_data",
+    "build_fdr_edge_case_report",
+    "compute_fdr_reproducibility_hash",
+    "build_fdr_audit_trail",
+    "apply_q_values",
+    "filter_psms_by_fdr",
 ]

@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
 from bijux_proteomics.multiplex.reporter_matrix import (
@@ -46,9 +45,7 @@ class TmtInterferenceObservationEntry(JsonModel):
     modified_peptide: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     reporter_intensity: float = Field(..., ge=0.0)
-    isolation_interference_fraction: float | None = Field(
-        default=None, ge=0.0, le=1.0
-    )
+    isolation_interference_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
     threshold_exceeded: bool
     note: str = Field(..., min_length=1)
 
@@ -447,13 +444,13 @@ def _build_channel_summaries(
             for entry in entries
             if entry.isolation_interference_fraction is not None
         ]
-        threshold_exceeded_count = sum(1 for entry in entries if entry.threshold_exceeded)
+        threshold_exceeded_count = sum(
+            1 for entry in entries if entry.threshold_exceeded
+        )
         missing_interference_count = sum(
             1 for entry in entries if entry.isolation_interference_fraction is None
         )
-        mean_interference = (
-            sum(measured) / len(measured) if measured else None
-        )
+        mean_interference = sum(measured) / len(measured) if measured else None
         max_interference = max(measured) if measured else None
         flagged = threshold_exceeded_count > 0
         summaries.append(

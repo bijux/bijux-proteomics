@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import csv
 from dataclasses import dataclass
 from itertools import chain
 from pathlib import Path
-from typing import Iterator
 
 
 @dataclass(frozen=True)

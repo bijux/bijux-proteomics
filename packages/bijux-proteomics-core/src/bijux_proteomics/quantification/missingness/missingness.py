@@ -84,7 +84,7 @@ _MISSING_BURDEN_CODES = np.array(
 
 
 def _empty_missing_value_counts() -> dict[MissingValueKind, int]:
-    return {kind: 0 for kind in _MISSING_VALUE_KINDS}
+    return dict.fromkeys(_MISSING_VALUE_KINDS, 0)
 
 
 def _is_missing_burden(kind: MissingValueKind) -> bool:
@@ -160,7 +160,9 @@ def _build_missingness_entity_summary_report_pure(
                 excluded_sample_count=counts[MissingValueKind.EXCLUDED],
                 not_applicable_sample_count=counts[MissingValueKind.NOT_APPLICABLE],
                 missing_fraction=(
-                    float(missing_count / len(table.sample_ids)) if table.sample_ids else 0.0
+                    float(missing_count / len(table.sample_ids))
+                    if table.sample_ids
+                    else 0.0
                 ),
             )
         )
@@ -196,15 +198,25 @@ def _build_missingness_entity_summary_report_vectorized(
     entries = tuple(
         MissingnessEntitySummaryEntry(
             entity_id=entity_id,
-            observed_sample_count=int(counts_by_kind[MissingValueKind.OBSERVED][row_index]),
+            observed_sample_count=int(
+                counts_by_kind[MissingValueKind.OBSERVED][row_index]
+            ),
             zero_sample_count=int(counts_by_kind[MissingValueKind.ZERO][row_index]),
             not_observed_sample_count=int(
                 counts_by_kind[MissingValueKind.NOT_OBSERVED][row_index]
             ),
-            filtered_sample_count=int(counts_by_kind[MissingValueKind.FILTERED][row_index]),
-            imputed_sample_count=int(counts_by_kind[MissingValueKind.IMPUTED][row_index]),
-            censored_sample_count=int(counts_by_kind[MissingValueKind.CENSORED][row_index]),
-            excluded_sample_count=int(counts_by_kind[MissingValueKind.EXCLUDED][row_index]),
+            filtered_sample_count=int(
+                counts_by_kind[MissingValueKind.FILTERED][row_index]
+            ),
+            imputed_sample_count=int(
+                counts_by_kind[MissingValueKind.IMPUTED][row_index]
+            ),
+            censored_sample_count=int(
+                counts_by_kind[MissingValueKind.CENSORED][row_index]
+            ),
+            excluded_sample_count=int(
+                counts_by_kind[MissingValueKind.EXCLUDED][row_index]
+            ),
             not_applicable_sample_count=int(
                 counts_by_kind[MissingValueKind.NOT_APPLICABLE][row_index]
             ),
@@ -269,9 +281,7 @@ def _build_missingness_condition_summary_report_pure(
                 for kind in condition_kinds
             ):
                 observed_conditions.add(condition)
-            if all(
-                _is_missing_burden(kind) for kind in condition_kinds
-            ):
+            if all(_is_missing_burden(kind) for kind in condition_kinds):
                 missing_conditions.add(condition)
         observed_conditions_by_entity[entity_id] = observed_conditions
         missing_conditions_by_entity[entity_id] = missing_conditions
@@ -367,15 +377,27 @@ def _build_missingness_condition_summary_report_vectorized(
     for condition, sample_ids in sorted(sample_ids_by_condition.items()):
         sample_indexes = sample_indexes_by_condition[condition]
         total_values = len(table.entity_ids) * len(sample_ids)
-        observed_count = int(np.sum(counts_by_kind[MissingValueKind.OBSERVED][:, sample_indexes]))
-        zero_count = int(np.sum(counts_by_kind[MissingValueKind.ZERO][:, sample_indexes]))
+        observed_count = int(
+            np.sum(counts_by_kind[MissingValueKind.OBSERVED][:, sample_indexes])
+        )
+        zero_count = int(
+            np.sum(counts_by_kind[MissingValueKind.ZERO][:, sample_indexes])
+        )
         not_observed_count = int(
             np.sum(counts_by_kind[MissingValueKind.NOT_OBSERVED][:, sample_indexes])
         )
-        filtered_count = int(np.sum(counts_by_kind[MissingValueKind.FILTERED][:, sample_indexes]))
-        imputed_count = int(np.sum(counts_by_kind[MissingValueKind.IMPUTED][:, sample_indexes]))
-        censored_count = int(np.sum(counts_by_kind[MissingValueKind.CENSORED][:, sample_indexes]))
-        excluded_count = int(np.sum(counts_by_kind[MissingValueKind.EXCLUDED][:, sample_indexes]))
+        filtered_count = int(
+            np.sum(counts_by_kind[MissingValueKind.FILTERED][:, sample_indexes])
+        )
+        imputed_count = int(
+            np.sum(counts_by_kind[MissingValueKind.IMPUTED][:, sample_indexes])
+        )
+        censored_count = int(
+            np.sum(counts_by_kind[MissingValueKind.CENSORED][:, sample_indexes])
+        )
+        excluded_count = int(
+            np.sum(counts_by_kind[MissingValueKind.EXCLUDED][:, sample_indexes])
+        )
         not_applicable_count = int(
             np.sum(counts_by_kind[MissingValueKind.NOT_APPLICABLE][:, sample_indexes])
         )
@@ -404,7 +426,9 @@ def _build_missingness_condition_summary_report_vectorized(
                 censored_value_count=censored_count,
                 excluded_value_count=excluded_count,
                 not_applicable_value_count=not_applicable_count,
-                missing_fraction=float(missing_count / total_values) if total_values else 0.0,
+                missing_fraction=float(missing_count / total_values)
+                if total_values
+                else 0.0,
                 condition_specific_absence_entity_ids=condition_specific_absence,
             )
         )
@@ -483,7 +507,9 @@ def _build_missingness_intensity_dependence_report_pure(
     bins: list[MissingnessIntensityBinEntry] = []
     if ordered_points:
         active_bin_count = max(1, min(bin_count, len(ordered_points)))
-        groups = np.array_split(np.array(ordered_points, dtype=object), active_bin_count)
+        groups = np.array_split(
+            np.array(ordered_points, dtype=object), active_bin_count
+        )
         for group in groups:
             bucket = [point for point in group.tolist() if point is not None]
             if not bucket:
@@ -580,7 +606,9 @@ def _build_missingness_intensity_dependence_report_vectorized(
     bins: list[MissingnessIntensityBinEntry] = []
     if ordered_points:
         active_bin_count = max(1, min(bin_count, len(ordered_points)))
-        groups = np.array_split(np.array(ordered_points, dtype=object), active_bin_count)
+        groups = np.array_split(
+            np.array(ordered_points, dtype=object), active_bin_count
+        )
         for group in groups:
             bucket = [point for point in group.tolist() if point is not None]
             if not bucket:
@@ -591,7 +619,12 @@ def _build_missingness_intensity_dependence_report_vectorized(
                     upper_log2_abundance=bucket[-1].mean_log2_observed_abundance,
                     entity_count=len(bucket),
                     mean_missing_fraction=float(
-                        np.mean(np.array([point.missing_fraction for point in bucket], dtype=float))
+                        np.mean(
+                            np.array(
+                                [point.missing_fraction for point in bucket],
+                                dtype=float,
+                            )
+                        )
                     ),
                 )
             )
@@ -792,7 +825,8 @@ def build_missing_data_mechanism_report(
             missing_conditions.add(condition)
         for condition, sample_ids in sample_ids_by_condition.items():
             condition_kinds = {
-                lookup[(entity_id, sample_id)].missing_value_kind for sample_id in sample_ids
+                lookup[(entity_id, sample_id)].missing_value_kind
+                for sample_id in sample_ids
             }
             if condition_kinds and all(
                 _is_missing_burden(kind) for kind in condition_kinds
@@ -845,7 +879,9 @@ def build_missing_data_mechanism_report(
                 entity_id=entity_id,
                 mechanism=mechanism,
                 observed_conditions=tuple(sorted(observed_conditions)),
-                missing_conditions=tuple(sorted(fully_missing_conditions or missing_conditions)),
+                missing_conditions=tuple(
+                    sorted(fully_missing_conditions or missing_conditions)
+                ),
                 missing_samples=tuple(sorted(missing_samples)),
                 note=note,
             )
@@ -931,7 +967,9 @@ def classify_missingness(
             in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
         ]
         missing_fraction = (
-            float(len(missing_samples) / len(table.sample_ids)) if table.sample_ids else 0.0
+            float(len(missing_samples) / len(table.sample_ids))
+            if table.sample_ids
+            else 0.0
         )
         observed_conditions = {
             condition_by_sample[sample_id]
@@ -1078,7 +1116,9 @@ def _failed_sample_ids(
         )
         if total <= 0:
             continue
-        missing_fraction = float((entry.not_observed_count + entry.filtered_count) / total)
+        missing_fraction = float(
+            (entry.not_observed_count + entry.filtered_count) / total
+        )
         if missing_fraction >= minimum_missing_fraction:
             failed.append(entry.sample_id)
     return tuple(sorted(failed))

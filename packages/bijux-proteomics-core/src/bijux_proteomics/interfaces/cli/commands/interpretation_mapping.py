@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_mapping import (
+    run_map_orthologs_command,
+    run_protein_set_score_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_mapping import run_map_orthologs_command, run_protein_set_score_command
+
 
 @click.command("map-orthologs")
 @click.argument(
@@ -113,8 +117,30 @@ def map_orthologs_command(
     rejected_ortholog_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map input proteins onto a selected ortholog species pair.'
-    return run_map_orthologs_command(protein_tsv, ortholog_tsv, source_species, target_species, protein_ref_column, row_id_column, protein_separator, ortholog_source_species_column, ortholog_source_protein_ref_column, ortholog_target_species_column, ortholog_target_protein_ref_column, ortholog_source_gene_symbol_column, ortholog_target_gene_symbol_column, ortholog_evidence_column, summary_tsv_out, mapped_tsv_out, unmapped_tsv_out, rejected_input_tsv_out, rejected_ortholog_tsv_out, out_path)
+    "Map input proteins onto a selected ortholog species pair."
+    return run_map_orthologs_command(
+        protein_tsv,
+        ortholog_tsv,
+        source_species,
+        target_species,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        ortholog_source_species_column,
+        ortholog_source_protein_ref_column,
+        ortholog_target_species_column,
+        ortholog_target_protein_ref_column,
+        ortholog_source_gene_symbol_column,
+        ortholog_target_gene_symbol_column,
+        ortholog_evidence_column,
+        summary_tsv_out,
+        mapped_tsv_out,
+        unmapped_tsv_out,
+        rejected_input_tsv_out,
+        rejected_ortholog_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-set-score")
 @click.argument(
@@ -244,8 +270,41 @@ def protein_set_score_command(
     rejected_set_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score user-defined protein sets across normalized study samples.'
-    return run_protein_set_score_command(input_table, protein_set_tsv, design_path, aggregation, top_n, normalization, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, set_id_column, set_name_column, set_category_column, source_name_column, source_accession_column, set_protein_ref_column, minimum_observed_member_count, summary_tsv_out, matrix_tsv_out, sample_score_tsv_out, condition_score_tsv_out, condition_comparison_tsv_out, unresolved_tsv_out, rejected_set_tsv_out, out_path)
+    "Score user-defined protein sets across normalized study samples."
+    return run_protein_set_score_command(
+        input_table,
+        protein_set_tsv,
+        design_path,
+        aggregation,
+        top_n,
+        normalization,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        set_id_column,
+        set_name_column,
+        set_category_column,
+        source_name_column,
+        source_accession_column,
+        set_protein_ref_column,
+        minimum_observed_member_count,
+        summary_tsv_out,
+        matrix_tsv_out,
+        sample_score_tsv_out,
+        condition_score_tsv_out,
+        condition_comparison_tsv_out,
+        unresolved_tsv_out,
+        rejected_set_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     map_orthologs_command,

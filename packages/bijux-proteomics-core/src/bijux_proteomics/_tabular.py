@@ -380,7 +380,9 @@ def _coerce_delimited_value(
         try:
             return int(normalized_value)
         except ValueError as exc:
-            raise ValueError(f"row has invalid integer value for {spec.name!r}") from exc
+            raise ValueError(
+                f"row has invalid integer value for {spec.name!r}"
+            ) from exc
     if spec.value_type == DelimitedColumnValueType.FLOAT:
         try:
             return float(normalized_value)

@@ -10,13 +10,19 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.domain.records import (
     MissingValueState as CanonicalMissingValueState,
+)
+from bijux_proteomics.domain.records import (
     QuantEntityKind as CanonicalQuantEntityKind,
+)
+from bijux_proteomics.domain.records import (
     QuantMatrix as CanonicalQuantMatrix,
+)
+from bijux_proteomics.domain.records import (
     QuantMeasureKind as CanonicalQuantMeasureKind,
 )
+from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
@@ -57,12 +63,14 @@ from .matrix_models import (
     QuantValueSourceContributor,
 )
 
+
 def _canonical_entity_kind(
     entity_level: QuantEntityLevel,
 ) -> CanonicalQuantEntityKind:
     if entity_level is QuantEntityLevel.PEPTIDE:
         return CanonicalQuantEntityKind.PEPTIDE
     return CanonicalQuantEntityKind.PROTEIN
+
 
 def _canonical_measure_kind(
     measure_kind: QuantMeasureKind,
@@ -71,6 +79,7 @@ def _canonical_measure_kind(
         return CanonicalQuantMeasureKind.SPECTRAL_COUNT
     return CanonicalQuantMeasureKind.INTENSITY
 
+
 def _quant_measure_kind_from_canonical(
     measure_kind: CanonicalQuantMeasureKind,
 ) -> QuantMeasureKind:
@@ -78,20 +87,24 @@ def _quant_measure_kind_from_canonical(
         return QuantMeasureKind.SPECTRAL_COUNT
     return QuantMeasureKind.INTENSITY
 
+
 def _canonical_missing_value_state(
     missing_value_kind: MissingValueKind,
 ) -> CanonicalMissingValueState:
     return CanonicalMissingValueState(missing_value_kind.value)
+
 
 def _missing_value_kind_from_canonical(
     missing_value_state: CanonicalMissingValueState,
 ) -> MissingValueKind:
     return MissingValueKind(missing_value_state.value)
 
+
 def _split_row_metadata_values(value: str) -> tuple[str, ...]:
     if not value:
         return ()
     return tuple(token for token in value.split(";") if token)
+
 
 def _iter_label_free_quant_cells(
     matrix: CanonicalQuantMatrix,
@@ -110,6 +123,7 @@ def _iter_label_free_quant_cells(
         rows.append((entity_id, sample_id, abundance, state, support_count))
     return tuple(rows)
 
+
 def _quant_matrix_setting(
     matrix: CanonicalQuantMatrix,
     key: str,
@@ -122,6 +136,7 @@ def _quant_matrix_setting(
         if entry.startswith(prefix):
             return entry.removeprefix(prefix)
     return default
+
 
 def coerce_label_free_quant_table(
     table: LabelFreeQuantTable | CanonicalQuantMatrix,
@@ -142,7 +157,9 @@ def coerce_label_free_quant_table(
         table,
         entity_level=entity_level,
         aggregation_method=QuantRollupMethod(
-            _quant_matrix_setting(table, "aggregation_method", QuantRollupMethod.SUM.value)
+            _quant_matrix_setting(
+                table, "aggregation_method", QuantRollupMethod.SUM.value
+            )
         ),
         normalization_method=NormalizationMethod(
             _quant_matrix_setting(
@@ -161,6 +178,7 @@ def coerce_label_free_quant_table(
         normalization_factors=dict.fromkeys(table.sample_ids, 1.0),
     )
 
+
 def _matrix_value_index(
     table: LabelFreeQuantTable,
 ) -> dict[tuple[str, str], QuantValue]:
@@ -177,8 +195,10 @@ def _log2_values(table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
         values.append(math.log2(cell.abundance + 1.0))
     return np.array(values, dtype=float)
 
+
 def _condition_lookup(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, str]:
     return {entry.sample_id: entry.condition for entry in entries}
+
 
 def _batch_lookup(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, str]:
     mapping: dict[str, str] = {}
@@ -188,6 +208,7 @@ def _batch_lookup(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, str
         elif entry.instrument:
             mapping[entry.sample_id] = entry.instrument
     return mapping
+
 
 def _sample_metadata_lookup(
     entries: tuple[ExperimentalDesignEntry, ...],
@@ -205,6 +226,7 @@ def _sample_metadata_lookup(
         for entry in entries
     }
 
+
 def _default_label_channel_role(
     entry: ExperimentalDesignEntry,
 ) -> LabelBasedChannelRole:
@@ -213,6 +235,7 @@ def _default_label_channel_role(
     if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE:
         return LabelBasedChannelRole.QC_BRIDGE
     return LabelBasedChannelRole.SAMPLE
+
 
 def _multiplex_channel_lookup(
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -228,6 +251,7 @@ def _multiplex_channel_lookup(
         )
     return lookup
 
+
 def _feature_entity_ids(
     record: Ms1FeatureRecord,
     *,
@@ -238,6 +262,7 @@ def _feature_entity_ids(
     if record.protein_refs:
         return record.protein_refs
     return ()
+
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
     if any(
@@ -258,6 +283,7 @@ def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValue
         return MissingValueKind.NOT_APPLICABLE
     return MissingValueKind.NOT_OBSERVED
 
+
 def _aggregate_abundance(
     values: tuple[float, ...],
     *,
@@ -274,6 +300,7 @@ def _aggregate_abundance(
     sorted_values = sorted(values, reverse=True)
     return float(sum(sorted_values[:top_n]))
 
+
 def _quant_value_origin(
     *,
     abundance: float | None,
@@ -284,6 +311,7 @@ def _quant_value_origin(
     if abundance is None:
         return QuantValueOrigin.MISSING
     return QuantValueOrigin.OBSERVED
+
 
 def _quant_value_source_contributor(
     record: Ms1FeatureRecord,
@@ -298,6 +326,7 @@ def _quant_value_source_contributor(
         imported_provenance=record.provenance,
     )
 
+
 def _quant_value_exclusion_reason(
     *,
     record: Ms1FeatureRecord,
@@ -310,6 +339,7 @@ def _quant_value_exclusion_reason(
     if reason_code == "missing_value_not_observed":
         return "contributor was not observed in this sample before matrix aggregation"
     return f"contributor was excluded from the quant value: {record.feature_id}"
+
 
 def _build_quant_value_provenance(
     *,
@@ -360,6 +390,7 @@ def _build_quant_value_provenance(
         excluded_contributors=excluded_contributors,
     )
 
+
 def _fallback_quant_value_provenance(
     *,
     value: QuantValue,
@@ -380,6 +411,7 @@ def _fallback_quant_value_provenance(
         ),
         source_peptides=source_peptides,
     )
+
 
 def _resolve_quant_value_provenance(
     *,
@@ -412,6 +444,7 @@ def _resolve_quant_value_provenance(
     if updates:
         return provenance.model_copy(update=updates)
     return provenance
+
 
 def _build_table(
     records: tuple[Ms1FeatureRecord, ...],
@@ -541,6 +574,7 @@ def _build_table(
         },
     )
 
+
 def _table_matrix(
     table: LabelFreeQuantTable,
 ) -> tuple[np.ndarray, list[tuple[str, str]]]:
@@ -548,6 +582,7 @@ def _table_matrix(
     rows = list(table.entity_ids)
     cols = list(table.sample_ids)
     return matrix, [(entity_id, sample_id) for entity_id in rows for sample_id in cols]
+
 
 def _rebuild_table_from_matrix(
     table: LabelFreeQuantTable,
@@ -595,6 +630,7 @@ def _rebuild_table_from_matrix(
             "normalization_factors": normalization_factors,
         }
     )
+
 
 def build_quant_matrix_export(
     table: LabelFreeQuantTable,
@@ -660,6 +696,7 @@ def build_quant_matrix_export(
         ),
     )
 
+
 def build_label_free_intensity_table(
     records: tuple[Ms1FeatureRecord, ...],
     *,
@@ -677,6 +714,7 @@ def build_label_free_intensity_table(
         aggregation_method=aggregation_method,
         top_n=top_n,
     )
+
 
 def build_spectral_count_table(
     records: tuple[Ms1FeatureRecord, ...],

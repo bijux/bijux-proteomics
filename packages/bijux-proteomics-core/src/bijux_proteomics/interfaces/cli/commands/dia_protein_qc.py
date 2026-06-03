@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.dia_protein_qc import (
+    run_diann_library_coverage_command,
+    run_diann_protein_matrix_command,
+    run_diann_run_qc_command,
+    run_spectronaut_protein_matrix_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.dia_protein_qc import run_diann_protein_matrix_command, run_spectronaut_protein_matrix_command, run_diann_run_qc_command, run_diann_library_coverage_command
+
 
 @click.command("diann-protein-matrix")
 @click.argument(
@@ -81,8 +87,23 @@ def diann_protein_matrix_command(
     rollup_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build DIA peptide and protein matrices from one DIA-NN report.'
-    return run_diann_protein_matrix_command(result_tsv, config_path, include_decoys, max_q_value, peptide_rollup, target_kind, shared_peptides, protein_rollup, summary_tsv_out, peptide_tsv_out, protein_tsv_out, rollup_evidence_tsv_out, out_path)
+    "Build DIA peptide and protein matrices from one DIA-NN report."
+    return run_diann_protein_matrix_command(
+        result_tsv,
+        config_path,
+        include_decoys,
+        max_q_value,
+        peptide_rollup,
+        target_kind,
+        shared_peptides,
+        protein_rollup,
+        summary_tsv_out,
+        peptide_tsv_out,
+        protein_tsv_out,
+        rollup_evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectronaut-protein-matrix")
 @click.argument(
@@ -152,8 +173,23 @@ def spectronaut_protein_matrix_command(
     rollup_evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build DIA peptide and protein matrices from one Spectronaut report.'
-    return run_spectronaut_protein_matrix_command(result_tsv, config_path, include_decoys, max_q_value, peptide_rollup, target_kind, shared_peptides, protein_rollup, summary_tsv_out, peptide_tsv_out, protein_tsv_out, rollup_evidence_tsv_out, out_path)
+    "Build DIA peptide and protein matrices from one Spectronaut report."
+    return run_spectronaut_protein_matrix_command(
+        result_tsv,
+        config_path,
+        include_decoys,
+        max_q_value,
+        peptide_rollup,
+        target_kind,
+        shared_peptides,
+        protein_rollup,
+        summary_tsv_out,
+        peptide_tsv_out,
+        protein_tsv_out,
+        rollup_evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("diann-run-qc")
 @click.argument(
@@ -174,9 +210,7 @@ def spectronaut_protein_matrix_command(
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--run-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--intensity-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option(
-    "--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
-)
+@click.option("--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--outlier-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
@@ -196,8 +230,20 @@ def diann_run_qc_command(
     outlier_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build DIA run-level QC from one DIA-NN report.'
-    return run_diann_run_qc_command(result_tsv, config_path, include_decoys, max_q_value, summary_tsv_out, run_tsv_out, intensity_tsv_out, correlation_tsv_out, outlier_tsv_out, out_path)
+    "Build DIA run-level QC from one DIA-NN report."
+    return run_diann_run_qc_command(
+        result_tsv,
+        config_path,
+        include_decoys,
+        max_q_value,
+        summary_tsv_out,
+        run_tsv_out,
+        intensity_tsv_out,
+        correlation_tsv_out,
+        outlier_tsv_out,
+        out_path,
+    )
+
 
 @click.command("diann-library-coverage")
 @click.argument(
@@ -226,9 +272,7 @@ def diann_run_qc_command(
 )
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--sample-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option(
-    "--condition-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
-)
+@click.option("--condition-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
@@ -261,8 +305,24 @@ def diann_library_coverage_command(
     outside_library_protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare DIA-NN observations against spectral-library peptide and protein scope.'
-    return run_diann_library_coverage_command(result_tsv, library_path, design_path, include_decoys, max_q_value, shared_peptides, summary_tsv_out, sample_tsv_out, condition_tsv_out, peptide_tsv_out, protein_tsv_out, outside_library_peptide_tsv_out, outside_library_protein_tsv_out, out_path)
+    "Compare DIA-NN observations against spectral-library peptide and protein scope."
+    return run_diann_library_coverage_command(
+        result_tsv,
+        library_path,
+        design_path,
+        include_decoys,
+        max_q_value,
+        shared_peptides,
+        summary_tsv_out,
+        sample_tsv_out,
+        condition_tsv_out,
+        peptide_tsv_out,
+        protein_tsv_out,
+        outside_library_peptide_tsv_out,
+        outside_library_protein_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     diann_protein_matrix_command,

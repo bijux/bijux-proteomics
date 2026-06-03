@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia.protein_matrix import (
     DiaPeptideMatrixReport,
     DiaProteinMatrixReport,
@@ -21,7 +20,10 @@ from bijux_proteomics.dia.protein_matrix import (
     build_diann_peptide_matrix_report,
     build_diann_protein_matrix_report,
 )
-from bijux_proteomics.io.formats import ExperimentalDesignEntry, parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.io.spectral_library import (
     SpectralLibraryImportReport,
     import_spectral_library,
@@ -138,7 +140,9 @@ class DiaLibraryCoverageReport(JsonModel):
     observed_outside_library_protein_entries: tuple[
         DiaObservedOutsideLibraryProteinEntry, ...
     ] = Field(default_factory=tuple)
-    sample_entries: tuple[DiaLibraryCoverageSampleEntry, ...] = Field(default_factory=tuple)
+    sample_entries: tuple[DiaLibraryCoverageSampleEntry, ...] = Field(
+        default_factory=tuple
+    )
     condition_entries: tuple[DiaLibraryCoverageConditionEntry, ...] = Field(
         default_factory=tuple
     )
@@ -167,10 +171,7 @@ def build_dia_library_coverage_report(
         if entry.target_decoy_label.value != "decoy"
         for protein_ref in entry.protein_refs
     }
-    detected_peptides = {
-        row.canonical_peptide
-        for row in peptide_matrix.rows
-    }
+    detected_peptides = {row.canonical_peptide for row in peptide_matrix.rows}
     detected_proteins = {row.entity_id for row in protein_matrix.rows}
     peptide_entries = _build_peptide_entries(
         library_peptide_protein_refs=library_peptide_protein_refs,
@@ -529,14 +530,18 @@ def export_dia_library_coverage_observed_outside_peptide_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    write_output_table_tsv(path, render_dia_library_coverage_observed_outside_peptide_tsv(report))
+    write_output_table_tsv(
+        path, render_dia_library_coverage_observed_outside_peptide_tsv(report)
+    )
 
 
 def export_dia_library_coverage_observed_outside_protein_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
 ) -> None:
-    write_output_table_tsv(path, render_dia_library_coverage_observed_outside_protein_tsv(report))
+    write_output_table_tsv(
+        path, render_dia_library_coverage_observed_outside_protein_tsv(report)
+    )
 
 
 def _build_sample_entries(
@@ -600,9 +605,7 @@ def _build_peptide_entries(
     peptide_matrix: DiaPeptideMatrixReport,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[DiaLibraryCoveragePeptideEntry, ...]:
-    row_by_peptide = {
-        row.canonical_peptide: row for row in peptide_matrix.rows
-    }
+    row_by_peptide = {row.canonical_peptide: row for row in peptide_matrix.rows}
     entries: list[DiaLibraryCoveragePeptideEntry] = []
     for canonical_peptide, protein_refs in sorted(library_peptide_protein_refs.items()):
         matching_row = row_by_peptide.get(canonical_peptide)
@@ -741,7 +744,9 @@ def _build_condition_entries(
     sample_ids_by_condition: dict[str, list[str]] = {}
     for entry in design_entries:
         if entry.sample_id in protein_matrix.sample_ids:
-            sample_ids_by_condition.setdefault(entry.condition, []).append(entry.sample_id)
+            sample_ids_by_condition.setdefault(entry.condition, []).append(
+                entry.sample_id
+            )
     entries: list[DiaLibraryCoverageConditionEntry] = []
     for condition, sample_ids in sorted(sample_ids_by_condition.items()):
         detected_peptides = {
@@ -787,7 +792,5 @@ def _condition_ids_for_sample_ids(
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> set[str]:
     return {
-        entry.condition
-        for entry in design_entries
-        if entry.sample_id in sample_ids
+        entry.condition for entry in design_entries if entry.sample_id in sample_ids
     }

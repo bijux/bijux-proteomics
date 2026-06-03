@@ -13,6 +13,8 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import (
     MissingValueState,
+)
+from bijux_proteomics.domain.records import (
     QuantMatrix as CanonicalQuantMatrix,
 )
 from bijux_proteomics.proteoforms.assembly import ProteoformCandidateEntry
@@ -78,7 +80,9 @@ def quantify_supported_proteoforms(
     )
     candidate_lookup_by_protein: dict[str, list[ProteoformCandidateEntry]] = {}
     for candidate in candidates:
-        candidate_lookup_by_protein.setdefault(candidate.protein_id, []).append(candidate)
+        candidate_lookup_by_protein.setdefault(candidate.protein_id, []).append(
+            candidate
+        )
 
     compatible_candidates_by_row = tuple(
         _compatible_candidates(
@@ -130,7 +134,9 @@ def quantify_supported_proteoforms(
         quantified_entry_count=sum(
             1 for entry in ordered_entries if entry.abundance is not None
         ),
-        withheld_entry_count=sum(1 for entry in ordered_entries if entry.abundance is None),
+        withheld_entry_count=sum(
+            1 for entry in ordered_entries if entry.abundance is None
+        ),
         note=(
             "proteoform abundance is emitted only from sample-level feature rows that "
             "support exactly one candidate within the same protein boundary"
@@ -229,12 +235,7 @@ def _split_metadata_tokens(
     if raw_value is None:
         return ()
     return tuple(
-        token
-        for token in (
-            part.strip()
-            for part in str(raw_value).split(";")
-        )
-        if token
+        token for token in (part.strip() for part in str(raw_value).split(";")) if token
     )
 
 
@@ -256,9 +257,9 @@ def _compatible_candidates(
         if row.site_ids and not set(row.site_ids).issubset(candidate.required_sites):
             continue
         excluded_labels = set(candidate.excluded_by_evidence)
-        if excluded_labels.intersection(row.peptide_ids) or excluded_labels.intersection(
-            row.site_ids
-        ):
+        if excluded_labels.intersection(
+            row.peptide_ids
+        ) or excluded_labels.intersection(row.site_ids):
             continue
         if not row.peptide_ids and not row.site_ids:
             continue

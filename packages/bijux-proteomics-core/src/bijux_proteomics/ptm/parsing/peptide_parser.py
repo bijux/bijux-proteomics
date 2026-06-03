@@ -188,7 +188,9 @@ def parse_ptm_peptide_tsv(
 
             peptide_start_position: int | None = None
             if active_mapping.peptide_start_position is not None:
-                start_token = raw_fields.get(active_mapping.peptide_start_position, "").strip()
+                start_token = raw_fields.get(
+                    active_mapping.peptide_start_position, ""
+                ).strip()
                 if start_token:
                     try:
                         peptide_start_position = int(start_token)
@@ -429,7 +431,9 @@ def _peptide_position_for_modification(
 ) -> int:
     if modification.site is ModificationPosition.ANYWHERE:
         if modification.site_index is None:
-            raise ValueError("residue-local PTM modification is missing a peptide position")
+            raise ValueError(
+                "residue-local PTM modification is missing a peptide position"
+            )
         return int(modification.site_index)
     if modification.site in (
         ModificationPosition.PEPTIDE_N_TERM,

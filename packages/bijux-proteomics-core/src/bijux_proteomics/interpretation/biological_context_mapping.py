@@ -9,8 +9,8 @@ from collections import defaultdict
 from collections.abc import Iterable
 import csv
 from enum import StrEnum
-import json
 from io import StringIO
+import json
 from pathlib import Path
 from typing import TypedDict
 
@@ -93,7 +93,9 @@ class BiologicalContextImportReport(JsonModel):
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[BiologicalContextRecord, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedBiologicalContextRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedBiologicalContextRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: BiologicalContextColumnMapping
     fixed_context_kind: BiologicalContextKind | None = None
     summary: BiologicalContextImportSummary
@@ -165,7 +167,9 @@ class BiologicalContextMappingReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    mapped_entries: tuple[BiologicalContextMappingEntry, ...] = Field(default_factory=tuple)
+    mapped_entries: tuple[BiologicalContextMappingEntry, ...] = Field(
+        default_factory=tuple
+    )
     unmapped_entries: tuple[UnmappedBiologicalContextEntry, ...] = Field(
         default_factory=tuple
     )
@@ -318,7 +322,9 @@ def parse_biological_context_table(
                 context_id=context_id,
                 context_name=_optional_value(values, active_mapping.context_name),
                 source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(values, active_mapping.source_accession),
+                source_accession=_optional_value(
+                    values, active_mapping.source_accession
+                ),
                 evidence=_optional_value(values, active_mapping.evidence),
                 metadata={
                     key: value
@@ -646,7 +652,9 @@ def render_unmapped_biological_context_tsv(
     return buffer.getvalue()
 
 
-def render_rejected_biological_context_tsv(report: BiologicalContextImportReport) -> str:
+def render_rejected_biological_context_tsv(
+    report: BiologicalContextImportReport,
+) -> str:
     """Render rejected biological-context rows as TSV."""
 
     buffer = StringIO()

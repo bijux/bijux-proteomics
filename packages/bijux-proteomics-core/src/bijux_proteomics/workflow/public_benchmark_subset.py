@@ -61,7 +61,9 @@ class PublicBenchmarkSubsetReport(JsonModel):
     preserved_decoy_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     preserved_contaminant_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     sample_groups: tuple[PublicBenchmarkSampleGroup, ...] = Field(default_factory=tuple)
-    sample_metadata: tuple[PublicBenchmarkSampleMetadata, ...] = Field(default_factory=tuple)
+    sample_metadata: tuple[PublicBenchmarkSampleMetadata, ...] = Field(
+        default_factory=tuple
+    )
     contrast: PublicBenchmarkContrast
     subset_inputs: tuple[PublicBenchmarkSubsetInput, ...] = Field(default_factory=tuple)
     expected_count_ranges: tuple[PublicBenchmarkSubsetCountRange, ...] = Field(
@@ -117,14 +119,19 @@ def build_public_benchmark_subset(
     if max_entities < 1:
         raise ValueError("public benchmark subset requires max_entities >= 1")
 
-    selected_metadata = _select_sample_metadata(dataset_descriptor, max_samples=max_samples)
+    selected_metadata = _select_sample_metadata(
+        dataset_descriptor, max_samples=max_samples
+    )
     selected_sample_ids = tuple(sample.sample_id for sample in selected_metadata)
     signal_anchors = _signal_anchors(dataset_descriptor)
     detected_anchor_state = _detect_required_entity_anchors(dataset_descriptor)
     required_entity_ids = tuple(
         dict.fromkeys(
             (
-                *(anchor.site_key or anchor.protein_ref for anchor in signal_anchors[:1]),
+                *(
+                    anchor.site_key or anchor.protein_ref
+                    for anchor in signal_anchors[:1]
+                ),
                 *detected_anchor_state["decoy_entity_ids"][:1],
                 *detected_anchor_state["contaminant_entity_ids"][:1],
             )
@@ -198,7 +205,9 @@ def build_public_benchmark_subset(
                     original_repo_relative_path=source.repo_relative_path,
                     subset_relative_path=subset_relative_path,
                     content=fasta_content,
-                    row_count=sum(1 for line in fasta_content.splitlines() if line.startswith(">")),
+                    row_count=sum(
+                        1 for line in fasta_content.splitlines() if line.startswith(">")
+                    ),
                     note=(
                         "subset FASTA preserves selected signal proteins together with "
                         "chosen decoy or contaminant accessions when they are present"
@@ -227,8 +236,13 @@ def build_public_benchmark_subset(
             "public benchmark subset did not preserve any declared biological signal rows"
         )
     if detected_anchor_state["decoy_entity_ids"] and not preserved_decoy_ids:
-        raise ValueError("public benchmark subset did not preserve any declared decoy rows")
-    if detected_anchor_state["contaminant_entity_ids"] and not preserved_contaminant_ids:
+        raise ValueError(
+            "public benchmark subset did not preserve any declared decoy rows"
+        )
+    if (
+        detected_anchor_state["contaminant_entity_ids"]
+        and not preserved_contaminant_ids
+    ):
         raise ValueError(
             "public benchmark subset did not preserve any declared contaminant rows"
         )
@@ -329,7 +343,9 @@ def _subset_sample_groups(
     selected = set(selected_sample_ids)
     groups = []
     for group in descriptor.sample_groups:
-        group_sample_ids = tuple(sample_id for sample_id in group.sample_ids if sample_id in selected)
+        group_sample_ids = tuple(
+            sample_id for sample_id in group.sample_ids if sample_id in selected
+        )
         groups.append(
             PublicBenchmarkSampleGroup(
                 group_id=group.group_id,
@@ -354,7 +370,9 @@ def _select_entity_ids(
     for entity_id in selected:
         uncovered_samples.difference_update(sample_coverage.get(entity_id, ()))
     candidates = [
-        entity_id for entity_id in biological_entity_ids if entity_id not in selected_set
+        entity_id
+        for entity_id in biological_entity_ids
+        if entity_id not in selected_set
     ]
     while len(selected) < max_entities and candidates:
         best_entity = max(
@@ -387,7 +405,9 @@ def _signal_anchors(
             )
             continue
         if signal.subject_kind is PublicBenchmarkExpectedSignalSubjectKind.PTM_SITE:
-            protein_ref, residue_position, modification_name = signal.subject_id.split(":")
+            protein_ref, residue_position, modification_name = signal.subject_id.split(
+                ":"
+            )
             residue = residue_position[:1]
             position = int(residue_position[1:])
             anchors.append(
@@ -419,7 +439,9 @@ def _detect_required_entity_anchors(
     for source in descriptor.source_files:
         if source.schema_id not in _TABULAR_SCHEMA_IDS:
             continue
-        rows = _read_tabular_rows(repo_root / source.repo_relative_path, source.schema_id)
+        rows = _read_tabular_rows(
+            repo_root / source.repo_relative_path, source.schema_id
+        )
         for row in rows:
             entity_ids = _row_entity_ids(row, schema_id=source.schema_id)
             row_samples = _row_sample_ids(row, schema_id=source.schema_id)
@@ -435,15 +457,15 @@ def _detect_required_entity_anchors(
             biological_entity_ids.extend(entity_ids)
     return {
         "biological_entity_ids": tuple(
-            dict.fromkeys(
-                entity_id for entity_id in biological_entity_ids if entity_id
-            )
+            dict.fromkeys(entity_id for entity_id in biological_entity_ids if entity_id)
         ),
         "decoy_entity_ids": tuple(
             dict.fromkeys(entity_id for entity_id in decoy_entity_ids if entity_id)
         ),
         "contaminant_entity_ids": tuple(
-            dict.fromkeys(entity_id for entity_id in contaminant_entity_ids if entity_id)
+            dict.fromkeys(
+                entity_id for entity_id in contaminant_entity_ids if entity_id
+            )
         ),
         "sample_coverage": {
             entity_id: tuple(sorted(sample_ids))
@@ -474,7 +496,9 @@ def _build_tabular_subset(
     preserved_decoy_ids: set[str] = set()
     preserved_contaminant_ids: set[str] = set()
     for row in rows:
-        if not _row_matches_samples(row, schema_id=schema_id, selected_sample_ids=selected_sample_ids):
+        if not _row_matches_samples(
+            row, schema_id=schema_id, selected_sample_ids=selected_sample_ids
+        ):
             continue
         if not _row_matches_entities(
             row,
@@ -492,7 +516,9 @@ def _build_tabular_subset(
         preserved_signal_ids.update(
             signal.signal_id
             for signal in signal_anchors
-            if _row_matches_signal_anchor(row, schema_id=schema_id, signal_anchor=signal)
+            if _row_matches_signal_anchor(
+                row, schema_id=schema_id, signal_anchor=signal
+            )
         )
     content = _render_tabular_rows(
         rows=filtered_rows,
@@ -518,7 +544,8 @@ def _subset_fasta(
     signal_anchors: tuple[_SignalAnchor, ...],
 ) -> str:
     selected_proteins = {
-        entity_id.split(":")[0] if ":" in entity_id else entity_id for entity_id in selected_entity_ids
+        entity_id.split(":")[0] if ":" in entity_id else entity_id
+        for entity_id in selected_entity_ids
     }
     selected_proteins.update(anchor.protein_ref for anchor in signal_anchors)
     blocks: list[str] = []
@@ -562,7 +589,14 @@ def _build_count_ranges(
         (
             item.row_count or 0
             for item in subset_inputs
-            if item.schema_id in {"evidence_tsv", "evidence_txt", "feature_tsv", "input_tsv", "result_tsv"}
+            if item.schema_id
+            in {
+                "evidence_tsv",
+                "evidence_txt",
+                "feature_tsv",
+                "input_tsv",
+                "result_tsv",
+            }
         ),
         default=0,
     )
@@ -574,7 +608,9 @@ def _build_count_ranges(
             min_expected = selected_sample_count
             max_expected = selected_sample_count
             note = "subset keeps an exact sample or experiment count because sample selection is explicit"
-        elif any(token in metric_id for token in ("protein", "site", "card", "group_count")):
+        elif any(
+            token in metric_id for token in ("protein", "site", "card", "group_count")
+        ):
             min_expected = min(count.expected, max(1, preserved_signal_count))
             max_expected = min(count.expected, selected_entity_count)
             note = (
@@ -582,7 +618,9 @@ def _build_count_ranges(
                 "entity counts by the selected entity budget"
             )
         else:
-            min_expected = min(count.expected, max(1, preserved_signal_count + integrity_anchor_count))
+            min_expected = min(
+                count.expected, max(1, preserved_signal_count + integrity_anchor_count)
+            )
             max_expected = min(count.expected, max(primary_row_budget, min_expected))
             note = (
                 "subset keeps one known signal plus explicit integrity rows and bounds broader counts "
@@ -709,11 +747,20 @@ def _row_is_decoy(row: dict[str, str]) -> bool:
         row.get("is_decoy"),
         row.get("decoy_state"),
     )
-    if any(_nonempty(value) in {"+", "1", "true", "decoy"} for value in explicit_values):
+    if any(
+        _nonempty(value) in {"+", "1", "true", "decoy"} for value in explicit_values
+    ):
         return True
     return any(
         entity.startswith(("REV__", "DECOY_", "DECOY", "Q9DEC"))
-        for field_name in ("Proteins", "proteins", "Protein IDs", "protein_ids", "protein_accessions", "protein_group")
+        for field_name in (
+            "Proteins",
+            "proteins",
+            "Protein IDs",
+            "protein_ids",
+            "protein_accessions",
+            "protein_group",
+        )
         for entity in _split_entity_values(_nonempty(row.get(field_name)) or "")
     )
 
@@ -728,7 +775,14 @@ def _row_is_contaminant(row: dict[str, str]) -> bool:
         return True
     return any(
         entity.startswith("CON__") or "CONTAM" in entity
-        for field_name in ("Proteins", "proteins", "Protein IDs", "protein_ids", "protein_accessions", "protein_group")
+        for field_name in (
+            "Proteins",
+            "proteins",
+            "Protein IDs",
+            "protein_ids",
+            "protein_accessions",
+            "protein_group",
+        )
         for entity in _split_entity_values(_nonempty(row.get(field_name)) or "")
     )
 
@@ -756,9 +810,13 @@ def _subset_fieldnames(
 ) -> tuple[str, ...]:
     if schema_id != "protein_groups_txt":
         return fieldnames
-    selected_columns = {f"LFQ intensity {sample_id}" for sample_id in selected_sample_ids}
+    selected_columns = {
+        f"LFQ intensity {sample_id}" for sample_id in selected_sample_ids
+    }
     static_fields = tuple(
-        field_name for field_name in fieldnames if not field_name.startswith("LFQ intensity ")
+        field_name
+        for field_name in fieldnames
+        if not field_name.startswith("LFQ intensity ")
     )
     dynamic_fields = tuple(
         field_name for field_name in fieldnames if field_name in selected_columns
@@ -772,10 +830,14 @@ def _render_tabular_rows(
     fieldnames: tuple[str, ...],
 ) -> str:
     buffer = StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=fieldnames, delimiter="\t", lineterminator="\n")
+    writer = csv.DictWriter(
+        buffer, fieldnames=fieldnames, delimiter="\t", lineterminator="\n"
+    )
     writer.writeheader()
     for row in rows:
-        writer.writerow({field_name: row.get(field_name, "") for field_name in fieldnames})
+        writer.writerow(
+            {field_name: row.get(field_name, "") for field_name in fieldnames}
+        )
     return buffer.getvalue()
 
 

@@ -25,6 +25,7 @@ from .input_models import (
 )
 from .matrix_models import LabelFreeQuantTable
 
+
 class MissingDataMechanism(StrEnum):
     """Heuristic label for one entity-level missingness pattern."""
 
@@ -34,6 +35,7 @@ class MissingDataMechanism(StrEnum):
     BATCH_OR_CHANNEL_ISSUE = "batch_or_channel_issue"
     MISSING_COMPLETELY_AT_RANDOM = "missing_completely_at_random"
     MIXED_OR_UNRESOLVED = "mixed_or_unresolved"
+
 
 class MissingDataMechanismEntry(JsonModel):
     """One entity classified under an explicit missing-data mechanism heuristic."""
@@ -47,6 +49,7 @@ class MissingDataMechanismEntry(JsonModel):
     missing_samples: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
+
 class MissingDataMechanismReport(JsonModel):
     """Mechanism summary over entity-level quant missingness patterns."""
 
@@ -55,6 +58,7 @@ class MissingDataMechanismReport(JsonModel):
     entity_level: QuantEntityLevel
     entries: tuple[MissingDataMechanismEntry, ...] = Field(default_factory=tuple)
     summary_counts: dict[MissingDataMechanism, int] = Field(default_factory=dict)
+
 
 class MissingnessClassifierReport(JsonModel):
     """Owned missingness classifier that bundles table summaries and mechanisms."""
@@ -66,6 +70,7 @@ class MissingnessClassifierReport(JsonModel):
     condition_summary: MissingnessConditionSummaryReport
     intensity_dependence: MissingnessIntensityDependenceReport
     mechanism_report: MissingDataMechanismReport
+
 
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
@@ -82,6 +87,7 @@ class MissingValueSummaryEntry(JsonModel):
     excluded_count: int = Field(default=0, ge=0)
     not_applicable_count: int = Field(default=0, ge=0)
 
+
 class MissingValueSummaryPolicy(JsonModel):
     """Correction and filtering rules applied before missing-value summarization."""
 
@@ -93,6 +99,7 @@ class MissingValueSummaryPolicy(JsonModel):
     )
     min_observed_samples_per_entity: int = Field(default=0, ge=0)
 
+
 class MissingValueSummaryReport(JsonModel):
     """Stable missing-value summary over a quantification matrix."""
 
@@ -103,6 +110,7 @@ class MissingValueSummaryReport(JsonModel):
     entries: tuple[MissingValueSummaryEntry, ...] = Field(default_factory=tuple)
     included_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     excluded_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class MissingnessEntitySummaryEntry(JsonModel):
     """Missingness burden for one quantified entity across all samples."""
@@ -120,6 +128,7 @@ class MissingnessEntitySummaryEntry(JsonModel):
     not_applicable_sample_count: int = Field(default=0, ge=0)
     missing_fraction: float = Field(..., ge=0.0, le=1.0)
 
+
 class MissingnessEntitySummaryReport(JsonModel):
     """Entity-level missingness summary over one quantification table."""
 
@@ -127,6 +136,7 @@ class MissingnessEntitySummaryReport(JsonModel):
 
     entity_level: QuantEntityLevel
     entries: tuple[MissingnessEntitySummaryEntry, ...] = Field(default_factory=tuple)
+
 
 class MissingnessConditionSummaryEntry(JsonModel):
     """Missingness burden for one experimental condition."""
@@ -144,7 +154,10 @@ class MissingnessConditionSummaryEntry(JsonModel):
     excluded_value_count: int = Field(default=0, ge=0)
     not_applicable_value_count: int = Field(default=0, ge=0)
     missing_fraction: float = Field(..., ge=0.0, le=1.0)
-    condition_specific_absence_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    condition_specific_absence_entity_ids: tuple[str, ...] = Field(
+        default_factory=tuple
+    )
+
 
 class MissingnessConditionSummaryReport(JsonModel):
     """Condition-level missingness summary with condition-specific absence signals."""
@@ -154,6 +167,7 @@ class MissingnessConditionSummaryReport(JsonModel):
     entity_level: QuantEntityLevel
     entries: tuple[MissingnessConditionSummaryEntry, ...] = Field(default_factory=tuple)
 
+
 class MissingnessIntensityPoint(JsonModel):
     """One entity-level point for missingness-versus-intensity plotting."""
 
@@ -162,6 +176,7 @@ class MissingnessIntensityPoint(JsonModel):
     entity_id: str = Field(..., min_length=1)
     mean_log2_observed_abundance: float
     missing_fraction: float = Field(..., ge=0.0, le=1.0)
+
 
 class MissingnessIntensityBinEntry(JsonModel):
     """One intensity bin summarizing mean missingness burden."""
@@ -173,6 +188,7 @@ class MissingnessIntensityBinEntry(JsonModel):
     entity_count: int = Field(..., ge=0)
     mean_missing_fraction: float = Field(..., ge=0.0, le=1.0)
 
+
 class MissingnessIntensityDependenceReport(JsonModel):
     """Intensity-dependent missingness profile suitable for plotting and review."""
 
@@ -183,6 +199,7 @@ class MissingnessIntensityDependenceReport(JsonModel):
     bins: tuple[MissingnessIntensityBinEntry, ...] = Field(default_factory=tuple)
     trend_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
     intensity_dependent_missingness_detected: bool
+
 
 def summarize_missing_values(
     table: LabelFreeQuantTable,
@@ -196,6 +213,7 @@ def summarize_missing_values(
 
     return _implementation(table, policy=policy)
 
+
 def build_missing_data_mechanism_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -206,6 +224,7 @@ def build_missing_data_mechanism_report(
     )
 
     return _implementation(table, design_entries)
+
 
 def build_missingness_classifier_report(
     table: LabelFreeQuantTable,

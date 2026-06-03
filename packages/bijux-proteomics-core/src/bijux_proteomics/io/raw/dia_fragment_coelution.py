@@ -36,7 +36,9 @@ def extract_mzml_dia_fragment_trace_coelution(
     """Extract DIA fragment traces from mzML and score precursor coelution."""
 
     if not mzml_paths:
-        raise ValueError("DIA fragment coelution extraction requires at least one mzML file")
+        raise ValueError(
+            "DIA fragment coelution extraction requires at least one mzML file"
+        )
 
     peak_reports = tuple(
         extract_mzml_chromatographic_peaks(

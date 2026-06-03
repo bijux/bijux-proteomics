@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.multiplex.normalization import (
     TmtNormalizationMethod,
     TmtNormalizationPolicy,
@@ -44,9 +43,7 @@ class TmtPlexIntegrationPolicy(JsonModel):
             method=TmtNormalizationMethod.REFERENCE_CHANNEL
         )
     )
-    included_roles: tuple[LabelBasedChannelRole, ...] = (
-        LabelBasedChannelRole.SAMPLE,
-    )
+    included_roles: tuple[LabelBasedChannelRole, ...] = (LabelBasedChannelRole.SAMPLE,)
     plex_effect_ratio_threshold: float = Field(default=1.25, ge=1.0)
 
 
@@ -104,7 +101,9 @@ class TmtPlexIntegrationReport(JsonModel):
 
     policy: TmtPlexIntegrationPolicy
     normalization_report: TmtNormalizationReport
-    sample_alignment: tuple[TmtPlexSampleAlignmentEntry, ...] = Field(default_factory=tuple)
+    sample_alignment: tuple[TmtPlexSampleAlignmentEntry, ...] = Field(
+        default_factory=tuple
+    )
     plex_effects: tuple[TmtPlexEffectEntry, ...] = Field(default_factory=tuple)
     integrated_protein_matrix: ProteinIntensityMatrixReport
     summary: TmtPlexIntegrationSummary
@@ -200,9 +199,13 @@ def _build_sample_alignment_entries(
 ) -> tuple[TmtPlexSampleAlignmentEntry, ...]:
     included_sample_id_set = set(included_sample_ids)
     bridge_by_group = {
-        transform.multiplex_group: (transform.reference_sample_id, transform.reference_channel)
+        transform.multiplex_group: (
+            transform.reference_sample_id,
+            transform.reference_channel,
+        )
         for transform in normalization_report.transforms
-        if transform.reference_sample_id is not None and transform.reference_channel is not None
+        if transform.reference_sample_id is not None
+        and transform.reference_channel is not None
     }
     mapping_by_sample = {
         entry.sample_id: entry
@@ -284,7 +287,12 @@ def _build_plex_effect_entries(
     else:
         global_median = (sorted_values[midpoint - 1] + sorted_values[midpoint]) / 2.0
     entries: list[TmtPlexEffectEntry] = []
-    for multiplex_group, bridge_sample_id, bridge_channel, bridge_total in ordered_totals:
+    for (
+        multiplex_group,
+        bridge_sample_id,
+        bridge_channel,
+        bridge_total,
+    ) in ordered_totals:
         ratio_to_global_median = (
             bridge_total / global_median if global_median > 0.0 else 0.0
         )

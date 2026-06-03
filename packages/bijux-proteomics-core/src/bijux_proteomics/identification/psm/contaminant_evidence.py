@@ -131,7 +131,9 @@ def build_contaminant_evidence_report(
     warning_intensity_fraction: float = 0.1,
 ) -> ContaminantEvidenceReport:
     """Separate contaminant evidence from target evidence across supported ledgers."""
-    normalized_prefixes = tuple(dict.fromkeys(prefix for prefix in contaminant_prefixes if prefix))
+    normalized_prefixes = tuple(
+        dict.fromkeys(prefix for prefix in contaminant_prefixes if prefix)
+    )
     sample_lookup = sample_id_by_run or {}
 
     psm_entries: list[ContaminantSeparatedPsmEntry] = []
@@ -147,9 +149,13 @@ def build_contaminant_evidence_report(
         intensity = record.intensity or 0.0
         total_intensity += intensity
         contaminant_refs = tuple(
-            ref for ref in record.protein_refs if _is_contaminant(ref, normalized_prefixes)
+            ref
+            for ref in record.protein_refs
+            if _is_contaminant(ref, normalized_prefixes)
         )
-        target_refs = tuple(ref for ref in record.protein_refs if ref not in contaminant_refs)
+        target_refs = tuple(
+            ref for ref in record.protein_refs if ref not in contaminant_refs
+        )
         if not contaminant_refs:
             burden_groups.setdefault((run_id, sample_id), []).append(
                 ContaminantSeparatedPsmEntry(
@@ -221,7 +227,9 @@ def build_contaminant_evidence_report(
         "burden_entries": [entry.to_dict() for entry in burden_entries],
     }
     contaminant_psm_count = len(psm_entries)
-    pure_contaminant_psm_count = sum(1 for entry in psm_entries if entry.pure_contaminant)
+    pure_contaminant_psm_count = sum(
+        1 for entry in psm_entries if entry.pure_contaminant
+    )
     mixed_reference_psm_count = sum(1 for entry in psm_entries if entry.mixed_reference)
     return ContaminantEvidenceReport(
         contaminant_prefixes=normalized_prefixes,
@@ -239,7 +247,11 @@ def build_contaminant_evidence_report(
             contaminant_peptide_count=len(peptide_entries),
             contaminant_protein_count=len(protein_entries),
             burdened_run_count=len(
-                {entry.run_id for entry in burden_entries if entry.heavy_contaminant_warning}
+                {
+                    entry.run_id
+                    for entry in burden_entries
+                    if entry.heavy_contaminant_warning
+                }
             ),
             burdened_sample_count=len(
                 {
@@ -250,10 +262,14 @@ def build_contaminant_evidence_report(
             ),
             total_intensity=total_intensity,
             contaminant_intensity=contaminant_intensity,
-            contaminant_intensity_fraction=_fraction(contaminant_intensity, total_intensity),
+            contaminant_intensity_fraction=_fraction(
+                contaminant_intensity, total_intensity
+            ),
         ),
         psm_entries=tuple(
-            sorted(psm_entries, key=lambda entry: (entry.run_id or "", entry.spectrum_id))
+            sorted(
+                psm_entries, key=lambda entry: (entry.run_id or "", entry.spectrum_id)
+            )
         ),
         peptide_entries=peptide_entries,
         protein_entries=protein_entries,
@@ -337,11 +353,15 @@ def _build_peptide_entry(
     contaminant_refs = sorted(
         {ref for entry in entries for ref in entry.contaminant_protein_refs}
     )
-    target_refs = sorted({ref for entry in entries for ref in entry.target_protein_refs})
+    target_refs = sorted(
+        {ref for entry in entries for ref in entry.target_protein_refs}
+    )
     return ContaminantSeparatedPeptideEntry(
         canonical_peptide=canonical_peptide,
         run_ids=tuple(sorted({entry.run_id for entry in entries if entry.run_id})),
-        sample_ids=tuple(sorted({entry.sample_id for entry in entries if entry.sample_id})),
+        sample_ids=tuple(
+            sorted({entry.sample_id for entry in entries if entry.sample_id})
+        ),
         psm_count=len(entries),
         contaminant_protein_refs=tuple(contaminant_refs),
         target_protein_refs=tuple(target_refs),
@@ -357,7 +377,9 @@ def _build_protein_entry(
     return ContaminantSeparatedProteinEntry(
         protein_ref=protein_ref,
         run_ids=tuple(sorted({entry.run_id for entry in entries if entry.run_id})),
-        sample_ids=tuple(sorted({entry.sample_id for entry in entries if entry.sample_id})),
+        sample_ids=tuple(
+            sorted({entry.sample_id for entry in entries if entry.sample_id})
+        ),
         psm_count=len(entries),
         peptide_count=len({entry.canonical_peptide for entry in entries}),
         intensity_sum=sum(entry.intensity or 0.0 for entry in entries),
@@ -382,11 +404,21 @@ def _build_burden_entry(
         sample_id=sample_id,
         total_psm_count=len(entries),
         contaminant_psm_count=len(contaminant_entries),
-        pure_contaminant_psm_count=sum(1 for entry in contaminant_entries if entry.pure_contaminant),
-        mixed_reference_psm_count=sum(1 for entry in contaminant_entries if entry.mixed_reference),
-        contaminant_peptide_count=len({entry.canonical_peptide for entry in contaminant_entries}),
+        pure_contaminant_psm_count=sum(
+            1 for entry in contaminant_entries if entry.pure_contaminant
+        ),
+        mixed_reference_psm_count=sum(
+            1 for entry in contaminant_entries if entry.mixed_reference
+        ),
+        contaminant_peptide_count=len(
+            {entry.canonical_peptide for entry in contaminant_entries}
+        ),
         contaminant_protein_count=len(
-            {ref for entry in contaminant_entries for ref in entry.contaminant_protein_refs}
+            {
+                ref
+                for entry in contaminant_entries
+                for ref in entry.contaminant_protein_refs
+            }
         ),
         total_intensity=total_intensity,
         contaminant_intensity=contaminant_intensity,

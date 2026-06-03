@@ -318,11 +318,15 @@ def _build_entry(
         for context in detected_contexts:
             if context.condition_id:
                 condition_runs[context.condition_id].add(context.run_id)
-                sample_token = context.sample_id or context.replicate_id or context.run_id
+                sample_token = (
+                    context.sample_id or context.replicate_id or context.run_id
+                )
                 condition_samples[context.condition_id].add(sample_token)
         for context in context_by_run.values():
             if context.condition_id:
-                sample_token = context.sample_id or context.replicate_id or context.run_id
+                sample_token = (
+                    context.sample_id or context.replicate_id or context.run_id
+                )
                 condition_total_samples[context.condition_id].add(sample_token)
         detected_conditions = tuple(sorted(condition_runs))
         detected_condition_count = len(detected_conditions)
@@ -331,7 +335,9 @@ def _build_entry(
                 condition_runs.items(),
                 key=lambda item: (len(item[1]), item[0]),
             )[0]
-            max_condition_runs = max(len(run_ids) for run_ids in condition_runs.values())
+            max_condition_runs = max(
+                len(run_ids) for run_ids in condition_runs.values()
+            )
             condition_specificity = max_condition_runs / detected_run_count
         else:
             primary_condition = None
@@ -416,7 +422,11 @@ def _classify_reproducibility(
             CrossRunReproducibilityClass.SINGLE_RUN_ONLY,
             "evidence is observed in one run only and should be downgraded unless explicitly exploratory",
         )
-    if explicit_run_ids and detected_condition_count == 1 and condition_specificity == 1.0:
+    if (
+        explicit_run_ids
+        and detected_condition_count == 1
+        and condition_specificity == 1.0
+    ):
         return (
             CrossRunReproducibilityClass.CONDITION_SPECIFIC,
             "evidence is reproducible across runs within one condition and remains condition-specific rather than cross-condition broad",

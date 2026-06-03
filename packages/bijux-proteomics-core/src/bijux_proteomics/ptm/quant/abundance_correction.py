@@ -63,14 +63,18 @@ def correct_site_by_protein(
     protein_lookup: dict[str, PtmProteinCorrectionReference] = {}
     for entry in protein_matrix:
         if entry.protein_id in protein_lookup:
-            raise ValueError("protein abundance correction requires unique protein_id rows")
+            raise ValueError(
+                "protein abundance correction requires unique protein_id rows"
+            )
         protein_lookup[entry.protein_id] = entry
 
     site_ids: set[str] = set()
     corrected: list[PtmSiteProteinCorrectionEntry] = []
     for candidate in site_matrix:
         if candidate.site_id in site_ids:
-            raise ValueError("protein abundance correction requires unique site_id rows")
+            raise ValueError(
+                "protein abundance correction requires unique site_id rows"
+            )
         site_ids.add(candidate.site_id)
         reference = protein_lookup.get(candidate.protein_id)
         if reference is None:

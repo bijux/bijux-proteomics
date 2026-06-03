@@ -18,7 +18,6 @@ from bijux_proteomics.review.claims.analysis_recommendations import (
     build_analysis_recommendation_report_from_artifacts,
 )
 from bijux_proteomics.review.claims.result_queries import (
-    _ResultArtifactContext,
     _empty_to_none,
     _find_protein_card,
     _load_result_artifact_context,
@@ -26,6 +25,7 @@ from bijux_proteomics.review.claims.result_queries import (
     _parse_optional_float,
     _protein_card_graph_node_ids,
     _read_tsv_rows,
+    _ResultArtifactContext,
     _sample_to_failed_qc_runs,
     _split_multi,
 )
@@ -204,7 +204,9 @@ def render_compact_result_summary_markdown(
     for section in report.sections:
         lines.append(f"## {section.title}")
         if not section.entries:
-            lines.append("- No governed evidence entries were retained for this section.")
+            lines.append(
+                "- No governed evidence entries were retained for this section."
+            )
         else:
             for entry in section.entries:
                 lines.append(f"- {entry.summary_text}")
@@ -373,11 +375,7 @@ def _build_sample_qc_section(
     if failed_sample_runs:
         for sample_id, qc_runs in tuple(sorted(failed_sample_runs.items()))[:3]:
             reason_codes = sorted(
-                {
-                    reason
-                    for run in qc_runs
-                    for reason in run.status_reason_codes
-                }
+                {reason for run in qc_runs for reason in run.status_reason_codes}
             )
             graph_node_ids = tuple(
                 dict.fromkeys(
@@ -429,7 +427,9 @@ def _build_sample_qc_section(
                     f"No samples mapped to failed QC runs across {len(context.result_context.qc_runs)} run-QC ledgers."
                 ),
                 result_surfaces=("qc_assessment",),
-                result_row_ids=tuple(run.run_id for run in context.result_context.qc_runs),
+                result_row_ids=tuple(
+                    run.run_id for run in context.result_context.qc_runs
+                ),
                 graph_node_ids=(),
                 note="sample QC bullet is derived from explicit run-QC ledgers",
             )
@@ -707,11 +707,18 @@ def _supported_claim_sort_key(claim: _ClaimArtifact) -> tuple[float, float, floa
 
 
 def _rejected_claim_sort_key(claim: _ClaimArtifact) -> tuple[int, float, str]:
-    return (-len(claim.reason_codes), 1.0 if claim.adjusted_p_value is None else claim.adjusted_p_value, claim.claim_id)
+    return (
+        -len(claim.reason_codes),
+        1.0 if claim.adjusted_p_value is None else claim.adjusted_p_value,
+        claim.claim_id,
+    )
 
 
 def _hypothesis_sort_key(hypothesis: _HypothesisArtifact) -> tuple[float, str]:
-    return (-(0.0 if hypothesis.confidence_score is None else hypothesis.confidence_score), hypothesis.hypothesis_id)
+    return (
+        -(0.0 if hypothesis.confidence_score is None else hypothesis.confidence_score),
+        hypothesis.hypothesis_id,
+    )
 
 
 def _supported_claim_entry(

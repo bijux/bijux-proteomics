@@ -40,6 +40,7 @@ from .matrix_building import (
 )
 from .matrix_models import LabelFreeQuantTable
 
+
 class LabelBasedChannelPolicyEntry(JsonModel):
     """One expected multiplex channel role inside a label-based assay policy."""
 
@@ -48,6 +49,7 @@ class LabelBasedChannelPolicyEntry(JsonModel):
     multiplex_group: str = Field(..., min_length=1)
     multiplex_channel: str = Field(..., min_length=1)
     channel_role: LabelBasedChannelRole
+
 
 class LabelBasedQuantPolicy(JsonModel):
     """Explicit channel-role and missing-channel policy for multiplex assays."""
@@ -58,6 +60,7 @@ class LabelBasedQuantPolicy(JsonModel):
     channel_entries: tuple[LabelBasedChannelPolicyEntry, ...] = Field(
         default_factory=tuple
     )
+
 
 class LabelBasedChannelStateEntry(JsonModel):
     """One observed or expected multiplex channel inside a label-based workflow."""
@@ -74,6 +77,7 @@ class LabelBasedChannelStateEntry(JsonModel):
     present_in_table: bool
     note: str = Field(..., min_length=1)
 
+
 class MissingMultiplexChannelEntry(JsonModel):
     """One missing multiplex channel handled under an explicit policy."""
 
@@ -84,6 +88,7 @@ class MissingMultiplexChannelEntry(JsonModel):
     expected_role: LabelBasedChannelRole
     policy: MissingChannelPolicy
     message: str = Field(..., min_length=1)
+
 
 class LabelBasedQuantBundle(JsonModel):
     """Reviewable channel-level manifest for one label-based quantification table."""
@@ -100,6 +105,7 @@ class LabelBasedQuantBundle(JsonModel):
         default_factory=tuple
     )
 
+
 class MultiplexNormalizationPolicy(JsonModel):
     """Normalization and balance settings for multiplex quantification groups."""
 
@@ -107,6 +113,7 @@ class MultiplexNormalizationPolicy(JsonModel):
 
     method: NormalizationMethod = NormalizationMethod.MEDIAN
     balance_ratio_threshold: float = Field(default=1.5, ge=1.0)
+
 
 class MultiplexChannelBalanceEntry(JsonModel):
     """One multiplex-channel abundance balance row within a single plex group."""
@@ -121,6 +128,7 @@ class MultiplexChannelBalanceEntry(JsonModel):
     ratio_to_group_median: float = Field(..., ge=0.0)
     flagged: bool
 
+
 class MultiplexChannelBalanceReport(JsonModel):
     """Governed channel-balance report across multiplex assay groups."""
 
@@ -128,6 +136,7 @@ class MultiplexChannelBalanceReport(JsonModel):
 
     policy: MultiplexNormalizationPolicy
     entries: tuple[MultiplexChannelBalanceEntry, ...] = Field(default_factory=tuple)
+
 
 def build_label_based_quant_bundle(
     table: LabelFreeQuantTable,
@@ -274,6 +283,7 @@ def build_label_based_quant_bundle(
         }
     )
 
+
 def normalize_multiplex_quant_table(
     table: LabelFreeQuantTable,
     *,
@@ -357,6 +367,7 @@ def normalize_multiplex_quant_table(
         normalization_method=active_policy.method,
         normalization_factors=factors,
     )
+
 
 def build_multiplex_channel_balance_report(
     table: LabelFreeQuantTable,

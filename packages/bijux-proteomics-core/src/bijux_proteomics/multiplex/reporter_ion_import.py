@@ -15,9 +15,13 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
 from bijux_proteomics_foundation import JsonModel
 
-_MAXQUANT_REPORTER_RE = re.compile(r"^Reporter intensity(?: corrected)? (?P<channel>\S+)$")
+_MAXQUANT_REPORTER_RE = re.compile(
+    r"^Reporter intensity(?: corrected)? (?P<channel>\S+)$"
+)
 _FRAGPIPE_REPORTER_RE = re.compile(r"^TMT[-_ ]?(?P<channel>\S+)$", re.IGNORECASE)
-_GENERIC_REPORTER_RE = re.compile(r"^(?P<channel>12[6789](?:[NC])?|13[01](?:[NC])?|13[2-5][NC])$")
+_GENERIC_REPORTER_RE = re.compile(
+    r"^(?P<channel>12[6789](?:[NC])?|13[01](?:[NC])?|13[2-5][NC])$"
+)
 
 
 class TmtSearchResultSourceKind(StrEnum):
@@ -98,9 +102,7 @@ class TmtReporterObservation(JsonModel):
     modified_peptide: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
-    isolation_interference_fraction: float | None = Field(
-        default=None, ge=0.0, le=1.0
-    )
+    isolation_interference_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
     channel_intensities: tuple[TmtReporterIntensity, ...] = Field(default_factory=tuple)
 
 
@@ -199,7 +201,9 @@ def parse_tmt_reporter_table(
             )
         isolation_interference_column = None
     if row_id_column is not None and row_id_column not in header:
-        raise ValueError(f"configured source-row-id column {row_id_column!r} is missing")
+        raise ValueError(
+            f"configured source-row-id column {row_id_column!r} is missing"
+        )
 
     resolved_channels = _resolve_reporter_channel_columns(
         header,
@@ -212,13 +216,10 @@ def parse_tmt_reporter_table(
     for row_number, raw_fields in enumerate(reader, start=2):
         issues: list[TmtReporterValidationIssue] = []
         modified_peptide = (raw_fields.get(peptide_column) or "").strip()
-        multiplex_group = (
-            active_mapping.default_multiplex_group
-            or (
-                ""
-                if multiplex_group_column is None
-                else (raw_fields.get(multiplex_group_column) or "").strip()
-            )
+        multiplex_group = active_mapping.default_multiplex_group or (
+            ""
+            if multiplex_group_column is None
+            else (raw_fields.get(multiplex_group_column) or "").strip()
         )
         if not modified_peptide:
             issues.append(

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 """HTML support helpers for biological report rendering."""
+
 from __future__ import annotations
 
 from html import escape
@@ -9,6 +10,7 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalReportSectionKey,
     BiologicalResultReportBundle,
 )
+
 
 def _render_section_heading_html(
     report: BiologicalResultReportBundle,
@@ -50,7 +52,6 @@ def _render_biological_report_section_confidence_table_html(
         f"<tbody>{row_html}</tbody>"
         "</table>"
     )
-
 
 
 def _format_optional_float(value: float | None) -> str:

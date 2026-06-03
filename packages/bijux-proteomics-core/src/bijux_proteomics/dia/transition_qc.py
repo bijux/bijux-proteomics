@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io import parse_transition_table
 from bijux_proteomics.io.transition_table import TransitionTableEntry
 from bijux_proteomics_foundation import JsonModel
@@ -121,7 +120,9 @@ def build_transition_qc_report(
     """Build transition-level sample summaries from canonical transition observations."""
 
     if not 0.0 <= weak_detection_fraction_threshold <= 1.0:
-        raise ValueError("weak_detection_fraction_threshold must be between 0.0 and 1.0")
+        raise ValueError(
+            "weak_detection_fraction_threshold must be between 0.0 and 1.0"
+        )
     if not 0.0 <= weak_relative_share_threshold <= 1.0:
         raise ValueError("weak_relative_share_threshold must be between 0.0 and 1.0")
 
@@ -149,7 +150,9 @@ def build_transition_qc_report(
         )
         sample_entries = group["sample_entries"]
         if not isinstance(sample_entries, dict):
-            raise TypeError("transition QC grouping must preserve sample entries as a mapping")
+            raise TypeError(
+                "transition QC grouping must preserve sample entries as a mapping"
+            )
         sample_entries.setdefault(entry.sample_id, []).append(entry)
 
     report_entries: list[DiaTransitionQcEntry] = []
@@ -166,7 +169,9 @@ def build_transition_qc_report(
         precursor_ids.add(precursor_id)
         sample_entries = group["sample_entries"]
         if not isinstance(sample_entries, dict):
-            raise TypeError("transition QC grouping must preserve sample entries as a mapping")
+            raise TypeError(
+                "transition QC grouping must preserve sample entries as a mapping"
+            )
         values: list[DiaTransitionSampleValue] = []
         detected_intensities: list[float] = []
         detected_retention_times: list[float] = []
@@ -186,7 +191,9 @@ def build_transition_qc_report(
                 continue
             observed_cell_count += 1
             intensity = sum(observation.intensity for observation in observations)
-            precursor_total_intensity = precursor_sample_totals[(precursor_id, sample_id)]
+            precursor_total_intensity = precursor_sample_totals[
+                (precursor_id, sample_id)
+            ]
             relative_share = (
                 intensity / precursor_total_intensity
                 if precursor_total_intensity > 0.0
@@ -472,7 +479,9 @@ def render_transition_qc_sample_tsv(report: DiaTransitionQcReport) -> str:
                         if value.precursor_total_intensity is None
                         else f"{value.precursor_total_intensity:g}"
                     ),
-                    "" if value.relative_share is None else f"{value.relative_share:.6g}",
+                    ""
+                    if value.relative_share is None
+                    else f"{value.relative_share:.6g}",
                     value.source_observation_count,
                     str(value.detected).lower(),
                 ]

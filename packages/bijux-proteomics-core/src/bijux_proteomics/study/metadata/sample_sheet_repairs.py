@@ -5,10 +5,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
-import csv
 from collections import Counter, defaultdict
+import csv
 from difflib import SequenceMatcher
 from io import StringIO
 import json
@@ -16,6 +14,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain import ConfidenceTier
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
@@ -26,7 +25,6 @@ from bijux_proteomics.study.design.experiment_design import (
     coerce_experiment_design,
 )
 from bijux_proteomics_foundation import JsonModel
-
 
 SampleSheetRepairConfidence = ConfidenceTier
 
@@ -76,7 +74,9 @@ class SampleSheetRepairSuggestionReport(JsonModel):
 
 
 def build_sample_sheet_repair_suggestion_report(
-    design: ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    design: ExperimentalDesignReport
+    | ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...],
     *,
     observed_sample_ids: tuple[str, ...] = (),
     observed_run_ids: tuple[str, ...] = (),
@@ -126,13 +126,19 @@ def build_sample_sheet_repair_suggestion_report(
                 if suggestion.confidence is SampleSheetRepairConfidence.HIGH
             ),
             missing_metadata_sample_count=sum(
-                1 for suggestion in ordered if suggestion.code == "missing_metadata_sample"
+                1
+                for suggestion in ordered
+                if suggestion.code == "missing_metadata_sample"
             ),
             metadata_run_mismatch_count=sum(
-                1 for suggestion in ordered if suggestion.code == "metadata_run_mismatch"
+                1
+                for suggestion in ordered
+                if suggestion.code == "metadata_run_mismatch"
             ),
             singleton_condition_typo_count=sum(
-                1 for suggestion in ordered if suggestion.code == "singleton_condition_typo"
+                1
+                for suggestion in ordered
+                if suggestion.code == "singleton_condition_typo"
             ),
             missing_technical_replicate_id_count=sum(
                 1
@@ -197,7 +203,9 @@ def export_sample_sheet_repair_suggestions_tsv(
 
 
 def _coerce_design_entries(
-    design: ExperimentalDesignReport | ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
+    design: ExperimentalDesignReport
+    | ExperimentDesign
+    | tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[tuple[ExperimentalDesignEntry, ...], int]:
     if isinstance(design, ExperimentalDesignReport):
         return design.accepted_entries, len(design.rejected_rows)
@@ -215,13 +223,14 @@ def _missing_metadata_sample_suggestions(
         return ()
     metadata_sample_ids = {sample.sample_id for sample in experiment_design.samples}
     unmatched_runs = tuple(
-        sorted(
-            set(observed_run_ids)
-            - {run.run_id for run in experiment_design.runs}
-        )
+        sorted(set(observed_run_ids) - {run.run_id for run in experiment_design.runs})
     )
     missing_samples = tuple(
-        sorted(sample_id for sample_id in observed_sample_ids if sample_id not in metadata_sample_ids)
+        sorted(
+            sample_id
+            for sample_id in observed_sample_ids
+            if sample_id not in metadata_sample_ids
+        )
     )
     suggestions: list[SampleSheetRepairSuggestion] = []
     for sample_id in missing_samples:
@@ -353,7 +362,11 @@ def _singleton_condition_typo_suggestions(
         if best_match is None or best_similarity < 0.75:
             continue
         sample_ids = tuple(
-            sorted(sample.sample_id for sample in experiment_design.samples if sample.condition == condition)
+            sorted(
+                sample.sample_id
+                for sample in experiment_design.samples
+                if sample.condition == condition
+            )
         )
         suggestions.append(
             SampleSheetRepairSuggestion(

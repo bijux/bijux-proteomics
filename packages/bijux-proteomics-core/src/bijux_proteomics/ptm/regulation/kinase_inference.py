@@ -74,7 +74,9 @@ def infer_kinases(
     site_lookup: dict[str, PtmKinaseSiteResult] = {}
     for entry in phosphosite_results:
         if entry.site_id in site_lookup:
-            raise ValueError("kinase inference requires unique site_id phosphosite results")
+            raise ValueError(
+                "kinase inference requires unique site_id phosphosite results"
+            )
         site_lookup[entry.site_id] = entry
 
     motif_by_kinase_site: dict[tuple[str, str], float] = {}
@@ -107,7 +109,11 @@ def infer_kinases(
         supporting_sites = tuple(sorted(set(motif_sites) | substrate_sites))
         if not supporting_sites:
             continue
-        overlap_count = sum(1 for site_id in supporting_sites if site_id in motif_sites and site_id in substrate_sites)
+        overlap_count = sum(
+            1
+            for site_id in supporting_sites
+            if site_id in motif_sites and site_id in substrate_sites
+        )
         motif_component = sum(
             motif_score * _site_effect_weight(site_lookup[site_id])
             for site_id, motif_score in motif_sites.items()

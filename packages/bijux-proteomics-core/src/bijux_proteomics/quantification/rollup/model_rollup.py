@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
-from collections.abc import Iterable
 from io import StringIO
 import math
 
@@ -238,7 +238,10 @@ def _validate_peptide_mapping(
     mapping: dict[str, str] = {}
     conflicting: dict[str, set[str]] = {}
     for entry in peptide_to_protein:
-        if entry.peptide_id in mapping and mapping[entry.peptide_id] != entry.protein_id:
+        if (
+            entry.peptide_id in mapping
+            and mapping[entry.peptide_id] != entry.protein_id
+        ):
             conflicting.setdefault(entry.peptide_id, {mapping[entry.peptide_id]}).add(
                 entry.protein_id
             )
@@ -280,7 +283,9 @@ def _fit_protein_components(
     protein_id: str,
     observations: tuple[_ObservedPeptideValue, ...],
     peptide_sequence_by_id: dict[str, str],
-) -> tuple[list[ProteinAbundanceEntry], list[PeptideBiasEntry], list[RollupResidualEntry]]:
+) -> tuple[
+    list[ProteinAbundanceEntry], list[PeptideBiasEntry], list[RollupResidualEntry]
+]:
     by_peptide: dict[str, list[_ObservedPeptideValue]] = {}
     by_sample: dict[str, list[_ObservedPeptideValue]] = {}
     for observation in observations:
@@ -301,7 +306,8 @@ def _fit_protein_components(
         component_observations = tuple(
             observation
             for observation in observations
-            if observation.peptide_id in peptide_ids and observation.sample_id in sample_ids
+            if observation.peptide_id in peptide_ids
+            and observation.sample_id in sample_ids
         )
         sample_effects, peptide_biases = _fit_component_model(
             component_observations,
@@ -311,7 +317,11 @@ def _fit_protein_components(
 
         support_by_sample = {
             sample_id: len(
-                {observation.peptide_id for observation in component_observations if observation.sample_id == sample_id}
+                {
+                    observation.peptide_id
+                    for observation in component_observations
+                    if observation.sample_id == sample_id
+                }
             )
             for sample_id in sample_ids
         }
@@ -343,7 +353,10 @@ def _fit_protein_components(
                 )
             )
         for observation in component_observations:
-            fitted = sample_effects[observation.sample_id] + peptide_biases[observation.peptide_id]
+            fitted = (
+                sample_effects[observation.sample_id]
+                + peptide_biases[observation.peptide_id]
+            )
             residual_rows.append(
                 RollupResidualEntry(
                     protein_id=protein_id,
@@ -364,8 +377,12 @@ def _connected_components(
     sample_ids: tuple[str, ...],
     observations: tuple[_ObservedPeptideValue, ...],
 ) -> tuple[tuple[tuple[str, ...], tuple[str, ...]], ...]:
-    peptide_to_samples: dict[str, set[str]] = {peptide_id: set() for peptide_id in peptide_ids}
-    sample_to_peptides: dict[str, set[str]] = {sample_id: set() for sample_id in sample_ids}
+    peptide_to_samples: dict[str, set[str]] = {
+        peptide_id: set() for peptide_id in peptide_ids
+    }
+    sample_to_peptides: dict[str, set[str]] = {
+        sample_id: set() for sample_id in sample_ids
+    }
     for observation in observations:
         peptide_to_samples[observation.peptide_id].add(observation.sample_id)
         sample_to_peptides[observation.sample_id].add(observation.peptide_id)
@@ -410,10 +427,7 @@ def _fit_component_model(
 ) -> tuple[dict[str, float], dict[str, float]]:
     if len(peptide_ids) == 1:
         peptide_id = peptide_ids[0]
-        sample_effects = {
-            sample_id: median_value
-            for sample_id, median_value in _per_sample_medians(observations).items()
-        }
+        sample_effects = dict(_per_sample_medians(observations).items())
         return sample_effects, {peptide_id: 0.0}
 
     sample_index = {sample_id: index for index, sample_id in enumerate(sample_ids)}
@@ -431,7 +445,8 @@ def _fit_component_model(
 
     coefficients, _, _, _ = np.linalg.lstsq(design, target, rcond=None)
     sample_effects = {
-        sample_id: float(coefficients[index]) for sample_id, index in sample_index.items()
+        sample_id: float(coefficients[index])
+        for sample_id, index in sample_index.items()
     }
     peptide_biases = {peptide_ids[0]: 0.0}
     for peptide_id in peptide_ids[1:]:
@@ -452,7 +467,9 @@ def _per_sample_medians(
 ) -> dict[str, float]:
     by_sample: dict[str, list[float]] = {}
     for observation in observations:
-        by_sample.setdefault(observation.sample_id, []).append(observation.log2_intensity)
+        by_sample.setdefault(observation.sample_id, []).append(
+            observation.log2_intensity
+        )
     return {
         sample_id: float(np.median(values))
         for sample_id, values in sorted(by_sample.items())

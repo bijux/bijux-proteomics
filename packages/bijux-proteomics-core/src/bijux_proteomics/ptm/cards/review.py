@@ -12,17 +12,17 @@ from typing import TYPE_CHECKING
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
-    PtmLocalizationConfidenceTier,
     PtmEvidenceRecord,
+    PtmLocalizationConfidenceTier,
     PtmLocalizationProbabilitySource,
     PtmMotifEnrichmentBackgroundProvenanceReport,  # noqa: F401
     PtmMotifEnrichmentTermEntry,  # noqa: F401
     PtmOccupancyCounterpartEvidenceReport,
     PtmProteinSiteMapping,
     PtmSiteEntry,
+    build_ptm_localization_scoring_report,
     build_ptm_motif_enrichment_background_provenance_report,  # noqa: F401
     build_ptm_motif_windows,
-    build_ptm_localization_scoring_report,
     build_ptm_occupancy_counterpart_report,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
@@ -234,10 +234,14 @@ def build_ptm_site_localization_evidence_graph(
         localization_tier = PtmLocalizationConfidenceTier.REFUSED
         probability = 0.0
         probability_candidates: list[
-            tuple[float, PtmLocalizationProbabilitySource, PtmLocalizationConfidenceTier]
+            tuple[
+                float, PtmLocalizationProbabilitySource, PtmLocalizationConfidenceTier
+            ]
         ] = []
         scoring_entries = [
-            scoring_by_spectrum_and_index[(mapping.spectrum_id, mapping.peptide_site_index)]
+            scoring_by_spectrum_and_index[
+                (mapping.spectrum_id, mapping.peptide_site_index)
+            ]
             for mapping in bucket
             if (mapping.spectrum_id, mapping.peptide_site_index)
             in scoring_by_spectrum_and_index

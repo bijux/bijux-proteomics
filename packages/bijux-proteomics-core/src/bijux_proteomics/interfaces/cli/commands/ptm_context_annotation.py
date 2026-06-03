@@ -10,8 +10,11 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_context_annotation import (
+    run_ptm_annotate_context_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_context_annotation import run_ptm_annotate_context_command
+
 
 @click.command("annotate-context")
 @click.argument(
@@ -118,9 +121,39 @@ def ptm_annotate_context_command(
     context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Annotate observed PTM sites with provided protein-region context.'
-    return run_ptm_annotate_context_command(evidence_tsv, proteins_fasta, context_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, context_protein_ref_column, context_start_column, context_end_column, context_domain_column, context_disorder_column, context_transmembrane_column, context_active_site_column, context_motif_column, context_conservation_column, context_source_name_column, context_source_accession_column, summary_tsv_out, context_tsv_out, out_path)
+    "Annotate observed PTM sites with provided protein-region context."
+    return run_ptm_annotate_context_command(
+        evidence_tsv,
+        proteins_fasta,
+        context_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        context_protein_ref_column,
+        context_start_column,
+        context_end_column,
+        context_domain_column,
+        context_disorder_column,
+        context_transmembrane_column,
+        context_active_site_column,
+        context_motif_column,
+        context_conservation_column,
+        context_source_name_column,
+        context_source_accession_column,
+        summary_tsv_out,
+        context_tsv_out,
+        out_path,
+    )
 
-COMMANDS = (
-    ptm_annotate_context_command,
-)
+
+COMMANDS = (ptm_annotate_context_command,)

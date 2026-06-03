@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from bijux_proteomics.domain.card_schema import (
     STANDARD_CARD_TSV_COLUMNS,
-    StandardCardIndex,
     StandardCardEntry,
+    StandardCardIndex,
     StandardCardKind,
     StandardCardSubjectKind,
     find_standard_card_by_card_id,

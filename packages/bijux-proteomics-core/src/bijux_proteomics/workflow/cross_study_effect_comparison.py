@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,8 +13,11 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
-from bijux_proteomics.quantification.contracts import DifferentialResultRobustnessQcStatus
+from bijux_proteomics.quantification.contracts import (
+    DifferentialResultRobustnessQcStatus,
+)
 from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     CrossStudyProteinHarmonizationReport,
     CrossStudyProteinHarmonizedEntry,
@@ -271,7 +272,8 @@ def extract_cross_study_protein_effect_observations(
         unsupported_study_count=len(unsupported),
         observation_count=len(observations),
         biological_report_observation_count=sum(
-            entry.source_kind is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
+            entry.source_kind
+            is CrossStudyProteinObservationSourceKind.PROTEIN_EVIDENCE_CARD
             for entry in observations
         ),
         label_based_observation_count=sum(
@@ -325,20 +327,24 @@ def build_cross_study_effect_comparison_report_from_observations(
 ) -> CrossStudyProteinEffectComparisonReport:
     """Compare effect directions, FDR, and robustness across harmonized proteins."""
 
-    identity_observations = tuple(_identity_observation_from_effect(entry) for entry in observations)
-    harmonization_report = build_cross_study_protein_harmonization_report_from_observations(
-        identity_observations,
-        ortholog_records=ortholog_records,
-        unsupported_studies=tuple(
-            UnsupportedCrossStudyProteinStudy(
-                study_id=entry.study_id,
-                study_label=entry.study_label,
-                study_kind=entry.study_kind,
-                reason=entry.reason,
-            )
-            for entry in unsupported_studies
-        ),
-        input_study_count=input_study_count,
+    identity_observations = tuple(
+        _identity_observation_from_effect(entry) for entry in observations
+    )
+    harmonization_report = (
+        build_cross_study_protein_harmonization_report_from_observations(
+            identity_observations,
+            ortholog_records=ortholog_records,
+            unsupported_studies=tuple(
+                UnsupportedCrossStudyProteinStudy(
+                    study_id=entry.study_id,
+                    study_label=entry.study_label,
+                    study_kind=entry.study_kind,
+                    reason=entry.reason,
+                )
+                for entry in unsupported_studies
+            ),
+            input_study_count=input_study_count,
+        )
     )
     observation_lookup = {entry.observation_id: entry for entry in observations}
     grouped_harmonized_entries: dict[str, list[CrossStudyProteinHarmonizedEntry]] = {}
@@ -385,7 +391,8 @@ def build_cross_study_effect_comparison_report_from_observations(
             for entry in comparison_entries
         ),
         study_specific_hit_count=sum(
-            entry.comparison_status is CrossStudyEffectComparisonStatus.STUDY_SPECIFIC_HIT
+            entry.comparison_status
+            is CrossStudyEffectComparisonStatus.STUDY_SPECIFIC_HIT
             for entry in comparison_entries
         ),
         conflicting_hit_count=sum(
@@ -393,11 +400,13 @@ def build_cross_study_effect_comparison_report_from_observations(
             for entry in comparison_entries
         ),
         heterogeneous_contrast_count=sum(
-            entry.comparison_status is CrossStudyEffectComparisonStatus.HETEROGENEOUS_CONTRASTS
+            entry.comparison_status
+            is CrossStudyEffectComparisonStatus.HETEROGENEOUS_CONTRASTS
             for entry in comparison_entries
         ),
         insufficient_support_count=sum(
-            entry.comparison_status is CrossStudyEffectComparisonStatus.INSUFFICIENT_SUPPORT
+            entry.comparison_status
+            is CrossStudyEffectComparisonStatus.INSUFFICIENT_SUPPORT
             for entry in comparison_entries
         ),
         low_robustness_comparison_count=sum(
@@ -473,7 +482,10 @@ def render_cross_study_effect_comparison_tsv(
                 str(entry.study_specific_hit).lower(),
                 str(entry.conflicting_hit).lower(),
                 ";".join(entry.conflicting_study_ids),
-                ";".join(direction.value for direction in entry.normalized_significant_directions),
+                ";".join(
+                    direction.value
+                    for direction in entry.normalized_significant_directions
+                ),
                 _format_float(entry.min_log2_fold_change),
                 _format_float(entry.max_log2_fold_change),
                 _format_float(entry.median_absolute_log2_fold_change),
@@ -548,7 +560,9 @@ def render_cross_study_effect_detail_tsv(
                 _format_float(entry.log2_fold_change),
                 entry.direction.value,
                 _format_float(entry.normalized_log2_fold_change),
-                "" if entry.normalized_direction is None else entry.normalized_direction.value,
+                ""
+                if entry.normalized_direction is None
+                else entry.normalized_direction.value,
                 _format_float(entry.p_value),
                 _format_float(entry.adjusted_p_value),
                 _format_float(entry.standard_error),
@@ -720,7 +734,9 @@ def _extract_biological_report_effects(
                 confidence_interval_low=card.differential_result.confidence_interval_low,
                 confidence_interval_high=card.differential_result.confidence_interval_high,
                 robustness_score=(
-                    None if differential_entry is None else differential_entry.robustness_score
+                    None
+                    if differential_entry is None
+                    else differential_entry.robustness_score
                 ),
                 robustness_qc_status=(
                     None
@@ -751,19 +767,24 @@ def _extract_label_based_effects(
         raise RuntimeError(
             "cross-study label-based effect extraction requires a label-based report"
         )
-    differential_report = report.differential_analysis_report.differential_abundance_report
+    differential_report = (
+        report.differential_analysis_report.differential_abundance_report
+    )
     if differential_report is None:
         raise RuntimeError(
             "cross-study label-based effect extraction requires a differential abundance report"
         )
     matrix_rows = {
-        row.entity_id: row for row in report.differential_analysis_report.normalized_matrix.rows
+        row.entity_id: row
+        for row in report.differential_analysis_report.normalized_matrix.rows
     }
     observations: list[CrossStudyProteinEffectObservation] = []
     for entry in differential_report.entries:
         row = matrix_rows.get(entry.entity_id)
         protein_refs = () if row is None else row.protein_refs
-        representative_protein_ref = protein_refs[0] if protein_refs else entry.entity_id
+        representative_protein_ref = (
+            protein_refs[0] if protein_refs else entry.entity_id
+        )
         observations.append(
             CrossStudyProteinEffectObservation(
                 observation_id=f"{study.study_id}:{entry.entity_id}",
@@ -879,7 +900,9 @@ def _build_effect_comparison_entry(
         anchor_condition_a=anchor_condition_a,
         anchor_condition_b=anchor_condition_b,
     )
-    significant_entries = tuple(entry for entry in normalized_entries if entry.significant)
+    significant_entries = tuple(
+        entry for entry in normalized_entries if entry.significant
+    )
     significant_directions = tuple(
         entry.normalized_direction
         for entry in significant_entries
@@ -889,7 +912,8 @@ def _build_effect_comparison_entry(
         sorted(
             entry.study_id
             for entry in significant_entries
-            if entry.normalized_direction in {CrossStudyEffectDirection.UP, CrossStudyEffectDirection.DOWN}
+            if entry.normalized_direction
+            in {CrossStudyEffectDirection.UP, CrossStudyEffectDirection.DOWN}
         )
     )
     low_robustness_study_ids = tuple(
@@ -930,16 +954,19 @@ def _build_effect_comparison_entry(
         anchor_condition_b=anchor_condition_b,
         comparison_status=status,
         replicated_hit=status is CrossStudyEffectComparisonStatus.REPLICATED_HIT,
-        study_specific_hit=status is CrossStudyEffectComparisonStatus.STUDY_SPECIFIC_HIT,
+        study_specific_hit=status
+        is CrossStudyEffectComparisonStatus.STUDY_SPECIFIC_HIT,
         conflicting_hit=status is CrossStudyEffectComparisonStatus.CONFLICTING_HIT,
         conflicting_study_ids=(
-            conflicting_study_ids
-            if len(significant_dirs) > 1
-            else ()
+            conflicting_study_ids if len(significant_dirs) > 1 else ()
         ),
         normalized_significant_directions=tuple(significant_directions),
-        min_log2_fold_change=min((entry.log2_fold_change for entry in normalized_entries), default=None),
-        max_log2_fold_change=max((entry.log2_fold_change for entry in normalized_entries), default=None),
+        min_log2_fold_change=min(
+            (entry.log2_fold_change for entry in normalized_entries), default=None
+        ),
+        max_log2_fold_change=max(
+            (entry.log2_fold_change for entry in normalized_entries), default=None
+        ),
         median_absolute_log2_fold_change=(
             median(abs(entry.log2_fold_change) for entry in normalized_entries)
             if normalized_entries
@@ -967,7 +994,10 @@ def _normalize_entries_to_anchor(
     normalized_entries: list[CrossStudyProteinEffectStudyEntry] = []
     reversed_seen = False
     for entry in entries:
-        if entry.condition_a == anchor_condition_a and entry.condition_b == anchor_condition_b:
+        if (
+            entry.condition_a == anchor_condition_a
+            and entry.condition_b == anchor_condition_b
+        ):
             normalized_entries.append(
                 entry.model_copy(
                     update={
@@ -977,7 +1007,10 @@ def _normalize_entries_to_anchor(
                 )
             )
             continue
-        if entry.condition_a == anchor_condition_b and entry.condition_b == anchor_condition_a:
+        if (
+            entry.condition_a == anchor_condition_b
+            and entry.condition_b == anchor_condition_a
+        ):
             reversed_seen = True
             normalized_log2_fold_change = -entry.log2_fold_change
             normalized_entries.append(
@@ -1014,7 +1047,10 @@ def _comparison_status_and_note(
     *,
     alignment_status: CrossStudyEffectContrastAlignmentStatus,
 ) -> tuple[CrossStudyEffectComparisonStatus, str]:
-    if alignment_status is CrossStudyEffectContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS:
+    if (
+        alignment_status
+        is CrossStudyEffectContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS
+    ):
         return (
             CrossStudyEffectComparisonStatus.HETEROGENEOUS_CONTRASTS,
             "studies did not compare the same condition pair, so directions were not merged into one replicated or conflicting call",
@@ -1024,7 +1060,8 @@ def _comparison_status_and_note(
         significant_directions = {
             entry.normalized_direction
             for entry in significant_entries
-            if entry.normalized_direction in {CrossStudyEffectDirection.UP, CrossStudyEffectDirection.DOWN}
+            if entry.normalized_direction
+            in {CrossStudyEffectDirection.UP, CrossStudyEffectDirection.DOWN}
         }
         if len(significant_directions) > 1:
             return (
@@ -1091,7 +1128,11 @@ def _minimum_adjusted_p_value(
 def _median_robustness_score(
     entries: tuple[CrossStudyProteinEffectStudyEntry, ...],
 ) -> float | None:
-    scores = [entry.robustness_score for entry in entries if entry.robustness_score is not None]
+    scores = [
+        entry.robustness_score
+        for entry in entries
+        if entry.robustness_score is not None
+    ]
     return None if not scores else float(median(scores))
 
 

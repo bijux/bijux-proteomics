@@ -248,8 +248,12 @@ class ValidationExperimentPlanningReport(JsonModel):
 
     policy: ValidationExperimentPlanningPolicy
     summary: ValidationExperimentPlanningSummary
-    plan_entries: tuple[ValidationExperimentPlanEntry, ...] = Field(default_factory=tuple)
-    warnings: tuple[ValidationExperimentWarningEntry, ...] = Field(default_factory=tuple)
+    plan_entries: tuple[ValidationExperimentPlanEntry, ...] = Field(
+        default_factory=tuple
+    )
+    warnings: tuple[ValidationExperimentWarningEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -286,7 +290,9 @@ def build_validation_experiment_planning_report(
         biomarker = biomarker_by_id.get(assay.biomarker_candidate_id)
         if biomarker is None:
             continue
-        selected = selected_by_key.get((assay.target_protein_ref, assay.canonical_peptide))
+        selected = selected_by_key.get(
+            (assay.target_protein_ref, assay.canonical_peptide)
+        )
         pilot = pilot_by_protein_ref.get(assay.target_protein_ref)
         assay_risk_score = _assay_risk_score(assay)
         expected_missingness = _expected_missingness_fraction(
@@ -421,14 +427,19 @@ def build_validation_experiment_planning_report(
             omitted_candidate_count=len(omitted_candidates),
             proposed_samples_per_group=active_policy.proposed_samples_per_group,
             recommended_panel_samples_per_group=max(
-                (entry.recommended_minimum_samples_per_group for entry in ordered_plan_entries),
+                (
+                    entry.recommended_minimum_samples_per_group
+                    for entry in ordered_plan_entries
+                ),
                 default=active_policy.proposed_samples_per_group,
             ),
             underpowered_assay_count=sum(
                 1 for entry in ordered_plan_entries if entry.underpowered
             ),
             high_expected_missingness_assay_count=sum(
-                1 for entry in ordered_plan_entries if entry.expected_missingness_fraction >= 0.4
+                1
+                for entry in ordered_plan_entries
+                if entry.expected_missingness_fraction >= 0.4
             ),
             high_assay_risk_assay_count=sum(
                 1 for entry in ordered_plan_entries if entry.assay_risk_score >= 0.55
@@ -463,26 +474,36 @@ def render_validation_experiment_planning_summary_tsv(
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
     writer.writerow(("field", "value"))
-    writer.writerow(("biomarker_candidate_count", report.summary.biomarker_candidate_count))
+    writer.writerow(
+        ("biomarker_candidate_count", report.summary.biomarker_candidate_count)
+    )
     writer.writerow(("planned_target_count", report.summary.planned_target_count))
     writer.writerow(("planned_assay_count", report.summary.planned_assay_count))
     writer.writerow(("omitted_candidate_count", report.summary.omitted_candidate_count))
-    writer.writerow(("proposed_samples_per_group", report.summary.proposed_samples_per_group))
+    writer.writerow(
+        ("proposed_samples_per_group", report.summary.proposed_samples_per_group)
+    )
     writer.writerow(
         (
             "recommended_panel_samples_per_group",
             report.summary.recommended_panel_samples_per_group,
         )
     )
-    writer.writerow(("underpowered_assay_count", report.summary.underpowered_assay_count))
+    writer.writerow(
+        ("underpowered_assay_count", report.summary.underpowered_assay_count)
+    )
     writer.writerow(
         (
             "high_expected_missingness_assay_count",
             report.summary.high_expected_missingness_assay_count,
         )
     )
-    writer.writerow(("high_assay_risk_assay_count", report.summary.high_assay_risk_assay_count))
-    writer.writerow(("pilot_backed_assay_count", report.summary.pilot_backed_assay_count))
+    writer.writerow(
+        ("high_assay_risk_assay_count", report.summary.high_assay_risk_assay_count)
+    )
+    writer.writerow(
+        ("pilot_backed_assay_count", report.summary.pilot_backed_assay_count)
+    )
     writer.writerow(("heuristic_assay_count", report.summary.heuristic_assay_count))
     writer.writerow(("warning_count", report.summary.warning_count))
     writer.writerow(("note", report.note))
@@ -527,7 +548,9 @@ def render_validation_experiment_planning_plan_tsv(
             "planning_note",
         )
     )
-    for entry in sort_rows_by_fields(report.plan_entries, "biomarker_priority_rank", "assay_entry_id"):
+    for entry in sort_rows_by_fields(
+        report.plan_entries, "biomarker_priority_rank", "assay_entry_id"
+    ):
         writer.writerow(
             (
                 entry.assay_entry_id,
@@ -639,10 +662,20 @@ def _expected_missingness_fraction(
         heuristic = 0.45
     else:
         detection_component = 0.30 * (
-            1.0 - (selected.detection_frequency if selected.detection_frequency is not None else 0.75)
+            1.0
+            - (
+                selected.detection_frequency
+                if selected.detection_frequency is not None
+                else 0.75
+            )
         )
         replicate_component = 0.15 * (
-            1.0 - (selected.replicate_consistency if selected.replicate_consistency is not None else 0.75)
+            1.0
+            - (
+                selected.replicate_consistency
+                if selected.replicate_consistency is not None
+                else 0.75
+            )
         )
         detectability_component = 0.20 * (1.0 - selected.detectability_score)
         suitability_component = 0.15 * (1.0 - selected.suitability_score)
@@ -653,9 +686,14 @@ def _expected_missingness_fraction(
             PeptideChemicalLiabilityTier.AVOID: 0.22,
         }[selected.liability_tier]
         risk_component = 0.0
-        if assay.assay_interference_risk_tier is TargetedAssayInterferenceRiskTier.MEDIUM:
+        if (
+            assay.assay_interference_risk_tier
+            is TargetedAssayInterferenceRiskTier.MEDIUM
+        ):
             risk_component = 0.08
-        elif assay.assay_interference_risk_tier is TargetedAssayInterferenceRiskTier.HIGH:
+        elif (
+            assay.assay_interference_risk_tier is TargetedAssayInterferenceRiskTier.HIGH
+        ):
             risk_component = 0.18
         if TargetedPanelWarningCode.REDUCED_TRANSITION_SUPPORT in assay.warning_codes:
             risk_component += 0.06
@@ -697,8 +735,12 @@ def _recommended_samples_per_group(
             target_power=policy.target_power,
         )
         burden_multiplier = 1.0 / max(0.20, 1.0 - expected_missingness_fraction)
-        risk_multiplier = 1.0 + (0.45 * assay_risk_score) + (0.35 * biomarker.uncertainty)
-        recommended = math.ceil(effective_replicates * burden_multiplier * risk_multiplier)
+        risk_multiplier = (
+            1.0 + (0.45 * assay_risk_score) + (0.35 * biomarker.uncertainty)
+        )
+        recommended = math.ceil(
+            effective_replicates * burden_multiplier * risk_multiplier
+        )
         return (
             ValidationExperimentPlanningMode.PILOT_BACKED,
             max(policy.heuristic_minimum_samples_per_group, recommended),
@@ -797,9 +839,8 @@ def _inverse_standard_normal_cdf(probability: float) -> float:
     upper_tail = 1.0 - lower_tail
     if probability < lower_tail:
         q = math.sqrt(-2.0 * math.log(probability))
-        return (
-            (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
-            / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
+        return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / (
+            (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
         )
     if probability > upper_tail:
         q = math.sqrt(-2.0 * math.log(1.0 - probability))
@@ -931,15 +972,16 @@ def _planning_note(
         f"{recommended_samples_per_group} samples per group from effect size, robustness, "
         f"expected missingness {expected_missingness_fraction:.2f}, and assay risk {assay_risk_score:.2f}"
     )
-    if planning_mode is ValidationExperimentPlanningMode.PILOT_BACKED and pilot is not None:
+    if (
+        planning_mode is ValidationExperimentPlanningMode.PILOT_BACKED
+        and pilot is not None
+    ):
         base += (
             f"; pilot log2 standard deviation {pilot.pooled_log2_stddev:.2f} was available "
             f"for {biomarker.target_protein_ref}"
         )
     if proposed_samples_per_group < recommended_samples_per_group:
-        base += (
-            f"; proposed design with {proposed_samples_per_group} samples per group is underpowered"
-        )
+        base += f"; proposed design with {proposed_samples_per_group} samples per group is underpowered"
     return base
 
 

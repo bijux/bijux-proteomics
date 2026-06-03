@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_spectrum_parse_command(
     input_mgf: Path,
@@ -57,6 +57,7 @@ def run_spectrum_parse_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_spectrum_stats_command(
     input_mgf: Path,
     provenance_out: Path | None,
@@ -78,6 +79,7 @@ def run_spectrum_stats_command(
         ],
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_spectrum_summary_command(
     input_path: Path,
@@ -120,20 +122,29 @@ def run_spectrum_summary_command(
     if summary_tsv_out is not None:
         write_output_table_tsv(summary_tsv_out, render_spectrum_summary_tsv(report))
     if charge_tsv_out is not None:
-        write_output_table_tsv(charge_tsv_out, render_spectrum_distribution_tsv(
+        write_output_table_tsv(
+            charge_tsv_out,
+            render_spectrum_distribution_tsv(
                 report.charge_distribution,
                 distribution_name="charge",
-            ))
+            ),
+        )
     if precursor_tsv_out is not None:
-        write_output_table_tsv(precursor_tsv_out, render_spectrum_distribution_tsv(
+        write_output_table_tsv(
+            precursor_tsv_out,
+            render_spectrum_distribution_tsv(
                 report.precursor_mz_distribution,
                 distribution_name="precursor_mz",
-            ))
+            ),
+        )
     if peak_count_tsv_out is not None:
-        write_output_table_tsv(peak_count_tsv_out, render_spectrum_distribution_tsv(
+        write_output_table_tsv(
+            peak_count_tsv_out,
+            render_spectrum_distribution_tsv(
                 report.peak_count_distribution,
                 distribution_name="peak_count",
-            ))
+            ),
+        )
 
     payload = report.to_dict()
     payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
@@ -143,6 +154,7 @@ def run_spectrum_summary_command(
         str(peak_count_tsv_out) if peak_count_tsv_out else None
     )
     _emit_json(payload, out_path=out_path)
+
 
 def run_spectrum_qc_command(
     input_path: Path,
@@ -251,6 +263,7 @@ def run_spectrum_qc_command(
     payload["plot_out"] = str(plot_out) if plot_out else None
     _emit_json(payload, out_path=out_path)
 
+
 def run_mzml_inspect_command(
     input_mzml: Path,
     spectra_jsonl_out: Path | None,
@@ -277,4 +290,11 @@ def run_mzml_inspect_command(
     )
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_spectrum_parse_command', 'run_spectrum_stats_command', 'run_spectrum_summary_command', 'run_spectrum_qc_command', 'run_mzml_inspect_command']
+
+__all__ = [
+    "run_spectrum_parse_command",
+    "run_spectrum_stats_command",
+    "run_spectrum_summary_command",
+    "run_spectrum_qc_command",
+    "run_mzml_inspect_command",
+]

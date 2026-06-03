@@ -121,7 +121,9 @@ def build_ptm_site_group_evidence(
     grouped: dict[tuple[str, str, tuple[int, ...]], list[PtmSiteEntry]] = {}
     for entry in site_entries:
         candidate_positions = (
-            entry.candidate_positions if entry.candidate_positions else (entry.position,)
+            entry.candidate_positions
+            if entry.candidate_positions
+            else (entry.position,)
         )
         grouped.setdefault(
             (entry.protein_ref, entry.modification_name, candidate_positions),

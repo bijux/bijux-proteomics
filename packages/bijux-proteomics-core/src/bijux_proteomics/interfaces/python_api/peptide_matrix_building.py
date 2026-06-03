@@ -6,12 +6,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.identification import parse_psm_tsv_chunked
+from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.quantification import (
     parse_ms1_feature_table_chunked,
     parse_precursor_intensity_table_chunked,
 )
+
 
 def run_peptide_matrix_command(
     input_table: Path,
@@ -118,9 +119,7 @@ def run_peptide_matrix_command(
             )
             payload = {
                 "input_kind": input_kind,
-                "accepted_source_records": len(
-                    precursor_parse_report.accepted_records
-                ),
+                "accepted_source_records": len(precursor_parse_report.accepted_records),
                 "rejected_source_records": len(precursor_parse_report.rejected_rows),
                 "report": report.to_dict(),
             }
@@ -193,9 +192,7 @@ def run_peptide_matrix_command(
             None if missingness_tsv_out is None else str(missingness_tsv_out)
         ),
         "missingness_mask_tsv": (
-            None
-            if missingness_mask_tsv_out is None
-            else str(missingness_mask_tsv_out)
+            None if missingness_mask_tsv_out is None else str(missingness_mask_tsv_out)
         ),
         "aggregation_table_tsv": (
             None
@@ -205,4 +202,5 @@ def run_peptide_matrix_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_peptide_matrix_command']
+
+__all__ = ["run_peptide_matrix_command"]

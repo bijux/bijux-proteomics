@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_quantification import (
+    run_ptm_ambiguity_review_command,
+    run_ptm_quantify_sites_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_quantification import run_ptm_ambiguity_review_command, run_ptm_quantify_sites_command
+
 
 @click.command("ambiguity-review")
 @click.argument(
@@ -109,8 +113,34 @@ def ptm_ambiguity_review_command(
     group_quant_missingness_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review PTM localization ambiguity and optional ambiguity-group quantification.'
-    return run_ptm_ambiguity_review_command(evidence_tsv, proteins_fasta, feature_path, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, fragment_support_json, summary_tsv_out, localized_tsv_out, unlocalized_tsv_out, group_quant_summary_tsv_out, group_quant_matrix_tsv_out, group_quant_missingness_tsv_out, out_path)
+    "Review PTM localization ambiguity and optional ambiguity-group quantification."
+    return run_ptm_ambiguity_review_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_path,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        fragment_support_json,
+        summary_tsv_out,
+        localized_tsv_out,
+        unlocalized_tsv_out,
+        group_quant_summary_tsv_out,
+        group_quant_matrix_tsv_out,
+        group_quant_missingness_tsv_out,
+        out_path,
+    )
+
 
 @click.command("quantify-sites")
 @click.argument(
@@ -214,8 +244,35 @@ def ptm_quantify_sites_command(
     excluded_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Quantify PTM sites across samples from localized evidence and feature intensities.'
-    return run_ptm_quantify_sites_command(evidence_tsv, proteins_fasta, feature_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, ambiguity_policy, summary_tsv_out, matrix_tsv_out, missingness_tsv_out, ambiguous_group_summary_tsv_out, ambiguous_group_matrix_tsv_out, ambiguous_group_missingness_tsv_out, excluded_tsv_out, out_path)
+    "Quantify PTM sites across samples from localized evidence and feature intensities."
+    return run_ptm_quantify_sites_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        ambiguity_policy,
+        summary_tsv_out,
+        matrix_tsv_out,
+        missingness_tsv_out,
+        ambiguous_group_summary_tsv_out,
+        ambiguous_group_matrix_tsv_out,
+        ambiguous_group_missingness_tsv_out,
+        excluded_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     ptm_ambiguity_review_command,

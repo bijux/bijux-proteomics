@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_fasta_provenance_command(
     input_fasta: Path,
     mode: str,
@@ -18,9 +19,7 @@ def run_fasta_provenance_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
         allow_rejected=True,
     )
     manifest = build_fasta_provenance_manifest(
@@ -37,6 +36,7 @@ def run_fasta_provenance_command(
         },
     )
     _emit_json(manifest, out_path=out_path)
+
 
 def run_fasta_decoy_command(
     input_fasta: Path,
@@ -89,6 +89,7 @@ def run_fasta_decoy_command(
     payload["generation_report"] = generation_report.to_dict()
     _emit_json(payload, out_path=report_out)
 
+
 def run_target_decoy_validate_command(
     input_fasta: Path,
     mode: str,
@@ -102,6 +103,7 @@ def run_target_decoy_validate_command(
     )
     validation = validate_target_decoy_database(report.accepted_records, prefix=prefix)
     _emit_json(validation, out_path=out_path)
+
 
 def run_digest_command(
     input_fasta: Path,
@@ -191,6 +193,7 @@ def run_digest_command(
             peptide_protein_table_out.read_bytes()
         ).hexdigest()
     _emit_json(payload)
+
 
 def run_theoretical_digest_command(
     input_fasta: Path,
@@ -283,4 +286,11 @@ def run_theoretical_digest_command(
         }
     )
 
-__all__ = ['run_fasta_provenance_command', 'run_fasta_decoy_command', 'run_target_decoy_validate_command', 'run_digest_command', 'run_theoretical_digest_command']
+
+__all__ = [
+    "run_fasta_provenance_command",
+    "run_fasta_decoy_command",
+    "run_target_decoy_validate_command",
+    "run_digest_command",
+    "run_theoretical_digest_command",
+]

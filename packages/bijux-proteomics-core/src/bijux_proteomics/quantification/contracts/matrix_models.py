@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.domain.records import (
     QuantMatrix as CanonicalQuantMatrix,
 )
+from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.quantification.core_matrix import (
     build_numeric_quant_matrix,
 )
@@ -35,6 +35,7 @@ from .input_models import (
     QuantRollupMethod,
 )
 
+
 class QuantValue(JsonModel):
     """One matrix cell in a stable quantification table."""
 
@@ -48,6 +49,7 @@ class QuantValue(JsonModel):
     value_provenance: QuantValueProvenance | None = None
     imputation_provenance: QuantCellImputationProvenance | None = None
 
+
 class QuantCellImputationProvenance(JsonModel):
     """Per-cell provenance for an imputed quantification abundance."""
 
@@ -60,6 +62,7 @@ class QuantCellImputationProvenance(JsonModel):
     donor_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     donor_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 
+
 class QuantValueOrigin(StrEnum):
     """Whether a quantification cell is observed, still missing, or imputed."""
 
@@ -67,11 +70,13 @@ class QuantValueOrigin(StrEnum):
     MISSING = "missing"
     IMPUTED = "imputed"
 
+
 class QuantValueContributorKind(StrEnum):
     """Stable contributor categories that can support one quantification value."""
 
     FEATURE = "feature"
     PRECURSOR = "precursor"
+
 
 class QuantValueSourceContributor(JsonModel):
     """One selected raw contributor that directly supports a quant value."""
@@ -86,6 +91,7 @@ class QuantValueSourceContributor(JsonModel):
     missing_value_kind: MissingValueKind
     imported_provenance: ImportedEvidenceProvenance | None = None
 
+
 class QuantValueExcludedContributor(JsonModel):
     """One raw contributor excluded from a quant value plus the exclusion reason."""
 
@@ -94,6 +100,7 @@ class QuantValueExcludedContributor(JsonModel):
     contributor: QuantValueSourceContributor
     reason_code: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
+
 
 class QuantValueProvenance(JsonModel):
     """Stable per-cell provenance that explains one matrix value back to raw support."""
@@ -111,6 +118,7 @@ class QuantValueProvenance(JsonModel):
     excluded_contributors: tuple[QuantValueExcludedContributor, ...] = Field(
         default_factory=tuple
     )
+
 
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
@@ -181,7 +189,8 @@ class LabelFreeQuantTable(JsonModel):
             entity_ids=self.entity_ids,
             sample_ids=self.sample_ids,
             value_lookup={
-                (value.entity_id, value.sample_id): value.abundance for value in self.values
+                (value.entity_id, value.sample_id): value.abundance
+                for value in self.values
             },
             missing_state_lookup={
                 (value.entity_id, value.sample_id): _canonical_missing_value_state(
@@ -195,7 +204,9 @@ class LabelFreeQuantTable(JsonModel):
             },
             row_metadata_lookup={
                 entity_id: {
-                    "protein_refs": ";".join(self.entity_protein_refs.get(entity_id, ())),
+                    "protein_refs": ";".join(
+                        self.entity_protein_refs.get(entity_id, ())
+                    ),
                     "member_peptides": ";".join(
                         self.entity_member_peptides.get(entity_id, ())
                     ),
@@ -324,6 +335,7 @@ def render_label_free_quant_missingness_matrix_tsv(table: LabelFreeQuantTable) -
         )
     return handle.getvalue()
 
+
 class QuantSampleMetadataEntry(JsonModel):
     """Stable sample metadata attached to exported quantification matrices."""
 
@@ -337,6 +349,7 @@ class QuantSampleMetadataEntry(JsonModel):
     instrument: str | None = None
     search_engine: str | None = None
 
+
 class QuantNormalizationProvenance(JsonModel):
     """Normalization context preserved alongside exported quant matrices."""
 
@@ -346,6 +359,7 @@ class QuantNormalizationProvenance(JsonModel):
     normalization_factors: dict[str, float] = Field(default_factory=dict)
     note: str = Field(..., min_length=1)
 
+
 class QuantImputationProvenance(JsonModel):
     """Imputation context preserved alongside exported quant matrices."""
 
@@ -354,6 +368,7 @@ class QuantImputationProvenance(JsonModel):
     imputation_method: ImputationMethod = ImputationMethod.NONE
     imputed_value_count: int = Field(default=0, ge=0)
     note: str = Field(..., min_length=1)
+
 
 class QuantMatrixExportRow(JsonModel):
     """One stable export row from a quantification matrix."""
@@ -372,6 +387,7 @@ class QuantMatrixExportRow(JsonModel):
     imputation_provenance: QuantCellImputationProvenance | None = None
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     member_peptides: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class QuantMatrixExport(JsonModel):
     """Export-ready quantification matrix with metadata and provenance."""

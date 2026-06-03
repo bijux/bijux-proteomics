@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.targeted_selection import (
+    run_biomarker_candidate_ranking_command,
+    run_targeted_assay_interference_command,
+    run_targeted_peptide_selection_command,
+    run_targeted_transition_selection_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.targeted_selection import run_targeted_peptide_selection_command, run_targeted_transition_selection_command, run_targeted_assay_interference_command, run_biomarker_candidate_ranking_command
+
 
 @click.command("targeted-peptide-selection")
 @click.argument(
@@ -48,8 +54,20 @@ def targeted_peptide_selection_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Select targeted assay peptides from discovery protein and peptide evidence.'
-    return run_targeted_peptide_selection_command(protein_card_tsv, peptide_evidence_tsv, input_fasta, protease, missed_cleavages, top_peptides_per_target, summary_tsv_out, selected_tsv_out, rejected_tsv_out, out_path)
+    "Select targeted assay peptides from discovery protein and peptide evidence."
+    return run_targeted_peptide_selection_command(
+        protein_card_tsv,
+        peptide_evidence_tsv,
+        input_fasta,
+        protease,
+        missed_cleavages,
+        top_peptides_per_target,
+        summary_tsv_out,
+        selected_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("targeted-transition-selection")
 @click.argument(
@@ -123,8 +141,25 @@ def targeted_transition_selection_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Select chemistry-driven fragment transitions for targeted assay peptides.'
-    return run_targeted_transition_selection_command(selected_peptide_tsv, spectral_library_path, spectral_library_format, default_precursor_charge, fragment_charges, min_transitions_per_peptide, max_transitions_per_peptide, min_fragment_mz, max_fragment_mz, precursor_exclusion_da, library_match_tolerance_da, summary_tsv_out, selected_tsv_out, rejected_tsv_out, out_path)
+    "Select chemistry-driven fragment transitions for targeted assay peptides."
+    return run_targeted_transition_selection_command(
+        selected_peptide_tsv,
+        spectral_library_path,
+        spectral_library_format,
+        default_precursor_charge,
+        fragment_charges,
+        min_transitions_per_peptide,
+        max_transitions_per_peptide,
+        min_fragment_mz,
+        max_fragment_mz,
+        precursor_exclusion_da,
+        library_match_tolerance_da,
+        summary_tsv_out,
+        selected_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("targeted-assay-interference")
 @click.argument(
@@ -197,8 +232,26 @@ def targeted_assay_interference_command(
     panel_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score targeted assay interference before panel export.'
-    return run_targeted_assay_interference_command(selected_peptide_tsv, selected_transition_tsv, input_fasta, spectral_library_path, spectral_library_format, protease, missed_cleavages, precursor_tolerance_da, fragment_tolerance_da, coelution_rt_window_minutes, min_export_transitions, summary_tsv_out, assay_tsv_out, transition_tsv_out, panel_tsv_out, out_path)
+    "Score targeted assay interference before panel export."
+    return run_targeted_assay_interference_command(
+        selected_peptide_tsv,
+        selected_transition_tsv,
+        input_fasta,
+        spectral_library_path,
+        spectral_library_format,
+        protease,
+        missed_cleavages,
+        precursor_tolerance_da,
+        fragment_tolerance_da,
+        coelution_rt_window_minutes,
+        min_export_transitions,
+        summary_tsv_out,
+        assay_tsv_out,
+        transition_tsv_out,
+        panel_tsv_out,
+        out_path,
+    )
+
 
 @click.command("biomarker-candidate-ranking")
 @click.option(
@@ -238,8 +291,17 @@ def biomarker_candidate_ranking_command(
     candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Rank protein and PTM validation candidates from governed report artifacts.'
-    return run_biomarker_candidate_ranking_command(biological_report_dir, ptm_report_dir, selected_peptide_tsv, assay_interference_assay_tsv, summary_tsv_out, candidate_tsv_out, out_path)
+    "Rank protein and PTM validation candidates from governed report artifacts."
+    return run_biomarker_candidate_ranking_command(
+        biological_report_dir,
+        ptm_report_dir,
+        selected_peptide_tsv,
+        assay_interference_assay_tsv,
+        summary_tsv_out,
+        candidate_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     targeted_peptide_selection_command,

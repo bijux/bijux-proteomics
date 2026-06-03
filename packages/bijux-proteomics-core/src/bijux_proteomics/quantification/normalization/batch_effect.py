@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 import math
@@ -14,6 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     BatchAssociatedPrincipalComponentEntry,
@@ -343,9 +342,7 @@ def _batch_warning(
     if any(entry.flagged for entry in batches) or any(
         entry.associated_with_batch for entry in principal_components
     ):
-        return (
-            "batch-associated structure was detected and should be reviewed before correction or interpretation"
-        )
+        return "batch-associated structure was detected and should be reviewed before correction or interpretation"
     return None
 
 
@@ -356,11 +353,7 @@ def _batch_note(
     flagged_batch_count: int,
 ) -> str:
     if fully_confounded_with_condition:
-        return (
-            "batch estimation detected full confounding between batch and condition and therefore blocks batch correction"
-        )
+        return "batch estimation detected full confounding between batch and condition and therefore blocks batch correction"
     if flagged_batch_count > 0 or batch_variance_proxy > 0.0:
-        return (
-            "batch estimation preserves global shifts and batch-associated principal components for quantitative review"
-        )
+        return "batch estimation preserves global shifts and batch-associated principal components for quantitative review"
     return "batch estimation did not detect shifts or principal-component structure beyond the current thresholds"

@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 from collections import defaultdict
 import csv
 from enum import StrEnum
@@ -15,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_protein_mechanism_card_id
 from bijux_proteomics.ptm import PtmEvidenceCardReport, PtmMechanismClass
@@ -30,13 +29,15 @@ from bijux_proteomics.sequences import (
     ProteinFunctionalRegionKind,
     ProteinIdentityLevel,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph import BiologicalResultGraphReport
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
     ProteinEvidenceCard,
     ProteinEvidenceCardPathwayEntry,
     ProteinEvidenceCardPathwayEntryKind,
     ProteinEvidenceCardReport,
     ProteinEvidenceCardWarningCode,
+)
+from bijux_proteomics.workflow.reports.biological_result_graph import (
+    BiologicalResultGraphReport,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -114,14 +115,20 @@ class ProteinMechanismCard(JsonModel):
     ptms: tuple[ProteinMechanismCardPtmSummary, ...] = Field(default_factory=tuple)
     domains: tuple[ProteinFunctionalRegionEvidence, ...] = Field(default_factory=tuple)
     pathways: tuple[ProteinEvidenceCardPathwayEntry, ...] = Field(default_factory=tuple)
-    complexes: tuple[ProteinEvidenceCardPathwayEntry, ...] = Field(default_factory=tuple)
+    complexes: tuple[ProteinEvidenceCardPathwayEntry, ...] = Field(
+        default_factory=tuple
+    )
     evidence_tier: FinalClaimEvidenceTier
     confidence_tier: EvidenceGraphConfidenceTier
-    downgrade_reasons: tuple[EvidenceGraphDowngradeReason, ...] = Field(default_factory=tuple)
+    downgrade_reasons: tuple[EvidenceGraphDowngradeReason, ...] = Field(
+        default_factory=tuple
+    )
     source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
     derived_no_source_reason: str | None = None
     evidence_rationale: str = Field(..., min_length=1)
-    warning_codes: tuple[ProteinEvidenceCardWarningCode, ...] = Field(default_factory=tuple)
+    warning_codes: tuple[ProteinEvidenceCardWarningCode, ...] = Field(
+        default_factory=tuple
+    )
 
     @model_validator(mode="after")
     def _validate_source_row_lineage(self) -> ProteinMechanismCard:
@@ -259,12 +266,16 @@ def build_protein_mechanism_card_report(
 
     tier_counts: dict[str, int] = {}
     for card in cards:
-        tier_counts[card.evidence_tier.value] = tier_counts.get(card.evidence_tier.value, 0) + 1
+        tier_counts[card.evidence_tier.value] = (
+            tier_counts.get(card.evidence_tier.value, 0) + 1
+        )
     return ProteinMechanismCardReport(
         cards=tuple(cards),
         summary=ProteinMechanismCardSummary(
             card_count=len(cards),
-            significant_card_count=sum(1 for card in cards if card.abundance_change.significant),
+            significant_card_count=sum(
+                1 for card in cards if card.abundance_change.significant
+            ),
             ptm_annotated_card_count=sum(1 for card in cards if card.ptms),
             domain_annotated_card_count=sum(1 for card in cards if card.domains),
             pathway_annotated_card_count=sum(1 for card in cards if card.pathways),
@@ -290,7 +301,9 @@ def build_protein_mechanism_card_report(
     )
 
 
-def render_protein_mechanism_card_summary_tsv(report: ProteinMechanismCardReport) -> str:
+def render_protein_mechanism_card_summary_tsv(
+    report: ProteinMechanismCardReport,
+) -> str:
     """Render a compact protein mechanism-card summary ledger as TSV."""
 
     handle = StringIO()
@@ -298,12 +311,22 @@ def render_protein_mechanism_card_summary_tsv(report: ProteinMechanismCardReport
     writer.writerow(("field", "value"))
     writer.writerow(("card_count", report.summary.card_count))
     writer.writerow(("significant_card_count", report.summary.significant_card_count))
-    writer.writerow(("ptm_annotated_card_count", report.summary.ptm_annotated_card_count))
-    writer.writerow(("domain_annotated_card_count", report.summary.domain_annotated_card_count))
-    writer.writerow(("pathway_annotated_card_count", report.summary.pathway_annotated_card_count))
-    writer.writerow(("complex_annotated_card_count", report.summary.complex_annotated_card_count))
+    writer.writerow(
+        ("ptm_annotated_card_count", report.summary.ptm_annotated_card_count)
+    )
+    writer.writerow(
+        ("domain_annotated_card_count", report.summary.domain_annotated_card_count)
+    )
+    writer.writerow(
+        ("pathway_annotated_card_count", report.summary.pathway_annotated_card_count)
+    )
+    writer.writerow(
+        ("complex_annotated_card_count", report.summary.complex_annotated_card_count)
+    )
     writer.writerow(("warning_card_count", report.summary.warning_card_count))
-    writer.writerow(("weak_evidence_card_count", report.summary.weak_evidence_card_count))
+    writer.writerow(
+        ("weak_evidence_card_count", report.summary.weak_evidence_card_count)
+    )
     writer.writerow(
         (
             "evidence_tier_counts",
@@ -385,9 +408,7 @@ def render_protein_mechanism_card_tsv(report: ProteinMechanismCardReport) -> str
                 card.peptide_support.graph_support_edge_count,
                 ";".join(ptm.site_key for ptm in card.ptms),
                 ";".join(
-                    ""
-                    if ptm.mechanism_class is None
-                    else ptm.mechanism_class.value
+                    "" if ptm.mechanism_class is None else ptm.mechanism_class.value
                     for ptm in card.ptms
                 ),
                 ";".join(domain.label for domain in card.domains),

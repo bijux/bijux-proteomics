@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_belief_audit_command(
     biological_report_dir: Path | None,
     ptm_report_dir: Path | None,
@@ -63,20 +64,21 @@ def run_belief_audit_command(
             if validation_evidence_warning_tsv is None
             else str(validation_evidence_warning_tsv)
         ),
-        "run_qc_assessment_tsv_paths": [str(path) for path in run_qc_assessment_tsv_paths],
+        "run_qc_assessment_tsv_paths": [
+            str(path) for path in run_qc_assessment_tsv_paths
+        ],
         "report": report.to_dict(),
         "html": html,
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "belief_audit_tsv": (
-                None
-                if belief_audit_tsv_out is None
-                else str(belief_audit_tsv_out)
+                None if belief_audit_tsv_out is None else str(belief_audit_tsv_out)
             ),
             "html": None if html_out is None else str(html_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_targeted_panel_builder_command(
     biomarker_candidate_tsv: Path,
@@ -117,11 +119,17 @@ def run_targeted_panel_builder_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        _write_text_output(summary_tsv_out, render_targeted_panel_design_summary_tsv(report))
+        _write_text_output(
+            summary_tsv_out, render_targeted_panel_design_summary_tsv(report)
+        )
     if assay_tsv_out is not None:
-        _write_text_output(assay_tsv_out, render_targeted_panel_design_assay_tsv(report))
+        _write_text_output(
+            assay_tsv_out, render_targeted_panel_design_assay_tsv(report)
+        )
     if panel_tsv_out is not None:
-        _write_text_output(panel_tsv_out, render_targeted_panel_design_panel_tsv(report))
+        _write_text_output(
+            panel_tsv_out, render_targeted_panel_design_panel_tsv(report)
+        )
     if omitted_tsv_out is not None:
         _write_text_output(
             omitted_tsv_out,
@@ -148,6 +156,7 @@ def run_targeted_panel_builder_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_validation_experiment_planner_command(
     biomarker_candidate_tsv: Path,
     selected_peptide_tsv: Path,
@@ -165,7 +174,9 @@ def run_validation_experiment_planner_command(
     biomarker_candidates = _load_validation_planning_biomarker_candidates(
         biomarker_candidate_tsv
     )
-    selected_peptides = _load_validation_planning_selected_peptides(selected_peptide_tsv)
+    selected_peptides = _load_validation_planning_selected_peptides(
+        selected_peptide_tsv
+    )
     panel_assays = _load_validation_planning_panel_assays(panel_assay_tsv)
     omitted_candidates = (
         ()
@@ -214,8 +225,12 @@ def run_validation_experiment_planner_command(
         "biomarker_candidate_tsv": str(biomarker_candidate_tsv),
         "selected_peptide_tsv": str(selected_peptide_tsv),
         "panel_assay_tsv": str(panel_assay_tsv),
-        "panel_omitted_tsv": None if panel_omitted_tsv is None else str(panel_omitted_tsv),
-        "power_variance_tsv": None if power_variance_tsv is None else str(power_variance_tsv),
+        "panel_omitted_tsv": None
+        if panel_omitted_tsv is None
+        else str(panel_omitted_tsv),
+        "power_variance_tsv": None
+        if power_variance_tsv is None
+        else str(power_variance_tsv),
         "policy": report.policy.to_dict(),
         "summary": report.summary.to_dict(),
         "plan_entries": [entry.to_dict() for entry in report.plan_entries],
@@ -229,4 +244,9 @@ def run_validation_experiment_planner_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_belief_audit_command', 'run_targeted_panel_builder_command', 'run_validation_experiment_planner_command']
+
+__all__ = [
+    "run_belief_audit_command",
+    "run_targeted_panel_builder_command",
+    "run_validation_experiment_planner_command",
+]

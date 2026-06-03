@@ -6,12 +6,12 @@
 from __future__ import annotations
 
 import csv
-import hashlib
-import json
-from io import StringIO
-import shutil
 from enum import StrEnum
+import hashlib
+from io import StringIO
+import json
 from pathlib import Path
+import shutil
 
 from pydantic import ConfigDict, Field
 
@@ -252,7 +252,9 @@ def find_workflow_artifact_by_id(
     return artifact_index.manifest.artifacts[row_index]
 
 
-def validate_workflow_artifact_manifest(output_dir: Path) -> WorkflowArtifactLayoutManifest:
+def validate_workflow_artifact_manifest(
+    output_dir: Path,
+) -> WorkflowArtifactLayoutManifest:
     """Validate manifest-listed workflow artifacts against current on-disk content."""
 
     manifest = load_workflow_artifact_manifest(output_dir)
@@ -615,7 +617,9 @@ def validate_workflow_artifact_inventory(
     inventory_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_NAME
     summary_path = output_dir / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
     canonical_inventory_path = output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_NAME
-    canonical_summary_path = output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
+    canonical_summary_path = (
+        output_dir / "reports" / WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME
+    )
     for path in (
         inventory_path,
         summary_path,
@@ -701,11 +705,23 @@ def validate_workflow_artifact_inventory(
         )
     }
     if int(observed_summary["artifact_count"]) != expected_summary.artifact_count:
-        raise InvalidWorkflowError("workflow artifact inventory summary artifact_count mismatch")
-    if int(observed_summary["tsv_artifact_count"]) != expected_summary.tsv_artifact_count:
-        raise InvalidWorkflowError("workflow artifact inventory summary tsv_artifact_count mismatch")
-    if int(observed_summary["total_tsv_row_count"]) != expected_summary.total_tsv_row_count:
-        raise InvalidWorkflowError("workflow artifact inventory summary total_tsv_row_count mismatch")
+        raise InvalidWorkflowError(
+            "workflow artifact inventory summary artifact_count mismatch"
+        )
+    if (
+        int(observed_summary["tsv_artifact_count"])
+        != expected_summary.tsv_artifact_count
+    ):
+        raise InvalidWorkflowError(
+            "workflow artifact inventory summary tsv_artifact_count mismatch"
+        )
+    if (
+        int(observed_summary["total_tsv_row_count"])
+        != expected_summary.total_tsv_row_count
+    ):
+        raise InvalidWorkflowError(
+            "workflow artifact inventory summary total_tsv_row_count mismatch"
+        )
     if observed_summary["note"] != expected_summary.note:
         raise InvalidWorkflowError("workflow artifact inventory summary note mismatch")
     if inventory_path.read_text(encoding="utf-8") != canonical_inventory_path.read_text(
@@ -734,7 +750,9 @@ def _collect_workflow_artifact_expectations(
             or "manifest" not in Path(artifact.legacy_relative_path).stem
         ):
             continue
-        payload = json.loads((output_dir / artifact.relative_path).read_text(encoding="utf-8"))
+        payload = json.loads(
+            (output_dir / artifact.relative_path).read_text(encoding="utf-8")
+        )
         expectations.extend(
             _collect_manifest_declared_artifacts(
                 payload=payload,
@@ -899,7 +917,10 @@ def _infer_artifact_schema_version(
     artifact_kind: WorkflowArtifactKind,
     output_table_schema: OutputTableSchema | None,
 ) -> str:
-    if artifact_kind is WorkflowArtifactKind.TSV_TABLE and output_table_schema is not None:
+    if (
+        artifact_kind is WorkflowArtifactKind.TSV_TABLE
+        and output_table_schema is not None
+    ):
         return output_table_schema.schema_version
     return str(
         WorkflowArtifactLayoutManifest.model_fields["manifest_schema_version"].default

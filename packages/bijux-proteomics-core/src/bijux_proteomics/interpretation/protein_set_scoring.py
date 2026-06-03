@@ -320,7 +320,9 @@ def parse_protein_set_table(
                 set_name=_optional_value(values, active_mapping.set_name),
                 set_category=_optional_value(values, active_mapping.set_category),
                 source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(values, active_mapping.source_accession),
+                source_accession=_optional_value(
+                    values, active_mapping.source_accession
+                ),
                 metadata={
                     key: value
                     for key, value in values.items()
@@ -341,7 +343,9 @@ def parse_protein_set_table(
     source_counts: dict[str, int] = {}
     for record in accepted_records:
         if record.source_name is not None:
-            source_counts[record.source_name] = source_counts.get(record.source_name, 0) + 1
+            source_counts[record.source_name] = (
+                source_counts.get(record.source_name, 0) + 1
+            )
 
     return ProteinSetImportReport(
         source_path=str(path),
@@ -353,7 +357,9 @@ def parse_protein_set_table(
             accepted_record_count=len(accepted_records),
             rejected_row_count=len(rejected_rows),
             distinct_set_count=len({record.set_id for record in accepted_records}),
-            distinct_member_count=len({record.protein_ref for record in accepted_records}),
+            distinct_member_count=len(
+                {record.protein_ref for record in accepted_records}
+            ),
             source_counts=dict(sorted(source_counts.items())),
         ),
         note=(
@@ -372,7 +378,9 @@ def build_protein_set_scoring_report(
     """Score protein sets per sample over one normalized protein quant table."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
-        raise ValueError("protein set scoring requires a protein-level quantification table")
+        raise ValueError(
+            "protein set scoring requires a protein-level quantification table"
+        )
 
     active_policy = policy or ProteinSetScoringPolicy()
     sample_ids = table.sample_ids
@@ -391,7 +399,9 @@ def build_protein_set_scoring_report(
         first = records[0]
         member_ids = tuple(dict.fromkeys(record.protein_ref for record in records))
         unresolved_ids = tuple(
-            protein_ref for protein_ref in member_ids if protein_ref not in available_proteins
+            protein_ref
+            for protein_ref in member_ids
+            if protein_ref not in available_proteins
         )
         for protein_ref in unresolved_ids:
             unresolved_members.append(
@@ -550,7 +560,9 @@ def render_protein_set_score_matrix_tsv(report: ProteinSetScoringReport) -> str:
     """Render one protein-set by sample activity matrix as TSV."""
 
     sample_ids = report.sample_ids
-    grouped_entries: dict[str, dict[str, ProteinSetSampleScoreEntry]] = defaultdict(dict)
+    grouped_entries: dict[str, dict[str, ProteinSetSampleScoreEntry]] = defaultdict(
+        dict
+    )
     metadata_by_set: dict[str, ProteinSetSampleScoreEntry] = {}
     for entry in report.sample_scores:
         grouped_entries[entry.set_id][entry.sample_id] = entry
@@ -559,7 +571,14 @@ def render_protein_set_score_matrix_tsv(report: ProteinSetScoringReport) -> str:
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(
-        ("set_id", "set_name", "set_category", "source_name", "source_accession", *sample_ids)
+        (
+            "set_id",
+            "set_name",
+            "set_category",
+            "source_name",
+            "source_accession",
+            *sample_ids,
+        )
     )
     for set_id in sorted(grouped_entries):
         metadata = metadata_by_set[set_id]
@@ -669,7 +688,9 @@ def render_protein_set_condition_score_tsv(report: ProteinSetScoringReport) -> s
                 entry.high_confidence_sample_count,
                 entry.low_confidence_sample_count,
                 entry.confidence_status.value,
-                "" if entry.mean_activity_score is None else f"{entry.mean_activity_score:g}",
+                ""
+                if entry.mean_activity_score is None
+                else f"{entry.mean_activity_score:g}",
             )
         )
     return buffer.getvalue()
@@ -718,7 +739,9 @@ def render_protein_set_condition_comparison_tsv(
                 ""
                 if entry.mean_activity_score_b is None
                 else f"{entry.mean_activity_score_b:g}",
-                "" if entry.activity_score_delta is None else f"{entry.activity_score_delta:g}",
+                ""
+                if entry.activity_score_delta is None
+                else f"{entry.activity_score_delta:g}",
             )
         )
     return buffer.getvalue()
@@ -885,7 +908,9 @@ def _standardized_protein_values(
             elif std_value <= 1e-12:
                 standardized[(protein_ref, sample_id)] = 0.0
             else:
-                standardized[(protein_ref, sample_id)] = (value - mean_value) / std_value
+                standardized[(protein_ref, sample_id)] = (
+                    value - mean_value
+                ) / std_value
     return standardized
 
 
@@ -902,7 +927,9 @@ def _sample_confidence_status(
 def _aggregate_confidence_status(
     statuses: tuple[ProteinSetScoreConfidenceStatus, ...],
 ) -> ProteinSetScoreConfidenceStatus:
-    if all(status is ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE for status in statuses):
+    if all(
+        status is ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE for status in statuses
+    ):
         return ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE
     return ProteinSetScoreConfidenceStatus.LOW_CONFIDENCE
 
@@ -948,7 +975,9 @@ def _metadata_json(values: dict[str, str]) -> str:
     return json.dumps(values, sort_keys=True)
 
 
-def _validate_required_columns(fieldnames: Iterable[str], required_columns: tuple[str, ...]) -> None:
+def _validate_required_columns(
+    fieldnames: Iterable[str], required_columns: tuple[str, ...]
+) -> None:
     available = {field.strip() for field in fieldnames}
     missing = [column for column in required_columns if column not in available]
     if missing:

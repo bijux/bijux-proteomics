@@ -10,17 +10,17 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import (
-    Contrast,
-    ContrastKind,
-    RejectedEvidence,
-    SampleMetadata,
-)
 from bijux_proteomics._scientific_tables import (
     ScientificTableValidationContext,
     ScientificTableValidationIssue,
     build_contrast_table_schema,
     validate_scientific_table,
+)
+from bijux_proteomics.domain.records import (
+    Contrast,
+    ContrastKind,
+    RejectedEvidence,
+    SampleMetadata,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -209,7 +209,9 @@ def parse_study_contrast_table(
         schema=build_contrast_table_schema(),
         context=ScientificTableValidationContext(
             known_conditions=tuple(
-                sorted({entry.condition for entry in sample_metadata if entry.condition})
+                sorted(
+                    {entry.condition for entry in sample_metadata if entry.condition}
+                )
             )
         ),
     )
@@ -710,9 +712,7 @@ def _build_parse_report(
             1 for contrast in contrasts if contrast.kind is ContrastKind.PAIRWISE
         ),
         case_control_count=sum(
-            1
-            for contrast in contrasts
-            if contrast.kind is ContrastKind.CASE_CONTROL
+            1 for contrast in contrasts if contrast.kind is ContrastKind.CASE_CONTROL
         ),
         paired_count=sum(
             1 for contrast in contrasts if contrast.kind is ContrastKind.PAIRED
@@ -721,9 +721,7 @@ def _build_parse_report(
             1 for contrast in contrasts if contrast.kind is ContrastKind.TIME_COURSE
         ),
         multi_condition_count=sum(
-            1
-            for contrast in contrasts
-            if contrast.kind is ContrastKind.MULTI_CONDITION
+            1 for contrast in contrasts if contrast.kind is ContrastKind.MULTI_CONDITION
         ),
     )
     return StudyContrastParseReport(

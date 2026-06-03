@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_annotations import (
+    run_annotate_proteins_command,
+    run_map_context_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_annotations import run_annotate_proteins_command, run_map_context_command
+
 
 @click.command("annotate-proteins")
 @click.argument(
@@ -103,8 +107,27 @@ def annotate_proteins_command(
     rejected_annotation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map protein tables onto FASTA and optional custom biological annotations.'
-    return run_annotate_proteins_command(protein_tsv, proteins_fasta, annotation_tsv, protein_ref_column, row_id_column, protein_separator, annotation_protein_ref_column, annotation_gene_symbol_column, annotation_description_column, annotation_organism_column, annotation_identifier_column, summary_tsv_out, annotated_tsv_out, unmapped_tsv_out, rejected_input_tsv_out, rejected_annotation_tsv_out, out_path)
+    "Map protein tables onto FASTA and optional custom biological annotations."
+    return run_annotate_proteins_command(
+        protein_tsv,
+        proteins_fasta,
+        annotation_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        annotation_protein_ref_column,
+        annotation_gene_symbol_column,
+        annotation_description_column,
+        annotation_organism_column,
+        annotation_identifier_column,
+        summary_tsv_out,
+        annotated_tsv_out,
+        unmapped_tsv_out,
+        rejected_input_tsv_out,
+        rejected_annotation_tsv_out,
+        out_path,
+    )
+
 
 @click.command("map-context")
 @click.argument(
@@ -194,8 +217,30 @@ def map_context_command(
     rejected_context_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map protein tables onto user-supplied drug, disease, phenotype, or compartment context.'
-    return run_map_context_command(protein_tsv, context_tsv, protein_ref_column, row_id_column, protein_separator, context_protein_ref_column, context_id_column, context_kind_column, context_name_column, source_name_column, source_accession_column, evidence_column, fixed_context_kind, summary_tsv_out, mapped_tsv_out, term_tsv_out, unmapped_tsv_out, rejected_input_tsv_out, rejected_context_tsv_out, out_path)
+    "Map protein tables onto user-supplied drug, disease, phenotype, or compartment context."
+    return run_map_context_command(
+        protein_tsv,
+        context_tsv,
+        protein_ref_column,
+        row_id_column,
+        protein_separator,
+        context_protein_ref_column,
+        context_id_column,
+        context_kind_column,
+        context_name_column,
+        source_name_column,
+        source_accession_column,
+        evidence_column,
+        fixed_context_kind,
+        summary_tsv_out,
+        mapped_tsv_out,
+        term_tsv_out,
+        unmapped_tsv_out,
+        rejected_input_tsv_out,
+        rejected_context_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     annotate_proteins_command,

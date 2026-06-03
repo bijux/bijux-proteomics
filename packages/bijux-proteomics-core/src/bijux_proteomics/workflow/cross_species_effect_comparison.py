@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,6 +13,7 @@ import re
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation.ortholog_mapping import (
     OrthologMappingCardinality,
     OrthologRecord,
@@ -325,7 +324,9 @@ def build_cross_species_effect_comparison_report_from_observations(
             if input_study_count is None
             else input_study_count
         ),
-        supported_study_count=len({entry.study_id for entry in normalized_observations}),
+        supported_study_count=len(
+            {entry.study_id for entry in normalized_observations}
+        ),
         unsupported_study_count=len(unsupported_studies),
         effect_observation_count=len(normalized_observations),
         comparison_count=len(comparisons),
@@ -361,7 +362,8 @@ def build_cross_species_effect_comparison_report_from_observations(
             for entry in comparisons
         ),
         insufficient_support_count=sum(
-            entry.evidence_status is CrossSpeciesEffectEvidenceStatus.INSUFFICIENT_SUPPORT
+            entry.evidence_status
+            is CrossSpeciesEffectEvidenceStatus.INSUFFICIENT_SUPPORT
             for entry in comparisons
         ),
         ambiguous_mapping_count=sum(entry.ambiguous_mapping for entry in comparisons),
@@ -454,7 +456,9 @@ def render_cross_species_effect_comparison_tsv(
                 entry.target_species or "",
                 entry.target_study_id or "",
                 entry.target_study_label or "",
-                "" if entry.target_study_kind is None else entry.target_study_kind.value,
+                ""
+                if entry.target_study_kind is None
+                else entry.target_study_kind.value,
                 entry.target_observation_id or "",
                 entry.target_source_kind or "",
                 entry.target_surface or "",
@@ -476,7 +480,9 @@ def render_cross_species_effect_comparison_tsv(
                 entry.ortholog_source_protein_ref or "",
                 entry.ortholog_target_protein_ref or "",
                 entry.ortholog_evidence or "",
-                "" if entry.mapping_cardinality is None else entry.mapping_cardinality.value,
+                ""
+                if entry.mapping_cardinality is None
+                else entry.mapping_cardinality.value,
                 entry.ambiguity_status.value,
                 str(entry.ambiguous_mapping).lower(),
                 entry.evidence_status.value,
@@ -526,12 +532,12 @@ def _build_ortholog_index(
             )
         source_ref = canonicalize_protein_reference(record.source_protein_ref)
         target_ref = canonicalize_protein_reference(record.target_protein_ref)
-        source_counts.setdefault((source_species, source_ref, target_species), set()).add(
-            target_ref
-        )
-        target_counts.setdefault((target_species, target_ref, source_species), set()).add(
-            source_ref
-        )
+        source_counts.setdefault(
+            (source_species, source_ref, target_species), set()
+        ).add(target_ref)
+        target_counts.setdefault(
+            (target_species, target_ref, source_species), set()
+        ).add(source_ref)
 
     edges_by_key: dict[tuple[str, str, str], list[_OrthologEdge]] = {}
     seen_edges: set[tuple[str, str, str, str]] = set()
@@ -549,8 +555,12 @@ def _build_ortholog_index(
             continue
         seen_edges.add(edge_key)
         mapping_cardinality = _classify_mapping_cardinality(
-            source_match_count=len(source_counts[(source_species, source_ref, target_species)]),
-            target_match_count=len(target_counts[(target_species, target_ref, source_species)]),
+            source_match_count=len(
+                source_counts[(source_species, source_ref, target_species)]
+            ),
+            target_match_count=len(
+                target_counts[(target_species, target_ref, source_species)]
+            ),
         )
         edge = _OrthologEdge(
             source_species=source_species,
@@ -560,7 +570,9 @@ def _build_ortholog_index(
             evidence=record.evidence,
             mapping_cardinality=mapping_cardinality,
         )
-        edges_by_key.setdefault((source_species, source_ref, target_species), []).append(edge)
+        edges_by_key.setdefault(
+            (source_species, source_ref, target_species), []
+        ).append(edge)
 
     return {
         key: tuple(sorted(value, key=lambda entry: entry.target_protein_ref))
@@ -608,13 +620,17 @@ def _ortholog_edges_for_source(
                     edge.target_protein_ref,
                 )
             ] = edge
-    return tuple(sorted(matched_edges.values(), key=lambda entry: entry.target_protein_ref))
+    return tuple(
+        sorted(matched_edges.values(), key=lambda entry: entry.target_protein_ref)
+    )
 
 
 def _target_matches_for_edge(
     *,
     edge: _OrthologEdge,
-    target_lookup: dict[tuple[str, str], tuple[CrossStudyProteinEffectObservation, ...]],
+    target_lookup: dict[
+        tuple[str, str], tuple[CrossStudyProteinEffectObservation, ...]
+    ],
 ) -> tuple[CrossStudyProteinEffectObservation, ...]:
     return target_lookup.get((edge.target_species, edge.target_protein_ref), ())
 
@@ -663,7 +679,9 @@ def _build_unobserved_target_comparison_entry(
     source_observation: CrossStudyProteinEffectObservation,
     edge: _OrthologEdge,
 ) -> CrossSpeciesEffectComparisonEntry:
-    ambiguity_status, ambiguous_mapping = _ambiguity_from_cardinality(edge.mapping_cardinality)
+    ambiguity_status, ambiguous_mapping = _ambiguity_from_cardinality(
+        edge.mapping_cardinality
+    )
     return CrossSpeciesEffectComparisonEntry(
         comparison_id=_comparison_id(
             source_observation=source_observation,
@@ -709,11 +727,13 @@ def _build_matched_comparison_entry(
     target_observation: CrossStudyProteinEffectObservation,
     edge: _OrthologEdge,
 ) -> CrossSpeciesEffectComparisonEntry:
-    normalized_target_direction, normalized_target_log2_fold_change, alignment_status = (
-        _normalize_target_effect_against_source(
-            source_observation=source_observation,
-            target_observation=target_observation,
-        )
+    (
+        normalized_target_direction,
+        normalized_target_log2_fold_change,
+        alignment_status,
+    ) = _normalize_target_effect_against_source(
+        source_observation=source_observation,
+        target_observation=target_observation,
     )
     evidence_status, note = _evidence_status_for_pair(
         source_observation=source_observation,
@@ -721,7 +741,9 @@ def _build_matched_comparison_entry(
         normalized_target_direction=normalized_target_direction,
         alignment_status=alignment_status,
     )
-    ambiguity_status, ambiguous_mapping = _ambiguity_from_cardinality(edge.mapping_cardinality)
+    ambiguity_status, ambiguous_mapping = _ambiguity_from_cardinality(
+        edge.mapping_cardinality
+    )
     return CrossSpeciesEffectComparisonEntry(
         comparison_id=_comparison_id(
             source_observation=source_observation,
@@ -924,7 +946,9 @@ def _direction_from_fold_change(log2_fold_change: float) -> CrossStudyEffectDire
     return CrossStudyEffectDirection.FLAT
 
 
-def _observation_sort_key(observation: CrossStudyProteinEffectObservation) -> tuple[str, str]:
+def _observation_sort_key(
+    observation: CrossStudyProteinEffectObservation,
+) -> tuple[str, str]:
     return (observation.study_id, observation.observation_id)
 
 
@@ -943,9 +967,7 @@ def _deduplicate_unsupported_studies(
     deduplicated: dict[str, CrossSpeciesEffectUnsupportedStudy] = {}
     for entry in entries:
         deduplicated.setdefault(entry.study_id, entry)
-    return tuple(
-        deduplicated[key] for key in sorted(deduplicated)
-    )
+    return tuple(deduplicated[key] for key in sorted(deduplicated))
 
 
 __all__ = [

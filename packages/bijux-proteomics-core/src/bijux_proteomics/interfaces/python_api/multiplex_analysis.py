@@ -13,6 +13,7 @@ from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowExportManifest,
 )
 
+
 def run_tmt_ratio_command(
     input_tsv: Path,
     design_path: Path,
@@ -89,6 +90,7 @@ def run_tmt_ratio_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_tmt_integrate_plexes_command(
     input_tsv: Path,
     design_path: Path,
@@ -161,13 +163,12 @@ def run_tmt_integrate_plexes_command(
                 None if plex_effect_tsv_out is None else str(plex_effect_tsv_out)
             ),
             "protein_matrix_tsv": (
-                None
-                if protein_matrix_tsv_out is None
-                else str(protein_matrix_tsv_out)
+                None if protein_matrix_tsv_out is None else str(protein_matrix_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_tmt_differential_command(
     input_tsv: Path,
@@ -305,12 +306,8 @@ def run_tmt_differential_command(
                 if normalized_matrix_tsv_out is None
                 else str(normalized_matrix_tsv_out)
             ),
-            "results_tsv": (
-                None if results_tsv_out is None else str(results_tsv_out)
-            ),
-            "balance_tsv": (
-                None if balance_tsv_out is None else str(balance_tsv_out)
-            ),
+            "results_tsv": (None if results_tsv_out is None else str(results_tsv_out)),
+            "balance_tsv": (None if balance_tsv_out is None else str(balance_tsv_out)),
             "volcano_tsv": (
                 None
                 if volcano_tsv_out is None or volcano_plot is None
@@ -326,6 +323,7 @@ def run_tmt_differential_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_tmt_report_command(
     input_tsv: Path,
@@ -401,4 +399,10 @@ def run_tmt_report_command(
         out_path=out_path,
     )
 
-__all__ = ['run_tmt_ratio_command', 'run_tmt_integrate_plexes_command', 'run_tmt_differential_command', 'run_tmt_report_command']
+
+__all__ = [
+    "run_tmt_ratio_command",
+    "run_tmt_integrate_plexes_command",
+    "run_tmt_differential_command",
+    "run_tmt_report_command",
+]

@@ -10,7 +10,6 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.errors import (
     InvalidWorkflowError,
@@ -35,8 +34,8 @@ from bijux_proteomics.review.evidence_graph import (
 )
 from bijux_proteomics.workflow.exports.interactive_result_bundle import (
     InteractiveResultBundle,
-    InteractiveResultCardKind,
     InteractiveResultCard,
+    InteractiveResultCardKind,
     InteractiveResultGraphEdge,
     InteractiveResultGraphNode,
     InteractiveResultSourceKind,
@@ -167,10 +166,7 @@ def write_result_archive_lab_action_packets(
 
 
 def _resolve_manifest_path(path: Path) -> Path:
-    if path.is_dir():
-        manifest_path = path / "result_manifest.json"
-    else:
-        manifest_path = path
+    manifest_path = path / "result_manifest.json" if path.is_dir() else path
     if not manifest_path.exists():
         raise InvalidWorkflowError(
             f"result archive manifest is missing from path: {manifest_path}"
@@ -228,7 +224,9 @@ def _derive_archived_study_kind(bundle: InteractiveResultBundle) -> ProteomicsSt
     return ProteomicsStudyKind.ARCHIVED
 
 
-def _build_design_snapshot(bundle: InteractiveResultBundle) -> ProteomicsStudyDesignSnapshot:
+def _build_design_snapshot(
+    bundle: InteractiveResultBundle,
+) -> ProteomicsStudyDesignSnapshot:
     entries = tuple(
         ProteomicsStudyDesignEntry(
             sample_id=sample.sample_id,
@@ -261,7 +259,9 @@ def _build_matrix_surfaces(
     bundle: InteractiveResultBundle,
 ) -> tuple[ProteomicsStudyMatrixSurface, ...]:
     surfaces: list[ProteomicsStudyMatrixSurface] = []
-    if any(plot.plot_kind.value == "biological_heatmap_matrix" for plot in bundle.plots):
+    if any(
+        plot.plot_kind.value == "biological_heatmap_matrix" for plot in bundle.plots
+    ):
         surfaces.append(
             ProteomicsStudyMatrixSurface(
                 surface_name="biological_heatmap_matrix",
@@ -344,7 +344,9 @@ def _build_qc_surfaces(
     surfaces: list[ProteomicsStudyQcSurface] = []
     if bundle.qc_entries:
         issue_count = sum(
-            1 for entry in bundle.qc_entries if entry.status.lower() not in {"pass", "ok"}
+            1
+            for entry in bundle.qc_entries
+            if entry.status.lower() not in {"pass", "ok"}
         )
         surfaces.append(
             ProteomicsStudyQcSurface(
@@ -369,11 +371,7 @@ def _build_qc_surfaces(
 def _load_archived_lab_action_packets(
     paths: tuple[Path, ...],
 ) -> tuple[LabActionPacket, ...]:
-    packets = [
-        packet
-        for path in paths
-        for packet in parse_lab_action_packet_tsv(path)
-    ]
+    packets = [packet for path in paths for packet in parse_lab_action_packet_tsv(path)]
     return tuple(
         sorted(
             packets,

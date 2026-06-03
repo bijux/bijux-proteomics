@@ -10,15 +10,19 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator
 
-from bijux_proteomics.domain.records import (
-    ImportedEvidenceProvenance,
-    RejectedEvidence as CanonicalRejectedEvidence,
-    TransitionRecord as CanonicalTransitionRecord,
-)
 from bijux_proteomics._scientific_tables import (
     ScientificTableValidationIssue,
     build_transition_table_schema,
     validate_scientific_table,
+)
+from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
+)
+from bijux_proteomics.domain.records import (
+    TransitionRecord as CanonicalTransitionRecord,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -66,7 +70,9 @@ class TransitionTableEntry(JsonModel):
     def _normalize_peptide_sequence(cls, value: str | None) -> str | None:
         if value is None:
             return None
-        return "".join(character for character in value.upper() if not character.isspace())
+        return "".join(
+            character for character in value.upper() if not character.isspace()
+        )
 
     def to_domain_record(self) -> CanonicalTransitionRecord:
         """Convert one transition-table row into the canonical transition record."""
@@ -143,7 +149,9 @@ def parse_transition_table(path: Path) -> TransitionTableParseReport:
         for row in validation_report.rejected_rows
     ]
     for accepted_row in validation_report.accepted_rows:
-        normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
+        normalized_row = _render_table_row_values(
+            accepted_row.values, accepted_row.extra_values
+        )
         try:
             accepted_entries.append(
                 _parse_transition_row(
@@ -159,7 +167,9 @@ def parse_transition_table(path: Path) -> TransitionTableParseReport:
                             "precursor_id": str(
                                 accepted_row.values.get("precursor_id") or ""
                             ),
-                            "sample_id": str(accepted_row.values.get("sample_id") or ""),
+                            "sample_id": str(
+                                accepted_row.values.get("sample_id") or ""
+                            ),
                         },
                     ),
                 )

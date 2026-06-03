@@ -161,8 +161,12 @@ class PpiNetworkModuleReport(JsonModel):
 
     edge_entries: tuple[PpiSubnetworkEdgeEntry, ...] = Field(default_factory=tuple)
     modules: tuple[PpiModuleEntry, ...] = Field(default_factory=tuple)
-    isolated_proteins: tuple[PpiIsolatedProteinEntry, ...] = Field(default_factory=tuple)
-    module_enrichments: tuple[PpiModuleEnrichmentEntry, ...] = Field(default_factory=tuple)
+    isolated_proteins: tuple[PpiIsolatedProteinEntry, ...] = Field(
+        default_factory=tuple
+    )
+    module_enrichments: tuple[PpiModuleEnrichmentEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: PpiNetworkModuleSummary
     note: str = Field(..., min_length=1)
 
@@ -273,7 +277,9 @@ def parse_ppi_edge_table(
                 protein_ref_a=edge_key[0],
                 protein_ref_b=edge_key[1],
                 source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(values, active_mapping.source_accession),
+                source_accession=_optional_value(
+                    values, active_mapping.source_accession
+                ),
                 interaction_score=interaction_score,
                 metadata={
                     key: value
@@ -294,7 +300,9 @@ def parse_ppi_edge_table(
     source_counts: dict[str, int] = {}
     for record in accepted_records:
         if record.source_name is not None:
-            source_counts[record.source_name] = source_counts.get(record.source_name, 0) + 1
+            source_counts[record.source_name] = (
+                source_counts.get(record.source_name, 0) + 1
+            )
 
     return PpiEdgeImportReport(
         source_path=str(path),
@@ -343,14 +351,18 @@ def build_ppi_network_module_report(
         if record.protein_ref_a in significant_lookup
         and record.protein_ref_b in significant_lookup
     )
-    adjacency: dict[str, set[str]] = {protein_ref: set() for protein_ref in significant_proteins}
+    adjacency: dict[str, set[str]] = {
+        protein_ref: set() for protein_ref in significant_proteins
+    }
     for edge in retained_edges:
         adjacency[edge.protein_ref_a].add(edge.protein_ref_b)
         adjacency[edge.protein_ref_b].add(edge.protein_ref_a)
 
     components = _connected_components(adjacency)
     module_members = tuple(component for component in components if len(component) > 1)
-    isolated_members = tuple(component[0] for component in components if len(component) == 1)
+    isolated_members = tuple(
+        component[0] for component in components if len(component) == 1
+    )
 
     module_entries: list[PpiModuleEntry] = []
     edge_entries: list[PpiSubnetworkEdgeEntry] = []
@@ -459,7 +471,9 @@ def build_ppi_network_module_report(
                 module_enrichments,
                 key=lambda entry: (
                     entry.module_id,
-                    entry.adjusted_p_value if entry.adjusted_p_value is not None else 1.0,
+                    entry.adjusted_p_value
+                    if entry.adjusted_p_value is not None
+                    else 1.0,
                     entry.set_id,
                 ),
             )
@@ -533,7 +547,9 @@ def render_ppi_network_edge_tsv(report: PpiNetworkModuleReport) -> str:
                 entry.protein_ref_b,
                 entry.source_name or "",
                 entry.source_accession or "",
-                "" if entry.interaction_score is None else f"{entry.interaction_score:g}",
+                ""
+                if entry.interaction_score is None
+                else f"{entry.interaction_score:g}",
             )
         )
     return buffer.getvalue()
@@ -544,7 +560,9 @@ def render_ppi_module_tsv(report: PpiNetworkModuleReport) -> str:
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(("module_id", "protein_count", "edge_count", "hub_protein_refs", "protein_refs"))
+    writer.writerow(
+        ("module_id", "protein_count", "edge_count", "hub_protein_refs", "protein_refs")
+    )
     for entry in report.modules:
         writer.writerow(
             (
@@ -627,7 +645,9 @@ def render_rejected_ppi_edge_tsv(report: PpiEdgeImportReport) -> str:
     return buffer.getvalue()
 
 
-def _connected_components(adjacency: dict[str, set[str]]) -> tuple[tuple[str, ...], ...]:
+def _connected_components(
+    adjacency: dict[str, set[str]],
+) -> tuple[tuple[str, ...], ...]:
     visited: set[str] = set()
     components: list[tuple[str, ...]] = []
     for protein_ref in sorted(adjacency):
@@ -652,7 +672,9 @@ def _hub_proteins(
     members: tuple[str, ...],
     adjacency: dict[str, set[str]],
 ) -> tuple[str, ...]:
-    degree_by_protein = {protein_ref: len(adjacency[protein_ref]) for protein_ref in members}
+    degree_by_protein = {
+        protein_ref: len(adjacency[protein_ref]) for protein_ref in members
+    }
     max_degree = max(degree_by_protein.values(), default=0)
     return tuple(
         protein_ref

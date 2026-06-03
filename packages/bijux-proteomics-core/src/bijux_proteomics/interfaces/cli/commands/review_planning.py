@@ -10,8 +10,13 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.review_planning import (
+    run_belief_audit_command,
+    run_targeted_panel_builder_command,
+    run_validation_experiment_planner_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.review_planning import run_belief_audit_command, run_targeted_panel_builder_command, run_validation_experiment_planner_command
+
 
 @click.command("belief-audit")
 @click.option(
@@ -60,8 +65,19 @@ def belief_audit_command(
     html_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Audit why governed conclusions were retained, weakened, and falsifiable.'
-    return run_belief_audit_command(biological_report_dir, ptm_report_dir, validation_evidence_card_tsv, validation_evidence_warning_tsv, run_qc_assessment_tsv_paths, summary_tsv_out, belief_audit_tsv_out, html_out, out_path)
+    "Audit why governed conclusions were retained, weakened, and falsifiable."
+    return run_belief_audit_command(
+        biological_report_dir,
+        ptm_report_dir,
+        validation_evidence_card_tsv,
+        validation_evidence_warning_tsv,
+        run_qc_assessment_tsv_paths,
+        summary_tsv_out,
+        belief_audit_tsv_out,
+        html_out,
+        out_path,
+    )
+
 
 @click.command("targeted-panel-builder")
 @click.argument(
@@ -108,8 +124,20 @@ def targeted_panel_builder_command(
     omitted_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build a targeted transition-list panel from ranked candidates and retained assays.'
-    return run_targeted_panel_builder_command(biomarker_candidate_tsv, selected_peptide_tsv, assay_interference_assay_tsv, assay_interference_transition_tsv, spectral_library_path, summary_tsv_out, assay_tsv_out, panel_tsv_out, omitted_tsv_out, out_path)
+    "Build a targeted transition-list panel from ranked candidates and retained assays."
+    return run_targeted_panel_builder_command(
+        biomarker_candidate_tsv,
+        selected_peptide_tsv,
+        assay_interference_assay_tsv,
+        assay_interference_transition_tsv,
+        spectral_library_path,
+        summary_tsv_out,
+        assay_tsv_out,
+        panel_tsv_out,
+        omitted_tsv_out,
+        out_path,
+    )
+
 
 @click.command("validation-experiment-planner")
 @click.argument(
@@ -165,8 +193,22 @@ def validation_experiment_planner_command(
     warning_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Plan targeted validation experiments from biomarker, peptide, and panel evidence.'
-    return run_validation_experiment_planner_command(biomarker_candidate_tsv, selected_peptide_tsv, panel_assay_tsv, panel_omitted_tsv, power_variance_tsv, proposed_samples_per_group, fdr_target, target_power, summary_tsv_out, plan_tsv_out, warning_tsv_out, out_path)
+    "Plan targeted validation experiments from biomarker, peptide, and panel evidence."
+    return run_validation_experiment_planner_command(
+        biomarker_candidate_tsv,
+        selected_peptide_tsv,
+        panel_assay_tsv,
+        panel_omitted_tsv,
+        power_variance_tsv,
+        proposed_samples_per_group,
+        fdr_target,
+        target_power,
+        summary_tsv_out,
+        plan_tsv_out,
+        warning_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     belief_audit_command,

@@ -174,17 +174,13 @@ def build_quant_decision_readiness_report(
     blocking_reasons: list[QuantDecisionBlockingReasonCode] = []
     advisory_reasons: list[QuantDecisionAdvisoryReasonCode] = []
     if replicate_audit.underpowered_conditions:
-        blocking_reasons.append(
-            QuantDecisionBlockingReasonCode.INSUFFICIENT_REPLICATES
-        )
+        blocking_reasons.append(QuantDecisionBlockingReasonCode.INSUFFICIENT_REPLICATES)
     if batch_report.batch_correction_blocked:
         blocking_reasons.append(
             QuantDecisionBlockingReasonCode.BATCH_CONDITION_CONFOUNDING
         )
     if flagged_batch_count >= blocking_batch_count:
-        blocking_reasons.append(
-            QuantDecisionBlockingReasonCode.MULTI_BATCH_SHIFT
-        )
+        blocking_reasons.append(QuantDecisionBlockingReasonCode.MULTI_BATCH_SHIFT)
     elif batch_report.batch_warning is not None:
         advisory_reasons.append(QuantDecisionAdvisoryReasonCode.BATCH_SHIFT_WARNING)
     if low_correlation_pair_count > 0:

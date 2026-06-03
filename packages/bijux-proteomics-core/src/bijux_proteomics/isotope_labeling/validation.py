@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.isotope_labeling.silac_quantification import (
     SilacImportReport,
     SilacLabel,
@@ -114,7 +113,9 @@ class SilacValidationReport(JsonModel):
     import_report: SilacImportReport
     policy: SilacValidationPolicy
     label_entries: tuple[SilacLabelValidationEntry, ...] = Field(default_factory=tuple)
-    distribution_entries: tuple[SilacLabelDistributionEntry, ...] = Field(default_factory=tuple)
+    distribution_entries: tuple[SilacLabelDistributionEntry, ...] = Field(
+        default_factory=tuple
+    )
     weak_evidence: tuple[SilacWeakEvidenceEntry, ...] = Field(default_factory=tuple)
     summary: SilacValidationSummary
     note: str = Field(..., min_length=1)
@@ -197,8 +198,12 @@ class TmtValidationReport(JsonModel):
 
     feature_bundle: TmtReporterFeatureBundle
     policy: TmtValidationPolicy
-    channel_entries: tuple[TmtChannelValidationEntry, ...] = Field(default_factory=tuple)
-    distribution_entries: tuple[TmtChannelDistributionEntry, ...] = Field(default_factory=tuple)
+    channel_entries: tuple[TmtChannelValidationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    distribution_entries: tuple[TmtChannelDistributionEntry, ...] = Field(
+        default_factory=tuple
+    )
     weak_evidence: tuple[TmtWeakEvidenceEntry, ...] = Field(default_factory=tuple)
     summary: TmtValidationSummary
     note: str = Field(..., min_length=1)
@@ -213,7 +218,9 @@ def build_silac_validation_report(
 
     active_policy = policy or SilacValidationPolicy()
     sample_groups: dict[str, set[tuple[str, int | None]]] = {}
-    groups_by_sample_and_label: dict[tuple[str, SilacLabel], set[tuple[str, int | None]]] = {}
+    groups_by_sample_and_label: dict[
+        tuple[str, SilacLabel], set[tuple[str, int | None]]
+    ] = {}
     rows_by_sample_and_label: dict[tuple[str, SilacLabel], list[float]] = {}
 
     for row in import_report.accepted_rows:
@@ -222,8 +229,12 @@ def build_silac_validation_report(
             row.charge if active_policy.separate_charge_states else None,
         )
         sample_groups.setdefault(row.sample_id, set()).add(group_key)
-        groups_by_sample_and_label.setdefault((row.sample_id, row.label), set()).add(group_key)
-        rows_by_sample_and_label.setdefault((row.sample_id, row.label), []).append(row.intensity)
+        groups_by_sample_and_label.setdefault((row.sample_id, row.label), set()).add(
+            group_key
+        )
+        rows_by_sample_and_label.setdefault((row.sample_id, row.label), []).append(
+            row.intensity
+        )
 
     label_entries: list[SilacLabelValidationEntry] = []
     for sample_id in sorted(sample_groups):
@@ -260,7 +271,9 @@ def build_silac_validation_report(
     }
     for sample_id, sample_entries in entries_by_sample.items():
         positive_totals = sorted(
-            entry.total_intensity for entry in sample_entries if entry.total_intensity > 0.0
+            entry.total_intensity
+            for entry in sample_entries
+            if entry.total_intensity > 0.0
         )
         sample_median_total_intensity = (
             _median(positive_totals) if positive_totals else None
@@ -274,12 +287,9 @@ def build_silac_validation_report(
                 numerator=entry.total_intensity,
                 denominator=sample_median_total_intensity,
             )
-            abnormal_distribution = (
-                ratio_to_sample_median is not None
-                and (
-                    ratio_to_sample_median < active_policy.abnormal_distribution_floor
-                    or ratio_to_sample_median > active_policy.abnormal_distribution_ceiling
-                )
+            abnormal_distribution = ratio_to_sample_median is not None and (
+                ratio_to_sample_median < active_policy.abnormal_distribution_floor
+                or ratio_to_sample_median > active_policy.abnormal_distribution_ceiling
             )
             distribution_entries.append(
                 SilacLabelDistributionEntry(
@@ -317,7 +327,10 @@ def build_silac_validation_report(
                         note="expected SILAC label is missing from too many peptide groups for this sample",
                     )
                 )
-            if total_intensity_ratio_to_sample_max < active_policy.weak_label_ratio_floor:
+            if (
+                total_intensity_ratio_to_sample_max
+                < active_policy.weak_label_ratio_floor
+            ):
                 weak_evidence.append(
                     SilacWeakEvidenceEntry(
                         sample_id=sample_id,
@@ -420,12 +433,9 @@ def build_tmt_validation_report(
             numerator=validation_entry.total_intensity,
             denominator=channel_median_total_intensity,
         )
-        abnormal_distribution = (
-            ratio_to_channel_median is not None
-            and (
-                ratio_to_channel_median < active_policy.abnormal_distribution_floor
-                or ratio_to_channel_median > active_policy.abnormal_distribution_ceiling
-            )
+        abnormal_distribution = ratio_to_channel_median is not None and (
+            ratio_to_channel_median < active_policy.abnormal_distribution_floor
+            or ratio_to_channel_median > active_policy.abnormal_distribution_ceiling
         )
         distribution_entries.append(
             TmtChannelDistributionEntry(
@@ -449,8 +459,7 @@ def build_tmt_validation_report(
             0.0,
         )
         total_intensity_ratio_to_channel_max = (
-            float(validation_entry.total_intensity)
-            / float(channel_max_total_intensity)
+            float(validation_entry.total_intensity) / float(channel_max_total_intensity)
             if channel_max_total_intensity > 0.0
             else 0.0
         )
@@ -469,7 +478,10 @@ def build_tmt_validation_report(
                     note="expected multiplex channel is missing from the source table or has no observed reporter evidence",
                 )
             )
-        elif total_intensity_ratio_to_channel_max < active_policy.weak_channel_ratio_floor:
+        elif (
+            total_intensity_ratio_to_channel_max
+            < active_policy.weak_channel_ratio_floor
+        ):
             weak_evidence.append(
                 TmtWeakEvidenceEntry(
                     multiplex_group=validation_entry.multiplex_group,
@@ -491,7 +503,9 @@ def build_tmt_validation_report(
         summary=TmtValidationSummary(
             multiplex_group_count=feature_bundle.summary.multiplex_group_count,
             expected_channel_count=len(channel_entries),
-            missing_channel_count=sum(1 for entry in channel_entries if not entry.present),
+            missing_channel_count=sum(
+                1 for entry in channel_entries if not entry.present
+            ),
             abnormal_distribution_count=sum(
                 1 for entry in distribution_entries if entry.abnormal_distribution
             ),
@@ -612,7 +626,9 @@ def render_silac_validation_distribution_tsv(report: SilacValidationReport) -> s
                     if entry.sample_median_total_intensity is None
                     else entry.sample_median_total_intensity
                 ),
-                "" if entry.ratio_to_sample_median is None else entry.ratio_to_sample_median,
+                ""
+                if entry.ratio_to_sample_median is None
+                else entry.ratio_to_sample_median,
                 entry.abnormal_distribution,
                 entry.note,
             ]
@@ -649,13 +665,17 @@ def render_silac_validation_weak_tsv(report: SilacValidationReport) -> str:
     return buffer.getvalue()
 
 
-def export_silac_validation_summary_tsv(report: SilacValidationReport, path: Path) -> None:
+def export_silac_validation_summary_tsv(
+    report: SilacValidationReport, path: Path
+) -> None:
     """Write the compact SILAC validation summary ledger."""
 
     write_output_table_tsv(path, render_silac_validation_summary_tsv(report))
 
 
-def export_silac_validation_label_tsv(report: SilacValidationReport, path: Path) -> None:
+def export_silac_validation_label_tsv(
+    report: SilacValidationReport, path: Path
+) -> None:
     """Write the SILAC expected-label coverage ledger."""
 
     write_output_table_tsv(path, render_silac_validation_label_tsv(report))
@@ -772,7 +792,9 @@ def render_tmt_validation_distribution_tsv(report: TmtValidationReport) -> str:
                     if entry.channel_median_total_intensity is None
                     else entry.channel_median_total_intensity
                 ),
-                "" if entry.ratio_to_channel_median is None else entry.ratio_to_channel_median,
+                ""
+                if entry.ratio_to_channel_median is None
+                else entry.ratio_to_channel_median,
                 entry.abnormal_distribution,
                 entry.note,
             ]
@@ -823,7 +845,9 @@ def export_tmt_validation_channel_tsv(report: TmtValidationReport, path: Path) -
     write_output_table_tsv(path, render_tmt_validation_channel_tsv(report))
 
 
-def export_tmt_validation_distribution_tsv(report: TmtValidationReport, path: Path) -> None:
+def export_tmt_validation_distribution_tsv(
+    report: TmtValidationReport, path: Path
+) -> None:
     """Write the TMT channel-distribution ledger."""
 
     write_output_table_tsv(path, render_tmt_validation_distribution_tsv(report))

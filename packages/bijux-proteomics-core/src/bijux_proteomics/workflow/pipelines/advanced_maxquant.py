@@ -5,21 +5,24 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import MaxquantPeptideReviewEntry
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import NormalizationMethod
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultSelectionPolicy,
-    VolcanoReviewPolicy,
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
@@ -27,8 +30,12 @@ from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantFilteredProteinGroupEntry,
     MaxquantProteinGroupAcceptancePolicy,
     build_maxquant_biological_workflow_bundle,
-    write_maxquant_biological_workflow_bundle,
     render_filtered_maxquant_protein_groups_tsv,
+    write_maxquant_biological_workflow_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultSelectionPolicy,
+    VolcanoReviewPolicy,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -38,12 +45,6 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
     render_result_rejected_evidence_tsv,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -181,7 +182,9 @@ def run_advanced_maxquant_workflow(
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
     )
-    maxquant_manifest = write_maxquant_biological_workflow_bundle(base_report, output_dir)
+    maxquant_manifest = write_maxquant_biological_workflow_bundle(
+        base_report, output_dir
+    )
     maxquant_manifest_path = output_dir / "maxquant_biological_report_manifest.json"
     atomic_write_text(
         maxquant_manifest_path,
@@ -200,8 +203,14 @@ def run_advanced_maxquant_workflow(
     rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_maxquant_summary.tsv"
 
-    write_output_table_tsv((output_dir / excluded_name), render_filtered_maxquant_protein_groups_tsv(excluded_groups))
-    write_output_table_tsv((output_dir / peptide_contribution_name), render_advanced_maxquant_peptide_contributions_tsv(peptide_contributions))
+    write_output_table_tsv(
+        (output_dir / excluded_name),
+        render_filtered_maxquant_protein_groups_tsv(excluded_groups),
+    )
+    write_output_table_tsv(
+        (output_dir / peptide_contribution_name),
+        render_advanced_maxquant_peptide_contributions_tsv(peptide_contributions),
+    )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(
@@ -226,13 +235,20 @@ def run_advanced_maxquant_workflow(
         peptide_contribution_count=len(peptide_contributions),
         significant_protein_count=base_report.summary.significant_protein_count,
         supported_claim_count=(
-            0 if claim_validation is None else claim_validation.summary.supported_claim_count
+            0
+            if claim_validation is None
+            else claim_validation.summary.supported_claim_count
         ),
         rejected_claim_count=(
-            0 if claim_validation is None else claim_validation.summary.rejected_claim_count
+            0
+            if claim_validation is None
+            else claim_validation.summary.rejected_claim_count
         ),
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_maxquant_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_advanced_maxquant_workflow_summary_tsv(summary),
+    )
 
     workflow_manifest_name = "advanced_maxquant_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -334,9 +350,18 @@ def render_advanced_maxquant_workflow_summary_tsv(
     for field_name, value in (
         ("imported_evidence_count", summary.imported_evidence_count),
         ("accepted_protein_group_count", summary.accepted_protein_group_count),
-        ("excluded_reverse_or_contaminant_count", summary.excluded_reverse_or_contaminant_count),
-        ("additional_filtered_protein_group_count", summary.additional_filtered_protein_group_count),
-        ("biological_foreground_protein_count", summary.biological_foreground_protein_count),
+        (
+            "excluded_reverse_or_contaminant_count",
+            summary.excluded_reverse_or_contaminant_count,
+        ),
+        (
+            "additional_filtered_protein_group_count",
+            summary.additional_filtered_protein_group_count,
+        ),
+        (
+            "biological_foreground_protein_count",
+            summary.biological_foreground_protein_count,
+        ),
         ("peptide_contribution_count", summary.peptide_contribution_count),
         ("significant_protein_count", summary.significant_protein_count),
         ("supported_claim_count", summary.supported_claim_count),
@@ -446,7 +471,9 @@ def render_advanced_maxquant_peptide_contributions_tsv(
                 entry.representative_protein_ref,
                 entry.peptide_sequence,
                 "" if entry.modified_sequence is None else entry.modified_sequence,
-                "" if entry.leading_razor_protein is None else entry.leading_razor_protein,
+                ""
+                if entry.leading_razor_protein is None
+                else entry.leading_razor_protein,
                 ";".join(entry.protein_refs),
                 "" if entry.intensity is None else f"{entry.intensity:g}",
                 "" if entry.msms_count is None else entry.msms_count,
@@ -460,10 +487,10 @@ def _build_peptide_contributions(
 ) -> tuple[AdvancedMaxquantPeptideContributionEntry, ...]:
     peptide_rows_by_sequence: dict[str, tuple[MaxquantPeptideReviewEntry, ...]] = {}
     for row in report.import_report.peptide_rows:
-        peptide_rows_by_sequence.setdefault(row.residue_sequence, tuple())
-        peptide_rows_by_sequence[row.residue_sequence] = (
-            peptide_rows_by_sequence[row.residue_sequence] + (row,)
-        )
+        peptide_rows_by_sequence.setdefault(row.residue_sequence, ())
+        peptide_rows_by_sequence[row.residue_sequence] = peptide_rows_by_sequence[
+            row.residue_sequence
+        ] + (row,)
 
     entries: list[AdvancedMaxquantPeptideContributionEntry] = []
     for entity_id in report.lfq_table.entity_ids:
@@ -476,7 +503,9 @@ def _build_peptide_contributions(
             report.lfq_table.entity_protein_refs.get(entity_id, (entity_id,))[0],
         )
         protein_refs = set(report.lfq_table.entity_protein_refs.get(entity_id, ()))
-        for peptide_sequence in report.lfq_table.entity_member_peptides.get(entity_id, ()):
+        for peptide_sequence in report.lfq_table.entity_member_peptides.get(
+            entity_id, ()
+        ):
             matching_rows = _matching_peptide_rows(
                 peptide_rows_by_sequence.get(peptide_sequence, ()),
                 protein_refs=protein_refs,

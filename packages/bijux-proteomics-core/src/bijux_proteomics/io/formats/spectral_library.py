@@ -576,9 +576,7 @@ def _resolve_spectral_library_search_advisory(
     strategy: SpectralLibrarySearchStrategy,
 ) -> str | None:
     if strategy is SpectralLibrarySearchStrategy.NO_DECOY_ADVISORY:
-        return (
-            "library search ran without decoy entries; q-values are withheld and this report is advisory only"
-        )
+        return "library search ran without decoy entries; q-values are withheld and this report is advisory only"
     return None
 
 

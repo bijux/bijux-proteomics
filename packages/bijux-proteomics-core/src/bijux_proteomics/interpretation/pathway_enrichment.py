@@ -5,24 +5,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import csv
 from enum import StrEnum
 from io import StringIO
 import json
 import math
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
-)
-from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinReferenceEntry,
 )
-from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -91,7 +89,9 @@ class PathwayMembershipImportReport(JsonModel):
     source_path: str = Field(..., min_length=1)
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[PathwayMembershipRecord, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[RejectedPathwayMembershipRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedPathwayMembershipRow, ...] = Field(
+        default_factory=tuple
+    )
     column_mapping: PathwayMembershipColumnMapping
     summary: PathwayMembershipImportSummary
     note: str = Field(..., min_length=1)
@@ -278,7 +278,9 @@ def parse_pathway_membership_table(
                 pathway_id=pathway_id,
                 pathway_name=_optional_value(values, active_mapping.pathway_name),
                 source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(values, active_mapping.source_accession),
+                source_accession=_optional_value(
+                    values, active_mapping.source_accession
+                ),
                 member_kind=member_kind,
                 member_id=member_id,
                 metadata={
@@ -305,7 +307,9 @@ def parse_pathway_membership_table(
             member_kind_counts.get(record.member_kind.value, 0) + 1
         )
         if record.source_name is not None:
-            source_counts[record.source_name] = source_counts.get(record.source_name, 0) + 1
+            source_counts[record.source_name] = (
+                source_counts.get(record.source_name, 0) + 1
+            )
 
     return PathwayMembershipImportReport(
         source_path=str(path),
@@ -316,9 +320,14 @@ def parse_pathway_membership_table(
         summary=PathwayMembershipImportSummary(
             accepted_record_count=len(accepted_records),
             rejected_row_count=len(rejected_rows),
-            distinct_pathway_count=len({record.pathway_id for record in accepted_records}),
+            distinct_pathway_count=len(
+                {record.pathway_id for record in accepted_records}
+            ),
             distinct_member_count=len(
-                {(record.member_kind.value, record.member_id) for record in accepted_records}
+                {
+                    (record.member_kind.value, record.member_id)
+                    for record in accepted_records
+                }
             ),
             member_kind_counts=dict(sorted(member_kind_counts.items())),
             source_counts=dict(sorted(source_counts.items())),
@@ -381,13 +390,19 @@ def build_pathway_enrichment_report(
             background_size = len(background)
             foreground_size = len(foreground)
         else:
-            background_members = {member.member_id for member in members} & background_genes
-            foreground_members = {member.member_id for member in members} & foreground_genes
+            background_members = {
+                member.member_id for member in members
+            } & background_genes
+            foreground_members = {
+                member.member_id for member in members
+            } & foreground_genes
             background_size = len(background_genes)
             foreground_size = len(foreground_genes)
         if not foreground_members or background_size == 0 or foreground_size == 0:
             continue
-        expected_overlap_count = foreground_size * len(background_members) / background_size
+        expected_overlap_count = (
+            foreground_size * len(background_members) / background_size
+        )
         enrichment_ratio = (
             len(foreground_members) / expected_overlap_count
             if expected_overlap_count > 0.0
@@ -405,7 +420,9 @@ def build_pathway_enrichment_report(
                 foreground_size=foreground_size,
                 background_size=background_size,
                 expected_overlap_count=round(expected_overlap_count, 6),
-                enrichment_ratio=None if enrichment_ratio is None else round(enrichment_ratio, 6),
+                enrichment_ratio=None
+                if enrichment_ratio is None
+                else round(enrichment_ratio, 6),
                 p_value=_hypergeometric_upper_tail(
                     overlap_count=len(foreground_members),
                     term_background_count=len(background_members),
@@ -677,7 +694,9 @@ def _build_unresolved_pathway_members(
     pathway_records: tuple[PathwayMembershipRecord, ...],
     gene_annotations: dict[str, tuple[str, ...]],
 ) -> tuple[UnresolvedPathwayMemberEntry, ...]:
-    if not any(record.member_kind is PathwayMemberKind.GENE for record in pathway_records):
+    if not any(
+        record.member_kind is PathwayMemberKind.GENE for record in pathway_records
+    ):
         return ()
     unresolved: list[UnresolvedPathwayMemberEntry] = []
     for protein_ref in sorted(foreground):

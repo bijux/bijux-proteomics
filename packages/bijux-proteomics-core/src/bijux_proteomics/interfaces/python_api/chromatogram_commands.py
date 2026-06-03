@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_xic_extract_command(
     input_mzml: Path,
     target_table: Path,
@@ -30,6 +31,7 @@ def run_xic_extract_command(
     payload = report.to_dict()
     payload["tsv_out"] = str(tsv_out) if tsv_out is not None else None
     _emit_json(payload, out_path=out_path)
+
 
 def run_xic_pick_peaks_command(
     input_mzml: Path,
@@ -57,6 +59,7 @@ def run_xic_pick_peaks_command(
     payload["trace_tsv_out"] = str(trace_tsv_out) if trace_tsv_out is not None else None
     payload["peak_tsv_out"] = str(peak_tsv_out) if peak_tsv_out is not None else None
     _emit_json(payload, out_path=out_path)
+
 
 def run_xic_align_retention_times_command(
     target_table: Path,
@@ -103,12 +106,11 @@ def run_xic_align_retention_times_command(
         "model_tsv": None if model_tsv_out is None else str(model_tsv_out),
         "residual_tsv": None if residual_tsv_out is None else str(residual_tsv_out),
         "failed_anchor_tsv": (
-            None
-            if failed_anchor_tsv_out is None
-            else str(failed_anchor_tsv_out)
+            None if failed_anchor_tsv_out is None else str(failed_anchor_tsv_out)
         ),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_xic_score_evidence_command(
     target_table: Path,
@@ -148,6 +150,7 @@ def run_xic_score_evidence_command(
         "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_dia_fragment_coelution_command(
     target_table: Path,
@@ -218,4 +221,11 @@ def run_dia_fragment_coelution_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_xic_extract_command', 'run_xic_pick_peaks_command', 'run_xic_align_retention_times_command', 'run_xic_score_evidence_command', 'run_dia_fragment_coelution_command']
+
+__all__ = [
+    "run_xic_extract_command",
+    "run_xic_pick_peaks_command",
+    "run_xic_align_retention_times_command",
+    "run_xic_score_evidence_command",
+    "run_dia_fragment_coelution_command",
+]

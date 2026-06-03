@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 """Biological report TSV rendering and artifact export."""
-from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
+from __future__ import annotations
 
 import csv
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import (
     render_biological_context_mapping_summary_tsv,
     render_biological_context_mapping_tsv,
@@ -27,10 +27,10 @@ from bijux_proteomics.interpretation import (
     render_complex_enrichment_summary_tsv,
     render_complex_member_contribution_tsv,
     render_complex_unresolved_member_tsv,
-    render_drug_target_interpretation_summary_tsv,
-    render_drug_target_interpretation_tsv,
     render_disease_phenotype_interpretation_summary_tsv,
     render_disease_phenotype_interpretation_tsv,
+    render_drug_target_interpretation_summary_tsv,
+    render_drug_target_interpretation_tsv,
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
@@ -46,10 +46,10 @@ from bijux_proteomics.interpretation import (
     render_pathway_unresolved_member_tsv,
     render_protein_annotation_summary_tsv,
     render_protein_annotation_tsv,
-    render_rejected_biological_context_tsv,
-    render_rejected_regulator_evidence_tsv,
     render_regulator_inference_summary_tsv,
     render_regulator_inference_tsv,
+    render_rejected_biological_context_tsv,
+    render_rejected_regulator_evidence_tsv,
     render_tissue_cell_type_context_summary_tsv,
     render_tissue_cell_type_interpretation_tsv,
     render_tissue_cell_type_sample_consistency_tsv,
@@ -97,30 +97,43 @@ from bijux_proteomics.review import (
     render_supported_biological_claim_tsv,
     render_volcano_review_tsv,
 )
-from bijux_proteomics.study import render_experiment_confidence_component_tsv, render_experiment_confidence_summary_tsv
-from bijux_proteomics.workflow.reports.biological_report_html import _render_biological_result_report_html
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportArtifactPaths, BiologicalResultReportBundle, BiologicalResultReportExportManifest,
+from bijux_proteomics.study import (
+    render_experiment_confidence_component_tsv,
+    render_experiment_confidence_summary_tsv,
 )
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
+from bijux_proteomics.workflow.cards.pathway_evidence_cards import (
+    render_pathway_evidence_card_tsv,
+)
+from bijux_proteomics.workflow.cards.protein_evidence_cards import (
+    render_protein_evidence_card_summary_tsv,
+    render_protein_evidence_card_tsv,
+)
+from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
+    render_protein_mechanism_card_summary_tsv,
+    render_protein_mechanism_card_tsv,
+)
+from bijux_proteomics.workflow.cards.sample_evidence_cards import (
+    render_sample_evidence_card_tsv,
+)
 from bijux_proteomics.workflow.cohort_stratification import (
     render_cohort_interaction_candidate_tsv,
     render_cohort_stratification_summary_tsv,
     render_cohort_stratum_tsv,
     render_cohort_subgroup_effect_tsv,
 )
-from bijux_proteomics.workflow.cards.protein_evidence_cards import (
-    render_protein_evidence_card_summary_tsv, render_protein_evidence_card_tsv,
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
 )
-from bijux_proteomics.workflow.cards.pathway_evidence_cards import (
-    render_pathway_evidence_card_tsv,
+from bijux_proteomics.workflow.reports.biological_report_html import (
+    _render_biological_result_report_html,
 )
-from bijux_proteomics.workflow.cards.sample_evidence_cards import (
-    render_sample_evidence_card_tsv,
+from bijux_proteomics.workflow.reports.biological_report_models import (
+    BiologicalResultReportArtifactPaths,
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
 )
-from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
-    render_protein_mechanism_card_summary_tsv, render_protein_mechanism_card_tsv,
-)
+
+
 def render_biological_result_report_summary_tsv(
     report: BiologicalResultReportBundle,
 ) -> str:
@@ -255,7 +268,9 @@ def write_biological_result_report_bundle(
     protein_card_summary_name = "biological_protein_card_summary.tsv"
     protein_card_name = "biological_protein_cards.tsv"
     pathway_card_name = None
-    protein_mechanism_card_summary_name = "biological_protein_mechanism_card_summary.tsv"
+    protein_mechanism_card_summary_name = (
+        "biological_protein_mechanism_card_summary.tsv"
+    )
     protein_mechanism_card_name = "biological_protein_mechanism_cards.tsv"
     evidence_graph_nodes_name = "biological_evidence_graph_nodes.tsv"
     evidence_graph_edges_name = "biological_evidence_graph_edges.tsv"
@@ -324,50 +339,114 @@ def write_biological_result_report_bundle(
     biological_hypothesis_name = None
     rejected_hypothesis_candidate_name = None
 
-    write_output_table_tsv((output_dir / summary_name), render_biological_result_report_summary_tsv(report))
-    write_output_table_tsv((output_dir / differential_name), render_differential_abundance_tsv(report.differential_report))
-    write_output_table_tsv((output_dir / protein_card_summary_name), render_protein_evidence_card_summary_tsv(report.protein_cards))
-    write_output_table_tsv((output_dir / protein_card_name), render_protein_evidence_card_tsv(report.protein_cards))
-    write_output_table_tsv((output_dir / protein_mechanism_card_summary_name), render_protein_mechanism_card_summary_tsv(report.protein_mechanism_cards))
-    write_output_table_tsv((output_dir / protein_mechanism_card_name), render_protein_mechanism_card_tsv(report.protein_mechanism_cards))
+    write_output_table_tsv(
+        (output_dir / summary_name), render_biological_result_report_summary_tsv(report)
+    )
+    write_output_table_tsv(
+        (output_dir / differential_name),
+        render_differential_abundance_tsv(report.differential_report),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_card_summary_name),
+        render_protein_evidence_card_summary_tsv(report.protein_cards),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_card_name),
+        render_protein_evidence_card_tsv(report.protein_cards),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_mechanism_card_summary_name),
+        render_protein_mechanism_card_summary_tsv(report.protein_mechanism_cards),
+    )
+    write_output_table_tsv(
+        (output_dir / protein_mechanism_card_name),
+        render_protein_mechanism_card_tsv(report.protein_mechanism_cards),
+    )
     graph_export = export_proteomics_evidence_graph(report.graph_report.graph)
-    write_output_table_tsv((output_dir / evidence_graph_nodes_name), render_proteomics_evidence_graph_nodes_tsv(graph_export))
-    write_output_table_tsv((output_dir / evidence_graph_edges_name), render_proteomics_evidence_graph_edges_tsv(graph_export))
-    write_output_table_tsv((output_dir / experiment_confidence_summary_name), render_experiment_confidence_summary_tsv(report.experiment_confidence_report))
-    write_output_table_tsv((output_dir / experiment_confidence_components_name), render_experiment_confidence_component_tsv(report.experiment_confidence_report))
-    write_output_table_tsv((output_dir / section_confidence_name), render_biological_report_section_confidence_tsv(report))
+    write_output_table_tsv(
+        (output_dir / evidence_graph_nodes_name),
+        render_proteomics_evidence_graph_nodes_tsv(graph_export),
+    )
+    write_output_table_tsv(
+        (output_dir / evidence_graph_edges_name),
+        render_proteomics_evidence_graph_edges_tsv(graph_export),
+    )
+    write_output_table_tsv(
+        (output_dir / experiment_confidence_summary_name),
+        render_experiment_confidence_summary_tsv(report.experiment_confidence_report),
+    )
+    write_output_table_tsv(
+        (output_dir / experiment_confidence_components_name),
+        render_experiment_confidence_component_tsv(report.experiment_confidence_report),
+    )
+    write_output_table_tsv(
+        (output_dir / section_confidence_name),
+        render_biological_report_section_confidence_tsv(report),
+    )
     if report.evidence_aware_ranking_report is not None:
         evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
-        write_output_table_tsv((output_dir / evidence_aware_ranking_name), render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report))
+        write_output_table_tsv(
+            (output_dir / evidence_aware_ranking_name),
+            render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
+        )
     if report.claim_validation_report is not None:
         claim_validation_summary_name = "biological_claim_validation_summary.tsv"
         supported_claim_name = "biological_supported_claims.tsv"
         rejected_claim_name = "biological_rejected_claims.tsv"
-        write_output_table_tsv((output_dir / claim_validation_summary_name), render_biological_claim_validation_summary_tsv(
+        write_output_table_tsv(
+            (output_dir / claim_validation_summary_name),
+            render_biological_claim_validation_summary_tsv(
                 report.claim_validation_report
-            ))
-        write_output_table_tsv((output_dir / supported_claim_name), render_supported_biological_claim_tsv(report.claim_validation_report))
-        write_output_table_tsv((output_dir / rejected_claim_name), render_rejected_biological_claim_tsv(report.claim_validation_report))
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / supported_claim_name),
+            render_supported_biological_claim_tsv(report.claim_validation_report),
+        )
+        write_output_table_tsv(
+            (output_dir / rejected_claim_name),
+            render_rejected_biological_claim_tsv(report.claim_validation_report),
+        )
     if report.biological_hypothesis_report is not None:
         biological_hypothesis_summary_name = "biological_hypothesis_summary.tsv"
         biological_hypothesis_name = "biological_hypotheses.tsv"
         rejected_hypothesis_candidate_name = (
             "biological_rejected_hypothesis_candidates.tsv"
         )
-        write_output_table_tsv((output_dir / biological_hypothesis_summary_name), render_biological_hypothesis_summary_tsv(report.biological_hypothesis_report))
-        write_output_table_tsv((output_dir / biological_hypothesis_name), render_biological_hypothesis_tsv(report.biological_hypothesis_report))
-        write_output_table_tsv((output_dir / rejected_hypothesis_candidate_name), render_rejected_biological_hypothesis_candidate_tsv(
+        write_output_table_tsv(
+            (output_dir / biological_hypothesis_summary_name),
+            render_biological_hypothesis_summary_tsv(
                 report.biological_hypothesis_report
-            ))
-    write_output_table_tsv((output_dir / foreground_background_summary_name), render_biological_foreground_background_summary_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / biological_hypothesis_name),
+            render_biological_hypothesis_tsv(report.biological_hypothesis_report),
+        )
+        write_output_table_tsv(
+            (output_dir / rejected_hypothesis_candidate_name),
+            render_rejected_biological_hypothesis_candidate_tsv(
+                report.biological_hypothesis_report
+            ),
+        )
+    write_output_table_tsv(
+        (output_dir / foreground_background_summary_name),
+        render_biological_foreground_background_summary_tsv(
             report.foreground_background_model
-        ))
-    write_output_table_tsv((output_dir / foreground_background_entry_name), render_biological_foreground_background_entry_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / foreground_background_entry_name),
+        render_biological_foreground_background_entry_tsv(
             report.foreground_background_model
-        ))
-    write_output_table_tsv((output_dir / foreground_background_issue_name), render_biological_foreground_background_issue_tsv(
+        ),
+    )
+    write_output_table_tsv(
+        (output_dir / foreground_background_issue_name),
+        render_biological_foreground_background_issue_tsv(
             report.foreground_background_model
-        ))
+        ),
+    )
     if (
         report.regulator_evidence_import_report is not None
         and report.regulator_inference_report is not None
@@ -376,15 +455,36 @@ def write_biological_result_report_bundle(
         regulator_inference_name = "biological_regulator_inference.tsv"
         regulator_unresolved_name = "biological_regulator_inference_unresolved.tsv"
         regulator_rejected_name = "biological_regulator_evidence_rejected.tsv"
-        write_output_table_tsv((output_dir / regulator_inference_summary_name), render_regulator_inference_summary_tsv(report.regulator_inference_report))
-        write_output_table_tsv((output_dir / regulator_inference_name), render_regulator_inference_tsv(report.regulator_inference_report))
-        write_output_table_tsv((output_dir / regulator_unresolved_name), render_unresolved_regulator_target_tsv(report.regulator_inference_report))
-        write_output_table_tsv((output_dir / regulator_rejected_name), render_rejected_regulator_evidence_tsv(
+        write_output_table_tsv(
+            (output_dir / regulator_inference_summary_name),
+            render_regulator_inference_summary_tsv(report.regulator_inference_report),
+        )
+        write_output_table_tsv(
+            (output_dir / regulator_inference_name),
+            render_regulator_inference_tsv(report.regulator_inference_report),
+        )
+        write_output_table_tsv(
+            (output_dir / regulator_unresolved_name),
+            render_unresolved_regulator_target_tsv(report.regulator_inference_report),
+        )
+        write_output_table_tsv(
+            (output_dir / regulator_rejected_name),
+            render_rejected_regulator_evidence_tsv(
                 report.regulator_evidence_import_report
-            ))
-    write_output_table_tsv((output_dir / annotation_summary_name), render_protein_annotation_summary_tsv(report.annotation_report))
-    write_output_table_tsv((output_dir / annotation_name), render_protein_annotation_tsv(report.annotation_report))
-    write_output_table_tsv((output_dir / annotation_unmapped_name), render_unmapped_protein_annotation_tsv(report.annotation_report))
+            ),
+        )
+    write_output_table_tsv(
+        (output_dir / annotation_summary_name),
+        render_protein_annotation_summary_tsv(report.annotation_report),
+    )
+    write_output_table_tsv(
+        (output_dir / annotation_name),
+        render_protein_annotation_tsv(report.annotation_report),
+    )
+    write_output_table_tsv(
+        (output_dir / annotation_unmapped_name),
+        render_unmapped_protein_annotation_tsv(report.annotation_report),
+    )
     if (
         report.context_import_report is not None
         and report.context_mapping_report is not None
@@ -394,11 +494,28 @@ def write_biological_result_report_bundle(
         context_term_name = "biological_context_terms.tsv"
         context_unmapped_name = "biological_context_unmapped.tsv"
         context_rejected_name = "biological_context_rejected.tsv"
-        write_output_table_tsv((output_dir / context_summary_name), render_biological_context_mapping_summary_tsv(report.context_mapping_report))
-        write_output_table_tsv((output_dir / context_mapping_name), render_biological_context_mapping_tsv(report.context_mapping_report))
-        write_output_table_tsv((output_dir / context_term_name), render_biological_context_term_tsv(report.context_mapping_report))
-        write_output_table_tsv((output_dir / context_unmapped_name), render_unmapped_biological_context_tsv(report.context_mapping_report))
-        write_output_table_tsv((output_dir / context_rejected_name), render_rejected_biological_context_tsv(report.context_import_report))
+        write_output_table_tsv(
+            (output_dir / context_summary_name),
+            render_biological_context_mapping_summary_tsv(
+                report.context_mapping_report
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / context_mapping_name),
+            render_biological_context_mapping_tsv(report.context_mapping_report),
+        )
+        write_output_table_tsv(
+            (output_dir / context_term_name),
+            render_biological_context_term_tsv(report.context_mapping_report),
+        )
+        write_output_table_tsv(
+            (output_dir / context_unmapped_name),
+            render_unmapped_biological_context_tsv(report.context_mapping_report),
+        )
+        write_output_table_tsv(
+            (output_dir / context_rejected_name),
+            render_rejected_biological_context_tsv(report.context_import_report),
+        )
     else:
         context_summary_name = None
         context_mapping_name = None
@@ -410,14 +527,26 @@ def write_biological_result_report_bundle(
         cohort_stratum_name = "biological_cohort_strata.tsv"
         cohort_effect_name = "biological_cohort_subgroup_effects.tsv"
         cohort_interaction_name = "biological_cohort_interaction_candidates.tsv"
-        write_output_table_tsv((output_dir / cohort_summary_name), render_cohort_stratification_summary_tsv(
+        write_output_table_tsv(
+            (output_dir / cohort_summary_name),
+            render_cohort_stratification_summary_tsv(
                 report.cohort_stratification_report
-            ))
-        write_output_table_tsv((output_dir / cohort_stratum_name), render_cohort_stratum_tsv(report.cohort_stratification_report))
-        write_output_table_tsv((output_dir / cohort_effect_name), render_cohort_subgroup_effect_tsv(report.cohort_stratification_report))
-        write_output_table_tsv((output_dir / cohort_interaction_name), render_cohort_interaction_candidate_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / cohort_stratum_name),
+            render_cohort_stratum_tsv(report.cohort_stratification_report),
+        )
+        write_output_table_tsv(
+            (output_dir / cohort_effect_name),
+            render_cohort_subgroup_effect_tsv(report.cohort_stratification_report),
+        )
+        write_output_table_tsv(
+            (output_dir / cohort_interaction_name),
+            render_cohort_interaction_candidate_tsv(
                 report.cohort_stratification_report
-            ))
+            ),
+        )
     else:
         cohort_summary_name = None
         cohort_stratum_name = None
@@ -426,22 +555,36 @@ def write_biological_result_report_bundle(
     if report.tissue_cell_type_context_report is not None:
         tissue_context_summary_name = "biological_tissue_context_summary.tsv"
         tissue_context_sample_name = "biological_tissue_context_sample_consistency.tsv"
-        tissue_context_unexpected_name = "biological_tissue_context_unexpected_signals.tsv"
+        tissue_context_unexpected_name = (
+            "biological_tissue_context_unexpected_signals.tsv"
+        )
         tissue_context_interpretation_name = (
             "biological_tissue_context_interpretation.tsv"
         )
-        write_output_table_tsv((output_dir / tissue_context_summary_name), render_tissue_cell_type_context_summary_tsv(
+        write_output_table_tsv(
+            (output_dir / tissue_context_summary_name),
+            render_tissue_cell_type_context_summary_tsv(
                 report.tissue_cell_type_context_report
-            ))
-        write_output_table_tsv((output_dir / tissue_context_sample_name), render_tissue_cell_type_sample_consistency_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / tissue_context_sample_name),
+            render_tissue_cell_type_sample_consistency_tsv(
                 report.tissue_cell_type_context_report
-            ))
-        write_output_table_tsv((output_dir / tissue_context_unexpected_name), render_tissue_cell_type_unexpected_signal_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / tissue_context_unexpected_name),
+            render_tissue_cell_type_unexpected_signal_tsv(
                 report.tissue_cell_type_context_report
-            ))
-        write_output_table_tsv((output_dir / tissue_context_interpretation_name), render_tissue_cell_type_interpretation_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / tissue_context_interpretation_name),
+            render_tissue_cell_type_interpretation_tsv(
                 report.tissue_cell_type_context_report
-            ))
+            ),
+        )
     else:
         tissue_context_summary_name = None
         tissue_context_sample_name = None
@@ -450,28 +593,41 @@ def write_biological_result_report_bundle(
     if report.drug_target_report is not None:
         drug_target_summary_name = "biological_drug_target_summary.tsv"
         drug_target_name = "biological_drug_target_interpretation.tsv"
-        write_output_table_tsv((output_dir / drug_target_summary_name), render_drug_target_interpretation_summary_tsv(report.drug_target_report))
-        write_output_table_tsv((output_dir / drug_target_name), render_drug_target_interpretation_tsv(report.drug_target_report))
+        write_output_table_tsv(
+            (output_dir / drug_target_summary_name),
+            render_drug_target_interpretation_summary_tsv(report.drug_target_report),
+        )
+        write_output_table_tsv(
+            (output_dir / drug_target_name),
+            render_drug_target_interpretation_tsv(report.drug_target_report),
+        )
     else:
         drug_target_summary_name = None
         drug_target_name = None
     if report.disease_phenotype_report is not None:
-        disease_phenotype_summary_name = (
-            "biological_disease_phenotype_summary.tsv"
-        )
+        disease_phenotype_summary_name = "biological_disease_phenotype_summary.tsv"
         disease_phenotype_term_name = "biological_disease_phenotype_terms.tsv"
         disease_phenotype_unknown_name = (
             "biological_disease_phenotype_unknown_annotations.tsv"
         )
-        write_output_table_tsv((output_dir / disease_phenotype_summary_name), render_disease_phenotype_interpretation_summary_tsv(
+        write_output_table_tsv(
+            (output_dir / disease_phenotype_summary_name),
+            render_disease_phenotype_interpretation_summary_tsv(
                 report.disease_phenotype_report
-            ))
-        write_output_table_tsv((output_dir / disease_phenotype_term_name), render_disease_phenotype_interpretation_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / disease_phenotype_term_name),
+            render_disease_phenotype_interpretation_tsv(
                 report.disease_phenotype_report
-            ))
-        write_output_table_tsv((output_dir / disease_phenotype_unknown_name), render_unknown_disease_phenotype_annotation_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / disease_phenotype_unknown_name),
+            render_unknown_disease_phenotype_annotation_tsv(
                 report.disease_phenotype_report
-            ))
+            ),
+        )
     else:
         disease_phenotype_summary_name = None
         disease_phenotype_term_name = None
@@ -491,24 +647,48 @@ def write_biological_result_report_bundle(
             "biological_compartment_activity_unresolved.tsv"
         )
         compartment_unknown_name = "biological_compartment_unknown_localization.tsv"
-        write_output_table_tsv((output_dir / compartment_summary_name), render_compartment_biology_summary_tsv(report.compartment_biology_report))
-        write_output_table_tsv((output_dir / compartment_enrichment_name), render_compartment_enrichment_tsv(report.compartment_biology_report))
-        write_output_table_tsv((output_dir / compartment_activity_matrix_name), render_compartment_activity_matrix_tsv(report.compartment_biology_report))
-        write_output_table_tsv((output_dir / compartment_activity_sample_name), render_compartment_activity_sample_score_tsv(
+        write_output_table_tsv(
+            (output_dir / compartment_summary_name),
+            render_compartment_biology_summary_tsv(report.compartment_biology_report),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_enrichment_name),
+            render_compartment_enrichment_tsv(report.compartment_biology_report),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_activity_matrix_name),
+            render_compartment_activity_matrix_tsv(report.compartment_biology_report),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_activity_sample_name),
+            render_compartment_activity_sample_score_tsv(
                 report.compartment_biology_report
-            ))
-        write_output_table_tsv((output_dir / compartment_activity_condition_name), render_compartment_activity_condition_score_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_activity_condition_name),
+            render_compartment_activity_condition_score_tsv(
                 report.compartment_biology_report
-            ))
-        write_output_table_tsv((output_dir / compartment_activity_comparison_name), render_compartment_activity_condition_comparison_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_activity_comparison_name),
+            render_compartment_activity_condition_comparison_tsv(
                 report.compartment_biology_report
-            ))
-        write_output_table_tsv((output_dir / compartment_activity_unresolved_name), render_compartment_activity_unresolved_member_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_activity_unresolved_name),
+            render_compartment_activity_unresolved_member_tsv(
                 report.compartment_biology_report
-            ))
-        write_output_table_tsv((output_dir / compartment_unknown_name), render_unknown_compartment_localization_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / compartment_unknown_name),
+            render_unknown_compartment_localization_tsv(
                 report.compartment_biology_report
-            ))
+            ),
+        )
     else:
         compartment_summary_name = None
         compartment_enrichment_name = None
@@ -528,21 +708,43 @@ def write_biological_result_report_bundle(
             "biological_pathway_activity_condition_comparisons.tsv"
         )
         pathway_activity_member_name = "biological_pathway_activity_members.tsv"
-        pathway_activity_unresolved_name = (
-            "biological_pathway_activity_unresolved.tsv"
+        pathway_activity_unresolved_name = "biological_pathway_activity_unresolved.tsv"
+        write_output_table_tsv(
+            (output_dir / pathway_activity_summary_name),
+            render_pathway_activity_summary_tsv(report.pathway_activity_report),
         )
-        write_output_table_tsv((output_dir / pathway_activity_summary_name), render_pathway_activity_summary_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_card_name), render_pathway_evidence_card_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_activity_matrix_name), render_pathway_activity_matrix_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_activity_sample_name), render_pathway_activity_sample_score_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_activity_condition_name), render_pathway_activity_condition_score_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_activity_comparison_name), render_pathway_activity_condition_comparison_tsv(
+        write_output_table_tsv(
+            (output_dir / pathway_card_name),
+            render_pathway_evidence_card_tsv(report.pathway_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_matrix_name),
+            render_pathway_activity_matrix_tsv(report.pathway_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_sample_name),
+            render_pathway_activity_sample_score_tsv(report.pathway_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_condition_name),
+            render_pathway_activity_condition_score_tsv(report.pathway_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_comparison_name),
+            render_pathway_activity_condition_comparison_tsv(
                 report.pathway_activity_report
-            ))
-        write_output_table_tsv((output_dir / pathway_activity_member_name), render_pathway_member_contribution_tsv(report.pathway_activity_report))
-        write_output_table_tsv((output_dir / pathway_activity_unresolved_name), render_pathway_activity_unresolved_member_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_member_name),
+            render_pathway_member_contribution_tsv(report.pathway_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_activity_unresolved_name),
+            render_pathway_activity_unresolved_member_tsv(
                 report.pathway_activity_report
-            ))
+            ),
+        )
     if report.complex_activity_report is not None:
         complex_activity_summary_name = "biological_complex_activity_summary.tsv"
         complex_activity_matrix_name = "biological_complex_activity_matrix.tsv"
@@ -552,20 +754,39 @@ def write_biological_result_report_bundle(
             "biological_complex_activity_condition_comparisons.tsv"
         )
         complex_activity_member_name = "biological_complex_activity_members.tsv"
-        complex_activity_unresolved_name = (
-            "biological_complex_activity_unresolved.tsv"
+        complex_activity_unresolved_name = "biological_complex_activity_unresolved.tsv"
+        write_output_table_tsv(
+            (output_dir / complex_activity_summary_name),
+            render_complex_activity_summary_tsv(report.complex_activity_report),
         )
-        write_output_table_tsv((output_dir / complex_activity_summary_name), render_complex_activity_summary_tsv(report.complex_activity_report))
-        write_output_table_tsv((output_dir / complex_activity_matrix_name), render_complex_activity_matrix_tsv(report.complex_activity_report))
-        write_output_table_tsv((output_dir / complex_activity_sample_name), render_complex_activity_sample_score_tsv(report.complex_activity_report))
-        write_output_table_tsv((output_dir / complex_activity_condition_name), render_complex_activity_condition_score_tsv(report.complex_activity_report))
-        write_output_table_tsv((output_dir / complex_activity_comparison_name), render_complex_activity_condition_comparison_tsv(
+        write_output_table_tsv(
+            (output_dir / complex_activity_matrix_name),
+            render_complex_activity_matrix_tsv(report.complex_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_activity_sample_name),
+            render_complex_activity_sample_score_tsv(report.complex_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_activity_condition_name),
+            render_complex_activity_condition_score_tsv(report.complex_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_activity_comparison_name),
+            render_complex_activity_condition_comparison_tsv(
                 report.complex_activity_report
-            ))
-        write_output_table_tsv((output_dir / complex_activity_member_name), render_complex_member_contribution_tsv(report.complex_activity_report))
-        write_output_table_tsv((output_dir / complex_activity_unresolved_name), render_complex_activity_unresolved_member_tsv(
+            ),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_activity_member_name),
+            render_complex_member_contribution_tsv(report.complex_activity_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_activity_unresolved_name),
+            render_complex_activity_unresolved_member_tsv(
                 report.complex_activity_report
-            ))
+            ),
+        )
     else:
         complex_activity_summary_name = None
         complex_activity_matrix_name = None
@@ -574,13 +795,18 @@ def write_biological_result_report_bundle(
         complex_activity_comparison_name = None
         complex_activity_member_name = None
         complex_activity_unresolved_name = None
-    write_output_table_tsv((output_dir / volcano_tsv_name), render_volcano_review_tsv(report.volcano_review))
+    write_output_table_tsv(
+        (output_dir / volcano_tsv_name),
+        render_volcano_review_tsv(report.volcano_review),
+    )
     export_volcano_review_json(report.volcano_review, output_dir / volcano_json_name)
     export_volcano_review_svg(report.volcano_review, output_dir / volcano_svg_name)
     export_volcano_review_html(report.volcano_review, output_dir / volcano_html_name)
     export_heatmap_summary_tsv(report.heatmap_report, output_dir / heatmap_summary_name)
     export_heatmap_matrix_tsv(report.heatmap_report, output_dir / heatmap_matrix_name)
-    export_heatmap_row_metadata_tsv(report.heatmap_report, output_dir / heatmap_row_name)
+    export_heatmap_row_metadata_tsv(
+        report.heatmap_report, output_dir / heatmap_row_name
+    )
     export_heatmap_column_metadata_tsv(
         report.heatmap_report,
         output_dir / heatmap_column_name,
@@ -605,7 +831,10 @@ def write_biological_result_report_bundle(
         report.sample_exploration_report,
         output_dir / sample_cluster_name,
     )
-    write_output_table_tsv((output_dir / sample_card_name), render_sample_evidence_card_tsv(report.sample_exploration_report))
+    write_output_table_tsv(
+        (output_dir / sample_card_name),
+        render_sample_evidence_card_tsv(report.sample_exploration_report),
+    )
 
     go_summary_name = None
     go_term_name = None
@@ -614,9 +843,18 @@ def write_biological_result_report_bundle(
         go_summary_name = "biological_go_summary.tsv"
         go_term_name = "biological_go_terms.tsv"
         go_unannotated_name = "biological_go_unannotated.tsv"
-        write_output_table_tsv((output_dir / go_summary_name), render_go_enrichment_summary_tsv(report.go_enrichment_report))
-        write_output_table_tsv((output_dir / go_term_name), render_go_enrichment_term_tsv(report.go_enrichment_report))
-        write_output_table_tsv((output_dir / go_unannotated_name), render_go_enrichment_unannotated_tsv(report.go_enrichment_report))
+        write_output_table_tsv(
+            (output_dir / go_summary_name),
+            render_go_enrichment_summary_tsv(report.go_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / go_term_name),
+            render_go_enrichment_term_tsv(report.go_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / go_unannotated_name),
+            render_go_enrichment_unannotated_tsv(report.go_enrichment_report),
+        )
 
     pathway_summary_name = None
     pathway_entry_name = None
@@ -625,9 +863,18 @@ def write_biological_result_report_bundle(
         pathway_summary_name = "biological_pathway_summary.tsv"
         pathway_entry_name = "biological_pathway_entries.tsv"
         pathway_unresolved_name = "biological_pathway_unresolved.tsv"
-        write_output_table_tsv((output_dir / pathway_summary_name), render_pathway_enrichment_summary_tsv(report.pathway_enrichment_report))
-        write_output_table_tsv((output_dir / pathway_entry_name), render_pathway_enrichment_entry_tsv(report.pathway_enrichment_report))
-        write_output_table_tsv((output_dir / pathway_unresolved_name), render_pathway_unresolved_member_tsv(report.pathway_enrichment_report))
+        write_output_table_tsv(
+            (output_dir / pathway_summary_name),
+            render_pathway_enrichment_summary_tsv(report.pathway_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_entry_name),
+            render_pathway_enrichment_entry_tsv(report.pathway_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / pathway_unresolved_name),
+            render_pathway_unresolved_member_tsv(report.pathway_enrichment_report),
+        )
 
     complex_summary_name = None
     complex_entry_name = None
@@ -636,9 +883,18 @@ def write_biological_result_report_bundle(
         complex_summary_name = "biological_complex_summary.tsv"
         complex_entry_name = "biological_complex_entries.tsv"
         complex_unresolved_name = "biological_complex_unresolved.tsv"
-        write_output_table_tsv((output_dir / complex_summary_name), render_complex_enrichment_summary_tsv(report.complex_enrichment_report))
-        write_output_table_tsv((output_dir / complex_entry_name), render_complex_enrichment_entry_tsv(report.complex_enrichment_report))
-        write_output_table_tsv((output_dir / complex_unresolved_name), render_complex_unresolved_member_tsv(report.complex_enrichment_report))
+        write_output_table_tsv(
+            (output_dir / complex_summary_name),
+            render_complex_enrichment_summary_tsv(report.complex_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_entry_name),
+            render_complex_enrichment_entry_tsv(report.complex_enrichment_report),
+        )
+        write_output_table_tsv(
+            (output_dir / complex_unresolved_name),
+            render_complex_unresolved_member_tsv(report.complex_enrichment_report),
+        )
 
     artifacts = BiologicalResultReportArtifactPaths(
         summary_tsv=summary_name,
@@ -756,7 +1012,8 @@ def write_biological_result_report_bundle(
         cohort_stratification_summary_included=(
             report.cohort_stratification_report is not None
         ),
-        tissue_context_summary_included=report.tissue_cell_type_context_report is not None,
+        tissue_context_summary_included=report.tissue_cell_type_context_report
+        is not None,
         drug_target_summary_included=report.drug_target_report is not None,
         disease_phenotype_summary_included=report.disease_phenotype_report is not None,
         go_summary_included=report.go_enrichment_report is not None,
@@ -771,6 +1028,8 @@ def write_biological_result_report_bundle(
             "and sample exploration artifacts into one durable output directory"
         ),
     )
+
+
 def export_biological_result_report_bundle(
     report: BiologicalResultReportBundle,
     output_dir: Path,
@@ -779,4 +1038,10 @@ def export_biological_result_report_bundle(
 
     return write_biological_result_report_bundle(report, output_dir)
 
-__all__ = ["export_biological_result_report_bundle", "write_biological_result_report_bundle", "render_biological_report_section_confidence_tsv", "render_biological_result_report_summary_tsv"]
+
+__all__ = [
+    "export_biological_result_report_bundle",
+    "write_biological_result_report_bundle",
+    "render_biological_report_section_confidence_tsv",
+    "render_biological_result_report_summary_tsv",
+]

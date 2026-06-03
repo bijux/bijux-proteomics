@@ -272,9 +272,7 @@ def import_dia_nn_rows(
             if row.protein_group_quantity is not None
             else protein_quantity.get(group_key, 0.0) + (row.precursor_quantity or 0.0)
         )
-        protein_q[group_key] = min(
-            protein_q.get(group_key, 1.0), row.q_value
-        )
+        protein_q[group_key] = min(protein_q.get(group_key, 1.0), row.q_value)
         protein_refs.setdefault(group_key, set()).update(row.protein_refs)
         protein_source_counts[group_key] = protein_source_counts.get(group_key, 0) + 1
     protein_provenance = {
@@ -326,7 +324,9 @@ def import_dia_nn_rows(
             protein_group_id=protein_group_id,
             q_value=protein_q[(protein_group_id, run_name, sample_name)],
             quantity=quantity,
-            protein_refs=tuple(sorted(protein_refs[(protein_group_id, run_name, sample_name)])),
+            protein_refs=tuple(
+                sorted(protein_refs[(protein_group_id, run_name, sample_name)])
+            ),
             run_name=run_name,
             sample_name=sample_name,
             source_precursor_count=protein_source_counts[

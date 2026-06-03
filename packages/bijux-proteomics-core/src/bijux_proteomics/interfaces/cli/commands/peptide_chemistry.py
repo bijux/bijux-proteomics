@@ -10,8 +10,15 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.peptide_chemistry import (
+    run_fragment_ions_command,
+    run_isotope_envelope_command,
+    run_peptide_index_command,
+    run_peptide_mass_command,
+    run_peptide_properties_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.peptide_chemistry import run_peptide_index_command, run_peptide_mass_command, run_isotope_envelope_command, run_fragment_ions_command, run_peptide_properties_command
+
 
 @click.command("peptide-index")
 @click.argument(
@@ -81,8 +88,21 @@ def peptide_index_command(
     protein_group_map: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Index peptide queries against a digested FASTA database.'
-    return run_peptide_index_command(input_fasta, peptides, mode, protease, custom_protease, custom_protease_name, missed_cleavages, digestion_mode, il_equivalent, protein_group_map, out_path)
+    "Index peptide queries against a digested FASTA database."
+    return run_peptide_index_command(
+        input_fasta,
+        peptides,
+        mode,
+        protease,
+        custom_protease,
+        custom_protease_name,
+        missed_cleavages,
+        digestion_mode,
+        il_equivalent,
+        protein_group_map,
+        out_path,
+    )
+
 
 @click.command("peptide-mass")
 @click.argument("sequence")
@@ -126,8 +146,18 @@ def peptide_mass_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Emit peptide chemistry diagnostics for one sequence plus optional modifications.'
-    return run_peptide_mass_command(sequence, modifications, charge, fragment_series, include_neutral_losses, isotope_peaks, registry_path, out_path)
+    "Emit peptide chemistry diagnostics for one sequence plus optional modifications."
+    return run_peptide_mass_command(
+        sequence,
+        modifications,
+        charge,
+        fragment_series,
+        include_neutral_losses,
+        isotope_peaks,
+        registry_path,
+        out_path,
+    )
+
 
 @click.command("isotope-envelope")
 @click.argument("sequence")
@@ -180,8 +210,17 @@ def isotope_envelope_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Predict M+0 through M+n isotope envelopes for one peptide.'
-    return run_isotope_envelope_command(sequence, modifications, charges, max_isotope_index, registry_path, tsv_out, out_path)
+    "Predict M+0 through M+n isotope envelopes for one peptide."
+    return run_isotope_envelope_command(
+        sequence,
+        modifications,
+        charges,
+        max_isotope_index,
+        registry_path,
+        tsv_out,
+        out_path,
+    )
+
 
 @click.command("fragment-ions")
 @click.argument("sequence")
@@ -236,8 +275,18 @@ def fragment_ions_command(
     tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Emit one dedicated theoretical fragment-ion review report.'
-    return run_fragment_ions_command(sequence, modifications, charges, fragment_series, include_neutral_losses, registry_path, tsv_out, out_path)
+    "Emit one dedicated theoretical fragment-ion review report."
+    return run_fragment_ions_command(
+        sequence,
+        modifications,
+        charges,
+        fragment_series,
+        include_neutral_losses,
+        registry_path,
+        tsv_out,
+        out_path,
+    )
+
 
 @click.command("peptide-properties")
 @click.argument("sequence")
@@ -288,8 +337,18 @@ def peptide_properties_command(
     registry_path: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Emit peptide property diagnostics for filtering and review.'
-    return run_peptide_properties_command(sequence, modifications, charge, protease, custom_protease, custom_protease_name, registry_path, out_path)
+    "Emit peptide property diagnostics for filtering and review."
+    return run_peptide_properties_command(
+        sequence,
+        modifications,
+        charge,
+        protease,
+        custom_protease,
+        custom_protease_name,
+        registry_path,
+        out_path,
+    )
+
 
 COMMANDS = (
     peptide_index_command,

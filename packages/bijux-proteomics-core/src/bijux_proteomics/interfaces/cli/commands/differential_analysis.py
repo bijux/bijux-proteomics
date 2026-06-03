@@ -10,12 +10,19 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.differential_analysis import (
+    run_dia_dda_compare_command,
+    run_dia_differential_command,
+    run_target_panel_review_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.differential_analysis import run_dia_differential_command, run_dia_dda_compare_command, run_target_panel_review_command
+
 
 @click.command("dia-differential")
-@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
 @click.argument(
     "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
@@ -49,7 +56,9 @@ from bijux_proteomics.interfaces.python_api.differential_analysis import run_dia
 )
 @click.option("--differential-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--qc-summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option("--design-matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--design-matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
 @click.option(
     "--design-coefficients-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -114,8 +123,36 @@ def dia_differential_command(
     sample_balance_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Run DIA-native differential analysis from DIA-NN or Spectronaut evidence.'
-    return run_dia_differential_command(input_path, design_path, source_kind, config_path, max_q_value, normalization, condition_a, condition_b, design_batch_field, design_pairing_field, design_covariates, matrix_tsv_out, normalized_matrix_tsv_out, differential_tsv_out, qc_summary_tsv_out, design_matrix_tsv_out, design_coefficients_tsv_out, volcano_tsv_out, volcano_json_out, volcano_svg_out, volcano_html_out, volcano_adjusted_p_value_threshold, volcano_absolute_log2_fold_change_threshold, volcano_top_label_count, sample_balance_tsv_out, out_path)
+    "Run DIA-native differential analysis from DIA-NN or Spectronaut evidence."
+    return run_dia_differential_command(
+        input_path,
+        design_path,
+        source_kind,
+        config_path,
+        max_q_value,
+        normalization,
+        condition_a,
+        condition_b,
+        design_batch_field,
+        design_pairing_field,
+        design_covariates,
+        matrix_tsv_out,
+        normalized_matrix_tsv_out,
+        differential_tsv_out,
+        qc_summary_tsv_out,
+        design_matrix_tsv_out,
+        design_coefficients_tsv_out,
+        volcano_tsv_out,
+        volcano_json_out,
+        volcano_svg_out,
+        volcano_html_out,
+        volcano_adjusted_p_value_threshold,
+        volcano_absolute_log2_fold_change_threshold,
+        volcano_top_label_count,
+        sample_balance_tsv_out,
+        out_path,
+    )
+
 
 @click.command("dia-dda-compare")
 @click.argument(
@@ -142,8 +179,12 @@ def dia_differential_command(
     show_default=True,
 )
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option("--protein-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
-@click.option("--peptide-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--protein-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--peptide-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
 @click.option("--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--exclusive-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--conflicts-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
@@ -170,8 +211,24 @@ def dia_dda_compare_command(
     differential_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Compare DIA-NN and DDA evidence, conflicts, and optional differential results.'
-    return run_dia_dda_compare_command(diann_report_path, dda_psm_path, max_q_value, dia_differential_tsv_path, dda_differential_tsv_path, differential_significance_threshold, summary_tsv_out, protein_overlap_tsv_out, peptide_overlap_tsv_out, correlation_tsv_out, exclusive_tsv_out, conflicts_tsv_out, differential_tsv_out, out_path)
+    "Compare DIA-NN and DDA evidence, conflicts, and optional differential results."
+    return run_dia_dda_compare_command(
+        diann_report_path,
+        dda_psm_path,
+        max_q_value,
+        dia_differential_tsv_path,
+        dda_differential_tsv_path,
+        differential_significance_threshold,
+        summary_tsv_out,
+        protein_overlap_tsv_out,
+        peptide_overlap_tsv_out,
+        correlation_tsv_out,
+        exclusive_tsv_out,
+        conflicts_tsv_out,
+        differential_tsv_out,
+        out_path,
+    )
+
 
 @click.command("target-panel-review")
 @click.argument(
@@ -222,8 +279,22 @@ def target_panel_review_command(
     matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Review a user-defined peptide or protein panel against DIA or LFQ matrices.'
-    return run_target_panel_review_command(input_path, panel_path, source_kind, config_path, include_decoys, max_q_value, summary_tsv_out, target_tsv_out, missing_tsv_out, intensity_tsv_out, matrix_tsv_out, out_path)
+    "Review a user-defined peptide or protein panel against DIA or LFQ matrices."
+    return run_target_panel_review_command(
+        input_path,
+        panel_path,
+        source_kind,
+        config_path,
+        include_decoys,
+        max_q_value,
+        summary_tsv_out,
+        target_tsv_out,
+        missing_tsv_out,
+        intensity_tsv_out,
+        matrix_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     dia_differential_command,

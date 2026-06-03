@@ -13,7 +13,6 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 
-
 _DELIMITER_CANDIDATES: tuple[str, ...] = ("\t", ",", ";", "|")
 _NUMERIC_COLUMN_PATTERN = re.compile(
     r"(?:^|_)(?:intensity|abundance|quantity|amount|score|probability|"
@@ -157,15 +156,21 @@ def _scan_one_path(path: Path) -> InputIntegrityFileReport:
                 )
             expected_field_count = len(header_fields)
             duplicate_id_columns = tuple(
-                field for field in header_fields if _ID_COLUMN_PATTERN.search(field.strip())
+                field
+                for field in header_fields
+                if _ID_COLUMN_PATTERN.search(field.strip())
             )
             numeric_columns = tuple(
-                field for field in header_fields if _NUMERIC_COLUMN_PATTERN.search(field.strip())
+                field
+                for field in header_fields
+                if _NUMERIC_COLUMN_PATTERN.search(field.strip())
             )
             seen_ids: dict[str, set[str]] = {
                 field: set() for field in duplicate_id_columns
             }
-            primary_id_column = duplicate_id_columns[0] if duplicate_id_columns else None
+            primary_id_column = (
+                duplicate_id_columns[0] if duplicate_id_columns else None
+            )
 
             line_number = 1
             while True:
@@ -205,7 +210,9 @@ def _scan_one_path(path: Path) -> InputIntegrityFileReport:
                     for index, value in enumerate(row)
                 }
                 record_id = (
-                    record.get(primary_id_column, "").strip() if primary_id_column else None
+                    record.get(primary_id_column, "").strip()
+                    if primary_id_column
+                    else None
                 ) or None
                 for column in duplicate_id_columns:
                     value = record[column]
@@ -309,8 +316,7 @@ def _row_shape_issues(
 
 def _detect_delimiter(header_line: str) -> str:
     counts = {
-        delimiter: header_line.count(delimiter)
-        for delimiter in _DELIMITER_CANDIDATES
+        delimiter: header_line.count(delimiter) for delimiter in _DELIMITER_CANDIDATES
     }
     delimiter, count = max(counts.items(), key=lambda item: item[1])
     if count == 0:
@@ -352,8 +358,5 @@ def _render_tsv(
     header = "\t".join(fieldnames)
     if not rows:
         return header + "\n"
-    body = [
-        "\t".join(row.get(field, "") for field in fieldnames)
-        for row in rows
-    ]
+    body = ["\t".join(row.get(field, "") for field in fieldnames) for row in rows]
     return header + "\n" + "\n".join(body) + "\n"

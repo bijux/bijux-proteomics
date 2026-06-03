@@ -13,7 +13,9 @@ from bijux_proteomics.review.claims.biological_claim_validation import (
     BiologicalClaimStatus,
     BiologicalClaimValidationEntry,
 )
-from bijux_proteomics.workflow.reports.biological_reporting import BiologicalResultReportBundle
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics_knowledge.memory.models.claims import (
     ClaimEvidenceState,
     ClaimPolarity,
@@ -41,7 +43,9 @@ def build_surprising_demo_claims(
 
     claim_validation_report = biological_report.claim_validation_report
     if claim_validation_report is None:
-        raise ValueError("surprising demo biological report did not produce claim validation")
+        raise ValueError(
+            "surprising demo biological report did not produce claim validation"
+        )
 
     base_claims = tuple(
         _build_demo_claim(entry)
@@ -78,7 +82,9 @@ def build_surprising_demo_evidence_bundle(
                     assay_modality="proteomics_demo",
                     biological_system="surprising_demo",
                     species="Homo sapiens",
-                    quantitative_support=QuantitativeSupport(effect_size=claim.magnitude),
+                    quantitative_support=QuantitativeSupport(
+                        effect_size=claim.magnitude
+                    ),
                     claim=claim.statement,
                     related_targets=[claim.target_id],
                     decision_tags=["demo_review"],
@@ -149,12 +155,15 @@ def _build_demo_contradictory_claim(
         (
             claim
             for claim in claims
-            if claim.claim_id == "protein-claim:p11111" and claim.status is ClaimStatus.SUPPORTED
+            if claim.claim_id == "protein-claim:p11111"
+            and claim.status is ClaimStatus.SUPPORTED
         ),
         None,
     )
     if anchor is None:
-        raise ValueError("surprising demo requires the supported P11111 claim as a contradiction anchor")
+        raise ValueError(
+            "surprising demo requires the supported P11111 claim as a contradiction anchor"
+        )
     return EvidenceClaim(
         claim_id="protein-claim:p11111-contradiction",
         target_id=anchor.target_id,
@@ -212,8 +221,7 @@ def _demo_claim_direction(direction: BiologicalClaimDirection) -> str:
 def _stable_demo_id(value: str) -> str:
     normalized = value.lower().replace("/", ":")
     normalized = re.sub(r"[^a-z0-9._:-]+", "-", normalized)
-    normalized = re.sub(r"-{2,}", "-", normalized).strip("-")
-    return normalized
+    return re.sub(r"-{2,}", "-", normalized).strip("-")
 
 
 __all__ = [

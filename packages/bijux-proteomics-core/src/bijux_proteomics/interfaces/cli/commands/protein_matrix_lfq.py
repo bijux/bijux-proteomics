@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.protein_matrix_lfq import (
+    run_protein_lfq_command,
+    run_protein_matrix_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.protein_matrix_lfq import run_protein_matrix_command, run_protein_lfq_command
+
 
 @click.command("protein-matrix")
 @click.argument(
@@ -131,8 +135,40 @@ def protein_matrix_command(
     contributions_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build one protein-by-sample intensity matrix from feature or PSM evidence.'
-    return run_protein_matrix_command(input_table, input_kind, grouping_mode, target_kind, separate_charge_states, aggregation, top_n, unique_peptide_only, sample_column, feature_id_column, run_column, spectrum_id_column, peptide_column, modified_peptide_column, intensity_column, protein_refs_column, charge_column, score_column, q_value_column, decoy_label_column, contaminant_label_column, mz_column, retention_time_column, missing_reason_column, protein_separator, summary_tsv_out, matrix_tsv_out, missingness_tsv_out, contributions_tsv_out, out_path)
+    "Build one protein-by-sample intensity matrix from feature or PSM evidence."
+    return run_protein_matrix_command(
+        input_table,
+        input_kind,
+        grouping_mode,
+        target_kind,
+        separate_charge_states,
+        aggregation,
+        top_n,
+        unique_peptide_only,
+        sample_column,
+        feature_id_column,
+        run_column,
+        spectrum_id_column,
+        peptide_column,
+        modified_peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        decoy_label_column,
+        contaminant_label_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        summary_tsv_out,
+        matrix_tsv_out,
+        missingness_tsv_out,
+        contributions_tsv_out,
+        out_path,
+    )
+
 
 @click.command("protein-lfq")
 @click.argument(
@@ -266,8 +302,43 @@ def protein_lfq_command(
     peptide_profile_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence.'
-    return run_protein_lfq_command(input_table, input_kind, grouping_mode, target_kind, separate_charge_states, aggregation, top_n, unique_peptide_only, minimum_shared_peptides, sample_column, feature_id_column, run_column, spectrum_id_column, peptide_column, modified_peptide_column, intensity_column, protein_refs_column, charge_column, score_column, q_value_column, decoy_label_column, contaminant_label_column, mz_column, retention_time_column, missing_reason_column, protein_separator, summary_tsv_out, matrix_tsv_out, pairwise_tsv_out, missingness_tsv_out, disconnected_components_tsv_out, peptide_profile_tsv_out, out_path)
+    "Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence."
+    return run_protein_lfq_command(
+        input_table,
+        input_kind,
+        grouping_mode,
+        target_kind,
+        separate_charge_states,
+        aggregation,
+        top_n,
+        unique_peptide_only,
+        minimum_shared_peptides,
+        sample_column,
+        feature_id_column,
+        run_column,
+        spectrum_id_column,
+        peptide_column,
+        modified_peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        score_column,
+        q_value_column,
+        decoy_label_column,
+        contaminant_label_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        summary_tsv_out,
+        matrix_tsv_out,
+        pairwise_tsv_out,
+        missingness_tsv_out,
+        disconnected_components_tsv_out,
+        peptide_profile_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     protein_matrix_command,

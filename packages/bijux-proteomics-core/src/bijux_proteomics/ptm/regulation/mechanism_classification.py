@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -14,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.ptm.localization.localization_scoring import (
     PtmLocalizationConfidenceTier,
@@ -127,8 +126,7 @@ def build_ptm_mechanism_classification_report(
 
     active_policy = policy or PtmMechanismClassificationPolicy()
     quant_rows_by_site = {
-        row.site_key: row
-        for row in differential_analysis.site_quantification.rows
+        row.site_key: row for row in differential_analysis.site_quantification.rows
     }
     entries = tuple(
         _classify_mechanism_entry(
@@ -285,7 +283,9 @@ def export_ptm_mechanism_classification_summary_tsv(
 ) -> None:
     """Write PTM mechanism-classification summary TSV."""
 
-    write_output_table_tsv(path, render_ptm_mechanism_classification_summary_tsv(report))
+    write_output_table_tsv(
+        path, render_ptm_mechanism_classification_summary_tsv(report)
+    )
 
 
 def export_ptm_mechanism_classification_tsv(
@@ -328,12 +328,8 @@ def _classify_mechanism_entry(
         differential_entry.protein_log2_fold_change is not None
         and differential_entry.log2_fold_change != 0.0
         and differential_entry.protein_log2_fold_change != 0.0
-        and (
-            differential_entry.log2_fold_change > 0.0
-        )
-        is (
-            differential_entry.protein_log2_fold_change > 0.0
-        )
+        and (differential_entry.log2_fold_change > 0.0)
+        is (differential_entry.protein_log2_fold_change > 0.0)
     )
 
     mechanism_class: PtmMechanismClass
@@ -397,9 +393,7 @@ def _classify_mechanism_entry(
                 raw_effect * policy.maximum_corrected_fraction_for_abundance_driven,
             )
         ):
-            reason_codes.append(
-                PtmMechanismReasonCode.PROTEIN_TRACKS_RAW_SITE_EFFECT
-            )
+            reason_codes.append(PtmMechanismReasonCode.PROTEIN_TRACKS_RAW_SITE_EFFECT)
             mechanism_class = PtmMechanismClass.ABUNDANCE_DRIVEN
             note = (
                 f"{differential_entry.site_key} looks abundance-driven because the "

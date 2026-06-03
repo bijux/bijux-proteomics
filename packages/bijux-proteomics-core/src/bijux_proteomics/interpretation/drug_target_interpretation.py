@@ -280,7 +280,8 @@ def build_drug_target_interpretation_report(
             indirect_pathway_neighbor_entry_count=sum(
                 1
                 for entry in sorted_entries
-                if entry.relationship is DrugTargetRelationship.INDIRECT_PATHWAY_NEIGHBOR
+                if entry.relationship
+                is DrugTargetRelationship.INDIRECT_PATHWAY_NEIGHBOR
             ),
             high_evidence_entry_count=sum(
                 1
@@ -407,7 +408,9 @@ def _select_changed_protein_effects(
             continue
         if abs(entry.log2_fold_change) < policy.min_absolute_log2_fold_change:
             continue
-        for protein_ref in table.entity_protein_refs.get(entry.entity_id, (entry.entity_id,)):
+        for protein_ref in table.entity_protein_refs.get(
+            entry.entity_id, (entry.entity_id,)
+        ):
             canonical = canonicalize_protein_reference(protein_ref)
             best = selected.get(canonical)
             if best is None or _effect_precedes(entry, best):
@@ -419,8 +422,12 @@ def _effect_precedes(
     candidate: DifferentialAbundanceEntry,
     incumbent: DifferentialAbundanceEntry,
 ) -> bool:
-    candidate_p = 1.0 if candidate.adjusted_p_value is None else candidate.adjusted_p_value
-    incumbent_p = 1.0 if incumbent.adjusted_p_value is None else incumbent.adjusted_p_value
+    candidate_p = (
+        1.0 if candidate.adjusted_p_value is None else candidate.adjusted_p_value
+    )
+    incumbent_p = (
+        1.0 if incumbent.adjusted_p_value is None else incumbent.adjusted_p_value
+    )
     return (candidate_p, -abs(candidate.log2_fold_change), candidate.entity_id) < (
         incumbent_p,
         -abs(incumbent.log2_fold_change),
@@ -449,13 +456,7 @@ def _annotation_evidence_values(
     records: tuple[BiologicalContextRecord, ...],
 ) -> tuple[str, ...]:
     return sort_strings(
-        tuple(
-            {
-                record.evidence
-                for record in records
-                if record.evidence is not None
-            }
-        )
+        tuple({record.evidence for record in records if record.evidence is not None})
     )
 
 
@@ -520,7 +521,10 @@ def _build_changed_pathway_index(
     proteins_by_gene_symbol: dict[str, set[str]] = {}
     for protein_ref, gene_symbol in gene_symbol_by_protein.items():
         proteins_by_gene_symbol.setdefault(gene_symbol, set()).add(protein_ref)
-    changed_set = {canonicalize_protein_reference(protein_ref) for protein_ref in changed_protein_refs}
+    changed_set = {
+        canonicalize_protein_reference(protein_ref)
+        for protein_ref in changed_protein_refs
+    }
     pathway_index: dict[str, _ChangedPathwayState] = {}
     for record in pathway_records:
         if record.member_kind is PathwayMemberKind.PROTEIN:
@@ -530,7 +534,9 @@ def _build_changed_pathway_index(
         else:
             member_refs = proteins_by_gene_symbol.get(record.member_id, set())
         changed_members = tuple(
-            sorted(protein_ref for protein_ref in member_refs if protein_ref in changed_set)
+            sorted(
+                protein_ref for protein_ref in member_refs if protein_ref in changed_set
+            )
         )
         if not changed_members:
             continue

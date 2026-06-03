@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.interpretation_regulators import (
+    run_ppi_modules_command,
+    run_regulator_inference_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.interpretation_regulators import run_regulator_inference_command, run_ppi_modules_command
+
 
 @click.command("regulator-inference")
 @click.argument(
@@ -97,7 +101,9 @@ from bijux_proteomics.interfaces.python_api.interpretation_regulators import run
 @click.option("--pathway-gene-symbol-column", default="gene_symbol", show_default=True)
 @click.option("--site-key-column", default="site_key", show_default=True)
 @click.option("--site-protein-ref-column", default="protein_ref", show_default=True)
-@click.option("--site-log2-fold-change-column", default="log2_fold_change", show_default=True)
+@click.option(
+    "--site-log2-fold-change-column", default="log2_fold_change", show_default=True
+)
 @click.option(
     "--site-adjusted-p-value-column",
     default="adjusted_p_value",
@@ -182,8 +188,56 @@ def regulator_inference_command(
     rejected_site_signal_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Infer upstream regulators from explicit target evidence and observed signal.'
-    return run_regulator_inference_command(input_table, regulator_evidence_tsv, design_path, fasta, annotation_tsv, pathway_membership_tsv, site_differential_tsv, condition_a, condition_b, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, aggregation, top_n, normalization, regulator_column, evidence_type_column, target_protein_ref_column, target_gene_symbol_column, target_pathway_id_column, target_site_key_column, source_name_column, source_accession_column, pathway_id_column, pathway_name_column, pathway_source_name_column, pathway_source_accession_column, pathway_protein_ref_column, pathway_gene_symbol_column, site_key_column, site_protein_ref_column, site_log2_fold_change_column, site_adjusted_p_value_column, summary_tsv_out, inference_tsv_out, unresolved_target_tsv_out, rejected_evidence_tsv_out, rejected_site_signal_tsv_out, out_path)
+    "Infer upstream regulators from explicit target evidence and observed signal."
+    return run_regulator_inference_command(
+        input_table,
+        regulator_evidence_tsv,
+        design_path,
+        fasta,
+        annotation_tsv,
+        pathway_membership_tsv,
+        site_differential_tsv,
+        condition_a,
+        condition_b,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        aggregation,
+        top_n,
+        normalization,
+        regulator_column,
+        evidence_type_column,
+        target_protein_ref_column,
+        target_gene_symbol_column,
+        target_pathway_id_column,
+        target_site_key_column,
+        source_name_column,
+        source_accession_column,
+        pathway_id_column,
+        pathway_name_column,
+        pathway_source_name_column,
+        pathway_source_accession_column,
+        pathway_protein_ref_column,
+        pathway_gene_symbol_column,
+        site_key_column,
+        site_protein_ref_column,
+        site_log2_fold_change_column,
+        site_adjusted_p_value_column,
+        summary_tsv_out,
+        inference_tsv_out,
+        unresolved_target_tsv_out,
+        rejected_evidence_tsv_out,
+        rejected_site_signal_tsv_out,
+        out_path,
+    )
+
 
 @click.command("ppi-modules")
 @click.argument(
@@ -279,8 +333,33 @@ def ppi_modules_command(
     rejected_edge_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build a significant-protein PPI subnetwork and connected modules.'
-    return run_ppi_modules_command(significant_tsv, ppi_edge_tsv, protein_set_tsv, protein_ref_column, row_id_column, edge_protein_ref_a_column, edge_protein_ref_b_column, edge_source_name_column, edge_source_accession_column, edge_score_column, set_id_column, set_name_column, set_category_column, source_name_column, source_accession_column, set_protein_ref_column, summary_tsv_out, edge_tsv_out, module_tsv_out, isolated_tsv_out, module_enrichment_tsv_out, rejected_edge_tsv_out, out_path)
+    "Build a significant-protein PPI subnetwork and connected modules."
+    return run_ppi_modules_command(
+        significant_tsv,
+        ppi_edge_tsv,
+        protein_set_tsv,
+        protein_ref_column,
+        row_id_column,
+        edge_protein_ref_a_column,
+        edge_protein_ref_b_column,
+        edge_source_name_column,
+        edge_source_accession_column,
+        edge_score_column,
+        set_id_column,
+        set_name_column,
+        set_category_column,
+        source_name_column,
+        source_accession_column,
+        set_protein_ref_column,
+        summary_tsv_out,
+        edge_tsv_out,
+        module_tsv_out,
+        isolated_tsv_out,
+        module_enrichment_tsv_out,
+        rejected_edge_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     regulator_inference_command,

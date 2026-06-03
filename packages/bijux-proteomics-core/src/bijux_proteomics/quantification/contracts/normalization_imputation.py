@@ -23,6 +23,7 @@ from .input_models import (
 )
 from .matrix_models import LabelFreeQuantTable
 
+
 class NormalizationStrategySummaryEntry(JsonModel):
     """One normalization method summarized across sample-balance metrics."""
 
@@ -33,6 +34,7 @@ class NormalizationStrategySummaryEntry(JsonModel):
     median_abundance_cv: float = Field(..., ge=0.0)
     interquartile_range_cv: float = Field(..., ge=0.0)
     balance_score: float = Field(..., ge=0.0)
+
 
 class NormalizationStrategyComparisonReport(JsonModel):
     """Explicit comparison of normalization methods on one quant table."""
@@ -45,6 +47,7 @@ class NormalizationStrategyComparisonReport(JsonModel):
     )
     recommended_method: NormalizationMethod
 
+
 class NormalizationSampleSnapshot(JsonModel):
     """Per-sample totals, medians, and spread for a quant table snapshot."""
 
@@ -54,6 +57,7 @@ class NormalizationSampleSnapshot(JsonModel):
     total_abundance: float = Field(..., ge=0.0)
     median_abundance: float = Field(..., ge=0.0)
     interquartile_range: float = Field(..., ge=0.0)
+
 
 class NormalizationDistributionSnapshot(JsonModel):
     """Per-sample distribution summary before or after normalization."""
@@ -70,6 +74,7 @@ class NormalizationDistributionSnapshot(JsonModel):
     upper_quartile_abundance: float | None = Field(default=None, ge=0.0)
     max_abundance: float | None = Field(default=None, ge=0.0)
 
+
 class NormalizationLogTransformPreparation(JsonModel):
     """Explicit per-sample handling of nonpositive values before log transform."""
 
@@ -81,6 +86,7 @@ class NormalizationLogTransformPreparation(JsonModel):
     positive_count: int = Field(..., ge=0)
     handling_strategy: str = Field(..., min_length=1)
     pseudocount: float | None = Field(default=None, gt=0.0)
+
 
 class NormalizationComparisonReport(JsonModel):
     """Before/after report for one normalization operation."""
@@ -97,9 +103,10 @@ class NormalizationComparisonReport(JsonModel):
     after_distributions: tuple[NormalizationDistributionSnapshot, ...] = Field(
         default_factory=tuple
     )
-    log_transform_preparation: tuple[NormalizationLogTransformPreparation, ...] = (
-        Field(default_factory=tuple)
+    log_transform_preparation: tuple[NormalizationLogTransformPreparation, ...] = Field(
+        default_factory=tuple
     )
+
 
 class ImputationEntry(JsonModel):
     """One imputed abundance with explicit source missingness context."""
@@ -115,6 +122,7 @@ class ImputationEntry(JsonModel):
     reference_group: str | None = None
     strategy: str = Field(..., min_length=1)
 
+
 class ImputationReport(JsonModel):
     """Explicit ledger of values introduced by one imputation method."""
 
@@ -125,6 +133,7 @@ class ImputationReport(JsonModel):
     entries: tuple[ImputationEntry, ...] = Field(default_factory=tuple)
     imputed_value_count: int = Field(..., ge=0)
     note: str = Field(..., min_length=1)
+
 
 class ImputationSensitivityEntry(JsonModel):
     """Downstream DA summary for one imputation policy."""
@@ -140,6 +149,7 @@ class ImputationSensitivityEntry(JsonModel):
     top_entity_effect_size: float | None = None
     note: str = Field(..., min_length=1)
 
+
 class ImputationSensitivityOverlapEntry(JsonModel):
     """Pairwise overlap of significant hits across imputation methods."""
 
@@ -153,6 +163,7 @@ class ImputationSensitivityOverlapEntry(JsonModel):
     method_a_only_count: int = Field(..., ge=0)
     method_b_only_count: int = Field(..., ge=0)
     jaccard_index: float = Field(..., ge=0.0, le=1.0)
+
 
 class ImputationSensitivityChangedSignificanceEntry(JsonModel):
     """One entity whose significance changes between two imputation methods."""
@@ -170,6 +181,7 @@ class ImputationSensitivityChangedSignificanceEntry(JsonModel):
     compared_log2_fold_change: float | None = None
     note: str = Field(..., min_length=1)
 
+
 class ImputationDependentHitEntry(JsonModel):
     """One entity that becomes significant only after imputation."""
 
@@ -183,6 +195,7 @@ class ImputationDependentHitEntry(JsonModel):
     best_imputation_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     best_imputation_log2_fold_change: float | None = None
     note: str = Field(..., min_length=1)
+
 
 class ImputationSensitivityReport(JsonModel):
     """Comparison of downstream DA behavior across imputation methods."""
@@ -205,6 +218,7 @@ class ImputationSensitivityReport(JsonModel):
     )
     primary_narrative_changed: bool
 
+
 def build_normalization_comparison_report(
     before: LabelFreeQuantTable,
     after: LabelFreeQuantTable,
@@ -215,6 +229,7 @@ def build_normalization_comparison_report(
     )
 
     return _implementation(before, after)
+
 
 def build_normalization_strategy_comparison_report(
     table: LabelFreeQuantTable,
@@ -234,6 +249,7 @@ def build_normalization_strategy_comparison_report(
     )
 
     return _implementation(table, methods=methods)
+
 
 def normalize_label_free_table(
     table: LabelFreeQuantTable,

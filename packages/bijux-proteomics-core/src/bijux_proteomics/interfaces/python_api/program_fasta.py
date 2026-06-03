@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_program_template(
     program_id: str,
     name: str,
@@ -32,9 +33,11 @@ def run_program_template(
     program.save_json(out_path)
     click.echo(json.dumps(program_summary(program), sort_keys=True))
 
+
 def run_summarize_program(program_file: Path) -> None:
     program = ProgramSpec.load_json(program_file)
     click.echo(json.dumps(program_summary(program), sort_keys=True))
+
 
 def run_sequence_checksum_command(sequence: str) -> None:
     normalized = "".join(
@@ -48,6 +51,7 @@ def run_sequence_checksum_command(sequence: str) -> None:
         }
     )
 
+
 def run_fasta_parse_command(
     input_fasta: Path,
     mode: str,
@@ -57,11 +61,10 @@ def run_fasta_parse_command(
     report = parse_fasta_document(
         input_fasta.read_text(),
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
     )
     _emit_json(report, out_path=out_path)
+
 
 def run_fasta_dedup_command(
     input_fasta: Path,
@@ -73,14 +76,13 @@ def run_fasta_dedup_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
         allow_rejected=False,
     )
     deduplicated, dedup_report = deduplicate_fasta_records(report.accepted_records)
     out_fasta.write_text(render_records_fasta(deduplicated))
     _emit_json(dedup_report, out_path=report_out)
+
 
 def run_fasta_contaminants_command(
     input_fasta: Path,
@@ -95,9 +97,7 @@ def run_fasta_contaminants_command(
         input_fasta,
         mode=FastaParseMode(mode),
         allow_rejected=False,
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
     )
     external_records: list[NormalizedProteinRecord] = []
     for contaminant_fasta in contaminant_fastas:
@@ -118,6 +118,7 @@ def run_fasta_contaminants_command(
     out_fasta.write_text(render_records_fasta(combined))
     _emit_json(build_report, out_path=report_out)
 
+
 def run_fasta_filter_command(
     input_fasta: Path,
     mode: str,
@@ -133,9 +134,7 @@ def run_fasta_filter_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
         allow_rejected=False,
     )
     filtered, filter_report = filter_fasta_records(
@@ -149,6 +148,7 @@ def run_fasta_filter_command(
     out_fasta.write_text(render_records_fasta(filtered))
     _emit_json(filter_report, out_path=report_out)
 
+
 def run_fasta_stats_command(
     input_fasta: Path,
     mode: str,
@@ -158,9 +158,7 @@ def run_fasta_stats_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
         allow_rejected=True,
     )
     stats = build_fasta_stats(
@@ -168,6 +166,7 @@ def run_fasta_stats_command(
         rejected_records=report.rejected_records,
     )
     _emit_json(stats, out_path=out_path)
+
 
 def run_fasta_profile_command(
     input_fasta: Path,
@@ -182,9 +181,7 @@ def run_fasta_profile_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
-        duplicate_accession_policy=DuplicateAccessionPolicy(
-            duplicate_accession_policy
-        ),
+        duplicate_accession_policy=DuplicateAccessionPolicy(duplicate_accession_policy),
         allow_rejected=True,
     )
     profile = build_fasta_database_profile(
@@ -200,4 +197,15 @@ def run_fasta_profile_command(
         invalid_sequence_tsv_out=invalid_sequence_tsv_out,
     )
 
-__all__ = ['run_program_template', 'run_summarize_program', 'run_sequence_checksum_command', 'run_fasta_parse_command', 'run_fasta_dedup_command', 'run_fasta_contaminants_command', 'run_fasta_filter_command', 'run_fasta_stats_command', 'run_fasta_profile_command']
+
+__all__ = [
+    "run_program_template",
+    "run_summarize_program",
+    "run_sequence_checksum_command",
+    "run_fasta_parse_command",
+    "run_fasta_dedup_command",
+    "run_fasta_contaminants_command",
+    "run_fasta_filter_command",
+    "run_fasta_stats_command",
+    "run_fasta_profile_command",
+]

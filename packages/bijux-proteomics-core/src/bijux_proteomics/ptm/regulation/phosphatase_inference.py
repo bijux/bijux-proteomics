@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 
 from pydantic import ConfigDict, Field
 
@@ -61,7 +61,9 @@ class PtmPhosphataseInferenceEntry(JsonModel):
 
     phosphatase: str = Field(..., min_length=1)
     supporting_sites: tuple[str, ...] = Field(default_factory=tuple)
-    site_directions: tuple[PtmPhosphataseSiteDirection, ...] = Field(default_factory=tuple)
+    site_directions: tuple[PtmPhosphataseSiteDirection, ...] = Field(
+        default_factory=tuple
+    )
     p_value: float = Field(..., ge=0.0, le=1.0)
     q_value: float = Field(..., ge=0.0, le=1.0)
     annotation_coverage: float = Field(..., ge=0.0, le=1.0)
@@ -88,9 +90,7 @@ def infer_phosphatases(
             continue
         exact_annotation_sites_by_phosphatase.setdefault(
             annotation_entry.phosphatase, set()
-        ).add(
-            annotation_entry.site_id
-        )
+        ).add(annotation_entry.site_id)
         if annotation_entry.site_id not in site_lookup:
             continue
         if (
@@ -101,17 +101,18 @@ def infer_phosphatases(
             continue
         observed_exact_sites_by_phosphatase.setdefault(
             annotation_entry.phosphatase, set()
-        ).add(
-            annotation_entry.site_id
-        )
+        ).add(annotation_entry.site_id)
 
     entries: list[PtmPhosphataseInferenceEntry] = []
     raw_p_values: list[float] = []
     ordered_phosphatases = tuple(sorted(observed_exact_sites_by_phosphatase))
     for phosphatase in ordered_phosphatases:
-        supporting_sites = tuple(sorted(observed_exact_sites_by_phosphatase[phosphatase]))
+        supporting_sites = tuple(
+            sorted(observed_exact_sites_by_phosphatase[phosphatase])
+        )
         directions = tuple(
-            _site_direction(site_lookup[site_id].signed_effect) for site_id in supporting_sites
+            _site_direction(site_lookup[site_id].signed_effect)
+            for site_id in supporting_sites
         )
         p_value = _directional_consistency_p_value(directions)
         exact_annotation_count = len(exact_annotation_sites_by_phosphatase[phosphatase])
@@ -199,7 +200,9 @@ def _directional_consistency_p_value(
     if trial_count <= 1:
         return 1.0
     upregulated_count = sum(
-        1 for direction in informative if direction is PtmPhosphataseSiteDirection.UPREGULATED
+        1
+        for direction in informative
+        if direction is PtmPhosphataseSiteDirection.UPREGULATED
     )
     downregulated_count = trial_count - upregulated_count
     dominant_count = max(upregulated_count, downregulated_count)

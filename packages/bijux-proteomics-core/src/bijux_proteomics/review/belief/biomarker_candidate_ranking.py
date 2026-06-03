@@ -19,7 +19,6 @@ from bijux_proteomics.review.belief.contracts import (
 )
 from bijux_proteomics_foundation import JsonModel
 
-
 _DEFAULT_BIOMARKER_WEIGHTS = {
     "effect_size": 0.22,
     "robustness": 0.22,
@@ -139,7 +138,9 @@ def build_biomarker_candidate_ranking_report(
     if weights is not None:
         active_weights.update(weights)
 
-    ranked_rows: list[tuple[BiomarkerCandidateRankingInput, TrustScoreDecomposition]] = []
+    ranked_rows: list[
+        tuple[BiomarkerCandidateRankingInput, TrustScoreDecomposition]
+    ] = []
     for candidate in candidates:
         penalties = _build_penalties(candidate)
         decomposition = decompose_trust_score(
@@ -187,7 +188,9 @@ def build_biomarker_candidate_ranking_report(
                 rank_reason_codes=rank_reasons,
                 annotation_labels=tuple(sort_strings(candidate.annotation_labels)),
                 source_ids=tuple(sort_strings(candidate.source_ids)),
-                ranking_note=_build_ranking_note(candidate, decomposition, rank_reasons),
+                ranking_note=_build_ranking_note(
+                    candidate, decomposition, rank_reasons
+                ),
             )
         )
 
@@ -206,9 +209,7 @@ def build_biomarker_candidate_ranking_report(
                 if entry.candidate_kind is BiomarkerCandidateKind.PTM_SITE
             ),
             penalized_candidate_count=sum(
-                1
-                for entry in entries
-                if entry.decomposition.penalty_total > 0.0
+                1 for entry in entries if entry.decomposition.penalty_total > 0.0
             ),
             assay_ready_candidate_count=sum(
                 1
@@ -236,9 +237,15 @@ def render_biomarker_candidate_ranking_summary_tsv(
     writer.writerow(("field", "value"))
     writer.writerow(("candidate_count", report.summary.candidate_count))
     writer.writerow(("protein_candidate_count", report.summary.protein_candidate_count))
-    writer.writerow(("ptm_site_candidate_count", report.summary.ptm_site_candidate_count))
-    writer.writerow(("penalized_candidate_count", report.summary.penalized_candidate_count))
-    writer.writerow(("assay_ready_candidate_count", report.summary.assay_ready_candidate_count))
+    writer.writerow(
+        ("ptm_site_candidate_count", report.summary.ptm_site_candidate_count)
+    )
+    writer.writerow(
+        ("penalized_candidate_count", report.summary.penalized_candidate_count)
+    )
+    writer.writerow(
+        ("assay_ready_candidate_count", report.summary.assay_ready_candidate_count)
+    )
     writer.writerow(("note", report.note))
     return handle.getvalue()
 
@@ -404,7 +411,8 @@ def _build_ranking_note(
     negative_codes = [
         code.value
         for code in reason_codes
-        if code not in {
+        if code
+        not in {
             BiomarkerCandidateRankReasonCode.STRONG_EFFECT_SIZE,
             BiomarkerCandidateRankReasonCode.ROBUST_DIFFERENTIAL_SIGNAL,
             BiomarkerCandidateRankReasonCode.HIGH_DETECTABILITY,

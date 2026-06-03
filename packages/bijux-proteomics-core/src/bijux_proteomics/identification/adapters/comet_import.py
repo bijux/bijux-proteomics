@@ -11,11 +11,11 @@ from pathlib import Path
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
@@ -122,7 +122,9 @@ def build_comet_import_report(
     if ".pepxml" in suffixes or result_path.suffix.lower() == ".pepxml":
         canonical_psms = _parse_comet_pepxml_canonical_psms(result_path)
         psm_rows = _build_review_rows_from_canonical_psms(canonical_psms)
-        summary = _build_summary(psm_rows, rejected_psm_count=0, canonical_psm_count=len(canonical_psms))
+        summary = _build_summary(
+            psm_rows, rejected_psm_count=0, canonical_psm_count=len(canonical_psms)
+        )
         return CometImportReport(
             import_kind=CometImportKind.PEPXML,
             canonical_psms=canonical_psms,
@@ -259,7 +261,9 @@ def render_comet_canonical_psm_tsv(rows: tuple[CometCanonicalPsmEntry, ...]) -> 
 
 def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
     """Render reviewer-facing Comet rows as TSV."""
-    ordered_rows = sort_rows_by_fields(rows, "spectrum_id", "charge", "canonical_peptide")
+    ordered_rows = sort_rows_by_fields(
+        rows, "spectrum_id", "charge", "canonical_peptide"
+    )
     lines = [
         "\t".join(
             (
@@ -336,7 +340,9 @@ def _build_tabular_canonical_psm_rows(
         if not evidence_row.accepted or evidence_row.normalized_record is None:
             continue
         raw = evidence_row.raw_fields
-        modified_peptide = raw.get("modified_peptide", evidence_row.normalized_record.peptide)
+        modified_peptide = raw.get(
+            "modified_peptide", evidence_row.normalized_record.peptide
+        )
         peptide_report = build_search_engine_modified_peptide_report(
             modified_peptide,
             dialect=SearchEngineModifiedPeptideDialect.COMET,
@@ -413,7 +419,9 @@ def _build_tabular_rows(
     )
 
 
-def _parse_comet_pepxml_canonical_psms(path: Path) -> tuple[CometCanonicalPsmEntry, ...]:
+def _parse_comet_pepxml_canonical_psms(
+    path: Path,
+) -> tuple[CometCanonicalPsmEntry, ...]:
     root = ET.parse(path).getroot()
     if root is None:
         raise ValueError(f"empty pepXML document {path}")

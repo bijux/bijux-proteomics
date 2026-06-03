@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.quantification.contracts import (
     ImputationMethod,
     LabelFreeQuantTable,
@@ -130,7 +129,9 @@ def build_quant_value_provenance_report(
                         )
                     ),
                     protein_refs=table.entity_protein_refs.get(value.entity_id, ()),
-                    member_peptides=table.entity_member_peptides.get(value.entity_id, ()),
+                    member_peptides=table.entity_member_peptides.get(
+                        value.entity_id, ()
+                    ),
                     imputation_method=(
                         ImputationMethod.NONE
                         if value.imputation_provenance is None

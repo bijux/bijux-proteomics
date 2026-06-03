@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
+import csv
 from dataclasses import dataclass
 from enum import StrEnum
-import csv
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia import (
     DiaPeptideMatrixReport,
     DiaProteinMatrixReport,
@@ -140,7 +139,9 @@ class TargetPanelReport(JsonModel):
     matched_targets: tuple[TargetPanelMatchedTarget, ...] = Field(default_factory=tuple)
     missing_targets: tuple[TargetPanelMissingTarget, ...] = Field(default_factory=tuple)
     filtered_rows: tuple[TargetPanelFilteredRow, ...] = Field(default_factory=tuple)
-    intensity_entries: tuple[TargetPanelIntensityEntry, ...] = Field(default_factory=tuple)
+    intensity_entries: tuple[TargetPanelIntensityEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: TargetPanelSummary
     note: str = Field(..., min_length=1)
 
@@ -257,7 +258,13 @@ def build_target_panel_report_from_dia_peptide_matrix(
                 peptide_sequence=row.canonical_peptide,
                 modified_peptides=(row.modified_peptide,),
                 charge_states=tuple(
-                    sorted({charge for value in row.values for charge in value.charge_states})
+                    sorted(
+                        {
+                            charge
+                            for value in row.values
+                            for charge in value.charge_states
+                        }
+                    )
                 ),
                 protein_refs=row.protein_refs,
                 values=tuple(
@@ -640,9 +647,7 @@ def _matching_peptide_rows(
                 or target.expected_charge in row.charge_states
             )
         )
-    return tuple(
-        row for row in row_specs if target.protein_ref in row.protein_refs
-    )
+    return tuple(row for row in row_specs if target.protein_ref in row.protein_refs)
 
 
 def _matching_protein_rows(
@@ -802,7 +807,9 @@ def render_target_panel_matrix_tsv(report: TargetPanelReport) -> str:
                 ";".join(str(charge) for charge in row.charge_states),
                 ";".join(row.protein_refs),
                 *[
-                    "" if values_by_sample.get(sample_id) is None else values_by_sample[sample_id]
+                    ""
+                    if values_by_sample.get(sample_id) is None
+                    else values_by_sample[sample_id]
                     for sample_id in report.sample_ids
                 ],
             ]

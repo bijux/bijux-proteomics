@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections.abc import Iterable, Sequence
+import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
@@ -105,7 +105,9 @@ class ProteinRegionContextImportReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     total_rows: int = Field(..., ge=0)
-    accepted_records: tuple[ProteinRegionContextRecord, ...] = Field(default_factory=tuple)
+    accepted_records: tuple[ProteinRegionContextRecord, ...] = Field(
+        default_factory=tuple
+    )
     rejected_rows: tuple[RejectedProteinRegionContextRow, ...] = Field(
         default_factory=tuple
     )
@@ -348,7 +350,9 @@ def parse_protein_region_context_tsv(
             active_site_label = _row_value(raw_fields, active_mapping.active_site_label)
             binding_region = _row_value(raw_fields, active_mapping.binding_region)
             motif_name = _row_value(raw_fields, active_mapping.motif_name)
-            conservation_token = _row_value(raw_fields, active_mapping.conservation_score)
+            conservation_token = _row_value(
+                raw_fields, active_mapping.conservation_score
+            )
 
             if not protein_ref:
                 issues.append(
@@ -509,9 +513,7 @@ def parse_protein_region_context_tsv(
                 if record.low_complexity_region is not None
             ),
             active_site_record_count=sum(
-                1
-                for record in accepted_records
-                if record.active_site_label is not None
+                1 for record in accepted_records if record.active_site_label is not None
             ),
             binding_region_record_count=sum(
                 1 for record in accepted_records if record.binding_region is not None
@@ -807,7 +809,8 @@ def build_protein_peptide_region_context_report(
             unmapped_peptide_count=sum(
                 1
                 for entry in stable_entries
-                if entry.context_status is ProteinRegionContextStatus.UNMAPPED_TO_SEQUENCE
+                if entry.context_status
+                is ProteinRegionContextStatus.UNMAPPED_TO_SEQUENCE
             ),
             domain_annotated_peptide_count=sum(
                 1 for entry in stable_entries if entry.domain_names
@@ -855,21 +858,37 @@ def render_protein_region_context_summary_tsv(
     writer.writerow(("field", "value"))
     writer.writerow(("accepted_record_count", report.summary.accepted_record_count))
     writer.writerow(("rejected_row_count", report.summary.rejected_row_count))
-    writer.writerow(("distinct_protein_ref_count", report.summary.distinct_protein_ref_count))
+    writer.writerow(
+        ("distinct_protein_ref_count", report.summary.distinct_protein_ref_count)
+    )
     writer.writerow(("domain_record_count", report.summary.domain_record_count))
-    writer.writerow(("signal_peptide_record_count", report.summary.signal_peptide_record_count))
-    writer.writerow(("transmembrane_record_count", report.summary.transmembrane_record_count))
+    writer.writerow(
+        ("signal_peptide_record_count", report.summary.signal_peptide_record_count)
+    )
+    writer.writerow(
+        ("transmembrane_record_count", report.summary.transmembrane_record_count)
+    )
     writer.writerow(("disorder_record_count", report.summary.disorder_record_count))
-    writer.writerow(("low_complexity_record_count", report.summary.low_complexity_record_count))
-    writer.writerow(("active_site_record_count", report.summary.active_site_record_count))
-    writer.writerow(("binding_region_record_count", report.summary.binding_region_record_count))
+    writer.writerow(
+        ("low_complexity_record_count", report.summary.low_complexity_record_count)
+    )
+    writer.writerow(
+        ("active_site_record_count", report.summary.active_site_record_count)
+    )
+    writer.writerow(
+        ("binding_region_record_count", report.summary.binding_region_record_count)
+    )
     writer.writerow(("motif_record_count", report.summary.motif_record_count))
-    writer.writerow(("conservation_record_count", report.summary.conservation_record_count))
+    writer.writerow(
+        ("conservation_record_count", report.summary.conservation_record_count)
+    )
     writer.writerow(("note", report.note))
     return buffer.getvalue()
 
 
-def render_protein_site_region_context_tsv(report: ProteinSiteRegionContextReport) -> str:
+def render_protein_site_region_context_tsv(
+    report: ProteinSiteRegionContextReport,
+) -> str:
     """Render site-level protein-region context rows as a TSV ledger."""
 
     buffer = StringIO()
@@ -916,7 +935,10 @@ def render_protein_site_region_context_tsv(report: ProteinSiteRegionContextRepor
                     if entry.max_conservation_score is None
                     else f"{entry.max_conservation_score:g}"
                 ),
-                ";".join(_functional_region_token(region) for region in entry.functional_regions),
+                ";".join(
+                    _functional_region_token(region)
+                    for region in entry.functional_regions
+                ),
             )
         )
     return buffer.getvalue()
@@ -973,7 +995,10 @@ def render_protein_peptide_region_context_tsv(
                     if entry.max_conservation_score is None
                     else f"{entry.max_conservation_score:g}"
                 ),
-                ";".join(_functional_region_token(region) for region in entry.functional_regions),
+                ";".join(
+                    _functional_region_token(region)
+                    for region in entry.functional_regions
+                ),
             )
         )
     return buffer.getvalue()
@@ -990,7 +1015,9 @@ def _validate_required_columns(
     )
     for column in required:
         if column not in fieldnames:
-            raise ValueError(f"missing required protein region context column {column!r}")
+            raise ValueError(
+                f"missing required protein region context column {column!r}"
+            )
 
 
 def _row_issue(
@@ -1113,30 +1140,42 @@ def _region_labels(
     if record.domain_name is not None:
         labels.append((ProteinFunctionalRegionKind.DOMAIN, record.domain_name))
     if record.signal_peptide is not None:
-        labels.append((ProteinFunctionalRegionKind.SIGNAL_PEPTIDE, record.signal_peptide))
+        labels.append(
+            (ProteinFunctionalRegionKind.SIGNAL_PEPTIDE, record.signal_peptide)
+        )
     if record.transmembrane_region is not None:
         labels.append(
-            (ProteinFunctionalRegionKind.TRANSMEMBRANE_REGION, record.transmembrane_region)
+            (
+                ProteinFunctionalRegionKind.TRANSMEMBRANE_REGION,
+                record.transmembrane_region,
+            )
         )
     if record.disorder_region is not None:
-        labels.append((ProteinFunctionalRegionKind.DISORDER_REGION, record.disorder_region))
+        labels.append(
+            (ProteinFunctionalRegionKind.DISORDER_REGION, record.disorder_region)
+        )
     if record.low_complexity_region is not None:
         labels.append(
-            (ProteinFunctionalRegionKind.LOW_COMPLEXITY_REGION, record.low_complexity_region)
+            (
+                ProteinFunctionalRegionKind.LOW_COMPLEXITY_REGION,
+                record.low_complexity_region,
+            )
         )
     if record.active_site_label is not None:
-        labels.append((ProteinFunctionalRegionKind.ACTIVE_SITE, record.active_site_label))
+        labels.append(
+            (ProteinFunctionalRegionKind.ACTIVE_SITE, record.active_site_label)
+        )
     if record.binding_region is not None:
-        labels.append((ProteinFunctionalRegionKind.BINDING_REGION, record.binding_region))
+        labels.append(
+            (ProteinFunctionalRegionKind.BINDING_REGION, record.binding_region)
+        )
     if record.motif_name is not None:
         labels.append((ProteinFunctionalRegionKind.MOTIF, record.motif_name))
     return tuple(labels)
 
 
 def _functional_region_token(region: ProteinFunctionalRegionEvidence) -> str:
-    return (
-        f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
-    )
+    return f"{region.region_kind.value}:{region.label}@{region.start}-{region.end}"
 
 
 def _unique_sorted(values: Iterable[str | None]) -> tuple[str, ...]:

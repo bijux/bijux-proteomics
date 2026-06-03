@@ -9,7 +9,13 @@ from collections.abc import Mapping
 from enum import StrEnum
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from bijux_proteomics._tabular import (
     DelimitedColumnSpec,
@@ -60,7 +66,9 @@ class TargetPanelEntry(JsonModel):
     def _normalize_peptide_sequence(cls, value: str | None) -> str | None:
         if value is None:
             return None
-        return "".join(character for character in value.upper() if not character.isspace())
+        return "".join(
+            character for character in value.upper() if not character.isspace()
+        )
 
     @field_validator("modified_peptide")
     @classmethod
@@ -71,13 +79,22 @@ class TargetPanelEntry(JsonModel):
 
     @model_validator(mode="after")
     def _validate_primary_target(self) -> TargetPanelEntry:
-        if self.target_kind is TargetPanelKind.PEPTIDE and self.peptide_sequence is None:
+        if (
+            self.target_kind is TargetPanelKind.PEPTIDE
+            and self.peptide_sequence is None
+        ):
             raise ValueError("peptide targets require peptide_sequence")
         if self.target_kind is TargetPanelKind.PROTEIN and self.protein_ref is None:
             raise ValueError("protein targets require protein_ref")
-        if self.target_kind is TargetPanelKind.PROTEIN and self.modified_peptide is not None:
+        if (
+            self.target_kind is TargetPanelKind.PROTEIN
+            and self.modified_peptide is not None
+        ):
             raise ValueError("protein targets cannot declare modified_peptide")
-        if self.target_kind is TargetPanelKind.PROTEIN and self.expected_charge is not None:
+        if (
+            self.target_kind is TargetPanelKind.PROTEIN
+            and self.expected_charge is not None
+        ):
             raise ValueError("protein targets cannot declare expected_charge")
         return self
 
@@ -108,7 +125,9 @@ def parse_target_panel_table(path: Path) -> TargetPanelParseReport:
         path,
         column_specs=(
             DelimitedColumnSpec(name="target_id", source_columns=("id",)),
-            DelimitedColumnSpec(name="target_kind", source_columns=("target_type", "kind")),
+            DelimitedColumnSpec(
+                name="target_kind", source_columns=("target_type", "kind")
+            ),
             DelimitedColumnSpec(
                 name="peptide_sequence",
                 source_columns=("peptide",),
@@ -139,7 +158,9 @@ def parse_target_panel_table(path: Path) -> TargetPanelParseReport:
     ]
     fieldnames = set(table_report.header)
     for accepted_row in table_report.accepted_rows:
-        normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
+        normalized_row = _render_table_row_values(
+            accepted_row.values, accepted_row.extra_values
+        )
         try:
             accepted_entries.append(_parse_target_panel_row(normalized_row, fieldnames))
         except (ValueError, ValidationError) as exc:
@@ -162,8 +183,12 @@ def _parse_target_panel_row(
     fieldnames: set[str],
 ) -> TargetPanelEntry:
     peptide_sequence = row.get("peptide_sequence") or row.get("peptide") or None
-    protein_ref = row.get("protein_ref") or row.get("protein_id") or row.get("protein") or None
-    explicit_kind = row.get("target_kind") or row.get("target_type") or row.get("kind") or None
+    protein_ref = (
+        row.get("protein_ref") or row.get("protein_id") or row.get("protein") or None
+    )
+    explicit_kind = (
+        row.get("target_kind") or row.get("target_type") or row.get("kind") or None
+    )
     modified_peptide = row.get("modified_peptide") or None
     expected_charge_text = row.get("expected_charge") or None
     if explicit_kind is None:
@@ -180,7 +205,9 @@ def _parse_target_panel_row(
         target_kind = TargetPanelKind(normalized_kind)
     target_id = row.get("target_id") or row.get("id") or peptide_sequence or protein_ref
     if target_id is None:
-        raise ValueError("target row requires target_id, peptide_sequence, or protein_ref")
+        raise ValueError(
+            "target row requires target_id, peptide_sequence, or protein_ref"
+        )
     metadata = {
         key: value
         for key, value in row.items()

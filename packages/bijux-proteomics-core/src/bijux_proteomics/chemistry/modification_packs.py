@@ -9,7 +9,13 @@ from collections.abc import Iterable
 from enum import StrEnum
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from bijux_proteomics.chemistry.amino_acid_mass import _CANONICAL_RESIDUES
 from bijux_proteomics.chemistry.contracts import NeutralLoss
@@ -41,7 +47,9 @@ class ModificationPackValidationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_path: str = Field(..., min_length=1)
-    rejected_rows: tuple[ModificationPackRejectedRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[ModificationPackRejectedRow, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -103,11 +111,12 @@ class ModificationPackEntry(JsonModel):
             if not isinstance(value, Iterable):
                 raise ValueError("allowed_residues must be iterable")
             residues = tuple(str(token).strip().upper() for token in value)
-        invalid = [residue for residue in residues if residue not in _CANONICAL_RESIDUES]
+        invalid = [
+            residue for residue in residues if residue not in _CANONICAL_RESIDUES
+        ]
         if invalid:
             raise ValueError(
-                "invalid modification-pack residues: "
-                + ", ".join(sorted(set(invalid)))
+                "invalid modification-pack residues: " + ", ".join(sorted(set(invalid)))
             )
         return tuple(sorted(dict.fromkeys(residues)))
 
@@ -210,7 +219,9 @@ class _RawModificationPack(JsonModel):
 def load_modification_pack(path: Path) -> ModificationPack:
     """Load one governed modification-pack document from JSON."""
 
-    raw_document = _RawModificationPack.model_validate_json(path.read_text(encoding="utf-8"))
+    raw_document = _RawModificationPack.model_validate_json(
+        path.read_text(encoding="utf-8")
+    )
     rejected_rows: list[ModificationPackRejectedRow] = []
     accepted_rows: list[ModificationPackEntry] = []
     seen_ids: set[str] = set()

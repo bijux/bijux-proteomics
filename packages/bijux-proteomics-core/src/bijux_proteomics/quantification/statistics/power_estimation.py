@@ -5,20 +5,19 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
+from collections.abc import Iterable
 import csv
 from io import StringIO
 import math
 from pathlib import Path
-from collections.abc import Iterable
 
 import numpy as np
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
-from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QuantEntityLevel,
@@ -38,9 +37,7 @@ class PowerEstimationPolicy(JsonModel):
 
     fdr_target: float = Field(default=0.05, gt=0.0, le=0.25)
     target_power: float = Field(default=0.8, gt=0.5, lt=0.999)
-    candidate_replicates_per_condition: tuple[int, ...] = Field(
-        default=(2, 3, 4, 5, 6)
-    )
+    candidate_replicates_per_condition: tuple[int, ...] = Field(default=(2, 3, 4, 5, 6))
     minimum_condition_replicates_for_variance: int = Field(default=2, ge=2)
 
     @field_validator("candidate_replicates_per_condition", mode="before")
@@ -51,13 +48,7 @@ class PowerEstimationPolicy(JsonModel):
         if not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
             raise TypeError("candidate_replicates_per_condition must be iterable")
         normalized = tuple(
-            sorted(
-                {
-                    int(candidate)
-                    for candidate in value
-                    if int(candidate) >= 1
-                }
-            )
+            sorted({int(candidate) for candidate in value if int(candidate) >= 1})
         )
         if not normalized:
             raise ValueError("at least one replicate count is required")
@@ -116,7 +107,9 @@ class PowerEstimationReport(JsonModel):
     summary: PowerEstimationSummary
     policy: PowerEstimationPolicy
     variance_entries: tuple[PowerVarianceEntry, ...] = Field(default_factory=tuple)
-    effect_size_grid: tuple[PowerEffectSizeGridEntry, ...] = Field(default_factory=tuple)
+    effect_size_grid: tuple[PowerEffectSizeGridEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -212,7 +205,8 @@ def build_power_estimation_report(
             )
         )
     weaker_power = all(
-        left.median_detectable_log2_fold_change >= right.median_detectable_log2_fold_change
+        left.median_detectable_log2_fold_change
+        >= right.median_detectable_log2_fold_change
         for left, right in zip(effect_size_grid, effect_size_grid[1:], strict=False)
     )
     return PowerEstimationReport(
@@ -319,7 +313,9 @@ def render_power_effect_size_grid_tsv(report: PowerEstimationReport) -> str:
             "p75_detectable_log2_fold_change",
         )
     )
-    for entry in sort_rows_by_fields(report.effect_size_grid, "replicates_per_condition"):
+    for entry in sort_rows_by_fields(
+        report.effect_size_grid, "replicates_per_condition"
+    ):
         writer.writerow(
             (
                 entry.replicates_per_condition,
@@ -332,7 +328,9 @@ def render_power_effect_size_grid_tsv(report: PowerEstimationReport) -> str:
     return handle.getvalue()
 
 
-def export_power_estimation_summary_tsv(report: PowerEstimationReport, path: Path) -> None:
+def export_power_estimation_summary_tsv(
+    report: PowerEstimationReport, path: Path
+) -> None:
     """Write one power-estimation summary TSV artifact."""
 
     write_output_table_tsv(path, render_power_estimation_summary_tsv(report))
@@ -376,7 +374,9 @@ def _pooled_variance(
             contributing_condition_count,
             False,
         )
-    fallback_variance = float(np.var(np.array(all_observed_values, dtype=float), ddof=1))
+    fallback_variance = float(
+        np.var(np.array(all_observed_values, dtype=float), ddof=1)
+    )
     return fallback_variance, 0, True
 
 
@@ -393,8 +393,10 @@ def _detectable_log2_fold_change(
         return float("inf")
     z_alpha = _inverse_standard_normal_cdf(1.0 - (fdr_target / 2.0))
     z_beta = _inverse_standard_normal_cdf(target_power)
-    return (z_alpha + z_beta) * pooled_log2_stddev * math.sqrt(
-        2.0 / effective_replicates_per_condition
+    return (
+        (z_alpha + z_beta)
+        * pooled_log2_stddev
+        * math.sqrt(2.0 / effective_replicates_per_condition)
     )
 
 
@@ -436,9 +438,8 @@ def _inverse_standard_normal_cdf(probability: float) -> float:
     upper_tail = 1.0 - lower_tail
     if probability < lower_tail:
         q = math.sqrt(-2.0 * math.log(probability))
-        return (
-            (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
-            / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
+        return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / (
+            (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
         )
     if probability > upper_tail:
         q = math.sqrt(-2.0 * math.log(1.0 - probability))

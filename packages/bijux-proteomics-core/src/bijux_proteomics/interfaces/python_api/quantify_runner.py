@@ -152,7 +152,10 @@ def run_quantify_command(
             ):
                 effective_pairing_field = "pair_id"
             effective_covariates = tuple(dict.fromkeys(design_covariates))
-            if effective_timepoint_field is None and "timepoint" in effective_covariates:
+            if (
+                effective_timepoint_field is None
+                and "timepoint" in effective_covariates
+            ):
                 effective_timepoint_field = "timepoint"
                 effective_covariates = tuple(
                     field for field in effective_covariates if field != "timepoint"
@@ -215,22 +218,20 @@ def run_quantify_command(
                 )
             if quant_measure is QuantMeasureKind.INTENSITY:
                 conditions = tuple(
-                    sorted({entry.condition for entry in design_entries if entry.condition})
+                    sorted(
+                        {entry.condition for entry in design_entries if entry.condition}
+                    )
                 )
                 missingness_classifier = build_missingness_classifier_report(
                     table,
                     design_entries=design_entries,
                 )
                 missingness_entity_summary = missingness_classifier.entity_summary
-                missingness_condition_summary = (
-                    missingness_classifier.condition_summary
-                )
+                missingness_condition_summary = missingness_classifier.condition_summary
                 missingness_intensity_dependence = (
                     missingness_classifier.intensity_dependence
                 )
-                missingness_mechanism_report = (
-                    missingness_classifier.mechanism_report
-                )
+                missingness_mechanism_report = missingness_classifier.mechanism_report
                 if condition_a is not None or condition_b is not None:
                     if not condition_a or not condition_b:
                         raise click.ClickException(
@@ -247,7 +248,10 @@ def run_quantify_command(
                         ImputationMethod.KNN,
                     )
                     selected_imputation_method = ImputationMethod(imputation)
-                    if selected_imputation_method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY:
+                    if (
+                        selected_imputation_method
+                        is ImputationMethod.GROUP_AWARE_LOW_INTENSITY
+                    ):
                         sensitivity_methods = sensitivity_methods + (
                             ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
                         )
@@ -299,9 +303,11 @@ def run_quantify_command(
                             design_entries,
                         )
                     )
-                    multi_contrast_consistency = build_multi_contrast_consistency_report(
-                        differential_multi_condition,
-                        entity_protein_refs=table.entity_protein_refs,
+                    multi_contrast_consistency = (
+                        build_multi_contrast_consistency_report(
+                            differential_multi_condition,
+                            entity_protein_refs=table.entity_protein_refs,
+                        )
                     )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -493,9 +499,7 @@ def run_quantify_command(
             limma_package.to_dict() if limma_package is not None else None
         ),
         "msstats_compatible_input_report": (
-            msstats_input_report.to_dict()
-            if msstats_input_report is not None
-            else None
+            msstats_input_report.to_dict() if msstats_input_report is not None else None
         ),
         "limma_result_import": (
             limma_result_import.to_dict() if limma_result_import is not None else None
@@ -554,14 +558,10 @@ def run_quantify_command(
         else None,
         "outputs": {
             "differential_tsv": (
-                str(differential_tsv_out)
-                if differential_tsv_out is not None
-                else None
+                str(differential_tsv_out) if differential_tsv_out is not None else None
             ),
             "broken_pairs_tsv": (
-                str(broken_pairs_tsv_out)
-                if broken_pairs_tsv_out is not None
-                else None
+                str(broken_pairs_tsv_out) if broken_pairs_tsv_out is not None else None
             ),
             "multi_contrast_consistency_tsv": (
                 str(multi_contrast_consistency_tsv_out)
@@ -584,9 +584,7 @@ def run_quantify_command(
                 else None
             ),
             "time_course_tsv": (
-                str(time_course_tsv_out)
-                if time_course_tsv_out is not None
-                else None
+                str(time_course_tsv_out) if time_course_tsv_out is not None else None
             ),
             "design_matrix_tsv": (
                 str(design_matrix_tsv_out)
@@ -612,9 +610,7 @@ def run_quantify_command(
                 else None
             ),
             "limma_design_tsv": (
-                str(limma_design_tsv_out)
-                if limma_design_tsv_out is not None
-                else None
+                str(limma_design_tsv_out) if limma_design_tsv_out is not None else None
             ),
             "limma_contrasts_tsv": (
                 str(limma_contrasts_tsv_out)
@@ -633,4 +629,5 @@ def run_quantify_command(
     }
     _emit_json(payload, out_path=report_out or out_path)
 
-__all__ = ['run_quantify_command']
+
+__all__ = ["run_quantify_command"]

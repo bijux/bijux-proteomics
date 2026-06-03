@@ -191,14 +191,20 @@ class DiaDdaComparisonReport(JsonModel):
 
     dia_source_name: str = Field(default="DIA-NN", min_length=1)
     dda_source_name: str = Field(default="DDA PSM", min_length=1)
-    protein_overlap: tuple[DiaDdaProteinOverlapEntry, ...] = Field(default_factory=tuple)
-    peptide_overlap: tuple[DiaDdaPeptideOverlapEntry, ...] = Field(default_factory=tuple)
-    exclusive_evidence: tuple[DiaDdaExclusiveEvidenceEntry, ...] = Field(default_factory=tuple)
+    protein_overlap: tuple[DiaDdaProteinOverlapEntry, ...] = Field(
+        default_factory=tuple
+    )
+    peptide_overlap: tuple[DiaDdaPeptideOverlapEntry, ...] = Field(
+        default_factory=tuple
+    )
+    exclusive_evidence: tuple[DiaDdaExclusiveEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
     conflicting_evidence: tuple[DiaDdaConflictingEvidenceEntry, ...] = Field(
         default_factory=tuple
     )
-    shared_intensity_correlation: tuple[DiaDdaSharedIntensityCorrelationEntry, ...] = Field(
-        default_factory=tuple
+    shared_intensity_correlation: tuple[DiaDdaSharedIntensityCorrelationEntry, ...] = (
+        Field(default_factory=tuple)
     )
     differential_comparison: tuple[DiaDdaDifferentialComparisonEntry, ...] = Field(
         default_factory=tuple
@@ -264,8 +270,12 @@ def build_dia_dda_comparison_report(
     for peptide_sequence in peptide_ids:
         dia_entry = dia_peptides.get(peptide_sequence)
         dda_entry = dda_peptides.get(peptide_sequence)
-        peptide_dia_values: dict[str, float] = {} if dia_entry is None else dia_entry.values
-        peptide_dda_values: dict[str, float] = {} if dda_entry is None else dda_entry.values
+        peptide_dia_values: dict[str, float] = (
+            {} if dia_entry is None else dia_entry.values
+        )
+        peptide_dda_values: dict[str, float] = (
+            {} if dda_entry is None else dda_entry.values
+        )
         if peptide_dia_values and peptide_dda_values:
             dia_protein_refs = () if dia_entry is None else dia_entry.protein_refs
             dda_protein_refs = () if dda_entry is None else dda_entry.protein_refs
@@ -391,7 +401,9 @@ def build_dia_dda_comparison_report(
                         dia_values=dia_peptides[peptide_sequence].values,
                         dda_values=dda_peptides[peptide_sequence].values,
                     )
-                    for peptide_sequence in sorted(set(dia_peptides) & set(dda_peptides))
+                    for peptide_sequence in sorted(
+                        set(dia_peptides) & set(dda_peptides)
+                    )
                 ],
             ),
             key=lambda entry: (entry.entity_level.value, entry.entity_id),
@@ -513,7 +525,10 @@ def _dia_protein_abundance(
 ) -> dict[str, dict[str, float]]:
     abundance_by_protein: dict[str, dict[str, float]] = {}
     for row in report.protein_group_rows:
-        if row.target_decoy_label is not TargetDecoyLabel.TARGET or row.q_value > max_q_value:
+        if (
+            row.target_decoy_label is not TargetDecoyLabel.TARGET
+            or row.q_value > max_q_value
+        ):
             continue
         quantity = row.protein_group_quantity
         if quantity is None:
@@ -558,7 +573,10 @@ def _dia_peptide_abundance(
 ) -> dict[str, _PeptideAbundanceEntry]:
     abundance_by_peptide: dict[str, _PeptideAbundanceEntry] = {}
     for row in report.precursor_rows:
-        if row.target_decoy_label is not TargetDecoyLabel.TARGET or row.q_value > max_q_value:
+        if (
+            row.target_decoy_label is not TargetDecoyLabel.TARGET
+            or row.q_value > max_q_value
+        ):
             continue
         quantity = row.precursor_quantity
         if quantity is None:
@@ -568,7 +586,9 @@ def _dia_peptide_abundance(
             _PeptideAbundanceEntry(values={}, protein_refs=()),
         )
         updated_values = dict(peptide_bucket.values)
-        updated_values[row.sample_name] = updated_values.get(row.sample_name, 0.0) + quantity
+        updated_values[row.sample_name] = (
+            updated_values.get(row.sample_name, 0.0) + quantity
+        )
         abundance_by_peptide[row.peptide_sequence] = _PeptideAbundanceEntry(
             values=updated_values,
             protein_refs=tuple(
@@ -712,8 +732,8 @@ def _build_differential_comparison_from_snapshots(
         raise ValueError(
             "dia-vs-dda differential comparison requires one shared entity level"
         )
-    dia_by_key = { _differential_key(entry): entry for entry in dia_snapshots }
-    dda_by_key = { _differential_key(entry): entry for entry in dda_snapshots }
+    dia_by_key = {_differential_key(entry): entry for entry in dia_snapshots}
+    dda_by_key = {_differential_key(entry): entry for entry in dda_snapshots}
     rows: list[DiaDdaDifferentialComparisonEntry] = []
     for key in sorted(set(dia_by_key) | set(dda_by_key)):
         dia_entry = dia_by_key.get(key)
@@ -737,7 +757,11 @@ def _build_differential_comparison_from_snapshots(
             reason_code = "missing_dda_result"
         else:
             direction_agreement = _direction_agreement(dia_entry, dda_entry)
-            if dia_significant and dda_significant and direction_agreement == "opposite":
+            if (
+                dia_significant
+                and dda_significant
+                and direction_agreement == "opposite"
+            ):
                 comparison_class = WorkflowOverlapClass.CONFLICTING
                 reason_code = "differential_direction_mismatch"
             elif dia_significant and not dda_significant:
@@ -1200,10 +1224,18 @@ def render_dia_dda_differential_comparison_tsv(report: DiaDdaComparisonReport) -
                 entry.condition_b,
                 entry.contrast_name,
                 entry.comparison_class.value,
-                "" if entry.dia_log2_fold_change is None else f"{entry.dia_log2_fold_change:g}",
-                "" if entry.dda_log2_fold_change is None else f"{entry.dda_log2_fold_change:g}",
-                "" if entry.dia_adjusted_p_value is None else f"{entry.dia_adjusted_p_value:g}",
-                "" if entry.dda_adjusted_p_value is None else f"{entry.dda_adjusted_p_value:g}",
+                ""
+                if entry.dia_log2_fold_change is None
+                else f"{entry.dia_log2_fold_change:g}",
+                ""
+                if entry.dda_log2_fold_change is None
+                else f"{entry.dda_log2_fold_change:g}",
+                ""
+                if entry.dia_adjusted_p_value is None
+                else f"{entry.dia_adjusted_p_value:g}",
+                ""
+                if entry.dda_adjusted_p_value is None
+                else f"{entry.dda_adjusted_p_value:g}",
                 str(entry.dia_significant).lower(),
                 str(entry.dda_significant).lower(),
                 entry.direction_agreement or "",

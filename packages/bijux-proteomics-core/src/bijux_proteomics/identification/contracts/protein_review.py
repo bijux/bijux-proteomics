@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+    build_psm_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -48,7 +60,6 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.identification.contracts.evidence import rollup_peptide_evidence
 from bijux_proteomics.identification.contracts.grouping import build_protein_groups
 from bijux_proteomics.identification.contracts.protein_inference import (
@@ -60,6 +71,8 @@ from bijux_proteomics.identification.contracts.psm import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 class CombinedEvidenceQuantSupport(JsonModel):
     """Quant support for one protein/sample slice inside a combined evidence view."""
@@ -348,7 +361,6 @@ def export_peptide_protein_trace_tsv(
             )
 
 
-
 def build_protein_coverage_map(
     records: tuple[PsmRecord, ...],
     *,
@@ -404,7 +416,9 @@ def build_peptide_uniqueness_across_database(
         }
         entries: list[DatabasePeptideUniquenessEntry] = []
         for peptide in sorted(dict.fromkeys(peptides)):
-            lookup_sequence = peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
+            lookup_sequence = (
+                peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
+            )
             index_entry = index_by_sequence.get(lookup_sequence)
             if index_entry is None:
                 entries.append(
@@ -432,12 +446,15 @@ def build_peptide_uniqueness_across_database(
         )
     direct_entries: list[DatabasePeptideUniquenessEntry] = []
     for peptide in sorted(dict.fromkeys(peptides)):
-        lookup_sequence = peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
+        lookup_sequence = (
+            peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
+        )
         matching_proteins = tuple(
             sorted(
                 protein_ref
                 for protein_ref, sequence in protein_sequences.items()
-                if lookup_sequence in (
+                if lookup_sequence
+                in (
                     sequence.replace("I", "L")
                     if treat_isoleucine_as_leucine
                     else sequence
@@ -497,21 +514,22 @@ def calculate_picked_protein_fdr(
         for entry in report.entries
     )
 
+
 __all__ = [
-    'CombinedEvidenceQuantSupport',
-    'CombinedEvidenceEntry',
-    'CombinedEvidenceReport',
-    'PeptideProteinTraceEntry',
-    'PeptideProteinTraceReport',
-    'ProteinCoverageEntry',
-    'DatabasePeptideUniqueness',
-    'DatabasePeptideUniquenessEntry',
-    'PickedProteinFdrEntry',
-    'build_combined_evidence_report',
-    'build_peptide_protein_trace_report',
-    'export_peptide_protein_trace_jsonl',
-    'export_peptide_protein_trace_tsv',
-    'build_protein_coverage_map',
-    'build_peptide_uniqueness_across_database',
-    'calculate_picked_protein_fdr',
+    "CombinedEvidenceQuantSupport",
+    "CombinedEvidenceEntry",
+    "CombinedEvidenceReport",
+    "PeptideProteinTraceEntry",
+    "PeptideProteinTraceReport",
+    "ProteinCoverageEntry",
+    "DatabasePeptideUniqueness",
+    "DatabasePeptideUniquenessEntry",
+    "PickedProteinFdrEntry",
+    "build_combined_evidence_report",
+    "build_peptide_protein_trace_report",
+    "export_peptide_protein_trace_jsonl",
+    "export_peptide_protein_trace_tsv",
+    "build_protein_coverage_map",
+    "build_peptide_uniqueness_across_database",
+    "calculate_picked_protein_fdr",
 ]

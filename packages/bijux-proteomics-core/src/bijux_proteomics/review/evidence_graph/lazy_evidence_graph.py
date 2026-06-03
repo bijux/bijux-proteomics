@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
+from collections.abc import Iterator
+import csv
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
 
 from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceContextRef,
@@ -70,10 +70,12 @@ class LazyProteomicsEvidenceGraph:
         incoming_edge_keys_by_node_id: dict[str, tuple[tuple[str, str, str, str], ...]],
         outgoing_edge_keys_by_node_id: dict[str, tuple[tuple[str, str, str, str], ...]],
         incoming_edge_keys_by_node_id_and_relation: dict[
-            tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]
+            tuple[str, ProteomicsEvidenceEdgeKind],
+            tuple[tuple[str, str, str, str], ...],
         ],
         outgoing_edge_keys_by_node_id_and_relation: dict[
-            tuple[str, ProteomicsEvidenceEdgeKind], tuple[tuple[str, str, str, str], ...]
+            tuple[str, ProteomicsEvidenceEdgeKind],
+            tuple[tuple[str, str, str, str], ...],
         ],
     ) -> None:
         self.nodes_path = nodes_path
@@ -144,7 +146,9 @@ class LazyProteomicsEvidenceGraph:
         """Resolve canonical incoming edges for one node and one relation."""
 
         return self._materialize_edges(
-            self._incoming_edge_keys_by_node_id_and_relation.get((node_id, relation), ())
+            self._incoming_edge_keys_by_node_id_and_relation.get(
+                (node_id, relation), ()
+            )
         )
 
     def outgoing_edges(self, node_id: str) -> tuple[ProteomicsEvidenceEdge, ...]:
@@ -162,7 +166,9 @@ class LazyProteomicsEvidenceGraph:
         """Resolve canonical outgoing edges for one node and one relation."""
 
         return self._materialize_edges(
-            self._outgoing_edge_keys_by_node_id_and_relation.get((node_id, relation), ())
+            self._outgoing_edge_keys_by_node_id_and_relation.get(
+                (node_id, relation), ()
+            )
         )
 
     def adjacent_edges(self, node_id: str) -> tuple[ProteomicsEvidenceEdge, ...]:
@@ -273,7 +279,9 @@ def _load_node_records(
     for row in _iter_rows(nodes_path):
         record = _parse_node_record(row)
         if record.node_id in node_records_by_id:
-            raise ValueError(f"duplicate graph node_id in {nodes_path}: {record.node_id}")
+            raise ValueError(
+                f"duplicate graph node_id in {nodes_path}: {record.node_id}"
+            )
         entity_key = (record.entity_type, record.entity_ref)
         if entity_key in node_ids_by_entity:
             raise ValueError(
@@ -284,7 +292,12 @@ def _load_node_records(
         node_ids_by_entity[entity_key] = record.node_id
         node_kind_counts[record.entity_type.value] += 1
         contradiction_count += int(bool(record.contradiction_ids))
-    return node_records_by_id, node_ids_by_entity, dict(node_kind_counts), contradiction_count
+    return (
+        node_records_by_id,
+        node_ids_by_entity,
+        dict(node_kind_counts),
+        contradiction_count,
+    )
 
 
 def _load_edge_records(
@@ -314,8 +327,12 @@ def _load_edge_records(
         ),
     )
     edge_records_by_key: dict[tuple[str, str, str, str], _IndexedEdgeRecord] = {}
-    incoming_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = defaultdict(list)
-    outgoing_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = defaultdict(list)
+    incoming_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = (
+        defaultdict(list)
+    )
+    outgoing_edge_keys_by_node_id: dict[str, list[tuple[str, str, str, str]]] = (
+        defaultdict(list)
+    )
     incoming_edge_keys_by_node_id_and_relation: dict[
         tuple[str, ProteomicsEvidenceEdgeKind], list[tuple[str, str, str, str]]
     ] = defaultdict(list)
@@ -337,7 +354,9 @@ def _load_edge_records(
                 f"{record.target_node_id}"
             )
         if record.edge_key in edge_records_by_key:
-            raise ValueError(f"duplicate graph edge in {edges_path}: {record.edge_key!r}")
+            raise ValueError(
+                f"duplicate graph edge in {edges_path}: {record.edge_key!r}"
+            )
         edge_records_by_key[record.edge_key] = record
         incoming_edge_keys_by_node_id[record.target_node_id].append(record.edge_key)
         outgoing_edge_keys_by_node_id[record.source_node_id].append(record.edge_key)
@@ -398,7 +417,9 @@ def _parse_edge_record(row: dict[str, str]) -> _IndexedEdgeRecord:
     )
 
 
-def _parse_context_refs(serialized_context_refs: str) -> tuple[ProteomicsEvidenceContextRef, ...]:
+def _parse_context_refs(
+    serialized_context_refs: str,
+) -> tuple[ProteomicsEvidenceContextRef, ...]:
     if not serialized_context_refs:
         return ()
     context_refs: list[ProteomicsEvidenceContextRef] = []

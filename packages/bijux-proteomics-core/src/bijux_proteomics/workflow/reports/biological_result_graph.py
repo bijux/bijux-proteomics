@@ -62,7 +62,9 @@ def build_biological_result_graph_report(
     experiment_design = coerce_experiment_design(design_entries)
     design_entries = experiment_design.entries
     builder = ProteomicsEvidenceGraphBuilder()
-    sample_conditions = {sample.sample_id: sample.condition for sample in experiment_design.samples}
+    sample_conditions = {
+        sample.sample_id: sample.condition for sample in experiment_design.samples
+    }
     run_nodes_by_id: dict[str, ProteomicsEvidenceNode] = {}
     run_sample_ids_by_id = {}
     run_ids_by_sample: dict[str, list[str]] = {}
@@ -148,7 +150,9 @@ def build_biological_result_graph_report(
             ),
         )
 
-        for peptide_sequence in sorted(quant_table.entity_member_peptides.get(entity_id, ())):
+        for peptide_sequence in sorted(
+            quant_table.entity_member_peptides.get(entity_id, ())
+        ):
             peptide = builder.add_peptide(
                 peptide_sequence,
                 label=peptide_sequence,
@@ -173,7 +177,9 @@ def build_biological_result_graph_report(
                 reason=f"entity peptide {peptide_sequence} quantifies protein group {entity_id}",
             )
 
-        for value in sorted(values_by_entity.get(entity_id, ()), key=lambda item: item.sample_id):
+        for value in sorted(
+            values_by_entity.get(entity_id, ()), key=lambda item: item.sample_id
+        ):
             run_contexts = tuple(
                 ProteomicsEvidenceContextRef(
                     entity_type=ProteomicsEvidenceNodeKind.RUN,
@@ -201,7 +207,9 @@ def build_biological_result_graph_report(
                 protein.node_id,
                 quant_node.node_id,
                 source_row_ref=f"quant:{entity_id}:{value.sample_id}",
-                confidence=0.9 if value.missing_value_kind is MissingValueKind.OBSERVED else 0.6,
+                confidence=0.9
+                if value.missing_value_kind is MissingValueKind.OBSERVED
+                else 0.6,
                 reason=(
                     f"sample {value.sample_id} contributes protein abundance for {entity_id} "
                     f"under condition {sample_conditions.get(value.sample_id, 'unknown')}"
@@ -212,7 +220,9 @@ def build_biological_result_graph_report(
                     quant_node.node_id,
                     claim.node_id,
                     source_row_ref=f"quant-support:{entity_id}:{value.sample_id}",
-                    confidence=0.9 if value.missing_value_kind is MissingValueKind.OBSERVED else 0.6,
+                    confidence=0.9
+                    if value.missing_value_kind is MissingValueKind.OBSERVED
+                    else 0.6,
                     reason=f"sample-level abundance for {entity_id} supports the final statistical result",
                 )
 
@@ -273,7 +283,9 @@ def _attach_lab_run_qc_feedback(
         builder.add_run_governed_by_qc_decision(
             run.node_id,
             decision.node_id,
-            source_row_ref=entry.source_refs[0] if entry.source_refs else f"lab_qc:{entry.run_id}",
+            source_row_ref=entry.source_refs[0]
+            if entry.source_refs
+            else f"lab_qc:{entry.run_id}",
             confidence=max(0.05, min(0.99, entry.composite_quality)),
             reason=entry.note,
         )

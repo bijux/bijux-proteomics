@@ -17,6 +17,7 @@ from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowExportManifest,
 )
 
+
 def run_diann_biological_report_command(
     result_tsv: Path,
     design_tsv: Path,
@@ -84,9 +85,7 @@ def run_diann_biological_report_command(
             selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
                 adjusted_p_value_threshold=volcano_adjusted_p_value,
-                absolute_log2_fold_change_threshold=(
-                    volcano_absolute_log2_fold_change
-                ),
+                absolute_log2_fold_change_threshold=(volcano_absolute_log2_fold_change),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -111,6 +110,7 @@ def run_diann_biological_report_command(
         },
         out_path=out_path,
     )
+
 
 def run_maxquant_biological_report_command(
     evidence_txt: Path,
@@ -177,9 +177,7 @@ def run_maxquant_biological_report_command(
             selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
                 adjusted_p_value_threshold=volcano_adjusted_p_value,
-                absolute_log2_fold_change_threshold=(
-                    volcano_absolute_log2_fold_change
-                ),
+                absolute_log2_fold_change_threshold=(volcano_absolute_log2_fold_change),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -205,4 +203,8 @@ def run_maxquant_biological_report_command(
         out_path=out_path,
     )
 
-__all__ = ['run_diann_biological_report_command', 'run_maxquant_biological_report_command']
+
+__all__ = [
+    "run_diann_biological_report_command",
+    "run_maxquant_biological_report_command",
+]

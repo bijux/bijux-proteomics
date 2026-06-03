@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_protein_matrix_command(
     input_table: Path,
     input_kind: str,
@@ -135,6 +136,7 @@ def run_protein_matrix_command(
         ),
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_protein_lfq_command(
     input_table: Path,
@@ -304,4 +306,5 @@ def run_protein_lfq_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_protein_matrix_command', 'run_protein_lfq_command']
+
+__all__ = ["run_protein_matrix_command", "run_protein_lfq_command"]

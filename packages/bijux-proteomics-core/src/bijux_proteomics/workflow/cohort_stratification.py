@@ -19,7 +19,11 @@ from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     build_differential_abundance_report,
 )
-from bijux_proteomics.study import ExperimentDesign, ExperimentDesignSample, coerce_experiment_design
+from bijux_proteomics.study import (
+    ExperimentDesign,
+    ExperimentDesignSample,
+    coerce_experiment_design,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -189,9 +193,21 @@ def build_cohort_stratification_report(
 
         supported_reports: dict[str, dict[str, DifferentialAbundanceEntry]] = {}
         for subgroup_value in sorted(subgroup_samples):
-            samples = tuple(sorted(subgroup_samples[subgroup_value], key=lambda item: item.sample_id))
-            samples_a = tuple(sample.sample_id for sample in samples if sample.condition == condition_a)
-            samples_b = tuple(sample.sample_id for sample in samples if sample.condition == condition_b)
+            samples = tuple(
+                sorted(
+                    subgroup_samples[subgroup_value], key=lambda item: item.sample_id
+                )
+            )
+            samples_a = tuple(
+                sample.sample_id
+                for sample in samples
+                if sample.condition == condition_a
+            )
+            samples_b = tuple(
+                sample.sample_id
+                for sample in samples
+                if sample.condition == condition_b
+            )
             sample_count_a = len(samples_a)
             sample_count_b = len(samples_b)
             if (
@@ -328,7 +344,8 @@ def build_cohort_stratification_report(
         summary=CohortStratificationSummary(
             field_count=len({entry.field_name for entry in ordered_strata}),
             supported_stratum_count=sum(
-                entry.status is CohortStratumStatus.SUPPORTED for entry in ordered_strata
+                entry.status is CohortStratumStatus.SUPPORTED
+                for entry in ordered_strata
             ),
             blocked_stratum_count=sum(
                 entry.status is not CohortStratumStatus.SUPPORTED
@@ -478,11 +495,19 @@ def render_cohort_interaction_candidate_tsv(report: CohortStratificationReport) 
                 entry.candidate_kind.value,
                 f"{entry.left_log2_fold_change:g}",
                 f"{entry.right_log2_fold_change:g}",
-                "" if entry.left_adjusted_p_value is None else f"{entry.left_adjusted_p_value:g}",
-                "" if entry.right_adjusted_p_value is None else f"{entry.right_adjusted_p_value:g}",
+                ""
+                if entry.left_adjusted_p_value is None
+                else f"{entry.left_adjusted_p_value:g}",
+                ""
+                if entry.right_adjusted_p_value is None
+                else f"{entry.right_adjusted_p_value:g}",
                 f"{entry.interaction_delta:g}",
-                "" if entry.left_robustness_score is None else f"{entry.left_robustness_score:g}",
-                "" if entry.right_robustness_score is None else f"{entry.right_robustness_score:g}",
+                ""
+                if entry.left_robustness_score is None
+                else f"{entry.left_robustness_score:g}",
+                ""
+                if entry.right_robustness_score is None
+                else f"{entry.right_robustness_score:g}",
                 entry.note,
             )
         )
@@ -493,7 +518,9 @@ def _group_samples_by_field(
     samples: tuple[ExperimentDesignSample, ...],
     fields: tuple[CohortStratificationField, ...],
 ) -> dict[CohortStratificationField, dict[str, list[ExperimentDesignSample]]]:
-    grouped: dict[CohortStratificationField, dict[str, list[ExperimentDesignSample]]] = {}
+    grouped: dict[
+        CohortStratificationField, dict[str, list[ExperimentDesignSample]]
+    ] = {}
     for field_name in fields:
         values: dict[str, list[ExperimentDesignSample]] = defaultdict(list)
         for sample in samples:
@@ -525,7 +552,9 @@ def _subset_table_by_sample_ids(
     table: LabelFreeQuantTable,
     sample_ids: set[str],
 ) -> LabelFreeQuantTable:
-    ordered_sample_ids = tuple(sample_id for sample_id in table.sample_ids if sample_id in sample_ids)
+    ordered_sample_ids = tuple(
+        sample_id for sample_id in table.sample_ids if sample_id in sample_ids
+    )
     return table.model_copy(
         update={
             "sample_ids": ordered_sample_ids,
@@ -623,7 +652,8 @@ def _build_interaction_candidates(
                     right_robustness_score=right_entry.robustness_score,
                     note=(
                         "subgroup effects diverged beyond the interaction-delta threshold"
-                        if candidate_kind is CohortInteractionCandidateKind.MAGNITUDE_DIFFERENCE
+                        if candidate_kind
+                        is CohortInteractionCandidateKind.MAGNITUDE_DIFFERENCE
                         else "subgroup effects reversed direction across supported strata"
                     ),
                 )

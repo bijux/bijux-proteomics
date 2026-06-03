@@ -27,6 +27,7 @@ from bijux_proteomics.chemistry.amino_acid_mass import (
     calculate_sequence_monoisotopic_mass,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 _AMMONIA_MONOISOTOPIC_MASS = 17.026549
 _AMMONIA_AVERAGE_MASS = 17.03052
 _PHOSPHORIC_ACID_MONOISOTOPIC_MASS = 97.976896
@@ -1936,7 +1937,10 @@ def _fragment_modifications(
                 raise ValueError(
                     "residue modification is missing a required site index"
                 )
-            if series in {FragmentIonSeries.A, FragmentIonSeries.B} and site_index <= ordinal:
+            if (
+                series in {FragmentIonSeries.A, FragmentIonSeries.B}
+                and site_index <= ordinal
+            ):
                 selected.append(modification)
             if series is FragmentIonSeries.Y and site_index > sequence_length - ordinal:
                 selected.append(modification)

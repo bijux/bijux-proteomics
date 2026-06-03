@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_map_orthologs_command(
     protein_tsv: Path,
@@ -65,15 +65,25 @@ def run_map_orthologs_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ortholog_mapping_summary_tsv(mapping_report))
+        write_output_table_tsv(
+            summary_tsv_out, render_ortholog_mapping_summary_tsv(mapping_report)
+        )
     if mapped_tsv_out is not None:
-        write_output_table_tsv(mapped_tsv_out, render_mapped_ortholog_tsv(mapping_report))
+        write_output_table_tsv(
+            mapped_tsv_out, render_mapped_ortholog_tsv(mapping_report)
+        )
     if unmapped_tsv_out is not None:
-        write_output_table_tsv(unmapped_tsv_out, render_unmapped_ortholog_tsv(mapping_report))
+        write_output_table_tsv(
+            unmapped_tsv_out, render_unmapped_ortholog_tsv(mapping_report)
+        )
     if rejected_input_tsv_out is not None:
-        write_output_table_tsv(rejected_input_tsv_out, render_rejected_protein_reference_tsv(protein_table))
+        write_output_table_tsv(
+            rejected_input_tsv_out, render_rejected_protein_reference_tsv(protein_table)
+        )
     if rejected_ortholog_tsv_out is not None:
-        write_output_table_tsv(rejected_ortholog_tsv_out, render_rejected_ortholog_tsv(ortholog_table))
+        write_output_table_tsv(
+            rejected_ortholog_tsv_out, render_rejected_ortholog_tsv(ortholog_table)
+        )
 
     payload = {
         "protein_table": protein_table.to_dict(),
@@ -84,9 +94,7 @@ def run_map_orthologs_command(
             "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
             "unmapped_tsv": None if unmapped_tsv_out is None else str(unmapped_tsv_out),
             "rejected_input_tsv": (
-                None
-                if rejected_input_tsv_out is None
-                else str(rejected_input_tsv_out)
+                None if rejected_input_tsv_out is None else str(rejected_input_tsv_out)
             ),
             "rejected_ortholog_tsv": (
                 None
@@ -96,6 +104,7 @@ def run_map_orthologs_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_protein_set_score_command(
     input_table: Path,
@@ -184,19 +193,34 @@ def run_protein_set_score_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_protein_set_scoring_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_protein_set_scoring_summary_tsv(report)
+        )
     if matrix_tsv_out is not None:
-        write_output_table_tsv(matrix_tsv_out, render_protein_set_score_matrix_tsv(report))
+        write_output_table_tsv(
+            matrix_tsv_out, render_protein_set_score_matrix_tsv(report)
+        )
     if sample_score_tsv_out is not None:
-        write_output_table_tsv(sample_score_tsv_out, render_protein_set_sample_score_tsv(report))
+        write_output_table_tsv(
+            sample_score_tsv_out, render_protein_set_sample_score_tsv(report)
+        )
     if condition_score_tsv_out is not None:
-        write_output_table_tsv(condition_score_tsv_out, render_protein_set_condition_score_tsv(report))
+        write_output_table_tsv(
+            condition_score_tsv_out, render_protein_set_condition_score_tsv(report)
+        )
     if condition_comparison_tsv_out is not None:
-        write_output_table_tsv(condition_comparison_tsv_out, render_protein_set_condition_comparison_tsv(report))
+        write_output_table_tsv(
+            condition_comparison_tsv_out,
+            render_protein_set_condition_comparison_tsv(report),
+        )
     if unresolved_tsv_out is not None:
-        write_output_table_tsv(unresolved_tsv_out, render_protein_set_unresolved_member_tsv(report))
+        write_output_table_tsv(
+            unresolved_tsv_out, render_protein_set_unresolved_member_tsv(report)
+        )
     if rejected_set_tsv_out is not None:
-        write_output_table_tsv(rejected_set_tsv_out, render_rejected_protein_set_tsv(protein_sets))
+        write_output_table_tsv(
+            rejected_set_tsv_out, render_rejected_protein_set_tsv(protein_sets)
+        )
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -223,12 +247,11 @@ def run_protein_set_score_command(
                 None if unresolved_tsv_out is None else str(unresolved_tsv_out)
             ),
             "rejected_set_tsv": (
-                None
-                if rejected_set_tsv_out is None
-                else str(rejected_set_tsv_out)
+                None if rejected_set_tsv_out is None else str(rejected_set_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_map_orthologs_command', 'run_protein_set_score_command']
+
+__all__ = ["run_map_orthologs_command", "run_protein_set_score_command"]

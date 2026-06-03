@@ -10,11 +10,11 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
@@ -163,9 +163,7 @@ def build_spectronaut_import_report(
     )
     precursor_rows = _build_spectronaut_precursor_rows(normalization)
     protein_group_rows = _build_spectronaut_protein_group_rows(precursor_rows)
-    precursor_quantity_rows = _build_spectronaut_precursor_quantity_rows(
-        precursor_rows
-    )
+    precursor_quantity_rows = _build_spectronaut_precursor_quantity_rows(precursor_rows)
     protein_group_quantity_rows = _build_spectronaut_protein_group_quantity_rows(
         protein_group_rows
     )

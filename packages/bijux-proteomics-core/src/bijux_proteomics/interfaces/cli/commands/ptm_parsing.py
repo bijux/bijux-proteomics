@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_parsing import (
+    run_ptm_map_sites_command,
+    run_ptm_parse_peptide_command,
+    run_ptm_parse_peptides_command,
+    run_ptm_score_localization_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_parsing import run_ptm_parse_peptide_command, run_ptm_parse_peptides_command, run_ptm_map_sites_command, run_ptm_score_localization_command
+
 
 @click.command("parse-peptide")
 @click.argument("modified_peptide")
@@ -30,8 +36,16 @@ def ptm_parse_peptide_command(
     spectrum_id: str | None,
     out_path: Path | None,
 ) -> None:
-    'Parse one PTM peptide into explicit site-local records.'
-    return run_ptm_parse_peptide_command(modified_peptide, protein_ref, peptide_start_position, sample_id, spectrum_id, out_path)
+    "Parse one PTM peptide into explicit site-local records."
+    return run_ptm_parse_peptide_command(
+        modified_peptide,
+        protein_ref,
+        peptide_start_position,
+        sample_id,
+        spectrum_id,
+        out_path,
+    )
+
 
 @click.command("parse-peptides")
 @click.argument(
@@ -82,8 +96,21 @@ def ptm_parse_peptides_command(
     rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Parse a PTM peptide table into peptide and site review ledgers.'
-    return run_ptm_parse_peptides_command(peptide_tsv, peptide_column, protein_ref_column, peptide_start_position_column, sample_id_column, spectrum_id_column, summary_tsv_out, record_tsv_out, site_tsv_out, rejected_tsv_out, out_path)
+    "Parse a PTM peptide table into peptide and site review ledgers."
+    return run_ptm_parse_peptides_command(
+        peptide_tsv,
+        peptide_column,
+        protein_ref_column,
+        peptide_start_position_column,
+        sample_id_column,
+        spectrum_id_column,
+        summary_tsv_out,
+        record_tsv_out,
+        site_tsv_out,
+        rejected_tsv_out,
+        out_path,
+    )
+
 
 @click.command("map-sites")
 @click.argument(
@@ -186,8 +213,35 @@ def ptm_map_sites_command(
     validation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Map localized PTM peptides onto protein coordinates and export site tables.'
-    return run_ptm_map_sites_command(evidence_tsv, proteins_fasta, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, mapping_tsv_out, exact_mapping_tsv_out, ambiguous_mapping_tsv_out, unmapped_tsv_out, candidate_tsv_out, site_table_tsv_out, ambiguity_tsv_out, coverage_tsv_out, validation_tsv_out, out_path)
+    "Map localized PTM peptides onto protein coordinates and export site tables."
+    return run_ptm_map_sites_command(
+        evidence_tsv,
+        proteins_fasta,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        mapping_tsv_out,
+        exact_mapping_tsv_out,
+        ambiguous_mapping_tsv_out,
+        unmapped_tsv_out,
+        candidate_tsv_out,
+        site_table_tsv_out,
+        ambiguity_tsv_out,
+        coverage_tsv_out,
+        validation_tsv_out,
+        out_path,
+    )
+
 
 @click.command("score-localization")
 @click.argument(
@@ -250,8 +304,28 @@ def ptm_score_localization_command(
     entry_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score PTM localization confidence and export probability review ledgers.'
-    return run_ptm_score_localization_command(evidence_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, fragment_support_json, summary_tsv_out, entry_tsv_out, out_path)
+    "Score PTM localization confidence and export probability review ledgers."
+    return run_ptm_score_localization_command(
+        evidence_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        fragment_support_json,
+        summary_tsv_out,
+        entry_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     ptm_parse_peptide_command,

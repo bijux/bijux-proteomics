@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from html import escape
@@ -16,15 +13,17 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_intelligence.reviews import (
-    IntelligenceReportClaimEntry,
-    validate_intelligence_report_contract,
-)
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.workflow.demo.surprising_demo import SurprisingDemoReport
 from bijux_proteomics.workflow.demo.surprising_demo_interrogation import (
     ensure_surprising_demo_outputs,
 )
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_intelligence.reviews import (
+    IntelligenceReportClaimEntry,
+    validate_intelligence_report_contract,
+)
 from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
 
 
@@ -209,9 +208,18 @@ def build_integrated_scientific_report(
             "object, evidence graph exports, cards, claims, QC ledgers, and belief audit"
         ),
     )
-    write_output_table_tsv((demo_output_dir / summary_name), render_integrated_scientific_report_summary_tsv(report))
-    write_output_table_tsv((demo_output_dir / sentences_name), render_integrated_scientific_report_sentences_tsv(report))
-    write_output_table_tsv((demo_output_dir / examples_name), render_integrated_scientific_report_examples_tsv(report))
+    write_output_table_tsv(
+        (demo_output_dir / summary_name),
+        render_integrated_scientific_report_summary_tsv(report),
+    )
+    write_output_table_tsv(
+        (demo_output_dir / sentences_name),
+        render_integrated_scientific_report_sentences_tsv(report),
+    )
+    write_output_table_tsv(
+        (demo_output_dir / examples_name),
+        render_integrated_scientific_report_examples_tsv(report),
+    )
     atomic_write_text(
         demo_output_dir / html_name,
         render_integrated_scientific_report_html(report),
@@ -324,7 +332,7 @@ def render_integrated_scientific_report_html(
     sentence_map = {sentence.sentence_id: sentence for sentence in report.sentences}
     lines = [
         "<!doctype html>",
-        "<html lang=\"en\">",
+        '<html lang="en">',
         "<head>",
         '<meta charset="utf-8">',
         "<title>Integrated Scientific Report</title>",
@@ -440,9 +448,7 @@ def _load_integrated_report_context(demo_output_dir: Path) -> _IntegratedReportC
             demo_output_dir / "ptm_review" / "ptm_mechanism_classification.tsv"
         ),
         ptm_ambiguous_rows=_read_tsv_rows(
-            demo_output_dir
-            / "ptm_review"
-            / "advanced_ptm_excluded_ambiguous_sites.tsv"
+            demo_output_dir / "ptm_review" / "advanced_ptm_excluded_ambiguous_sites.tsv"
         ),
         qc_rows=_read_tsv_rows(demo_output_dir / "demo_qc_packets.tsv"),
         targeted_evidence_cards=_read_tsv_rows(
@@ -464,7 +470,9 @@ def _build_sections_and_sentences(
     design = source_report.study_result.design
     biological_report = source_report.study_result.biological_report
     if biological_report is None:
-        raise ValueError("surprising demo report is missing the biological report bundle")
+        raise ValueError(
+            "surprising demo report is missing the biological report bundle"
+        )
     graph = biological_report.graph_report.graph
     contract = source_report.intelligence_report_contract
     top_supported = tuple(_top_supported_claim_entries(source_report))
@@ -553,7 +561,9 @@ def _build_sections_and_sentences(
             source_row_refs=(
                 f"advanced_targeted_evidence_cards:{top_targets[0]['candidate_id']}",
             ),
-            artifact_paths=("targeted_validation/advanced_targeted_evidence_cards.tsv",),
+            artifact_paths=(
+                "targeted_validation/advanced_targeted_evidence_cards.tsv",
+            ),
             note="data-quality scientific claim is linked to the targeted evidence card row id",
         ),
         IntegratedScientificReportSentence(
@@ -682,7 +692,9 @@ def _build_sections_and_sentences(
                 f"biological_protein_mechanism_cards:{row['card_id']}"
                 for row in top_mechanisms
             ),
-            artifact_paths=("biological_review/biological_protein_mechanism_cards.tsv",),
+            artifact_paths=(
+                "biological_review/biological_protein_mechanism_cards.tsv",
+            ),
             note="mechanism sentence is linked directly to protein mechanism card ids",
         ),
         IntegratedScientificReportSentence(
@@ -698,7 +710,9 @@ def _build_sections_and_sentences(
                 f"advanced_targeted_evidence_cards:{row['candidate_id']}"
                 for row in top_targets
             ),
-            artifact_paths=("targeted_validation/advanced_targeted_evidence_cards.tsv",),
+            artifact_paths=(
+                "targeted_validation/advanced_targeted_evidence_cards.tsv",
+            ),
             note="validation-candidate sentence is linked to deterministic targeted evidence card ids",
         ),
         IntegratedScientificReportSentence(
@@ -785,9 +799,7 @@ def _build_result_examples(
                 "support remains sparse."
             ),
             linked_ids=(weak_card["card_id"],),
-            source_row_refs=(
-                f"biological_protein_cards:{weak_card['card_id']}",
-            ),
+            source_row_refs=(f"biological_protein_cards:{weak_card['card_id']}",),
             artifact_paths=("biological_review/biological_protein_cards.tsv",),
             note="weak example is anchored to the downgraded protein evidence card",
         ),
@@ -835,7 +847,9 @@ def _build_result_examples(
             source_row_refs=(
                 f"advanced_targeted_evidence_cards:{validation_card['candidate_id']}",
             ),
-            artifact_paths=("targeted_validation/advanced_targeted_evidence_cards.tsv",),
+            artifact_paths=(
+                "targeted_validation/advanced_targeted_evidence_cards.tsv",
+            ),
             note="validation-needed example is anchored to the targeted evidence card",
         ),
     )

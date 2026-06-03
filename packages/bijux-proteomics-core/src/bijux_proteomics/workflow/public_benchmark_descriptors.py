@@ -8,11 +8,14 @@ from __future__ import annotations
 from enum import StrEnum
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, model_validator
-from pydantic import ValidationError
+from pydantic import ConfigDict, Field, ValidationError, model_validator
 import yaml
 
-from bijux_proteomics.domain.errors import DesignError, InvalidWorkflowError, SchemaError
+from bijux_proteomics.domain.errors import (
+    DesignError,
+    InvalidWorkflowError,
+    SchemaError,
+)
 from bijux_proteomics.io.formats import ExperimentalDesignSampleRole
 from bijux_proteomics_foundation import JsonModel
 
@@ -231,9 +234,7 @@ class PublicBenchmarkDescriptor(JsonModel):
 
         metadata_sample_ids = [sample.sample_id for sample in self.sample_metadata]
         if len(metadata_sample_ids) != len(set(metadata_sample_ids)):
-            raise DesignError(
-                "descriptor sample_metadata must use unique sample_ids"
-            )
+            raise DesignError("descriptor sample_metadata must use unique sample_ids")
         for sample in self.sample_metadata:
             if sample.group_id not in declared_group_sample_ids:
                 raise DesignError(
@@ -243,7 +244,9 @@ class PublicBenchmarkDescriptor(JsonModel):
         if self.sample_metadata:
             metadata_by_group: dict[str, list[str]] = {}
             for sample in self.sample_metadata:
-                metadata_by_group.setdefault(sample.group_id, []).append(sample.sample_id)
+                metadata_by_group.setdefault(sample.group_id, []).append(
+                    sample.sample_id
+                )
             for group_id, sample_ids in declared_group_sample_ids.items():
                 metadata_sample_ids_for_group = tuple(
                     sorted(metadata_by_group.get(group_id, ()))
@@ -267,7 +270,9 @@ class PublicBenchmarkDescriptor(JsonModel):
         return self
 
 
-def load_public_benchmark_descriptor(descriptor_path: Path) -> PublicBenchmarkDescriptor:
+def load_public_benchmark_descriptor(
+    descriptor_path: Path,
+) -> PublicBenchmarkDescriptor:
     """Load and validate one public benchmark descriptor."""
 
     try:

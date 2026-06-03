@@ -13,6 +13,7 @@ from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     LabelBasedReportExportManifest,
 )
 
+
 def run_silac_quantify_command(
     input_tsv: Path,
     sample_id_column: str,
@@ -75,6 +76,7 @@ def run_silac_quantify_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_silac_differential_command(
     input_tsv: Path,
@@ -218,12 +220,8 @@ def run_silac_differential_command(
                 if normalized_matrix_tsv_out is None
                 else str(normalized_matrix_tsv_out)
             ),
-            "results_tsv": (
-                None if results_tsv_out is None else str(results_tsv_out)
-            ),
-            "balance_tsv": (
-                None if balance_tsv_out is None else str(balance_tsv_out)
-            ),
+            "results_tsv": (None if results_tsv_out is None else str(results_tsv_out)),
+            "balance_tsv": (None if balance_tsv_out is None else str(balance_tsv_out)),
             "volcano_tsv": (
                 None
                 if volcano_tsv_out is None or volcano_plot is None
@@ -239,6 +237,7 @@ def run_silac_differential_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_silac_report_command(
     input_tsv: Path,
@@ -312,6 +311,7 @@ def run_silac_report_command(
         out_path=out_path,
     )
 
+
 def run_silac_validate_command(
     input_tsv: Path,
     sample_id_column: str,
@@ -378,6 +378,7 @@ def run_silac_validate_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_tmt_validate_command(
     input_tsv: Path,
@@ -450,4 +451,11 @@ def run_tmt_validate_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_silac_quantify_command', 'run_silac_differential_command', 'run_silac_report_command', 'run_silac_validate_command', 'run_tmt_validate_command']
+
+__all__ = [
+    "run_silac_quantify_command",
+    "run_silac_differential_command",
+    "run_silac_report_command",
+    "run_silac_validate_command",
+    "run_tmt_validate_command",
+]

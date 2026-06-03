@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
-import csv
 from collections.abc import Iterable, Sequence
+import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics_foundation import JsonModel
@@ -232,7 +231,9 @@ def parse_ptm_ortholog_site_tsv(
                 raw_fields,
                 active_mapping.target_protein_ref,
             )
-            target_residue = _optional_row_value(raw_fields, active_mapping.target_residue)
+            target_residue = _optional_row_value(
+                raw_fields, active_mapping.target_residue
+            )
             target_position_token = _optional_row_value(
                 raw_fields,
                 active_mapping.target_position,
@@ -244,7 +245,9 @@ def parse_ptm_ortholog_site_tsv(
 
             if not source_species:
                 issues.append(
-                    _row_issue("missing_source_species", "missing source species", row_number)
+                    _row_issue(
+                        "missing_source_species", "missing source species", row_number
+                    )
                 )
             if not source_protein_ref:
                 issues.append(
@@ -272,7 +275,9 @@ def parse_ptm_ortholog_site_tsv(
                 )
             if not target_species:
                 issues.append(
-                    _row_issue("missing_target_species", "missing target species", row_number)
+                    _row_issue(
+                        "missing_target_species", "missing target species", row_number
+                    )
                 )
             try:
                 source_position = int(source_position_token)
@@ -632,8 +637,12 @@ def _build_conservation_entry(
             status=PtmOrthologConservationStatus.MISSING,
             source_species=source_species,
             target_species=target_species,
-            evidence_labels=_stable_tuple(record.evidence for record in matching_records),
-            source_names=_stable_tuple(record.source_name for record in matching_records),
+            evidence_labels=_stable_tuple(
+                record.evidence for record in matching_records
+            ),
+            source_names=_stable_tuple(
+                record.source_name for record in matching_records
+            ),
             source_accessions=_stable_tuple(
                 record.source_accession for record in matching_records
             ),
@@ -708,7 +717,10 @@ def _group_ortholog_site_records(
 ) -> dict[tuple[str, str, int, str], tuple[PtmOrthologSiteRecord, ...]]:
     grouped: dict[tuple[str, str, int, str], list[PtmOrthologSiteRecord]] = {}
     for record in records:
-        if record.source_species != source_species or record.target_species != target_species:
+        if (
+            record.source_species != source_species
+            or record.target_species != target_species
+        ):
             continue
         grouped.setdefault(
             (
@@ -733,11 +745,13 @@ def _group_ortholog_site_records(
     }
 
 
-def _optional_row_value(raw_fields: dict[str, str], column_name: str | None) -> str | None:
+def _optional_row_value(
+    raw_fields: dict[str, str], column_name: str | None
+) -> str | None:
     if column_name is None:
         return None
     value = raw_fields.get(column_name, "").strip()
-    return None if not value else value
+    return value if value else None
 
 
 def _stable_tuple(values: Iterable[str | None]) -> tuple[str, ...]:
@@ -771,8 +785,7 @@ def _validate_required_columns(
     missing = [column for column in required_columns if column not in fieldnames]
     if missing:
         raise ValueError(
-            "PTM ortholog-site TSV is missing required columns: "
-            + ", ".join(missing)
+            "PTM ortholog-site TSV is missing required columns: " + ", ".join(missing)
         )
 
 

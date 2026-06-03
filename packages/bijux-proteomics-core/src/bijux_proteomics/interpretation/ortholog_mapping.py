@@ -8,8 +8,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 import csv
 from enum import StrEnum
-import json
 from io import StringIO
+import json
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -357,14 +357,16 @@ def build_ortholog_mapping_report(
     filtered_records = tuple(
         record
         for record in ortholog_records
-        if _normalize_species_identifier(record.source_species) == normalized_source_species
-        and _normalize_species_identifier(record.target_species) == normalized_target_species
+        if _normalize_species_identifier(record.source_species)
+        == normalized_source_species
+        and _normalize_species_identifier(record.target_species)
+        == normalized_target_species
     )
 
     source_to_targets: dict[str, tuple[OrthologRecord, ...]] = {}
     target_to_sources: dict[str, set[str]] = {}
     for record in filtered_records:
-        source_to_targets.setdefault(record.source_protein_ref, tuple())
+        source_to_targets.setdefault(record.source_protein_ref, ())
         source_to_targets[record.source_protein_ref] = source_to_targets[
             record.source_protein_ref
         ] + (record,)

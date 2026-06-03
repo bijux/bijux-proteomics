@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import Counter
+import csv
 from enum import StrEnum
 from io import StringIO
 from statistics import median
@@ -70,9 +70,7 @@ def classify_run_failure(
     if len(run_qc) < 3:
         raise ValueError("run diagnosis requires at least three run_qc rows")
     run_id_counts = Counter(entry.run_id for entry in run_qc)
-    duplicate_run_ids = {
-        run_id for run_id, count in run_id_counts.items() if count > 1
-    }
+    duplicate_run_ids = {run_id for run_id, count in run_id_counts.items() if count > 1}
     if duplicate_run_ids:
         raise ValueError(
             "run diagnosis requires unique run_id values and found duplicates for: "
@@ -181,10 +179,7 @@ def _diagnose_run(
             secondary_reasons=(),
         )
 
-    if primary_score >= 0.7:
-        status = LabQcStatus.FAIL
-    else:
-        status = LabQcStatus.CAUTION
+    status = LabQcStatus.FAIL if primary_score >= 0.7 else LabQcStatus.CAUTION
 
     if secondary_score >= 0.55 and primary_score - secondary_score <= 0.15:
         mixed_reasons = tuple(
@@ -242,9 +237,7 @@ def _chromatography_reasons(
         1.0,
     )
     if rt_shift_fraction >= 0.08:
-        reasons.append(
-            ("retention_time_shift", min(1.0, rt_shift_fraction / 0.2))
-        )
+        reasons.append(("retention_time_shift", min(1.0, rt_shift_fraction / 0.2)))
     if entry.missingness - baselines.missingness >= 0.18:
         reasons.append(
             (
@@ -297,7 +290,10 @@ def _intensity_reasons(
         reasons.append(("low_ms1_count", min(1.0, (1.0 - ms1_ratio) / 0.7)))
     if entry.missingness - baselines.missingness >= 0.2:
         reasons.append(
-            ("high_missingness_with_low_signal", min(1.0, (entry.missingness - baselines.missingness) / 0.45))
+            (
+                "high_missingness_with_low_signal",
+                min(1.0, (entry.missingness - baselines.missingness) / 0.45),
+            )
         )
     return tuple(sorted(reasons, key=lambda item: (-item[1], item[0])))
 

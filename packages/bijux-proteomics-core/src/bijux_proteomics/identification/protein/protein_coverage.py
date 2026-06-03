@@ -224,7 +224,9 @@ def build_protein_coverage_report(
         reproducibility_hash="0" * 64,
     )
     return report.model_copy(
-        update={"reproducibility_hash": hashlib.sha256(_raw_payload(report)).hexdigest()}
+        update={
+            "reproducibility_hash": hashlib.sha256(_raw_payload(report)).hexdigest()
+        }
     )
 
 

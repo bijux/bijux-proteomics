@@ -10,8 +10,11 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.quantification_primary import (
+    run_quantify_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.quantification_primary import run_quantify_command
+
 
 @click.command("quantify")
 @click.argument(
@@ -234,9 +237,53 @@ def quantify_command(
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build a quantification matrix and optional differential report from MS1 features.'
-    return run_quantify_command(input_table, measure, entity_level, aggregation, top_n, normalization, imputation, sample_column, feature_id_column, peptide_column, intensity_column, protein_refs_column, charge_column, mz_column, retention_time_column, missing_reason_column, protein_separator, design_path, condition_a, condition_b, differential_tsv_out, broken_pairs_tsv_out, multi_contrast_consistency_tsv_out, batch_effect_summary_tsv_out, batch_effect_batches_tsv_out, batch_effect_components_tsv_out, time_course_tsv_out, design_covariates, design_batch_field, design_pairing_field, design_timepoint_field, design_timepoint_order_file, design_matrix_tsv_out, design_coefficients_tsv_out, design_contrasts_tsv_out, limma_assay_tsv_out, limma_samples_tsv_out, limma_design_tsv_out, limma_contrasts_tsv_out, msstats_input_tsv_out, limma_results_path, msstats_results_path, report_out, out_path)
+    "Build a quantification matrix and optional differential report from MS1 features."
+    return run_quantify_command(
+        input_table,
+        measure,
+        entity_level,
+        aggregation,
+        top_n,
+        normalization,
+        imputation,
+        sample_column,
+        feature_id_column,
+        peptide_column,
+        intensity_column,
+        protein_refs_column,
+        charge_column,
+        mz_column,
+        retention_time_column,
+        missing_reason_column,
+        protein_separator,
+        design_path,
+        condition_a,
+        condition_b,
+        differential_tsv_out,
+        broken_pairs_tsv_out,
+        multi_contrast_consistency_tsv_out,
+        batch_effect_summary_tsv_out,
+        batch_effect_batches_tsv_out,
+        batch_effect_components_tsv_out,
+        time_course_tsv_out,
+        design_covariates,
+        design_batch_field,
+        design_pairing_field,
+        design_timepoint_field,
+        design_timepoint_order_file,
+        design_matrix_tsv_out,
+        design_coefficients_tsv_out,
+        design_contrasts_tsv_out,
+        limma_assay_tsv_out,
+        limma_samples_tsv_out,
+        limma_design_tsv_out,
+        limma_contrasts_tsv_out,
+        msstats_input_tsv_out,
+        limma_results_path,
+        msstats_results_path,
+        report_out,
+        out_path,
+    )
 
-COMMANDS = (
-    quantify_command,
-)
+
+COMMANDS = (quantify_command,)

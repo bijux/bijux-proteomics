@@ -5,17 +5,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
+from collections.abc import Iterable
 import csv
-import math
 from enum import StrEnum
 from io import StringIO
+import math
 from pathlib import Path
-from typing import Iterable
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics._scientific_tables import (
     build_silac_feature_table_schema,
     validate_scientific_table,
@@ -108,7 +107,9 @@ class SilacQuantificationPolicy(JsonModel):
     def _validate_expected_labels(self) -> SilacQuantificationPolicy:
         normalized = tuple(dict.fromkeys(self.expected_labels))
         if len(normalized) < 2:
-            raise ValueError("silac quantification requires at least two expected labels")
+            raise ValueError(
+                "silac quantification requires at least two expected labels"
+            )
         if self.reference_label not in normalized:
             raise ValueError("reference label must be included in expected labels")
         self.expected_labels = normalized
@@ -195,15 +196,15 @@ def parse_silac_feature_table(
     rejected_rows: list[RejectedSilacFeatureRow] = [
         RejectedSilacFeatureRow(
             row_number=row.row_number,
-            reason=row.issues[0].message if row.issues else "silac feature row was rejected",
+            reason=row.issues[0].message
+            if row.issues
+            else "silac feature row was rejected",
         )
         for row in validation_report.rejected_rows
     ]
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        rows_by_number = {
-            row_number: row for row_number, row in enumerate(reader, start=2)
-        }
+        rows_by_number = dict(enumerate(reader, start=2))
         for accepted_row in validation_report.accepted_rows:
             row_number = accepted_row.row_number
             row = rows_by_number.get(row_number, {})
@@ -218,8 +219,12 @@ def parse_silac_feature_table(
                             separator=active_mapping.protein_separator,
                         ),
                         charge=int((row.get(active_mapping.charge) or "").strip()),
-                        label=SilacLabel((row.get(active_mapping.label) or "").strip().lower()),
-                        intensity=float((row.get(active_mapping.intensity) or "").strip()),
+                        label=SilacLabel(
+                            (row.get(active_mapping.label) or "").strip().lower()
+                        ),
+                        intensity=float(
+                            (row.get(active_mapping.intensity) or "").strip()
+                        ),
                     )
                 )
             except Exception as exc:  # noqa: BLE001
@@ -274,7 +279,9 @@ def build_silac_ratio_report(
             )
         reference_abundance = label_to_abundance.get(active_policy.reference_label)
         peptide_id = (
-            f"{peptide}/z{charge}" if active_policy.separate_charge_states and charge is not None else peptide
+            f"{peptide}/z{charge}"
+            if active_policy.separate_charge_states and charge is not None
+            else peptide
         )
         for numerator_label in active_policy.expected_labels:
             if numerator_label is active_policy.reference_label:
@@ -314,9 +321,7 @@ def build_silac_ratio_report(
         *protein_ratios,
     )
     missing_ratio_count = sum(
-        1
-        for entry in all_ratio_entries
-        if entry.missing_reason is not None
+        1 for entry in all_ratio_entries if entry.missing_reason is not None
     )
     return SilacRatioReport(
         import_report=import_report,
@@ -384,9 +389,15 @@ def _build_protein_ratios(
         for numerator_label in policy.expected_labels:
             if numerator_label is policy.reference_label:
                 continue
-            numerator_entries = grouped.get((sample_id, protein_id, numerator_label), ())
-            numerator_abundance = _sum_present(entry.numerator_abundance for entry in numerator_entries)
-            reference_abundance = _sum_present(entry.reference_abundance for entry in numerator_entries)
+            numerator_entries = grouped.get(
+                (sample_id, protein_id, numerator_label), ()
+            )
+            numerator_abundance = _sum_present(
+                entry.numerator_abundance for entry in numerator_entries
+            )
+            reference_abundance = _sum_present(
+                entry.reference_abundance for entry in numerator_entries
+            )
             ratio, log2_ratio, missing_reason = _build_ratio(
                 numerator_abundance=numerator_abundance,
                 reference_abundance=reference_abundance,

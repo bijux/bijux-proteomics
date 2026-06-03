@@ -70,7 +70,9 @@ def detect_oxidation_artifacts(
     qc_by_sample: dict[str, PtmOxidationSampleQcEntry] = {}
     for entry in sample_qc:
         if entry.sample_id in qc_by_sample:
-            raise ValueError("oxidation artifact detection requires unique sample_qc rows")
+            raise ValueError(
+                "oxidation artifact detection requires unique sample_qc rows"
+            )
         qc_by_sample[entry.sample_id] = entry
 
     observations_by_sample: dict[str, list[PtmOxidizedPeptideObservation]] = {}
@@ -83,7 +85,9 @@ def detect_oxidation_artifacts(
     for sample_id in sorted(observations_by_sample):
         observations = observations_by_sample[sample_id]
         total_methionines = sum(entry.methionine_count for entry in observations)
-        oxidized_methionines = sum(entry.oxidized_methionine_count for entry in observations)
+        oxidized_methionines = sum(
+            entry.oxidized_methionine_count for entry in observations
+        )
         oxidation_fraction = oxidized_methionines / total_methionines
         localized_claim_count = sum(
             1

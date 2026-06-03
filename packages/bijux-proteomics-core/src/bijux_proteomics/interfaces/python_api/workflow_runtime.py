@@ -9,6 +9,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_bundle_run_command(
     spectra_path: Path,
     identifications_path: Path | None,
@@ -25,6 +26,7 @@ def run_bundle_run_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(manifest)
+
 
 def run_proteomics_run_command(
     engine: str,
@@ -116,6 +118,7 @@ def run_proteomics_run_command(
         out_path=json_out,
     )
 
+
 def run_workflow_plan_command(
     proteins_path: Path,
     spectra_path: Path,
@@ -161,6 +164,7 @@ def run_workflow_plan_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(bundle, out_path=out_path)
 
+
 def run_workflow_validate_command(
     proteins_path: Path,
     spectra_path: Path,
@@ -194,4 +198,10 @@ def run_workflow_validate_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(report, out_path=out_path)
 
-__all__ = ['run_bundle_run_command', 'run_proteomics_run_command', 'run_workflow_plan_command', 'run_workflow_validate_command']
+
+__all__ = [
+    "run_bundle_run_command",
+    "run_proteomics_run_command",
+    "run_workflow_plan_command",
+    "run_workflow_validate_command",
+]

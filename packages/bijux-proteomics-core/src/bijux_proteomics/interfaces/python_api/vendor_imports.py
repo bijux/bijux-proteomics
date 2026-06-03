@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_spectronaut_import_command(
     result_tsv: Path,
     config_path: Path | None,
@@ -95,12 +96,11 @@ def run_spectronaut_import_command(
             "protein_group_quantity_tsv": None
             if protein_group_quantity_tsv_out is None
             else str(protein_group_quantity_tsv_out),
-            "rejected_tsv": None
-            if rejected_tsv_out is None
-            else str(rejected_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_openms_import_command(
     idxml_path: Path,
@@ -164,4 +164,5 @@ def run_openms_import_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_spectronaut_import_command', 'run_openms_import_command']
+
+__all__ = ["run_spectronaut_import_command", "run_openms_import_command"]

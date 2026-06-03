@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
+import csv
 from dataclasses import dataclass
 from io import StringIO
 
@@ -225,7 +225,9 @@ def score_chimeric_spectra(
             spectrum, default_isolation_window_half_width_da
         )
         chimeric_score = (
-            0.0 if strongest_competitor is None else strongest_competitor.competition_score
+            0.0
+            if strongest_competitor is None
+            else strongest_competitor.competition_score
         )
         concern_codes = (
             ()
@@ -284,7 +286,8 @@ def score_chimeric_spectra(
     )
     mean_chimeric_score = (
         round(
-            sum(entry.chimeric_score for entry in ordered_spectra) / len(ordered_spectra),
+            sum(entry.chimeric_score for entry in ordered_spectra)
+            / len(ordered_spectra),
             4,
         )
         if ordered_spectra

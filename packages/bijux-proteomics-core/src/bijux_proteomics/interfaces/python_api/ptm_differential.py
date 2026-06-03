@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_ptm_estimate_occupancy_command(
     evidence_tsv: Path,
@@ -84,11 +84,18 @@ def run_ptm_estimate_occupancy_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ptm_site_occupancy_summary_tsv(occupancy_report))
+        write_output_table_tsv(
+            summary_tsv_out, render_ptm_site_occupancy_summary_tsv(occupancy_report)
+        )
     if occupancy_tsv_out is not None:
-        write_output_table_tsv(occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report))
+        write_output_table_tsv(
+            occupancy_tsv_out, render_ptm_site_occupancy_entry_tsv(occupancy_report)
+        )
     if counterpart_tsv_out is not None:
-        write_output_table_tsv(counterpart_tsv_out, render_ptm_occupancy_counterpart_tsv(counterpart_report))
+        write_output_table_tsv(
+            counterpart_tsv_out,
+            render_ptm_occupancy_counterpart_tsv(counterpart_report),
+        )
 
     _emit_json(
         {
@@ -99,6 +106,7 @@ def run_ptm_estimate_occupancy_command(
         },
         out_path=out_path,
     )
+
 
 def run_ptm_differential_command(
     evidence_tsv: Path,
@@ -263,11 +271,15 @@ def run_ptm_differential_command(
                 None if volcano_review is None else volcano_review.to_dict()
             ),
             "outputs": {
-                "results_tsv": None if results_tsv_out is None else str(results_tsv_out),
+                "results_tsv": None
+                if results_tsv_out is None
+                else str(results_tsv_out),
                 "broken_pairs_tsv": (
                     None if broken_pairs_tsv_out is None else str(broken_pairs_tsv_out)
                 ),
-                "volcano_tsv": None if volcano_tsv_out is None else str(volcano_tsv_out),
+                "volcano_tsv": None
+                if volcano_tsv_out is None
+                else str(volcano_tsv_out),
                 "volcano_json": (
                     None if volcano_json_out is None else str(volcano_json_out)
                 ),
@@ -282,4 +294,5 @@ def run_ptm_differential_command(
         out_path=out_path,
     )
 
-__all__ = ['run_ptm_estimate_occupancy_command', 'run_ptm_differential_command']
+
+__all__ = ["run_ptm_estimate_occupancy_command", "run_ptm_differential_command"]

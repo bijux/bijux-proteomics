@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_search_adapter_inspect_command(adapter_name: str | None) -> None:
     if adapter_name is None:
         payload = {
@@ -19,6 +20,7 @@ def run_search_adapter_inspect_command(adapter_name: str | None) -> None:
         return
     manifest = get_search_adapter_manifest(SearchAdapterKind(adapter_name))
     _emit_json(manifest)
+
 
 def run_search_adapter_params_command(
     adapter_name: str,
@@ -34,6 +36,7 @@ def run_search_adapter_params_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(payload, out_path=out_path)
 
+
 def run_search_adapter_validate_config_command(
     adapter_name: str,
     config_path: Path,
@@ -48,6 +51,7 @@ def run_search_adapter_validate_config_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(payload, out_path=out_path)
+
 
 def run_search_adapter_normalize_command(
     adapter_name: str,
@@ -93,6 +97,7 @@ def run_search_adapter_normalize_command(
     }
     _emit_json(payload, out_path=out_path)
 
+
 def run_search_adapter_compare_command(
     left_adapter_name: str,
     left_input_path: Path,
@@ -128,6 +133,7 @@ def run_search_adapter_compare_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(payload, out_path=out_path)
 
+
 def run_search_adapter_conformance_command(
     adapter_name: str,
     input_path: Path,
@@ -150,4 +156,12 @@ def run_search_adapter_conformance_command(
         raise click.ClickException(str(exc)) from exc
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_search_adapter_inspect_command', 'run_search_adapter_params_command', 'run_search_adapter_validate_config_command', 'run_search_adapter_normalize_command', 'run_search_adapter_compare_command', 'run_search_adapter_conformance_command']
+
+__all__ = [
+    "run_search_adapter_inspect_command",
+    "run_search_adapter_params_command",
+    "run_search_adapter_validate_config_command",
+    "run_search_adapter_normalize_command",
+    "run_search_adapter_compare_command",
+    "run_search_adapter_conformance_command",
+]

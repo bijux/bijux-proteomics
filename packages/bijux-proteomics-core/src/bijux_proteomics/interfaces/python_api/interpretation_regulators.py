@@ -7,8 +7,8 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+
 
 def run_regulator_inference_command(
     input_table: Path,
@@ -201,13 +201,22 @@ def run_regulator_inference_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_regulator_inference_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_regulator_inference_summary_tsv(report)
+        )
     if inference_tsv_out is not None:
-        write_output_table_tsv(inference_tsv_out, render_regulator_inference_tsv(report))
+        write_output_table_tsv(
+            inference_tsv_out, render_regulator_inference_tsv(report)
+        )
     if unresolved_target_tsv_out is not None:
-        write_output_table_tsv(unresolved_target_tsv_out, render_unresolved_regulator_target_tsv(report))
+        write_output_table_tsv(
+            unresolved_target_tsv_out, render_unresolved_regulator_target_tsv(report)
+        )
     if rejected_evidence_tsv_out is not None:
-        write_output_table_tsv(rejected_evidence_tsv_out, render_rejected_regulator_evidence_tsv(regulator_evidence_report))
+        write_output_table_tsv(
+            rejected_evidence_tsv_out,
+            render_rejected_regulator_evidence_tsv(regulator_evidence_report),
+        )
     if rejected_site_signal_tsv_out is not None:
         rejected_site_signal_tsv_out.write_text(
             ""
@@ -225,7 +234,9 @@ def run_regulator_inference_command(
         },
         "regulator_evidence": regulator_evidence_report.to_dict(),
         "pathway_memberships": (
-            None if pathway_membership_report is None else pathway_membership_report.to_dict()
+            None
+            if pathway_membership_report is None
+            else pathway_membership_report.to_dict()
         ),
         "site_signal_report": (
             None if site_signal_report is None else site_signal_report.to_dict()
@@ -254,6 +265,7 @@ def run_regulator_inference_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
 
 def run_ppi_modules_command(
     significant_tsv: Path,
@@ -326,17 +338,25 @@ def run_ppi_modules_command(
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
-        write_output_table_tsv(summary_tsv_out, render_ppi_network_module_summary_tsv(report))
+        write_output_table_tsv(
+            summary_tsv_out, render_ppi_network_module_summary_tsv(report)
+        )
     if edge_tsv_out is not None:
         write_output_table_tsv(edge_tsv_out, render_ppi_network_edge_tsv(report))
     if module_tsv_out is not None:
         write_output_table_tsv(module_tsv_out, render_ppi_module_tsv(report))
     if isolated_tsv_out is not None:
-        write_output_table_tsv(isolated_tsv_out, render_ppi_isolated_protein_tsv(report))
+        write_output_table_tsv(
+            isolated_tsv_out, render_ppi_isolated_protein_tsv(report)
+        )
     if module_enrichment_tsv_out is not None:
-        write_output_table_tsv(module_enrichment_tsv_out, render_ppi_module_enrichment_tsv(report))
+        write_output_table_tsv(
+            module_enrichment_tsv_out, render_ppi_module_enrichment_tsv(report)
+        )
     if rejected_edge_tsv_out is not None:
-        write_output_table_tsv(rejected_edge_tsv_out, render_rejected_ppi_edge_tsv(edge_report))
+        write_output_table_tsv(
+            rejected_edge_tsv_out, render_rejected_ppi_edge_tsv(edge_report)
+        )
 
     payload = {
         "significant": significant.to_dict(),
@@ -354,12 +374,11 @@ def run_ppi_modules_command(
                 else str(module_enrichment_tsv_out)
             ),
             "rejected_edge_tsv": (
-                None
-                if rejected_edge_tsv_out is None
-                else str(rejected_edge_tsv_out)
+                None if rejected_edge_tsv_out is None else str(rejected_edge_tsv_out)
             ),
         },
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_regulator_inference_command', 'run_ppi_modules_command']
+
+__all__ = ["run_regulator_inference_command", "run_ppi_modules_command"]

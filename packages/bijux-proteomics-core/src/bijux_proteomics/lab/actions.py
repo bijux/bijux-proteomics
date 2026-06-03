@@ -13,8 +13,14 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.lab.background import BackgroundComparisonEntry
 from bijux_proteomics.lab.cohort import CohortBalanceEntry
-from bijux_proteomics.lab.contamination import ContaminantClass, ContaminationClassificationEntry
-from bijux_proteomics.lab.digestion_diagnosis import DigestionDiagnosisEntry, DigestionStatus
+from bijux_proteomics.lab.contamination import (
+    ContaminantClass,
+    ContaminationClassificationEntry,
+)
+from bijux_proteomics.lab.digestion_diagnosis import (
+    DigestionDiagnosisEntry,
+    DigestionStatus,
+)
 from bijux_proteomics.lab.run_diagnosis import (
     LabQcStatus,
     RunDiagnosisEntry,
@@ -227,7 +233,15 @@ def _optional_bool(value: str | None) -> bool | None:
 
 
 def _is_actionable_assessment_status(status: str) -> bool:
-    return status in {"fail", "failed", "block", "blocked", "caution", "warn", "warning"}
+    return status in {
+        "fail",
+        "failed",
+        "block",
+        "blocked",
+        "caution",
+        "warn",
+        "warning",
+    }
 
 
 def _assessment_problem(entry: LabActionAssessmentEntry) -> str:
@@ -254,9 +268,7 @@ def _assessment_evidence_rows(
     if entry.disposition is not None:
         rows.append(f"disposition={entry.disposition}")
     if entry.enforced_violation is not None:
-        rows.append(
-            f"enforced_violation={str(entry.enforced_violation).lower()}"
-        )
+        rows.append(f"enforced_violation={str(entry.enforced_violation).lower()}")
     rows.append(f"message={entry.message}")
     return tuple(rows)
 
@@ -306,7 +318,10 @@ def _assessment_recommended_action(entry: LabActionAssessmentEntry) -> str:
 
 
 def _packets_for_run_diagnosis(row: RunDiagnosisEntry) -> tuple[LabActionPacket, ...]:
-    if row.status is LabQcStatus.PASSED or row.failure_class is RunFailureClass.NO_FAILURE:
+    if (
+        row.status is LabQcStatus.PASSED
+        or row.failure_class is RunFailureClass.NO_FAILURE
+    ):
         return ()
     actions = {
         RunFailureClass.CHROMATOGRAPHY_FAILURE: (
@@ -353,7 +368,9 @@ def _packets_for_run_diagnosis(row: RunDiagnosisEntry) -> tuple[LabActionPacket,
                 f"run_id={row.run_id}",
                 f"failure_class={row.failure_class.value}",
                 f"primary_reason={row.primary_reason}",
-                *tuple(f"secondary_reason={reason}" for reason in row.secondary_reasons),
+                *tuple(
+                    f"secondary_reason={reason}" for reason in row.secondary_reasons
+                ),
             ),
             "triage chromatography, identification, and signal problems together because multiple run-failure modes co-occur",
             "high",
@@ -434,7 +451,10 @@ def _packets_for_contamination(
 ) -> tuple[LabActionPacket, ...]:
     if row.intensity_fraction <= 0.0:
         return ()
-    if row.contaminant_class is ContaminantClass.UNKNOWN and row.intensity_fraction < 0.05:
+    if (
+        row.contaminant_class is ContaminantClass.UNKNOWN
+        and row.intensity_fraction < 0.05
+    ):
         return ()
     return (
         LabActionPacket(
@@ -453,7 +473,9 @@ def _packets_for_contamination(
     )
 
 
-def _packets_for_background(row: BackgroundComparisonEntry) -> tuple[LabActionPacket, ...]:
+def _packets_for_background(
+    row: BackgroundComparisonEntry,
+) -> tuple[LabActionPacket, ...]:
     if not row.background_flag:
         return ()
     return (
@@ -507,7 +529,10 @@ def _packets_for_internal_standard(
 def _packets_for_sample_identity(
     row: SampleSwapSuspicionEntry,
 ) -> tuple[LabActionPacket, ...]:
-    if row.nearest_neighbor_group == row.expected_group or row.swap_suspicion_score < 0.8:
+    if (
+        row.nearest_neighbor_group == row.expected_group
+        or row.swap_suspicion_score < 0.8
+    ):
         return ()
     return (
         LabActionPacket(

@@ -18,6 +18,7 @@ from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
+    QuantValue,
     _condition_lookup,
     _student_t_two_sided_p_value,
     _welch_t_test,
@@ -27,7 +28,6 @@ from bijux_proteomics.quantification.missingness.missingness import (
     MissingnessClassificationReport,
     MissingnessLabel,
 )
-from bijux_proteomics.quantification.contracts import QuantValue
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -79,7 +79,9 @@ def test_censored_two_group(
         raise ValueError("design must not be empty")
 
     condition_by_sample = _condition_lookup(design)
-    conditions = tuple(sorted({condition for condition in condition_by_sample.values() if condition}))
+    conditions = tuple(
+        sorted({condition for condition in condition_by_sample.values() if condition})
+    )
     if condition_a is None or condition_b is None:
         if len(conditions) != 2:
             raise ValueError(
@@ -91,12 +93,22 @@ def test_censored_two_group(
             "censored differential testing requires resolved condition names after validation"
         )
 
-    samples_a = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_a)
-    samples_b = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_b)
+    samples_a = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_a
+    )
+    samples_b = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_b
+    )
     if not samples_a or not samples_b:
         raise ValueError("both conditions must contain at least one sample")
 
-    label_by_entity = {entry.entity_id: entry.label for entry in missingness_labels.entries}
+    label_by_entity = {
+        entry.entity_id: entry.label for entry in missingness_labels.entries
+    }
     value_lookup = {(value.entity_id, value.sample_id): value for value in table.values}
     censor_floor = _global_censor_floor(table)
     floor_variance = _floor_variance(table, censor_floor)
@@ -163,7 +175,7 @@ def render_censored_differential_tsv(report: CensoredDifferentialReport) -> str:
     return buffer.getvalue()
 
 
-setattr(test_censored_two_group, "__test__", False)
+test_censored_two_group.__test__ = False
 
 
 def _observed_log2_values(
@@ -192,8 +204,7 @@ def _build_censored_entry(
     floor_variance: float,
 ) -> CensoredDifferentialEntry:
     fully_observed = (
-        values_a.size == expected_count_a
-        and values_b.size == expected_count_b
+        values_a.size == expected_count_a and values_b.size == expected_count_b
     )
     if values_a.size >= 2 and values_b.size >= 2:
         log2fc, p_value = _welch_t_test(values_a, values_b)
@@ -210,10 +221,15 @@ def _build_censored_entry(
             censoring_status=status,
         )
 
-    if values_a.size == 0 and values_b.size > 0 and label in {
-        MissingnessLabel.INTENSITY_CENSORED,
-        MissingnessLabel.CONDITION_SPECIFIC,
-    }:
+    if (
+        values_a.size == 0
+        and values_b.size > 0
+        and label
+        in {
+            MissingnessLabel.INTENSITY_CENSORED,
+            MissingnessLabel.CONDITION_SPECIFIC,
+        }
+    ):
         return _fully_censored_condition_entry(
             entity_id=entity_id,
             observed_values=values_b,
@@ -226,10 +242,15 @@ def _build_censored_entry(
             ),
             direction=1.0,
         )
-    if values_b.size == 0 and values_a.size > 0 and label in {
-        MissingnessLabel.INTENSITY_CENSORED,
-        MissingnessLabel.CONDITION_SPECIFIC,
-    }:
+    if (
+        values_b.size == 0
+        and values_a.size > 0
+        and label
+        in {
+            MissingnessLabel.INTENSITY_CENSORED,
+            MissingnessLabel.CONDITION_SPECIFIC,
+        }
+    ):
         return _fully_censored_condition_entry(
             entity_id=entity_id,
             observed_values=values_a,

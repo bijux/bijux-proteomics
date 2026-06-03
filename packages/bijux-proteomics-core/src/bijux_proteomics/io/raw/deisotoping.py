@@ -205,13 +205,19 @@ def _deisotoping_confidence(
     tolerance_da: float,
     isotope_count: int,
 ) -> float:
-    mean_absolute_error = sum(abs(error) for error in spacing_errors) / len(spacing_errors)
+    mean_absolute_error = sum(abs(error) for error in spacing_errors) / len(
+        spacing_errors
+    )
     spacing_score = max(0.0, 1.0 - (mean_absolute_error / tolerance_da))
     support_score = min(1.0, isotope_count / 3.0)
     intensity_ratio_scores = []
-    for left_intensity, right_intensity in zip(intensities, intensities[1:]):
+    for left_intensity, right_intensity in zip(
+        intensities, intensities[1:], strict=False
+    ):
         dominant_intensity = max(left_intensity, right_intensity, 1.0)
-        intensity_ratio_scores.append(min(left_intensity, right_intensity) / dominant_intensity)
+        intensity_ratio_scores.append(
+            min(left_intensity, right_intensity) / dominant_intensity
+        )
     envelope_score = (
         sum(intensity_ratio_scores) / len(intensity_ratio_scores)
         if intensity_ratio_scores

@@ -100,12 +100,10 @@ def apply_volcano_review_policy(
             point.entity_id,
         ),
     )
-    top_ids = {
-        id(point)
-        for point in ranked[: active_policy.top_label_count]
-    }
+    top_ids = {id(point) for point in ranked[: active_policy.top_label_count]}
     return tuple(
-        point.model_copy(update={"top_labeled": id(point) in top_ids}) for point in points
+        point.model_copy(update={"top_labeled": id(point) in top_ids})
+        for point in points
     )
 
 
@@ -113,7 +111,9 @@ def render_volcano_review_json(report: VolcanoReviewReport) -> str:
     """Render one volcano review payload as deterministic JSON."""
 
     stable_report = report.model_copy(
-        update={"points": tuple(sorted(report.points, key=lambda point: point.entity_id))}
+        update={
+            "points": tuple(sorted(report.points, key=lambda point: point.entity_id))
+        }
     )
     return stable_report.to_stable_json() + "\n"
 

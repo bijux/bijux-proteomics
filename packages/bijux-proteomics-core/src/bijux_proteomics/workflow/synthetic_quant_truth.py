@@ -353,7 +353,9 @@ def render_synthetic_quant_peptide_observation_tsv(
             "condition": row.condition,
             "replicate": str(row.replicate),
             "batch_id": row.batch_id,
-            "log2_intensity": "" if row.log2_intensity is None else f"{row.log2_intensity:.4f}",
+            "log2_intensity": ""
+            if row.log2_intensity is None
+            else f"{row.log2_intensity:.4f}",
             "is_missing": "true" if row.is_missing else "false",
             "is_contaminant": "true" if row.is_contaminant else "false",
             "contaminant_class": row.contaminant_class or "",
@@ -398,7 +400,9 @@ def render_synthetic_quant_truth_tsv(
             "sample_ids": ",".join(row.sample_ids),
             "batch_ids": ",".join(row.batch_ids),
             "effect_log2_fold_change": (
-                "" if row.effect_log2_fold_change is None else f"{row.effect_log2_fold_change:.4f}"
+                ""
+                if row.effect_log2_fold_change is None
+                else f"{row.effect_log2_fold_change:.4f}"
             ),
             "shift_log2": "" if row.shift_log2 is None else f"{row.shift_log2:.4f}",
             "contaminant_class": row.contaminant_class or "",
@@ -440,7 +444,9 @@ def _validate_and_index_config(
             f"synthetic quant truth effect condition {config.effect_condition!r} is not present in samples"
         )
     if config.reference_condition == config.effect_condition:
-        raise ValueError("synthetic quant truth requires distinct reference and effect conditions")
+        raise ValueError(
+            "synthetic quant truth requires distinct reference and effect conditions"
+        )
 
     known_proteins: dict[str, set[str]] = {}
     for protein in (*config.changed_proteins, *config.unchanged_proteins):
@@ -542,7 +548,7 @@ def _sample_condition_offsets(
     for sample in samples:
         per_condition.setdefault(sample.condition, []).append(sample)
     offsets: dict[str, float] = {}
-    for condition, condition_samples in per_condition.items():
+    for _condition, condition_samples in per_condition.items():
         midpoint = (len(condition_samples) - 1) / 2
         for index, sample in enumerate(condition_samples):
             offsets[sample.sample_id] = (index - midpoint) * jitter_step
@@ -572,8 +578,12 @@ def _protein_observations(
                 effect_log2_fold_change if sample.condition == effect_condition else 0.0
             )
             batch_shift = batch_shifts.get((protein_id, sample.batch_id), 0.0)
-            outlier_shift = outlier_by_key.get((protein_id, peptide_id, sample.sample_id), 0.0)
-            is_missing = sample.sample_id in missing_by_key.get((protein_id, peptide_id), set()) or sample.sample_id in missing_by_key.get((protein_id, None), set())
+            outlier_shift = outlier_by_key.get(
+                (protein_id, peptide_id, sample.sample_id), 0.0
+            )
+            is_missing = sample.sample_id in missing_by_key.get(
+                (protein_id, peptide_id), set()
+            ) or sample.sample_id in missing_by_key.get((protein_id, None), set())
             intensity = None
             if not is_missing:
                 intensity = (
@@ -661,7 +671,9 @@ def _render_tsv(
     fieldnames: tuple[str, ...],
 ) -> str:
     handle = StringIO()
-    writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t", lineterminator="\n")
+    writer = csv.DictWriter(
+        handle, fieldnames=fieldnames, delimiter="\t", lineterminator="\n"
+    )
     writer.writeheader()
     for row in rows:
         writer.writerow(row)

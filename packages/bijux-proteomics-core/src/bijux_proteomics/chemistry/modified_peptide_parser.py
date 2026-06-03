@@ -76,9 +76,7 @@ def parse_modified_peptide_notation(
 ) -> ParsedModifiedPeptide:
     """Parse one supported notation into the owned modified-peptide contract."""
     resolved = (
-        ModifiedPeptideNotationDialect(dialect)
-        if isinstance(dialect, str)
-        else dialect
+        ModifiedPeptideNotationDialect(dialect) if isinstance(dialect, str) else dialect
     )
     if resolved is ModifiedPeptideNotationDialect.BIJUX:
         return parse_modified_peptide(notation, registry=registry)
@@ -116,9 +114,7 @@ def build_modified_peptide_parse_review(
 ) -> ModifiedPeptideParseReview:
     """Build a review payload for one parsed modified-peptide notation."""
     resolved = (
-        ModifiedPeptideNotationDialect(dialect)
-        if isinstance(dialect, str)
-        else dialect
+        ModifiedPeptideNotationDialect(dialect) if isinstance(dialect, str) else dialect
     )
     parsed = parse_modified_peptide_notation(
         notation,

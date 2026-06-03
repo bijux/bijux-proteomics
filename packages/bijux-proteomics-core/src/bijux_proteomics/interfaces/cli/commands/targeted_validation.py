@@ -10,8 +10,14 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.targeted_validation import (
+    run_biomarker_panel_redundancy_analysis_command,
+    run_biomarker_stability_analysis_command,
+    run_targeted_result_validator_command,
+    run_validation_evidence_cards_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.targeted_validation import run_targeted_result_validator_command, run_biomarker_stability_analysis_command, run_biomarker_panel_redundancy_analysis_command, run_validation_evidence_cards_command
+
 
 @click.command("targeted-result-validator")
 @click.argument(
@@ -90,8 +96,26 @@ def targeted_result_validator_command(
     evidence_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Validate targeted PRM/SRM results back against discovery biomarker claims.'
-    return run_targeted_result_validator_command(biomarker_candidate_tsv, panel_assay_tsv, targeted_result_tsv, design_path, source_kind, case_condition, control_condition, minimum_reliable_replicates_per_condition, minimum_absolute_validation_log2_effect, flat_validation_log2_threshold, summary_tsv_out, confirmed_tsv_out, contradicted_tsv_out, inconclusive_tsv_out, evidence_tsv_out, out_path)
+    "Validate targeted PRM/SRM results back against discovery biomarker claims."
+    return run_targeted_result_validator_command(
+        biomarker_candidate_tsv,
+        panel_assay_tsv,
+        targeted_result_tsv,
+        design_path,
+        source_kind,
+        case_condition,
+        control_condition,
+        minimum_reliable_replicates_per_condition,
+        minimum_absolute_validation_log2_effect,
+        flat_validation_log2_threshold,
+        summary_tsv_out,
+        confirmed_tsv_out,
+        contradicted_tsv_out,
+        inconclusive_tsv_out,
+        evidence_tsv_out,
+        out_path,
+    )
+
 
 @click.command("biomarker-stability-analysis")
 @click.argument(
@@ -188,8 +212,29 @@ def biomarker_stability_analysis_command(
     adjusted_candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Assess biomarker stability across targeted-study subgroups.'
-    return run_biomarker_stability_analysis_command(biomarker_candidate_tsv, panel_assay_tsv, targeted_result_tsv, design_path, source_kind, design_batch_field, design_timepoint_field, design_sample_type_field, minimum_reliable_samples_per_group, minimum_reliable_sample_fraction, subgroup_median_delta_threshold, batch_residual_delta_threshold, assay_disagreement_delta_threshold, downgrade_below_score, summary_tsv_out, stability_tsv_out, subgroup_tsv_out, adjusted_candidate_tsv_out, out_path)
+    "Assess biomarker stability across targeted-study subgroups."
+    return run_biomarker_stability_analysis_command(
+        biomarker_candidate_tsv,
+        panel_assay_tsv,
+        targeted_result_tsv,
+        design_path,
+        source_kind,
+        design_batch_field,
+        design_timepoint_field,
+        design_sample_type_field,
+        minimum_reliable_samples_per_group,
+        minimum_reliable_sample_fraction,
+        subgroup_median_delta_threshold,
+        batch_residual_delta_threshold,
+        assay_disagreement_delta_threshold,
+        downgrade_below_score,
+        summary_tsv_out,
+        stability_tsv_out,
+        subgroup_tsv_out,
+        adjusted_candidate_tsv_out,
+        out_path,
+    )
+
 
 @click.command("biomarker-panel-redundancy-analysis")
 @click.argument(
@@ -255,8 +300,22 @@ def biomarker_panel_redundancy_analysis_command(
     dropped_candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Detect redundant targeted biomarker candidates and keep explicit representatives.'
-    return run_biomarker_panel_redundancy_analysis_command(biomarker_candidate_tsv, panel_assay_tsv, targeted_result_tsv, design_path, source_kind, minimum_shared_samples, correlation_threshold, summary_tsv_out, cluster_tsv_out, reduced_candidate_tsv_out, dropped_candidate_tsv_out, out_path)
+    "Detect redundant targeted biomarker candidates and keep explicit representatives."
+    return run_biomarker_panel_redundancy_analysis_command(
+        biomarker_candidate_tsv,
+        panel_assay_tsv,
+        targeted_result_tsv,
+        design_path,
+        source_kind,
+        minimum_shared_samples,
+        correlation_threshold,
+        summary_tsv_out,
+        cluster_tsv_out,
+        reduced_candidate_tsv_out,
+        dropped_candidate_tsv_out,
+        out_path,
+    )
+
 
 @click.command("validation-evidence-cards")
 @click.argument(
@@ -328,8 +387,24 @@ def validation_evidence_cards_command(
     warning_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Assemble candidate-level validation evidence cards from governed TSV outputs.'
-    return run_validation_evidence_cards_command(biomarker_candidate_tsv, panel_assay_tsv, panel_omitted_tsv, confirmed_tsv, contradicted_tsv, inconclusive_tsv, validation_evidence_tsv, stability_candidate_tsv, redundancy_candidate_tsv, summary_tsv_out, card_tsv_out, assay_tsv_out, warning_tsv_out, out_path)
+    "Assemble candidate-level validation evidence cards from governed TSV outputs."
+    return run_validation_evidence_cards_command(
+        biomarker_candidate_tsv,
+        panel_assay_tsv,
+        panel_omitted_tsv,
+        confirmed_tsv,
+        contradicted_tsv,
+        inconclusive_tsv,
+        validation_evidence_tsv,
+        stability_candidate_tsv,
+        redundancy_candidate_tsv,
+        summary_tsv_out,
+        card_tsv_out,
+        assay_tsv_out,
+        warning_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     targeted_result_validator_command,

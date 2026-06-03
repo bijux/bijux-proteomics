@@ -155,7 +155,8 @@ def validate_precursor_isotope_charge(
             unsupported_count=sum(
                 1
                 for entry in entries
-                if entry.precursor_validation_tier is PrecursorValidationTier.UNSUPPORTED
+                if entry.precursor_validation_tier
+                is PrecursorValidationTier.UNSUPPORTED
             ),
         ),
     )
@@ -273,7 +274,9 @@ def _validate_precursor_query(
         ),
     )
     assigned_candidate = next(
-        candidate for candidate in candidates if candidate.charge == query.assigned_charge
+        candidate
+        for candidate in candidates
+        if candidate.charge == query.assigned_charge
     )
     charge_mismatch = (
         inferred.charge != query.assigned_charge
@@ -299,16 +302,16 @@ def _select_window(
     rt: float,
     rt_tolerance_seconds: float,
 ) -> PrecursorValidationWindow | None:
-    matching = tuple(window for window in ms1_windows if window.precursor_id == precursor_id)
+    matching = tuple(
+        window for window in ms1_windows if window.precursor_id == precursor_id
+    )
     if matching:
         return min(
             matching,
             key=lambda window: (abs(window.rt - rt), window.rt, window.precursor_id),
         )
     eligible = tuple(
-        window
-        for window in ms1_windows
-        if abs(window.rt - rt) <= rt_tolerance_seconds
+        window for window in ms1_windows if abs(window.rt - rt) <= rt_tolerance_seconds
     )
     if not eligible:
         return None
@@ -325,9 +328,7 @@ def _observed_monoisotopic_mz(
     tolerance_da: float,
 ) -> float:
     nearby: tuple[SpectrumPeak, ...] = tuple(
-        peak
-        for peak in peaks
-        if abs(peak.mz - assigned_mz) <= tolerance_da
+        peak for peak in peaks if abs(peak.mz - assigned_mz) <= tolerance_da
     )
     if nearby:
         selected_peak = max(
@@ -354,7 +355,10 @@ def _score_charge_candidate(
 ) -> _ChargeCandidate:
     expected_monoisotopic_mz = _mz_from_neutral_mass(peptide_mass, charge)
     monoisotopic_error_ppm = abs(
-        ((observed_monoisotopic_mz - expected_monoisotopic_mz) / expected_monoisotopic_mz)
+        (
+            (observed_monoisotopic_mz - expected_monoisotopic_mz)
+            / expected_monoisotopic_mz
+        )
         * 1_000_000.0
     )
     monoisotope_fit_score = max(
@@ -363,17 +367,20 @@ def _score_charge_candidate(
     )
     matched_errors = []
     for isotope_index in range(1, max_isotope_index + 1):
-        expected_mz = observed_monoisotopic_mz + ((_C13_NEUTRON_SHIFT * isotope_index) / charge)
-        peak = _nearest_peak(peaks=peaks, expected_mz=expected_mz, tolerance_da=isotope_tolerance_da)
+        expected_mz = observed_monoisotopic_mz + (
+            (_C13_NEUTRON_SHIFT * isotope_index) / charge
+        )
+        peak = _nearest_peak(
+            peaks=peaks, expected_mz=expected_mz, tolerance_da=isotope_tolerance_da
+        )
         if peak is None:
             continue
         matched_errors.append(abs(peak.mz - expected_mz))
     if matched_errors:
         isotope_spacing_error = sum(matched_errors) / len(matched_errors)
-        spacing_score = (
-            max(0.0, 1.0 - (isotope_spacing_error / isotope_tolerance_da))
-            * (len(matched_errors) / max_isotope_index)
-        )
+        spacing_score = max(
+            0.0, 1.0 - (isotope_spacing_error / isotope_tolerance_da)
+        ) * (len(matched_errors) / max_isotope_index)
     else:
         isotope_spacing_error = isotope_tolerance_da * float(max_isotope_index)
         spacing_score = 0.0
@@ -397,13 +404,13 @@ def _nearest_peak(
     tolerance_da: float,
 ) -> SpectrumPeak | None:
     matches = tuple(
-        peak
-        for peak in peaks
-        if abs(peak.mz - expected_mz) <= tolerance_da
+        peak for peak in peaks if abs(peak.mz - expected_mz) <= tolerance_da
     )
     if not matches:
         return None
-    return min(matches, key=lambda peak: (abs(peak.mz - expected_mz), -peak.intensity, peak.mz))
+    return min(
+        matches, key=lambda peak: (abs(peak.mz - expected_mz), -peak.intensity, peak.mz)
+    )
 
 
 def _mz_from_neutral_mass(neutral_mass: float, charge: int) -> float:

@@ -10,8 +10,12 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.dia_precursor_matrices import (
+    run_diann_precursor_matrix_command,
+    run_spectronaut_precursor_matrix_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.dia_precursor_matrices import run_diann_precursor_matrix_command, run_spectronaut_precursor_matrix_command
+
 
 @click.command("diann-precursor-matrix")
 @click.argument(
@@ -60,8 +64,20 @@ def diann_precursor_matrix_command(
     metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build a DIA precursor-by-sample matrix from one DIA-NN report.'
-    return run_diann_precursor_matrix_command(result_tsv, config_path, include_decoys, max_q_value, q_value_filter_timing, summary_tsv_out, matrix_tsv_out, qvalue_tsv_out, metadata_tsv_out, out_path)
+    "Build a DIA precursor-by-sample matrix from one DIA-NN report."
+    return run_diann_precursor_matrix_command(
+        result_tsv,
+        config_path,
+        include_decoys,
+        max_q_value,
+        q_value_filter_timing,
+        summary_tsv_out,
+        matrix_tsv_out,
+        qvalue_tsv_out,
+        metadata_tsv_out,
+        out_path,
+    )
+
 
 @click.command("spectronaut-precursor-matrix")
 @click.argument(
@@ -110,8 +126,20 @@ def spectronaut_precursor_matrix_command(
     metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Build a DIA precursor-by-sample matrix from one Spectronaut report.'
-    return run_spectronaut_precursor_matrix_command(result_tsv, config_path, include_decoys, max_q_value, q_value_filter_timing, summary_tsv_out, matrix_tsv_out, qvalue_tsv_out, metadata_tsv_out, out_path)
+    "Build a DIA precursor-by-sample matrix from one Spectronaut report."
+    return run_spectronaut_precursor_matrix_command(
+        result_tsv,
+        config_path,
+        include_decoys,
+        max_q_value,
+        q_value_filter_timing,
+        summary_tsv_out,
+        matrix_tsv_out,
+        qvalue_tsv_out,
+        metadata_tsv_out,
+        out_path,
+    )
+
 
 COMMANDS = (
     diann_precursor_matrix_command,

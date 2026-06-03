@@ -6,15 +6,14 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-import csv
 from collections.abc import Mapping
+import csv
 from enum import StrEnum
 from io import StringIO
 from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
     BiologicalContextRecord,
@@ -26,6 +25,7 @@ from bijux_proteomics.interpretation.protein_set_scoring import (
     ProteinSetScoringReport,
     build_protein_set_scoring_report,
 )
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QuantEntityLevel,
@@ -88,7 +88,9 @@ class TissueCellTypeSampleConsistencyEntry(JsonModel):
     tissue_or_cell_type: str | None = None
     matched_context_ids: tuple[str, ...] = Field(default_factory=tuple)
     matched_context_names: tuple[str, ...] = Field(default_factory=tuple)
-    matched_context_kinds: tuple[BiologicalContextKind, ...] = Field(default_factory=tuple)
+    matched_context_kinds: tuple[BiologicalContextKind, ...] = Field(
+        default_factory=tuple
+    )
     expected_marker_score: float | None = None
     expected_total_marker_count: int = Field(..., ge=0)
     expected_observed_marker_count: int = Field(..., ge=0)
@@ -147,8 +149,8 @@ class TissueCellTypeContextReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     marker_score_report: ProteinSetScoringReport
-    sample_consistency_entries: tuple[TissueCellTypeSampleConsistencyEntry, ...] = Field(
-        default_factory=tuple
+    sample_consistency_entries: tuple[TissueCellTypeSampleConsistencyEntry, ...] = (
+        Field(default_factory=tuple)
     )
     unexpected_signal_entries: tuple[TissueCellTypeUnexpectedSignalEntry, ...] = Field(
         default_factory=tuple
@@ -177,7 +179,9 @@ def build_tissue_cell_type_context_report(
     """Review sample tissue and cell-type labels against expected marker proteins."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
-        raise ValueError("tissue and cell-type context review requires a protein-level table")
+        raise ValueError(
+            "tissue and cell-type context review requires a protein-level table"
+        )
     if table.measure_kind is not QuantMeasureKind.INTENSITY:
         raise ValueError(
             "tissue and cell-type context review requires intensity-based protein quantification"
@@ -204,7 +208,8 @@ def build_tissue_cell_type_context_report(
         ),
     )
     score_by_sample_and_set = {
-        (entry.sample_id, entry.set_id): entry for entry in marker_score_report.sample_scores
+        (entry.sample_id, entry.set_id): entry
+        for entry in marker_score_report.sample_scores
     }
     sample_batches = {
         sample.sample_id: sample.batch_ids[0] if sample.batch_ids else None
@@ -273,7 +278,9 @@ def build_tissue_cell_type_context_report(
                 observed_expected_marker_ids=expected_observed_marker_ids,
                 missing_expected_marker_ids=expected_missing_marker_ids,
                 highest_unexpected_context_id=(
-                    None if not sample_unexpected_entries else sample_unexpected_entries[0].context_id
+                    None
+                    if not sample_unexpected_entries
+                    else sample_unexpected_entries[0].context_id
                 ),
                 highest_unexpected_context_name=(
                     None
@@ -310,7 +317,9 @@ def build_tissue_cell_type_context_report(
                 1 for sample in experiment_design.samples if sample.tissue_or_cell_type
             ),
             unlabeled_sample_count=sum(
-                1 for sample in experiment_design.samples if not sample.tissue_or_cell_type
+                1
+                for sample in experiment_design.samples
+                if not sample.tissue_or_cell_type
             ),
             marker_context_count=len(context_sets),
             sample_with_marker_definition_count=sum(
@@ -321,11 +330,14 @@ def build_tissue_cell_type_context_report(
                 for entry in sample_consistency_entries
                 if entry.status is TissueCellTypeContextStatus.CONSISTENT
             ),
-            mismatch_warning_count=sum(1 for entry in sample_consistency_entries if entry.qc_warning),
+            mismatch_warning_count=sum(
+                1 for entry in sample_consistency_entries if entry.qc_warning
+            ),
             insufficient_marker_support_count=sum(
                 1
                 for entry in sample_consistency_entries
-                if entry.status is TissueCellTypeContextStatus.INSUFFICIENT_MARKER_SUPPORT
+                if entry.status
+                is TissueCellTypeContextStatus.INSUFFICIENT_MARKER_SUPPORT
             ),
             missing_marker_definition_count=sum(
                 1
@@ -428,7 +440,9 @@ def render_tissue_cell_type_sample_consistency_tsv(
                 ";".join(entry.matched_context_ids),
                 ";".join(name for name in entry.matched_context_names if name),
                 ";".join(kind.value for kind in entry.matched_context_kinds),
-                "" if entry.expected_marker_score is None else f"{entry.expected_marker_score:g}",
+                ""
+                if entry.expected_marker_score is None
+                else f"{entry.expected_marker_score:g}",
                 entry.expected_total_marker_count,
                 entry.expected_observed_marker_count,
                 entry.expected_missing_marker_count,
@@ -489,7 +503,9 @@ def render_tissue_cell_type_unexpected_signal_tsv(
                 entry.context_id,
                 entry.context_name or "",
                 f"{entry.activity_score:g}",
-                "" if entry.score_delta_vs_expected is None else f"{entry.score_delta_vs_expected:g}",
+                ""
+                if entry.score_delta_vs_expected is None
+                else f"{entry.score_delta_vs_expected:g}",
                 entry.observed_marker_count,
                 entry.missing_marker_count,
                 f"{entry.observed_fraction:g}",
@@ -528,7 +544,9 @@ def render_tissue_cell_type_interpretation_tsv(
                 entry.consistent_sample_count,
                 entry.mismatch_warning_count,
                 entry.insufficient_marker_support_count,
-                "" if entry.mean_expected_marker_score is None else f"{entry.mean_expected_marker_score:g}",
+                ""
+                if entry.mean_expected_marker_score is None
+                else f"{entry.mean_expected_marker_score:g}",
                 entry.dominant_unexpected_context_id or "",
                 entry.dominant_unexpected_context_name or "",
                 entry.interpretation,
@@ -544,9 +562,9 @@ def _build_marker_sets(
     dict[str, _MarkerContextSet],
     dict[str, set[str]],
 ]:
-    grouped_records: dict[tuple[BiologicalContextKind, str], list[BiologicalContextRecord]] = (
-        defaultdict(list)
-    )
+    grouped_records: dict[
+        tuple[BiologicalContextKind, str], list[BiologicalContextRecord]
+    ] = defaultdict(list)
     for record in marker_records:
         grouped_records[(record.context_kind, record.context_id)].append(record)
 
@@ -591,7 +609,9 @@ def _matched_set_ids(
         return ()
     normalized = _normalize_context_token(label)
     return tuple(
-        set_id for set_id, aliases in sorted(set_aliases.items()) if normalized in aliases
+        set_id
+        for set_id, aliases in sorted(set_aliases.items())
+        if normalized in aliases
     )
 
 
@@ -633,7 +653,9 @@ def _expected_signal_summary(
         if sample_score.activity_score is not None:
             expected_scores.append(sample_score.activity_score)
     expected_marker_score = (
-        round(sum(expected_scores) / len(expected_scores), 6) if expected_scores else None
+        round(sum(expected_scores) / len(expected_scores), 6)
+        if expected_scores
+        else None
     )
     return (
         expected_marker_score,
@@ -692,7 +714,11 @@ def _build_unexpected_signal_entries(
         )
     return sorted(
         unexpected_entries,
-        key=lambda entry: (-entry.activity_score, entry.context_kind.value, entry.context_id),
+        key=lambda entry: (
+            -entry.activity_score,
+            entry.context_kind.value,
+            entry.context_id,
+        ),
     )[:maximum_entries]
 
 
@@ -767,7 +793,9 @@ def _sample_status(
 def _build_interpretation_entries(
     sample_consistency_entries: list[TissueCellTypeSampleConsistencyEntry],
 ) -> tuple[TissueCellTypeInterpretationEntry, ...]:
-    grouped_entries: dict[str, list[TissueCellTypeSampleConsistencyEntry]] = defaultdict(list)
+    grouped_entries: dict[str, list[TissueCellTypeSampleConsistencyEntry]] = (
+        defaultdict(list)
+    )
     for entry in sample_consistency_entries:
         if entry.tissue_or_cell_type:
             grouped_entries[entry.tissue_or_cell_type].append(entry)
@@ -811,11 +839,11 @@ def _build_interpretation_entries(
                 f"{dominant_unexpected_context_name or dominant_unexpected_context_id} context"
             )
         elif insufficient_marker_support_count == len(entries):
-            interpretation = (
-                f"{label} samples carried too little marker support for a confident context decision"
-            )
+            interpretation = f"{label} samples carried too little marker support for a confident context decision"
         else:
-            interpretation = f"{label} samples were broadly consistent with their expected markers"
+            interpretation = (
+                f"{label} samples were broadly consistent with their expected markers"
+            )
         interpretation_entries.append(
             TissueCellTypeInterpretationEntry(
                 tissue_or_cell_type=label,

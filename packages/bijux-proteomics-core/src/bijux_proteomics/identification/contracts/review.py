@@ -18,25 +18,37 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics._scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationIssue,
+    build_psm_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
     ImportedEvidenceProvenance,
-    ModifiedPeptide as CanonicalModifiedPeptide,
-    PSMRecord as CanonicalPsmRecord,
-    PeptideRecord as CanonicalPeptideRecord,
-    ProteinGroup as CanonicalProteinGroup,
-    ProteinRecord as CanonicalProteinRecord,
-    RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
-from bijux_proteomics._scientific_tables import (
-    ScientificTableRejectedRow,
-    ScientificTableValidationIssue,
-    build_psm_table_schema,
-    validate_scientific_table,
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+)
+from bijux_proteomics.domain.records import (
+    PeptideRecord as CanonicalPeptideRecord,
+)
+from bijux_proteomics.domain.records import (
+    ProteinGroup as CanonicalProteinGroup,
+)
+from bijux_proteomics.domain.records import (
+    ProteinRecord as CanonicalProteinRecord,
+)
+from bijux_proteomics.domain.records import (
+    PSMRecord as CanonicalPsmRecord,
+)
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
@@ -48,7 +60,10 @@ if TYPE_CHECKING:
         RunDetectionContext,
     )
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics.identification.contracts.confidence import (
+    GroupedConfidenceReport,
+    build_grouped_confidence_report,
+)
 from bijux_proteomics.identification.contracts.evidence import (
     PeptideSummaryReport,
     ProteinSummaryReport,
@@ -60,10 +75,6 @@ from bijux_proteomics.identification.contracts.evidence import (
 from bijux_proteomics.identification.contracts.fdr_levels import (
     AcceptedPsmProvenanceReport,
     build_accepted_psm_provenance_report,
-)
-from bijux_proteomics.identification.contracts.confidence import (
-    GroupedConfidenceReport,
-    build_grouped_confidence_report,
 )
 from bijux_proteomics.identification.contracts.protein_review import (
     CombinedEvidenceReport,
@@ -81,6 +92,8 @@ from bijux_proteomics.identification.contracts.psm import (
 from bijux_proteomics.identification.contracts.score_fdr import (
     FdrPolicy,
 )
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 
 class SearchResultProvenanceManifest(JsonModel):
     """Stable manifest for one search-result parsing and filtering operation."""
@@ -96,7 +109,6 @@ class SearchResultProvenanceManifest(JsonModel):
     column_mapping: SearchResultColumnMapping
     decoy_policy: TargetDecoyLabelPolicy
     fdr_policy: FdrPolicy | None = None
-
 
 
 class ReviewReadyEvidenceBundle(JsonModel):
@@ -160,7 +172,6 @@ class PtmIdentificationConfidenceReport(JsonModel):
     entries: tuple[PtmIdentificationConfidenceEntry, ...] = Field(default_factory=tuple)
 
 
-
 def validate_ptm_identification_confidence(
     observations: tuple[PtmIdentificationObservation, ...],
     *,
@@ -220,7 +231,6 @@ def validate_ptm_identification_confidence(
         min_localization_score=min_localization_score,
         entries=tuple(entries),
     )
-
 
 
 def build_review_ready_evidence_bundle(
@@ -315,16 +325,17 @@ def build_search_result_provenance_manifest(
         update={"document_schema": manifest.document_schema.with_content_hash(payload)}
     )
 
+
 __all__ = [
-    'SearchResultProvenanceManifest',
-    'ReviewReadyEvidenceBundle',
-    'PtmIdentificationObservation',
-    'PtmIdentificationConfidenceIssue',
-    'PtmIdentificationConfidenceEntry',
-    'PtmIdentificationConfidenceReport',
-    'validate_ptm_identification_confidence',
-    'build_review_ready_evidence_bundle',
-    'export_review_ready_evidence_bundle',
-    'write_review_ready_evidence_bundle',
-    'build_search_result_provenance_manifest',
+    "SearchResultProvenanceManifest",
+    "ReviewReadyEvidenceBundle",
+    "PtmIdentificationObservation",
+    "PtmIdentificationConfidenceIssue",
+    "PtmIdentificationConfidenceEntry",
+    "PtmIdentificationConfidenceReport",
+    "validate_ptm_identification_confidence",
+    "build_review_ready_evidence_bundle",
+    "export_review_ready_evidence_bundle",
+    "write_review_ready_evidence_bundle",
+    "build_search_result_provenance_manifest",
 ]

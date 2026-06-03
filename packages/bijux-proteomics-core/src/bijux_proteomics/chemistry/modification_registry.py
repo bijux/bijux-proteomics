@@ -416,13 +416,16 @@ def _lookup_by_token(
             at_protein_c_term=at_protein_c_term,
         )
     if exact is not None:
-        if _site_compatibility_rejection(
-            definition=exact,
-            site=site,
-            residue=residue,
-            at_protein_n_term=at_protein_n_term,
-            at_protein_c_term=at_protein_c_term,
-        ) is None:
+        if (
+            _site_compatibility_rejection(
+                definition=exact,
+                site=site,
+                residue=residue,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
+            )
+            is None
+        ):
             return exact
         family_definition = _family_candidate(
             token=canonical_token,
@@ -461,13 +464,16 @@ def _family_candidate(
         if site is None:
             compatible.append(definition)
             continue
-        if _site_compatibility_rejection(
-            definition=definition,
-            site=site,
-            residue=residue,
-            at_protein_n_term=at_protein_n_term,
-            at_protein_c_term=at_protein_c_term,
-        ) is None:
+        if (
+            _site_compatibility_rejection(
+                definition=definition,
+                site=site,
+                residue=residue,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
+            )
+            is None
+        ):
             compatible.append(definition)
     if not compatible:
         return None
@@ -507,7 +513,8 @@ def _lookup_by_mass_delta(
     candidates = [
         definition
         for definition in _unique_registry_definitions(registry)
-        if abs(definition.mass_delta_monoisotopic - mass_delta_monoisotopic) <= tolerance
+        if abs(definition.mass_delta_monoisotopic - mass_delta_monoisotopic)
+        <= tolerance
     ]
     if site is not None:
         candidates = [
@@ -576,7 +583,11 @@ def _site_compatibility_rejection(
                 f"got {site.value}"
             ),
         )
-    if site is ModificationPosition.ANYWHERE and require_site_index and site_index is None:
+    if (
+        site is ModificationPosition.ANYWHERE
+        and require_site_index
+        and site_index is None
+    ):
         return ModificationRegistryRejection(
             code="missing_site_index",
             message=f"modification {definition.name!r} requires a residue site index",
@@ -588,9 +599,7 @@ def _site_compatibility_rejection(
         and residue not in definition.residues
     ):
         allowed = ",".join(definition.residues)
-        suffix = (
-            f" at position {site_index}" if site_index is not None else ""
-        )
+        suffix = f" at position {site_index}" if site_index is not None else ""
         return ModificationRegistryRejection(
             code="residue_incompatible",
             message=(

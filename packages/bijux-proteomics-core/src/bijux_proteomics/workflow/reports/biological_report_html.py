@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 """HTML rendering for biological report bundles."""
+
 from __future__ import annotations
 
 from html import escape
@@ -16,6 +17,7 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
 
+
 def _render_biological_result_report_html(
     report: BiologicalResultReportBundle,
     artifacts: BiologicalResultReportArtifactPaths,
@@ -25,7 +27,10 @@ def _render_biological_result_report_html(
         ("Protein card summary", artifacts.protein_card_summary_tsv),
         ("Protein cards", artifacts.protein_card_tsv),
         ("Pathway cards", artifacts.pathway_card_tsv),
-        ("Protein mechanism card summary", artifacts.protein_mechanism_card_summary_tsv),
+        (
+            "Protein mechanism card summary",
+            artifacts.protein_mechanism_card_summary_tsv,
+        ),
         ("Protein mechanism cards", artifacts.protein_mechanism_card_tsv),
         (
             "Experiment confidence summary",
@@ -371,7 +376,9 @@ def _render_experiment_confidence_table_html(
     )
 
 
-def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBundle) -> str:
+def _render_protein_mechanism_card_table_html(
+    report: BiologicalResultReportBundle,
+) -> str:
     headers = (
         "Protein group",
         "Representative protein",
@@ -421,10 +428,7 @@ def _render_protein_mechanism_card_table_html(report: BiologicalResultReportBund
         for card in report.protein_mechanism_cards.cards
     )
     return (
-        "<table>"
-        f"<thead><tr>{header_html}</tr></thead>"
-        f"<tbody>{row_html}</tbody>"
-        "</table>"
+        f"<table><thead><tr>{header_html}</tr></thead><tbody>{row_html}</tbody></table>"
     )
 
 
@@ -518,9 +522,7 @@ def _render_foreground_background_model_table_html(
     issue_summary = (
         "none"
         if not model.issues
-        else "; ".join(
-            f"{issue.severity.value}:{issue.code}" for issue in model.issues
-        )
+        else "; ".join(f"{issue.severity.value}:{issue.code}" for issue in model.issues)
     )
     headers = ("Role", "Source kind", "Policy", "Protein count")
     header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
@@ -813,7 +815,9 @@ def _render_compartment_biology_table_html(
             f"<td>{escape(entry.comparison_confidence_status.value)}</td>"
             "</tr>"
         )
-        for entry in compartment_biology_report.activity_report.condition_comparisons[:10]
+        for entry in compartment_biology_report.activity_report.condition_comparisons[
+            :10
+        ]
     )
     return (
         "<p>"

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_qc_report_command(
     spectra_path: Path,
     psm_path: Path,
@@ -48,9 +49,7 @@ def run_qc_report_command(
                         ProteomicsOperatorErrorCode.QC_POLICY_INVALID,
                         "protocol context could not be resolved",
                     )
-                policy = build_protocol_aware_qc_threshold_policy(
-                    protocol_context
-                )
+                policy = build_protocol_aware_qc_threshold_policy(protocol_context)
             except Exception as exc:  # noqa: BLE001
                 raise ProteomicsOperatorError(
                     ProteomicsOperatorErrorCode.QC_POLICY_INVALID,
@@ -254,4 +253,5 @@ def run_qc_report_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_qc_report_command']
+
+__all__ = ["run_qc_report_command"]

@@ -14,6 +14,7 @@ from bijux_proteomics.benchmarks import (
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
 
+
 def run_public_benchmark_runner_command(
     benchmark_path: Path,
     run_output_root: Path,
@@ -71,6 +72,7 @@ def run_public_benchmark_runner_command(
         )
     _emit_json(payload, out_path=out_path)
 
+
 def run_build_trust_bundle_command(
     benchmark_root: Path,
     output_dir: Path,
@@ -92,6 +94,7 @@ def run_build_trust_bundle_command(
         manifest_json_out.write_text(report.to_stable_json() + "\n", encoding="utf-8")
     _emit_json(report)
 
+
 def run_surprising_demo_command(
     output_dir: Path,
     summary_tsv_out: Path | None,
@@ -109,7 +112,9 @@ def run_surprising_demo_command(
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_surprising_demo_summary_tsv(report))
     if findings_tsv_out is not None:
-        _write_text_output(findings_tsv_out, render_surprising_demo_findings_tsv(report))
+        _write_text_output(
+            findings_tsv_out, render_surprising_demo_findings_tsv(report)
+        )
     if claims_tsv_out is not None:
         claims_tsv_out.write_text(
             (output_dir / report.artifacts.claims_tsv).read_text(encoding="utf-8"),
@@ -170,6 +175,7 @@ def run_scale_demo_command(
         )
     _emit_json(report, out_path=out_path)
 
+
 def run_surprising_demo_query_command(
     output_dir: Path,
     query_kind: str | None,
@@ -212,6 +218,7 @@ def run_surprising_demo_query_command(
         )
     _emit_json(report, out_path=out_path)
 
+
 def run_surprising_demo_report_command(
     output_dir: Path,
     summary_tsv_out: Path | None,
@@ -240,6 +247,7 @@ def run_surprising_demo_report_command(
             encoding="utf-8",
         )
     _emit_json(report, out_path=out_path)
+
 
 def run_public_dataset_comparison_command(
     benchmark_root: Path,
@@ -293,6 +301,7 @@ def run_public_dataset_comparison_command(
         )
     _emit_json(report, out_path=out_path)
 
+
 def run_public_dataset_evidence_cards_command(
     benchmark_root: Path,
     run_output_root: Path,
@@ -326,6 +335,7 @@ def run_public_dataset_evidence_cards_command(
             render_cross_study_evidence_dataset_tsv(report),
         )
     _emit_json(report, out_path=out_path)
+
 
 def run_public_case_study_command(
     summary_tsv_out: Path | None,
@@ -368,4 +378,14 @@ def run_public_case_study_command(
     }
     _emit_json(payload, out_path=out_path)
 
-__all__ = ['run_public_benchmark_runner_command', 'run_build_trust_bundle_command', 'run_surprising_demo_command', 'run_surprising_demo_query_command', 'run_surprising_demo_report_command', 'run_public_dataset_comparison_command', 'run_public_dataset_evidence_cards_command', 'run_public_case_study_command']
+
+__all__ = [
+    "run_public_benchmark_runner_command",
+    "run_build_trust_bundle_command",
+    "run_surprising_demo_command",
+    "run_surprising_demo_query_command",
+    "run_surprising_demo_report_command",
+    "run_public_dataset_comparison_command",
+    "run_public_dataset_evidence_cards_command",
+    "run_public_case_study_command",
+]

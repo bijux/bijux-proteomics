@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-import csv
 from collections import defaultdict
-from itertools import combinations
+import csv
 from io import StringIO
+from itertools import combinations
 
 from pydantic import ConfigDict, Field
 
@@ -39,13 +39,17 @@ def check_cohort_balance(
     if len(sample_ids) != len(set(sample_ids)):
         raise ValueError("cohort balance requires unique sample_id rows")
 
-    active_conditions = tuple(sorted({entry.condition for entry in metadata if entry.condition}))
+    active_conditions = tuple(
+        sorted({entry.condition for entry in metadata if entry.condition})
+    )
     if len(active_conditions) < 2:
         raise ValueError("cohort balance requires at least two populated conditions")
 
     entries: list[CohortBalanceEntry] = []
     for covariate, counts in sorted(_covariate_condition_counts(metadata).items()):
-        observed_level_count = sum(sum(level_counts.values()) > 0 for level_counts in counts.values())
+        observed_level_count = sum(
+            sum(level_counts.values()) > 0 for level_counts in counts.values()
+        )
         if observed_level_count < 2:
             continue
         imbalance_score = _imbalance_score(counts, active_conditions)
@@ -105,7 +109,9 @@ def _covariate_condition_counts(
                 continue
             covariate = field
             level = str(value)
-            counts.setdefault(covariate, {}).setdefault(level, defaultdict(int))[entry.condition] += 1
+            counts.setdefault(covariate, {}).setdefault(level, defaultdict(int))[
+                entry.condition
+            ] += 1
         for key, value in entry.metadata.items():
             normalized_key = key.strip()
             normalized_value = value.strip()
@@ -125,9 +131,7 @@ def _imbalance_score(
     for condition in active_conditions:
         total = sum(level_counts.get(condition, 0) for level_counts in counts.values())
         if total <= 0:
-            condition_distributions[condition] = {
-                level: 0.0 for level in counts
-            }
+            condition_distributions[condition] = dict.fromkeys(counts, 0.0)
             continue
         condition_distributions[condition] = {
             level: level_counts.get(condition, 0) / total
@@ -152,7 +156,11 @@ def _confounded_with_condition(
     active_conditions: tuple[str, ...],
 ) -> bool:
     level_condition_sets = {
-        level: {condition for condition in active_conditions if level_counts.get(condition, 0) > 0}
+        level: {
+            condition
+            for condition in active_conditions
+            if level_counts.get(condition, 0) > 0
+        }
         for level, level_counts in counts.items()
     }
     if any(len(condition_set) != 1 for condition_set in level_condition_sets.values()):
@@ -193,16 +201,10 @@ def _analysis_warning(
     confounded_with_condition: bool,
 ) -> str:
     if confounded_with_condition:
-        return (
-            f"covariate {covariate} is fully confounded with condition and blocks naive subgroup interpretation"
-        )
+        return f"covariate {covariate} is fully confounded with condition and blocks naive subgroup interpretation"
     if imbalance_score >= 0.6:
-        return (
-            f"covariate {covariate} is materially imbalanced across conditions; subgroup interpretation requires caution"
-        )
-    return (
-        f"covariate {covariate} spans the active conditions without blocking subgroup interpretation"
-    )
+        return f"covariate {covariate} is materially imbalanced across conditions; subgroup interpretation requires caution"
+    return f"covariate {covariate} spans the active conditions without blocking subgroup interpretation"
 
 
 __all__ = [

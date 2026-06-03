@@ -8,6 +8,9 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 from io import StringIO
+from typing import TYPE_CHECKING
+
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.localization.localization_scoring import (
@@ -27,8 +30,6 @@ from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
 )
 from bijux_proteomics_foundation import JsonModel
-from pydantic import ConfigDict, Field
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bijux_proteomics.ptm.contracts import PtmSiteEntry
@@ -96,7 +97,9 @@ class PtmAmbiguityReviewReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    localized_sites: tuple[PtmLocalizedSiteReviewEntry, ...] = Field(default_factory=tuple)
+    localized_sites: tuple[PtmLocalizedSiteReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
     unlocalized_groups: tuple[PtmUnlocalizedSiteGroupReviewEntry, ...] = Field(
         default_factory=tuple
     )
@@ -157,6 +160,7 @@ class PtmSiteGroupQuantificationReport(JsonModel):
     summary: PtmSiteGroupQuantSummary
     note: str = Field(..., min_length=1)
 
+
 def build_ptm_ambiguity_review_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
@@ -207,11 +211,7 @@ def build_ptm_ambiguity_review_report(
         )
         localized_peptides = tuple(
             sorted(
-                {
-                    peptide
-                    for entry in bucket
-                    for peptide in entry.localized_peptides
-                }
+                {peptide for entry in bucket for peptide in entry.localized_peptides}
             )
         )
         unlocalized_groups.append(
@@ -286,10 +286,7 @@ def build_ptm_site_group_quantification_report(
     )
     sample_ids = tuple(
         sorted(
-            {
-                record.sample_id
-                for record in feature_records
-            }
+            {record.sample_id for record in feature_records}
             | {
                 sample_id
                 for entry in review.unlocalized_groups
@@ -300,7 +297,9 @@ def build_ptm_site_group_quantification_report(
     feature_lookup: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
     for record in feature_records:
         for protein_ref in record.protein_refs:
-            feature_lookup.setdefault((record.sample_id, protein_ref), []).append(record)
+            feature_lookup.setdefault((record.sample_id, protein_ref), []).append(
+                record
+            )
 
     rows: list[PtmSiteGroupQuantRow] = []
     missing_entries: list[MissingValueSummaryEntry] = []
@@ -468,7 +467,9 @@ def render_ptm_localized_site_review_tsv(report: PtmAmbiguityReviewReport) -> st
                 ";".join(sort_strings(entry.localized_peptides)),
                 ";".join(sort_strings(entry.sample_ids)),
                 entry.localization_score,
-                "" if entry.localization_probability is None else entry.localization_probability,
+                ""
+                if entry.localization_probability is None
+                else entry.localization_probability,
                 entry.confidence_tier.value,
                 entry.note,
             ]
@@ -503,13 +504,17 @@ def render_ptm_unlocalized_group_review_tsv(report: PtmAmbiguityReviewReport) ->
                 entry.group_key,
                 entry.protein_ref,
                 entry.modification_name,
-                ";".join(str(position) for position in sorted(entry.candidate_positions)),
+                ";".join(
+                    str(position) for position in sorted(entry.candidate_positions)
+                ),
                 ";".join(sort_strings(entry.possible_residues)),
                 ";".join(sort_strings(entry.site_keys)),
                 ";".join(sort_strings(entry.localized_peptides)),
                 ";".join(sort_strings(entry.sample_ids)),
                 entry.localization_score,
-                "" if entry.localization_probability is None else entry.localization_probability,
+                ""
+                if entry.localization_probability is None
+                else entry.localization_probability,
                 entry.confidence_tier.value,
                 entry.note,
             ]
@@ -636,10 +641,7 @@ def _build_localization_lookup(
             [],
         ).append(entry.localization_tier)
     return (
-        {
-            key: round(sum(values) / len(values), 4)
-            for key, values in grouped.items()
-        },
+        {key: round(sum(values) / len(values), 4) for key, values in grouped.items()},
         {
             key: max(values, key=_localization_tier_rank)
             for key, values in tier_grouped.items()
@@ -720,7 +722,8 @@ def _confidence_tier(
     if localization_tier is PtmLocalizationConfidenceTier.SUPPORTED:
         return PtmAmbiguityConfidenceTier.SUPPORTED
     if not ambiguous and (
-        localization_probability is not None and localization_probability >= 0.95
+        localization_probability is not None
+        and localization_probability >= 0.95
         or localization_score >= 0.95
     ):
         return PtmAmbiguityConfidenceTier.DECISIVE

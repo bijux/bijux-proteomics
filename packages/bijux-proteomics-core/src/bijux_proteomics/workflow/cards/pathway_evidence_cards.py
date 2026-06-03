@@ -5,12 +5,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from io import StringIO
 from pathlib import Path
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain import (
     ConfidenceTier,
     StandardCardEntry,
@@ -58,7 +57,9 @@ def render_pathway_evidence_card_tsv(report: PathwayActivityReport) -> str:
 
     cards = build_pathway_evidence_cards(report)
     comparison_by_card_id = {
-        build_pathway_card_id(entry.pathway_id, entry.condition_a, entry.condition_b): entry
+        build_pathway_card_id(
+            entry.pathway_id, entry.condition_a, entry.condition_b
+        ): entry
         for entry in report.condition_comparisons
     }
     handle = StringIO()
@@ -94,11 +95,19 @@ def render_pathway_evidence_card_tsv(report: PathwayActivityReport) -> str:
                 comparison.condition_a,
                 comparison.condition_b,
                 comparison.comparison_confidence_status.value,
-                "" if comparison.mean_activity_score_a is None else f"{comparison.mean_activity_score_a:g}",
-                "" if comparison.mean_activity_score_b is None else f"{comparison.mean_activity_score_b:g}",
-                "" if comparison.activity_score_delta is None else f"{comparison.activity_score_delta:g}",
+                ""
+                if comparison.mean_activity_score_a is None
+                else f"{comparison.mean_activity_score_a:g}",
+                ""
+                if comparison.mean_activity_score_b is None
+                else f"{comparison.mean_activity_score_b:g}",
+                ""
+                if comparison.activity_score_delta is None
+                else f"{comparison.activity_score_delta:g}",
                 "" if comparison.source_name is None else comparison.source_name,
-                "" if comparison.source_accession is None else comparison.source_accession,
+                ""
+                if comparison.source_accession is None
+                else comparison.source_accession,
             )
         )
     return handle.getvalue()
@@ -121,7 +130,9 @@ def _build_pathway_card(
     unresolved_members: tuple[UnresolvedPathwayActivityMemberEntry, ...],
 ) -> StandardCardEntry:
     return StandardCardEntry(
-        card_id=build_pathway_card_id(entry.pathway_id, entry.condition_a, entry.condition_b),
+        card_id=build_pathway_card_id(
+            entry.pathway_id, entry.condition_a, entry.condition_b
+        ),
         card_kind=StandardCardKind.PATHWAY,
         subject_kind=StandardCardSubjectKind.PATHWAY,
         subject_id=entry.pathway_id,
@@ -205,7 +216,9 @@ def _evidence_against_text(
     if entry.activity_score_delta is None:
         parts.append("the comparison did not preserve a numeric activity delta")
     if not parts:
-        return "no explicit weakening evidence was preserved on this pathway comparison."
+        return (
+            "no explicit weakening evidence was preserved on this pathway comparison."
+        )
     return ". ".join(parts) + "."
 
 
@@ -216,11 +229,17 @@ def _warning_codes(
 ) -> tuple[str, ...]:
     warnings = set[str]()
     if entry.condition_a_confidence_status is not ConfidenceTier.HIGH:
-        warnings.add(f"{entry.condition_a}_confidence_{entry.condition_a_confidence_status.value}")
+        warnings.add(
+            f"{entry.condition_a}_confidence_{entry.condition_a_confidence_status.value}"
+        )
     if entry.condition_b_confidence_status is not ConfidenceTier.HIGH:
-        warnings.add(f"{entry.condition_b}_confidence_{entry.condition_b_confidence_status.value}")
+        warnings.add(
+            f"{entry.condition_b}_confidence_{entry.condition_b_confidence_status.value}"
+        )
     if entry.comparison_confidence_status is not ConfidenceTier.HIGH:
-        warnings.add(f"comparison_confidence_{entry.comparison_confidence_status.value}")
+        warnings.add(
+            f"comparison_confidence_{entry.comparison_confidence_status.value}"
+        )
     if entry.activity_score_delta is None:
         warnings.add("missing_activity_delta")
     if unresolved_members:

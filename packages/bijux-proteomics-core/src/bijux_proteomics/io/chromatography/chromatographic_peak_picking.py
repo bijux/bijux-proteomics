@@ -148,7 +148,9 @@ def score_peak_shape(
         max(corrected[:apex_index], default=0.0),
         max(corrected[apex_index + 1 :], default=0.0),
     )
-    apex_prominence = max(0.0, min(1.0, (corrected_apex - shoulder_max) / corrected_apex))
+    apex_prominence = max(
+        0.0, min(1.0, (corrected_apex - shoulder_max) / corrected_apex)
+    )
     tier = _classify_peak_shape_tier(
         symmetry_score=symmetry_score,
         tailing_score=tailing_score,
@@ -237,7 +239,9 @@ def pick_chromatographic_peaks(
 
     return ChromatographicPeakPickingReport(
         trace_report=trace_report,
-        peaks=tuple(sorted(peaks, key=lambda item: (item.target_id, item.apex_time_seconds))),
+        peaks=tuple(
+            sorted(peaks, key=lambda item: (item.target_id, item.apex_time_seconds))
+        ),
     )
 
 
@@ -372,12 +376,20 @@ def _pick_target_peaks(
             continue
         valley_indices = [
             _lowest_intensity_index(points, left_apex, right_apex)
-            for left_apex, right_apex in zip(apex_indices, apex_indices[1:])
+            for left_apex, right_apex in zip(
+                apex_indices, apex_indices[1:], strict=False
+            )
         ]
         segment_peaks: list[tuple[ChromatographicPeak, int, int, int]] = []
         for peak_index, apex_index in enumerate(apex_indices):
-            left_index = segment_start if peak_index == 0 else valley_indices[peak_index - 1]
-            right_index = segment_end if peak_index == len(apex_indices) - 1 else valley_indices[peak_index]
+            left_index = (
+                segment_start if peak_index == 0 else valley_indices[peak_index - 1]
+            )
+            right_index = (
+                segment_end
+                if peak_index == len(apex_indices) - 1
+                else valley_indices[peak_index]
+            )
             peak_counter += 1
             peak = _build_peak(
                 target_id=target.target_id,
@@ -608,11 +620,9 @@ def _local_apex_indices(
         if current_intensity <= 0.0:
             continue
         if (
-            current_intensity > left_intensity
-            and current_intensity >= right_intensity
+            current_intensity > left_intensity and current_intensity >= right_intensity
         ) or (
-            current_intensity >= left_intensity
-            and current_intensity > right_intensity
+            current_intensity >= left_intensity and current_intensity > right_intensity
         ):
             candidate_indices.append(index)
     if candidate_indices:
@@ -719,9 +729,8 @@ def _baseline_intensity_at_time(
 ) -> float:
     if right_point.time_seconds == left_point.time_seconds:
         return max(left_point.intensity, right_point.intensity)
-    fraction = (
-        (time_seconds - left_point.time_seconds)
-        / (right_point.time_seconds - left_point.time_seconds)
+    fraction = (time_seconds - left_point.time_seconds) / (
+        right_point.time_seconds - left_point.time_seconds
     )
     return left_point.intensity + (
         (right_point.intensity - left_point.intensity) * fraction

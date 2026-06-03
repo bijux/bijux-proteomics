@@ -10,8 +10,11 @@ from pathlib import Path
 
 import click
 
+from bijux_proteomics.interfaces.python_api.ptm_regulator import (
+    run_ptm_regulator_enrichment_command,
+)
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.python_api.ptm_regulator import run_ptm_regulator_enrichment_command
+
 
 @click.command("regulator-enrichment")
 @click.argument(
@@ -73,7 +76,9 @@ from bijux_proteomics.interfaces.python_api.ptm_regulator import run_ptm_regulat
     show_default=True,
 )
 @click.option("--annotation-pathway-column", default="pathways", show_default=True)
-@click.option("--annotation-source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--annotation-source-name-column", default="source_name", show_default=True
+)
 @click.option(
     "--annotation-source-accession-column",
     default="source_accession",
@@ -181,9 +186,56 @@ def ptm_regulator_enrichment_command(
     results_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    'Score kinase and phosphatase substrate annotations over regulated PTM sites.'
-    return run_ptm_regulator_enrichment_command(evidence_tsv, proteins_fasta, feature_tsv, design_path, annotation_tsv, sample_column, spectrum_id_column, peptide_column, charge_column, score_column, protein_refs_column, q_value_column, localization_score_column, localization_probability_column, candidate_sites_column, decoy_label_column, protein_separator, site_separator, annotation_species_column, annotation_protein_ref_column, annotation_residue_column, annotation_position_column, annotation_modification_column, annotation_function_column, annotation_kinase_column, annotation_phosphatase_column, annotation_pathway_column, annotation_source_name_column, annotation_source_accession_column, kinase_separator, phosphatase_separator, pathway_separator, target_species, normalization, condition_a, condition_b, design_batch_field, design_pairing_field, design_covariates, protein_correction_mode, max_adjusted_p_value, min_absolute_log2_fold_change, include_ambiguous_sites, include_low_localization_sites, summary_tsv_out, results_tsv_out, out_path)
+    "Score kinase and phosphatase substrate annotations over regulated PTM sites."
+    return run_ptm_regulator_enrichment_command(
+        evidence_tsv,
+        proteins_fasta,
+        feature_tsv,
+        design_path,
+        annotation_tsv,
+        sample_column,
+        spectrum_id_column,
+        peptide_column,
+        charge_column,
+        score_column,
+        protein_refs_column,
+        q_value_column,
+        localization_score_column,
+        localization_probability_column,
+        candidate_sites_column,
+        decoy_label_column,
+        protein_separator,
+        site_separator,
+        annotation_species_column,
+        annotation_protein_ref_column,
+        annotation_residue_column,
+        annotation_position_column,
+        annotation_modification_column,
+        annotation_function_column,
+        annotation_kinase_column,
+        annotation_phosphatase_column,
+        annotation_pathway_column,
+        annotation_source_name_column,
+        annotation_source_accession_column,
+        kinase_separator,
+        phosphatase_separator,
+        pathway_separator,
+        target_species,
+        normalization,
+        condition_a,
+        condition_b,
+        design_batch_field,
+        design_pairing_field,
+        design_covariates,
+        protein_correction_mode,
+        max_adjusted_p_value,
+        min_absolute_log2_fold_change,
+        include_ambiguous_sites,
+        include_low_localization_sites,
+        summary_tsv_out,
+        results_tsv_out,
+        out_path,
+    )
 
-COMMANDS = (
-    ptm_regulator_enrichment_command,
-)
+
+COMMANDS = (ptm_regulator_enrichment_command,)

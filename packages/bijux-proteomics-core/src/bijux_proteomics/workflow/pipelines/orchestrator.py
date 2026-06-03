@@ -48,8 +48,8 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )
-from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.targeted import (
     TargetedAssayQcReport,
     TargetedMatrixReport,
@@ -67,13 +67,6 @@ from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowConfig,
     TargetedValidationWorkflowReport,
     run_targeted_validation_workflow,
-)
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
-    BiologicalResultSelectionPolicy,
-    build_biological_result_report_bundle,
-    write_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
@@ -113,19 +106,28 @@ from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     build_tmt_experiment_workflow_bundle,
     write_tmt_experiment_workflow_bundle,
 )
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
+    BiologicalResultSelectionPolicy,
+    build_biological_result_report_bundle,
+    write_biological_result_report_bundle,
+)
+from bijux_proteomics.workflow.result_types import (
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
+    artifact_name_map,
+    build_rejected_evidence_entries_from_issue_rows,
+    build_result_warning,
+)
+from bijux_proteomics.workflow.result_types import (
+    WorkflowResult as StandardWorkflowResult,
+)
 from bijux_proteomics.workflow.targeted_review_workflow import (
     TargetedAssayQcWorkflowExportManifest,
     TargetedMatrixWorkflowExportManifest,
     export_targeted_assay_qc_workflow_artifacts,
     export_targeted_matrix_workflow_artifacts,
-)
-from bijux_proteomics.workflow.result_types import (
-    RejectedEvidenceEntry,
-    ResultWarningEntry,
-    WorkflowResult as StandardWorkflowResult,
-    artifact_name_map,
-    build_rejected_evidence_entries_from_issue_rows,
-    build_result_warning,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -194,9 +196,7 @@ class LabelFreeWorkflowConfig(WorkflowBaseConfig):
     condition_a: str | None = None
     condition_b: str | None = None
     selection_policy: BiologicalResultSelectionPolicy | None = None
-    volcano_policy: VolcanoReviewPolicy = Field(
-        default_factory=VolcanoReviewPolicy
-    )
+    volcano_policy: VolcanoReviewPolicy = Field(default_factory=VolcanoReviewPolicy)
 
 
 class DdaWorkflowConfig(WorkflowBaseConfig):
@@ -225,9 +225,7 @@ class DdaWorkflowConfig(WorkflowBaseConfig):
     condition_a: str | None = None
     condition_b: str | None = None
     selection_policy: BiologicalResultSelectionPolicy | None = None
-    volcano_policy: VolcanoReviewPolicy = Field(
-        default_factory=VolcanoReviewPolicy
-    )
+    volcano_policy: VolcanoReviewPolicy = Field(default_factory=VolcanoReviewPolicy)
 
 
 class DiannWorkflowConfig(WorkflowBaseConfig):
@@ -254,9 +252,7 @@ class DiannWorkflowConfig(WorkflowBaseConfig):
     condition_a: str | None = None
     condition_b: str | None = None
     selection_policy: BiologicalResultSelectionPolicy | None = None
-    volcano_policy: VolcanoReviewPolicy = Field(
-        default_factory=VolcanoReviewPolicy
-    )
+    volcano_policy: VolcanoReviewPolicy = Field(default_factory=VolcanoReviewPolicy)
 
 
 class MaxquantWorkflowConfig(WorkflowBaseConfig):
@@ -281,9 +277,7 @@ class MaxquantWorkflowConfig(WorkflowBaseConfig):
     condition_a: str | None = None
     condition_b: str | None = None
     selection_policy: BiologicalResultSelectionPolicy | None = None
-    volcano_policy: VolcanoReviewPolicy = Field(
-        default_factory=VolcanoReviewPolicy
-    )
+    volcano_policy: VolcanoReviewPolicy = Field(default_factory=VolcanoReviewPolicy)
 
 
 class TmtWorkflowConfig(WorkflowBaseConfig):
@@ -294,9 +288,7 @@ class TmtWorkflowConfig(WorkflowBaseConfig):
     design_tsv_path: Path
     control_channel: str = Field(..., min_length=1)
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT
-    mapping: TmtReporterColumnMapping = Field(
-        default_factory=TmtReporterColumnMapping
-    )
+    mapping: TmtReporterColumnMapping = Field(default_factory=TmtReporterColumnMapping)
     channel_columns: tuple[TmtReporterChannelColumn, ...] = Field(default_factory=tuple)
     channel_normalization_method: TmtNormalizationMethod = TmtNormalizationMethod.MEDIAN
     differential_normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
@@ -530,7 +522,9 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         if config.mode is WorkflowMode.FRAGPIPE
         else config.adapter_kind
     )
-    dialect_id = "fragpipe-psm" if config.mode is WorkflowMode.FRAGPIPE else config.dialect_id
+    dialect_id = (
+        "fragpipe-psm" if config.mode is WorkflowMode.FRAGPIPE else config.dialect_id
+    )
     report = build_dda_biological_workflow_bundle(
         config.search_result_tsv_path,
         experiment_design,
@@ -539,7 +533,9 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         adapter_kind=adapter_kind,
         generic_mapping_path=config.generic_mapping_path,
         dialect_id=dialect_id,
-        acceptance_policy=DdaPsmAcceptancePolicy(max_q_value=config.psm_q_value_threshold),
+        acceptance_policy=DdaPsmAcceptancePolicy(
+            max_q_value=config.psm_q_value_threshold
+        ),
         parsimony_variant=config.parsimony_variant,
         aggregation_method=config.aggregation_method,
         top_n=config.top_n,
@@ -864,9 +860,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
                 "workflow_manifest_json": str(manifest_path),
                 "manifest_json": str(manifest_path),
             }
-        note = (
-            "workflow orchestrator routed targeted observations through the governed target-matrix owner"
-        )
+        note = "workflow orchestrator routed targeted observations through the governed target-matrix owner"
         return WorkflowResult(
             mode=config.mode,
             report=report,
@@ -883,7 +877,9 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         )
     if config.stage is TargetedWorkflowStage.VALIDATION:
         if config.output_dir is None:
-            raise ValueError("targeted validation workflow requires an output directory")
+            raise ValueError(
+                "targeted validation workflow requires an output directory"
+            )
         if config.design_tsv_path is None:
             raise ValueError("targeted validation workflow requires a design table")
         if config.case_condition is None or config.control_condition is None:
@@ -912,7 +908,9 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         )
         validation_outputs: dict[str, str] = {}
         if config.output_dir is not None:
-            manifest_path = config.output_dir / "advanced_targeted_workflow_manifest.json"
+            manifest_path = (
+                config.output_dir / "advanced_targeted_workflow_manifest.json"
+            )
             validation_outputs = {
                 "output_dir": str(config.output_dir),
                 "workflow_manifest_json": str(manifest_path),
@@ -1013,9 +1011,9 @@ def _workflow_artifact_map(
 ) -> dict[str, str]:
     artifacts = dict(outputs)
     if manifest is not None and hasattr(manifest, "artifacts"):
-        artifacts.update(artifact_name_map(getattr(manifest, "artifacts")))
+        artifacts.update(artifact_name_map(manifest.artifacts))
     if report is not None and hasattr(report, "artifacts"):
-        artifacts.update(dict(getattr(report, "artifacts")))
+        artifacts.update(dict(report.artifacts))
     return artifacts
 
 
@@ -1026,12 +1024,12 @@ def _workflow_warnings(
 ) -> tuple[ResultWarningEntry, ...]:
     warnings: list[ResultWarningEntry] = []
     if report is not None and hasattr(report, "warnings"):
-        warnings.extend(getattr(report, "warnings"))
+        warnings.extend(report.warnings)
     source_rejected_rows: tuple[object, ...] = ()
     if source_report is not None and hasattr(source_report, "rejected_rows"):
         source_rejected_rows = cast(
             tuple[object, ...],
-            getattr(source_report, "rejected_rows"),
+            source_report.rejected_rows,
         )
     if source_rejected_rows:
         warnings.append(
@@ -1054,12 +1052,12 @@ def _workflow_rejected_evidence(
     report: object | None = None,
 ) -> tuple[RejectedEvidenceEntry, ...]:
     if report is not None and hasattr(report, "rejected_evidence"):
-        return tuple(getattr(report, "rejected_evidence"))
+        return tuple(report.rejected_evidence)
     source_rejected_rows: tuple[object, ...] = ()
     if source_report is not None and hasattr(source_report, "rejected_rows"):
         source_rejected_rows = cast(
             tuple[object, ...],
-            getattr(source_report, "rejected_rows"),
+            source_report.rejected_rows,
         )
     if source_rejected_rows:
         return build_rejected_evidence_entries_from_issue_rows(

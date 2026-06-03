@@ -9,14 +9,14 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics.domain.records import (
     MissingValueState,
-    QuantMatrix,
     QuantEntityKind,
+    QuantMatrix,
     QuantMeasureKind,
     SampleMetadata,
 )
-from bijux_proteomics._tabular import render_rows_tsv
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -87,7 +87,9 @@ def load_matrix_archive(path: Path) -> QuantMatrixArchive:
 def render_quant_matrix_archive_tsv(matrix: QuantMatrix | QuantMatrixArchive) -> str:
     """Render one stable cell ledger for matrix round-trip comparisons."""
 
-    quant_matrix = matrix.to_quant_matrix() if isinstance(matrix, QuantMatrixArchive) else matrix
+    quant_matrix = (
+        matrix.to_quant_matrix() if isinstance(matrix, QuantMatrixArchive) else matrix
+    )
     row_metadata_lookup = {
         entity_id: (
             {}
@@ -97,8 +99,7 @@ def render_quant_matrix_archive_tsv(matrix: QuantMatrix | QuantMatrixArchive) ->
         for row_index, entity_id in enumerate(quant_matrix.entity_ids)
     }
     sample_metadata_lookup = {
-        sample.sample_id: sample
-        for sample in quant_matrix.sample_metadata
+        sample.sample_id: sample for sample in quant_matrix.sample_metadata
     }
     return render_rows_tsv(
         fieldnames=(
@@ -137,7 +138,9 @@ def render_quant_matrix_archive_tsv(matrix: QuantMatrix | QuantMatrixArchive) ->
                 "imputation_mask": str(
                     _is_imputed(
                         value=quant_matrix.values[row_index][column_index],
-                        state=quant_matrix.missing_value_states[row_index][column_index],
+                        state=quant_matrix.missing_value_states[row_index][
+                            column_index
+                        ],
                     )
                 ).lower(),
                 "support_count": (

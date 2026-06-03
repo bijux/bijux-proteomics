@@ -65,7 +65,9 @@ def compare_quant_methods(
     """Compare differential-result stability across rollup and normalization methods."""
 
     if len(result_tables) < 2:
-        raise ValueError("method agreement requires at least two differential result tables")
+        raise ValueError(
+            "method agreement requires at least two differential result tables"
+        )
     if effect_range_tolerance < 0.0:
         raise ValueError("effect_range_tolerance must be non-negative")
 
@@ -160,9 +162,8 @@ def _build_method_agreement_entry(
     significant_entries = tuple(
         entry
         for method_id in compared_method_ids
-        if (
-            entry := entry_lookup_by_method.get(method_id, {}).get(entity_id)
-        ) is not None
+        if (entry := entry_lookup_by_method.get(method_id, {}).get(entity_id))
+        is not None
         and _is_significant(entry, threshold=significance_threshold)
     )
     methods_significant_count = len(significant_entries)
@@ -225,7 +226,9 @@ def _is_significant(
     *,
     threshold: float,
 ) -> bool:
-    value = entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value
+    value = (
+        entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value
+    )
     return value <= threshold
 
 

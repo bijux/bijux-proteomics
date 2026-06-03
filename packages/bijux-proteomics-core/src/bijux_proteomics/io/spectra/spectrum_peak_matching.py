@@ -190,9 +190,7 @@ def match_spectrum_peaks_to_fragments(
             if peak_index in non_noise_peak_indexes
         )
         effective_candidate_peak_indexes = (
-            preferred_candidate_peak_indexes
-            if preferred_candidate_peak_indexes
-            else ()
+            preferred_candidate_peak_indexes if preferred_candidate_peak_indexes else ()
         )
         fragment_label = _fragment_label(fragment)
         if len(effective_candidate_peak_indexes) > 1:
@@ -257,7 +255,10 @@ def match_spectrum_peaks_to_fragments(
         )
     for peak_index, fragment_labels in sorted(
         candidate_fragments_by_peak_index.items(),
-        key=lambda item: (spectrum.peaks[item[0]].mz, spectrum.peaks[item[0]].intensity),
+        key=lambda item: (
+            spectrum.peaks[item[0]].mz,
+            spectrum.peaks[item[0]].intensity,
+        ),
     ):
         unique_labels = tuple(sorted(set(fragment_labels)))
         if len(unique_labels) < 2:
@@ -275,7 +276,8 @@ def match_spectrum_peaks_to_fragments(
         )
     total_observed_intensity = sum(peak.intensity for peak in spectrum.peaks)
     explained_intensity = sum(
-        spectrum.peaks[peak_index].intensity for peak_index in sorted(matched_peak_indexes)
+        spectrum.peaks[peak_index].intensity
+        for peak_index in sorted(matched_peak_indexes)
     )
     unmatched_peaks = tuple(
         UnmatchedSpectrumPeak(
@@ -340,9 +342,7 @@ def match_spectrum_peaks_to_fragments(
     )
     payload = report.to_dict()
     return report.model_copy(
-        update={
-            "document_schema": report.document_schema.with_content_hash(payload)
-        }
+        update={"document_schema": report.document_schema.with_content_hash(payload)}
     )
 
 

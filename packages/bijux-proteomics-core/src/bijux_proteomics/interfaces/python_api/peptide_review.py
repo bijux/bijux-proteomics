@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
+
 def run_peptide_detectability_command(
     sequence: str,
     modifications: tuple[str, ...],
@@ -53,6 +54,7 @@ def run_peptide_detectability_command(
     payload["custom_protease"] = custom_specification
     payload["tsv_out"] = str(tsv_out) if tsv_out else None
     _emit_json(payload, out_path=out_path)
+
 
 def run_precursor_mass_error_command(
     input_tsv: Path,
@@ -142,6 +144,7 @@ def run_precursor_mass_error_command(
     )
     _emit_json(payload, out_path=out_path)
 
+
 def run_modified_peptide_parse_command(
     notation: str,
     dialect: str,
@@ -163,6 +166,7 @@ def run_modified_peptide_parse_command(
         raise click.ClickException(str(exc)) from exc
 
     _emit_json(report.to_dict(), out_path=out_path)
+
 
 def run_modification_resolve_command(
     token: str,
@@ -186,4 +190,10 @@ def run_modification_resolve_command(
 
     _emit_json(report.to_dict(), out_path=out_path)
 
-__all__ = ['run_peptide_detectability_command', 'run_precursor_mass_error_command', 'run_modified_peptide_parse_command', 'run_modification_resolve_command']
+
+__all__ = [
+    "run_peptide_detectability_command",
+    "run_precursor_mass_error_command",
+    "run_modified_peptide_parse_command",
+    "run_modification_resolve_command",
+]

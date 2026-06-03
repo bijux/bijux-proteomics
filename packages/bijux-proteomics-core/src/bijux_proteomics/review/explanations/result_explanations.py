@@ -15,8 +15,6 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.review.claims.result_queries import (
-    _QcRunArtifact,
-    _ResultArtifactContext,
     _empty_to_none,
     _find_protein_card,
     _find_ptm_card,
@@ -25,7 +23,9 @@ from bijux_proteomics.review.claims.result_queries import (
     _parse_bool,
     _parse_optional_float,
     _protein_card_graph_node_ids,
+    _QcRunArtifact,
     _read_tsv_rows,
+    _ResultArtifactContext,
     _sample_to_failed_qc_runs,
     _split_multi,
 )
@@ -458,7 +458,9 @@ def _explain_protein_result(
         evidence=evidence,
         opposing_evidence=tuple(opposing),
         decision=decision,
-        confidence=_protein_confidence(card.significant, card.evidence_tier, card.warning_codes),
+        confidence=_protein_confidence(
+            card.significant, card.evidence_tier, card.warning_codes
+        ),
         result_row_ids=(card.card_id, *card.graph_source_row_refs),
         graph_node_ids=graph_node_ids,
         note="protein explanation derived from the exported protein evidence card",
@@ -486,9 +488,7 @@ def _explain_ptm_site_result(
         card.protein_ref,
     )
     graph_node_ids = (
-        ()
-        if protein_card is None
-        else _protein_card_graph_node_ids(protein_card)
+        () if protein_card is None else _protein_card_graph_node_ids(protein_card)
     )
     evidence = [
         _make_point(
@@ -642,7 +642,10 @@ def _explain_pathway_result(
             )
         )
     opposing = list[ResultExplanationPoint]()
-    if coerce_confidence_tier(comparison.comparison_confidence_status) is not ConfidenceTier.HIGH:
+    if (
+        coerce_confidence_tier(comparison.comparison_confidence_status)
+        is not ConfidenceTier.HIGH
+    ):
         opposing.append(
             _make_point(
                 request.explanation_id,
@@ -828,7 +831,11 @@ def _explain_rejected_evidence_decision(
                 "candidate was supported by source ids " + ", ".join(claim.source_ids),
             )
         )
-    if claim.effect_size is not None or claim.pathway_delta is not None or claim.regulator_score is not None:
+    if (
+        claim.effect_size is not None
+        or claim.pathway_delta is not None
+        or claim.regulator_score is not None
+    ):
         evidence.append(
             _make_point(
                 request.explanation_id,
@@ -975,7 +982,8 @@ def _load_result_explanation_artifact_context(
     rejected_claim_path = None
     if biological_report_dir is not None:
         candidate = (
-            biological_report_dir / "biological_pathway_activity_condition_comparisons.tsv"
+            biological_report_dir
+            / "biological_pathway_activity_condition_comparisons.tsv"
         )
         if candidate.exists():
             pathway_comparison_path = candidate
@@ -1155,7 +1163,9 @@ def _top_pathway_members(
         ),
         key=lambda entry: (
             entry.member_activity_score is None,
-            0.0 if entry.member_activity_score is None else -abs(entry.member_activity_score),
+            0.0
+            if entry.member_activity_score is None
+            else -abs(entry.member_activity_score),
             entry.member_id,
         ),
     )

@@ -12,7 +12,9 @@ from io import StringIO
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.sequences import PeptideUniquenessClass
-from bijux_proteomics.targeted.assay_interference import TargetedAssayInterferenceRiskTier
+from bijux_proteomics.targeted.assay_interference import (
+    TargetedAssayInterferenceRiskTier,
+)
 from bijux_proteomics.targeted.biomarker_stability import BiomarkerStabilityReasonCode
 from bijux_proteomics.targeted.panel_design import (
     TargetedPanelCandidateKind,
@@ -129,7 +131,9 @@ class ValidationEvidenceResultInput(JsonModel):
     confirmed_assay_count: int = Field(..., ge=0)
     contradicted_assay_count: int = Field(..., ge=0)
     inconclusive_assay_count: int = Field(..., ge=0)
-    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(default_factory=tuple)
+    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -146,7 +150,9 @@ class ValidationEvidenceResultAssayInput(JsonModel):
     uniqueness_class: PeptideUniquenessClass
     validation_log2_effect: float | None = None
     verdict: TargetedValidationVerdict
-    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(default_factory=tuple)
+    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -192,7 +198,9 @@ class ValidationEvidenceCardAssayEntry(JsonModel):
     precursor_charge: int = Field(..., ge=1)
     uniqueness_class: PeptideUniquenessClass
     assay_interference_risk_tier: TargetedAssayInterferenceRiskTier
-    panel_warning_codes: tuple[TargetedPanelWarningCode, ...] = Field(default_factory=tuple)
+    panel_warning_codes: tuple[TargetedPanelWarningCode, ...] = Field(
+        default_factory=tuple
+    )
     targeted_validation_verdict: TargetedValidationVerdict | None = None
     targeted_validation_log2_effect: float | None = None
     targeted_validation_reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
@@ -253,7 +261,9 @@ class ValidationEvidenceCardEntry(JsonModel):
     redundancy_dropped: bool = False
     redundancy_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
     final_status: ValidationEvidenceCardStatus
-    warning_codes: tuple[ValidationEvidenceWarningCode, ...] = Field(default_factory=tuple)
+    warning_codes: tuple[ValidationEvidenceWarningCode, ...] = Field(
+        default_factory=tuple
+    )
     assay_entries: tuple[ValidationEvidenceCardAssayEntry, ...] = Field(
         default_factory=tuple
     )
@@ -294,7 +304,9 @@ def build_validation_evidence_card_report(
     panel_assays: tuple[ValidationEvidencePanelAssayInput, ...] = (),
     omitted_candidates: tuple[ValidationEvidenceOmittedCandidateInput, ...] = (),
     targeted_validation_results: tuple[ValidationEvidenceResultInput, ...] = (),
-    targeted_validation_assay_evidence: tuple[ValidationEvidenceResultAssayInput, ...] = (),
+    targeted_validation_assay_evidence: tuple[
+        ValidationEvidenceResultAssayInput, ...
+    ] = (),
     stability_entries: tuple[ValidationEvidenceStabilityInput, ...] = (),
     redundancy_entries: tuple[ValidationEvidenceRedundancyInput, ...] = (),
 ) -> ValidationEvidenceCardReport:
@@ -302,19 +314,23 @@ def build_validation_evidence_card_report(
 
     panel_assays_by_candidate: dict[str, list[ValidationEvidencePanelAssayInput]] = {}
     for assay in panel_assays:
-        panel_assays_by_candidate.setdefault(assay.biomarker_candidate_id, []).append(assay)
+        panel_assays_by_candidate.setdefault(assay.biomarker_candidate_id, []).append(
+            assay
+        )
 
-    omitted_by_candidate = {
-        entry.candidate_id: entry for entry in omitted_candidates
-    }
+    omitted_by_candidate = {entry.candidate_id: entry for entry in omitted_candidates}
     validation_by_candidate = {
         entry.candidate_id: entry for entry in targeted_validation_results
     }
-    assay_validation_by_candidate: dict[str, list[ValidationEvidenceResultAssayInput]] = {}
+    assay_validation_by_candidate: dict[
+        str, list[ValidationEvidenceResultAssayInput]
+    ] = {}
     for entry in targeted_validation_assay_evidence:
         assay_validation_by_candidate.setdefault(entry.candidate_id, []).append(entry)
     stability_by_candidate = {entry.candidate_id: entry for entry in stability_entries}
-    redundancy_by_candidate = {entry.candidate_id: entry for entry in redundancy_entries}
+    redundancy_by_candidate = {
+        entry.candidate_id: entry for entry in redundancy_entries
+    }
 
     cards: list[ValidationEvidenceCardEntry] = []
     for discovery in sorted(
@@ -381,35 +397,41 @@ def build_validation_evidence_card_report(
                 targeted_validation_log2_effect=(
                     None if validation is None else validation.validation_log2_effect
                 ),
-                confirmed_assay_count=0 if validation is None else validation.confirmed_assay_count,
-                contradicted_assay_count=0 if validation is None else validation.contradicted_assay_count,
-                inconclusive_assay_count=0 if validation is None else validation.inconclusive_assay_count,
+                confirmed_assay_count=0
+                if validation is None
+                else validation.confirmed_assay_count,
+                contradicted_assay_count=0
+                if validation is None
+                else validation.contradicted_assay_count,
+                inconclusive_assay_count=0
+                if validation is None
+                else validation.inconclusive_assay_count,
                 targeted_validation_reason_codes=(
-                    ()
-                    if validation is None
-                    else validation.reason_codes
+                    () if validation is None else validation.reason_codes
                 ),
-                stability_score=None if stability is None else stability.stability_score,
-                stability_downgraded=False if stability is None else stability.downgraded,
+                stability_score=None
+                if stability is None
+                else stability.stability_score,
+                stability_downgraded=False
+                if stability is None
+                else stability.downgraded,
                 stability_reason_codes=(
-                    ()
-                    if stability is None
-                    else stability.instability_reasons
+                    () if stability is None else stability.instability_reasons
                 ),
                 redundancy_cluster_id=(
                     None if redundancy is None else redundancy.cluster_id
                 ),
                 representative_candidate_id=(
-                    None if redundancy is None else redundancy.representative_candidate_id
+                    None
+                    if redundancy is None
+                    else redundancy.representative_candidate_id
                 ),
                 redundancy_representative=(
                     None if redundancy is None else redundancy.representative
                 ),
                 redundancy_dropped=False if redundancy is None else redundancy.dropped,
                 redundancy_reason_codes=(
-                    ()
-                    if redundancy is None
-                    else redundancy.redundancy_reason_codes
+                    () if redundancy is None else redundancy.redundancy_reason_codes
                 ),
                 final_status=final_status,
                 warning_codes=tuple(entry.warning_code for entry in warning_entries),
@@ -432,13 +454,19 @@ def build_validation_evidence_card_report(
         summary=ValidationEvidenceCardSummary(
             candidate_count=len(cards_tuple),
             confirmed_count=sum(
-                1 for entry in cards_tuple if entry.final_status is ValidationEvidenceCardStatus.CONFIRMED
+                1
+                for entry in cards_tuple
+                if entry.final_status is ValidationEvidenceCardStatus.CONFIRMED
             ),
             contradicted_count=sum(
-                1 for entry in cards_tuple if entry.final_status is ValidationEvidenceCardStatus.CONTRADICTED
+                1
+                for entry in cards_tuple
+                if entry.final_status is ValidationEvidenceCardStatus.CONTRADICTED
             ),
             inconclusive_count=sum(
-                1 for entry in cards_tuple if entry.final_status is ValidationEvidenceCardStatus.INCONCLUSIVE
+                1
+                for entry in cards_tuple
+                if entry.final_status is ValidationEvidenceCardStatus.INCONCLUSIVE
             ),
             ready_for_targeted_validation_count=sum(
                 1
@@ -573,11 +601,15 @@ def render_validation_evidence_card_tsv(report: ValidationEvidenceCardReport) ->
                 entry.confirmed_assay_count,
                 entry.contradicted_assay_count,
                 entry.inconclusive_assay_count,
-                ";".join(reason.value for reason in entry.targeted_validation_reason_codes),
+                ";".join(
+                    reason.value for reason in entry.targeted_validation_reason_codes
+                ),
                 _format_float(entry.stability_score),
                 str(entry.stability_downgraded).lower(),
                 ";".join(reason.value for reason in entry.stability_reason_codes),
-                "" if entry.redundancy_cluster_id is None else entry.redundancy_cluster_id,
+                ""
+                if entry.redundancy_cluster_id is None
+                else entry.redundancy_cluster_id,
                 ""
                 if entry.representative_candidate_id is None
                 else entry.representative_candidate_id,
@@ -596,7 +628,9 @@ def render_validation_evidence_card_tsv(report: ValidationEvidenceCardReport) ->
     return handle.getvalue()
 
 
-def render_validation_evidence_card_assay_tsv(report: ValidationEvidenceCardReport) -> str:
+def render_validation_evidence_card_assay_tsv(
+    report: ValidationEvidenceCardReport,
+) -> str:
     """Render assay-level evidence nested under validation cards as TSV."""
 
     handle = StringIO()
@@ -636,7 +670,8 @@ def render_validation_evidence_card_assay_tsv(report: ValidationEvidenceCardRepo
                     else assay.targeted_validation_verdict.value,
                     _format_float(assay.targeted_validation_log2_effect),
                     ";".join(
-                        reason.value for reason in assay.targeted_validation_reason_codes
+                        reason.value
+                        for reason in assay.targeted_validation_reason_codes
                     ),
                     assay.note,
                 )
@@ -644,7 +679,9 @@ def render_validation_evidence_card_assay_tsv(report: ValidationEvidenceCardRepo
     return handle.getvalue()
 
 
-def render_validation_evidence_card_warning_tsv(report: ValidationEvidenceCardReport) -> str:
+def render_validation_evidence_card_warning_tsv(
+    report: ValidationEvidenceCardReport,
+) -> str:
     """Render one explicit warning row per candidate warning."""
 
     handle = StringIO()
@@ -652,7 +689,9 @@ def render_validation_evidence_card_warning_tsv(report: ValidationEvidenceCardRe
     writer.writerow(("candidate_id", "warning_code", "note"))
     for card in report.cards:
         for warning in card.warnings:
-            writer.writerow((warning.candidate_id, warning.warning_code.value, warning.note))
+            writer.writerow(
+                (warning.candidate_id, warning.warning_code.value, warning.note)
+            )
     return handle.getvalue()
 
 
@@ -683,11 +722,7 @@ def _build_assay_entries(
                 targeted_validation_reason_codes=(
                     () if validation is None else validation.reason_codes
                 ),
-                note=(
-                    assay.warning_note
-                    if validation is None
-                    else validation.note
-                ),
+                note=(assay.warning_note if validation is None else validation.note),
             )
         )
     return tuple(entries)
@@ -758,7 +793,10 @@ def _build_warning_entries(
             )
         )
     for assay in panel_assays:
-        if assay.assay_interference_risk_tier is not TargetedAssayInterferenceRiskTier.LOW:
+        if (
+            assay.assay_interference_risk_tier
+            is not TargetedAssayInterferenceRiskTier.LOW
+        ):
             entries.append(
                 ValidationEvidenceCardWarningEntry(
                     candidate_id=discovery.candidate_id,
@@ -797,7 +835,9 @@ def _build_warning_entries(
                     note=validation.note,
                 )
             )
-    deduped: dict[tuple[ValidationEvidenceWarningCode, str], ValidationEvidenceCardWarningEntry] = {}
+    deduped: dict[
+        tuple[ValidationEvidenceWarningCode, str], ValidationEvidenceCardWarningEntry
+    ] = {}
     for entry in entries:
         deduped[(entry.warning_code, entry.note)] = entry
     return list(deduped.values())
@@ -812,17 +852,26 @@ def _build_card_note(
     stability: ValidationEvidenceStabilityInput | None,
     redundancy: ValidationEvidenceRedundancyInput | None,
 ) -> str:
-    if final_status is ValidationEvidenceCardStatus.CONFIRMED and validation is not None:
+    if (
+        final_status is ValidationEvidenceCardStatus.CONFIRMED
+        and validation is not None
+    ):
         return (
             f"{discovery.candidate_id} is confirmed by targeted validation after discovery ranked "
             f"it at priority {discovery.priority_rank}"
         )
-    if final_status is ValidationEvidenceCardStatus.CONTRADICTED and validation is not None:
+    if (
+        final_status is ValidationEvidenceCardStatus.CONTRADICTED
+        and validation is not None
+    ):
         return (
             f"{discovery.candidate_id} is contradicted by targeted validation despite discovery "
             "support and should not keep a positive validation label"
         )
-    if final_status is ValidationEvidenceCardStatus.INCONCLUSIVE and validation is not None:
+    if (
+        final_status is ValidationEvidenceCardStatus.INCONCLUSIVE
+        and validation is not None
+    ):
         return (
             f"{discovery.candidate_id} remains inconclusive because targeted validation does not "
             "yet resolve the discovery claim cleanly"
@@ -839,9 +888,7 @@ def _build_card_note(
         final_status is ValidationEvidenceCardStatus.BLOCKED_BY_ASSAY_DESIGN
         and omitted is not None
     ):
-        return (
-            f"{discovery.candidate_id} is blocked by assay design because {omitted.omission_reason}"
-        )
+        return f"{discovery.candidate_id} is blocked by assay design because {omitted.omission_reason}"
     if stability is not None and stability.downgraded:
         return (
             f"{discovery.candidate_id} remains available for targeted follow-up but carries "

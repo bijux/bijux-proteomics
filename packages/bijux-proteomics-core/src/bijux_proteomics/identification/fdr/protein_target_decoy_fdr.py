@@ -13,8 +13,8 @@ import json
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
-    PsmRecord,
     ProteinEvidenceEntry,
+    PsmRecord,
     TargetDecoyLabel,
     rollup_protein_evidence,
 )

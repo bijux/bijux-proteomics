@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._atomic_files import atomic_write_text
-from bijux_proteomics._output_tables import write_output_table_tsv
-
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -15,22 +12,32 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics._atomic_files import atomic_write_text
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import PsmRecord, SearchAdapterKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import NormalizationMethod, QuantRollupMethod
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultSelectionPolicy,
-    VolcanoReviewPolicy,
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    synchronize_workflow_artifact_layout,
+)
+from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
+    AdvancedWorkflowFamilyArtifactContract,
+    AdvancedWorkflowFamilyContract,
+    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
-    DdaPsmAcceptancePolicy,
     DdaProteinGroupDiscrepancyEntry,
     DdaProteinGroupDiscrepancyStatus,
+    DdaPsmAcceptancePolicy,
+    build_dda_biological_workflow_bundle,
     build_dda_workflow_rejected_evidence_entries,
     write_dda_biological_workflow_bundle,
-    build_dda_biological_workflow_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultSelectionPolicy,
+    VolcanoReviewPolicy,
 )
 from bijux_proteomics.workflow.result_types import (
     BiologyResult,
@@ -40,12 +47,6 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_reason_rows,
     build_result_warning,
     render_result_rejected_evidence_tsv,
-)
-from bijux_proteomics.workflow.exports.artifact_layout import synchronize_workflow_artifact_layout
-from bijux_proteomics.workflow.pipelines.advanced_workflow_family import (
-    AdvancedWorkflowFamilyArtifactContract,
-    AdvancedWorkflowFamilyContract,
-    build_advanced_workflow_family_contract,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -81,10 +82,14 @@ class AdvancedFragpipeDiscrepancyReason(StrEnum):
 
     SHARED = "shared_between_source_and_workflow"
     SOURCE_ONLY = "present_in_source_summary_only"
-    WORKFLOW_INFERRED_AND_QUANTIFIED = "missing_from_source_summary_but_inferred_and_quantified"
+    WORKFLOW_INFERRED_AND_QUANTIFIED = (
+        "missing_from_source_summary_but_inferred_and_quantified"
+    )
     WORKFLOW_INFERRED_ONLY = "missing_from_source_summary_but_inferred_only"
     WORKFLOW_QUANTIFIED_ONLY = "missing_from_source_summary_but_quantified_only"
-    WORKFLOW_SIGNIFICANT_ONLY = "missing_from_source_summary_but_marked_significant_only"
+    WORKFLOW_SIGNIFICANT_ONLY = (
+        "missing_from_source_summary_but_marked_significant_only"
+    )
     WORKFLOW_PRESENT_UNSPECIFIED = "missing_from_source_summary_but_present_in_workflow"
 
 
@@ -227,9 +232,15 @@ def run_advanced_fragpipe_workflow(
     rejected_evidence_name = "rejected_evidence.tsv"
     summary_name = "advanced_fragpipe_summary.tsv"
 
-    write_output_table_tsv((output_dir / peptide_evidence_name), render_advanced_fragpipe_peptide_evidence_tsv(peptide_evidence))
+    write_output_table_tsv(
+        (output_dir / peptide_evidence_name),
+        render_advanced_fragpipe_peptide_evidence_tsv(peptide_evidence),
+    )
     if discrepancy_reasons:
-        write_output_table_tsv((output_dir / discrepancy_name), render_advanced_fragpipe_discrepancy_tsv(discrepancy_reasons))
+        write_output_table_tsv(
+            (output_dir / discrepancy_name),
+            render_advanced_fragpipe_discrepancy_tsv(discrepancy_reasons),
+        )
     write_output_table_tsv(
         (output_dir / rejected_evidence_name),
         render_result_rejected_evidence_tsv(
@@ -253,7 +264,10 @@ def run_advanced_fragpipe_workflow(
         workflow_only_protein_group_count=base_report.summary.workflow_only_protein_group_count,
         significant_protein_count=base_report.summary.significant_protein_count,
     )
-    write_output_table_tsv((output_dir / summary_name), render_advanced_fragpipe_workflow_summary_tsv(summary))
+    write_output_table_tsv(
+        (output_dir / summary_name),
+        render_advanced_fragpipe_workflow_summary_tsv(summary),
+    )
 
     workflow_manifest_name = "advanced_fragpipe_workflow_manifest.json"
     family_protocol = build_advanced_workflow_family_contract(
@@ -357,7 +371,10 @@ def render_advanced_fragpipe_workflow_summary_tsv(
         ("peptide_evidence_count", summary.peptide_evidence_count),
         ("protein_group_discrepancy_count", summary.protein_group_discrepancy_count),
         ("source_only_protein_group_count", summary.source_only_protein_group_count),
-        ("workflow_only_protein_group_count", summary.workflow_only_protein_group_count),
+        (
+            "workflow_only_protein_group_count",
+            summary.workflow_only_protein_group_count,
+        ),
         ("significant_protein_count", summary.significant_protein_count),
     ):
         writer.writerow((field_name, value))
@@ -468,17 +485,16 @@ def _build_advanced_fragpipe_rejected_evidence(
     discrepancy_reasons: tuple[AdvancedFragpipeDiscrepancyEntry, ...],
     related_artifact: str,
 ) -> tuple[RejectedEvidenceEntry, ...]:
-    return (
-        build_dda_workflow_rejected_evidence_entries(report)
-        + build_rejected_evidence_entries_from_reason_rows(
-            discrepancy_reasons,
-            source_surface="advanced_fragpipe_workflow",
-            reason_field="discrepancy_reason",
-            message_field="status",
-            entity_field="protein_ref",
-            related_artifact=related_artifact,
-            entity_type="protein_group",
-        )
+    return build_dda_workflow_rejected_evidence_entries(
+        report
+    ) + build_rejected_evidence_entries_from_reason_rows(
+        discrepancy_reasons,
+        source_surface="advanced_fragpipe_workflow",
+        reason_field="discrepancy_reason",
+        message_field="status",
+        entity_field="protein_ref",
+        related_artifact=related_artifact,
+        entity_type="protein_group",
     )
 
 

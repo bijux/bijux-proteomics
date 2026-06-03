@@ -7,15 +7,15 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.identification.contracts import (
+    PsmRecord,
+    normalize_psm_score_orientation,
+)
 from bijux_proteomics.identification.fdr.confidence import (
     EmpiricalScoreCalibrationReport,
     EntrapmentEvaluationReport,
     build_empirical_score_calibration_report,
     build_entrapment_evaluation_report,
-)
-from bijux_proteomics.identification.contracts import (
-    PsmRecord,
-    normalize_psm_score_orientation,
 )
 from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel

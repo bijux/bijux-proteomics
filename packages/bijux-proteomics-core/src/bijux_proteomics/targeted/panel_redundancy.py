@@ -23,7 +23,9 @@ from bijux_proteomics.targeted.assay_qc import (
 )
 from bijux_proteomics.targeted.panel_design import TargetedPanelCandidateKind
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
-from bijux_proteomics.targeted.result_validation import TargetedValidationPanelAssayInput
+from bijux_proteomics.targeted.result_validation import (
+    TargetedValidationPanelAssayInput,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -229,7 +231,11 @@ def build_panel_redundancy_report(
         biomarker_candidates=tuple(
             sorted(
                 biomarker_candidates,
-                key=lambda item: (item.priority_rank, -item.final_score, item.candidate_id),
+                key=lambda item: (
+                    item.priority_rank,
+                    -item.final_score,
+                    item.candidate_id,
+                ),
             )
         ),
         redundant_neighbors=redundant_neighbors,
@@ -257,7 +263,9 @@ def build_panel_redundancy_report(
             candidate_count=len(candidate_entries),
             redundancy_pair_count=sum(item.redundant for item in pairs),
             cluster_count=len(clusters),
-            representative_candidate_count=sum(item.representative for item in candidate_entries),
+            representative_candidate_count=sum(
+                item.representative for item in candidate_entries
+            ),
             dropped_candidate_count=sum(item.dropped for item in candidate_entries),
         ),
         note=(
@@ -278,7 +286,10 @@ def render_panel_redundancy_summary_tsv(report: PanelRedundancyReport) -> str:
     writer.writerow(("redundancy_pair_count", report.summary.redundancy_pair_count))
     writer.writerow(("cluster_count", report.summary.cluster_count))
     writer.writerow(
-        ("representative_candidate_count", report.summary.representative_candidate_count)
+        (
+            "representative_candidate_count",
+            report.summary.representative_candidate_count,
+        )
     )
     writer.writerow(("dropped_candidate_count", report.summary.dropped_candidate_count))
     writer.writerow(("note", report.note))
@@ -410,14 +421,18 @@ def _build_clusters(
     redundant_neighbors: dict[str, set[str]],
     pair_lookup: dict[tuple[str, str], PanelRedundancyPairEntry],
 ) -> tuple[PanelRedundancyClusterEntry, ...]:
-    candidate_by_id = {candidate.candidate_id: candidate for candidate in biomarker_candidates}
+    candidate_by_id = {
+        candidate.candidate_id: candidate for candidate in biomarker_candidates
+    }
     visited: set[str] = set()
     clusters: list[PanelRedundancyClusterEntry] = []
     cluster_index = 0
     for candidate in biomarker_candidates:
         if candidate.candidate_id in visited:
             continue
-        component = _connected_component(candidate.candidate_id, redundant_neighbors, visited)
+        component = _connected_component(
+            candidate.candidate_id, redundant_neighbors, visited
+        )
         cluster_index += 1
         ordered_members = tuple(
             sorted(
@@ -439,9 +454,7 @@ def _build_clusters(
         ]
         shared_reasons = tuple(
             dict.fromkeys(
-                reason
-                for pair in pair_entries
-                for reason in pair.reason_codes
+                reason for pair in pair_entries for reason in pair.reason_codes
             )
         )
         redundant_correlations = [
@@ -478,9 +491,13 @@ def _build_candidate_entries(
     pair_lookup: dict[tuple[str, str], PanelRedundancyPairEntry],
 ) -> tuple[PanelRedundancyCandidateEntry, ...]:
     cluster_by_candidate = {
-        candidate_id: cluster for cluster in clusters for candidate_id in cluster.member_candidate_ids
+        candidate_id: cluster
+        for cluster in clusters
+        for candidate_id in cluster.member_candidate_ids
     }
-    candidate_by_id = {candidate.candidate_id: candidate for candidate in biomarker_candidates}
+    candidate_by_id = {
+        candidate.candidate_id: candidate for candidate in biomarker_candidates
+    }
     entries: list[PanelRedundancyCandidateEntry] = []
     representatives = [
         candidate_id
@@ -488,7 +505,10 @@ def _build_candidate_entries(
         for candidate_id in cluster.member_candidate_ids
         if candidate_id == cluster.representative_candidate_id
     ]
-    representative_rank = {candidate_id: index for index, candidate_id in enumerate(representatives, start=1)}
+    representative_rank = {
+        candidate_id: index
+        for index, candidate_id in enumerate(representatives, start=1)
+    }
     dropped_rank_start = len(representatives) + 1
     dropped_rank = dropped_rank_start
     for candidate in sorted(
@@ -508,16 +528,32 @@ def _build_candidate_entries(
             if pair_lookup[(candidate.candidate_id, neighbor)].redundant
         ]
         max_corr = max(
-            (entry.correlation for entry in pair_entries if entry.correlation is not None),
+            (
+                entry.correlation
+                for entry in pair_entries
+                if entry.correlation is not None
+            ),
             default=None,
         )
-        shared_samples = max((entry.shared_sample_count for entry in pair_entries), default=0)
+        shared_samples = max(
+            (entry.shared_sample_count for entry in pair_entries), default=0
+        )
         reason_codes = list(cluster.shared_reason_codes)
         if dropped:
-            if candidate.final_score < candidate_by_id[cluster.representative_candidate_id].final_score:
-                reason_codes.append(PanelRedundancyReasonCode.LOWER_SCORING_CLUSTER_MEMBER)
-            if candidate.priority_rank > candidate_by_id[cluster.representative_candidate_id].priority_rank:
-                reason_codes.append(PanelRedundancyReasonCode.LOWER_PRIORITY_CLUSTER_MEMBER)
+            if (
+                candidate.final_score
+                < candidate_by_id[cluster.representative_candidate_id].final_score
+            ):
+                reason_codes.append(
+                    PanelRedundancyReasonCode.LOWER_SCORING_CLUSTER_MEMBER
+                )
+            if (
+                candidate.priority_rank
+                > candidate_by_id[cluster.representative_candidate_id].priority_rank
+            ):
+                reason_codes.append(
+                    PanelRedundancyReasonCode.LOWER_PRIORITY_CLUSTER_MEMBER
+                )
         deduped_reasons = tuple(dict.fromkeys(reason_codes))
         if representative:
             reduced_rank = representative_rank[candidate.candidate_id]
@@ -649,9 +685,7 @@ def _build_candidate_vector(
                 math.log2(qc_entry.passing_total_intensity)
             )
     return {
-        sample_id: mean(values)
-        for sample_id, values in sample_values.items()
-        if values
+        sample_id: mean(values) for sample_id, values in sample_values.items() if values
     }
 
 
@@ -704,14 +738,18 @@ def _match_assay_target_ids(
     return tuple(sorted(descriptor.target_id for descriptor in peptide_matches))
 
 
-def _pearson_correlation(left_values: list[float], right_values: list[float]) -> float | None:
+def _pearson_correlation(
+    left_values: list[float], right_values: list[float]
+) -> float | None:
     if len(left_values) != len(right_values) or len(left_values) < 2:
         return None
     left_mean = mean(left_values)
     right_mean = mean(right_values)
     left_deltas = [value - left_mean for value in left_values]
     right_deltas = [value - right_mean for value in right_values]
-    numerator = sum(left * right for left, right in zip(left_deltas, right_deltas))
+    numerator = sum(
+        left * right for left, right in zip(left_deltas, right_deltas, strict=False)
+    )
     left_norm = math.sqrt(sum(delta * delta for delta in left_deltas))
     right_norm = math.sqrt(sum(delta * delta for delta in right_deltas))
     if left_norm == 0.0 or right_norm == 0.0:

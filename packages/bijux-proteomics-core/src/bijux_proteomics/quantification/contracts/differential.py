@@ -22,15 +22,16 @@ if TYPE_CHECKING:
     from bijux_proteomics.study.sample_run_identity import SampleRunAnalysisPolicy
 
 
+from .design import QuantDesignMatrixReport
 from .input_models import (
     ImputationMethod,
     NormalizationMethod,
     QuantAssessmentDisposition,
     QuantEntityLevel,
 )
-from .design import QuantDesignMatrixReport
 from .matrix_models import LabelFreeQuantTable
 from .study_qc import SampleReliabilityWeightReport
+
 
 class DifferentialImputationSignificanceChangeReason(StrEnum):
     """How one differential result changes between no-impute and imputed analysis."""
@@ -41,6 +42,7 @@ class DifferentialImputationSignificanceChangeReason(StrEnum):
     SIGNIFICANT_ONLY_AFTER_IMPUTATION = "significant_only_after_imputation"
     SIGNIFICANCE_LOST_AFTER_IMPUTATION = "significance_lost_after_imputation"
 
+
 class DifferentialReplicatePolicy(JsonModel):
     """Minimum replicate policy for differential abundance comparisons."""
 
@@ -49,6 +51,7 @@ class DifferentialReplicatePolicy(JsonModel):
     min_replicates_per_condition: int = Field(default=2, ge=1)
     disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ENFORCED
 
+
 class DifferentialAbundanceTestType(StrEnum):
     """Supported inferential engines for differential abundance results."""
 
@@ -56,11 +59,13 @@ class DifferentialAbundanceTestType(StrEnum):
     LINEAR_MODEL_CONTRAST = "linear_model_contrast"
     PAIRED_T_TEST = "paired_t_test"
 
+
 class BrokenPairDisposition(StrEnum):
     """Policies for broken design pairs during paired differential testing."""
 
     EXCLUDE = "exclude"
     BLOCK = "block"
+
 
 class PairedDifferentialPolicy(JsonModel):
     """Pair completeness policy for paired differential abundance testing."""
@@ -70,6 +75,7 @@ class PairedDifferentialPolicy(JsonModel):
     pair_id_field: str = Field(default="pair_id", min_length=1)
     minimum_complete_pairs: int = Field(default=2, ge=1)
     broken_pair_disposition: BrokenPairDisposition = BrokenPairDisposition.EXCLUDE
+
 
 class DifferentialBrokenPairEntry(JsonModel):
     """One design pair excluded or blocked during paired testing."""
@@ -84,6 +90,7 @@ class DifferentialBrokenPairEntry(JsonModel):
     reason_code: str = Field(..., min_length=1)
     detail: str = Field(..., min_length=1)
 
+
 class DifferentialAbundanceAssumptionReport(JsonModel):
     """Test and correction assumptions carried by a differential abundance report."""
 
@@ -97,12 +104,14 @@ class DifferentialAbundanceAssumptionReport(JsonModel):
     contrast_name: str | None = None
     paired_policy: PairedDifferentialPolicy | None = None
 
+
 class DifferentialResultRobustnessQcStatus(StrEnum):
     """Stable QC severity carried onto differential-result rows."""
 
     PASSED = "pass"
     CAUTION = "caution"
     FAIL = "fail"
+
 
 class DifferentialResultRobustnessReasonCode(StrEnum):
     """Stable downgrade reasons for one differential-result robustness score."""
@@ -116,6 +125,7 @@ class DifferentialResultRobustnessReasonCode(StrEnum):
     REPLICATE_INCONSISTENCY = "replicate_inconsistency"
     CAUTION_QC = "caution_qc"
     FAILED_QC = "failed_qc"
+
 
 class DifferentialAbundanceEntry(JsonModel):
     """One entity-level two-condition differential abundance result."""
@@ -153,11 +163,12 @@ class DifferentialAbundanceEntry(JsonModel):
     imputation_dependent_hit: bool = False
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
-    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
-        Field(default_factory=tuple)
+    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = Field(
+        default_factory=tuple
     )
     robustness_note: str | None = None
     uncertainty_note: str | None = None
+
 
 class DifferentialAbundanceReport(JsonModel):
     """Stable two-condition differential abundance report."""
@@ -177,6 +188,7 @@ class DifferentialAbundanceReport(JsonModel):
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
     broken_pairs: tuple[DifferentialBrokenPairEntry, ...] = Field(default_factory=tuple)
 
+
 class DifferentialAbundanceContrast(JsonModel):
     """One named condition contrast preserved inside a DA collection."""
 
@@ -185,6 +197,7 @@ class DifferentialAbundanceContrast(JsonModel):
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     contrast_name: str | None = None
+
 
 class MultiConditionDifferentialAbundanceReport(JsonModel):
     """Pairwise differential-abundance collection over a multi-condition study."""
@@ -202,6 +215,7 @@ class MultiConditionDifferentialAbundanceReport(JsonModel):
     reports: tuple[DifferentialAbundanceReport, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
+
 class TimeCourseTestingPolicy(JsonModel):
     """Ordered-timepoint policy for one time-course differential analysis."""
 
@@ -212,6 +226,7 @@ class TimeCourseTestingPolicy(JsonModel):
     batch_field: str | None = None
     pairing_field: str | None = None
     covariate_fields: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class TimeCourseDifferentialEntry(JsonModel):
     """One entity-level time-course effect row for one condition."""
@@ -246,11 +261,12 @@ class TimeCourseDifferentialEntry(JsonModel):
     imputation_dependent_hit: bool = False
     robustness_score: float | None = Field(default=None, ge=0.0, le=1.0)
     robustness_qc_status: DifferentialResultRobustnessQcStatus | None = None
-    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = (
-        Field(default_factory=tuple)
+    robustness_reason_codes: tuple[DifferentialResultRobustnessReasonCode, ...] = Field(
+        default_factory=tuple
     )
     robustness_note: str | None = None
     note: str | None = None
+
 
 class TimeCourseDifferentialReport(JsonModel):
     """Time-course differential report over ordered study timepoints."""
@@ -267,6 +283,7 @@ class TimeCourseDifferentialReport(JsonModel):
     policy: TimeCourseTestingPolicy
     entries: tuple[TimeCourseDifferentialEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
 
 def _betacf(a: float, b: float, x: float) -> float:
     max_iter = 200
@@ -306,6 +323,7 @@ def _betacf(a: float, b: float, x: float) -> float:
             break
     return h
 
+
 def _regularized_beta(x: float, a: float, b: float) -> float:
     if x <= 0.0:
         return 0.0
@@ -316,6 +334,7 @@ def _regularized_beta(x: float, a: float, b: float) -> float:
     if x < (a + 1.0) / (a + b + 2.0):
         return front * _betacf(a, b, x) / a
     return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
 
 def _student_t_two_sided_p_value(
     t_statistic: float, degrees_of_freedom: float
@@ -328,6 +347,7 @@ def _student_t_two_sided_p_value(
         return 1.0
     x = degrees_of_freedom / (degrees_of_freedom + t_statistic * t_statistic)
     return min(max(_regularized_beta(x, degrees_of_freedom / 2.0, 0.5), 0.0), 1.0)
+
 
 def _welch_t_test(values_a: np.ndarray, values_b: np.ndarray) -> tuple[float, float]:
     if values_a.size < 2 or values_b.size < 2:
@@ -352,6 +372,7 @@ def _welch_t_test(values_a: np.ndarray, values_b: np.ndarray) -> tuple[float, fl
     return mean_b - mean_a, _student_t_two_sided_p_value(
         abs(t_statistic), degrees_of_freedom
     )
+
 
 def _effect_size_and_uncertainty(
     values_a: np.ndarray,
@@ -389,6 +410,7 @@ def _effect_size_and_uncertainty(
         note,
     )
 
+
 def build_differential_abundance_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -401,7 +423,7 @@ def build_differential_abundance_report(
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
     sample_weights_report: SampleReliabilityWeightReport | None = None,
-    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
+    sample_run_policy: SampleRunAnalysisPolicy | None = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
     from bijux_proteomics.quantification.differential_abundance import (
@@ -427,6 +449,7 @@ def build_differential_abundance_report(
         sample_run_policy=resolved_sample_run_policy,
     )
 
+
 def apply_benjamini_hochberg(
     report: DifferentialAbundanceReport,
 ) -> DifferentialAbundanceReport:
@@ -436,6 +459,7 @@ def apply_benjamini_hochberg(
     )
 
     return _implementation(report)
+
 
 def render_differential_abundance_tsv(
     report: DifferentialAbundanceReport,
@@ -447,6 +471,7 @@ def render_differential_abundance_tsv(
 
     return _implementation(report)
 
+
 def render_differential_broken_pairs_tsv(
     report: DifferentialAbundanceReport,
 ) -> str:
@@ -456,6 +481,7 @@ def render_differential_broken_pairs_tsv(
     )
 
     return _implementation(report)
+
 
 def export_differential_broken_pairs_tsv(
     report: DifferentialAbundanceReport,
@@ -468,6 +494,7 @@ def export_differential_broken_pairs_tsv(
 
     _implementation(report, path)
 
+
 def export_differential_abundance_tsv(
     report: DifferentialAbundanceReport,
     path: Path,
@@ -479,6 +506,7 @@ def export_differential_abundance_tsv(
 
     _implementation(report, path)
 
+
 def render_multi_condition_differential_abundance_tsv(
     report: MultiConditionDifferentialAbundanceReport,
 ) -> str:
@@ -488,6 +516,7 @@ def render_multi_condition_differential_abundance_tsv(
     )
 
     return _implementation(report)
+
 
 def export_multi_condition_differential_abundance_tsv(
     report: MultiConditionDifferentialAbundanceReport,
@@ -500,12 +529,13 @@ def export_multi_condition_differential_abundance_tsv(
 
     _implementation(report, path)
 
+
 def build_time_course_differential_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     policy: TimeCourseTestingPolicy | None = None,
-    sample_run_policy: "SampleRunAnalysisPolicy | None" = None,
+    sample_run_policy: SampleRunAnalysisPolicy | None = None,
 ) -> TimeCourseDifferentialReport:
     """Build one ordered time-course differential report over a quant table."""
     from bijux_proteomics.quantification.time_course_differential import (
@@ -523,6 +553,7 @@ def build_time_course_differential_report(
         sample_run_policy=resolved_sample_run_policy,
     )
 
+
 def render_time_course_differential_tsv(
     report: TimeCourseDifferentialReport,
 ) -> str:
@@ -532,6 +563,7 @@ def render_time_course_differential_tsv(
     )
 
     return _implementation(report)
+
 
 def export_time_course_differential_tsv(
     report: TimeCourseDifferentialReport,

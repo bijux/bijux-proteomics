@@ -68,8 +68,12 @@ class XicTraceReport(JsonModel):
     total_spectra: int = Field(..., ge=0)
     eligible_spectra: int = Field(..., ge=0)
     accepted_targets: tuple[XicTargetEntry, ...] = Field(default_factory=tuple)
-    rejected_target_rows: tuple[XicTargetRejectedRow, ...] = Field(default_factory=tuple)
+    rejected_target_rows: tuple[XicTargetRejectedRow, ...] = Field(
+        default_factory=tuple
+    )
     trace_points: tuple[XicTracePoint, ...] = Field(default_factory=tuple)
+
+
 def render_xic_traces_tsv(report: XicTraceReport) -> str:
     """Render one extracted XIC report into deterministic TSV rows."""
 
@@ -132,9 +136,15 @@ def extract_xic(
                 target,
                 rt_window=rt_window,
             )
-            if rt_start_seconds is not None and spectrum.retention_time_seconds < rt_start_seconds:
+            if (
+                rt_start_seconds is not None
+                and spectrum.retention_time_seconds < rt_start_seconds
+            ):
                 continue
-            if rt_end_seconds is not None and spectrum.retention_time_seconds > rt_end_seconds:
+            if (
+                rt_end_seconds is not None
+                and spectrum.retention_time_seconds > rt_end_seconds
+            ):
                 continue
             mz_lower, mz_upper = _mz_window(
                 target.precursor_mz,
@@ -227,9 +237,7 @@ def _matched_peak_count(
     spectrum: SpectrumModel,
     row: XicExtractionPoint,
 ) -> int:
-    return sum(
-        1 for peak in spectrum.peaks if row.mz_lower <= peak.mz <= row.mz_upper
-    )
+    return sum(1 for peak in spectrum.peaks if row.mz_lower <= peak.mz <= row.mz_upper)
 
 
 __all__ = [

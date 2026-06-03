@@ -41,7 +41,9 @@ class ProgramBrief(JsonModel):
     stage: ProgramStage
     objective: str = Field(..., min_length=1, description="Program objective.")
     target_id: str = Field(..., min_length=1, description="Stable target identifier.")
-    target_name: str = Field(..., min_length=1, description="Human-readable target name.")
+    target_name: str = Field(
+        ..., min_length=1, description="Human-readable target name."
+    )
     measurement_metrics: tuple[str, ...] = Field(
         default_factory=tuple,
         description="Ordered measurement metrics named by the program criteria.",

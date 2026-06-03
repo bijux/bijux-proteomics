@@ -11,6 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.lab.protocol_context import DigestionEnzyme
 from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,
@@ -18,7 +19,6 @@ from bijux_proteomics.sequences.digestion import (
     get_protease_rule,
     protease_registry,
 )
-from bijux_proteomics.lab.protocol_context import DigestionEnzyme
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -153,7 +153,8 @@ def _diagnose_sample(
     if (
         best_alternative_name is not None
         and best_alternative_summary is not None
-        and best_alternative_summary.evidence_score >= declared_summary.evidence_score + 0.2
+        and best_alternative_summary.evidence_score
+        >= declared_summary.evidence_score + 0.2
         and best_alternative_summary.enzymatic_rate >= 0.75
         and (
             declared_summary.missed_cleavage_rate

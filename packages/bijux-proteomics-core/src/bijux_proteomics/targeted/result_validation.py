@@ -51,7 +51,9 @@ class TargetedValidationReasonCode(StrEnum):
 
     VALIDATION_EFFECT_MATCHES_DISCOVERY = "validation_effect_matches_discovery"
     VALIDATION_EFFECT_OPPOSES_DISCOVERY = "validation_effect_opposes_discovery"
-    VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY = "validation_effect_flat_against_discovery"
+    VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY = (
+        "validation_effect_flat_against_discovery"
+    )
     WEAK_VALIDATION_EFFECT = "weak_validation_effect"
     INSUFFICIENT_RELIABLE_REPLICATES = "insufficient_reliable_replicates"
     VALIDATION_SIGNAL_MISSING = "validation_signal_missing"
@@ -145,7 +147,9 @@ class TargetedValidationAssayEvidenceEntry(JsonModel):
     discovery_direction: TargetedValidationDirection
     validation_direction: TargetedValidationDirection
     verdict: TargetedValidationVerdict
-    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(default_factory=tuple)
+    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -169,7 +173,9 @@ class TargetedValidationEntry(JsonModel):
     confirmed_assay_count: int = Field(..., ge=0)
     contradicted_assay_count: int = Field(..., ge=0)
     inconclusive_assay_count: int = Field(..., ge=0)
-    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(default_factory=tuple)
+    reason_codes: tuple[TargetedValidationReasonCode, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -246,11 +252,15 @@ def build_targeted_result_validation_report(
     }
     assays_by_candidate_id: dict[str, list[TargetedValidationPanelAssayInput]] = {}
     for assay in panel_assays:
-        assays_by_candidate_id.setdefault(assay.biomarker_candidate_id, []).append(assay)
+        assays_by_candidate_id.setdefault(assay.biomarker_candidate_id, []).append(
+            assay
+        )
 
     assay_evidence: list[TargetedValidationAssayEvidenceEntry] = []
     candidate_entries: list[TargetedValidationEntry] = []
-    for claim in sorted(discovery_claims, key=lambda item: (item.priority_rank, item.candidate_id)):
+    for claim in sorted(
+        discovery_claims, key=lambda item: (item.priority_rank, item.candidate_id)
+    ):
         claim_assays = sorted(
             assays_by_candidate_id.get(claim.candidate_id, ()),
             key=lambda item: (item.biomarker_priority_rank, item.assay_entry_id),
@@ -307,7 +317,9 @@ def build_targeted_result_validation_report(
                 1 for entry in entries_tuple if entry.assay_evidence_count > 0
             ),
             confirmed_count=sum(
-                1 for entry in entries_tuple if entry.verdict is TargetedValidationVerdict.CONFIRMED
+                1
+                for entry in entries_tuple
+                if entry.verdict is TargetedValidationVerdict.CONFIRMED
             ),
             contradicted_count=sum(
                 1
@@ -358,8 +370,12 @@ def render_targeted_result_validation_summary_tsv(
     writer.writerow(("contradicted_count", report.summary.contradicted_count))
     writer.writerow(("inconclusive_count", report.summary.inconclusive_count))
     writer.writerow(("assay_evidence_count", report.summary.assay_evidence_count))
-    writer.writerow(("unassayed_candidate_count", report.summary.unassayed_candidate_count))
-    writer.writerow(("conflicting_candidate_count", report.summary.conflicting_candidate_count))
+    writer.writerow(
+        ("unassayed_candidate_count", report.summary.unassayed_candidate_count)
+    )
+    writer.writerow(
+        ("conflicting_candidate_count", report.summary.conflicting_candidate_count)
+    )
     writer.writerow(("note", report.note))
     return handle.getvalue()
 
@@ -404,9 +420,13 @@ def render_targeted_result_validation_tsv(
                 entry.target_protein_ref,
                 "" if entry.site_key is None else entry.site_key,
                 entry.priority_rank,
-                "" if entry.discovery_effect_size is None else f"{entry.discovery_effect_size:g}",
+                ""
+                if entry.discovery_effect_size is None
+                else f"{entry.discovery_effect_size:g}",
                 entry.discovery_direction.value,
-                "" if entry.validation_log2_effect is None else f"{entry.validation_log2_effect:g}",
+                ""
+                if entry.validation_log2_effect is None
+                else f"{entry.validation_log2_effect:g}",
                 entry.validation_direction.value,
                 entry.verdict.value,
                 entry.assay_evidence_count,
@@ -469,10 +489,18 @@ def render_targeted_result_validation_evidence_tsv(
                 entry.control_condition,
                 entry.case_reliable_sample_count,
                 entry.control_reliable_sample_count,
-                "" if entry.case_mean_log2_intensity is None else f"{entry.case_mean_log2_intensity:g}",
-                "" if entry.control_mean_log2_intensity is None else f"{entry.control_mean_log2_intensity:g}",
-                "" if entry.validation_log2_effect is None else f"{entry.validation_log2_effect:g}",
-                "" if entry.discovery_effect_size is None else f"{entry.discovery_effect_size:g}",
+                ""
+                if entry.case_mean_log2_intensity is None
+                else f"{entry.case_mean_log2_intensity:g}",
+                ""
+                if entry.control_mean_log2_intensity is None
+                else f"{entry.control_mean_log2_intensity:g}",
+                ""
+                if entry.validation_log2_effect is None
+                else f"{entry.validation_log2_effect:g}",
+                ""
+                if entry.discovery_effect_size is None
+                else f"{entry.discovery_effect_size:g}",
                 entry.discovery_direction.value,
                 entry.validation_direction.value,
                 entry.verdict.value,
@@ -502,7 +530,9 @@ def _build_imported_target_descriptors(
             (charge for _, charge, _ in values if charge is not None),
             values[0][1],
         )
-        protein_refs = tuple(sorted({protein for _, _, protein in values if protein is not None}))
+        protein_refs = tuple(
+            sorted({protein for _, _, protein in values if protein is not None})
+        )
         descriptors[target_id] = _ImportedTargetDescriptor(
             target_id=target_id,
             peptide_sequence=peptide_sequence,
@@ -556,18 +586,18 @@ def _build_assay_evidence_entry(
         if control_values:
             control_mean_log2_intensity = sum(control_values) / len(control_values)
         if (
-            case_reliable_sample_count < policy.minimum_reliable_replicates_per_condition
+            case_reliable_sample_count
+            < policy.minimum_reliable_replicates_per_condition
             or control_reliable_sample_count
             < policy.minimum_reliable_replicates_per_condition
         ):
-            reasons.append(TargetedValidationReasonCode.INSUFFICIENT_RELIABLE_REPLICATES)
+            reasons.append(
+                TargetedValidationReasonCode.INSUFFICIENT_RELIABLE_REPLICATES
+            )
             if case_reliable_sample_count == 0 or control_reliable_sample_count == 0:
                 reasons.append(TargetedValidationReasonCode.VALIDATION_SIGNAL_MISSING)
         else:
-            if (
-                case_mean_log2_intensity is None
-                or control_mean_log2_intensity is None
-            ):
+            if case_mean_log2_intensity is None or control_mean_log2_intensity is None:
                 raise ScientificEvidenceError(
                     "targeted validation requires condition means when reliable replicate thresholds are satisfied"
                 )
@@ -589,10 +619,15 @@ def _build_assay_evidence_entry(
                 pass
             elif discovery_direction is TargetedValidationDirection.UNKNOWN:
                 reasons.append(TargetedValidationReasonCode.DISCOVERY_DIRECTION_MISSING)
-            elif abs(validation_log2_effect) < policy.minimum_absolute_validation_log2_effect:
-                if claim.discovery_effect_size is not None and abs(
-                    claim.discovery_effect_size
-                ) >= policy.minimum_absolute_validation_log2_effect:
+            elif (
+                abs(validation_log2_effect)
+                < policy.minimum_absolute_validation_log2_effect
+            ):
+                if (
+                    claim.discovery_effect_size is not None
+                    and abs(claim.discovery_effect_size)
+                    >= policy.minimum_absolute_validation_log2_effect
+                ):
                     reasons.append(
                         TargetedValidationReasonCode.VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY
                     )
@@ -674,7 +709,9 @@ def _build_candidate_validation_entry(
             for entry in assay_evidence
             if entry.validation_log2_effect is not None
         )
-        validation_log2_effect = None if not numeric_effects else median(numeric_effects)
+        validation_log2_effect = (
+            None if not numeric_effects else median(numeric_effects)
+        )
         validation_direction = _direction_from_effect(validation_log2_effect)
 
         if confirmed > 0 and contradicted == 0:
@@ -697,11 +734,7 @@ def _build_candidate_validation_entry(
         else:
             verdict = TargetedValidationVerdict.INCONCLUSIVE
             reasons = sorted(
-                {
-                    reason
-                    for entry in assay_evidence
-                    for reason in entry.reason_codes
-                },
+                {reason for entry in assay_evidence for reason in entry.reason_codes},
                 key=lambda item: item.value,
             )
         return TargetedValidationEntry(
@@ -792,7 +825,10 @@ def _collect_condition_log2_intensities(
     for (target_id, sample_id), entry in target_qc_by_target_sample.items():
         if target_id != matched_target_id or not entry.reliable:
             continue
-        if entry.passing_total_intensity is None or entry.passing_total_intensity <= 0.0:
+        if (
+            entry.passing_total_intensity is None
+            or entry.passing_total_intensity <= 0.0
+        ):
             continue
         condition = condition_by_sample.get(sample_id)
         if condition == policy.case_condition:
@@ -811,7 +847,11 @@ def _direction_from_effect(
         return TargetedValidationDirection.UNKNOWN
     if abs(effect_size) <= flat_threshold:
         return TargetedValidationDirection.FLAT
-    return TargetedValidationDirection.UP if effect_size > 0.0 else TargetedValidationDirection.DOWN
+    return (
+        TargetedValidationDirection.UP
+        if effect_size > 0.0
+        else TargetedValidationDirection.DOWN
+    )
 
 
 def _evidence_verdict_from_reasons(
@@ -847,40 +887,24 @@ def _build_assay_note(
             f"{control_reliable_sample_count} reliable {policy.control_condition} samples"
         )
     if TargetedValidationReasonCode.VALIDATION_EFFECT_OPPOSES_DISCOVERY in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} opposed the discovery direction under reliable sample support"
-        )
+        return f"targeted assay {assay.assay_entry_id} opposed the discovery direction under reliable sample support"
     if TargetedValidationReasonCode.VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} stayed near-flat despite the discovery effect, keeping the conflict explicit"
-        )
+        return f"targeted assay {assay.assay_entry_id} stayed near-flat despite the discovery effect, keeping the conflict explicit"
     if TargetedValidationReasonCode.NON_UNIQUE_VALIDATION_ASSAY in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} uses a {assay.uniqueness_class.value} peptide and cannot confirm one specific protein claim"
-        )
+        return f"targeted assay {assay.assay_entry_id} uses a {assay.uniqueness_class.value} peptide and cannot confirm one specific protein claim"
     if TargetedValidationReasonCode.INSUFFICIENT_RELIABLE_REPLICATES in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} lacks enough reliable {policy.case_condition} and {policy.control_condition} replicates for a directional validation call"
-        )
+        return f"targeted assay {assay.assay_entry_id} lacks enough reliable {policy.case_condition} and {policy.control_condition} replicates for a directional validation call"
     if TargetedValidationReasonCode.AMBIGUOUS_TARGETED_RESULT_MAPPING in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} matched multiple imported precursor targets and stays inconclusive"
-        )
+        return f"targeted assay {assay.assay_entry_id} matched multiple imported precursor targets and stays inconclusive"
     if TargetedValidationReasonCode.NO_MATCHING_TARGETED_SIGNAL in reasons:
-        return (
-            f"targeted assay {assay.assay_entry_id} could not be matched back onto the imported targeted result bundle"
-        )
+        return f"targeted assay {assay.assay_entry_id} could not be matched back onto the imported targeted result bundle"
     if (
         TargetedValidationReasonCode.WEAK_VALIDATION_EFFECT in reasons
         and validation_log2_effect is not None
     ):
-        return (
-            f"targeted assay {assay.assay_entry_id} moved in the expected direction but only by {validation_log2_effect:.2f} log2 units, below the validation threshold"
-        )
+        return f"targeted assay {assay.assay_entry_id} moved in the expected direction but only by {validation_log2_effect:.2f} log2 units, below the validation threshold"
     if TargetedValidationReasonCode.DISCOVERY_DIRECTION_MISSING in reasons:
-        return (
-            f"discovery claim for {assay.target_protein_ref} did not preserve a directional effect, so targeted evidence remains advisory only"
-        )
+        return f"discovery claim for {assay.target_protein_ref} did not preserve a directional effect, so targeted evidence remains advisory only"
     return assay.warning_note
 
 
@@ -903,29 +927,20 @@ def _build_candidate_note(
         )
     if verdict is TargetedValidationVerdict.CONTRADICTED:
         if TargetedValidationReasonCode.VALIDATION_EFFECT_OPPOSES_DISCOVERY in reasons:
-            return (
-                f"targeted validation contradicted the discovery direction for {claim.display_label}"
-            )
-        if TargetedValidationReasonCode.VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY in reasons:
-            return (
-                f"targeted validation stayed flat for {claim.display_label} despite the discovery claim"
-            )
+            return f"targeted validation contradicted the discovery direction for {claim.display_label}"
+        if (
+            TargetedValidationReasonCode.VALIDATION_EFFECT_FLAT_AGAINST_DISCOVERY
+            in reasons
+        ):
+            return f"targeted validation stayed flat for {claim.display_label} despite the discovery claim"
     if TargetedValidationReasonCode.CONFLICTING_VALIDATION_ASSAYS in reasons:
-        return (
-            f"targeted assays for {claim.display_label} disagree with one another, so the conflict remains explicit instead of being hidden"
-        )
+        return f"targeted assays for {claim.display_label} disagree with one another, so the conflict remains explicit instead of being hidden"
     if TargetedValidationReasonCode.SITE_SPECIFIC_VALIDATION_NOT_AVAILABLE in reasons:
-        return (
-            f"{claim.display_label} remains inconclusive because the discovery candidate is site-specific and no site-specific targeted assay was carried into the validation panel"
-        )
+        return f"{claim.display_label} remains inconclusive because the discovery candidate is site-specific and no site-specific targeted assay was carried into the validation panel"
     if TargetedValidationReasonCode.NOT_ASSAYED_IN_VALIDATION_PANEL in reasons:
-        return (
-            f"{claim.display_label} was not represented in the targeted validation panel and therefore stays inconclusive"
-        )
+        return f"{claim.display_label} was not represented in the targeted validation panel and therefore stays inconclusive"
     if assay_evidence:
-        return (
-            f"targeted validation for {claim.display_label} remained inconclusive because no assay produced enough specific and reliable evidence for a confirmation or contradiction call"
-        )
+        return f"targeted validation for {claim.display_label} remained inconclusive because no assay produced enough specific and reliable evidence for a confirmation or contradiction call"
     return claim.ranking_note
 
 
