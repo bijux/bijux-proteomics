@@ -222,21 +222,21 @@ def generate_quant_truth_dataset(
             )
         )
 
-    for protein in config.unchanged_proteins:
+    for unchanged_protein in config.unchanged_proteins:
         truth_records.append(
             SyntheticQuantTruthRecord(
-                truth_id=f"unchanged_protein:{protein.protein_id}",
+                truth_id=f"unchanged_protein:{unchanged_protein.protein_id}",
                 truth_kind="unchanged_protein",
-                subject_id=protein.protein_id,
-                protein_id=protein.protein_id,
+                subject_id=unchanged_protein.protein_id,
+                protein_id=unchanged_protein.protein_id,
                 effect_log2_fold_change=0.0,
             )
         )
         observations.extend(
             _protein_observations(
-                protein_id=protein.protein_id,
-                peptide_ids=protein.peptide_ids,
-                baseline_log2_intensity=protein.baseline_log2_intensity,
+                protein_id=unchanged_protein.protein_id,
+                peptide_ids=unchanged_protein.peptide_ids,
+                baseline_log2_intensity=unchanged_protein.baseline_log2_intensity,
                 effect_condition=config.effect_condition,
                 effect_log2_fold_change=0.0,
                 samples=config.samples,
@@ -248,58 +248,58 @@ def generate_quant_truth_dataset(
             )
         )
 
-    for entry in config.batch_effects:
+    for batch_effect in config.batch_effects:
         truth_records.append(
             SyntheticQuantTruthRecord(
-                truth_id=f"batch_effect:{entry.protein_id}:{entry.batch_id}",
+                truth_id=f"batch_effect:{batch_effect.protein_id}:{batch_effect.batch_id}",
                 truth_kind="batch_effect",
-                subject_id=f"{entry.protein_id}:{entry.batch_id}",
-                protein_id=entry.protein_id,
-                batch_ids=(entry.batch_id,),
-                shift_log2=entry.log2_shift,
+                subject_id=f"{batch_effect.protein_id}:{batch_effect.batch_id}",
+                protein_id=batch_effect.protein_id,
+                batch_ids=(batch_effect.batch_id,),
+                shift_log2=batch_effect.log2_shift,
             )
         )
 
-    for entry in config.missingness:
+    for missingness_entry in config.missingness:
         truth_records.append(
             SyntheticQuantTruthRecord(
-                truth_id=_missingness_truth_id(entry),
+                truth_id=_missingness_truth_id(missingness_entry),
                 truth_kind="missingness",
-                subject_id=_missingness_subject_id(entry),
-                protein_id=entry.protein_id,
-                peptide_id=entry.peptide_id,
-                sample_ids=entry.sample_ids,
-                reason=entry.reason,
+                subject_id=_missingness_subject_id(missingness_entry),
+                protein_id=missingness_entry.protein_id,
+                peptide_id=missingness_entry.peptide_id,
+                sample_ids=missingness_entry.sample_ids,
+                reason=missingness_entry.reason,
             )
         )
 
-    for entry in config.peptide_outliers:
+    for peptide_outlier in config.peptide_outliers:
         truth_records.append(
             SyntheticQuantTruthRecord(
-                truth_id=f"peptide_outlier:{entry.protein_id}:{entry.peptide_id}:{entry.sample_id}",
+                truth_id=f"peptide_outlier:{peptide_outlier.protein_id}:{peptide_outlier.peptide_id}:{peptide_outlier.sample_id}",
                 truth_kind="peptide_outlier",
-                subject_id=f"{entry.protein_id}:{entry.peptide_id}:{entry.sample_id}",
-                protein_id=entry.protein_id,
-                peptide_id=entry.peptide_id,
-                sample_ids=(entry.sample_id,),
-                shift_log2=entry.log2_shift,
+                subject_id=f"{peptide_outlier.protein_id}:{peptide_outlier.peptide_id}:{peptide_outlier.sample_id}",
+                protein_id=peptide_outlier.protein_id,
+                peptide_id=peptide_outlier.peptide_id,
+                sample_ids=(peptide_outlier.sample_id,),
+                shift_log2=peptide_outlier.log2_shift,
             )
         )
 
-    for entry in config.contamination:
+    for contamination_entry in config.contamination:
         truth_records.append(
             SyntheticQuantTruthRecord(
-                truth_id=f"contamination:{entry.protein_id}",
+                truth_id=f"contamination:{contamination_entry.protein_id}",
                 truth_kind="contamination",
-                subject_id=entry.protein_id,
-                protein_id=entry.protein_id,
-                sample_ids=entry.sample_ids,
-                contaminant_class=entry.contaminant_class,
+                subject_id=contamination_entry.protein_id,
+                protein_id=contamination_entry.protein_id,
+                sample_ids=contamination_entry.sample_ids,
+                contaminant_class=contamination_entry.contaminant_class,
             )
         )
         observations.extend(
             _contaminant_observations(
-                spec=entry,
+                spec=contamination_entry,
                 samples=config.samples,
                 sample_offsets=sample_offsets,
                 peptide_bias_step=config.peptide_bias_step,
@@ -474,39 +474,39 @@ def _validate_and_index_config(
             )
 
     known_batches = {sample.batch_id for sample in config.samples}
-    for entry in config.batch_effects:
-        if entry.protein_id not in known_proteins:
+    for batch_effect in config.batch_effects:
+        if batch_effect.protein_id not in known_proteins:
             raise ValueError(
-                f"synthetic quant truth batch effect references unknown protein {entry.protein_id!r}"
+                f"synthetic quant truth batch effect references unknown protein {batch_effect.protein_id!r}"
             )
-        if entry.batch_id not in known_batches:
+        if batch_effect.batch_id not in known_batches:
             raise ValueError(
-                f"synthetic quant truth batch effect references unknown batch {entry.batch_id!r}"
+                f"synthetic quant truth batch effect references unknown batch {batch_effect.batch_id!r}"
             )
-    for entry in config.missingness:
+    for missingness_entry in config.missingness:
         _validate_known_peptide_scope(
             known_proteins=known_proteins,
-            protein_id=entry.protein_id,
-            peptide_id=entry.peptide_id,
+            protein_id=missingness_entry.protein_id,
+            peptide_id=missingness_entry.peptide_id,
             error_prefix="synthetic quant truth missingness",
         )
-        unknown_samples = set(entry.sample_ids) - set(sample_ids)
+        unknown_samples = set(missingness_entry.sample_ids) - set(sample_ids)
         if unknown_samples:
             raise ValueError(
                 "synthetic quant truth missingness references unknown samples: "
                 + ", ".join(sorted(unknown_samples))
             )
-    for entry in config.peptide_outliers:
+    for peptide_outlier in config.peptide_outliers:
         _validate_known_peptide_scope(
             known_proteins=known_proteins,
-            protein_id=entry.protein_id,
-            peptide_id=entry.peptide_id,
+            protein_id=peptide_outlier.protein_id,
+            peptide_id=peptide_outlier.peptide_id,
             error_prefix="synthetic quant truth peptide outlier",
             require_peptide=True,
         )
-        if entry.sample_id not in sample_ids:
+        if peptide_outlier.sample_id not in sample_ids:
             raise ValueError(
-                f"synthetic quant truth peptide outlier references unknown sample {entry.sample_id!r}"
+                f"synthetic quant truth peptide outlier references unknown sample {peptide_outlier.sample_id!r}"
             )
     return {
         "known_proteins": known_proteins,

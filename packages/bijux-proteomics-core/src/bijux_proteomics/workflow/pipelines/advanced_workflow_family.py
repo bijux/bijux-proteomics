@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -164,7 +165,7 @@ def validate_advanced_workflow_family_contract(
 
 def _validate_config_field_groups(
     *,
-    config_fields: dict[str, object],
+    config_fields: Mapping[str, object],
     field_groups: dict[str, tuple[str, ...]],
 ) -> list[str]:
     failures: list[str] = []

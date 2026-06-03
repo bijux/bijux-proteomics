@@ -121,5 +121,5 @@ def _coefficient_of_variation(values: list[float]) -> float | None:
     if mean_value <= 0.0:
         return None
     squared_distance_sum = sum((value - mean_value) ** 2 for value in values)
-    variance = squared_distance_sum / (len(values) - 1)
-    return variance**0.5 / mean_value
+    variance = float(squared_distance_sum / (len(values) - 1))
+    return float(variance**0.5 / mean_value)

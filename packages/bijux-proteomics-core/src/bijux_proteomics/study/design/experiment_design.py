@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry, ExperimentalDesignSampleRole
@@ -281,12 +283,12 @@ def coerce_experiment_design(
 def _technical_replicate_id(entry: ExperimentalDesignEntry) -> str:
     value = entry.technical_replicate_id
     if value not in (None, ""):
-        return value
-    return entry.spectra_file
+        return str(value)
+    return str(entry.spectra_file)
 
 
-def _sorted_nonempty(values) -> tuple[str, ...]:
-    return tuple(sorted({value for value in values if value}))
+def _sorted_nonempty(values: Iterable[str | None]) -> tuple[str, ...]:
+    return tuple(sorted({value for value in values if isinstance(value, str) and value}))
 
 
 def _metadata_value(entry: ExperimentalDesignEntry, key: str) -> str | None:

@@ -54,7 +54,7 @@ class DelimitedColumnSpec(JsonModel):
         if value in (None, ""):
             return ()
         if isinstance(value, str):
-            candidates = (value,)
+            candidates: tuple[str, ...] = (value,)
         else:
             if not isinstance(value, Iterable):
                 raise ValueError("source_columns must be iterable")
@@ -68,7 +68,7 @@ class DelimitedColumnSpec(JsonModel):
         if value in (None, ""):
             return ()
         if isinstance(value, str):
-            items = (value,)
+            items: tuple[str, ...] = (value,)
         else:
             if not isinstance(value, Iterable):
                 raise ValueError("token sets must be iterable")

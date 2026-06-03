@@ -510,12 +510,15 @@ def _sample_field_value(
     field_name: CohortStratificationField,
 ) -> str | None:
     if field_name is CohortStratificationField.TISSUE_OR_CELL_TYPE:
-        return sample.tissue_or_cell_type
+        value = sample.tissue_or_cell_type
+        return value if isinstance(value, str) else None
     if field_name is CohortStratificationField.TIMEPOINT:
-        return sample.timepoint
+        value = sample.timepoint
+        return value if isinstance(value, str) else None
     if field_name is CohortStratificationField.BATCH:
         return sample.batch_ids[0] if len(sample.batch_ids) == 1 else None
-    return sample.metadata.get(field_name.value)
+    value = sample.metadata.get(field_name.value)
+    return value if isinstance(value, str) else None
 
 
 def _subset_table_by_sample_ids(
