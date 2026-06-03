@@ -157,7 +157,7 @@ def render_peptide_level_differential_tsv(
     return buffer.getvalue()
 
 
-test_protein_effect_from_peptides.__test__ = False
+setattr(test_protein_effect_from_peptides, "__test__", False)
 
 
 def _collect_observed_peptide_intensities(

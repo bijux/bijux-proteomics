@@ -139,10 +139,10 @@ def build_tmt_ratio_report(
 
     peptide_ratios: list[TmtPeptideRatioEntry] = []
     protein_ratios: list[TmtProteinRatioEntry] = []
-    for row in matrix_report.peptide_matrix.rows:
-        value_by_sample = {
+    for peptide_row in matrix_report.peptide_matrix.rows:
+        peptide_values_by_sample = {
             value.sample_id: value
-            for value in row.values
+            for value in peptide_row.values
         }
         for entry in sorted(
             mapped_entries,
@@ -150,7 +150,7 @@ def build_tmt_ratio_report(
         ):
             if entry.multiplex_channel == control_channel:
                 continue
-            numerator_value = value_by_sample.get(entry.sample_id or "")
+            numerator_value = peptide_values_by_sample.get(entry.sample_id or "")
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
                 numerator_abundance = None if numerator_value is None else numerator_value.abundance
@@ -164,9 +164,9 @@ def build_tmt_ratio_report(
                         control_channel=control_channel,
                         control_sample_id="",
                         control_condition=None,
-                        peptide_id=row.entity_id,
-                        peptide_sequence=row.peptide_sequence,
-                        protein_refs=row.protein_refs,
+                        peptide_id=peptide_row.entity_id,
+                        peptide_sequence=peptide_row.peptide_sequence,
+                        protein_refs=peptide_row.protein_refs,
                         numerator_abundance=numerator_abundance,
                         control_abundance=None,
                         ratio=None,
@@ -176,7 +176,7 @@ def build_tmt_ratio_report(
                     )
                 )
                 continue
-            control_value = value_by_sample.get(control_entry.sample_id or "")
+            control_value = peptide_values_by_sample.get(control_entry.sample_id or "")
             ratio, log2_ratio, missing_reason = _ratio_from_values(
                 numerator_abundance=(
                     None if numerator_value is None else numerator_value.abundance
@@ -195,9 +195,9 @@ def build_tmt_ratio_report(
                     control_channel=control_channel,
                     control_sample_id=control_entry.sample_id or "",
                     control_condition=control_entry.condition,
-                    peptide_id=row.entity_id,
-                    peptide_sequence=row.peptide_sequence,
-                    protein_refs=row.protein_refs,
+                    peptide_id=peptide_row.entity_id,
+                    peptide_sequence=peptide_row.peptide_sequence,
+                    protein_refs=peptide_row.protein_refs,
                     numerator_abundance=(
                         None if numerator_value is None else numerator_value.abundance
                     ),
@@ -214,10 +214,10 @@ def build_tmt_ratio_report(
                     ),
                 )
             )
-    for row in matrix_report.protein_matrix.rows:
-        value_by_sample = {
+    for protein_row in matrix_report.protein_matrix.rows:
+        protein_values_by_sample = {
             value.sample_id: value
-            for value in row.values
+            for value in protein_row.values
         }
         for entry in sorted(
             mapped_entries,
@@ -225,10 +225,14 @@ def build_tmt_ratio_report(
         ):
             if entry.multiplex_channel == control_channel:
                 continue
-            numerator_value = value_by_sample.get(entry.sample_id or "")
+            protein_numerator_value = protein_values_by_sample.get(entry.sample_id or "")
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
-                numerator_abundance = None if numerator_value is None else numerator_value.abundance
+                numerator_abundance = (
+                    None
+                    if protein_numerator_value is None
+                    else protein_numerator_value.abundance
+                )
                 protein_ratios.append(
                     TmtProteinRatioEntry(
                         multiplex_group=entry.multiplex_group,
@@ -239,9 +243,9 @@ def build_tmt_ratio_report(
                         control_channel=control_channel,
                         control_sample_id="",
                         control_condition=None,
-                        protein_id=row.entity_id,
-                        target_kind=row.target_kind,
-                        protein_refs=row.protein_refs,
+                        protein_id=protein_row.entity_id,
+                        target_kind=protein_row.target_kind,
+                        protein_refs=protein_row.protein_refs,
                         numerator_abundance=numerator_abundance,
                         control_abundance=None,
                         ratio=None,
@@ -251,13 +255,19 @@ def build_tmt_ratio_report(
                     )
                 )
                 continue
-            control_value = value_by_sample.get(control_entry.sample_id or "")
+            protein_control_value = protein_values_by_sample.get(
+                control_entry.sample_id or ""
+            )
             ratio, log2_ratio, missing_reason = _ratio_from_values(
                 numerator_abundance=(
-                    None if numerator_value is None else numerator_value.abundance
+                    None
+                    if protein_numerator_value is None
+                    else protein_numerator_value.abundance
                 ),
                 control_abundance=(
-                    None if control_value is None else control_value.abundance
+                    None
+                    if protein_control_value is None
+                    else protein_control_value.abundance
                 ),
             )
             protein_ratios.append(
@@ -270,14 +280,18 @@ def build_tmt_ratio_report(
                     control_channel=control_channel,
                     control_sample_id=control_entry.sample_id or "",
                     control_condition=control_entry.condition,
-                    protein_id=row.entity_id,
-                    target_kind=row.target_kind,
-                    protein_refs=row.protein_refs,
+                    protein_id=protein_row.entity_id,
+                    target_kind=protein_row.target_kind,
+                    protein_refs=protein_row.protein_refs,
                     numerator_abundance=(
-                        None if numerator_value is None else numerator_value.abundance
+                        None
+                        if protein_numerator_value is None
+                        else protein_numerator_value.abundance
                     ),
                     control_abundance=(
-                        None if control_value is None else control_value.abundance
+                        None
+                        if protein_control_value is None
+                        else protein_control_value.abundance
                     ),
                     ratio=ratio,
                     log2_ratio=log2_ratio,
@@ -290,8 +304,8 @@ def build_tmt_ratio_report(
                 )
             )
     missing_ratio_count = sum(
-        1 for entry in (*peptide_ratios, *protein_ratios) if entry.missing_reason is not None
-    )
+        1 for entry in peptide_ratios if entry.missing_reason is not None
+    ) + sum(1 for entry in protein_ratios if entry.missing_reason is not None)
     return TmtRatioReport(
         source_kind=source_kind,
         summary=TmtRatioSummary(

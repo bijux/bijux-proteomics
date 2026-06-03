@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
+from collections.abc import Iterable
 from io import StringIO
 import math
 
@@ -458,7 +459,10 @@ def _per_sample_medians(
     }
 
 
-def _render_rows(header: tuple[str, ...], rows: tuple[tuple[str, ...], ...] | object) -> str:
+def _render_rows(
+    header: tuple[str, ...],
+    rows: Iterable[tuple[str, ...]],
+) -> str:
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(header)

@@ -24,6 +24,7 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     render_tmt_protein_matrix_tsv,
 )
 from bijux_proteomics.quantification import LabelBasedChannelRole, MissingValueKind
+from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -208,8 +209,8 @@ def _apply_median_normalization(
     feature_bundle: TmtReporterFeatureBundle,
     *,
     policy: TmtNormalizationPolicy,
-) -> tuple[tuple, tuple[TmtNormalizationTransformEntry, ...]]:
-    sample_records: dict[str, list] = {}
+) -> tuple[tuple[Ms1FeatureRecord, ...], tuple[TmtNormalizationTransformEntry, ...]]:
+    sample_records: dict[str, list[Ms1FeatureRecord]] = {}
     for record in feature_bundle.feature_records:
         sample_records.setdefault(record.sample_id, []).append(record)
 
@@ -287,8 +288,8 @@ def _apply_total_signal_normalization(
     feature_bundle: TmtReporterFeatureBundle,
     *,
     policy: TmtNormalizationPolicy,
-) -> tuple[tuple, tuple[TmtNormalizationTransformEntry, ...]]:
-    sample_records: dict[str, list] = {}
+) -> tuple[tuple[Ms1FeatureRecord, ...], tuple[TmtNormalizationTransformEntry, ...]]:
+    sample_records: dict[str, list[Ms1FeatureRecord]] = {}
     for record in feature_bundle.feature_records:
         sample_records.setdefault(record.sample_id, []).append(record)
 
@@ -365,7 +366,11 @@ def _apply_reference_channel_normalization(
     feature_bundle: TmtReporterFeatureBundle,
     *,
     policy: TmtNormalizationPolicy,
-) -> tuple[tuple, tuple[TmtNormalizationTransformEntry, ...], int]:
+) -> tuple[
+    tuple[Ms1FeatureRecord, ...],
+    tuple[TmtNormalizationTransformEntry, ...],
+    int,
+]:
     mapped_entries = [
         entry
         for entry in feature_bundle.channel_mapping
@@ -482,7 +487,7 @@ def _bundle_distribution_entries(
     stage: TmtDistributionStage,
     policy: TmtNormalizationPolicy,
 ) -> list[TmtChannelDistributionEntry]:
-    sample_records: dict[str, list] = {}
+    sample_records: dict[str, list[Ms1FeatureRecord]] = {}
     for record in bundle.feature_records:
         sample_records.setdefault(record.sample_id, []).append(record)
 
