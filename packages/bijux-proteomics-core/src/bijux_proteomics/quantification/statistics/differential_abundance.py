@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 
+from collections.abc import Mapping
 import csv
 from io import StringIO
 from itertools import combinations
@@ -33,6 +34,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantAssessmentDisposition,
     QuantDesignContrast,
     QuantDesignMatrixReport,
+    QuantValue,
     SampleReliabilityWeightReport,
     _condition_lookup,
     _effect_size_and_uncertainty,
@@ -172,6 +174,10 @@ def build_differential_abundance_report(
         DifferentialAbundanceTestType.PAIRED_T_TEST,
     ):
         if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
+            if active_paired_policy is None:
+                raise RuntimeError(
+                    "paired differential abundance requires one paired policy"
+                )
             active_design_matrix = design_matrix or build_quant_design_matrix_report(
                 analysis_design_entries,
                 batch_field="",
@@ -704,7 +710,7 @@ def _sample_ids_for_condition(
 
 
 def _collect_condition_values(
-    lookup: dict[tuple[str, str], object],
+    lookup: Mapping[tuple[str, str], QuantValue],
     entity_id: str,
     sample_ids: tuple[str, ...],
     *,
@@ -831,8 +837,11 @@ def _resolve_design_pairs(
                 )
             )
             continue
+        pair_id = row.pair_id
+        if pair_id is None:
+            raise RuntimeError("paired differential rows must resolve pair ids")
         by_condition = rows_by_pair_id.setdefault(
-            row.pair_id,
+            pair_id,
             {condition_a: [], condition_b: []},
         )
         by_condition[row.condition].append(row.sample_id)
@@ -996,7 +1005,7 @@ def _linear_model_contrast_statistics(
 
 
 def _paired_t_test_statistics(
-    lookup: dict[tuple[str, str], object],
+    lookup: Mapping[tuple[str, str], QuantValue],
     entity_id: str,
     *,
     complete_design_pairs: tuple[tuple[str, str, str], ...],
@@ -1086,7 +1095,10 @@ def _paired_t_test_statistics(
             "paired test could not estimate weighted within-pair variance robustly",
         )
     if sample_std == 0.0 or not math.isfinite(sample_std):
-        note = "within-pair differences collapsed to one value so paired uncertainty could not be estimated robustly"
+        collapsed_note = (
+            "within-pair differences collapsed to one value so paired uncertainty "
+            "could not be estimated robustly"
+        )
         return (
             mean_a,
             mean_b,
@@ -1097,7 +1109,7 @@ def _paired_t_test_statistics(
             estimate,
             None,
             complete_pair_count,
-            note,
+            collapsed_note,
         )
     standard_error = sample_std / math.sqrt(effective_pairs)
     t_statistic = estimate / standard_error
@@ -1107,7 +1119,7 @@ def _paired_t_test_statistics(
     )
     interval_radius = 1.96 * standard_error
     effect_size = estimate / sample_std
-    note = None
+    note: str | None = None
     if complete_pair_count < len(complete_design_pairs):
         note = (
             f"paired test used {complete_pair_count} complete observed pairs out of "
@@ -1355,9 +1367,12 @@ def _weighted_observation_note(
 
 
 def _combine_notes(*notes: str | None) -> str | None:
-    ordered_notes = tuple(
-        dict.fromkeys(note for note in notes if note not in (None, ""))
-    )
+    unique_notes: list[str] = []
+    for note in notes:
+        if note is None or note == "" or note in unique_notes:
+            continue
+        unique_notes.append(note)
+    ordered_notes = tuple(unique_notes)
     if not ordered_notes:
         return None
     return "; ".join(ordered_notes)

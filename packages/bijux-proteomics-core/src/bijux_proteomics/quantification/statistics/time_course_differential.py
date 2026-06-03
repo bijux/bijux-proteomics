@@ -141,7 +141,7 @@ def build_time_course_differential_report(
         observed_rows: list[np.ndarray] = []
         observed_values: list[float] = []
         observed_count_by_condition = {condition: 0 for condition in conditions}
-        observed_timepoints_by_condition = {
+        observed_timepoints_by_condition: dict[str, set[str]] = {
             condition: set() for condition in conditions
         }
         for entry in analysis_design_entries:
@@ -202,21 +202,20 @@ def build_time_course_differential_report(
                         "time-course interaction could not be estimated robustly for this entity"
                     ),
                 )
-            notes = [
-                note
-                for note in (
-                    slope_note,
-                    interaction_note,
-                    _condition_support_note(
-                        condition=condition,
-                        observed_sample_count=observed_count_by_condition[condition],
-                        observed_timepoint_count=len(
-                            observed_timepoints_by_condition[condition]
-                        ),
+            notes: list[str] = []
+            for note in (
+                slope_note,
+                interaction_note,
+                _condition_support_note(
+                    condition=condition,
+                    observed_sample_count=observed_count_by_condition[condition],
+                    observed_timepoint_count=len(
+                        observed_timepoints_by_condition[condition]
                     ),
-                )
-                if note not in (None, "")
-            ]
+                ),
+            ):
+                if note is not None and note != "":
+                    notes.append(note)
             entries.append(
                 TimeCourseDifferentialEntry(
                     entity_id=entity_id,
@@ -281,10 +280,12 @@ def _required_consistency_fields(
         policy.timepoint_field,
         *policy.covariate_fields,
     ]
-    return tuple(
-        field
-        for field in dict.fromkeys(field for field in fields if field not in (None, ""))
-    )
+    ordered_fields: list[str] = []
+    for field in fields:
+        if field is None or field == "" or field in ordered_fields:
+            continue
+        ordered_fields.append(field)
+    return tuple(ordered_fields)
 
 
 def _require_table_sample_ids(

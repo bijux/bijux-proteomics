@@ -718,11 +718,10 @@ def _peptide_support_score(
         if cell is None or cell.value_provenance is None:
             continue
         peptides.update(cell.value_provenance.source_peptides)
-        peptides.update(
-            contributor.canonical_peptide
-            for contributor in cell.value_provenance.selected_contributors
-            if contributor.canonical_peptide not in (None, "")
-        )
+        for contributor in cell.value_provenance.selected_contributors:
+            canonical_peptide = contributor.canonical_peptide
+            if canonical_peptide is not None and canonical_peptide != "":
+                peptides.add(canonical_peptide)
     if not peptides:
         peptides.update(table.entity_member_peptides.get(entity_id, ()))
     count = len(peptides)

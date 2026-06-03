@@ -18,6 +18,8 @@ from bijux_proteomics.quantification.statistics.differential_imputation_dependen
     compare_imputation_policies,
 )
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceEntry,
+    DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
     ImputationEntry,
     ImputationMethod,
@@ -146,7 +148,7 @@ def build_imputation_sensitivity_report(
     primary_narratives: set[tuple[str | None, str | None]] = set()
     resolved_condition_a = condition_a
     resolved_condition_b = condition_b
-    differential_by_method: dict[ImputationMethod, object] = {}
+    differential_by_method: dict[ImputationMethod, DifferentialAbundanceReport] = {}
     for method in methods:
         try:
             imputed = impute_label_free_table(
@@ -245,7 +247,7 @@ def build_imputation_sensitivity_report(
         }
         for method in supported_methods
     }
-    entry_lookup_by_method: dict[ImputationMethod, dict[str, object]] = {
+    entry_lookup_by_method: dict[ImputationMethod, dict[str, DifferentialAbundanceEntry]] = {
         method: {
             entry.entity_id: entry
             for entry in differential_by_method[method].entries
@@ -321,7 +323,7 @@ def build_imputation_sensitivity_report(
                         ),
                     )
                 )
-        imputation_only_entities = ()
+        imputation_only_entities: tuple[str, ...] = ()
         if policy_comparison is not None:
             imputation_only_entities = tuple(
                 entry.entity_id
@@ -437,13 +439,13 @@ def _group_aware_low_intensity_imputed_table(
         sample_ids,
         sample_index,
     )
-    condition_sample_ids: dict[str, tuple[str, ...]] = {}
+    condition_sample_id_lists: dict[str, list[str]] = {}
     for entry in design_entries:
-        condition_sample_ids.setdefault(entry.condition, [])
-        condition_sample_ids[entry.condition].append(entry.sample_id)
-    condition_sample_ids = {
+        condition_sample_id_lists.setdefault(entry.condition, [])
+        condition_sample_id_lists[entry.condition].append(entry.sample_id)
+    condition_sample_ids: dict[str, tuple[str, ...]] = {
         condition: tuple(sample_ids)
-        for condition, sample_ids in condition_sample_ids.items()
+        for condition, sample_ids in condition_sample_id_lists.items()
     }
     condition_fill_values = _condition_low_intensity_fill_values(
         matrix,

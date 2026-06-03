@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from io import StringIO
 import math
+from typing import cast
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -19,6 +20,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
+    QuantValue,
     _matrix_value_index,
     coerce_label_free_quant_table,
 )
@@ -68,11 +70,13 @@ def fit_mean_variance_trend(
     value_lookup = _matrix_value_index(table)
     raw_entries: list[MeanVarianceTrendEntry] = []
     for entity_id in table.entity_ids:
-        observed_values = [
-            math.log2(float(value_lookup[(entity_id, sample_id)].abundance) + 1.0)
-            for sample_id in table.sample_ids
-            if value_lookup[(entity_id, sample_id)].abundance is not None
-        ]
+        observed_values: list[float] = []
+        for sample_id in table.sample_ids:
+            value: QuantValue = value_lookup[(entity_id, sample_id)]
+            abundance = value.abundance
+            if abundance is None:
+                continue
+            observed_values.append(math.log2(abundance + 1.0))
         if len(observed_values) < minimum_observed_samples:
             continue
         values = np.array(observed_values, dtype=float)
@@ -117,7 +121,10 @@ def fit_mean_variance_trend(
         entity_level=table.entity_level,
         measure_kind=table.measure_kind,
         aggregation_method=table.aggregation_method,
-        entries=tuple(sort_rows_by_fields(entries, "entity_id")),
+        entries=cast(
+            tuple[MeanVarianceTrendEntry, ...],
+            sort_rows_by_fields(tuple(entries), "entity_id"),
+        ),
         note=(
             "mean-variance modeling smooths observed log2 variance across intensity "
             "rank and enforces a monotone trend so low-intensity noisy entities "

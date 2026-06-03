@@ -410,7 +410,7 @@ def export_spectrum_peak_match_tsv(report: SpectrumPeakMatchReport, path: Path) 
                     (
                         None
                         if match.fragment.neutral_loss is None
-                        else match.fragment.neutral_loss.name
+                        else match.fragment.neutral_loss
                     ),
                     match.observed_mz,
                     match.observed_intensity,

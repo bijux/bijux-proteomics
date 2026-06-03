@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import csv
 from enum import StrEnum
 from io import StringIO
@@ -26,6 +27,7 @@ from bijux_proteomics.quantification.missingness.missingness import (
     MissingnessClassificationReport,
     MissingnessLabel,
 )
+from bijux_proteomics.quantification.contracts import QuantValue
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -161,11 +163,11 @@ def render_censored_differential_tsv(report: CensoredDifferentialReport) -> str:
     return buffer.getvalue()
 
 
-test_censored_two_group.__test__ = False
+setattr(test_censored_two_group, "__test__", False)
 
 
 def _observed_log2_values(
-    value_lookup: dict[tuple[str, str], object],
+    value_lookup: Mapping[tuple[str, str], QuantValue],
     entity_id: str,
     sample_ids: tuple[str, ...],
 ) -> np.ndarray:
