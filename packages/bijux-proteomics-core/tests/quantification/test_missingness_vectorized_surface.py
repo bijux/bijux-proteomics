@@ -26,7 +26,9 @@ from bijux_proteomics.quantification.missingness.missingness import (
 )
 
 
-def _table_and_design() -> tuple[LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...]]:
+def _table_and_design() -> tuple[
+    LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...]
+]:
     records = (
         Ms1FeatureRecord(
             feature_id="mv-001",

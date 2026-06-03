@@ -27,7 +27,9 @@ from bijux_proteomics.quantification.statistics.differential_abundance import (
 )
 
 
-def _differential_table() -> tuple[LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...], dict[str, float]]:
+def _differential_table() -> tuple[
+    LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...], dict[str, float]
+]:
     records = (
         Ms1FeatureRecord(
             feature_id="dv-001",
