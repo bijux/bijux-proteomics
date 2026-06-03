@@ -429,7 +429,7 @@ def build_acetyl_specific_review_fixture_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
     feature_records: tuple[Ms1FeatureRecord, ...],
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
 ) -> PtmAcetylReviewFixtureReport:
     """Build an acetyl-focused review fixture report with placement semantics."""
     acetyl_entries = tuple(

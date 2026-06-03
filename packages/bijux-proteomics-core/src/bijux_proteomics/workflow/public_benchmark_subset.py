@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -93,6 +94,15 @@ class _TabularSubsetResult(JsonModel):
     preserved_decoy_ids: tuple[str, ...] = Field(default_factory=tuple)
     preserved_contaminant_ids: tuple[str, ...] = Field(default_factory=tuple)
     preserved_signal_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class _DetectedEntityAnchorState(TypedDict):
+    """Typed row-anchor state used while preserving integrity entities."""
+
+    biological_entity_ids: tuple[str, ...]
+    decoy_entity_ids: tuple[str, ...]
+    contaminant_entity_ids: tuple[str, ...]
+    sample_coverage: dict[str, tuple[str, ...]]
 
 
 def build_public_benchmark_subset(
@@ -400,7 +410,7 @@ def _signal_anchors(
 
 def _detect_required_entity_anchors(
     descriptor: PublicBenchmarkDescriptor,
-) -> dict[str, object]:
+) -> _DetectedEntityAnchorState:
     repo_root = _repo_root()
     biological_entity_ids: list[str] = []
     decoy_entity_ids: list[str] = []
@@ -424,8 +434,14 @@ def _detect_required_entity_anchors(
                 continue
             biological_entity_ids.extend(entity_ids)
     return {
-        "biological_entity_ids": tuple(dict.fromkeys(entity_id for entity_id in biological_entity_ids if entity_id)),
-        "decoy_entity_ids": tuple(dict.fromkeys(entity_id for entity_id in decoy_entity_ids if entity_id)),
+        "biological_entity_ids": tuple(
+            dict.fromkeys(
+                entity_id for entity_id in biological_entity_ids if entity_id
+            )
+        ),
+        "decoy_entity_ids": tuple(
+            dict.fromkeys(entity_id for entity_id in decoy_entity_ids if entity_id)
+        ),
         "contaminant_entity_ids": tuple(
             dict.fromkeys(entity_id for entity_id in contaminant_entity_ids if entity_id)
         ),

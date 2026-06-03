@@ -1128,6 +1128,7 @@ __all__ = [
     "PublicBenchmarkRunStatus",
     "PublicBenchmarkSuiteReport",
     "load_public_benchmark_descriptor",
+    "render_public_benchmark_suite_signal_assessments_tsv",
     "run_public_benchmark_descriptor",
     "run_public_benchmark_descriptor_suite",
 ]
