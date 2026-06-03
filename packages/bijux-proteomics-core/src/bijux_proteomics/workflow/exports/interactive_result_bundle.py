@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -291,6 +292,48 @@ class InteractiveResultBundle(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class _LoadedReportArtifacts(TypedDict):
+    report_dir: Path
+    artifact_paths: dict[str, str]
+    source_report: InteractiveResultSourceReport
+
+
+class _SampleEntry(TypedDict):
+    sample_id: str
+    condition: str | None
+    batch: str | None
+    replicate: str | None
+    fraction: str | None
+    instrument: str | None
+    search_engine: str | None
+    pc1: float | None
+    pc2: float | None
+    outlier: bool | None
+    outlier_reasons: tuple[str, ...]
+    source_reports: set[InteractiveResultSourceKind]
+
+
+class _PathwayEntry(TypedDict):
+    pathway_id: str
+    pathway_name: str | None
+    source_name: str | None
+    source_accession: str | None
+    condition_a: str | None
+    condition_b: str | None
+    comparison_confidence_status: str | None
+    activity_score_delta: float | None
+    enrichment_ratio: float | None
+    adjusted_p_value: float | None
+    foreground_overlap_count: int | None
+    supporting_protein_refs: tuple[str, ...]
+    unresolved_member_ids: tuple[str, ...]
+
+
+_ManifestModel = (
+    type[BiologicalResultReportExportManifest] | type[PtmReportExportManifest]
+)
+
+
 _BIOLOGICAL_FALLBACK_ARTIFACTS = {
     "summary_tsv": "biological_report_summary.tsv",
     "protein_card_tsv": "biological_protein_cards.tsv",
@@ -465,9 +508,9 @@ def _load_report_artifacts(
     report_dir: Path | None,
     source_kind: InteractiveResultSourceKind,
     manifest_filename: str,
-    manifest_model: type[JsonModel],
+    manifest_model: _ManifestModel,
     fallback_artifacts: dict[str, str],
-) -> dict[str, object] | None:
+) -> _LoadedReportArtifacts | None:
     if report_dir is None:
         return None
     artifact_paths: dict[str, str]
@@ -501,10 +544,10 @@ def _load_report_artifacts(
 
 def _build_samples(
     *,
-    biological_artifacts: dict[str, object] | None,
-    ptm_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultSample, ...]:
-    entries: dict[str, dict[str, object]] = {}
+    entries: dict[str, _SampleEntry] = {}
     if biological_artifacts is not None:
         report_dir = biological_artifacts["report_dir"]
         artifact_paths = biological_artifacts["artifact_paths"]
@@ -618,8 +661,8 @@ def _build_samples(
 
 def _build_proteins(
     *,
-    biological_artifacts: dict[str, object] | None,
-    ptm_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultProtein, ...]:
     proteins: dict[str, InteractiveResultProtein] = {}
     if biological_artifacts is not None:
@@ -702,8 +745,8 @@ def _build_proteins(
 
 def _build_peptides(
     *,
-    biological_artifacts: dict[str, object] | None,
-    ptm_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultPeptide, ...]:
     peptides: list[InteractiveResultPeptide] = []
     if biological_artifacts is not None:
@@ -773,7 +816,7 @@ def _build_peptides(
 
 def _build_ptm_sites(
     *,
-    ptm_artifacts: dict[str, object] | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultPtmSite, ...]:
     if ptm_artifacts is None:
         return ()
@@ -828,7 +871,7 @@ def _build_ptm_sites(
 
 def _build_pathways(
     *,
-    biological_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultPathway, ...]:
     if biological_artifacts is None:
         return ()
@@ -850,7 +893,7 @@ def _build_pathways(
         "pathway_activity_unresolved_member_tsv",
     ):
         unresolved_members.setdefault(row["pathway_id"], set()).add(row["member_id"])
-    entries: dict[str, dict[str, object]] = {}
+    entries: dict[str, _PathwayEntry] = {}
     for row in _read_optional_rows(
         report_dir,
         artifact_paths,
@@ -913,7 +956,7 @@ def _build_pathways(
 
 def _build_qc_entries(
     *,
-    biological_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
     run_qc_assessment_tsv_paths: tuple[Path, ...],
 ) -> tuple[InteractiveResultQcEntry, ...]:
     entries: list[InteractiveResultQcEntry] = []
@@ -985,8 +1028,8 @@ def _build_qc_entries(
 
 def _build_cards(
     *,
-    biological_artifacts: dict[str, object] | None,
-    ptm_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultCard, ...]:
     cards: list[InteractiveResultCard] = []
     protein_graph_node_ids_by_card_id: dict[str, tuple[str, ...]] = {}
@@ -1071,7 +1114,7 @@ def _build_cards(
 
 def _build_graph(
     *,
-    biological_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[tuple[InteractiveResultGraphNode, ...], tuple[InteractiveResultGraphEdge, ...]]:
     if biological_artifacts is None:
         return (), ()
@@ -1108,8 +1151,8 @@ def _build_graph(
 
 def _build_plots(
     *,
-    biological_artifacts: dict[str, object] | None,
-    ptm_artifacts: dict[str, object] | None,
+    biological_artifacts: _LoadedReportArtifacts | None,
+    ptm_artifacts: _LoadedReportArtifacts | None,
 ) -> tuple[InteractiveResultPlot, ...]:
     plots: list[InteractiveResultPlot] = []
     if biological_artifacts is not None:
@@ -1162,7 +1205,7 @@ def _build_plots(
     return tuple(sorted(plots, key=lambda entry: (entry.source_kind.value, entry.plot_kind.value)))
 
 
-def _artifact_path(artifacts: dict[str, object], artifact_key: str) -> str | None:
+def _artifact_path(artifacts: _LoadedReportArtifacts, artifact_key: str) -> str | None:
     artifact_paths = artifacts["artifact_paths"]
     value = artifact_paths.get(artifact_key)
     if not isinstance(value, str) or not value:
