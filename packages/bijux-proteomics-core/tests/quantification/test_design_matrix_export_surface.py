@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     QuantEntityLevel,
@@ -48,7 +49,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="f1",

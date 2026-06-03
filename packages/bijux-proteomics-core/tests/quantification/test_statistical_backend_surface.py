@@ -11,9 +11,9 @@ from bijux_proteomics.io.formats import (
 )
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
+    Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
-    Ms1FeatureRecord,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,

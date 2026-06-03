@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     QuantAssessmentDisposition,
@@ -17,7 +18,7 @@ from bijux_proteomics.quantification import (
 )
 
 
-def _table(records: tuple[Ms1FeatureRecord, ...]):
+def _table(records: tuple[Ms1FeatureRecord, ...]) -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         records,
         entity_level=QuantEntityLevel.PROTEIN,

@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     DifferentialAbundanceTestType,
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     PairedDifferentialPolicy,
@@ -131,7 +132,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PROTEIN,
@@ -184,7 +185,7 @@ def _paired_design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _paired_table():
+def _paired_table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="paired-tsv-001",

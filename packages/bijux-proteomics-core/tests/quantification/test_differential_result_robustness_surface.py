@@ -8,6 +8,7 @@ from bijux_proteomics.quantification import (
     DifferentialResultRobustnessQcStatus,
     DifferentialResultRobustnessReasonCode,
     ImputationMethod,
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     QuantEntityLevel,
@@ -53,7 +54,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="rob-001",

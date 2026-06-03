@@ -8,6 +8,7 @@ from bijux_proteomics.quantification import (
     BrokenPairDisposition,
     DifferentialAbundanceTestType,
     DifferentialReplicatePolicy,
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     PairedDifferentialPolicy,
@@ -57,7 +58,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="da-001",
@@ -184,7 +185,7 @@ def _paired_design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _paired_table():
+def _paired_table() -> LabelFreeQuantTable:
     records = (
         Ms1FeatureRecord(
             feature_id="paired-001",

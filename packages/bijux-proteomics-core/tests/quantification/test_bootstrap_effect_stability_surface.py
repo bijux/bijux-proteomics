@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     BootstrapEffectRobustnessTier,
+    LabelFreeQuantTable,
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -62,7 +63,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         (
             Ms1FeatureRecord(
