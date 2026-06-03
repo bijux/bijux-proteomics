@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from io import StringIO
 import math
+from typing import Any, cast
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -159,7 +160,7 @@ def render_peptide_level_differential_tsv(
     return buffer.getvalue()
 
 
-test_protein_effect_from_peptides.__test__ = False
+cast(Any, test_protein_effect_from_peptides).__test__ = False
 
 
 def _collect_observed_peptide_intensities(

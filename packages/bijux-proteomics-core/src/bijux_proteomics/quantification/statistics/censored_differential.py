@@ -10,6 +10,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 import math
+from typing import Any, cast
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -175,7 +176,7 @@ def render_censored_differential_tsv(report: CensoredDifferentialReport) -> str:
     return buffer.getvalue()
 
 
-test_censored_two_group.__test__ = False
+cast(Any, test_censored_two_group).__test__ = False
 
 
 def _observed_log2_values(

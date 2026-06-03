@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import math
+from typing import cast
 
 import numpy as np
 
@@ -15,6 +16,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
     normalize_label_free_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
 )
 from bijux_proteomics.quantification.matrix.core_matrix import (
     quant_matrix_to_dense_array,
@@ -111,11 +115,14 @@ def _normalization_records() -> tuple[Ms1FeatureRecord, ...]:
     )
 
 
-def _build_table():
-    return build_label_free_intensity_table(
-        _normalization_records(),
-        entity_level=QuantEntityLevel.PEPTIDE,
-        aggregation_method=QuantRollupMethod.SUM,
+def _build_table() -> LabelFreeQuantTable:
+    return cast(
+        LabelFreeQuantTable,
+        build_label_free_intensity_table(
+            _normalization_records(),
+            entity_level=QuantEntityLevel.PEPTIDE,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
     )
 
 

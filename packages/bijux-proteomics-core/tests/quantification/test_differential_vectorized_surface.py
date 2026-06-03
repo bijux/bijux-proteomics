@@ -15,6 +15,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+)
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,
 )
@@ -24,7 +27,7 @@ from bijux_proteomics.quantification.statistics.differential_abundance import (
 )
 
 
-def _differential_table():
+def _differential_table() -> tuple[LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...], dict[str, float]]:
     records = (
         Ms1FeatureRecord(
             feature_id="dv-001",

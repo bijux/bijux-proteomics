@@ -7,6 +7,7 @@ import csv
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats.proteomics_formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmProteinCorrectionMode,
@@ -64,7 +65,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _ptm_design_entries():
+def _ptm_design_entries() -> tuple[ExperimentalDesignEntry, ...]:
     return tuple(
         entry.model_copy(update={"batch": None})
         for entry in parse_experimental_design_table(

@@ -11,6 +11,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+)
 from bijux_proteomics.quantification.missingness.missingness import (
     _build_missingness_condition_summary_report_pure,
     _build_missingness_condition_summary_report_vectorized,
@@ -23,7 +26,7 @@ from bijux_proteomics.quantification.missingness.missingness import (
 )
 
 
-def _table_and_design():
+def _table_and_design() -> tuple[LabelFreeQuantTable, tuple[ExperimentalDesignEntry, ...]]:
     records = (
         Ms1FeatureRecord(
             feature_id="mv-001",

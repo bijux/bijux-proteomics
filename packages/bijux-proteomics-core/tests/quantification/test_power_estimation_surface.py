@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     MissingValueKind,
@@ -10,6 +12,9 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
 )
 from bijux_proteomics.quantification.power_estimation import (
     PowerEstimationPolicy,
@@ -156,11 +161,14 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
-    return build_label_free_intensity_table(
-        _records(),
-        entity_level=QuantEntityLevel.PROTEIN,
-        aggregation_method=QuantRollupMethod.SUM,
+def _table() -> LabelFreeQuantTable:
+    return cast(
+        LabelFreeQuantTable,
+        build_label_free_intensity_table(
+            _records(),
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
     )
 
 

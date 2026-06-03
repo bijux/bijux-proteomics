@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats.proteomics_formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmProteinCorrectionMode,
@@ -27,6 +29,7 @@ from bijux_proteomics.workflow import (
     render_result_search_summary_tsv,
     search_result_index,
 )
+from bijux_proteomics.workflow.exports.result_search_index import ResultSearchIndex
 
 
 def _workflow_fixture(name: str) -> Path:
@@ -52,7 +55,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _ptm_design_entries():
+def _ptm_design_entries() -> tuple[ExperimentalDesignEntry, ...]:
     return tuple(
         entry.model_copy(update={"batch": None})
         for entry in parse_experimental_design_table(
@@ -61,7 +64,7 @@ def _ptm_design_entries():
     )
 
 
-def _build_real_result_search_index(tmp_path: Path):
+def _build_real_result_search_index(tmp_path: Path) -> ResultSearchIndex:
     design_entries = tuple(
         parse_experimental_design_table(
             _workflow_fixture("biological_report.design.tsv")
@@ -118,9 +121,12 @@ def _build_real_result_search_index(tmp_path: Path):
         encoding="utf-8",
     )
 
-    return build_result_search_index_from_artifacts(
-        biological_report_dir=biological_dir,
-        ptm_report_dir=ptm_dir,
+    return cast(
+        ResultSearchIndex,
+        build_result_search_index_from_artifacts(
+            biological_report_dir=biological_dir,
+            ptm_report_dir=ptm_dir,
+        ),
     )
 
 
