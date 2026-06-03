@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 import csv
+from collections.abc import Mapping
 from enum import StrEnum
 from io import StringIO
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -19,6 +21,7 @@ from bijux_proteomics.interpretation.biological_context_mapping import (
 )
 from bijux_proteomics.interpretation.protein_set_scoring import (
     ProteinSetRecord,
+    ProteinSetSampleScoreEntry,
     ProteinSetScoringPolicy,
     ProteinSetScoringReport,
     build_protein_set_scoring_report,
@@ -155,6 +158,13 @@ class TissueCellTypeContextReport(JsonModel):
     )
     summary: TissueCellTypeContextSummary
     note: str = Field(..., min_length=1)
+
+
+class _MarkerContextSet(TypedDict):
+    context_kind: BiologicalContextKind
+    context_id: str
+    context_name: str | None
+    member_ids: tuple[str, ...]
 
 
 def build_tissue_cell_type_context_report(
@@ -529,7 +539,11 @@ def render_tissue_cell_type_interpretation_tsv(
 
 def _build_marker_sets(
     marker_records: tuple[BiologicalContextRecord, ...],
-) -> tuple[tuple[ProteinSetRecord, ...], dict[str, dict[str, object]], dict[str, set[str]]]:
+) -> tuple[
+    tuple[ProteinSetRecord, ...],
+    dict[str, _MarkerContextSet],
+    dict[str, set[str]],
+]:
     grouped_records: dict[tuple[BiologicalContextKind, str], list[BiologicalContextRecord]] = (
         defaultdict(list)
     )
@@ -537,7 +551,7 @@ def _build_marker_sets(
         grouped_records[(record.context_kind, record.context_id)].append(record)
 
     protein_set_records: list[ProteinSetRecord] = []
-    context_sets: dict[str, dict[str, object]] = {}
+    context_sets: dict[str, _MarkerContextSet] = {}
     set_aliases: dict[str, set[str]] = {}
     for (context_kind, context_id), records in sorted(
         grouped_records.items(), key=lambda item: (item[0][0].value, item[0][1])
@@ -584,8 +598,8 @@ def _matched_set_ids(
 def _expected_signal_summary(
     sample_id: str,
     matched_set_ids: tuple[str, ...],
-    score_by_sample_and_set: dict[tuple[str, str], object],
-    context_sets: dict[str, dict[str, object]],
+    score_by_sample_and_set: Mapping[tuple[str, str], ProteinSetSampleScoreEntry],
+    context_sets: Mapping[str, _MarkerContextSet],
 ) -> tuple[
     float | None,
     int,
@@ -638,8 +652,8 @@ def _build_unexpected_signal_entries(
     batch: str | None,
     label: str | None,
     matched_set_ids: tuple[str, ...],
-    score_by_sample_and_set: dict[tuple[str, str], object],
-    context_sets: dict[str, dict[str, object]],
+    score_by_sample_and_set: Mapping[tuple[str, str], ProteinSetSampleScoreEntry],
+    context_sets: Mapping[str, _MarkerContextSet],
     *,
     minimum_activity_score: float,
     expected_marker_score: float | None,
