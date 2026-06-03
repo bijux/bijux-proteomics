@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 import yaml
@@ -39,10 +40,13 @@ def _write_descriptor_copy(
     tmp_path: Path,
     source_name: str,
     *,
-    mutate: Callable[[dict], None] | None = None,
+    mutate: Callable[[dict[str, Any]], None] | None = None,
 ) -> Path:
     source_path = public_benchmark_root() / source_name / "dataset.yml"
-    payload = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    payload = cast(
+        dict[str, Any],
+        yaml.safe_load(source_path.read_text(encoding="utf-8")),
+    )
     if mutate is not None:
         mutate(payload)
     target_dir = tmp_path / source_name
@@ -53,12 +57,13 @@ def _write_descriptor_copy(
 
 
 def _rewrite_descriptor_source(
-    payload: dict,
+    payload: dict[str, Any],
     *,
     schema_id: str,
     path: Path,
 ) -> None:
-    for source in payload["source_files"]:
+    source_files = cast(list[dict[str, Any]], payload["source_files"])
+    for source in source_files:
         if source["schema_id"] == schema_id:
             source["repo_relative_path"] = str(path)
             source["sha256"] = _sha256(path)

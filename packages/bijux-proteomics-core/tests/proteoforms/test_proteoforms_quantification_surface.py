@@ -10,6 +10,7 @@ from bijux_proteomics.domain.records import (
     QuantMeasureKind,
 )
 from bijux_proteomics.proteoforms.assembly import (
+    ProteoformCandidateEntry,
     ProteoformPeptideEvidence,
     ProteoformPtmEvidence,
     assemble_proteoform_candidates,
@@ -128,7 +129,7 @@ def test_quantify_supported_proteoforms_withholds_shared_only_signal_for_competi
     )
 
 
-def _assembled_candidates():
+def _assembled_candidates() -> tuple[ProteoformCandidateEntry, ...]:
     return assemble_proteoform_candidates(
         (
             ProteoformPeptideEvidence(

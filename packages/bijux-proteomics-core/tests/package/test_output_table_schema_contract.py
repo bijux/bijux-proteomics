@@ -66,7 +66,9 @@ def test_tsv_exporters_route_rendered_tables_through_output_table_helper() -> No
             }
             rendered_tsv_calls.discard(None)
             if not any(
-                name.startswith("render_") and name.endswith("_tsv")
+                name is not None
+                and name.startswith("render_")
+                and name.endswith("_tsv")
                 for name in rendered_tsv_calls
             ):
                 continue

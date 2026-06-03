@@ -11,11 +11,14 @@ from bijux_proteomics.workflow.public_benchmark_descriptors import (
     public_benchmark_root,
 )
 from bijux_proteomics.workflow.public_benchmark_subset import (
+    PublicBenchmarkSubsetReport,
     build_public_benchmark_subset,
 )
 
 
-def _subset_input_rows(report, source_id: str) -> tuple[dict[str, str], ...]:
+def _subset_input_rows(
+    report: PublicBenchmarkSubsetReport, source_id: str
+) -> tuple[dict[str, str], ...]:
     subset_input = next(
         item for item in report.subset_inputs if item.source_id == source_id
     )

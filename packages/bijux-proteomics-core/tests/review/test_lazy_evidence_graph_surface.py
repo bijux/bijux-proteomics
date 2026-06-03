@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from bijux_proteomics.review import (
@@ -16,6 +18,12 @@ from bijux_proteomics.review import (
     render_proteomics_evidence_graph_edges_tsv,
     render_proteomics_evidence_graph_nodes_tsv,
 )
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
+    ProteomicsEvidenceGraph,
+)
+from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
+    LazyProteomicsEvidenceGraph,
+)
 from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
     load_lazy_proteomics_evidence_graph,
 )
@@ -23,7 +31,9 @@ from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
 from .test_evidence_graph_query_engine_surface import build_review_query_fixture_graph
 
 
-def _write_lazy_graph_artifacts(tmp_path):
+def _write_lazy_graph_artifacts(
+    tmp_path: Path,
+) -> tuple[ProteomicsEvidenceGraph, LazyProteomicsEvidenceGraph]:
     graph = build_review_query_fixture_graph()
     bundle = export_proteomics_evidence_graph(graph)
     nodes_path = tmp_path / "evidence_graph_nodes.tsv"
@@ -40,7 +50,7 @@ def _write_lazy_graph_artifacts(tmp_path):
 
 
 def test_load_lazy_proteomics_evidence_graph_preserves_summary_and_node_lookup(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
 
@@ -50,7 +60,7 @@ def test_load_lazy_proteomics_evidence_graph_preserves_summary_and_node_lookup(
 
 
 def test_load_lazy_proteomics_evidence_graph_rejects_missing_edge_endpoints(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     graph = build_review_query_fixture_graph()
     bundle = export_proteomics_evidence_graph(graph)
@@ -76,7 +86,9 @@ def test_load_lazy_proteomics_evidence_graph_rejects_missing_edge_endpoints(
         load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
 
 
-def test_lazy_graph_matches_eager_protein_peptide_and_ptm_queries(tmp_path) -> None:
+def test_lazy_graph_matches_eager_protein_peptide_and_ptm_queries(
+    tmp_path: Path,
+) -> None:
     graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
 
     eager_protein = query_protein_evidence_summary(graph, protein_id="P11111")
@@ -91,7 +103,7 @@ def test_lazy_graph_matches_eager_protein_peptide_and_ptm_queries(tmp_path) -> N
     assert lazy_ptm == eager_ptm
 
 
-def test_lazy_graph_matches_eager_pathway_and_qc_queries(tmp_path) -> None:
+def test_lazy_graph_matches_eager_pathway_and_qc_queries(tmp_path: Path) -> None:
     graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
 
     eager_pathway = query_pathway_support_proteins(graph, pathway_id="R-HSA-199420")
@@ -103,7 +115,7 @@ def test_lazy_graph_matches_eager_pathway_and_qc_queries(tmp_path) -> None:
     assert lazy_qc == eager_qc
 
 
-def test_lazy_graph_matches_eager_rejected_evidence_paths(tmp_path) -> None:
+def test_lazy_graph_matches_eager_rejected_evidence_paths(tmp_path: Path) -> None:
     graph, lazy_graph = _write_lazy_graph_artifacts(tmp_path)
 
     eager_path = query_rejected_evidence_path(graph, node_id="psm:psm:1002")

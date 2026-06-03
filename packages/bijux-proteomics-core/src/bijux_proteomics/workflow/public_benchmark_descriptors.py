@@ -302,10 +302,6 @@ def resolve_public_benchmark_path(benchmark_path: Path | str | None = None) -> P
     if benchmark_path is None:
         return package_root
     candidate = Path(benchmark_path)
-    if candidate.exists():
-        return candidate
-
-    repo_root = package_root.parents[3]
     normalized = candidate.as_posix().rstrip("/")
     if normalized in {"benchmarks/public", "./benchmarks/public"}:
         return package_root
@@ -314,6 +310,10 @@ def resolve_public_benchmark_path(benchmark_path: Path | str | None = None) -> P
         return package_root / normalized.removeprefix(prefix)
     if normalized.startswith(f"./{prefix}"):
         return package_root / normalized.removeprefix(f"./{prefix}")
+    if candidate.exists():
+        return candidate
+
+    repo_root = package_root.parents[3]
     repo_relative_prefix = repo_root / "benchmarks" / "public"
     if candidate.is_absolute() and candidate == repo_relative_prefix:
         return package_root

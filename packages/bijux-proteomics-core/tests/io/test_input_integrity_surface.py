@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics.io.input_integrity import (
     render_input_integrity_issues_tsv,
     scan_input_integrity,
@@ -54,7 +56,7 @@ def test_scan_input_integrity_detects_expected_row_level_failures(
 
 def test_scan_input_integrity_streams_large_file_without_read_text(
     tmp_path: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     large_tsv = tmp_path / "large_input.tsv"
     with large_tsv.open("w", encoding="utf-8", newline="") as handle:
@@ -64,8 +66,8 @@ def test_scan_input_integrity_streams_large_file_without_read_text(
         handle.write("S5000\t5001.0\tP5000\textra_column\n")
 
     def _forbid_read_text(
-        self: Path, *args, **kwargs
-    ):  # pragma: no cover - proof guard
+        self: Path, *args: object, **kwargs: object
+    ) -> str:  # pragma: no cover - proof guard
         raise AssertionError(
             "scan_input_integrity must not read whole files with read_text"
         )
