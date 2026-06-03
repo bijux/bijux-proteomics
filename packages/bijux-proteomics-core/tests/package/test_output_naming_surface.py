@@ -101,7 +101,7 @@ def _function_node(module: ast.Module, name: str) -> ast.FunctionDef:
     raise AssertionError(f"missing function {name!r}")
 
 
-def _call_target_name(node: ast.AST) -> str | None:
+def _call_target_name(node: ast.AST | None) -> str | None:
     if isinstance(node, ast.Call):
         if isinstance(node.func, ast.Name):
             return node.func.id

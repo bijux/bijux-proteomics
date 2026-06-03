@@ -5,7 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io import parse_experimental_design_table
+from bijux_proteomics.io.formats.proteomics_formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.targeted import (
     build_skyline_result_import_report,
     build_targeted_assay_qc_report,
@@ -16,7 +19,7 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
-def _design_entries() -> tuple:
+def _design_entries() -> tuple[ExperimentalDesignEntry, ...]:
     return parse_experimental_design_table(
         _format_fixture("skyline_targeted_qc.design.tsv")
     ).accepted_entries

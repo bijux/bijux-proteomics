@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from bijux_proteomics.study import (
     AcquisitionType,
@@ -19,6 +20,7 @@ from bijux_proteomics.study import (
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
 )
+from bijux_proteomics.lab.qc import QcThresholdPolicy
 
 
 def _write_protocol_table(tmp_path: Path, body: str) -> Path:
@@ -49,10 +51,20 @@ def _protocol_entry(
     )
 
 
-def _threshold(policy, metric_key: str, field_name: str) -> float | None:
+def _threshold(
+    policy: QcThresholdPolicy,
+    metric_key: str,
+    field_name: Literal["lower_warn", "lower_fail", "upper_warn", "upper_fail"],
+) -> float | None:
     for rule in policy.rules:
         if rule.metric_key == metric_key:
-            return getattr(rule, field_name)
+            if field_name == "lower_warn":
+                return rule.lower_warn
+            if field_name == "lower_fail":
+                return rule.lower_fail
+            if field_name == "upper_warn":
+                return rule.upper_warn
+            return rule.upper_fail
     raise AssertionError(f"missing QC rule for {metric_key}")
 
 

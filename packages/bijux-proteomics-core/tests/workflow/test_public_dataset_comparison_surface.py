@@ -10,13 +10,13 @@ import yaml
 from bijux_proteomics.workflow import (
     PublicDatasetComparisonDatasetStatus,
     build_public_dataset_comparison_report,
-    public_benchmark_root,
     render_public_dataset_combined_summary_tsv,
     render_public_dataset_dataset_summary_tsv,
     render_public_dataset_failure_tsv,
     render_public_dataset_meta_analysis_tsv,
     render_public_dataset_pathway_comparison_tsv,
 )
+from bijux_proteomics.workflow.public_benchmark_descriptors import public_benchmark_root
 
 
 def _benchmark_descriptor(source_name: str) -> Path:

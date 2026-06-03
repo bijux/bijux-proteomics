@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.lab import (
     BackgroundComparisonEntry,
     CohortBalanceEntry,
@@ -148,7 +150,7 @@ def test_render_lab_action_packets_tsv_is_stable() -> None:
 
 
 def test_build_lab_action_packets_from_qc_assessment_preserves_failed_run_handoff(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     assessment_path = tmp_path / "run_qc.tsv"
     assessment_path.write_text(
@@ -181,7 +183,9 @@ def test_build_lab_action_packets_from_qc_assessment_preserves_failed_run_handof
     assert "sample-level interpretation" in sample_packet.recommended_action
 
 
-def test_parse_lab_action_packet_tsv_round_trips_rendered_packets(tmp_path) -> None:
+def test_parse_lab_action_packet_tsv_round_trips_rendered_packets(
+    tmp_path: Path,
+) -> None:
     packets = (
         LabActionPacket(
             entity_type="run",

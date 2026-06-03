@@ -48,7 +48,7 @@ def test_click_command_wrappers_stay_thin() -> None:
             violations.append(
                 f"{path.name} still defines local runner functions: {sorted(local_run_functions)}"
             )
-        imported_run_functions = set()
+        imported_run_functions: set[str] = set()
         for node in module.body:
             if not isinstance(node, ast.ImportFrom):
                 continue

@@ -5,10 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.workflow import (
+from bijux_proteomics.workflow import run_public_benchmark_descriptor_suite
+from bijux_proteomics.workflow.public_benchmark_descriptors import (
     load_public_benchmark_descriptor,
     public_benchmark_root,
-    run_public_benchmark_descriptor_suite,
 )
 
 
