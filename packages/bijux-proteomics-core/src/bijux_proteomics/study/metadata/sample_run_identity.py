@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from enum import StrEnum
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -313,38 +314,40 @@ def _resolve_entry_field(
     entry: ExperimentalDesignEntry,
     field: str,
 ) -> str | None:
-    direct_fields = {
-        "sample_id": entry.sample_id,
-        "cohort": entry.cohort,
-        "condition": entry.condition,
-        "batch": entry.batch,
-        "instrument": entry.instrument,
-        "search_engine": entry.search_engine,
-        "pair_id": entry.pair_id,
-        "technical_replicate_id": entry.technical_replicate_id,
-        "multiplex_group": entry.multiplex_group,
-        "multiplex_channel": entry.multiplex_channel,
-        "sample_role": entry.sample_role.value,
+    direct_fields: dict[str, str | None] = {
+        "sample_id": cast(str, entry.sample_id),
+        "cohort": cast(str | None, entry.cohort),
+        "condition": cast(str, entry.condition),
+        "batch": cast(str | None, entry.batch),
+        "instrument": cast(str | None, entry.instrument),
+        "search_engine": cast(str | None, entry.search_engine),
+        "pair_id": cast(str | None, entry.pair_id),
+        "technical_replicate_id": cast(str | None, entry.technical_replicate_id),
+        "multiplex_group": cast(str | None, entry.multiplex_group),
+        "multiplex_channel": cast(str | None, entry.multiplex_channel),
+        "sample_role": cast(str, entry.sample_role.value),
     }
+    metadata = cast(dict[str, str], entry.metadata)
     if field == "tissue_or_cell_type":
         return (
-            entry.metadata.get("tissue_or_cell_type")
-            or entry.metadata.get("tissue")
-            or entry.metadata.get("cell_type")
+            metadata.get("tissue_or_cell_type")
+            or metadata.get("tissue")
+            or metadata.get("cell_type")
         )
     if field in direct_fields:
         return direct_fields[field]
-    return entry.metadata.get(field)
+    return metadata.get(field)
 
 
 def _technical_replicate_id(entry: ExperimentalDesignEntry) -> str:
-    if entry.technical_replicate_id not in (None, ""):
-        if entry.technical_replicate_id is None:
+    technical_replicate_id = cast(str | None, entry.technical_replicate_id)
+    if technical_replicate_id not in (None, ""):
+        if technical_replicate_id is None:
             raise RuntimeError(
                 "technical replicate identity normalization requires a concrete replicate id"
             )
-        return entry.technical_replicate_id
-    return entry.spectra_file
+        return technical_replicate_id
+    return cast(str, entry.spectra_file)
 
 
 _DEFAULT_CONSISTENCY_FIELDS = (
