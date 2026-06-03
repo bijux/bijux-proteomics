@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     QuantEntityLevel,
@@ -18,7 +19,10 @@ from bijux_proteomics.quantification import (
 )
 
 
-def _table_and_design():
+def _table_and_design() -> tuple[
+    LabelFreeQuantTable,
+    tuple[ExperimentalDesignEntry, ...],
+]:
     records = (
         Ms1FeatureRecord(
             feature_id="ma-001",

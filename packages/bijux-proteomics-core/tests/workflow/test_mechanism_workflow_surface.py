@@ -7,21 +7,26 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.study import build_experiment_design
-from bijux_proteomics.workflow import (
+from bijux_proteomics.workflow.mechanisms import (
     MechanismCardKind,
-    build_biological_result_report_bundle,
     build_mechanism_cards,
-    build_proteomics_study_result,
     render_mechanism_card_summary_tsv,
     render_mechanism_cards_tsv,
 )
+from bijux_proteomics.workflow.reports.biological_report_assembly import (
+    build_biological_result_report_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_models import (
+    BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.study_result import build_proteomics_study_result
 
 
 def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def _mechanism_ready_report():
+def _mechanism_ready_report() -> BiologicalResultReportBundle:
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")

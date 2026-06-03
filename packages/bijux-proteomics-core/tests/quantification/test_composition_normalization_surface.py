@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     Ms1FeatureRecord,
     NormalizationMethod,
     QuantEntityLevel,
@@ -13,7 +14,7 @@ from bijux_proteomics.quantification import (
 )
 
 
-def _dominated_table():
+def _dominated_table() -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         (
             Ms1FeatureRecord(

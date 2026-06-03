@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -221,7 +222,7 @@ def _records() -> tuple[Ms1FeatureRecord, ...]:
     )
 
 
-def _protein_table():
+def _protein_table() -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PROTEIN,

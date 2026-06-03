@@ -7,6 +7,7 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
+    LabelFreeQuantTable,
     MissingValueKind,
     Ms1FeatureRecord,
     NormalizationMethod,
@@ -124,7 +125,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     raw = build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PROTEIN,

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     MissingValueKind,
@@ -82,7 +84,9 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def test_heatmap_preparation_exports_matrix_and_metadata_ledgers(tmp_path) -> None:
+def test_heatmap_preparation_exports_matrix_and_metadata_ledgers(
+    tmp_path: Path,
+) -> None:
     raw = build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PROTEIN,

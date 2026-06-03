@@ -5,10 +5,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
     QuantEntityLevel,
     QuantRollupMethod,
+    Ms1FeatureRecord,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,
@@ -30,7 +35,11 @@ def _quant_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
 
 
-def _table_and_design():
+def _table_and_design() -> tuple[
+    tuple[Ms1FeatureRecord, ...],
+    LabelFreeQuantTable,
+    tuple[ExperimentalDesignEntry, ...],
+]:
     feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
     design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
     table = build_label_free_intensity_table(

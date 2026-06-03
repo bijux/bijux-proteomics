@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.quantification import (
     CompositionalBiasRisk,
+    LabelFreeQuantTable,
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -14,7 +15,7 @@ from bijux_proteomics.quantification import (
 )
 
 
-def _table():
+def _table() -> LabelFreeQuantTable:
     return build_label_free_intensity_table(
         (
             Ms1FeatureRecord(
