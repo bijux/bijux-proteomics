@@ -6,8 +6,14 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
+    TmtExperimentWorkflowBundle,
+    TmtExperimentWorkflowExportManifest,
+)
 
 def run_tmt_ratio_command(
     input_tsv: Path,
@@ -376,8 +382,15 @@ def run_tmt_report_command(
     )
     workflow_report = result.report
     workflow_manifest = result.export_manifest
-    if workflow_manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(workflow_report, TmtExperimentWorkflowBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected TMT workflow bundle"
+        )
+    if not isinstance(workflow_manifest, TmtExperimentWorkflowExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected TMT workflow manifest"
+        )
+    workflow_report = cast(TmtExperimentWorkflowBundle, workflow_report)
 
     _emit_json(
         {

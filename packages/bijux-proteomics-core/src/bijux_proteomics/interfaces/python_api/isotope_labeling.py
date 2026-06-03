@@ -6,8 +6,14 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.workflow.pipelines.label_based_reporting import (
+    LabelBasedReportBundle,
+    LabelBasedReportExportManifest,
+)
 
 def run_silac_quantify_command(
     input_tsv: Path,
@@ -291,8 +297,15 @@ def run_silac_report_command(
     )
     report = result.report
     manifest = result.export_manifest
-    if manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(report, LabelBasedReportBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected SILAC workflow bundle"
+        )
+    if not isinstance(manifest, LabelBasedReportExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected SILAC workflow manifest"
+        )
+    report = cast(LabelBasedReportBundle, report)
 
     _emit_json(
         {

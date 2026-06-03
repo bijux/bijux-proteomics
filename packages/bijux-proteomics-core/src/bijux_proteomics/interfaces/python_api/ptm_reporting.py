@@ -6,10 +6,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics._output_tables import write_output_table_tsv
+from typing import cast
 
+from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
+    PtmSiteWorkflowBundle,
+    PtmSiteWorkflowExportManifest,
+)
 
 def run_ptm_report_command(
     evidence_tsv: Path,
@@ -102,8 +107,15 @@ def run_ptm_report_command(
     )
     workflow_report = result.report
     workflow_manifest = result.export_manifest
-    if workflow_manifest is None:
-        raise click.ClickException("workflow export manifest was not produced")
+    if not isinstance(workflow_report, PtmSiteWorkflowBundle):
+        raise click.ClickException(
+            "workflow did not produce the expected PTM report bundle"
+        )
+    if not isinstance(workflow_manifest, PtmSiteWorkflowExportManifest):
+        raise click.ClickException(
+            "workflow did not produce the expected PTM report manifest"
+        )
+    workflow_report = cast(PtmSiteWorkflowBundle, workflow_report)
 
     _emit_json(
         {

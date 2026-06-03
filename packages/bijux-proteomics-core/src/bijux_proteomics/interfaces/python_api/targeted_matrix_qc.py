@@ -6,8 +6,13 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.targeted.assay_qc import TargetedAssayQcReport
+from bijux_proteomics.targeted.result_import import TargetedResultImportReport
+from bijux_proteomics.targeted.target_matrix import TargetedMatrixReport
 
 def run_transition_qc_command(
     transition_table: Path,
@@ -78,10 +83,8 @@ def run_targeted_target_matrix_command(
             stage=TargetedWorkflowStage.MATRIX,
         )
     )
-    import_report = result.source_report
-    matrix_report = result.report
-    if import_report is None:
-        raise click.ClickException("workflow source report was not produced")
+    import_report = cast(TargetedResultImportReport, result.source_report)
+    matrix_report = cast(TargetedMatrixReport, result.report)
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_targeted_matrix_summary_tsv(matrix_report))
@@ -176,10 +179,8 @@ def run_targeted_assay_qc_command(
             design_tsv_path=design_path,
         )
     )
-    import_report = result.source_report
-    assay_qc_report = result.report
-    if import_report is None:
-        raise click.ClickException("workflow source report was not produced")
+    import_report = cast(TargetedResultImportReport, result.source_report)
+    assay_qc_report = cast(TargetedAssayQcReport, result.report)
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report))
