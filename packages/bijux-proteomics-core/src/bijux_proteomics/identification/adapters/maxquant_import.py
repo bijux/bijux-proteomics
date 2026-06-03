@@ -374,7 +374,7 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
                     row.target_decoy_label.value,
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -429,7 +429,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
                     row.target_decoy_label.value,
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -492,7 +492,7 @@ def render_maxquant_protein_group_tsv(
                     str(row.contaminant_flag).lower(),
                     str(row.only_identified_by_site).lower(),
                     lfq_payload,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -549,7 +549,7 @@ def render_maxquant_lfq_candidate_tsv(
                     str(row.only_identified_by_site).lower(),
                     str(row.observed_lfq_experiment_count),
                     lfq_payload,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )

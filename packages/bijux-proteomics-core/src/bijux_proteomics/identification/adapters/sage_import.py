@@ -264,7 +264,7 @@ def render_sage_canonical_psm_tsv(rows: tuple[SageCanonicalPsmEntry, ...]) -> st
                     "" if row.precursor_ppm is None else f"{row.precursor_ppm:.6g}",
                     "" if row.fragment_ppm is None else f"{row.fragment_ppm:.6g}",
                     *(
-                        row.record.provenance.to_tsv_row()
+                        row.record.provenance.to_tsv_cells()
                         if row.record.provenance
                         else ("", "", "", "")
                     ),
@@ -330,7 +330,7 @@ def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
                     else f"{row.matched_intensity_fraction:.6g}",
                     "" if row.precursor_ppm is None else f"{row.precursor_ppm:.6g}",
                     "" if row.fragment_ppm is None else f"{row.fragment_ppm:.6g}",
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -359,6 +359,9 @@ def _build_sage_psm_rows(
         if not evidence_row.accepted or evidence_row.normalized_record is None:
             continue
         record = evidence_row.normalized_record
+        provenance = record.provenance
+        if provenance is None:
+            raise ValueError("normalized Sage PSM rows must preserve row provenance")
         peptide_report = build_search_engine_modified_peptide_report(
             record.peptide,
             dialect=SearchEngineModifiedPeptideDialect.SAGE,
@@ -386,7 +389,7 @@ def _build_sage_psm_rows(
                 matched_intensity_fraction=_fraction(raw.get("matched_intensity_pct")),
                 precursor_ppm=_optional_float(raw.get("precursor_ppm")),
                 fragment_ppm=_optional_float(raw.get("fragment_ppm")),
-                provenance=record.provenance,
+                provenance=provenance,
             )
         )
     return tuple(

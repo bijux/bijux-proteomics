@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING
+from xml.etree.ElementTree import Element
 
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
@@ -279,7 +280,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
                     else f"{row.retention_time_seconds:.6g}",
                     ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -310,7 +311,7 @@ def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str
                     "" if row.score is None else f"{row.score:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -358,7 +359,7 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
                     if row.retention_time_seconds is None
                     else f"{row.retention_time_seconds:.6g}",
                     row.missing_reason or "",
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -581,7 +582,7 @@ def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReview
     )
 
 
-def _parse_openms_idxml_root(path: Path) -> ET.Element:
+def _parse_openms_idxml_root(path: Path) -> Element:
     try:
         root = ET.parse(path).getroot()
     except ET.ParseError as exc:

@@ -399,7 +399,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                     zip(
                         ImportedEvidenceProvenance.tsv_header(),
                         (
-                            record.provenance.to_tsv_row()
+                            record.provenance.to_tsv_cells()
                             if record.provenance is not None
                             else ("", "", "", "")
                         ),

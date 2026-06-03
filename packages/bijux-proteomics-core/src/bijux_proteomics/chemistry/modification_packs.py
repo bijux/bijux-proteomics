@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
 from pathlib import Path
 
@@ -80,9 +81,12 @@ class ModificationPackEntry(JsonModel):
     def _normalize_aliases(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        tokens: tuple[str, ...]
         if isinstance(value, str):
             tokens = (value,)
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("aliases must be iterable")
             tokens = tuple(str(token) for token in value)
         normalized = tuple(token.strip() for token in tokens if token.strip())
         return tuple(dict.fromkeys(normalized))
@@ -92,9 +96,12 @@ class ModificationPackEntry(JsonModel):
     def _normalize_allowed_residues(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        residues: tuple[str, ...]
         if isinstance(value, str):
             residues = tuple(value.strip().upper())
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("allowed_residues must be iterable")
             residues = tuple(str(token).strip().upper() for token in value)
         invalid = [residue for residue in residues if residue not in _CANONICAL_RESIDUES]
         if invalid:
@@ -112,9 +119,12 @@ class ModificationPackEntry(JsonModel):
     ) -> tuple[ModificationPackTerminus, ...]:
         if value in (None, ""):
             return ()
+        tokens: tuple[str, ...]
         if isinstance(value, str):
             tokens = (value,)
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("allowed_termini must be iterable")
             tokens = tuple(str(token) for token in value)
         normalized = [
             ModificationPackTerminus(token.strip().lower())
@@ -135,6 +145,8 @@ class ModificationPackEntry(JsonModel):
             return ()
         if isinstance(value, tuple):
             return value
+        if not isinstance(value, Iterable):
+            raise ValueError("neutral_losses must be iterable")
         return tuple(value)
 
     @field_validator("ptm_class")

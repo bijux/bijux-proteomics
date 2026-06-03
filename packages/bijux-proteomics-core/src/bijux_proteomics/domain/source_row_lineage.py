@@ -26,6 +26,7 @@ class SourceRowLineage(JsonModel):
     def _normalize_source_row_refs(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        tokens: tuple[str, ...]
         if isinstance(value, str):
             tokens = (value,)
         else:

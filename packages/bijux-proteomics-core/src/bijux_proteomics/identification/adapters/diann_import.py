@@ -302,7 +302,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -348,7 +348,7 @@ def render_diann_protein_group_tsv(
                     else f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )

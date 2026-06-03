@@ -48,7 +48,7 @@ def map_ptm_evidence_to_protein_sites(
 def build_ptm_protein_site_mapping_report(
     records: tuple[PtmEvidenceRecord, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: Mapping[str, str],
     registry: ModificationRegistryDocument | None = None,
 ) -> PtmProteinSiteMappingReport:
     """Map residue-localized PTM peptides and classify exact, ambiguous, and unmapped cases."""
@@ -547,7 +547,7 @@ def render_ptm_unmapped_peptide_tsv(
                 ),
                 entry.reason_code,
                 entry.detail,
-                *entry.provenance.to_tsv_row(),
+                *entry.provenance.to_tsv_cells(),
             ]
         )
     return buffer.getvalue()
@@ -594,7 +594,7 @@ def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
                 str(entry.ambiguous).lower(),
                 str(entry.shared_peptide).lower(),
                 entry.target_decoy_label.value,
-                *entry.provenance.to_tsv_row(),
+                *entry.provenance.to_tsv_cells(),
             ]
         )
     return buffer.getvalue()

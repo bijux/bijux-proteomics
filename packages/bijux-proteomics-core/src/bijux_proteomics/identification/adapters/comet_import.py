@@ -247,7 +247,7 @@ def render_comet_canonical_psm_tsv(rows: tuple[CometCanonicalPsmEntry, ...]) -> 
                     "" if row.delta_cn is None else f"{row.delta_cn:.6g}",
                     "" if row.sp_score is None else f"{row.sp_score:.6g}",
                     *(
-                        row.record.provenance.to_tsv_row()
+                        row.record.provenance.to_tsv_cells()
                         if row.record.provenance
                         else ("", "", "", "")
                     ),
@@ -295,7 +295,7 @@ def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
                     "" if row.sp_score is None else f"{row.sp_score:.6g}",
                     ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -376,6 +376,9 @@ def _build_tabular_rows(
         if not evidence_row.accepted or evidence_row.normalized_record is None:
             continue
         record = evidence_row.normalized_record
+        provenance = record.provenance
+        if provenance is None:
+            raise ValueError("normalized Comet PSM rows must preserve row provenance")
         raw = evidence_row.raw_fields
         peptide_report = build_search_engine_modified_peptide_report(
             raw.get("modified_peptide", record.peptide),
@@ -395,7 +398,7 @@ def _build_tabular_rows(
                 sp_score=_optional_float(raw.get("sp_score")),
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
-                provenance=record.provenance,
+                provenance=provenance,
             )
         )
     return tuple(
@@ -507,10 +510,18 @@ def _build_review_rows_from_canonical_psms(
             sp_score=row.sp_score,
             protein_refs=row.record.protein_refs,
             target_decoy_label=row.record.target_decoy_label,
-            provenance=row.record.provenance,
+            provenance=_required_provenance(row.record.provenance),
         )
         for row in rows
     )
+
+
+def _required_provenance(
+    provenance: ImportedEvidenceProvenance | None,
+) -> ImportedEvidenceProvenance:
+    if provenance is None:
+        raise ValueError("canonical Comet PSM rows must preserve row provenance")
+    return provenance
 
 
 def _label_from_proteins(proteins: tuple[str, ...]) -> TargetDecoyLabel:

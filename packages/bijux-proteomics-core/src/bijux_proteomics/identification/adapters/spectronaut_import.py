@@ -323,7 +323,7 @@ def render_spectronaut_precursor_tsv(
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -369,7 +369,7 @@ def render_spectronaut_protein_group_tsv(
                     else f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -413,7 +413,7 @@ def render_spectronaut_precursor_quantity_tsv(
                     row.sample_name,
                     f"{row.precursor_quantity:.6g}",
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -458,7 +458,7 @@ def render_spectronaut_protein_group_quantity_tsv(
                     f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )

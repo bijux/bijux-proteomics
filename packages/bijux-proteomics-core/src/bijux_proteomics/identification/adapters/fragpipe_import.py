@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import csv
 from pathlib import Path
 
@@ -392,7 +393,7 @@ def render_fragpipe_canonical_psm_tsv(
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
                     *(
-                        row.record.provenance.to_tsv_row()
+                        row.record.provenance.to_tsv_cells()
                         if row.record.provenance
                         else ("", "", "", "")
                     ),
@@ -449,7 +450,7 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
                     ";".join(sort_strings(row.observed_modifications)),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -503,7 +504,7 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
                     "" if row.spectral_count is None else str(row.spectral_count),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -546,7 +547,7 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
                     "" if row.spectral_count is None else str(row.spectral_count),
                     "" if row.probability is None else f"{row.probability:.6g}",
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -616,7 +617,7 @@ def render_fragpipe_protein_quantity_tsv(
                     f"{row.abundance:.6g}",
                     row.quantity_kind,
                     row.target_decoy_label.value,
-                    *row.provenance.to_tsv_row(),
+                    *row.provenance.to_tsv_cells(),
                 )
             )
         )
@@ -683,6 +684,9 @@ def _build_fragpipe_psm_rows(
         record = row.normalized_record
         if record is None:
             continue
+        provenance = record.provenance
+        if provenance is None:
+            raise ValueError("normalized FragPipe PSM rows must preserve row provenance")
         raw = row.raw_fields
         modified_peptide = raw.get("Modified Peptide", "").strip() or None
         canonical_modified = _canonical_modified_peptide(modified_peptide)
@@ -710,16 +714,7 @@ def _build_fragpipe_psm_rows(
                     mass_difference,
                     tolerance=open_search_mass_tolerance,
                 ),
-                provenance=record.provenance
-                or ImportedEvidenceProvenance.from_single_row(
-                    source_engine="fragpipe-psm",
-                    source_file=str(normalization_report.source_path),
-                    source_row_number=row.row_number,
-                    original_identifiers={
-                        "spectrum_id": record.spectrum_id,
-                        "peptide": record.peptide,
-                    },
-                ),
+                provenance=provenance,
             )
         )
     return tuple(
@@ -866,22 +861,25 @@ def _build_fragpipe_open_search_evidence(
                 mass_difference=row.mass_difference,
             )
         )
-    for row in peptide_rows:
-        if not row.open_search_candidate or row.mass_difference is None:
+    for peptide_row in peptide_rows:
+        if (
+            not peptide_row.open_search_candidate
+            or peptide_row.mass_difference is None
+        ):
             continue
         rows.append(
             FragpipeOpenSearchEvidenceEntry(
                 entity_kind="peptide",
                 entity_id=_fragpipe_peptide_entity_id(
-                    peptide=row.peptide,
-                    modified_peptide=row.modified_peptide,
-                    charge=row.charge,
+                    peptide=peptide_row.peptide,
+                    modified_peptide=peptide_row.modified_peptide,
+                    charge=peptide_row.charge,
                 ),
-                peptide=row.peptide,
-                canonical_peptide=row.peptide,
-                modified_peptide=row.modified_peptide,
-                canonical_modified_peptide=row.canonical_modified_peptide,
-                mass_difference=row.mass_difference,
+                peptide=peptide_row.peptide,
+                canonical_peptide=peptide_row.peptide,
+                modified_peptide=peptide_row.modified_peptide,
+                canonical_modified_peptide=peptide_row.canonical_modified_peptide,
+                mass_difference=peptide_row.mass_difference,
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.entity_kind, row.entity_id)))
@@ -940,7 +938,7 @@ def _parse_fragpipe_quant_table(
 
 
 def _fragpipe_quant_columns(
-    fieldnames: list[str],
+    fieldnames: Sequence[str],
 ) -> tuple[tuple[str, str, str], ...]:
     prefix_map = (
         ("MaxLFQ Intensity ", "maxlfq_intensity"),

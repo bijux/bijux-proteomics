@@ -302,7 +302,7 @@ def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -
                 "" if item.fragment_label is None else item.fragment_label,
                 "" if item.precursor_mz is None else f"{item.precursor_mz:g}",
                 "" if item.fragment_mz is None else f"{item.fragment_mz:g}",
-                *item.provenance.to_tsv_row(),
+                *item.provenance.to_tsv_cells(),
             ]
         )
     return buffer.getvalue()

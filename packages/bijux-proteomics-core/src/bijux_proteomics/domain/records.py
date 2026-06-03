@@ -103,6 +103,7 @@ class ImportedEvidenceProvenance(_CanonicalRecord):
     def _normalize_source_files(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        tokens: tuple[str, ...]
         if isinstance(value, str):
             tokens = (value,)
         else:
@@ -117,6 +118,7 @@ class ImportedEvidenceProvenance(_CanonicalRecord):
     def _normalize_source_row_numbers(cls, value: object) -> tuple[int, ...]:
         if value in (None, ""):
             return ()
+        values: tuple[int, ...]
         if isinstance(value, int):
             values = (value,)
         else:
@@ -246,7 +248,7 @@ class ImportedEvidenceProvenance(_CanonicalRecord):
             "original_identifiers",
         )
 
-    def to_tsv_row(self) -> tuple[str, ...]:
+    def to_tsv_cells(self) -> tuple[str, ...]:
         """Render provenance cells in the stable TSV header order."""
 
         return (
@@ -255,6 +257,19 @@ class ImportedEvidenceProvenance(_CanonicalRecord):
             self.source_row_number,
             self.original_identifiers_json,
         )
+
+    def to_tsv_row(
+        self,
+        *,
+        columns: list[str] | None = None,
+    ) -> tuple[str, str]:
+        """Render a stable TSV header and row for the provenance payload."""
+
+        flattened = self.to_metadata_fields()
+        ordered_columns = list(columns or self.tsv_header())
+        header = "\t".join(ordered_columns)
+        row = "\t".join(flattened.get(column, "") for column in ordered_columns)
+        return header, row
 
 
 class ProteinRecord(_CanonicalRecord):
@@ -402,9 +417,12 @@ class Contrast(_CanonicalRecord):
     def _normalize_condition_set(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        raw_items: list[str]
         if isinstance(value, str):
             raw_items = value.split(",")
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("condition_set must be iterable")
             raw_items = [str(item) for item in value]
         normalized = tuple(
             dict.fromkeys(item.strip() for item in raw_items if item and item.strip())
@@ -457,6 +475,7 @@ class QuantMatrix(_CanonicalRecord):
     def _normalize_identifier_tuple(cls, value: object) -> tuple[str, ...]:
         if value is None:
             return ()
+        values: tuple[str, ...]
         if isinstance(value, str):
             values = (value,)
         else:
@@ -478,16 +497,16 @@ class QuantMatrix(_CanonicalRecord):
             raise ValueError("support_counts must align with entity_ids")
         if self.row_metadata and len(self.row_metadata) != row_count:
             raise ValueError("row_metadata must align with entity_ids")
-        for row in self.values:
-            if len(row) != column_count:
+        for value_row in self.values:
+            if len(value_row) != column_count:
                 raise ValueError("each values row must align with sample_ids")
-        for row in self.missing_value_states:
-            if len(row) != column_count:
+        for missing_state_row in self.missing_value_states:
+            if len(missing_state_row) != column_count:
                 raise ValueError(
                     "each missing_value_states row must align with sample_ids"
                 )
-        for row in self.support_counts:
-            if len(row) != column_count:
+        for support_count_row in self.support_counts:
+            if len(support_count_row) != column_count:
                 raise ValueError("each support_counts row must align with sample_ids")
         if self.sample_metadata and len(self.sample_metadata) != column_count:
             raise ValueError("sample_metadata must align with sample_ids")

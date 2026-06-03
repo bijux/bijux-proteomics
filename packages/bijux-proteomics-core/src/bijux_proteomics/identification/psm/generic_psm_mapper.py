@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import json
 from pathlib import Path
 
@@ -68,6 +69,8 @@ class GenericPsmTableColumnMapping(JsonModel):
         if isinstance(value, str):
             values: tuple[str, ...] = (value,)
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("explicit decoy/target values must be iterable")
             values = tuple(str(token) for token in value)
         return tuple(token.strip().lower() for token in values if token.strip())
 
@@ -290,7 +293,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                     row.target_decoy_contaminant_class.value,
                     "true" if row.contaminant_flag else "false",
                     *(
-                        row.provenance.to_tsv_row()
+                        row.provenance.to_tsv_cells()
                         if row.provenance is not None
                         else ("", "", "", "")
                     ),
