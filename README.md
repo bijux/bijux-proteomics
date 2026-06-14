@@ -1,5 +1,6 @@
 # bijux-proteomics
 
+
 `bijux-proteomics` is a bounded proteomics product for benchmark-backed
 execution, scientific review, recommendation posture, and lab consequence.
 
