@@ -111,7 +111,7 @@ nl = [
   "langchain-community>=0.3.27",
   "langchain-huggingface>=1.2.1",
   "langchain-text-splitters>=1.1.2",
-  "langsmith>=0.8.0",
+  "langsmith>=0.8.18",
 ]
 api = [
   "openprotein-python>=0.8.8",
