@@ -59,6 +59,11 @@ def test_root_make_declares_shared_and_repo_owned_maintainer_commands() -> None:
     assert "quality-canonical-package-tree:" in root_make
     assert "quality-architecture-regression:" in root_make
 
+    shared_root_make = (
+        REPO_ROOT / "makes" / "bijux-py" / "repository" / "root.mk"
+    ).read_text(encoding="utf-8")
+    assert "setup:" in shared_root_make
+
 
 def test_repository_python_package_profiles_expose_full_test_surfaces() -> None:
     package_make = (REPO_ROOT / "makes" / "proteomics-package.mk").read_text(
