@@ -47,19 +47,31 @@ def _iter_method_guard_routes(app: FastAPI) -> Iterable[tuple[Pattern[str], set[
     """Yield concrete HTTP route matchers for the custom method guard."""
 
     for route in app.router.routes:
-        route_methods = getattr(route, "methods", None)
+        route_methods = _route_methods_for_guard(getattr(route, "methods", None))
         path_regex = getattr(route, "path_regex", None)
         if route_methods and path_regex is not None:
-            yield path_regex, set(route_methods)
+            yield path_regex, route_methods
             continue
         effective_route_contexts = getattr(route, "effective_route_contexts", None)
         if not callable(effective_route_contexts):
             continue
         for context in effective_route_contexts():
-            context_methods = getattr(context, "methods", None)
+            context_methods = _route_methods_for_guard(
+                getattr(context, "methods", None)
+            )
             context_path_regex = getattr(context, "path_regex", None)
             if context_methods and context_path_regex is not None:
-                yield context_path_regex, set(context_methods)
+                yield context_path_regex, context_methods
+
+
+def _route_methods_for_guard(candidate: object) -> set[str]:
+    """Return a method set only when a route exposes concrete string methods."""
+
+    if not isinstance(candidate, (set, frozenset)):
+        return set()
+    if not all(isinstance(method, str) for method in candidate):
+        return set()
+    return set(candidate)
 
 
 @dataclass(frozen=True)
@@ -129,7 +141,9 @@ def create_app(config: AppConfig) -> FastAPI:
                     match, _ = route.matches(scope)
                     if match in {Match.FULL, Match.PARTIAL}:
                         matched = True
-                        route_methods = getattr(route, "methods", None)
+                        route_methods = _route_methods_for_guard(
+                            getattr(route, "methods", None)
+                        )
                         if route_methods:
                             allowed_methods.update(route_methods)
             if matched and request.method not in allowed_methods:
