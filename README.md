@@ -174,7 +174,9 @@ not silent drift from the other `bijux-g3` repos.
 - root optional dependency groups `api`, `local-esmfold`,
   `local-rosettafold`, `nl`, and `test` stay here because runtime and
   maintainer tools need explicit provider, model, language-stack, and
-  reproducible test extras that sibling repos do not own
+  reproducible test extras that sibling repos do not own; the local folding
+  groups intentionally stop short of vendoring `torch` until PyTorch ships a
+  patched release for the current JIT advisory
 - `api-freeze` and `openapi-drift` are repository-level API governance gates
   because Proteomics checks in versioned OpenAPI contracts and refuses
   unreviewed schema drift
