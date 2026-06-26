@@ -40,6 +40,10 @@ ignore = ["DEP002", "DEP003"]
 [tool.repo_deptry.packages."bijux-proteomics-runtime"]
 known_first_party = ["bijux_proteomics_runtime"]
 ignore = ["DEP002", "DEP003"]
+# Runtime keeps torch as an operator-installed backend until the upstream JIT
+# advisory has a real patched release, so deptry must not require a governed
+# package declaration for those optional imports.
+per_rule_ignores = { DEP001 = ["torch"] }
 
 [tool.repo_deptry.packages."proteomics"]
 known_first_party = ["proteomics"]

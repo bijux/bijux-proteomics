@@ -35,17 +35,13 @@ def test_local_provider_install_hints_use_runtime_package(
 
     with pytest.raises(
         PredictionError,
-        match=(
-            "bijux-proteomics-runtime\\[local-esmfold\\].*pip install torch"
-        ),
+        match=("bijux-proteomics-runtime\\[local-esmfold\\].*pip install torch"),
     ):
         factory_module.create_provider("local_esmfold")
 
     with pytest.raises(
         PredictionError,
-        match=(
-            "bijux-proteomics-runtime\\[local-rosettafold\\].*pip install torch"
-        ),
+        match=("bijux-proteomics-runtime\\[local-rosettafold\\].*pip install torch"),
     ):
         factory_module.create_provider("local_rosettafold")
 
