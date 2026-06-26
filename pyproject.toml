@@ -100,12 +100,9 @@ dev = [
 local-esmfold = [
   "transformers>=5.0.0rc3",
   "tokenizers>=0.14",
-  "torch>=2.8",
   "einops>=0.7",
 ]
-local-rosettafold = [
-  "torch>=2.8",
-]
+local-rosettafold = []
 nl = [
   "langchain-core>=1.3.3",
   "langchain-community>=0.3.27",

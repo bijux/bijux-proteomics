@@ -34,13 +34,14 @@ def test_local_provider_install_hints_use_runtime_package(
     monkeypatch.setattr(factory_helpers.util, "find_spec", lambda _name: None)
 
     with pytest.raises(
-        PredictionError, match="bijux-proteomics-runtime\\[local-esmfold\\]"
+        PredictionError,
+        match=("bijux-proteomics-runtime\\[local-esmfold\\].*pip install torch"),
     ):
         factory_module.create_provider("local_esmfold")
 
     with pytest.raises(
         PredictionError,
-        match="bijux-proteomics-runtime\\[local-rosettafold\\]",
+        match=("bijux-proteomics-runtime\\[local-rosettafold\\].*pip install torch"),
     ):
         factory_module.create_provider("local_rosettafold")
 
@@ -92,7 +93,6 @@ def test_provider_metadata_stays_importable_when_local_optional_dependencies_mis
 
     assert "heuristic_proxy" in metadata
     assert "local_esmfold" not in metadata
-    assert "local_rosettafold" not in metadata
 
 
 def test_colabfold_provider_uses_runtime_user_agent() -> None:

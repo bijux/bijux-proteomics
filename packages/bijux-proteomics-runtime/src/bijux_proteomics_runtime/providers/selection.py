@@ -37,7 +37,7 @@ def create_provider(name: str) -> BaseProvider:
     if name == "local_esmfold":
         _require_module(
             "torch",
-            "pip install bijux-proteomics-runtime[local-esmfold]",
+            "pip install bijux-proteomics-runtime[local-esmfold] && pip install torch",
             dependency_name="torch",
             feature_name="provider 'local_esmfold'",
         )
@@ -55,7 +55,7 @@ def create_provider(name: str) -> BaseProvider:
     if name == "local_rosettafold":
         _require_module(
             "torch",
-            "pip install bijux-proteomics-runtime[local-rosettafold]",
+            "pip install bijux-proteomics-runtime[local-rosettafold] && pip install torch",
             dependency_name="torch",
             feature_name="provider 'local_rosettafold'",
         )
