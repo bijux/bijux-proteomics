@@ -5,9 +5,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from re import Pattern
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
@@ -40,6 +41,25 @@ from bijux_proteomics_runtime.support.identity import (
     runtime_description,
     runtime_title,
 )
+
+
+def _iter_method_guard_routes(app: FastAPI) -> Iterable[tuple[Pattern[str], set[str]]]:
+    """Yield concrete HTTP route matchers for the custom method guard."""
+
+    for route in app.router.routes:
+        route_methods = getattr(route, "methods", None)
+        path_regex = getattr(route, "path_regex", None)
+        if route_methods and path_regex is not None:
+            yield path_regex, set(route_methods)
+            continue
+        effective_route_contexts = getattr(route, "effective_route_contexts", None)
+        if not callable(effective_route_contexts):
+            continue
+        for context in effective_route_contexts():
+            context_methods = getattr(context, "methods", None)
+            context_path_regex = getattr(context, "path_regex", None)
+            if context_methods and context_path_regex is not None:
+                yield context_path_regex, set(context_methods)
 
 
 @dataclass(frozen=True)
@@ -96,15 +116,22 @@ def create_app(config: AppConfig) -> FastAPI:
         """Return 405 for unsupported methods on known routes."""
         scope = request.scope
         if scope.get("type") == "http":
+            request_path = scope.get("path")
             matched = False
             allowed_methods: set[str] = set()
-            for route in app.router.routes:
-                match, _ = route.matches(scope)
-                if match in {Match.FULL, Match.PARTIAL}:
-                    matched = True
-                    route_methods = getattr(route, "methods", None)
-                    if route_methods:
+            if isinstance(request_path, str):
+                for path_regex, route_methods in _iter_method_guard_routes(app):
+                    if path_regex.match(request_path) is not None:
+                        matched = True
                         allowed_methods.update(route_methods)
+            else:
+                for route in app.router.routes:
+                    match, _ = route.matches(scope)
+                    if match in {Match.FULL, Match.PARTIAL}:
+                        matched = True
+                        route_methods = getattr(route, "methods", None)
+                        if route_methods:
+                            allowed_methods.update(route_methods)
             if matched and request.method not in allowed_methods:
                 allow_header = ", ".join(sorted(allowed_methods))
                 meta = build_request_correlation_meta(

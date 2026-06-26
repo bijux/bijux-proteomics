@@ -94,6 +94,22 @@ def test_runtime_status_contract_reports_evidence_and_review_documents(
     assert payload["data"]["review_packet"]["availability"] == "available"
 
 
+def test_runtime_status_contract_rejects_unsupported_methods_honestly(
+    tmp_path: Path,
+) -> None:
+    run_id = "run-status-method-guard"
+    _seed_run(tmp_path, run_id)
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    response = client.post(f"/api/v1/runs/{run_id}/status")
+
+    assert response.status_code == 405
+    assert response.headers["allow"] == "GET"
+    payload = response.json()
+    assert payload["error"]["failure_class"] == "method"
+    assert payload["meta"]["surface"] == "method-guard"
+
+
 def test_runtime_artifact_contract_lists_top_level_and_document_artifacts(
     tmp_path: Path,
 ) -> None:
