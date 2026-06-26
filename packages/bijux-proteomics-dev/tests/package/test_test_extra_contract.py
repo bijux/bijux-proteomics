@@ -50,10 +50,10 @@ def test_root_test_dependency_group_routes_through_package_test_surfaces() -> No
 def test_package_test_extras_cover_owned_optional_test_dependencies() -> None:
     expected = {
         "agentic-proteins": {
-            "pytest>=8.4.1,<10.0",
-            "pytest-asyncio>=1.0.0,<2.0",
+            "pytest>=9.1.1,<10.0",
+            "pytest-asyncio>=1.4.0,<2.0",
             "pytest-timeout>=2.4.0,<3.0",
-            "httpx>=0.27.0,<1.0",
+            "httpx>=0.28.1,<1.0",
         },
         "bijux-proteomics-core": {
             "pytest>=8.4.1,<10.0",
