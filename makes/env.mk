@@ -16,11 +16,3 @@ PIP_AUDIT_INPUTS ?=
 SECURITY_PIP_AUDIT_TEXT_COMMAND ?= VIRTUAL_ENV= PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(PIP_AUDIT_PYTHON)" -m bijux_proteomics_dev.security.pip_audit_gate
 
 include $(ROOT_MAKE_DIR)/bijux-py/repository/env.mk
-
-# Package roots expose tracked symlink aliases for repository-owned artifact
-# locations. Keep the aliases stable and let clean targets operate on the
-# canonical repository artifact tree instead of deleting the links themselves.
-COMMON_PYTHON_CLEAN_PATHS := $(filter-out .hypothesis .benchmarks,$(COMMON_PYTHON_CLEAN_PATHS))
-PROJECT_ARTIFACT_PRESERVE_DIRS ?= venv hypothesis benchmarks
-PROJECT_ARTIFACT_CHILD_CLEAN_PATHS := $(shell if [ -d "$(PROJECT_ARTIFACTS_DIR)" ]; then find "$(PROJECT_ARTIFACTS_DIR)" -mindepth 1 -maxdepth 1 $(foreach dir,$(PROJECT_ARTIFACT_PRESERVE_DIRS),! -name "$(dir)") -print; fi)
-COMMON_ARTIFACT_CLEAN_PATHS := $(PROJECT_ARTIFACT_CHILD_CLEAN_PATHS)
