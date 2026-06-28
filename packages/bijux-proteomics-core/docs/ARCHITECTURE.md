@@ -36,7 +36,9 @@ runtime-agnostic workflow seams.
 - `review/` owns decision briefs, collaboration bundles, and structure-report
   surfaces
 - `workflow/` owns scientific workflow blueprints
-- `interfaces/` owns runtime-facing seams, examples, and CLI boundaries
+- `interfaces/` owns runtime-facing seams, reader-facing examples, Python API
+  command runners, CLI boundaries, and compatibility registries for
+  interface-owned helper modules
 - `benchmarks/` owns packaged corpus, adoption, and benchmark evidence surfaces
 - `governance/` owns the machine-readable package charter and owner-map
   boundaries for core scientific surfaces
@@ -46,6 +48,22 @@ runtime-agnostic workflow seams.
 - Import roots: `bijux_proteomics`
 - Top-level families: `benchmarks/`, `biology/`, `chemistry/`, `dia/`, `domain/`, `governance/`, `identification/`, `interfaces/`, `interpretation/`, `io/`, `isotope_labeling/`, `lab/`, `multiplex/`, `panels/`, `proteoforms/`, `ptm/`, `quantification/`, `review/`, `sequences/`, `study/`, `targeted/`, `workflow/`
 - Root modules: `_atomic_files.py`, `_output_tables.py`, `_scientific_tables.py`, `_tabular.py`, `programs.py`, `public_api.py`, `scientific_tables.py`, `tabular.py`
+
+## Interface boundaries
+
+- `bijux_proteomics.interfaces` is a curated package-root example surface for
+  reader-facing scientific walkthroughs
+- `bijux_proteomics.interfaces.python_api` is the programmatic runner surface
+  for package-owned command execution
+- `bijux_proteomics.interfaces.cli` owns the interactive CLI entrypoint and
+  command grouping
+- `bijux_proteomics.interfaces.support` and
+  `bijux_proteomics.interfaces.cli.support` are compatibility registries for
+  support submodules, not the preferred internal import target
+- internal interface code should import owner modules such as
+  `foundation`, `identification`, `interpretation`, `io_and_dia`,
+  `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
+  `workflow` directly instead of reaching through a root support barrel
 
 ## Dependency direction
 

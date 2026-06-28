@@ -110,6 +110,17 @@ Those examples are built from real core functions and show:
 - an explicit refusal when glycopeptide evidence is incomplete
 - a loss-aware normalization report for external search-engine fields
 
+The interface layer is split on purpose:
+
+- `bijux_proteomics.interfaces` is the curated reader-facing example surface
+- `bijux_proteomics.interfaces.python_api` exposes programmatic command runners
+- `bijux_proteomics.interfaces.cli` owns the interactive CLI entrypoint
+- `bijux_proteomics.interfaces.support` is a compatibility registry of support
+  submodules; internal package code should import owner modules such as
+  `foundation`, `identification`, `interpretation`, `io_and_dia`,
+  `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
+  `workflow` directly
+
 Sequence intake and FASTA operations now live in the same package surface:
 
 ```bash
