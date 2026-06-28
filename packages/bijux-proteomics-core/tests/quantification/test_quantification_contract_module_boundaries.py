@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 from importlib import import_module
 from pathlib import Path
 
@@ -91,6 +92,26 @@ _FACADE_EXPORTS = (
     "build_differential_abundance_report",
     "build_quant_design_matrix_report",
 )
+_PRIVATE_HELPERS = (
+    "_condition_lookup",
+    "_effect_size_and_uncertainty",
+    "_log2_values",
+    "_matrix_value_index",
+    "_rebuild_table_from_matrix",
+    "_student_t_two_sided_p_value",
+    "_table_matrix",
+    "_welch_t_test",
+)
+_FORBIDDEN_FACADE_IMPORT_ROOTS = (
+    "benchmarks",
+    "dia",
+    "interpretation",
+    "lab",
+    "multiplex",
+    "ptm",
+    "quantification",
+    "workflow",
+)
 
 
 def test_quantification_contract_modules_stay_within_line_ceiling() -> None:
@@ -119,3 +140,34 @@ def test_quantification_contract_facade_preserves_representative_exports() -> No
 
     for export_name in _FACADE_EXPORTS:
         assert hasattr(facade, export_name), export_name
+
+
+def test_quantification_contract_facade_excludes_private_helpers() -> None:
+    facade = import_module("bijux_proteomics.quantification.contracts")
+
+    for export_name in _PRIVATE_HELPERS:
+        assert not hasattr(facade, export_name), export_name
+
+
+def test_quantification_package_root_rejects_private_helper_lookups() -> None:
+    quantification = import_module("bijux_proteomics.quantification")
+
+    for export_name in _PRIVATE_HELPERS:
+        assert not hasattr(quantification, export_name), export_name
+
+
+def test_core_source_avoids_root_quantification_contract_barrel_imports() -> None:
+    src_root = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
+    violations: list[str] = []
+
+    for root_name in _FORBIDDEN_FACADE_IMPORT_ROOTS:
+        for path in sorted((src_root / root_name).rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in tree.body:
+                if not isinstance(node, ast.ImportFrom):
+                    continue
+                if node.module == "bijux_proteomics.quantification.contracts":
+                    violations.append(str(path.relative_to(src_root)))
+                    break
+
+    assert not violations, "\n".join(violations)
