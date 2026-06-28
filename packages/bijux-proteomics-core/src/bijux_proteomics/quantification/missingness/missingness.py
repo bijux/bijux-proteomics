@@ -15,8 +15,17 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
+    MissingValueCorrectionPolicy,
+    MissingValueKind,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _condition_lookup,
+    _matrix_value_index,
+    coerce_label_free_quant_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.quantification.contracts.missingness import (
     MissingDataMechanism,
     MissingDataMechanismEntry,
     MissingDataMechanismReport,
@@ -28,14 +37,9 @@ from bijux_proteomics.quantification.contracts import (
     MissingnessIntensityBinEntry,
     MissingnessIntensityDependenceReport,
     MissingnessIntensityPoint,
-    MissingValueCorrectionPolicy,
-    MissingValueKind,
     MissingValueSummaryEntry,
     MissingValueSummaryPolicy,
     MissingValueSummaryReport,
-    _condition_lookup,
-    _matrix_value_index,
-    coerce_label_free_quant_table,
 )
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,

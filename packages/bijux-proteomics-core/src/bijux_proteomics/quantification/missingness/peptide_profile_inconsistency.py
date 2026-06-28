@@ -14,7 +14,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import (
     MissingValueKind,
     Ms1FeatureRecord,
     QuantRollupMethod,

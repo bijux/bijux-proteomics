@@ -14,13 +14,13 @@ import numpy as np
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import QuantAssessmentDisposition
+from bijux_proteomics.quantification.contracts.matrix_building import _log2_values
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.quantification.contracts.study_qc import (
     BatchAssociatedPrincipalComponentEntry,
     BatchEffectAdvisoryReport,
     BatchEffectBatchEntry,
-    LabelFreeQuantTable,
-    QuantAssessmentDisposition,
-    _log2_values,
 )
 from bijux_proteomics.quantification.matrix.design_matrix import _resolve_design_value
 from bijux_proteomics.quantification.provenance.sample_exploration import (

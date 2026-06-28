@@ -18,14 +18,18 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    QuantSampleMetadataEntry,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _matrix_value_index,
     coerce_label_free_quant_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantSampleMetadataEntry,
 )
 from bijux_proteomics_foundation import JsonModel
 

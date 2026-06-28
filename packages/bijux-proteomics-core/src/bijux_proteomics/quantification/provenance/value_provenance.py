@@ -12,13 +12,15 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import (
     ImputationMethod,
-    LabelFreeQuantTable,
     MissingValueKind,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
     QuantValueOrigin,
 )
 from bijux_proteomics_foundation import JsonModel

@@ -10,18 +10,22 @@ from typing import TypedDict
 
 import numpy as np
 
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
+    NormalizationMethod,
+    QuantMeasureKind,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _rebuild_table_from_matrix,
+    _table_matrix,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.quantification.contracts.normalization_imputation import (
     NormalizationComparisonReport,
     NormalizationDistributionSnapshot,
     NormalizationLogTransformPreparation,
-    NormalizationMethod,
     NormalizationSampleSnapshot,
     NormalizationStrategyComparisonReport,
     NormalizationStrategySummaryEntry,
-    QuantMeasureKind,
-    _rebuild_table_from_matrix,
-    _table_matrix,
 )
 from bijux_proteomics.quantification.matrix.core_matrix import (
     quant_matrix_to_dense_array,

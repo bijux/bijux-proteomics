@@ -11,7 +11,10 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.quantification.contracts import LabelFreeQuantTable, QuantValue
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantValue,
+)
 from bijux_proteomics_foundation import JsonModel
 
 

@@ -24,13 +24,15 @@ from bijux_proteomics.domain.records import (
 )
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import (
     MissingValueKind,
+    Ms1FeatureRecord,
+    QuantRollupMethod,
+)
+from bijux_proteomics.quantification.contracts.missingness import (
     MissingValueSummaryEntry,
     MissingValueSummaryPolicy,
     MissingValueSummaryReport,
-    Ms1FeatureRecord,
-    QuantRollupMethod,
 )
 from bijux_proteomics.quantification.matrix.core_matrix import (
     build_numeric_quant_matrix,

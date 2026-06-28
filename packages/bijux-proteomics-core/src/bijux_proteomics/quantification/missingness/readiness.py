@@ -14,8 +14,8 @@ from bijux_proteomics.domain.reason_codes import (
     require_registered_reason_codes,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.quantification.contracts.study_qc import (
     build_batch_effect_advisory,
     build_replicate_correlation_report,
 )
