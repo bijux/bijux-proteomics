@@ -10,18 +10,22 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.ptm import (
+from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
-    PtmMotifBackgroundMode,
-    PtmOccupancyCounterpartEvidenceEntry,
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
     PtmSiteEntry,
-    build_ptm_motif_enrichment_background_provenance_report,
+)
+from bijux_proteomics.ptm.localization.localization_scoring import (
+    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
+)
+from bijux_proteomics.ptm.quant.occupancy_estimation import (
+    PtmOccupancyCounterpartEvidenceEntry,
     build_ptm_occupancy_counterpart_report,
 )
-from bijux_proteomics.ptm import (
-    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
+from bijux_proteomics.ptm.regulation.motif_analysis import (
+    PtmMotifBackgroundMode,
+    build_ptm_motif_enrichment_background_provenance_report,
 )
 from bijux_proteomics.ptm.cards.proteoforms import (
     ProteoformEvidenceLevel,

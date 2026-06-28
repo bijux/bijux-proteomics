@@ -11,19 +11,25 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.ptm import (
+from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
-    PtmLocalizationConfidenceTier,
-    PtmLocalizationProbabilitySource,
-    PtmMotifEnrichmentBackgroundProvenanceReport,  # noqa: F401
-    PtmMotifEnrichmentTermEntry,  # noqa: F401
-    PtmOccupancyCounterpartEvidenceReport,
     PtmProteinSiteMapping,
     PtmSiteEntry,
+)
+from bijux_proteomics.ptm.localization.localization_scoring import (
+    PtmLocalizationConfidenceTier,
+    PtmLocalizationProbabilitySource,
     build_ptm_localization_scoring_report,
+)
+from bijux_proteomics.ptm.quant.occupancy_estimation import (
+    PtmOccupancyCounterpartEvidenceReport,
+    build_ptm_occupancy_counterpart_report,
+)
+from bijux_proteomics.ptm.regulation.motif_analysis import (
+    PtmMotifEnrichmentBackgroundProvenanceReport,  # noqa: F401
+    PtmMotifEnrichmentTermEntry,  # noqa: F401
     build_ptm_motif_enrichment_background_provenance_report,  # noqa: F401
     build_ptm_motif_windows,
-    build_ptm_occupancy_counterpart_report,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
