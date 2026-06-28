@@ -49,6 +49,8 @@ _QUANTIFICATION_EXPORT_MODULES = (
 
 
 def __getattr__(name: str) -> Any:
+    if name.startswith("_"):
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     for module_path in _QUANTIFICATION_EXPORT_MODULES:
         module = import_module(module_path)
         if hasattr(module, name):
