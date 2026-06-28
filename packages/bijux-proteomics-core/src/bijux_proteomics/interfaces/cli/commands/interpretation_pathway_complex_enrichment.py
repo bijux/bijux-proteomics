@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Interpretation pathway and complex enrichment CLI commands."""
 
@@ -14,7 +13,6 @@ from bijux_proteomics.interfaces.python_api.interpretation_pathway_complex_enric
     run_complex_enrichment_command,
     run_pathway_enrichment_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("pathway-enrichment")

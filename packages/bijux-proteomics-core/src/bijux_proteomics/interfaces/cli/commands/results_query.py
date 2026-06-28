@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Result search and comparison CLI commands."""
 
@@ -18,7 +17,6 @@ from bijux_proteomics.interfaces.python_api.results_query import (
     run_result_search_command,
     run_validate_result_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("result-search")

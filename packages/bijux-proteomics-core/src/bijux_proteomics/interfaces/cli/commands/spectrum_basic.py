@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Spectrum parsing and QC CLI commands."""
 
@@ -17,7 +16,6 @@ from bijux_proteomics.interfaces.python_api.spectrum_basic import (
     run_spectrum_stats_command,
     run_spectrum_summary_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("spectrum-parse")

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Workflow-specific biological report CLI commands."""
 
@@ -14,8 +13,14 @@ from bijux_proteomics.interfaces.python_api.workflow_biological_reports import (
     run_diann_biological_report_command,
     run_maxquant_biological_report_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    DiaPeptideRollupMethod,
+    DiaProteinMatrixTargetKind,
+    DiaProteinRollupMethod,
+    DiaSharedPeptidePolicy,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.sequence_support import _normalization_choice
 
 
 @click.command("diann-biological-report")

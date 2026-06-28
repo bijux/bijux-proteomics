@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Search import and FragPipe benchmark CLI commands."""
 
@@ -16,7 +15,6 @@ from bijux_proteomics.interfaces.python_api.search_import_fragpipe import (
     run_psm_contaminants_command,
     run_sage_import_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("psm-contaminants")

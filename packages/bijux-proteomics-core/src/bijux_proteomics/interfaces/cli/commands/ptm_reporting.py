@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """PTM reporting CLI commands."""
 
@@ -14,7 +13,13 @@ from bijux_proteomics.interfaces.python_api.ptm_reporting import (
     run_ptm_report_command,
     run_ptm_summarize_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification import (
+    NormalizationMethod,
+    PtmMotifRegulationDirection,
+    PtmProteinCorrectionMode,
+    PtmSiteQuantAmbiguityPolicy,
+)
+from bijux_proteomics.interfaces.support.sequence_support import _normalization_choice
 
 
 @click.command("report")

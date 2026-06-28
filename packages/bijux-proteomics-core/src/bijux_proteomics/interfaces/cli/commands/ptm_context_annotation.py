@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """PTM context-annotation CLI commands."""
 
@@ -13,7 +12,6 @@ import click
 from bijux_proteomics.interfaces.python_api.ptm_context_annotation import (
     run_ptm_annotate_context_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("annotate-context")

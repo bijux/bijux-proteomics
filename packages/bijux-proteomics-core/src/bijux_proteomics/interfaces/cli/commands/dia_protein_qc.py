@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """DIA protein-matrix and QC CLI commands."""
 
@@ -16,7 +15,12 @@ from bijux_proteomics.interfaces.python_api.dia_protein_qc import (
     run_diann_run_qc_command,
     run_spectronaut_protein_matrix_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    DiaPeptideRollupMethod,
+    DiaProteinMatrixTargetKind,
+    DiaProteinRollupMethod,
+    DiaSharedPeptidePolicy,
+)
 
 
 @click.command("diann-protein-matrix")

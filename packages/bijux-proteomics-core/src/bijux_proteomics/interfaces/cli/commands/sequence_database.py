@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """FASTA provenance, decoy, and digestion CLI commands."""
 
@@ -17,7 +16,19 @@ from bijux_proteomics.interfaces.python_api.sequence_database import (
     run_target_decoy_validate_command,
     run_theoretical_digest_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    DecoyGenerationMode,
+    DuplicateAccessionPolicy,
+    FastaParseMode,
+    PeptideDigestionMode,
+)
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _decoy_mode_choice,
+    _digestion_mode_choice,
+    _duplicate_accession_policy_choice,
+    _export_format_choice,
+    _mode_choice,
+)
 
 
 @click.command("fasta-provenance")

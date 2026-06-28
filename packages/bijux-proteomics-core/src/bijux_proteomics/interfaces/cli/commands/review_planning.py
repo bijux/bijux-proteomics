@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Belief audit and validation planning CLI commands."""
 
@@ -15,7 +14,6 @@ from bijux_proteomics.interfaces.python_api.review_planning import (
     run_targeted_panel_builder_command,
     run_validation_experiment_planner_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("belief-audit")

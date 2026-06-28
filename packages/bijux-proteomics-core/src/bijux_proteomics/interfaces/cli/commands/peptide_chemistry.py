@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Peptide chemistry CLI commands."""
 
@@ -17,7 +16,15 @@ from bijux_proteomics.interfaces.python_api.peptide_chemistry import (
     run_peptide_mass_command,
     run_peptide_properties_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    PeptideDigestionMode,
+)
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _digestion_mode_choice,
+    _fragment_series_choice,
+    _mode_choice,
+)
 
 
 @click.command("peptide-index")

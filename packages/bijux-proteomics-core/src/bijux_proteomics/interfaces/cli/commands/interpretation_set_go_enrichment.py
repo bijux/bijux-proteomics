@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Interpretation set and GO enrichment CLI commands."""
 
@@ -14,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment imp
     run_go_enrichment_command,
     run_protein_set_enrichment_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.interpretation import ProteinSetEnrichmentMissingBackgroundPolicy
 
 
 @click.command("protein-set-enrichment")

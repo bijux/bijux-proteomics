@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Vendor import CLI commands."""
 
@@ -14,7 +13,6 @@ from bijux_proteomics.interfaces.python_api.vendor_imports import (
     run_openms_import_command,
     run_spectronaut_import_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("spectronaut-import")

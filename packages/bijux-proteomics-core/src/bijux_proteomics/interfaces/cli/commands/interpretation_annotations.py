@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Interpretation annotation CLI commands."""
 
@@ -14,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_annotations import (
     run_annotate_proteins_command,
     run_map_context_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.interpretation import BiologicalContextKind
 
 
 @click.command("annotate-proteins")

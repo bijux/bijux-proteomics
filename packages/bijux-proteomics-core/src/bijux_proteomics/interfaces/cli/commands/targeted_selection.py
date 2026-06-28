@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Targeted peptide, transition, and biomarker selection CLI commands."""
 
@@ -16,7 +15,7 @@ from bijux_proteomics.interfaces.python_api.targeted_selection import (
     run_targeted_peptide_selection_command,
     run_targeted_transition_selection_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.io_and_dia import SpectralLibraryFormat
 
 
 @click.command("targeted-peptide-selection")

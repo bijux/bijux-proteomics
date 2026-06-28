@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Targeted matrix and assay QC CLI commands."""
 
@@ -16,7 +15,7 @@ from bijux_proteomics.interfaces.python_api.targeted_matrix_qc import (
     run_targeted_target_matrix_command,
     run_transition_qc_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.multiplex_targeted import TargetedResultSourceKind
 
 
 @click.command("transition-qc")

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Stable-isotope labeling CLI commands."""
 
@@ -17,7 +16,16 @@ from bijux_proteomics.interfaces.python_api.isotope_labeling import (
     run_silac_validate_command,
     run_tmt_validate_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.multiplex_targeted import (
+    SilacLabel,
+    TmtSearchResultSourceKind,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _label_based_differential_normalization_choice,
+    _silac_label_choice,
+    _tmt_source_kind_choice,
+)
 
 
 @click.command("silac-quantify")

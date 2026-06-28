@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Spectral library CLI commands."""
 
@@ -15,7 +14,10 @@ from bijux_proteomics.interfaces.python_api.spectral_library_commands import (
     run_spectral_library_search_command,
     run_spectrum_similarity_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    SpectralSimilarityMethod,
+    SpectrumSimilarityMode,
+)
 
 
 @click.command("spectrum-similarity")

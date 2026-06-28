@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Spectrum annotation CLI commands."""
 
@@ -16,7 +15,6 @@ from bijux_proteomics.interfaces.python_api.spectrum_annotation import (
     run_spectrum_annotate_command,
     run_spectrum_score_chimeric_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("spectrum-annotate")

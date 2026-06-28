@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Targeted validation and biomarker stability CLI commands."""
 
@@ -16,7 +15,7 @@ from bijux_proteomics.interfaces.python_api.targeted_validation import (
     run_targeted_result_validator_command,
     run_validation_evidence_cards_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.multiplex_targeted import TargetedResultSourceKind
 
 
 @click.command("targeted-result-validator")

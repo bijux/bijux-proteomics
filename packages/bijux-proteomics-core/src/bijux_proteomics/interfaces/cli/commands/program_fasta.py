@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """General program and FASTA CLI commands."""
 
@@ -21,7 +20,14 @@ from bijux_proteomics.interfaces.python_api.program_fasta import (
     run_sequence_checksum_command,
     run_summarize_program,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    DuplicateAccessionPolicy,
+    FastaParseMode,
+)
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _duplicate_accession_policy_choice,
+    _mode_choice,
+)
 
 
 @click.command("program-template")

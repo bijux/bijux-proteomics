@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Protein-matrix and LFQ CLI commands."""
 
@@ -14,7 +13,17 @@ from bijux_proteomics.interfaces.python_api.protein_matrix_lfq import (
     run_protein_lfq_command,
     run_protein_matrix_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification import (
+    PeptideMatrixGroupingMode,
+    ProteinMatrixTargetKind,
+    QuantRollupMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _peptide_matrix_grouping_choice,
+    _peptide_matrix_input_kind_choice,
+    _protein_matrix_target_choice,
+    _quant_rollup_choice,
+)
 
 
 @click.command("protein-matrix")

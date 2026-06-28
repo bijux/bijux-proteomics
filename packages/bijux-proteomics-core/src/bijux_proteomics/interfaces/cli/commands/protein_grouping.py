@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Protein grouping and ambiguity CLI commands."""
 
@@ -15,7 +14,8 @@ from bijux_proteomics.interfaces.python_api.protein_grouping import (
     run_protein_groups_command,
     run_protein_inference_benchmarks_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.identification import ScoreOrientation
+from bijux_proteomics.interfaces.support.sequence_support import _score_orientation_choice
 
 
 @click.command("protein-groups")

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Search import and quant benchmark CLI commands."""
 
@@ -17,7 +16,6 @@ from bijux_proteomics.interfaces.python_api.search_import_quant import (
     run_maxquant_benchmark_command,
     run_maxquant_import_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("comet-import")
