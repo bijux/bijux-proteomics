@@ -26,11 +26,11 @@ from bijux_proteomics.interpretation.protein_set_scoring import (
     build_protein_set_scoring_report,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
     QuantEntityLevel,
     QuantMeasureKind,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 

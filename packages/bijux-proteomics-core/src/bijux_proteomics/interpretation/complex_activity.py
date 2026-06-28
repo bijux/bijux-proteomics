@@ -22,15 +22,17 @@ from bijux_proteomics.interpretation.complex_enrichment import (
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
 )
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
     NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
     _matrix_value_index,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics_foundation import JsonModel
