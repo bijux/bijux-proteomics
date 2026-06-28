@@ -111,3 +111,23 @@ def test_click_command_wrappers_stay_thin() -> None:
                     f"{path.name}:{node.name} does not return {runner_name}(...)"
                 )
     assert not violations, "\n".join(violations)
+
+
+def test_cli_modules_import_owned_support_submodules_directly() -> None:
+    violations: list[str] = []
+    for path in sorted(CLI_ROOT.rglob("*.py")):
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in module.body:
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if node.module == "bijux_proteomics.interfaces.support":
+                violations.append(
+                    f"{path.relative_to(CLI_ROOT)} imports the root support registry"
+                )
+            if node.module == "bijux_proteomics.interfaces.support.workflow" and any(
+                alias.name == "*" for alias in node.names
+            ):
+                violations.append(
+                    f"{path.relative_to(CLI_ROOT)} still uses workflow star imports"
+                )
+    assert not violations, "\n".join(violations)
