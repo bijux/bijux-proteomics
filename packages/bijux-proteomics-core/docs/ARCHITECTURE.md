@@ -65,6 +65,19 @@ runtime-agnostic workflow seams.
   `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
   `workflow` directly instead of reaching through a root support barrel
 
+## Quantification boundaries
+
+- `bijux_proteomics.quantification` is the package-root public facade for
+  reader-facing quantitative workflows and compatibility wrappers
+- `bijux_proteomics.quantification.contracts` is a curated public contract
+  facade, not the preferred internal import target for core source code
+- internal quantitative code should import owner modules such as `design`,
+  `differential`, `input_models`, `label_based`, `matrix_building`,
+  `matrix_models`, `missingness`, `normalization_imputation`,
+  `protein_rollup`, and `study_qc` directly
+- private helpers with underscore-prefixed names belong to their owner modules
+  only and should not be widened through package-root facades
+
 ## Dependency direction
 
 The package is designed as the durable semantic source of truth for progression

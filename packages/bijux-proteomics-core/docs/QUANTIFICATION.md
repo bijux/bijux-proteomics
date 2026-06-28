@@ -68,6 +68,20 @@ Optional metadata used by the quant workflows:
 Batch advisories prefer the explicit `batch` field and fall back to
 `instrument` when no batch column is available.
 
+## Boundary notes
+
+- `bijux_proteomics.quantification` is the reader-facing facade for stable
+  workflows and compatibility wrappers
+- `bijux_proteomics.quantification.contracts` is the curated public contract
+  facade
+- internal core code should import owner modules such as `design`,
+  `differential`, `input_models`, `label_based`, `matrix_building`,
+  `matrix_models`, `missingness`, `normalization_imputation`,
+  `protein_rollup`, and `study_qc` directly instead of routing through the
+  root contracts barrel
+- underscore-prefixed helpers are owner-local implementation details, not
+  public contract surface
+
 ## Python API
 
 ```python

@@ -121,6 +121,17 @@ The interface layer is split on purpose:
   `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
   `workflow` directly
 
+The quantification layer is also split on purpose:
+
+- `bijux_proteomics.quantification` is the reader-facing public facade
+- `bijux_proteomics.quantification.contracts` is a curated public contract
+  facade, not the preferred internal import target for core source code
+- internal quantitative code should import owner modules such as `design`,
+  `differential`, `input_models`, `label_based`, `matrix_building`,
+  `matrix_models`, `missingness`, `normalization_imputation`,
+  `protein_rollup`, and `study_qc` directly
+- underscore-prefixed quantitative helpers stay private to their owner modules
+
 Sequence intake and FASTA operations now live in the same package surface:
 
 ```bash
