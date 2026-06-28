@@ -1,7 +1,7 @@
 VENV_PYTHON ?= python3
 RUFF        ?= $(VENV_PYTHON) -m ruff
 MYPY        ?= $(VENV_PYTHON) -m mypy
-CODESPELL   ?= $(if $(ACT),$(ACT)/codespell,codespell)
+CODESPELL   ?= $(VENV_PYTHON) -m codespell
 PYDOCSTYLE  ?= $(VENV_PYTHON) -m pydocstyle
 RADON       ?= $(VENV_PYTHON) -m radon
 
