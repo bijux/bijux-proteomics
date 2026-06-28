@@ -1,12 +1,42 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """FASTA provenance, decoy, and digestion Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+    hashlib,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    DecoyGenerationMode,
+    DuplicateAccessionPolicy,
+    FastaParseMode,
+    PeptideDigestionMode,
+    build_decoy_generation_manifest,
+    build_decoy_generation_report,
+    build_digest_manifest,
+    build_fasta_provenance_manifest,
+    build_theoretical_digest_bundle,
+    digest_protein_records,
+    export_peptide_protein_table_tsv,
+    export_peptides_fasta,
+    export_peptides_jsonl,
+    export_peptides_parquet,
+    export_peptides_tsv,
+    generate_decoy_records,
+    peptide_export_fingerprint,
+    render_records_fasta,
+    validate_target_decoy_database,
+    write_theoretical_digest_bundle,
+)
+from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.sequence_support import (
+    _load_fasta_report,
+    _resolve_cli_protease_rule,
+    _resolve_cli_theoretical_digest_modifications,
+)
 
 
 def run_fasta_provenance_command(

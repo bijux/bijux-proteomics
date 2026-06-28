@@ -1,13 +1,42 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Interpretation annotation Python API entrypoints."""
 
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.interpretation import (
+    BiologicalContextColumnMapping,
+    BiologicalContextKind,
+    ProteinAnnotationColumnMapping,
+    ProteinReferenceColumnMapping,
+    build_biological_context_mapping_report,
+    build_protein_annotation_mapping_report,
+    parse_biological_context_table,
+    parse_protein_annotation_table,
+    parse_protein_reference_table,
+    render_biological_context_mapping_summary_tsv,
+    render_biological_context_mapping_tsv,
+    render_biological_context_term_tsv,
+    render_protein_annotation_summary_tsv,
+    render_protein_annotation_tsv,
+    render_rejected_biological_context_tsv,
+    render_rejected_protein_annotation_tsv,
+    render_rejected_protein_reference_tsv,
+    render_unmapped_biological_context_tsv,
+    render_unmapped_protein_annotation_tsv,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    parse_fasta_document,
+)
+from bijux_proteomics.interfaces.support.output_protocol import (
+    _emit_json,
+)
 
 
 def run_annotate_proteins_command(

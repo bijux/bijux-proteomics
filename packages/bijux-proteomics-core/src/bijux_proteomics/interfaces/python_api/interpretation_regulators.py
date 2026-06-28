@@ -1,13 +1,67 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Interpretation regulator Python API entrypoints."""
 
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.interpretation import (
+    PathwayMembershipColumnMapping,
+    PpiEdgeColumnMapping,
+    ProteinAnnotationColumnMapping,
+    ProteinReferenceColumnMapping,
+    ProteinReferenceEntry,
+    ProteinSetColumnMapping,
+    RegulatorEvidenceColumnMapping,
+    RegulatorSiteSignalColumnMapping,
+    build_pathway_activity_report,
+    build_ppi_network_module_report,
+    build_protein_annotation_mapping_report,
+    build_regulator_inference_report,
+    parse_pathway_membership_table,
+    parse_ppi_edge_table,
+    parse_protein_annotation_table,
+    parse_protein_reference_table,
+    parse_protein_set_table,
+    parse_regulator_evidence_table,
+    parse_regulator_site_signal_table,
+    render_ppi_isolated_protein_tsv,
+    render_ppi_module_enrichment_tsv,
+    render_ppi_module_tsv,
+    render_ppi_network_edge_tsv,
+    render_ppi_network_module_summary_tsv,
+    render_regulator_inference_summary_tsv,
+    render_regulator_inference_tsv,
+    render_rejected_ppi_edge_tsv,
+    render_rejected_regulator_evidence_tsv,
+    render_rejected_regulator_site_signal_tsv,
+    render_unresolved_regulator_target_tsv,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
+from bijux_proteomics.interfaces.support.ptm_quantification import (
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    apply_benjamini_hochberg,
+    build_differential_abundance_report,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    NormalizedProteinRecord,
+    parse_fasta_document,
+)
+from bijux_proteomics.interfaces.support.output_protocol import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.contrast_resolution import _resolve_cli_contrast
 
 
 def run_regulator_inference_command(

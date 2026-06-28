@@ -1,12 +1,42 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Protein-matrix and LFQ Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.identification import parse_psm_tsv
+from bijux_proteomics.interfaces.support.ptm_quantification import (
+    Ms1FeatureColumnMapping,
+    PeptideMatrixGroupingMode,
+    ProteinMatrixTargetKind,
+    QuantRollupMethod,
+    build_peptide_intensity_matrix_from_features,
+    build_peptide_intensity_matrix_from_psms,
+    build_peptide_profile_inconsistency_report,
+    build_protein_intensity_matrix_from_features,
+    build_protein_intensity_matrix_from_psms,
+    build_protein_lfq_report_from_peptides,
+    parse_ms1_feature_table,
+    render_peptide_profile_inconsistency_tsv,
+    render_protein_intensity_matrix_summary_tsv,
+    render_protein_intensity_matrix_tsv,
+    render_protein_intensity_missingness_tsv,
+    render_protein_lfq_disconnected_components_tsv,
+    render_protein_lfq_matrix_tsv,
+    render_protein_lfq_missingness_tsv,
+    render_protein_lfq_pairwise_ratios_tsv,
+    render_protein_lfq_summary_tsv,
+    render_protein_peptide_contribution_tsv,
+)
+from bijux_proteomics.interfaces.support.output_protocol import (
+    _emit_json,
+    _write_text_output,
+)
+from bijux_proteomics.interfaces.support.sequence_support import _build_psm_mapping
 
 
 def run_protein_matrix_command(

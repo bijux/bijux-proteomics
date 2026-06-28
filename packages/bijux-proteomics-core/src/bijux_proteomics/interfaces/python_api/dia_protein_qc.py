@@ -1,13 +1,45 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """DIA protein-matrix and QC Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    DiaPeptideRollupMethod,
+    DiaProteinMatrixTargetKind,
+    DiaProteinRollupMethod,
+    DiaSharedPeptidePolicy,
+    build_dia_protein_matrix_report,
+    build_diann_library_coverage_report,
+    build_diann_peptide_matrix_report,
+    build_diann_run_qc_report,
+    build_spectronaut_peptide_matrix_report,
+    build_spectronaut_protein_matrix_report,
+    render_dia_library_coverage_condition_tsv,
+    render_dia_library_coverage_observed_outside_peptide_tsv,
+    render_dia_library_coverage_observed_outside_protein_tsv,
+    render_dia_library_coverage_peptide_tsv,
+    render_dia_library_coverage_protein_tsv,
+    render_dia_library_coverage_sample_tsv,
+    render_dia_library_coverage_summary_tsv,
+    render_dia_peptide_quantity_matrix_tsv,
+    render_dia_protein_matrix_summary_tsv,
+    render_dia_protein_quantity_matrix_tsv,
+    render_dia_protein_rollup_evidence_tsv,
+    render_dia_run_qc_correlation_tsv,
+    render_dia_run_qc_intensity_distribution_tsv,
+    render_dia_run_qc_outlier_tsv,
+    render_dia_run_qc_run_table_tsv,
+    render_dia_run_qc_summary_tsv,
+)
+from bijux_proteomics.interfaces.support.output_protocol import (
+    _emit_json,
+    _write_text_output,
+)
 
 
 def run_diann_protein_matrix_command(

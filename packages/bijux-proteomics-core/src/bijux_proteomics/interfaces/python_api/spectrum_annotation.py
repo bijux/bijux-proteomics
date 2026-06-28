@@ -1,12 +1,39 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Spectrum annotation Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.identification import parse_psm_tsv
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    annotate_spectrum_fragments,
+    build_spectrum_peak_match_report,
+    build_spectrum_plot_payload,
+    export_spectrum_peak_match_tsv,
+    export_spectrum_unmatched_peak_tsv,
+    extract_mzml_precursor_isotope_fit,
+    extract_mzml_raw_signal_evidence_cards,
+    parse_mgf,
+    render_chimeric_spectrum_competing_evidence_tsv,
+    render_chimeric_spectrum_spectra_tsv,
+    render_precursor_isotope_fit_entries_tsv,
+    render_precursor_isotope_fit_peaks_tsv,
+    render_precursor_isotope_fit_summary_tsv,
+    render_raw_signal_evidence_card_summary_tsv,
+    render_raw_signal_evidence_card_tsv,
+    render_raw_signal_evidence_cards_html,
+    score_chimeric_spectra_from_psms,
+)
+from bijux_proteomics.interfaces.support.output_protocol import (
+    _emit_json,
+    _write_text_output,
+)
+from bijux_proteomics.interfaces.support.sequence_support import _default_psm_mapping
+from bijux_proteomics.interfaces.support.targeted_selection_io import _load_similarity_spectra
 
 
 def run_spectrum_annotate_command(
