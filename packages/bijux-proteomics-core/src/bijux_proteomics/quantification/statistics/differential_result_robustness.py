@@ -13,22 +13,30 @@ import numpy as np
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialImputationSignificanceChangeReason,
     DifferentialResultRobustnessQcStatus,
     DifferentialResultRobustnessReasonCode,
-    LabelFreeQuantTable,
-    MissingValueKind,
-    QuantEntityLevel,
-    QuantValue,
-    QuantValueOrigin,
-    ReplicateAndBatchQcReport,
     TimeCourseDifferentialEntry,
     TimeCourseDifferentialReport,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    MissingValueKind,
+    QuantEntityLevel,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
     _matrix_value_index,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantValue,
+    QuantValueOrigin,
+)
+from bijux_proteomics.quantification.contracts.study_qc import (
+    ReplicateAndBatchQcReport,
 )
 from bijux_proteomics.quantification.provenance.replicate_qc import (
     build_replicate_and_batch_qc_report,

@@ -16,7 +16,11 @@ import numpy as np
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.design import (
+    QuantDesignContrast,
+    QuantDesignMatrixReport,
+)
+from bijux_proteomics.quantification.contracts.differential import (
     BrokenPairDisposition,
     DifferentialAbundanceAssumptionReport,
     DifferentialAbundanceContrast,
@@ -25,21 +29,27 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
     DifferentialBrokenPairEntry,
     DifferentialReplicatePolicy,
-    ImputationMethod,
-    LabelFreeQuantTable,
-    MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
     PairedDifferentialPolicy,
-    QuantAssessmentDisposition,
-    QuantDesignContrast,
-    QuantDesignMatrixReport,
-    QuantValue,
-    SampleReliabilityWeightReport,
-    _condition_lookup,
     _effect_size_and_uncertainty,
-    _matrix_value_index,
     _student_t_two_sided_p_value,
     _welch_t_test,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    ImputationMethod,
+    MissingValueKind,
+    QuantAssessmentDisposition,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _condition_lookup,
+    _matrix_value_index,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantValue,
+)
+from bijux_proteomics.quantification.contracts.study_qc import (
+    SampleReliabilityWeightReport,
 )
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,

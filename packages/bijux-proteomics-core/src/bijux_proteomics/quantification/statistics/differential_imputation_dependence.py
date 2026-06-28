@@ -10,11 +10,13 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialImputationSignificanceChangeReason,
-    ImputationMethod,
+)
+from bijux_proteomics.quantification.contracts.input_models import ImputationMethod
+from bijux_proteomics.quantification.contracts.matrix_models import (
     LabelFreeQuantTable,
     QuantValueOrigin,
 )

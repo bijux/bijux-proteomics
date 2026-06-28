@@ -14,17 +14,25 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.design import (
+    QuantDesignMatrixReport,
+    build_quant_design_matrix_report,
+)
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
-    LabelFreeQuantTable,
+    MultiConditionDifferentialAbundanceReport,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
     MissingValueKind,
     Ms1FeatureRecord,
-    MultiConditionDifferentialAbundanceReport,
-    QuantDesignMatrixReport,
     QuantEntityLevel,
-    QuantMatrixExport,
-    build_quant_design_matrix_report,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     build_quant_matrix_export,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantMatrixExport,
 )
 from bijux_proteomics_foundation import JsonModel
 

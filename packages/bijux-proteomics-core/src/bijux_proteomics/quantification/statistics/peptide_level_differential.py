@@ -15,10 +15,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    _condition_lookup,
+from bijux_proteomics.quantification.contracts.differential import (
     _student_t_two_sided_p_value,
 )
+from bijux_proteomics.quantification.contracts.matrix_building import _condition_lookup
 from bijux_proteomics.quantification.matrix.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
 )

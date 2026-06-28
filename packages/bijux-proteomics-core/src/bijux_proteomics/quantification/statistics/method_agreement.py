@@ -10,11 +10,11 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
-    QuantRollupMethod,
 )
+from bijux_proteomics.quantification.contracts.input_models import QuantRollupMethod
 from bijux_proteomics_foundation import JsonModel
 
 
