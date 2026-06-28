@@ -24,10 +24,10 @@ from bijux_proteomics.identification.diann_import import (
     DiaNnBundleImportReport,
     build_diann_import_report,
 )
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
-    QuantEntityLevel,
 )
+from bijux_proteomics.quantification.contracts.input_models import QuantEntityLevel
 from bijux_proteomics.quantification.peptide_intensity_matrix import (
     PeptideMatrixGroupingMode,
     build_peptide_intensity_matrix_from_psms,

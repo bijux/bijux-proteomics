@@ -41,14 +41,18 @@ from bijux_proteomics.quantification.benchmarks import (
     build_multiplex_artifact_pressure_benchmark_report,
     build_quant_missingness_robustness_report,
 )
-from bijux_proteomics.quantification.contracts import (
-    LabelBasedChannelPolicyEntry,
+from bijux_proteomics.quantification.contracts.input_models import (
     LabelBasedChannelRole,
-    LabelBasedQuantPolicy,
     MissingChannelPolicy,
-    MissingValueSummaryReport,
     QuantEntityLevel,
     QuantRollupMethod,
+)
+from bijux_proteomics.quantification.contracts.label_based import (
+    LabelBasedChannelPolicyEntry,
+    LabelBasedQuantPolicy,
+)
+from bijux_proteomics.quantification.contracts.missingness import (
+    MissingValueSummaryReport,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import JsonModel

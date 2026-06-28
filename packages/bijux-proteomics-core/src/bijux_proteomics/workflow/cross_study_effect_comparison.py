@@ -15,7 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialResultRobustnessQcStatus,
 )
 from bijux_proteomics.workflow.cross_study_protein_harmonization import (

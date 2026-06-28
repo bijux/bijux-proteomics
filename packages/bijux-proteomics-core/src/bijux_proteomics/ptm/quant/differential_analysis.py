@@ -32,23 +32,33 @@ from bijux_proteomics.ptm.quant.site_quantification import (
     PtmSiteQuantificationReport,
     PtmSiteQuantRow,
 )
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.design import (
+    QuantDesignMatrixReport,
+    QuantDesignModelFitReport,
+)
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
     DifferentialBrokenPairEntry,
     DifferentialImputationSignificanceChangeReason,
-    LabelFreeQuantTable,
-    Ms1FeatureRecord,
-    NormalizationComparisonReport,
-    NormalizationMethod,
     PairedDifferentialPolicy,
-    QuantDesignMatrixReport,
-    QuantDesignModelFitReport,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    Ms1FeatureRecord,
+    NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    QuantValue,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     build_label_free_intensity_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantValue,
+)
+from bijux_proteomics.quantification.contracts.normalization_imputation import (
+    NormalizationComparisonReport,
 )
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,

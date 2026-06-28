@@ -25,7 +25,7 @@ from bijux_proteomics.dia.precursor_matrix import (
     build_spectronaut_precursor_matrix_report,
 )
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.quantification.contracts import MissingValueKind
+from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
 from bijux_proteomics_foundation import JsonModel
 
 

@@ -13,7 +13,7 @@ from statistics import median, stdev
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import MissingValueState, QuantMatrix
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.study_qc import (
     SampleReliabilityQcEntry,
     SampleReliabilityQcStatus,
 )

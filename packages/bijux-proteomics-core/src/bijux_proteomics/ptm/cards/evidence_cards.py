@@ -68,7 +68,7 @@ from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantificationReport,
     PtmSiteQuantRow,
 )
-from bijux_proteomics.quantification.contracts import MissingValueKind
+from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
 from bijux_proteomics.sequences import (
     NormalizedProteinRecord,
     ProteinFunctionalRegionEvidence,

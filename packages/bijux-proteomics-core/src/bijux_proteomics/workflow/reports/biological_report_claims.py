@@ -171,7 +171,9 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     render_differential_abundance_tsv,
 )
-from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
+from bijux_proteomics.quantification.contracts.differential import (
+    DifferentialAbundanceReport,
+)
 from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )

@@ -22,13 +22,15 @@ from bijux_proteomics.ptm.sites.ambiguity_handling import (
     build_ptm_ambiguity_review_report,
     build_ptm_site_group_quantification_report,
 )
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import (
     MissingValueKind,
+    Ms1FeatureRecord,
+    QuantEntityLevel,
+)
+from bijux_proteomics.quantification.contracts.missingness import (
     MissingValueSummaryEntry,
     MissingValueSummaryPolicy,
     MissingValueSummaryReport,
-    Ms1FeatureRecord,
-    QuantEntityLevel,
 )
 from bijux_proteomics_foundation import JsonModel
 

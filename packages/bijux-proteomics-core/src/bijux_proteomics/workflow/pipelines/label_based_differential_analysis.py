@@ -34,27 +34,31 @@ from bijux_proteomics.multiplex import (
     build_tmt_reporter_matrix_report,
     parse_tmt_reporter_table,
 )
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.design import (
+    QuantDesignContrastEstimateEntry,
+    QuantDesignMatrixReport,
+    QuantDesignModelCoefficientEntry,
+    QuantDesignModelFitReport,
+)
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceAssumptionReport,
     DifferentialAbundanceContrast,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
     DifferentialReplicatePolicy,
-    ImputationMethod,
-    MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
-    NormalizationMethod,
-    QuantAssessmentDisposition,
-    QuantDesignContrastEstimateEntry,
-    QuantDesignMatrixReport,
-    QuantDesignModelCoefficientEntry,
-    QuantDesignModelFitReport,
-    QuantEntityLevel,
-    _condition_lookup,
     _effect_size_and_uncertainty,
     _welch_t_test,
 )
+from bijux_proteomics.quantification.contracts.input_models import (
+    ImputationMethod,
+    MissingValueKind,
+    NormalizationMethod,
+    QuantAssessmentDisposition,
+    QuantEntityLevel,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import _condition_lookup
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
 )

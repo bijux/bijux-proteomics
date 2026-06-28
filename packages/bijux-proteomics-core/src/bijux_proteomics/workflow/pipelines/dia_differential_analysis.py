@@ -26,20 +26,28 @@ from bijux_proteomics.dia.protein_matrix import (
     build_spectronaut_protein_matrix_report,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    DifferentialAbundanceReport,
-    LabelFreeQuantTable,
-    MissingValueKind,
-    MultiConditionDifferentialAbundanceReport,
-    NormalizationComparisonReport,
-    NormalizationMethod,
+from bijux_proteomics.quantification.contracts.design import (
     QuantDesignMatrixReport,
     QuantDesignModelFitReport,
+)
+from bijux_proteomics.quantification.contracts.differential import (
+    DifferentialAbundanceReport,
+    MultiConditionDifferentialAbundanceReport,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    MissingValueKind,
+    NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
     QuantValue,
     render_label_free_quant_missingness_matrix_tsv,
+)
+from bijux_proteomics.quantification.contracts.normalization_imputation import (
+    NormalizationComparisonReport,
 )
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,

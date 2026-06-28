@@ -17,7 +17,7 @@ from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
 )
-from bijux_proteomics.quantification.contracts import QuantValue
+from bijux_proteomics.quantification.contracts.matrix_models import QuantValue
 from bijux_proteomics.review import (
     EvidenceGraphFinalResultReport,
     ProteomicsEvidenceContextRef,

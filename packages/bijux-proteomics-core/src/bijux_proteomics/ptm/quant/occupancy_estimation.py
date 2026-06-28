@@ -23,13 +23,13 @@ from bijux_proteomics.ptm.contracts import (
     PtmOccupancyUncertainty,
     PtmSiteEntry,
 )
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
-    Ms1FeatureRecord,
+from bijux_proteomics.quantification.contracts.differential import _welch_t_test
+from bijux_proteomics.quantification.contracts.input_models import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
-    _welch_t_test,
     coerce_label_free_quant_table,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics_foundation import JsonModel
 
 
