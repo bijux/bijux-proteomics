@@ -50,7 +50,6 @@ _APPROVED_ASSEMBLY_HELPERS = {
         "_parse_source_protein_refs",
     },
     "dia_dda_comparison": {"_parse_optional_float"},
-    "label_based_differential_analysis": {"_normalize_input_report"},
 }
 
 

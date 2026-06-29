@@ -117,7 +117,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("workflow/exports/interactive_result_comparison.py", 1002),
     _exception("workflow/pipelines/advanced_tmt.py", 1035),
     _exception("workflow/pipelines/dia_dda_comparison.py", 1245),
-    _exception("workflow/pipelines/label_based_differential_analysis.py", 1308),
     _exception("workflow/pipelines/orchestrator.py", 1089),
     _exception("workflow/pipelines/public_benchmark_runner.py", 1151),
     _exception("workflow/study_result.py", 1451),

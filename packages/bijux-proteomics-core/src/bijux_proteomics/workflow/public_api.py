@@ -160,7 +160,7 @@ PIPELINE_FACADE_OWNERS = (
         rationale="integrated scientific report ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.label_based_differential_analysis",
+        owner_module="bijux_proteomics.workflow.pipelines.label_based_differential",
         rationale="label-based differential workflow ownership",
     ),
     WorkflowFacadeOwner(
@@ -452,7 +452,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="DIA versus DDA comparison ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.label_based_differential_analysis",
+        owner_module="bijux_proteomics.workflow.pipelines.label_based_differential",
         rationale="label-based differential workflow ownership",
     ),
     WorkflowFacadeOwner(

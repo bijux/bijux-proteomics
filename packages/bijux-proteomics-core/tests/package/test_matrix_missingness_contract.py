@@ -33,7 +33,7 @@ MISSINGNESS_COMPANION_OWNERS = {
         "render_dia_differential_matrix_tsv",
         "render_dia_differential_missingness_tsv",
     ),
-    "workflow/pipelines/label_based_differential_analysis.py": (
+    "workflow/pipelines/label_based_differential/rendering.py": (
         "render_label_based_differential_matrix_tsv",
         "render_label_based_differential_missingness_tsv",
     ),
