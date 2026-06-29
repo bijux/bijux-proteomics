@@ -91,7 +91,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("ptm/quant/differential_analysis.py", 1080),
     _exception("quantification/matrix/peptide_intensity_matrix.py", 1042),
     _exception("quantification/provenance/review.py", 1288),
-    _exception("quantification/provenance/sample_exploration.py", 1217),
+    _exception("quantification/provenance/sample_exploration/analysis.py", 1217),
     _exception("review/belief/belief_audit.py", 1007),
     _exception("review/claims/result_queries.py", 1075),
     _exception("review/explanations/result_explanations.py", 1341),
