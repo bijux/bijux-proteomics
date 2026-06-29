@@ -5,11 +5,25 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.qc import support as _support
-from bijux_proteomics.lab.qc.assessment import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc.models import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc.review_artifacts import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc.run_reports import *  # noqa: F401,F403
-from bijux_proteomics.lab.qc.summaries import *  # noqa: F401,F403
+from typing import Any
 
-_stable_sha256 = _support.stable_sha256
+from bijux_proteomics.lab.public_api import (
+    QC_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
+from bijux_proteomics.lab.qc.support import stable_sha256
+
+__all__, _QC_EXPORT_INDEX = build_lazy_export_index(facade_owner_modules(QC_FACADE_OWNERS))
+
+_stable_sha256 = stable_sha256
+
+
+def __getattr__(name: str) -> Any:
+    return load_public_export(__name__, globals(), _QC_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)

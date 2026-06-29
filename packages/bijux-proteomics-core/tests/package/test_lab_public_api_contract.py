@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import lab
+from bijux_proteomics.lab import qc
 from bijux_proteomics.lab.public_api import (
     LAB_ROOT_FACADE_BUDGET,
     LAB_ROOT_FACADE_OWNERS,
@@ -68,3 +69,23 @@ def test_lab_root_facade_init_stays_within_budget() -> None:
     )
 
     assert sum(1 for _ in init_path.open(encoding="utf-8")) <= LAB_ROOT_FACADE_BUDGET.max_init_lines
+
+
+def test_lab_qc_runtime_exports_match_governed_owner_ledger() -> None:
+    expected_exports, _ = build_lazy_export_index(facade_owner_modules(QC_FACADE_OWNERS))
+
+    assert tuple(qc.__all__) == expected_exports
+    assert not hasattr(qc, "AcquisitionType")
+
+
+def test_lab_qc_facade_init_stays_within_budget() -> None:
+    init_path = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "bijux_proteomics"
+        / "lab"
+        / "qc"
+        / "__init__.py"
+    )
+
+    assert sum(1 for _ in init_path.open(encoding="utf-8")) <= QC_FACADE_BUDGET.max_init_lines
