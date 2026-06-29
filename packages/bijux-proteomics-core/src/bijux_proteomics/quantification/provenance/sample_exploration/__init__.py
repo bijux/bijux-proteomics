@@ -6,21 +6,6 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification.provenance.sample_exploration.analysis import (
-    ConditionClusteringReport,
-    SampleClusterEntry,
-    SampleClusterReport,
-    SampleCorrelationEntry,
-    SampleCorrelationReport,
-    SampleDistanceEntry,
-    SampleDistanceReport,
-    SampleExplorationReport,
-    SampleExplorationSummary,
-    SampleOutlierEntry,
-    SampleOutlierReport,
-    SamplePcaEntry,
-    SamplePcaReport,
-    SamplePcaVarianceEntry,
-    SamplePcaVarianceReport,
     build_condition_clustering_report,
     build_sample_cluster_report,
     build_sample_correlation_report,
@@ -44,6 +29,23 @@ from bijux_proteomics.quantification.provenance.sample_exploration.analysis impo
     render_sample_outlier_tsv,
     render_sample_pca_scores_tsv,
     render_sample_pca_variance_tsv,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.models import (
+    ConditionClusteringReport,
+    SampleClusterEntry,
+    SampleClusterReport,
+    SampleCorrelationEntry,
+    SampleCorrelationReport,
+    SampleDistanceEntry,
+    SampleDistanceReport,
+    SampleExplorationReport,
+    SampleExplorationSummary,
+    SampleOutlierEntry,
+    SampleOutlierReport,
+    SamplePcaEntry,
+    SamplePcaReport,
+    SamplePcaVarianceEntry,
+    SamplePcaVarianceReport,
 )
 
 __all__ = [

@@ -7,13 +7,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import csv
-from dataclasses import dataclass
 from io import StringIO
 import math
 from pathlib import Path
 
 import numpy as np
-from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
@@ -21,8 +19,6 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.quantification.contracts.input_models import (
     QuantEntityLevel,
-    QuantMeasureKind,
-    QuantRollupMethod,
 )
 from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
@@ -30,188 +26,25 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
     coerce_label_free_quant_table,
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
-from bijux_proteomics.quantification.contracts.study_qc import (
+from bijux_proteomics.quantification.provenance.sample_exploration.models import (
     ConditionClusteringReport,
+    SampleClusterEntry,
+    SampleClusterReport,
+    SampleClusterState,
+    SampleCorrelationEntry,
+    SampleCorrelationReport,
+    SampleDistanceEntry,
+    SampleDistanceReport,
+    SampleExplorationReport,
+    SampleExplorationSummary,
+    SampleOutlierEntry,
+    SampleOutlierReport,
     SamplePcaEntry,
     SamplePcaReport,
+    SamplePcaVarianceEntry,
+    SamplePcaVarianceReport,
+    SampleSpaceDecomposition,
 )
-from bijux_proteomics_foundation import JsonModel
-
-
-@dataclass(frozen=True)
-class _SampleSpaceDecomposition:
-    sample_ids: tuple[str, ...]
-    feature_count: int
-    condition_by_sample: dict[str, str]
-    batch_by_sample: dict[str, str | None]
-    matrix: np.ndarray
-    centered_matrix: np.ndarray
-    scores: np.ndarray
-    eigenvalues: np.ndarray
-    total_variance: float
-
-
-@dataclass(frozen=True)
-class _SampleClusterState:
-    member_indexes: tuple[int, ...]
-
-
-class SamplePcaVarianceEntry(JsonModel):
-    """Explained-variance payload for one principal component."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    component_index: int = Field(..., ge=1)
-    component_label: str = Field(..., min_length=1)
-    explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
-    cumulative_explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
-
-
-class SamplePcaVarianceReport(JsonModel):
-    """Explained-variance report over one sample PCA decomposition."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    entries: tuple[SamplePcaVarianceEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-class SampleDistanceEntry(JsonModel):
-    """One pairwise sample distance in centered feature space."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    sample_id_a: str = Field(..., min_length=1)
-    sample_id_b: str = Field(..., min_length=1)
-    condition_a: str = Field(..., min_length=1)
-    condition_b: str = Field(..., min_length=1)
-    batch_a: str | None = None
-    batch_b: str | None = None
-    euclidean_distance: float = Field(..., ge=0.0)
-    same_condition: bool
-    same_batch: bool
-
-
-class SampleDistanceReport(JsonModel):
-    """Pairwise sample-distance report over one quantification table."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    sample_count: int = Field(..., ge=0)
-    entries: tuple[SampleDistanceEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-class SampleCorrelationEntry(JsonModel):
-    """One pairwise sample correlation across the filled feature matrix."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    sample_id_a: str = Field(..., min_length=1)
-    sample_id_b: str = Field(..., min_length=1)
-    condition_a: str = Field(..., min_length=1)
-    condition_b: str = Field(..., min_length=1)
-    batch_a: str | None = None
-    batch_b: str | None = None
-    pearson_correlation: float = Field(..., ge=-1.0, le=1.0)
-    same_condition: bool
-    same_batch: bool
-
-
-class SampleCorrelationReport(JsonModel):
-    """Pairwise sample-correlation report over one quantification table."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    sample_count: int = Field(..., ge=0)
-    entries: tuple[SampleCorrelationEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-class SampleClusterEntry(JsonModel):
-    """One average-linkage merge row in a deterministic sample cluster table."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    merge_order: int = Field(..., ge=1)
-    member_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    left_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    right_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    member_conditions: tuple[str, ...] = Field(default_factory=tuple)
-    member_batches: tuple[str, ...] = Field(default_factory=tuple)
-    member_count: int = Field(..., ge=2)
-    average_linkage_distance: float = Field(..., ge=0.0)
-
-
-class SampleClusterReport(JsonModel):
-    """Deterministic average-linkage cluster table over study samples."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    sample_count: int = Field(..., ge=0)
-    entries: tuple[SampleClusterEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-class SampleOutlierEntry(JsonModel):
-    """One outlier sample with the metric labels that triggered it."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    sample_id: str = Field(..., min_length=1)
-    condition: str = Field(..., min_length=1)
-    batch: str | None = None
-    outlier_reasons: tuple[str, ...] = Field(default_factory=tuple)
-    distance_from_global_centroid: float = Field(..., ge=0.0)
-    distance_from_condition_centroid: float = Field(..., ge=0.0)
-
-
-class SampleOutlierReport(JsonModel):
-    """Explicit outlier ledger over the sample exploration space."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    entries: tuple[SampleOutlierEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-class SampleExplorationSummary(JsonModel):
-    """Compact study-space summary for one sample exploration run."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_level: QuantEntityLevel
-    measure_kind: QuantMeasureKind
-    aggregation_method: QuantRollupMethod
-    normalization_method: str = Field(..., min_length=1)
-    sample_count: int = Field(..., ge=0)
-    feature_count: int = Field(..., ge=0)
-    pairwise_correlation_count: int = Field(..., ge=0)
-    pairwise_distance_count: int = Field(..., ge=0)
-    cluster_merge_count: int = Field(..., ge=0)
-    outlier_sample_count: int = Field(..., ge=0)
-    clustered_by_condition: bool
-
-
-class SampleExplorationReport(JsonModel):
-    """Integrated sample-level exploratory analysis over one quant table."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    summary: SampleExplorationSummary
-    sample_pca_report: SamplePcaReport
-    explained_variance_report: SamplePcaVarianceReport
-    condition_clustering_report: ConditionClusteringReport
-    sample_correlation_report: SampleCorrelationReport
-    sample_distance_report: SampleDistanceReport
-    sample_cluster_report: SampleClusterReport
-    sample_outlier_report: SampleOutlierReport
-    note: str = Field(..., min_length=1)
 
 
 def build_sample_pca_report(
@@ -587,7 +420,7 @@ def build_sample_cluster_report(
         )
     distance_matrix = _pairwise_distance_matrix(decomposition.centered_matrix)
     active_clusters = [
-        _SampleClusterState(member_indexes=(index,))
+        SampleClusterState(member_indexes=(index,))
         for index in range(len(decomposition.sample_ids))
     ]
     entries: list[SampleClusterEntry] = []
@@ -683,11 +516,11 @@ def build_sample_cluster_report(
             )
         )
         merge_order += 1
-        next_clusters: list[_SampleClusterState] = []
+        next_clusters: list[SampleClusterState] = []
         for index, cluster in enumerate(active_clusters):
             if index not in best_pair:
                 next_clusters.append(cluster)
-        next_clusters.append(_SampleClusterState(member_indexes=merged_indexes))
+        next_clusters.append(SampleClusterState(member_indexes=merged_indexes))
         active_clusters = sorted(
             next_clusters,
             key=lambda cluster: _cluster_member_key(
@@ -1102,7 +935,7 @@ def distance_outlier_threshold(distances: np.ndarray) -> float:
 def _build_sample_space_decomposition(
     table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
-) -> _SampleSpaceDecomposition:
+) -> SampleSpaceDecomposition:
     table = coerce_label_free_quant_table(table)
     matrix = build_sample_feature_matrix(table)
     centered = matrix - np.mean(matrix, axis=0, keepdims=True)
@@ -1123,7 +956,7 @@ def _build_sample_space_decomposition(
             )
             if nonzero is not None and nonzero < 0.0:
                 scores[:, component] *= -1.0
-    return _SampleSpaceDecomposition(
+    return SampleSpaceDecomposition(
         sample_ids=table.sample_ids,
         feature_count=feature_count,
         condition_by_sample=_condition_lookup(design_entries),
@@ -1180,21 +1013,6 @@ def _cluster_member_key(
 
 
 __all__ = [
-    "ConditionClusteringReport",
-    "SampleClusterEntry",
-    "SampleClusterReport",
-    "SampleCorrelationEntry",
-    "SampleCorrelationReport",
-    "SampleDistanceEntry",
-    "SampleDistanceReport",
-    "SampleExplorationReport",
-    "SampleExplorationSummary",
-    "SampleOutlierEntry",
-    "SampleOutlierReport",
-    "SamplePcaEntry",
-    "SamplePcaReport",
-    "SamplePcaVarianceEntry",
-    "SamplePcaVarianceReport",
     "build_condition_clustering_report",
     "build_sample_cluster_report",
     "build_sample_correlation_report",
