@@ -53,7 +53,6 @@ from bijux_proteomics.quantification.contracts.study_qc import (
 )
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,
-    missing_value_kind_to_code,
 )
 from bijux_proteomics.quantification.matrix.design_matrix import (
     build_quant_design_matrix_report,
@@ -61,6 +60,16 @@ from bijux_proteomics.quantification.matrix.design_matrix import (
 from bijux_proteomics.quantification.statistics.differential_imputation_dependence import (
     annotate_differential_abundance_report_imputation_dependence,
     build_no_impute_reference_table,
+)
+from bijux_proteomics.quantification.statistics.differential_abundance.design_context import (
+    require_differential_table_sample_ids,
+    resolve_design_contrast,
+    resolve_design_pairs,
+    sample_ids_for_condition,
+)
+from bijux_proteomics.quantification.statistics.differential_abundance.observation_vectors import (
+    collect_condition_values,
+    collect_condition_values_vectorized,
 )
 from bijux_proteomics.quantification.statistics.differential_result_robustness import (
     annotate_differential_abundance_report_robustness,
@@ -102,7 +111,7 @@ def build_differential_abundance_report(
         design_entries,
         policy=sample_run_policy,
     )
-    _require_table_sample_ids(
+    require_differential_table_sample_ids(
         table,
         design_entries=analysis_design_entries,
         sample_run_policy=sample_run_policy,
@@ -160,8 +169,8 @@ def build_differential_abundance_report(
             ) from error
         raise
 
-    samples_a = _sample_ids_for_condition(condition_by_sample, condition_a)
-    samples_b = _sample_ids_for_condition(condition_by_sample, condition_b)
+    samples_a = sample_ids_for_condition(condition_by_sample, condition_a)
+    samples_b = sample_ids_for_condition(condition_by_sample, condition_b)
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
     effective_units_by_condition = count_effective_statistical_units_by_condition(
@@ -198,7 +207,7 @@ def build_differential_abundance_report(
             active_design_matrix = design_matrix or build_quant_design_matrix_report(
                 analysis_design_entries
             )
-        selected_contrast = _resolve_design_contrast(
+        selected_contrast = resolve_design_contrast(
             active_design_matrix,
             condition_a=condition_a,
             condition_b=condition_b,
@@ -212,7 +221,7 @@ def build_differential_abundance_report(
             raise RuntimeError(
                 "paired differential abundance requires a design matrix and paired policy"
             )
-        complete_design_pairs, broken_pairs = _resolve_design_pairs(
+        complete_design_pairs, broken_pairs = resolve_design_pairs(
             active_design_matrix,
             condition_a=condition_a,
             condition_b=condition_b,
@@ -252,13 +261,13 @@ def build_differential_abundance_report(
     entries: list[DifferentialAbundanceEntry] = []
     for entity_id in table.entity_ids:
         row_index = dense_view.entity_index[entity_id]
-        values_a, weights_a, counts_a = _collect_condition_values_vectorized(
+        values_a, weights_a, counts_a = collect_condition_values_vectorized(
             dense_view.log2_abundance_matrix[row_index],
             dense_view.missing_kind_codes[row_index],
             sample_indexes_a,
             sample_weight_vector=sample_weight_vector,
         )
-        values_b, weights_b, counts_b = _collect_condition_values_vectorized(
+        values_b, weights_b, counts_b = collect_condition_values_vectorized(
             dense_view.log2_abundance_matrix[row_index],
             dense_view.missing_kind_codes[row_index],
             sample_indexes_b,
@@ -526,7 +535,7 @@ def build_multi_condition_differential_abundance_report(
         design_entries,
         policy=sample_run_policy,
     )
-    _require_table_sample_ids(
+    require_differential_table_sample_ids(
         table,
         design_entries=analysis_design_entries,
         sample_run_policy=sample_run_policy,
@@ -576,7 +585,7 @@ def build_multi_condition_differential_abundance_report(
             )
         contrast_name = None
         if active_design_matrix is not None:
-            contrast_name = _resolve_design_contrast(
+            contrast_name = resolve_design_contrast(
                 active_design_matrix,
                 condition_a=condition_a,
                 condition_b=condition_b,
@@ -614,30 +623,6 @@ def build_multi_condition_differential_abundance_report(
         note=(
             "pairwise differential abundance preserves one benjamini-hochberg-corrected report per selected condition contrast"
         ),
-    )
-
-
-def _require_table_sample_ids(
-    table: LabelFreeQuantTable,
-    *,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
-    sample_run_policy: SampleRunAnalysisPolicy,
-) -> None:
-    missing_sample_ids = tuple(
-        sorted(
-            {
-                entry.sample_id
-                for entry in design_entries
-                if entry.sample_id not in table.sample_ids
-            }
-        )
-    )
-    if not missing_sample_ids:
-        return
-    raise ValueError(
-        "quantification table sample ids do not cover the resolved analysis design "
-        f"for sample/run policy {sample_run_policy.value!r}; missing sample ids: "
-        + ", ".join(missing_sample_ids)
     )
 
 
@@ -713,192 +698,8 @@ def export_multi_condition_differential_abundance_tsv(
     )
 
 
-def _sample_ids_for_condition(
-    condition_by_sample: dict[str, str],
-    condition: str,
-) -> tuple[str, ...]:
-    return tuple(
-        sample_id
-        for sample_id, sample_condition in condition_by_sample.items()
-        if sample_condition == condition
-    )
-
-
-def _collect_condition_values(
-    lookup: Mapping[tuple[str, str], QuantValue],
-    entity_id: str,
-    sample_ids: tuple[str, ...],
-    *,
-    sample_weights: dict[str, float] | None = None,
-) -> tuple[np.ndarray, np.ndarray, dict[MissingValueKind, int]]:
-    values: list[float] = []
-    weights: list[float] = []
-    counts = {
-        MissingValueKind.ZERO: 0,
-        MissingValueKind.NOT_OBSERVED: 0,
-        MissingValueKind.FILTERED: 0,
-    }
-    for sample_id in sample_ids:
-        cell = lookup.get((entity_id, sample_id))
-        if cell is None:
-            counts[MissingValueKind.NOT_OBSERVED] += 1
-            continue
-        if cell.missing_value_kind is MissingValueKind.ZERO:
-            counts[MissingValueKind.ZERO] += 1
-        elif cell.missing_value_kind is MissingValueKind.NOT_OBSERVED:
-            counts[MissingValueKind.NOT_OBSERVED] += 1
-        elif cell.missing_value_kind is MissingValueKind.FILTERED:
-            counts[MissingValueKind.FILTERED] += 1
-        if cell.abundance is not None:
-            values.append(math.log2(cell.abundance + 1.0))
-            weights.append(
-                1.0
-                if sample_weights is None
-                else float(sample_weights.get(sample_id, 1.0))
-            )
-    return np.array(values, dtype=float), np.array(weights, dtype=float), counts
-
-
-def _collect_condition_values_vectorized(
-    entity_log2_abundance: np.ndarray,
-    entity_missing_kind_codes: np.ndarray,
-    sample_indexes: np.ndarray,
-    *,
-    sample_weight_vector: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, dict[MissingValueKind, int]]:
-    selected_log2_abundance = entity_log2_abundance[sample_indexes]
-    selected_missing_kind_codes = entity_missing_kind_codes[sample_indexes]
-    finite_mask = np.isfinite(selected_log2_abundance)
-    counts = {
-        MissingValueKind.ZERO: int(
-            np.sum(
-                selected_missing_kind_codes
-                == missing_value_kind_to_code(MissingValueKind.ZERO)
-            )
-        ),
-        MissingValueKind.NOT_OBSERVED: int(
-            np.sum(
-                selected_missing_kind_codes
-                == missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
-            )
-        ),
-        MissingValueKind.FILTERED: int(
-            np.sum(
-                selected_missing_kind_codes
-                == missing_value_kind_to_code(MissingValueKind.FILTERED)
-            )
-        ),
-    }
-    return (
-        selected_log2_abundance[finite_mask],
-        sample_weight_vector[sample_indexes][finite_mask],
-        counts,
-    )
-
-
-def _resolve_design_contrast(
-    design_matrix: QuantDesignMatrixReport,
-    *,
-    condition_a: str,
-    condition_b: str,
-    contrast_name: str | None = None,
-) -> QuantDesignContrast:
-    if contrast_name is not None:
-        for contrast in design_matrix.contrasts:
-            if contrast.contrast_name == contrast_name:
-                if (
-                    contrast.condition_a != condition_a
-                    or contrast.condition_b != condition_b
-                ):
-                    raise ValueError(
-                        "design contrast does not match the requested differential conditions"
-                    )
-                return contrast
-        raise ValueError(f"unknown design contrast {contrast_name!r}")
-    for contrast in design_matrix.contrasts:
-        if contrast.condition_a == condition_a and contrast.condition_b == condition_b:
-            return contrast
-    raise ValueError("design matrix does not preserve the requested condition contrast")
-
-
-def _resolve_design_pairs(
-    design_matrix: QuantDesignMatrixReport,
-    *,
-    condition_a: str,
-    condition_b: str,
-    paired_policy: PairedDifferentialPolicy,
-) -> tuple[tuple[tuple[str, str, str], ...], tuple[DifferentialBrokenPairEntry, ...]]:
-    rows_by_pair_id: dict[str, dict[str, list[str]]] = {}
-    broken_pairs: list[DifferentialBrokenPairEntry] = []
-    for row in design_matrix.rows:
-        if row.condition not in {condition_a, condition_b}:
-            continue
-        if row.pair_id in (None, ""):
-            broken_pairs.append(
-                DifferentialBrokenPairEntry(
-                    condition_a=condition_a,
-                    condition_b=condition_b,
-                    pair_id=None,
-                    sample_ids_a=(row.sample_id,)
-                    if row.condition == condition_a
-                    else (),
-                    sample_ids_b=(row.sample_id,)
-                    if row.condition == condition_b
-                    else (),
-                    reason_code="missing_pair_id",
-                    detail=(
-                        f"sample {row.sample_id} in condition {row.condition} is missing "
-                        f"{paired_policy.pair_id_field}"
-                    ),
-                )
-            )
-            continue
-        pair_id = row.pair_id
-        if pair_id is None:
-            raise RuntimeError("paired differential rows must resolve pair ids")
-        by_condition = rows_by_pair_id.setdefault(
-            pair_id,
-            {condition_a: [], condition_b: []},
-        )
-        by_condition[row.condition].append(row.sample_id)
-    complete_pairs: list[tuple[str, str, str]] = []
-    for pair_id, grouped in rows_by_pair_id.items():
-        sample_ids_a = tuple(sorted(grouped[condition_a]))
-        sample_ids_b = tuple(sorted(grouped[condition_b]))
-        if len(sample_ids_a) != 1 or len(sample_ids_b) != 1:
-            if not sample_ids_a or not sample_ids_b:
-                reason_code = "unmatched_pair"
-                detail = (
-                    f"pair {pair_id} does not contain exactly one sample in each "
-                    f"of {condition_a} and {condition_b}"
-                )
-            else:
-                reason_code = "duplicated_pair_members"
-                detail = f"pair {pair_id} contains duplicated samples within at least one condition"
-            broken_pairs.append(
-                DifferentialBrokenPairEntry(
-                    condition_a=condition_a,
-                    condition_b=condition_b,
-                    pair_id=pair_id,
-                    sample_ids_a=sample_ids_a,
-                    sample_ids_b=sample_ids_b,
-                    reason_code=reason_code,
-                    detail=detail,
-                )
-            )
-            continue
-        complete_pairs.append((pair_id, sample_ids_a[0], sample_ids_b[0]))
-    return tuple(sorted(complete_pairs)), tuple(
-        sorted(
-            broken_pairs,
-            key=lambda entry: (
-                entry.pair_id or "",
-                entry.reason_code,
-                entry.sample_ids_a,
-                entry.sample_ids_b,
-            ),
-        )
-    )
+_collect_condition_values = collect_condition_values
+_collect_condition_values_vectorized = collect_condition_values_vectorized
 
 
 def _linear_model_contrast_statistics(
@@ -1539,3 +1340,16 @@ def _render_differential_rows(
                 ]
             )
     return buffer.getvalue()
+
+
+__all__ = [
+    "apply_benjamini_hochberg",
+    "build_differential_abundance_report",
+    "build_multi_condition_differential_abundance_report",
+    "export_differential_abundance_tsv",
+    "export_differential_broken_pairs_tsv",
+    "export_multi_condition_differential_abundance_tsv",
+    "render_differential_abundance_tsv",
+    "render_differential_broken_pairs_tsv",
+    "render_multi_condition_differential_abundance_tsv",
+]
