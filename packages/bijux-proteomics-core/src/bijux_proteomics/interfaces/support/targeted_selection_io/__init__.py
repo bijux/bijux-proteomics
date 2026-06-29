@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TypedDict, cast
 
-from .imports import *  # noqa: F401,F403
+from ..imports import *  # noqa: F401,F403
 
 
 class _SelectedTransitionAssayPayload(TypedDict):

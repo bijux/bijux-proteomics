@@ -77,7 +77,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("interfaces/support/biomarker_candidate_support.py", 1612),
     _exception("interfaces/support/output_protocol.py", 1247),
     _exception("interfaces/support/sequence_support.py", 1456),
-    _exception("interfaces/support/targeted_selection_io.py", 1619),
+    _exception("interfaces/support/targeted_selection_io/__init__.py", 1619),
     _exception("io/formats/proteomics_formats.py", 1105),
     _exception("io/raw/raw_signal_evidence_cards.py", 1128),
     _exception("io/spectra/spectrum_contracts.py", 2095),
